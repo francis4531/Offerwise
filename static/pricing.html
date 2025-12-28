@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pricing - OfferWise</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 60px 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 60px;
+        }
+        .header h1 {
+            font-size: 48px;
+            font-weight: 800;
+            margin-bottom: 16px;
+        }
+        .header p {
+            font-size: 20px;
+            opacity: 0.9;
+        }
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        .pricing-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            position: relative;
+            transition: transform 0.3s;
+        }
+        .pricing-card:hover {
+            transform: translateY(-10px);
+        }
+        .pricing-card.popular {
+            border: 3px solid #fbbf24;
+        }
+        .popular-badge {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+        .tier-name {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: #111827;
+        }
+        .tier-price {
+            font-size: 48px;
+            font-weight: 800;
+            color: #111827;
+            margin-bottom: 4px;
+        }
+        .tier-price span {
+            font-size: 18px;
+            color: #6b7280;
+            font-weight: 400;
+        }
+        .tier-description {
+            color: #6b7280;
+            margin-bottom: 24px;
+            font-size: 14px;
+        }
+        .tier-features {
+            list-style: none;
+            margin-bottom: 32px;
+        }
+        .tier-features li {
+            padding: 12px 0;
+            color: #374151;
+            font-size: 15px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+        .tier-features li::before {
+            content: '✓';
+            color: #10b981;
+            font-weight: 700;
+            font-size: 18px;
+        }
+        .tier-cta {
+            width: 100%;
+            padding: 16px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s;
+        }
+        .tier-cta.primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .tier-cta.secondary {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+        .tier-cta:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        .back-link {
+            text-align: center;
+            margin-top: 40px;
+        }
+        .back-link a {
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Choose Your Plan</h1>
+            <p>Start free, upgrade anytime</p>
+        </div>
+        
+        <div class="pricing-grid">
+            <!-- Free Tier -->
+            <div class="pricing-card">
+                <div class="tier-name">Free</div>
+                <div class="tier-price">$0<span>/month</span></div>
+                <div class="tier-description">Perfect to get started</div>
+                <ul class="tier-features">
+                    <li>3 property analyses per month</li>
+                    <li>Basic risk assessment</li>
+                    <li>50MB file storage</li>
+                    <li>Email support</li>
+                </ul>
+                <button class="tier-cta secondary" onclick="selectTier('free')">Current Plan</button>
+            </div>
+            
+            <!-- Starter Tier -->
+            <div class="pricing-card">
+                <div class="tier-name">Starter</div>
+                <div class="tier-price">$29<span>/month</span></div>
+                <div class="tier-description">For active buyers</div>
+                <ul class="tier-features">
+                    <li>10 property analyses per month</li>
+                    <li>Advanced risk assessment</li>
+                    <li>200MB file storage</li>
+                    <li>Priority email support</li>
+                    <li>Export to PDF</li>
+                </ul>
+                <button class="tier-cta primary" onclick="selectTier('starter')">Get Started</button>
+            </div>
+            
+            <!-- Professional Tier -->
+            <div class="pricing-card popular">
+                <div class="popular-badge">MOST POPULAR</div>
+                <div class="tier-name">Professional</div>
+                <div class="tier-price">$99<span>/month</span></div>
+                <div class="tier-description">For real estate professionals</div>
+                <ul class="tier-features">
+                    <li>50 property analyses per month</li>
+                    <li>Premium risk assessment</li>
+                    <li>1GB file storage</li>
+                    <li>Priority support</li>
+                    <li>API access</li>
+                    <li>Team collaboration</li>
+                    <li>Custom reports</li>
+                </ul>
+                <button class="tier-cta primary" onclick="selectTier('professional')">Go Pro</button>
+            </div>
+            
+            <!-- Enterprise Tier -->
+            <div class="pricing-card">
+                <div class="tier-name">Enterprise</div>
+                <div class="tier-price">$299<span>/month</span></div>
+                <div class="tier-description">For large teams & agencies</div>
+                <ul class="tier-features">
+                    <li><strong>Unlimited</strong> property analyses</li>
+                    <li>Premium risk assessment</li>
+                    <li><strong>Unlimited</strong> file storage</li>
+                    <li>24/7 phone support</li>
+                    <li>API access</li>
+                    <li>White-label options</li>
+                    <li>Custom integrations</li>
+                    <li>Dedicated account manager</li>
+                </ul>
+                <button class="tier-cta primary" onclick="selectTier('enterprise')">Contact Sales</button>
+            </div>
+        </div>
+        
+        <div class="back-link">
+            <a href="/dashboard">← Back to Dashboard</a>
+        </div>
+    </div>
+    
+    <script>
+        function selectTier(tier) {
+            if (tier === 'free') {
+                alert('You are already on the Free plan!');
+                return;
+            }
+            
+            // For now, just show an alert
+            // In production, this would integrate with Stripe
+            alert(`Upgrading to ${tier} plan - Payment integration coming soon!`);
+            
+            // In production:
+            // window.location.href = `/subscribe/${tier}`;
+        }
+    </script>
+</body>
+</html>

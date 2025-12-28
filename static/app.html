@@ -1,0 +1,1088 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OfferWise - Property Analysis</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body>
+    <div id="root"></div>
+    
+    <script type="text/babel">
+        const { useState } = React;
+        
+        const OfferWise = () => {
+          const [currentStep, setCurrentStep] = useState('property');
+          const [propertyData, setPropertyData] = useState({});
+          const [buyerProfile, setBuyerProfile] = useState({});
+          const [result, setResult] = useState(null);
+          const [loading, setLoading] = useState(false);
+          const [error, setError] = useState('');
+          
+          // Property Step
+          const PropertyStep = () => {
+            const [address, setAddress] = useState('');
+            const [price, setPrice] = useState('');
+            
+            return (
+              <div style={styles.container}>
+                <h1 style={styles.title}>OfferWise</h1>
+                <h2 style={styles.subtitle}>Property Details</h2>
+                
+                <input
+                  type="text"
+                  placeholder="Property Address"
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
+                  style={styles.input}
+                />
+                
+                <input
+                  type="text"
+                  placeholder="Price (e.g., 1480000)"
+                  value={price}
+                  onChange={(e) => setPrice(e.target.value)}
+                  style={styles.input}
+                />
+                
+                <button
+                  onClick={() => {
+                    const cleanPrice = parseInt(price.replace(/[^0-9]/g, ''));
+                    if (isNaN(cleanPrice) || cleanPrice <= 0) {
+                      alert('Please enter a valid price (numbers only)');
+                      return;
+                    }
+                    setPropertyData({ address, price: cleanPrice });
+                    setCurrentStep('documents');
+                  }}
+                  disabled={!address || !price}
+                  style={styles.button}
+                >
+                  Continue →
+                </button>
+              </div>
+            );
+          };
+          
+          // Document Upload Step
+          const DocumentStep = () => {
+            const [disclosureText, setDisclosureText] = useState('');
+            const [inspectionText, setInspectionText] = useState('');
+            const [uploading, setUploading] = useState(false);
+            
+            const handleFileUpload = async (file, type) => {
+              setUploading(true);
+              setError('');
+              
+              try {
+                // Check file size (4.5MB limit for Vercel free tier)
+                const maxSize = 4.5 * 1024 * 1024;
+                if (file.size > maxSize) {
+                  throw new Error('File too large. Maximum 4.5MB (upgrade to Pro for 50MB limit)');
+                }
+                
+                const base64 = await new Promise((resolve, reject) => {
+                  const reader = new FileReader();
+                  reader.onload = () => resolve(reader.result);
+                  reader.onerror = reject;
+                  reader.readAsDataURL(file);
+                });
+                
+                const response = await fetch('/api/upload-pdf', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ pdf_base64: base64 })
+                });
+                
+                if (!response.ok) {
+                  const error = await response.json();
+                  throw new Error(error.error || 'Upload failed');
+                }
+                
+                const data = await response.json();
+                
+                if (type === 'disclosure') {
+                  setDisclosureText(data.text);
+                  alert(`✓ Disclosure uploaded (${data.page_count} pages)`);
+                } else {
+                  setInspectionText(data.text);
+                  alert(`✓ Inspection uploaded (${data.page_count} pages)`);
+                }
+                
+              } catch (err) {
+                setError(`Upload failed: ${err.message}`);
+              } finally {
+                setUploading(false);
+              }
+            };
+            
+            return (
+              <div style={styles.container}>
+                <button onClick={() => setCurrentStep('property')} style={styles.backButton}>
+                  ← Back
+                </button>
+                
+                <h2 style={styles.subtitle}>Upload Documents</h2>
+                
+                {error && <div style={styles.error}>{error}</div>}
+                
+                <div style={styles.uploadSection}>
+                  <label style={styles.label}>Seller Disclosure (Required)</label>
+                  <input
+                    type="file"
+                    accept=".pdf"
+                    onChange={(e) => {
+                      if (e.target.files && e.target.files[0]) {
+                        handleFileUpload(e.target.files[0], 'disclosure');
+                      }
+                    }}
+                    disabled={uploading}
+                    style={styles.fileInput}
+                  />
+                  {disclosureText && <div style={styles.success}>✓ Uploaded</div>}
+                </div>
+                
+                <div style={styles.uploadSection}>
+                  <label style={styles.label}>Inspection Report (Optional)</label>
+                  <input
+                    type="file"
+                    accept=".pdf"
+                    onChange={(e) => {
+                      if (e.target.files && e.target.files[0]) {
+                        handleFileUpload(e.target.files[0], 'inspection');
+                      }
+                    }}
+                    disabled={uploading}
+                    style={styles.fileInput}
+                  />
+                  {inspectionText && <div style={styles.success}>✓ Uploaded</div>}
+                </div>
+                
+                {uploading && <div style={styles.loading}>Uploading...</div>}
+                
+                <button
+                  onClick={() => {
+                    setPropertyData({...propertyData, disclosureText, inspectionText});
+                    setCurrentStep('profile');
+                  }}
+                  disabled={!disclosureText || uploading}
+                  style={styles.button}
+                >
+                  Continue →
+                </button>
+              </div>
+            );
+          };
+          
+          // Buyer Profile Step
+          const ProfileStep = () => {
+            const [profile, setProfile] = useState({
+              max_budget: '',
+              repair_tolerance: 'moderate',
+              biggest_regret: 'hidden_issues'
+            });
+            
+            return (
+              <div style={styles.container}>
+                <button onClick={() => setCurrentStep('documents')} style={styles.backButton}>
+                  ← Back
+                </button>
+                
+                <h2 style={styles.subtitle}>Buyer Profile</h2>
+                
+                <label style={styles.label}>Maximum Budget</label>
+                <input
+                  type="text"
+                  placeholder="1500000"
+                  value={profile.max_budget}
+                  onChange={(e) => setProfile({...profile, max_budget: e.target.value})}
+                  style={styles.input}
+                />
+                
+                <label style={styles.label}>Repair Tolerance</label>
+                <select
+                  value={profile.repair_tolerance}
+                  onChange={(e) => setProfile({...profile, repair_tolerance: e.target.value})}
+                  style={styles.input}
+                >
+                  <option value="low">Low</option>
+                  <option value="moderate">Moderate</option>
+                  <option value="high">High</option>
+                </select>
+                
+                <label style={styles.label}>Biggest Fear</label>
+                <select
+                  value={profile.biggest_regret}
+                  onChange={(e) => setProfile({...profile, biggest_regret: e.target.value})}
+                  style={styles.input}
+                >
+                  <option value="overpay">Overpaying</option>
+                  <option value="lose_house">Losing the house</option>
+                  <option value="hidden_issues">Hidden issues</option>
+                </select>
+                
+                <button
+                  onClick={() => {
+                    setBuyerProfile(profile);
+                    setCurrentStep('analyze');
+                  }}
+                  disabled={!profile.max_budget}
+                  style={styles.button}
+                >
+                  Continue →
+                </button>
+              </div>
+            );
+          };
+          
+          // Analysis Step
+          const AnalyzeStep = () => {
+            const handleAnalyze = async () => {
+              setLoading(true);
+              setError('');
+              
+              try {
+                console.log('Starting analysis...');
+                console.log('Property data:', propertyData);
+                console.log('Buyer profile:', buyerProfile);
+                
+                const requestBody = {
+                  seller_disclosure_text: propertyData.disclosureText,
+                  inspection_report_text: propertyData.inspectionText || '',
+                  property_price: propertyData.price,
+                  property_address: propertyData.address,
+                  buyer_profile: {
+                    max_budget: parseInt(buyerProfile.max_budget.replace(/[^0-9]/g, '')),
+                    repair_tolerance: buyerProfile.repair_tolerance,
+                    biggest_regret: buyerProfile.biggest_regret
+                  }
+                };
+                
+                console.log('Sending request:', requestBody);
+                
+                const response = await fetch('/api/analyze', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify(requestBody)
+                });
+                
+                console.log('Response status:', response.status);
+                console.log('Response headers:', [...response.headers.entries()]);
+                
+                if (!response.ok) {
+                  const errorText = await response.text();
+                  console.error('Error response:', errorText);
+                  try {
+                    const errorJson = JSON.parse(errorText);
+                    throw new Error(errorJson.error || 'Analysis failed');
+                  } catch (e) {
+                    throw new Error(`Analysis failed: ${response.status} - ${errorText}`);
+                  }
+                }
+                
+                const data = await response.json();
+                console.log('Analysis complete! Result:', data);
+                console.log('Setting result and moving to results step...');
+                
+                setResult(data);
+                setCurrentStep('results');
+                
+                console.log('State updated, should show results now');
+                
+              } catch (err) {
+                console.error('Analysis error:', err);
+                setError(`Analysis failed: ${err.message}`);
+              } finally {
+                setLoading(false);
+              }
+            };
+            
+            return (
+              <div style={styles.container}>
+                <button onClick={() => setCurrentStep('profile')} style={styles.backButton}>
+                  ← Back
+                </button>
+                
+                <h2 style={styles.subtitle}>Generate Analysis</h2>
+                
+                {error && <div style={styles.error}>{error}</div>}
+                
+                <div style={styles.summary}>
+                  <p><strong>Property:</strong> {propertyData.address}</p>
+                  <p><strong>Price:</strong> ${propertyData.price?.toLocaleString()}</p>
+                  <p><strong>Documents:</strong> {propertyData.inspectionText ? 'Disclosure + Inspection' : 'Disclosure only'}</p>
+                </div>
+                
+                <button
+                  onClick={handleAnalyze}
+                  disabled={loading}
+                  style={styles.button}
+                >
+                  {loading ? 'Analyzing (10-30s)...' : 'Generate Analysis'}
+                </button>
+              </div>
+            );
+          };
+          
+          // Results Step - Hybrid Design (Concept 2 + 4)
+          const ResultsStep = () => {
+            console.log('ResultsStep rendering, result:', result);
+            
+            if (!result) {
+              return (
+                <div style={styles.container}>
+                  <h2>Error: No Results</h2>
+                  <p>No analysis results available.</p>
+                  <button onClick={() => setCurrentStep('property')} style={styles.button}>
+                    Start New Analysis
+                  </button>
+                </div>
+              );
+            }
+            
+            try {
+              const { risk_score, cross_reference, offer_strategy, negotiation_strategy, decision_framework } = result;
+              
+              const isWalkAway = risk_score?.risk_tier === 'CRITICAL' || 
+                                (risk_score?.deal_breakers && risk_score.deal_breakers.length >= 3);
+              
+              // Calculate average repair cost
+              const avgRepairCost = risk_score?.total_repair_cost_low && risk_score?.total_repair_cost_high
+                ? Math.round((risk_score.total_repair_cost_low + risk_score.total_repair_cost_high) / 2000)
+                : 0;
+              
+              return (
+                <div style={{
+                  fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                  background: '#0f172a',
+                  color: 'white',
+                  minHeight: '100vh',
+                  margin: '-8px',
+                  padding: 0
+                }}>
+                  
+                  {/* Hero Banner */}
+                  <div style={{
+                    background: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #ef4444 100%)',
+                    padding: '60px 80px',
+                    borderBottom: '1px solid #334155'
+                  }}>
+                    <div style={{
+                      maxWidth: '1400px',
+                      margin: '0 auto',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      flexWrap: 'wrap',
+                      gap: '20px'
+                    }}>
+                      <div>
+                        <h1 style={{
+                          fontSize: '48px',
+                          fontWeight: '800',
+                          margin: '0 0 12px 0',
+                          color: 'white',
+                          textShadow: '0 2px 10px rgba(0,0,0,0.2)'
+                        }}>
+                          {result.property_address || 'Property Analysis'}
+                        </h1>
+                        <p style={{ fontSize: '20px', color: 'rgba(255,255,255,0.95)', margin: 0 }}>
+                          Asking ${risk_score?.walk_away_threshold?.toLocaleString() || 'N/A'}
+                        </p>
+                      </div>
+                      <div style={{
+                        background: 'rgba(0,0,0,0.3)',
+                        backdropFilter: 'blur(10px)',
+                        padding: '16px 32px',
+                        borderRadius: '50px',
+                        fontSize: '24px',
+                        fontWeight: '700',
+                        border: '2px solid rgba(255,255,255,0.3)'
+                      }}>
+                        {isWalkAway ? '⚠️ HIGH RISK PROPERTY' : '✓ MANAGEABLE RISK'}
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Main Container */}
+                  <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '60px 80px' }}>
+                    
+                    {/* STEP 1: The Numbers */}
+                    <div style={{
+                      background: '#1e293b',
+                      borderRadius: '20px',
+                      padding: '50px',
+                      marginBottom: '30px',
+                      border: '2px solid #334155',
+                      position: 'relative'
+                    }}>
+                      <div style={{
+                        position: 'absolute',
+                        top: '-25px',
+                        left: '50px',
+                        background: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #ef4444 100%)',
+                        color: 'white',
+                        width: '60px',
+                        height: '60px',
+                        borderRadius: '50%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontWeight: '800',
+                        fontSize: '28px',
+                        boxShadow: '0 5px 20px rgba(251, 191, 36, 0.4)',
+                        border: '3px solid #0f172a'
+                      }}>1</div>
+                      
+                      <h2 style={{
+                        fontSize: '36px',
+                        fontWeight: '700',
+                        marginBottom: '30px',
+                        background: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)',
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent',
+                        backgroundClip: 'text'
+                      }}>
+                        📊 The Numbers Tell a Story
+                      </h2>
+                      
+                      <div style={{ display: 'grid', gridTemplateColumns: '350px 1fr', gap: '40px', marginTop: '30px' }}>
+                        
+                        {/* Circular Gauge */}
+                        <div>
+                          <div style={{ position: 'relative', width: '280px', height: '280px', margin: '0 auto' }}>
+                            <div style={{
+                              width: '100%',
+                              height: '100%',
+                              borderRadius: '50%',
+                              background: `conic-gradient(#ef4444 0% ${risk_score?.overall || 0}%, #334155 ${risk_score?.overall || 0}% 100%)`,
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              position: 'relative'
+                            }}>
+                              <div style={{
+                                position: 'absolute',
+                                top: '-30px',
+                                right: '20px',
+                                background: '#ef4444',
+                                color: 'white',
+                                padding: '8px 16px',
+                                borderRadius: '20px',
+                                fontSize: '14px',
+                                fontWeight: '700'
+                              }}>{risk_score?.overall || 0}%</div>
+                              
+                              <div style={{
+                                width: '200px',
+                                height: '200px',
+                                borderRadius: '50%',
+                                background: '#1e293b',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                border: '4px solid #0f172a'
+                              }}>
+                                <div style={{
+                                  fontSize: '72px',
+                                  fontWeight: '800',
+                                  lineHeight: '1',
+                                  background: 'linear-gradient(135deg, #fbbf24 0%, #ef4444 100%)',
+                                  WebkitBackgroundClip: 'text',
+                                  WebkitTextFillColor: 'transparent',
+                                  backgroundClip: 'text'
+                                }}>{risk_score?.overall || 0}</div>
+                                <div style={{
+                                  fontSize: '14px',
+                                  color: '#94a3b8',
+                                  marginTop: '8px',
+                                  textTransform: 'uppercase',
+                                  letterSpacing: '2px'
+                                }}>RISK SCORE</div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        {/* Metrics and Charts */}
+                        <div>
+                          <p style={{ fontSize: '18px', color: '#cbd5e1', lineHeight: '1.8', marginBottom: '30px' }}>
+                            This property scores <strong style={{color: '#ef4444'}}>{risk_score?.overall || 0}/100 on our risk assessment</strong>, 
+                            placing it in the {risk_score?.risk_tier || 'UNKNOWN'} category. 
+                            {cross_reference?.undisclosed_count > 0 && ` The seller failed to disclose ${cross_reference.undisclosed_count} material defects.`}
+                          </p>
+                          
+                          {/* Icon Metrics */}
+                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px', marginBottom: '30px' }}>
+                            <div style={{
+                              background: '#0f172a',
+                              padding: '30px',
+                              borderRadius: '16px',
+                              textAlign: 'center',
+                              border: '2px solid #334155'
+                            }}>
+                              <div style={{ fontSize: '48px', marginBottom: '12px' }}>💰</div>
+                              <div style={{ fontSize: '42px', fontWeight: '800', color: '#ef4444', marginBottom: '8px' }}>
+                                ${avgRepairCost}K
+                              </div>
+                              <div style={{ fontSize: '13px', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                                Est. Repairs
+                              </div>
+                            </div>
+                            
+                            <div style={{
+                              background: '#0f172a',
+                              padding: '30px',
+                              borderRadius: '16px',
+                              textAlign: 'center',
+                              border: '2px solid #334155'
+                            }}>
+                              <div style={{ fontSize: '48px', marginBottom: '12px' }}>🔍</div>
+                              <div style={{ fontSize: '42px', fontWeight: '800', color: '#f59e0b', marginBottom: '8px' }}>
+                                {cross_reference?.transparency_score || 0}
+                              </div>
+                              <div style={{ fontSize: '13px', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                                Transparency
+                              </div>
+                            </div>
+                            
+                            <div style={{
+                              background: '#0f172a',
+                              padding: '30px',
+                              borderRadius: '16px',
+                              textAlign: 'center',
+                              border: '2px solid #334155'
+                            }}>
+                              <div style={{ fontSize: '48px', marginBottom: '12px' }}>🚨</div>
+                              <div style={{ fontSize: '42px', fontWeight: '800', color: '#ef4444', marginBottom: '8px' }}>
+                                {risk_score?.deal_breakers?.length || 0}
+                              </div>
+                              <div style={{ fontSize: '13px', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                                Deal-Breakers
+                              </div>
+                            </div>
+                          </div>
+                          
+                          {/* Category Bar Charts */}
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                            {risk_score?.category_scores && risk_score.category_scores.slice(0, 4).map((cat, i) => (
+                              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+                                <div style={{ width: '180px', fontWeight: '700', fontSize: '16px', color: 'white' }}>
+                                  {cat.category}
+                                </div>
+                                <div style={{
+                                  flex: 1,
+                                  height: '40px',
+                                  background: '#0f172a',
+                                  borderRadius: '20px',
+                                  overflow: 'hidden',
+                                  border: '2px solid #334155'
+                                }}>
+                                  <div style={{
+                                    height: '100%',
+                                    width: `${cat.score}%`,
+                                    background: 'linear-gradient(90deg, #ef4444 0%, #f59e0b 100%)',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'flex-end',
+                                    paddingRight: '16px',
+                                    color: 'white',
+                                    fontWeight: '700',
+                                    fontSize: '16px'
+                                  }}>
+                                    {cat.score}
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* STEP 2: Critical Issues */}
+                    {risk_score?.deal_breakers && risk_score.deal_breakers.length > 0 && (
+                      <div style={{
+                        background: '#1e293b',
+                        borderRadius: '20px',
+                        padding: '50px',
+                        marginBottom: '30px',
+                        border: '2px solid #334155',
+                        position: 'relative'
+                      }}>
+                        <div style={{
+                          position: 'absolute',
+                          top: '-25px',
+                          left: '50px',
+                          background: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #ef4444 100%)',
+                          color: 'white',
+                          width: '60px',
+                          height: '60px',
+                          borderRadius: '50%',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontWeight: '800',
+                          fontSize: '28px',
+                          boxShadow: '0 5px 20px rgba(251, 191, 36, 0.4)',
+                          border: '3px solid #0f172a'
+                        }}>2</div>
+                        
+                        <h2 style={{
+                          fontSize: '36px',
+                          fontWeight: '700',
+                          marginBottom: '30px',
+                          background: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)',
+                          WebkitBackgroundClip: 'text',
+                          WebkitTextFillColor: 'transparent',
+                          backgroundClip: 'text'
+                        }}>
+                          🚨 Critical Issues Discovered
+                        </h2>
+                        
+                        <p style={{ fontSize: '18px', color: '#cbd5e1', lineHeight: '1.8', marginBottom: '30px' }}>
+                          The inspection revealed several safety hazards and structural concerns that were not disclosed by the seller:
+                        </p>
+                        
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '20px' }}>
+                          {risk_score.deal_breakers.slice(0, 6).map((breaker, i) => (
+                            <div key={i} style={{
+                              display: 'flex',
+                              gap: '20px',
+                              padding: '24px',
+                              background: 'rgba(239, 68, 68, 0.1)',
+                              borderRadius: '12px',
+                              borderLeft: '6px solid #ef4444',
+                              alignItems: 'flex-start'
+                            }}>
+                              <div style={{
+                                width: '60px',
+                                height: '60px',
+                                background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+                                color: 'white',
+                                borderRadius: '50%',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                fontWeight: '800',
+                                fontSize: '24px',
+                                flexShrink: 0,
+                                boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)'
+                              }}>
+                                {i + 1}
+                              </div>
+                              <div style={{ flex: 1 }}>
+                                <div style={{
+                                  fontSize: '15px',
+                                  color: '#cbd5e1',
+                                  lineHeight: '1.6'
+                                }}>
+                                  {breaker}
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* STEP 3: Decision Path */}
+                    <div style={{
+                      background: '#1e293b',
+                      borderRadius: '20px',
+                      padding: '50px',
+                      marginBottom: '30px',
+                      border: '2px solid #334155',
+                      position: 'relative'
+                    }}>
+                      <div style={{
+                        position: 'absolute',
+                        top: '-25px',
+                        left: '50px',
+                        background: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #ef4444 100%)',
+                        color: 'white',
+                        width: '60px',
+                        height: '60px',
+                        borderRadius: '50%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontWeight: '800',
+                        fontSize: '28px',
+                        boxShadow: '0 5px 20px rgba(251, 191, 36, 0.4)',
+                        border: '3px solid #0f172a'
+                      }}>3</div>
+                      
+                      <h2 style={{
+                        fontSize: '36px',
+                        fontWeight: '700',
+                        marginBottom: '30px',
+                        background: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)',
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent',
+                        backgroundClip: 'text'
+                      }}>
+                        💡 Your Decision Path
+                      </h2>
+                      
+                      {/* Offer Strategy */}
+                      {offer_strategy && (
+                        <div style={{
+                          background: 'linear-gradient(135deg, #0ea5e9 0%, #06b6d4 100%)',
+                          padding: '50px',
+                          borderRadius: '20px',
+                          textAlign: 'center',
+                          marginBottom: '30px',
+                          boxShadow: '0 10px 40px rgba(14, 165, 233, 0.3)'
+                        }}>
+                          <div style={{
+                            fontSize: '16px',
+                            textTransform: 'uppercase',
+                            letterSpacing: '3px',
+                            opacity: '0.9',
+                            marginBottom: '16px'
+                          }}>
+                            Recommended Offer Price
+                          </div>
+                          <div style={{
+                            fontSize: '64px',
+                            fontWeight: '900',
+                            marginBottom: '20px',
+                            whiteSpace: 'pre-line'
+                          }}>
+                            {offer_strategy.split('\n')[0]}
+                          </div>
+                        </div>
+                      )}
+                      
+                      {/* Action Cards */}
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+                        <div style={{
+                          background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)',
+                          padding: '40px',
+                          borderRadius: '16px',
+                          border: '2px solid #334155',
+                          position: 'relative',
+                          overflow: 'hidden'
+                        }}>
+                          <div style={{
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            height: '4px',
+                            background: 'linear-gradient(90deg, #fbbf24 0%, #f59e0b 50%, #ef4444 100%)'
+                          }}></div>
+                          <h3 style={{
+                            fontSize: '24px',
+                            fontWeight: '700',
+                            marginBottom: '16px',
+                            color: '#fbbf24'
+                          }}>Option 1: Walk Away</h3>
+                          <div style={{
+                            color: '#cbd5e1',
+                            lineHeight: '1.8',
+                            fontSize: '16px',
+                            whiteSpace: 'pre-line'
+                          }}>
+                            {decision_framework ? decision_framework.split('\n').slice(0, 5).join('\n') : 
+                             'Given the multiple safety hazards and seller\'s lack of transparency, walking away is a valid option.'}
+                          </div>
+                        </div>
+                        
+                        <div style={{
+                          background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)',
+                          padding: '40px',
+                          borderRadius: '16px',
+                          border: '2px solid #334155',
+                          position: 'relative',
+                          overflow: 'hidden'
+                        }}>
+                          <div style={{
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            height: '4px',
+                            background: 'linear-gradient(90deg, #fbbf24 0%, #f59e0b 50%, #ef4444 100%)'
+                          }}></div>
+                          <h3 style={{
+                            fontSize: '24px',
+                            fontWeight: '700',
+                            marginBottom: '16px',
+                            color: '#fbbf24'
+                          }}>Option 2: Negotiate Hard</h3>
+                          <div style={{
+                            color: '#cbd5e1',
+                            lineHeight: '1.8',
+                            fontSize: '16px',
+                            whiteSpace: 'pre-line'
+                          }}>
+                            {negotiation_strategy ? negotiation_strategy.split('\n').slice(0, 5).join('\n') :
+                             'If you love the location, demand seller fix all safety items or reduce price significantly.'}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Final CTA */}
+                    <div style={{
+                      textAlign: 'center',
+                      marginTop: '60px',
+                      padding: '60px',
+                      background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)',
+                      borderRadius: '20px',
+                      border: '2px solid #334155'
+                    }}>
+                      <h2 style={{ fontSize: '36px', marginBottom: '20px' }}>
+                        Ready to Make Your Decision?
+                      </h2>
+                      <p style={{ fontSize: '18px', color: '#94a3b8', marginBottom: '30px' }}>
+                        Start analyzing another property
+                      </p>
+                      <button
+                        onClick={() => {
+                          setResult(null);
+                          setCurrentStep('property');
+                        }}
+                        style={{
+                          background: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #ef4444 100%)',
+                          color: 'white',
+                          padding: '18px 40px',
+                          borderRadius: '50px',
+                          fontSize: '18px',
+                          fontWeight: '700',
+                          border: 'none',
+                          cursor: 'pointer',
+                          boxShadow: '0 10px 30px rgba(251, 191, 36, 0.3)'
+                        }}
+                      >
+                        Analyze Another Property
+                      </button>
+                    </div>
+                    
+                  </div>
+                </div>
+              );
+            } catch (err) {
+              console.error('Error rendering results:', err);
+              return (
+                <div style={styles.container}>
+                  <h2>Rendering Error</h2>
+                  <p style={{color: 'red'}}>{err.message}</p>
+                  <button onClick={() => setCurrentStep('property')} style={styles.button}>
+                    Start New Analysis
+                  </button>
+                </div>
+              );
+            }
+          };
+          
+          // Render current step
+          if (currentStep === 'property') return <PropertyStep />;
+          if (currentStep === 'documents') return <DocumentStep />;
+          if (currentStep === 'profile') return <ProfileStep />;
+          if (currentStep === 'analyze') return <AnalyzeStep />;
+          if (currentStep === 'results') return <ResultsStep />;
+          return null;
+        };
+        
+        // Styles
+        const styles = {
+          container: {
+            maxWidth: '600px',
+            margin: '0 auto',
+            padding: '40px 20px',
+            fontFamily: 'system-ui, sans-serif'
+          },
+          title: {
+            fontSize: '32px',
+            marginBottom: '8px',
+            fontWeight: '600'
+          },
+          subtitle: {
+            fontSize: '24px',
+            marginBottom: '24px',
+            fontWeight: '500'
+          },
+          input: {
+            width: '100%',
+            padding: '12px',
+            fontSize: '16px',
+            border: '1px solid #ddd',
+            borderRadius: '4px',
+            marginBottom: '16px',
+            boxSizing: 'border-box'
+          },
+          button: {
+            width: '100%',
+            padding: '14px',
+            fontSize: '16px',
+            fontWeight: '600',
+            backgroundColor: '#000',
+            color: '#fff',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer',
+            marginTop: '8px'
+          },
+          backButton: {
+            background: 'none',
+            border: 'none',
+            fontSize: '16px',
+            cursor: 'pointer',
+            marginBottom: '16px',
+            color: '#666'
+          },
+          uploadSection: {
+            marginBottom: '24px'
+          },
+          label: {
+            display: 'block',
+            fontSize: '14px',
+            fontWeight: '600',
+            marginBottom: '8px'
+          },
+          fileInput: {
+            width: '100%',
+            padding: '12px',
+            fontSize: '14px',
+            border: '1px solid #ddd',
+            borderRadius: '4px',
+            cursor: 'pointer'
+          },
+          success: {
+            marginTop: '8px',
+            padding: '8px',
+            backgroundColor: '#d4edda',
+            color: '#155724',
+            borderRadius: '4px',
+            fontSize: '14px'
+          },
+          error: {
+            padding: '12px',
+            backgroundColor: '#f8d7da',
+            color: '#721c24',
+            borderRadius: '4px',
+            marginBottom: '16px'
+          },
+          loading: {
+            textAlign: 'center',
+            padding: '16px',
+            color: '#666'
+          },
+          summary: {
+            padding: '16px',
+            backgroundColor: '#f5f5f5',
+            borderRadius: '4px',
+            marginBottom: '16px'
+          },
+          resultBox: {
+            padding: '20px',
+            backgroundColor: '#f9f9f9',
+            borderRadius: '4px'
+          },
+          warning: {
+            padding: '12px',
+            backgroundColor: '#fff3cd',
+            borderRadius: '4px',
+            marginTop: '16px'
+          },
+          recommendation: {
+            padding: '16px',
+            backgroundColor: '#d1ecf1',
+            borderRadius: '4px',
+            marginTop: '16px'
+          }
+        };
+        
+        // Error Boundary Component
+        class ErrorBoundary extends React.Component {
+          constructor(props) {
+            super(props);
+            this.state = { hasError: false, error: null, errorInfo: null };
+          }
+          
+          static getDerivedStateFromError(error) {
+            return { hasError: true };
+          }
+          
+          componentDidCatch(error, errorInfo) {
+            console.error('React Error Boundary caught:', error, errorInfo);
+            this.setState({ error, errorInfo });
+          }
+          
+          render() {
+            if (this.state.hasError) {
+              return (
+                <div style={{
+                  maxWidth: '600px',
+                  margin: '40px auto',
+                  padding: '20px',
+                  fontFamily: 'system-ui, sans-serif'
+                }}>
+                  <h1 style={{color: '#d32f2f'}}>Something went wrong</h1>
+                  <p>The app encountered an error. Please refresh the page and try again.</p>
+                  <details style={{marginTop: '20px', fontSize: '14px'}}>
+                    <summary style={{cursor: 'pointer'}}>Error Details</summary>
+                    <pre style={{
+                      backgroundColor: '#f5f5f5',
+                      padding: '12px',
+                      borderRadius: '4px',
+                      overflow: 'auto',
+                      fontSize: '12px',
+                      marginTop: '12px'
+                    }}>
+                      {this.state.error && this.state.error.toString()}
+                      {'\n\n'}
+                      {this.state.errorInfo && this.state.errorInfo.componentStack}
+                    </pre>
+                  </details>
+                  <button
+                    onClick={() => window.location.reload()}
+                    style={{
+                      marginTop: '20px',
+                      padding: '12px 24px',
+                      backgroundColor: '#000',
+                      color: '#fff',
+                      border: 'none',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                      fontSize: '16px'
+                    }}
+                  >
+                    Refresh Page
+                  </button>
+                </div>
+              );
+            }
+            
+            return this.props.children;
+          }
+        }
+        
+        // Global error handlers
+        window.addEventListener('error', (event) => {
+          console.error('Global error:', event.error);
+        });
+        
+        window.addEventListener('unhandledrejection', (event) => {
+          console.error('Unhandled promise rejection:', event.reason);
+        });
+        
+        // Render with error boundary
+        console.log('Rendering OfferWise app...');
+        ReactDOM.render(
+          <ErrorBoundary>
+            <OfferWise />
+          </ErrorBoundary>,
+          document.getElementById('root')
+        );
+        console.log('App rendered successfully');
+    </script>
+</body>
+</html>

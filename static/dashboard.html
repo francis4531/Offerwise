@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - OfferWise</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f3f4f6;
+            min-height: 100vh;
+        }
+        .header {
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo {
+            font-size: 24px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .user-menu {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-secondary {
+            background: white;
+            color: #374151;
+            border: 2px solid #e5e7eb;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+        .stat-card {
+            background: white;
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .stat-label {
+            color: #6b7280;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+        .stat-value {
+            font-size: 32px;
+            font-weight: 800;
+            color: #111827;
+        }
+        .stat-subtitle {
+            color: #9ca3af;
+            font-size: 13px;
+            margin-top: 4px;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e5e7eb;
+            border-radius: 4px;
+            margin-top: 12px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s;
+        }
+        .section-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 24px;
+            color: #111827;
+        }
+        .properties-grid {
+            display: grid;
+            gap: 20px;
+        }
+        .property-card {
+            background: white;
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .property-info h3 {
+            font-size: 18px;
+            color: #111827;
+            margin-bottom: 8px;
+        }
+        .property-meta {
+            color: #6b7280;
+            font-size: 14px;
+        }
+        .property-status {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        .status-completed {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        .status-pending {
+            background: #fed7aa;
+            color: #92400e;
+        }
+        .tier-badge {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 700;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6b7280;
+        }
+        .empty-state-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">OfferWise</div>
+        <div class="user-menu">
+            <span class="tier-badge" id="tier-badge">Loading...</span>
+            <a href="/app" class="btn btn-primary">Analyze Property</a>
+            <a href="/logout" class="btn btn-secondary">Logout</a>
+        </div>
+    </div>
+    
+    <div class="container">
+        <h1 style="font-size: 36px; font-weight: 800; margin-bottom: 40px;">Dashboard</h1>
+        
+        <!-- Stats Grid -->
+        <div class="stats-grid" id="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Properties Analyzed</div>
+                <div class="stat-value" id="usage-count">-</div>
+                <div class="stat-subtitle" id="usage-limit">of - this month</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="usage-progress" style="width: 0%"></div>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-label">Storage Used</div>
+                <div class="stat-value" id="storage-used">-</div>
+                <div class="stat-subtitle" id="storage-limit">of - MB</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="storage-progress" style="width: 0%"></div>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-label">Total Properties</div>
+                <div class="stat-value" id="total-properties">-</div>
+                <div class="stat-subtitle">All time</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-label">Current Plan</div>
+                <div class="stat-value" id="plan-name" style="font-size: 24px;">-</div>
+                <a href="/pricing" style="color: #667eea; font-size: 14px; font-weight: 600; text-decoration: none;">Upgrade Plan →</a>
+            </div>
+        </div>
+        
+        <!-- Recent Properties -->
+        <h2 class="section-title">Recent Properties</h2>
+        <div class="properties-grid" id="properties-list">
+            <!-- Properties will be loaded here -->
+        </div>
+    </div>
+    
+    <script>
+        // Load dashboard stats
+        async function loadDashboard() {
+            try {
+                const response = await fetch('/api/dashboard/stats');
+                const data = await response.json();
+                
+                // Update tier badge
+                document.getElementById('tier-badge').textContent = data.tier_name;
+                
+                // Update usage stats
+                const usage = data.usage;
+                document.getElementById('usage-count').textContent = usage.properties_analyzed;
+                const limitText = usage.properties_limit === -1 ? 'Unlimited' : usage.properties_limit;
+                document.getElementById('usage-limit').textContent = `of ${limitText} this month`;
+                
+                if (usage.properties_limit > 0) {
+                    const usagePercent = (usage.properties_analyzed / usage.properties_limit) * 100;
+                    document.getElementById('usage-progress').style.width = Math.min(usagePercent, 100) + '%';
+                }
+                
+                // Update storage
+                document.getElementById('storage-used').textContent = usage.storage_mb + ' MB';
+                const storageLimitText = usage.storage_limit_mb === -1 ? 'Unlimited' : usage.storage_limit_mb + ' MB';
+                document.getElementById('storage-limit').textContent = `of ${storageLimitText}`;
+                
+                if (usage.storage_limit_mb > 0) {
+                    const storagePercent = (usage.storage_mb / usage.storage_limit_mb) * 100;
+                    document.getElementById('storage-progress').style.width = Math.min(storagePercent, 100) + '%';
+                }
+                
+                // Update total
+                document.getElementById('total-properties').textContent = data.properties_count;
+                
+                // Update plan name
+                document.getElementById('plan-name').textContent = data.tier_name;
+                
+                // Load properties
+                loadProperties(data.recent_properties);
+                
+            } catch (error) {
+                console.error('Error loading dashboard:', error);
+            }
+        }
+        
+        function loadProperties(properties) {
+            const container = document.getElementById('properties-list');
+            
+            if (!properties || properties.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🏠</div>
+                        <h3>No properties yet</h3>
+                        <p>Start analyzing your first property!</p>
+                        <a href="/app" class="btn btn-primary" style="display: inline-block; margin-top: 20px;">Analyze Property</a>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = properties.map(property => `
+                <div class="property-card">
+                    <div class="property-info">
+                        <h3>${property.address}</h3>
+                        <div class="property-meta">
+                            ${property.price ? '$' + property.price.toLocaleString() : 'Price TBD'} •
+                            ${new Date(property.created_at).toLocaleDateString()}
+                        </div>
+                    </div>
+                    <div>
+                        <span class="property-status status-${property.status}">
+                            ${property.status === 'completed' ? '✓ Completed' : '⏳ Pending'}
+                        </span>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // Load on page load
+        loadDashboard();
+    </script>
+</body>
+</html>
