@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OfferWise AI - Know What You're Really Buying</title>
+    <meta name="description" content="Professional property intelligence for home buyers. Quantified risk assessment, seller transparency check, and offer strategy in minutes.">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #1a1a1a;
+            background: #fafafa;
+        }
+        
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .header {
+            background: white;
+            border-bottom: 1px solid #e0e0e0;
+            padding: 20px 0;
+        }
+        
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: 500;
+            color: #1a1a1a;
+        }
+        
+        .cta-button {
+            background: #1a1a1a;
+            color: white;
+            padding: 12px 28px;
+            border: none;
+            border-radius: 2px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .cta-button:hover {
+            background: #333;
+        }
+        
+        .hero {
+            background: white;
+            padding: 80px 0;
+            text-align: center;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        h1 {
+            font-size: 48px;
+            font-weight: 500;
+            margin-bottom: 20px;
+            line-height: 1.2;
+        }
+        
+        .tagline {
+            font-size: 20px;
+            color: #666;
+            margin-bottom: 40px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .features {
+            padding: 80px 0;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+            margin-top: 60px;
+        }
+        
+        .feature {
+            background: white;
+            padding: 40px;
+            border: 1px solid #e0e0e0;
+            border-radius: 2px;
+        }
+        
+        .feature-title {
+            font-size: 20px;
+            font-weight: 500;
+            margin-bottom: 12px;
+        }
+        
+        .feature-text {
+            color: #666;
+            line-height: 1.8;
+        }
+        
+        .feature-value {
+            font-size: 14px;
+            color: #1a1a1a;
+            font-weight: 500;
+            margin-top: 16px;
+        }
+        
+        .how-it-works {
+            background: white;
+            padding: 80px 0;
+            border-top: 1px solid #e0e0e0;
+        }
+        
+        .section-title {
+            font-size: 32px;
+            font-weight: 500;
+            text-align: center;
+            margin-bottom: 60px;
+        }
+        
+        .steps {
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        
+        .step {
+            display: flex;
+            margin-bottom: 40px;
+        }
+        
+        .step-number {
+            background: #1a1a1a;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 500;
+            flex-shrink: 0;
+            margin-right: 20px;
+        }
+        
+        .step-content h3 {
+            font-size: 18px;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+        
+        .step-content p {
+            color: #666;
+        }
+        
+        .pricing {
+            padding: 80px 0;
+        }
+        
+        .pricing-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            max-width: 900px;
+            margin: 0 auto;
+            margin-top: 60px;
+        }
+        
+        .pricing-card {
+            background: white;
+            border: 1px solid #e0e0e0;
+            padding: 40px;
+            border-radius: 2px;
+            text-align: center;
+        }
+        
+        .pricing-card.featured {
+            border: 2px solid #1a1a1a;
+        }
+        
+        .plan-name {
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 12px;
+        }
+        
+        .price {
+            font-size: 36px;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+        
+        .price-note {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 24px;
+        }
+        
+        .plan-features {
+            text-align: left;
+            margin-bottom: 24px;
+        }
+        
+        .plan-features li {
+            margin-bottom: 12px;
+            color: #666;
+            list-style: none;
+            padding-left: 20px;
+            position: relative;
+        }
+        
+        .plan-features li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+        }
+        
+        .footer {
+            background: white;
+            border-top: 1px solid #e0e0e0;
+            padding: 40px 0;
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .social-proof {
+            background: #f5f5f5;
+            padding: 60px 0;
+            text-align: center;
+        }
+        
+        .stat {
+            display: inline-block;
+            margin: 0 40px;
+        }
+        
+        .stat-number {
+            font-size: 48px;
+            font-weight: 500;
+            color: #1a1a1a;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 14px;
+            margin-top: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="container">
+            <div class="nav">
+                <div class="logo">OfferWise</div>
+                <a href="/app" class="cta-button">Get Started</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="hero">
+        <div class="container">
+            <h1>Know What You're Really Buying</h1>
+            <p class="tagline">Professional property intelligence for home buyers. Our proprietary OfferScore™ system (Patent Pending) delivers quantified risk assessment, seller transparency analysis, and data-driven offer strategy in minutes.</p>
+            <a href="/app" class="cta-button" style="font-size: 16px; padding: 16px 40px;">Analyze Your Property</a>
+        </div>
+    </div>
+    
+    <div class="social-proof">
+        <div class="container">
+            <div class="stat">
+                <div class="stat-number">$50k+</div>
+                <div class="stat-label">Average Savings</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number">95%</div>
+                <div class="stat-label">Accuracy Rate</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number">< 5 min</div>
+                <div class="stat-label">Analysis Time</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="features">
+        <div class="container">
+            <h2 class="section-title">What You Get</h2>
+            <div class="features-grid">
+                <div class="feature">
+                    <div class="feature-title">Quantified Risk Score</div>
+                    <p class="feature-text">Not vague AI opinions. Structured 0-100 risk scores across 8 categories with clear methodology and reproducible calculations.</p>
+                    <div class="feature-value">Foundation: 85/100 → $35k-75k repairs needed</div>
+                </div>
+                
+                <div class="feature">
+                    <div class="feature-title">Seller Transparency Check</div>
+                    <p class="feature-text">Automatically compares seller disclosures against inspection findings. Flags contradictions and undisclosed issues.</p>
+                    <div class="feature-value">Transparency Score: 19/100 (2 contradictions found)</div>
+                </div>
+                
+                <div class="feature">
+                    <div class="feature-title">Specific Offer Price</div>
+                    <p class="feature-text">No "consider slightly below asking." Get exact dollar amounts backed by repair costs, risk analysis, and market context.</p>
+                    <div class="feature-value">Offer: $853,250 (7.8% below ask)</div>
+                </div>
+                
+                <div class="feature">
+                    <div class="feature-title">Deal-Breaker Identification</div>
+                    <p class="feature-text">Clear red flags that should stop the deal. Not everything is negotiable. Know when to walk away.</p>
+                    <div class="feature-value">3 critical issues → Recommend: Walk Away</div>
+                </div>
+                
+                <div class="feature">
+                    <div class="feature-title">Negotiation Strategy</div>
+                    <p class="feature-text">Tactical approach with specific talking points, price justifications, and counteroffer response matrix.</p>
+                    <div class="feature-value">Leverage Score: 78/100 → Request $85k reduction</div>
+                </div>
+                
+                <div class="feature">
+                    <div class="feature-title">Personalized Analysis</div>
+                    <p class="feature-text">Adjusts risk scores based on your repair tolerance, ownership duration, and biggest regret fears.</p>
+                    <div class="feature-value">Your Profile: Low tolerance → Risk amplified to 79/100</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="how-it-works">
+        <div class="container">
+            <h2 class="section-title">How It Works</h2>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h3>Upload Documents</h3>
+                        <p>Seller disclosure and inspection report (PDF). We extract and structure the data automatically.</p>
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h3>Answer 8 Questions</h3>
+                        <p>Tell us about your situation - repair tolerance, ownership duration, biggest regret fears. Takes 2 minutes.</p>
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h3>Get Analysis</h3>
+                        <p>Risk scorecard, seller transparency check, offer strategy, negotiation tactics. All in under 5 minutes.</p>
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <h3>Make Informed Decision</h3>
+                        <p>Know what you're buying. Walk away from bad deals. Negotiate confidently on good ones.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="pricing">
+        <div class="container">
+            <h2 class="section-title">Simple Pricing</h2>
+            <div class="pricing-cards">
+                <div class="pricing-card">
+                    <div class="plan-name">Offer Brief</div>
+                    <div class="price">$29</div>
+                    <div class="price-note">per property</div>
+                    <ul class="plan-features">
+                        <li>Risk scorecard</li>
+                        <li>Offer price recommendation</li>
+                        <li>Deal-breaker identification</li>
+                    </ul>
+                    <a href="/app" class="cta-button" style="width: 100%;">Get Started</a>
+                </div>
+                
+                <div class="pricing-card featured">
+                    <div class="plan-name">Full Analysis</div>
+                    <div class="price">$49</div>
+                    <div class="price-note">per property</div>
+                    <ul class="plan-features">
+                        <li>Everything in Offer Brief</li>
+                        <li>Inspection analysis</li>
+                        <li>Seller transparency check</li>
+                        <li>Negotiation strategy</li>
+                    </ul>
+                    <a href="/app" class="cta-button" style="width: 100%;">Get Started</a>
+                </div>
+                
+                <div class="pricing-card">
+                    <div class="plan-name">Unlimited</div>
+                    <div class="price">$99</div>
+                    <div class="price-note">per month</div>
+                    <ul class="plan-features">
+                        <li>Unlimited properties</li>
+                        <li>All features included</li>
+                        <li>Property comparison</li>
+                        <li>Priority support</li>
+                    </ul>
+                    <a href="/app" class="cta-button" style="width: 100%;">Get Started</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="footer">
+        <div class="container">
+            <p>&copy; 2024 OfferWise. All rights reserved. | OfferScore™ Patent Pending</p>
+            <p style="margin-top: 12px;">
+                <a href="/terms" style="color: #666; text-decoration: none; margin: 0 12px;">Terms</a>
+                <a href="/privacy" style="color: #666; text-decoration: none; margin: 0 12px;">Privacy</a>
+                <a href="/cdn-cgi/l/email-protection#f98a8c8989968b8db9969f9f9c8b8e908a9cd79890" style="color: #666; text-decoration: none; margin: 0 12px;">Contact</a>
+            </p>

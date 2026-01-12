@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - OfferWise</title>
+    <script src="https://js.stripe.com/v3/"></script>
+    <style>
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+            color: #ffffff;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .header h1 {
+            font-size: 36px;
+            font-weight: 800;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .header p {
+            color: #94a3b8;
+            font-size: 16px;
+        }
+        
+        /* Order Summary */
+        .order-summary {
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 32px;
+        }
+        
+        .plan-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #a78bfa 0%, #8b5cf6 100%);
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+        }
+        
+        .plan-name {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: #f1f5f9;
+        }
+        
+        .plan-description {
+            color: #94a3b8;
+            margin-bottom: 24px;
+            line-height: 1.6;
+        }
+        
+        .price-breakdown {
+            border-top: 1px solid rgba(148, 163, 184, 0.2);
+            padding-top: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .price-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            color: #cbd5e1;
+        }
+        
+        .price-row.total {
+            font-size: 24px;
+            font-weight: 700;
+            color: #ffffff;
+            padding-top: 16px;
+            border-top: 2px solid rgba(148, 163, 184, 0.3);
+        }
+        
+        /* Payment Form */
+        .payment-section {
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 24px;
+        }
+        
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 24px;
+            color: #f1f5f9;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #cbd5e1;
+        }
+        
+        input {
+            width: 100%;
+            padding: 14px;
+            border-radius: 8px;
+            border: 1px solid rgba(148, 163, 184, 0.3);
+            background: rgba(15, 23, 42, 0.5);
+            color: #ffffff;
+            font-size: 15px;
+            transition: all 0.3s ease;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: #60a5fa;
+            background: rgba(15, 23, 42, 0.7);
+        }
+        
+        #card-element {
+            padding: 14px;
+            border-radius: 8px;
+            border: 1px solid rgba(148, 163, 184, 0.3);
+            background: rgba(15, 23, 42, 0.5);
+            transition: all 0.3s ease;
+        }
+        
+        #card-element.StripeElement--focus {
+            border-color: #60a5fa;
+            background: rgba(15, 23, 42, 0.7);
+        }
+        
+        #card-errors {
+            color: #ef4444;
+            font-size: 14px;
+            margin-top: 8px;
+            min-height: 20px;
+        }
+        
+        /* Pay Button */
+        .pay-button {
+            width: 100%;
+            padding: 18px;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            border: none;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3);
+            transition: all 0.3s ease;
+            margin-bottom: 16px;
+        }
+        
+        .pay-button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 35px rgba(16, 185, 129, 0.4);
+        }
+        
+        .pay-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        /* Security Badge */
+        .security-note {
+            text-align: center;
+            color: #64748b;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .security-note::before {
+            content: '🔒';
+        }
+        
+        /* Loading Spinner */
+        .spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .processing .spinner {
+            display: block;
+        }
+        
+        .processing .button-text {
+            display: none;
+        }
+        
+        /* Back Link */
+        .back-link {
+            text-align: center;
+            margin-top: 24px;
+        }
+        
+        .back-link a {
+            color: #60a5fa;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+        
+        .back-link a:hover {
+            color: #93c5fd;
+        }
+        
+        /* Error Message */
+        .error-message {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 24px;
+            color: #fca5a5;
+            display: none;
+        }
+        
+        .error-message.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>Secure Checkout</h1>
+            <p>Complete your purchase to start analyzing properties</p>
+        </div>
+        
+        <!-- Error Message -->
+        <div id="error-message" class="error-message"></div>
+        
+        <!-- Order Summary -->
+        <div class="order-summary">
+            <div id="plan-badge" class="plan-badge"></div>
+            <div id="plan-name" class="plan-name"></div>
+            <div id="plan-description" class="plan-description"></div>
+            
+            <div class="price-breakdown">
+                <div class="price-row">
+                    <span id="item-description"></span>
+                    <span id="item-price"></span>
+                </div>
+                <div class="price-row total">
+                    <span>Total</span>
+                    <span id="total-price"></span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Payment Form -->
+        <form id="payment-form">
+            <div class="payment-section">
+                <h2 class="section-title">Payment Information</h2>
+                
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" required placeholder="your@email.com">
+                </div>
+                
+                <div class="form-group">
+                    <label for="card-element">Card Details</label>
+                    <div id="card-element"></div>
+                    <div id="card-errors" role="alert"></div>
+                </div>
+            </div>
+            
+            <button type="submit" id="submit-button" class="pay-button">
+                <span class="button-text">Pay Now</span>
+                <div class="spinner"></div>
+            </button>
+            
+            <div class="security-note">
+                Secure payment powered by Stripe. We never store your card details.
+            </div>
+        </form>
+        
+        <!-- Back Link -->
+        <div class="back-link">
+            <a href="/pricing">← Back to Pricing</a>
+        </div>
+    </div>
+    
+    <script>
+        // Get plan from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const plan = urlParams.get('plan') || 'bundle_5';
+        
+        // Plan configurations
+        const plans = {
+            'single': {
+                name: 'Single Analysis',
+                badge: 'Pay As You Go',
+                description: '1 complete property analysis with all premium features',
+                price: 15,
+                credits: 1,
+                itemDescription: '1 Property Analysis'
+            },
+            'bundle_5': {
+                name: '5-Analysis Bundle',
+                badge: '⭐ Most Popular',
+                description: '5 complete property analyses - Perfect for active searchers',
+                price: 50,
+                credits: 5,
+                itemDescription: '5 Property Analyses ($10 each)',
+                savings: '33% savings'
+            },
+            'bundle_10': {
+                name: '10-Analysis Bundle',
+                badge: '💎 Best Value',
+                description: '10 complete property analyses - Best deal for serious house hunters',
+                price: 75,
+                credits: 10,
+                itemDescription: '10 Property Analyses ($7.50 each)',
+                savings: '50% savings'
+            }
+        };
+        
+        // Get selected plan
+        const selectedPlan = plans[plan];
+        
+        // Update UI
+        document.getElementById('plan-badge').textContent = selectedPlan.badge;
+        document.getElementById('plan-name').textContent = selectedPlan.name;
+        document.getElementById('plan-description').textContent = selectedPlan.description;
+        document.getElementById('item-description').textContent = selectedPlan.itemDescription;
+        document.getElementById('item-price').textContent = `$${selectedPlan.price}`;
+        document.getElementById('total-price').textContent = `$${selectedPlan.price}`;
+        
+        // Initialize Stripe - Load key from backend
+        let stripe, elements, cardElement;
+        
+        // Check if we're in development or production
+        const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        
+        // For now, show a message if Stripe key is not configured
+        const initializeStripe = async () => {
+            try {
+                // Try to get Stripe key from backend
+                const response = await fetch('/api/stripe-config');
+                if (response.ok) {
+                    const data = await response.json();
+                    stripe = Stripe(data.publishableKey);
+                } else {
+                    // Fallback: Show configuration message
+                    document.body.innerHTML = `
+                        <div style="max-width: 600px; margin: 100px auto; padding: 40px; background: rgba(30, 41, 59, 0.8); border-radius: 20px; text-align: center; color: white;">
+                            <h1 style="font-size: 32px; margin-bottom: 20px;">⚙️ Payment System Configuration Needed</h1>
+                            <p style="font-size: 18px; color: #94a3b8; margin-bottom: 30px;">
+                                The payment system is almost ready! Your Stripe keys just need to be added.
+                            </p>
+                            <div style="background: rgba(15, 23, 42, 0.6); padding: 20px; border-radius: 12px; margin: 20px 0; text-align: left;">
+                                <p style="font-size: 14px; color: #cbd5e1; margin-bottom: 10px;">
+                                    <strong>For the site owner:</strong>
+                                </p>
+                                <ol style="font-size: 14px; color: #94a3b8; line-height: 1.8; margin-left: 20px;">
+                                    <li>Get your Stripe keys from: <a href="https://dashboard.stripe.com/test/apikeys" style="color: #60a5fa;">dashboard.stripe.com</a></li>
+                                    <li>Add STRIPE_PUBLISHABLE_KEY to Render environment variables</li>
+                                    <li>Add STRIPE_SECRET_KEY to Render environment variables</li>
+                                    <li>Redeploy the app</li>
+                                </ol>
+                            </div>
+                            <a href="/pricing" style="display: inline-block; background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%); color: white; padding: 14px 32px; border-radius: 10px; text-decoration: none; font-weight: 600; margin-top: 20px;">
+                                ← Back to Pricing
+                            </a>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                elements = stripe.elements();
+        
+        // Create card element
+        const cardElement = elements.create('card', {
+            style: {
+                base: {
+                    color: '#ffffff',
+                    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                    fontSize: '15px',
+                    '::placeholder': {
+                        color: '#64748b'
+                    }
+                },
+                invalid: {
+                    color: '#ef4444',
+                    iconColor: '#ef4444'
+                }
+            }
+        });
+        
+        cardElement.mount('#card-element');
+        
+        // Handle card errors
+        cardElement.on('change', (event) => {
+            const displayError = document.getElementById('card-errors');
+            if (event.error) {
+                displayError.textContent = event.error.message;
+            } else {
+                displayError.textContent = '';
+            }
+        });
+        
+        // Handle form submission
+        const form = document.getElementById('payment-form');
+        const submitButton = document.getElementById('submit-button');
+        const errorMessage = document.getElementById('error-message');
+        
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            
+            // Disable button and show spinner
+            submitButton.disabled = true;
+            submitButton.classList.add('processing');
+            errorMessage.classList.remove('show');
+            
+            const email = document.getElementById('email').value;
+            
+            try {
+                // Create payment intent on server
+                const response = await fetch('/create-payment-intent', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        plan: plan,
+                        email: email,
+                        amount: selectedPlan.price * 100, // Convert to cents
+                        credits: selectedPlan.credits
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || 'Payment failed');
+                }
+                
+                // Confirm payment with Stripe
+                const result = await stripe.confirmCardPayment(data.clientSecret, {
+                    payment_method: {
+                        card: cardElement,
+                        billing_details: {
+                            email: email
+                        }
+                    }
+                });
+                
+                if (result.error) {
+                    // Show error
+                    errorMessage.textContent = result.error.message;
+                    errorMessage.classList.add('show');
+                    submitButton.disabled = false;
+                    submitButton.classList.remove('processing');
+                } else {
+                    // Payment successful!
+                    window.location.href = `/payment-success?session_id=${data.sessionId}&credits=${selectedPlan.credits}`;
+                }
+            } catch (error) {
+                errorMessage.textContent = error.message;
+                errorMessage.classList.add('show');
+                submitButton.disabled = false;
+                submitButton.classList.remove('processing');
+            }
+        });
+        
+            } catch (error) {
+                console.error('Stripe initialization error:', error);
+                document.body.innerHTML = `
+                    <div style="max-width: 600px; margin: 100px auto; padding: 40px; background: rgba(30, 41, 59, 0.8); border-radius: 20px; text-align: center; color: white;">
+                        <h1 style="font-size: 32px; margin-bottom: 20px;">⚠️ Configuration Error</h1>
+                        <p style="font-size: 18px; color: #94a3b8; margin-bottom: 30px;">
+                            There was an error loading the payment system.
+                        </p>
+                        <p style="font-size: 14px; color: #94a3b8; margin-bottom: 30px;">
+                            ${error.message}
+                        </p>
+                        <a href="/pricing" style="display: inline-block; background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%); color: white; padding: 14px 32px; border-radius: 10px; text-decoration: none; font-weight: 600;">
+                            ← Back to Pricing
+                        </a>
+                    </div>
+                `;
+            }
+        };
+        
+        // Initialize Stripe on page load
+        initializeStripe();
+    </script>
+</body>
+</html>

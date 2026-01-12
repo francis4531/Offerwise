@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - OfferWise AI</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            min-height: 100vh;
+            color: white;
+        }
+        
+        .header {
+            background: rgba(30, 41, 59, 0.8);
+            border-bottom: 1px solid rgba(96, 165, 250, 0.2);
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(10px);
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .nav { display: flex; gap: 24px; align-items: center; }
+        
+        .nav a {
+            color: #94a3b8;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s;
+        }
+        
+        .nav a:hover { color: #60a5fa; }
+        .nav a.active { color: #60a5fa; }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        
+        .welcome {
+            margin-bottom: 40px;
+        }
+        
+        .welcome h1 {
+            font-size: 36px;
+            margin-bottom: 8px;
+        }
+        
+        .welcome p {
+            color: #94a3b8;
+            font-size: 18px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+        
+        .stat-card {
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid rgba(96, 165, 250, 0.2);
+            border-radius: 16px;
+            padding: 32px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        
+        .stat-card:hover {
+            border-color: rgba(96, 165, 250, 0.5);
+            transform: translateY(-4px);
+        }
+        
+        .stat-value {
+            font-size: 56px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+        }
+        
+        .stat-label {
+            color: #94a3b8;
+            font-size: 16px;
+            font-weight: 600;
+        }
+        
+        .card {
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid rgba(96, 165, 250, 0.2);
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 24px;
+        }
+        
+        .card h2 {
+            font-size: 22px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .card-subtitle {
+            color: #94a3b8;
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
+        
+        .history-item {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(96, 165, 250, 0.2);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 16px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .history-item:hover {
+            border-color: rgba(96, 165, 250, 0.6);
+            background: rgba(15, 23, 42, 0.9);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(96, 165, 250, 0.2);
+        }
+        
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        
+        .history-address {
+            font-size: 18px;
+            font-weight: 700;
+            color: #cbd5e1;
+            flex: 1;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        
+        .badge-low { background: rgba(16, 185, 129, 0.2); color: #10b981; }
+        .badge-moderate { background: rgba(251, 191, 36, 0.2); color: #fbbf24; }
+        .badge-high { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+        .badge-critical { background: rgba(220, 38, 38, 0.2); color: #dc2626; }
+        
+        .history-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 12px;
+        }
+        
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        
+        .detail-label {
+            color: #64748b;
+            font-size: 12px;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+        
+        .detail-value {
+            color: #cbd5e1;
+            font-size: 16px;
+            font-weight: 700;
+        }
+        
+        .history-date {
+            color: #64748b;
+            font-size: 13px;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid rgba(96, 165, 250, 0.1);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            color: #64748b;
+        }
+        
+        .empty-state-icon {
+            font-size: 72px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+        
+        .empty-state h3 {
+            font-size: 24px;
+            margin-bottom: 12px;
+        }
+        
+        .empty-state p {
+            font-size: 16px;
+            margin-bottom: 32px;
+        }
+        
+        .button-primary {
+            background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
+            color: white;
+            padding: 14px 32px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 16px;
+            display: inline-block;
+        }
+        
+        .footer {
+            background: rgba(15, 23, 42, 0.8);
+            border-top: 1px solid rgba(59, 130, 246, 0.2);
+            padding: 40px 0;
+            margin-top: 80px;
+            text-align: center;
+        }
+        
+        .footer a {
+            color: #60a5fa;
+            text-decoration: none;
+        }
+        
+        .footer a:hover {
+            text-decoration: underline;
+        }
+        
+        /* User Profile Dropdown Styles */
+        .user-profile-dropdown {
+            position: relative;
+            margin-left: 16px;
+        }
+        
+        .user-profile-button {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 12px;
+            padding: 6px 12px 6px 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #e2e8f0;
+        }
+        
+        .user-profile-button:hover {
+            background: rgba(59, 130, 246, 0.1);
+            border-color: rgba(59, 130, 246, 0.5);
+        }
+        
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+            color: white;
+            text-transform: uppercase;
+        }
+        
+        .oauth-badge {
+            width: 18px;
+            height: 18px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 700;
+        }
+        
+        .oauth-badge.google {
+            background: #4285F4;
+            color: white;
+        }
+        
+        .oauth-badge.facebook {
+            background: #1877F2;
+            color: white;
+        }
+        
+        .oauth-badge.apple {
+            background: #ffffff;
+            color: #000000;
+        }
+        
+        .oauth-badge.email {
+            background: rgba(148, 163, 184, 0.3);
+            color: #94a3b8;
+        }
+        
+        .user-dropdown-menu {
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 0;
+            background: rgba(15, 23, 42, 0.95);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 12px;
+            min-width: 240px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            display: none;
+            z-index: 1000;
+            backdrop-filter: blur(12px);
+        }
+        
+        .user-dropdown-menu.show {
+            display: block;
+            animation: slideDown 0.2s ease-out;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .user-dropdown-header {
+            padding: 16px;
+            border-bottom: 1px solid rgba(59, 130, 246, 0.2);
+        }
+        
+        .user-dropdown-email {
+            font-size: 14px;
+            font-weight: 600;
+            color: #e2e8f0;
+            margin-bottom: 4px;
+            word-break: break-all;
+        }
+        
+        .user-dropdown-tier {
+            font-size: 12px;
+            color: #94a3b8;
+            text-transform: capitalize;
+        }
+        
+        .user-dropdown-divider {
+            height: 1px;
+            background: rgba(59, 130, 246, 0.2);
+        }
+        
+        .user-dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            color: #e2e8f0;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        
+        .user-dropdown-item:hover {
+            background: rgba(59, 130, 246, 0.1);
+        }
+        
+        .user-dropdown-item svg {
+            color: #94a3b8;
+        }
+        
+        .user-dropdown-logout {
+            border-top: 1px solid rgba(59, 130, 246, 0.2);
+            color: #fca5a5;
+        }
+        
+        .user-dropdown-logout:hover {
+            background: rgba(239, 68, 68, 0.1);
+        }
+        
+        .user-dropdown-logout svg {
+            color: #fca5a5;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="/dashboard" style="text-decoration: none; color: inherit;"><div class="logo">OfferWise AI</div></a>
+        <div class="nav">
+            <a href="/pricing">Pricing</a>
+            <a href="/settings">Settings</a>
+            <a href="/app">New Analysis</a>
+            
+            <!-- User Profile Dropdown -->
+            <div class="user-profile-dropdown" id="user-profile-dropdown">
+                <button class="user-profile-button" id="user-profile-button">
+                    <div class="user-avatar" id="user-avatar">
+                        <span id="user-initial">?</span>
+                    </div>
+                    <div class="oauth-badge" id="oauth-badge" title="Login method"></div>
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" style="margin-left: 4px;">
+                        <path d="M4 6l4 4 4-4"/>
+                    </svg>
+                </button>
+                
+                <div class="user-dropdown-menu" id="user-dropdown-menu">
+                    <div class="user-dropdown-header">
+                        <div class="user-dropdown-email" id="user-dropdown-email">Loading...</div>
+                        <div class="user-dropdown-tier" id="user-dropdown-tier">Free Plan</div>
+                    </div>
+                    <div class="user-dropdown-divider"></div>
+                    <a href="/settings" class="user-dropdown-item">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="3"/>
+                            <path d="M12 1v6m0 6v6M1 12h6m6 0h6"/>
+                        </svg>
+                        Settings
+                    </a>
+                    <a href="/logout" class="user-dropdown-item user-dropdown-logout">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4m7 14l5-5-5-5m5 5H9"/>
+                        </svg>
+                        Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="welcome">
+            <h1>📊 My Dashboard</h1>
+            <p>Track your analyzed properties and insights</p>
+        </div>
+        
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value" id="credits">∞</div>
+                <div class="stat-label">Analysis Credits</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-value" id="analyses-completed">0</div>
+                <div class="stat-label">Properties Analyzed</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-value" id="total-saved">$0</div>
+                <div class="stat-label">Potential Savings</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-value" id="avg-discount">0%</div>
+                <div class="stat-label">Avg Discount Found</div>
+            </div>
+        </div>
+        
+        <!-- New Analysis CTA -->
+        <div style="text-align: center; margin: 40px 0;">
+            <button id="analyze-button" style="
+                display: inline-block;
+                background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+                color: white;
+                padding: 18px 48px;
+                border-radius: 12px;
+                border: none;
+                cursor: pointer;
+                font-size: 18px;
+                font-weight: 700;
+                box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3);
+                transition: transform 0.2s, box-shadow 0.2s;
+            " 
+            onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 15px 35px rgba(59, 130, 246, 0.4)';"
+            onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 10px 25px rgba(59, 130, 246, 0.3)';"
+            onclick="handleStartAnalysis()">
+                🚀 Analyze New Property
+            </button>
+            <div style="margin-top: 12px; color: #64748b; font-size: 14px;">
+                <span id="credits-status">Loading credits...</span>
+            </div>
+        </div>
+        
+        <!-- Analysis History -->
+        <div class="card">
+            <h2>📋 Analysis History</h2>
+            <p class="card-subtitle">
+                Your recently analyzed properties and recommendations
+            </p>
+            
+            <div id="history-container">
+                <!-- Will be populated with actual analyses -->
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Load and display analysis history from localStorage
+        function loadAnalysisHistory() {
+            const analyses = JSON.parse(localStorage.getItem('analysis_history') || '[]');
+            const container = document.getElementById('history-container');
+            
+            // Filter out old analyses without full_result (from before we started saving them)
+            const validAnalyses = analyses.filter(a => a.full_result);
+            
+            if (validAnalyses.length === 0) {
+                // Show empty state
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📊</div>
+                        <h3>No Analyses Yet</h3>
+                        <p>Start by analyzing your first property to see detailed insights here!</p>
+                        <a href="/app" class="button-primary">Analyze Your First Property</a>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Update stats with valid analyses only
+            updateStats(validAnalyses);
+            
+            // Display each analysis (most recent first)
+            container.innerHTML = validAnalyses
+                .sort((a, b) => new Date(b.analyzed_at) - new Date(a.analyzed_at))
+                .map(analysis => createAnalysisCard(analysis))
+                .join('');
+        }
+        
+        function updateStats(analyses) {
+            // Total analyses
+            document.getElementById('analyses-completed').textContent = analyses.length;
+            
+            // Total potential savings - recalculate to fix old bad data
+            const totalSavings = analyses.reduce((sum, a) => {
+                // Recalculate: asking - recommended
+                const askingPrice = a.asking_price || 0;
+                const recommendedOffer = a.recommended_offer || askingPrice;
+                const savings = askingPrice - recommendedOffer;
+                return sum + Math.max(0, savings);
+            }, 0);
+            
+            if (totalSavings >= 1000) {
+                document.getElementById('total-saved').textContent = '$' + (totalSavings / 1000).toFixed(0) + 'K';
+            } else {
+                document.getElementById('total-saved').textContent = '$' + totalSavings.toFixed(0);
+            }
+            
+            // Average discount
+            const validDiscounts = analyses.filter(a => a.discount_percentage).map(a => a.discount_percentage);
+            if (validDiscounts.length > 0) {
+                const avgDiscount = validDiscounts.reduce((sum, d) => sum + d, 0) / validDiscounts.length;
+                document.getElementById('avg-discount').textContent = avgDiscount.toFixed(0) + '%';
+            }
+        }
+        
+        function createAnalysisCard(analysis) {
+            // Safely extract risk score - handle both number and object
+            const riskScore = safeRiskScore(analysis.risk_score);
+            const riskLevel = getRiskLevel(riskScore);
+            const badgeClass = getRiskBadgeClass(riskLevel);
+            const formattedDate = formatDate(analysis.analyzed_at);
+            
+            // Recalculate potential savings to fix old bad data
+            const askingPrice = analysis.asking_price || 0;
+            const recommendedOffer = analysis.recommended_offer || askingPrice;
+            const potentialSavings = askingPrice - recommendedOffer;
+            
+            return `
+                <div class="history-item" onclick="viewAnalysis('${analysis.id}')" style="cursor: pointer;">
+                    <div class="history-header">
+                        <div style="flex: 1;">
+                            <div class="history-address">
+                                ${analysis.property_address || 'Property Analysis'}
+                            </div>
+                            <div style="color: #94a3b8; font-size: 13px; margin-top: 4px;">
+                                🕒 ${formattedDate}
+                            </div>
+                        </div>
+                        <span class="badge ${badgeClass}">${riskLevel} RISK</span>
+                    </div>
+                    <div class="history-details">
+                        <div class="detail-item">
+                            <div class="detail-label">Asking Price</div>
+                            <div class="detail-value">${formatCurrency(askingPrice)}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Risk Score</div>
+                            <div class="detail-value">${riskScore}%</div>
+                        </div>
+                        ${riskScore === 0 || (recommendedOffer && recommendedOffer !== askingPrice) ? `
+                        <div class="detail-item">
+                            <div class="detail-label">${riskScore === 0 ? 'Offer Suggestion' : 'Recommended Offer'}</div>
+                            <div class="detail-value" style="${riskScore === 0 ? 'color: #10b981;' : ''}">${formatCurrency(recommendedOffer)}</div>
+                        </div>
+                        ` : ''}
+                        ${potentialSavings > 0 ? `
+                        <div class="detail-item">
+                            <div class="detail-label">Potential Savings</div>
+                            <div class="detail-value" style="color: #10b981;">${formatCurrency(potentialSavings)}</div>
+                        </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+        }
+        
+        function viewAnalysis(analysisId) {
+            // Find the analysis in history
+            const history = JSON.parse(localStorage.getItem('analysis_history') || '[]');
+            const analysis = history.find(a => a.id === analysisId);
+            
+            if (analysis && analysis.full_result) {
+                // Store in format that app.html expects
+                sessionStorage.setItem('loaded_analysis', JSON.stringify(analysis.full_result));
+                
+                // Redirect to app to view full analysis
+                window.location.href = '/app';
+            } else {
+                alert('Full analysis not available for this property. This may be an older analysis from before we started saving full results.');
+            }
+        }
+        
+        function safeRiskScore(riskScore) {
+            // Handle objects (e.g., PropertyRiskScore with overall_risk_score)
+            if (typeof riskScore === 'object' && riskScore !== null) {
+                return Math.round(parseFloat(riskScore.overall_risk_score || riskScore.buyer_adjusted_score || 0));
+            }
+            // Handle numbers - always round to whole number
+            return Math.round(parseFloat(riskScore) || 0);
+        }
+        
+        function getRiskLevel(riskScore) {
+            if (riskScore < 30) return 'LOW';
+            if (riskScore < 50) return 'MODERATE';
+            if (riskScore < 70) return 'HIGH';
+            return 'CRITICAL';
+        }
+        
+        function getRiskBadgeClass(riskLevel) {
+            const map = {
+                'LOW': 'badge-low',
+                'MODERATE': 'badge-moderate',
+                'HIGH': 'badge-high',
+                'CRITICAL': 'badge-critical'
+            };
+            return map[riskLevel] || 'badge-moderate';
+        }
+        
+        function formatCurrency(amount) {
+            if (!amount) return 'N/A';
+            return '$' + amount.toLocaleString();
+        }
+        
+        function formatDate(isoString) {
+            const date = new Date(isoString);
+            return date.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+        
+        // Handle starting a new analysis - check credits first
+        async function handleStartAnalysis() {
+            try {
+                const response = await fetch('/api/user/credits');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch credits');
+                }
+                const data = await response.json();
+                const credits = data.credits || 0;
+                
+                if (credits === 0) {
+                    // No credits - redirect to pricing
+                    console.log('🚫 No credits available - redirecting to pricing');
+                    window.location.href = '/pricing?message=' + encodeURIComponent('You need to purchase credits before starting a new analysis.');
+                } else {
+                    // Has credits - allow to continue
+                    console.log(`✅ User has ${credits} credits - allowing analysis`);
+                    window.location.href = '/app';
+                }
+            } catch (error) {
+                console.error('❌ Error checking credits:', error);
+                // On error, still allow (fail open)
+                window.location.href = '/app';
+            }
+        }
+        
+        // Load user credits from API
+        async function loadUserCredits() {
+            try {
+                const response = await fetch('/api/user/credits');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch credits');
+                }
+                const data = await response.json();
+                
+                const creditsElement = document.getElementById('credits');
+                const credits = data.credits || 0;
+                
+                // Update credits display
+                creditsElement.textContent = credits;
+                
+                // Update CTA status text
+                const statusElement = document.getElementById('credits-status');
+                
+                if (statusElement) {
+                    if (credits === 0) {
+                        statusElement.innerHTML = '❌ <span style="color: #ef4444;">No credits remaining</span>';
+                    } else if (credits === 1) {
+                        statusElement.innerHTML = `⚠️ <span style="color: #f59e0b;">${credits} credit remaining</span>`;
+                    } else {
+                        statusElement.innerHTML = `✅ <span style="color: #10b981;">${credits} credits available</span>`;
+                    }
+                }
+                
+                // Add color coding based on credit level
+                const statCard = creditsElement.closest('.stat-card');
+                if (credits === 0) {
+                    creditsElement.style.color = '#ef4444'; // Red
+                    if (statCard) statCard.style.borderLeft = '4px solid #ef4444';
+                } else if (credits <= 2) {
+                    creditsElement.style.color = '#f59e0b'; // Orange/yellow
+                    if (statCard) statCard.style.borderLeft = '4px solid #f59e0b';
+                } else {
+                    creditsElement.style.color = '#10b981'; // Green
+                    if (statCard) statCard.style.borderLeft = '4px solid #10b981';
+                }
+                
+                console.log(`✅ Loaded user credits: ${credits}`);
+            } catch (error) {
+                console.error('❌ Error loading credits:', error);
+                document.getElementById('credits').textContent = '?';
+            }
+        }
+        
+        // Clear old buggy analyses on page load (one-time migration)
+        function clearOldAnalyses() {
+            const migrationKey = 'analyses_migration_v2';
+            if (!localStorage.getItem(migrationKey)) {
+                console.log('Clearing old analyses due to showRepairCalculation bug fix...');
+                localStorage.removeItem('analysis_history');
+                localStorage.setItem(migrationKey, 'done');
+                console.log('Old analyses cleared. Fresh start!');
+            }
+        }
+        
+        // Show first-time user prompt
+        function showFirstTimePrompt() {
+            const history = JSON.parse(localStorage.getItem('analysis_history') || '[]');
+            const hasSeenPrompt = localStorage.getItem('seen_welcome_prompt');
+            
+            if (history.length === 0 && !hasSeenPrompt) {
+                // Create overlay
+                const overlay = document.createElement('div');
+                overlay.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 9999; display: flex; align-items: center; justify-content: center;';
+                
+                // Create prompt box
+                const prompt = document.createElement('div');
+                prompt.style.cssText = 'background: linear-gradient(135deg, #1e293b 0%, #334155 100%); padding: 40px; border-radius: 16px; max-width: 500px; text-align: center; box-shadow: 0 25px 50px rgba(0,0,0,0.5);';
+                prompt.innerHTML = `
+                    <div style="font-size: 48px; margin-bottom: 16px;">🏠</div>
+                    <h2 style="font-size: 28px; font-weight: 800; margin-bottom: 16px; color: #fff;">Welcome to OfferWise!</h2>
+                    <p style="font-size: 16px; color: #94a3b8; margin-bottom: 24px; line-height: 1.6;">
+                        Get started by analyzing your first property. Upload your seller disclosure and inspection report 
+                        to get instant AI-powered insights and a recommended offer price.
+                    </p>
+                    <a href="/app" style="display: inline-block; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; padding: 16px 32px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 16px;">
+                        Analyze Your First Property →
+                    </a>
+                    <br><br>
+                    <button onclick="this.parentElement.parentElement.remove(); localStorage.setItem('seen_welcome_prompt', 'true');" style="background: none; border: none; color: #64748b; cursor: pointer; font-size: 14px;">
+                        Skip for now
+                    </button>
+                `;
+                
+                overlay.appendChild(prompt);
+                document.body.appendChild(overlay);
+                
+                // Close on overlay click
+                overlay.addEventListener('click', (e) => {
+                    if (e.target === overlay) {
+                        overlay.remove();
+                        localStorage.setItem('seen_welcome_prompt', 'true');
+                    }
+                });
+            }
+        }
+        
+        // Load history on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            clearOldAnalyses();  // Clear old buggy analyses first
+            loadAnalysisHistory();  // Then load clean history
+            loadUserCredits();  // Load user's credit balance
+            setTimeout(showFirstTimePrompt, 500);  // Show prompt after a short delay
+        });
+    </script>
+    
+    <!-- Footer -->
+    <div class="footer">
+        <div class="container">
+            <p style="color: #94a3b8;">&copy; 2025 OfferWise. All rights reserved.</p>
+            <p style="margin-top: 16px; color: #cbd5e1;">
+                <a href="/terms">Terms of Service</a> • 
+                <a href="/privacy">Privacy Policy</a> • 
+                <a href="/contact">Contact</a>
+            </p>
+            <p style="margin-top: 12px; font-size: 12px; color: #64748b;">
+                OfferScore™ Patent Pending
+            </p>
+        </div>
+    </div>
+    
+    <!-- User Profile Dropdown Script -->
+    <script src="/static/user-profile.js"></script>
+</body>
+</html>

@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OfferWise AI - AI-Powered Property Analysis | Smart Offer Pricing</title>
+    <meta name="description" content="Stop overpaying for real estate. Our proprietary OfferScore™ algorithm analyzes seller transparency, property risk, and repair costs to calculate your perfect offer price.">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #e2e8f0;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        /* Header */
+        .header {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid #334155;
+            padding: 20px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 28px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 32px;
+            align-items: center;
+        }
+        
+        .nav-links a {
+            color: #94a3b8;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 15px;
+            transition: color 0.2s;
+        }
+        
+        .nav-links a:hover {
+            color: #60a5fa;
+        }
+        
+        .cta-button {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+            padding: 12px 32px;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.4);
+        }
+        
+        .cta-button-large {
+            padding: 18px 48px;
+            font-size: 18px;
+            border-radius: 12px;
+        }
+        
+        /* Hero Section */
+        .hero {
+            padding: 100px 0 80px;
+            text-align: center;
+        }
+        
+        .patent-badge {
+            display: inline-block;
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            color: #60a5fa;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 24px;
+        }
+        
+        h1 {
+            font-size: 64px;
+            font-weight: 800;
+            margin-bottom: 24px;
+            line-height: 1.1;
+            background: linear-gradient(135deg, #ffffff 0%, #94a3b8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .hero-subtitle {
+            font-size: 24px;
+            color: #94a3b8;
+            margin-bottom: 48px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.5;
+        }
+        
+        /* Social Proof Stats */
+        .social-proof {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid #334155;
+            border-radius: 16px;
+            padding: 48px;
+            margin: 80px auto;
+            max-width: 900px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 40px;
+        }
+        
+        .stat {
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 48px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+        }
+        
+        .stat-label {
+            font-size: 15px;
+            color: #94a3b8;
+            font-weight: 500;
+        }
+        
+        /* Features Section */
+        .section-title {
+            font-size: 42px;
+            font-weight: 800;
+            text-align: center;
+            margin-bottom: 64px;
+            color: #ffffff;
+        }
+        
+        .features {
+            padding: 80px 0;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 32px;
+            margin-top: 60px;
+        }
+        
+        .feature {
+            background: rgba(30, 41, 59, 0.6);
+            border: 1px solid #334155;
+            padding: 40px;
+            border-radius: 16px;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+        
+        .feature:hover {
+            transform: translateY(-4px);
+            border-color: #60a5fa;
+        }
+        
+        .feature-icon {
+            font-size: 40px;
+            margin-bottom: 20px;
+        }
+        
+        .feature-title {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: #ffffff;
+        }
+        
+        .feature-text {
+            color: #94a3b8;
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+        
+        .feature-value {
+            background: rgba(59, 130, 246, 0.1);
+            border-left: 3px solid #3b82f6;
+            padding: 12px 16px;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #60a5fa;
+            font-family: 'Courier New', monospace;
+        }
+        
+        /* How It Works */
+        .how-it-works {
+            padding: 80px 0;
+            background: rgba(15, 23, 42, 0.4);
+        }
+        
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+            margin-top: 60px;
+        }
+        
+        .step {
+            text-align: center;
+        }
+        
+        .step-number {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            font-weight: 800;
+            color: white;
+            margin: 0 auto 24px;
+        }
+        
+        .step h3 {
+            font-size: 20px;
+            margin-bottom: 12px;
+            color: #ffffff;
+        }
+        
+        .step p {
+            color: #94a3b8;
+            line-height: 1.6;
+        }
+        
+        /* Pricing Section */
+        .pricing {
+            padding: 80px 0;
+        }
+        
+        .pricing-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 32px;
+            margin-top: 60px;
+            max-width: 1000px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .pricing-card {
+            background: rgba(30, 41, 59, 0.6);
+            border: 2px solid #334155;
+            padding: 48px 32px;
+            border-radius: 16px;
+            text-align: center;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+        
+        .pricing-card:hover {
+            transform: translateY(-8px);
+            border-color: #60a5fa;
+        }
+        
+        .pricing-card.featured {
+            border-color: #3b82f6;
+            background: rgba(59, 130, 246, 0.1);
+            position: relative;
+        }
+        
+        .pricing-card.featured::before {
+            content: 'BEST VALUE';
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+            padding: 6px 20px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+        
+        .plan-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: #94a3b8;
+            margin-bottom: 16px;
+        }
+        
+        .price {
+            font-size: 56px;
+            font-weight: 800;
+            color: #ffffff;
+            margin-bottom: 8px;
+        }
+        
+        .price-note {
+            color: #64748b;
+            margin-bottom: 32px;
+            font-size: 14px;
+        }
+        
+        .plan-features {
+            list-style: none;
+            margin-bottom: 32px;
+            text-align: left;
+        }
+        
+        .plan-features li {
+            color: #cbd5e1;
+            padding: 12px 0;
+            border-bottom: 1px solid #334155;
+        }
+        
+        .plan-features li:before {
+            content: '✓ ';
+            color: #10b981;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+        
+        /* Footer */
+        .footer {
+            background: rgba(15, 23, 42, 0.8);
+            border-top: 1px solid #334155;
+            padding: 40px 0;
+            margin-top: 80px;
+            text-align: center;
+            color: #64748b;
+        }
+        
+        .footer a {
+            color: #94a3b8;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        
+        .footer a:hover {
+            color: #60a5fa;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 42px;
+            }
+            
+            .hero-subtitle {
+                font-size: 18px;
+            }
+            
+            .social-proof {
+                grid-template-columns: 1fr;
+                gap: 32px;
+            }
+            
+            .features-grid,
+            .steps,
+            .pricing-cards {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="container">
+            <div class="nav">
+                <div class="logo">OfferWise AI</div>
+                <div class="nav-links">
+                    <a href="/login">Login</a>
+                    <a href="/app" class="cta-button" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); box-shadow: 0 4px 14px rgba(59, 130, 246, 0.4); color: white;">Try Free</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Hero Section -->
+    <div class="hero">
+        <div class="container">
+            <h1>Stop Overpaying for Real Estate</h1>
+            <p class="hero-subtitle">
+                Our proprietary <strong>OfferScore™ algorithm</strong> analyzes seller transparency, 
+                property risk, and repair costs to calculate your perfect offer price — backed by 
+                advanced risk analytics.
+            </p>
+            <a href="/app" class="cta-button cta-button-large">Analyze Your Property →</a>
+        </div>
+    </div>
+    
+    <!-- Social Proof -->
+    <div class="container">
+        <div class="social-proof">
+            <div class="stat">
+                <div class="stat-number">$75K</div>
+                <div class="stat-label">Average Discount Found</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number">&lt; 5 min</div>
+                <div class="stat-label">Analysis Time</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number">100%</div>
+                <div class="stat-label">Data-Driven</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Features Section -->
+    <div class="features">
+        <div class="container">
+            <h2 class="section-title">Why OfferWise AI is Different</h2>
+            <div class="features-grid">
+                <div class="feature">
+                    <div class="feature-icon">🎯</div>
+                    <div class="feature-title">Proprietary OfferScore™ Algorithm</div>
+                    <p class="feature-text">
+                        Our proprietary algorithm combines risk analysis, transparency scoring, 
+                        and repair cost estimation into a single 0-100 score. No vague AI guesses 
+                        — pure mathematics.
+                    </p>
+                    <div class="feature-value">OfferScore: 66 → HIGH RISK → Negotiate hard</div>
+                </div>
+                
+                <div class="feature">
+                    <div class="feature-icon">🔍</div>
+                    <div class="feature-title">Seller Transparency Analysis</div>
+                    <p class="feature-text">
+                        Automatically detects when sellers hide defects. Our algorithm compares 
+                        what they disclosed against what inspectors found — contradictions trigger 
+                        automatic price discounts.
+                    </p>
+                    <div class="feature-value">Transparency: 35% → Apply $45K discount</div>
+                </div>
+                
+                <div class="feature">
+                    <div class="feature-icon">💰</div>
+                    <div class="feature-title">Three-Component Offer Model</div>
+                    <p class="feature-text">
+                        We calculate your offer using three factors: (1) Estimated repair costs, 
+                        (2) Risk-based premium, (3) Transparency discount. Every dollar justified.
+                    </p>
+                    <div class="feature-value">$1.5M - ($55K + $75K + $45K) = $1.325M</div>
+                </div>
+                
+                <div class="feature">
+                    <div class="feature-icon">⚠️</div>
+                    <div class="feature-title">Category-Weighted Risk Scoring</div>
+                    <p class="feature-text">
+                        Foundation issues weigh 1.5×, legal/environmental 1.5×, electrical 1.3×. 
+                        Not all problems are equal — our algorithm knows the difference.
+                    </p>
+                    <div class="feature-value">Foundation: CRITICAL → Weight: 1.5× → Score: 85</div>
+                </div>
+                
+                <div class="feature">
+                    <div class="feature-icon">📊</div>
+                    <div class="feature-title">National Cost Database</div>
+                    <p class="feature-text">
+                        Repair estimates from category-severity matrices covering all 50 states. 
+                        Foundation cracks? $15K-$35K. HVAC replacement? $6K-$20K. Real numbers.
+                    </p>
+                    <div class="feature-value">Total Repairs: $55,000 (High Confidence)</div>
+                </div>
+                
+                <div class="feature">
+                    <div class="feature-icon">🎲</div>
+                    <div class="feature-title">Walk-Away Recommendations</div>
+                    <p class="feature-text">
+                        When repair costs exceed 30% of property value, or critical issues stack up, 
+                        our system flags WALK AWAY. Not every deal should close.
+                    </p>
+                    <div class="feature-value">Repair Ratio: 42% → WALK AWAY RECOMMENDED</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- How It Works -->
+    <div class="how-it-works">
+        <div class="container">
+            <h2 class="section-title">How It Works</h2>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <h3>Upload Documents</h3>
+                    <p>Seller disclosure statement (required) and inspection report (optional). We extract text automatically from PDFs.</p>
+                </div>
+                
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <h3>Enter Property Details</h3>
+                    <p>Address and asking price. That's it — no lengthy forms or questionnaires.</p>
+                </div>
+                
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <h3>Get Your OfferScore™</h3>
+                    <p>Risk analysis, transparency scoring, repair estimates, and recommended offer price — all in under 5 minutes.</p>
+                </div>
+                
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <h3>Negotiate with Confidence</h3>
+                    <p>Use our analysis to justify your offer, counter seller arguments, and close the deal at the right price.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Pricing -->
+    <div class="pricing">
+        <div class="container">
+            <h2 class="section-title">Simple, Transparent Pricing</h2>
+            <div class="pricing-cards">
+                <div class="pricing-card">
+                    <div class="plan-name">Single Analysis</div>
+                    <div class="price">$15</div>
+                    <div class="price-note">one property</div>
+                    <ul class="plan-features">
+                        <li>OfferScore™ Analysis</li>
+                        <li>Risk Assessment</li>
+                        <li>Transparency Check</li>
+                        <li>Offer Price Recommendation</li>
+                        <li>Repair Cost Estimates</li>
+                    </ul>
+                    <a href="/app" class="cta-button" style="width: 100%;">Get Started</a>
+                </div>
+                
+                <div class="pricing-card">
+                    <div class="plan-name">5-Property Bundle</div>
+                    <div class="price">$50</div>
+                    <div class="price-note">$10 per property</div>
+                    <ul class="plan-features">
+                        <li>Everything in Single Analysis</li>
+                        <li>5 Property Analyses</li>
+                        <li>Compare Multiple Properties</li>
+                        <li>Save $25</li>
+                    </ul>
+                    <a href="/app" class="cta-button" style="width: 100%;">Get Started</a>
+                </div>
+                
+                <div class="pricing-card featured">
+                    <div class="plan-name">10-Property Bundle</div>
+                    <div class="price">$75</div>
+                    <div class="price-note">$7.50 per property</div>
+                    <ul class="plan-features">
+                        <li>Everything in 5-Property Bundle</li>
+                        <li>10 Property Analyses</li>
+                        <li>Perfect for Investors</li>
+                        <li>Save $75</li>
+                    </ul>
+                    <a href="/app" class="cta-button" style="width: 100%;">Get Started</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Footer -->
+    <div class="footer">
+        <div class="container">
+            <p>&copy; 2025 OfferWise. All rights reserved.</p>
+            <p style="margin-top: 16px;">
+                <a href="/terms">Terms of Service</a> • 
+                <a href="/privacy">Privacy Policy</a> • 
+                <a href="/contact">Contact</a>
+            </p>
+            <p style="margin-top: 12px; font-size: 12px; color: #475569;">
+                OfferScore™ Patent Pending
+            </p>
+        </div>
+    </div>
+</body>
+</html>
