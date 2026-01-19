@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Test - OfferWise</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            margin-top: 0;
+            color: #333;
+        }
+        
+        h3 {
+            margin-top: 0;
+            color: #666;
+            font-size: 18px;
+        }
+        
+        .file-input-wrapper {
+            margin: 15px 0;
+        }
+        
+        input[type="file"] {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            border: 2px dashed #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: border-color 0.3s;
+        }
+        
+        input[type="file"]:hover {
+            border-color: #4CAF50;
+        }
+        
+        .progress-container {
+            margin-top: 15px;
+            display: none; /* Hidden by default */
+        }
+        
+        .progress-container.show {
+            display: block;
+        }
+        
+        .progress-bar-wrapper {
+            background: #f0f0f0;
+            height: 30px;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+        
+        .progress-bar-fill {
+            background: linear-gradient(90deg, #4CAF50, #45a049);
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        .progress-text {
+            font-size: 14px;
+            color: #666;
+            text-align: center;
+        }
+        
+        #upload-status {
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+            display: none; /* Hidden by default */
+            font-size: 14px;
+        }
+        
+        #upload-status.show {
+            display: block;
+        }
+        
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 20px;
+        }
+        
+        button:hover {
+            background: #45a049;
+        }
+        
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .note {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            color: #856404;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <h1>📄 Upload Test Page</h1>
+    <p style="color: #666;">Test the async upload system with progress bars</p>
+    
+    <!-- Inspection Card -->
+    <div class="card">
+        <h3>📋 Inspection Report</h3>
+        <div class="file-input-wrapper">
+            <input type="file" id="inspection-upload" accept=".pdf">
+        </div>
+        
+        <!-- PROGRESS BAR (hidden by default) -->
+        <div id="inspection-progress" class="progress-container">
+            <div class="progress-bar-wrapper">
+                <div id="inspection-progress-bar" class="progress-bar-fill">0%</div>
+            </div>
+            <div id="inspection-progress-text" class="progress-text">Ready to upload</div>
+        </div>
+    </div>
+    
+    <!-- Disclosure Card -->
+    <div class="card">
+        <h3>📝 Seller Disclosure</h3>
+        <div class="file-input-wrapper">
+            <input type="file" id="disclosure-upload" accept=".pdf">
+        </div>
+        
+        <!-- PROGRESS BAR (hidden by default) -->
+        <div id="disclosure-progress" class="progress-container">
+            <div class="progress-bar-wrapper">
+                <div id="disclosure-progress-bar" class="progress-bar-fill">0%</div>
+            </div>
+            <div id="disclosure-progress-text" class="progress-text">Ready to upload</div>
+        </div>
+    </div>
+    
+    <!-- Status Message -->
+    <div id="upload-status"></div>
+    
+    <!-- Analyze Button -->
+    <div class="card">
+        <button id="analyze-button" disabled>Upload Documents First</button>
+    </div>
+    
+    <!-- Note -->
+    <div class="note">
+        <strong>💡 How to test:</strong><br>
+        1. Upload a PDF (any size)<br>
+        2. Watch the progress bar fill up<br>
+        3. Wait for completion message<br>
+        4. Analyze button will enable when ready
+    </div>
+    
+    <!-- Load the async upload manager -->
+    <script src="/static/async-upload-manager.js"></script>
+    
+    <script>
+        // Log when script loads
+        console.log('✅ Test page loaded');
+        console.log('Upload manager available:', typeof uploadManager !== 'undefined');
+        
+        // Make status messages more visible
+        function showMessage(message, type = 'info') {
+            console.log(`[${type.toUpperCase()}] ${message}`);
+            
+            const statusEl = document.getElementById('upload-status');
+            if (statusEl) {
+                statusEl.textContent = message;
+                statusEl.classList.add('show');
+                statusEl.style.display = 'block';
+                
+                // Color based on type
+                if (type === 'error') {
+                    statusEl.style.background = '#ffebee';
+                    statusEl.style.color = '#c62828';
+                    statusEl.style.border = '1px solid #ef5350';
+                } else if (type === 'success') {
+                    statusEl.style.background = '#e8f5e9';
+                    statusEl.style.color = '#388e3c';
+                    statusEl.style.border = '1px solid #66bb6a';
+                } else {
+                    statusEl.style.background = '#e3f2fd';
+                    statusEl.style.color = '#1976d2';
+                    statusEl.style.border = '1px solid #42a5f5';
+                }
+            }
+        }
+        
+        // Make progress bars visible when updating
+        function updateProgressBar(documentType, current, total, message) {
+            console.log(`Progress [${documentType}]: ${current}/${total} - ${message}`);
+            
+            // Show progress container
+            const progressContainer = document.getElementById(`${documentType}-progress`);
+            if (progressContainer) {
+                progressContainer.classList.add('show');
+                progressContainer.style.display = 'block';
+            }
+            
+            // Update progress bar
+            const progressBar = document.getElementById(`${documentType}-progress-bar`);
+            if (progressBar && total > 0) {
+                const percent = (current / total) * 100;
+                progressBar.style.width = `${percent}%`;
+                progressBar.textContent = `${Math.round(percent)}%`;
+            }
+            
+            // Update progress text
+            const progressText = document.getElementById(`${documentType}-progress-text`);
+            if (progressText) {
+                progressText.textContent = total > 0 
+                    ? `${current}/${total} pages - ${message}`
+                    : message;
+            }
+        }
+        
+        // Track completed uploads
+        let inspectionDone = false;
+        let disclosureDone = false;
+        
+        function checkEnableAnalyze() {
+            const btn = document.getElementById('analyze-button');
+            if (inspectionDone && disclosureDone) {
+                btn.disabled = false;
+                btn.textContent = 'Analyze Property';
+            } else if (inspectionDone || disclosureDone) {
+                btn.textContent = 'Upload Other Document...';
+            }
+        }
+        
+        // Override complete handlers
+        const originalUploadInspection = window.uploadInspection;
+        window.uploadInspection = async function(file) {
+            return uploadManager.uploadDocument(file, 'inspection', {
+                onStart: (data) => {
+                    showMessage('Uploading inspection report...', 'info');
+                    inspectionDone = false;
+                },
+                onProgress: (data) => {
+                    updateProgressBar('inspection', data.current, data.total, data.message);
+                },
+                onComplete: (data) => {
+                    const pages = data.result.pages || 'unknown';
+                    showMessage(`✓ Inspection report processed (${pages} pages)`, 'success');
+                    inspectionDone = true;
+                    checkEnableAnalyze();
+                },
+                onError: (data) => {
+                    showMessage(`✗ Upload failed: ${data.message}`, 'error');
+                }
+            });
+        };
+        
+        const originalUploadDisclosure = window.uploadDisclosure;
+        window.uploadDisclosure = async function(file) {
+            return uploadManager.uploadDocument(file, 'disclosure', {
+                onStart: (data) => {
+                    showMessage('Uploading disclosure...', 'info');
+                    disclosureDone = false;
+                },
+                onProgress: (data) => {
+                    updateProgressBar('disclosure', data.current, data.total, data.message);
+                },
+                onComplete: (data) => {
+                    const pages = data.result.pages || 'unknown';
+                    showMessage(`✓ Disclosure processed (${pages} pages)`, 'success');
+                    disclosureDone = true;
+                    checkEnableAnalyze();
+                },
+                onError: (data) => {
+                    showMessage(`✗ Upload failed: ${data.message}`, 'error');
+                }
+            });
+        };
+        
+        // Analyze button
+        document.getElementById('analyze-button').addEventListener('click', () => {
+            showMessage('✓ Analysis starting... (This is a demo)', 'success');
+        });
+    </script>
+</body>
+</html>

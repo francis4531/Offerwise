@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Onboarding Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 40px;
+            background: #0f172a;
+            color: #e2e8f0;
+        }
+        .status {
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            border: 2px solid #334155;
+        }
+        .success { border-color: #10b981; background: rgba(16, 185, 129, 0.1); }
+        .error { border-color: #ef4444; background: rgba(239, 68, 68, 0.1); }
+        .info { border-color: #3b82f6; background: rgba(59, 130, 246, 0.1); }
+        button {
+            padding: 12px 24px;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        button:hover { background: #2563eb; }
+        pre {
+            background: #1e293b;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 Onboarding Deployment Test</h1>
+    <p>This page will test if the onboarding system is properly deployed.</p>
+    
+    <div id="results"></div>
+    
+    <button onclick="runTests()">🧪 Run Tests</button>
+    <button onclick="window.location.href='/onboarding'">📄 Go to Onboarding</button>
+    
+    <script>
+        async function runTests() {
+            const results = document.getElementById('results');
+            results.innerHTML = '<div class="status info">Running tests...</div>';
+            
+            let html = '';
+            
+            // Test 1: Check if logged in
+            html += '<div class="status info"><h3>Test 1: Authentication</h3>';
+            try {
+                const userResp = await fetch('/api/user', { credentials: 'include' });
+                if (userResp.ok) {
+                    const userData = await userResp.json();
+                    html += `<p>✅ Logged in as: ${userData.email}</p>`;
+                } else {
+                    html += `<p>❌ Not logged in (Status: ${userResp.status})</p>`;
+                    html += '<p>👉 <a href="/login" style="color: #3b82f6;">Go to login</a></p>';
+                }
+            } catch (e) {
+                html += `<p>❌ Error: ${e.message}</p>`;
+            }
+            html += '</div>';
+            
+            // Test 2: Check consent API
+            html += '<div class="status info"><h3>Test 2: Consent API</h3>';
+            try {
+                const consentResp = await fetch('/api/consent/status', { credentials: 'include' });
+                if (consentResp.ok) {
+                    const consentData = await consentResp.json();
+                    html += `<p>✅ Consent API working</p>`;
+                    html += `<pre>${JSON.stringify(consentData, null, 2)}</pre>`;
+                } else {
+                    html += `<p>❌ Consent API failed (Status: ${consentResp.status})</p>`;
+                }
+            } catch (e) {
+                html += `<p>❌ Error: ${e.message}</p>`;
+            }
+            html += '</div>';
+            
+            // Test 3: Check preferences API
+            html += '<div class="status info"><h3>Test 3: Preferences API</h3>';
+            try {
+                const prefResp = await fetch('/api/user/preferences', { credentials: 'include' });
+                if (prefResp.ok) {
+                    const prefData = await prefResp.json();
+                    html += `<p>✅ Preferences API working</p>`;
+                    html += `<pre>${JSON.stringify(prefData, null, 2)}</pre>`;
+                } else {
+                    html += `<p>❌ Preferences API failed (Status: ${prefResp.status})</p>`;
+                }
+            } catch (e) {
+                html += `<p>❌ Error: ${e.message}</p>`;
+            }
+            html += '</div>';
+            
+            // Test 4: Try to fetch onboarding page
+            html += '<div class="status info"><h3>Test 4: Onboarding Route</h3>';
+            try {
+                const onboardResp = await fetch('/onboarding', { credentials: 'include', redirect: 'manual' });
+                if (onboardResp.ok) {
+                    html += `<p>✅ Onboarding route exists (Status: ${onboardResp.status})</p>`;
+                } else if (onboardResp.status === 404) {
+                    html += `<p>❌ Onboarding route NOT FOUND (404)</p>`;
+                    html += '<p>⚠️ <strong>Route not deployed to production!</strong></p>';
+                } else {
+                    html += `<p>⚠️ Unexpected status: ${onboardResp.status}</p>`;
+                }
+            } catch (e) {
+                html += `<p>❌ Error: ${e.message}</p>`;
+            }
+            html += '</div>';
+            
+            // Summary
+            html += '<div class="status success"><h3>📋 Summary</h3>';
+            html += '<p>If all tests passed ✅:</p>';
+            html += '<ul>';
+            html += '<li>You are logged in</li>';
+            html += '<li>All APIs work</li>';
+            html += '<li>Onboarding route exists</li>';
+            html += '<li>Problem is likely browser cache or JavaScript error</li>';
+            html += '</ul>';
+            html += '<p><strong>Next step:</strong> Open browser console (F12) and check for errors when loading /onboarding</p>';
+            html += '</div>';
+            
+            results.innerHTML = html;
+        }
+        
+        // Auto-run on page load
+        window.addEventListener('DOMContentLoaded', runTests);
+    </script>
+</body>
+</html>

@@ -1,0 +1,829 @@
+<!-- 
+SETTINGS PAGE - GUIDED ONBOARDING FLOW v4.30.0
+Step-by-step wizard for legal consents → preferences → start analysis
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Get Started - OfferWise</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #e2e8f0;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-top: 20px;
+        }
+        
+        .header h1 {
+            font-size: 32px;
+            color: #60a5fa;
+            margin-bottom: 8px;
+        }
+        
+        .header p {
+            font-size: 16px;
+            color: #94a3b8;
+        }
+        
+        /* Progress Indicator */
+        .progress-bar {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 40px;
+            position: relative;
+        }
+        
+        .progress-bar::before {
+            content: '';
+            position: absolute;
+            top: 24px;
+            left: 10%;
+            right: 10%;
+            height: 3px;
+            background: #334155;
+            z-index: 0;
+        }
+        
+        .progress-fill {
+            position: absolute;
+            top: 24px;
+            left: 10%;
+            height: 3px;
+            background: linear-gradient(90deg, #10b981 0%, #3b82f6 100%);
+            z-index: 1;
+            transition: width 0.5s ease;
+        }
+        
+        .step {
+            flex: 1;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .step-circle {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: #1e293b;
+            border: 3px solid #334155;
+            margin: 0 auto 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: 700;
+            color: #64748b;
+            transition: all 0.3s ease;
+        }
+        
+        .step.active .step-circle {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            border-color: #60a5fa;
+            color: white;
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+        }
+        
+        .step.completed .step-circle {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            border-color: #34d399;
+            color: white;
+        }
+        
+        .step-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #64748b;
+        }
+        
+        .step.active .step-label {
+            color: #60a5fa;
+        }
+        
+        .step.completed .step-label {
+            color: #10b981;
+        }
+        
+        /* Content Cards */
+        .step-content {
+            background: #1e293b;
+            border-radius: 16px;
+            padding: 32px;
+            border: 2px solid #334155;
+            min-height: 400px;
+        }
+        
+        .step-content h2 {
+            font-size: 24px;
+            color: #f1f5f9;
+            margin-bottom: 8px;
+        }
+        
+        .step-content .subtitle {
+            font-size: 14px;
+            color: #94a3b8;
+            margin-bottom: 32px;
+        }
+        
+        /* Consent Items */
+        .consent-item {
+            background: rgba(59, 130, 246, 0.1);
+            border: 2px solid rgba(59, 130, 246, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        .consent-item.accepted {
+            background: rgba(16, 185, 129, 0.1);
+            border-color: rgba(16, 185, 129, 0.3);
+        }
+        
+        .consent-item.required {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: rgba(239, 68, 68, 0.3);
+        }
+        
+        .consent-icon {
+            font-size: 40px;
+        }
+        
+        .consent-info {
+            flex: 1;
+        }
+        
+        .consent-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #f1f5f9;
+            margin-bottom: 4px;
+        }
+        
+        .consent-version {
+            font-size: 13px;
+            color: #94a3b8;
+        }
+        
+        .consent-status {
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        
+        .status-accepted {
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16, 185, 129, 0.4);
+            color: #10b981;
+        }
+        
+        .status-required {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            color: #ef4444;
+        }
+        
+        .review-button {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        
+        .review-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+        
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 24px;
+        }
+        
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #cbd5e1;
+            margin-bottom: 8px;
+        }
+        
+        .form-input {
+            width: 100%;
+            background: #0f172a;
+            border: 2px solid #334155;
+            color: #e2e8f0;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: all 0.3s;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        .form-select {
+            width: 100%;
+            background: #0f172a;
+            border: 2px solid #334155;
+            color: #e2e8f0;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 15px;
+            cursor: pointer;
+        }
+        
+        textarea.form-input {
+            min-height: 100px;
+            resize: vertical;
+            font-family: inherit;
+        }
+        
+        /* Navigation Buttons */
+        .nav-buttons {
+            display: flex;
+            gap: 16px;
+            margin-top: 32px;
+        }
+        
+        .btn {
+            flex: 1;
+            padding: 14px 24px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+        }
+        
+        .btn-secondary {
+            background: #334155;
+            color: #cbd5e1;
+        }
+        
+        .btn-secondary:hover {
+            background: #475569;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
+        }
+        
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+        
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+        }
+        
+        /* Success Screen */
+        .success-screen {
+            text-align: center;
+            padding: 40px 20px;
+        }
+        
+        .success-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+            animation: bounceIn 0.6s ease;
+        }
+        
+        @keyframes bounceIn {
+            0% { transform: scale(0); opacity: 0; }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        .success-title {
+            font-size: 28px;
+            color: #10b981;
+            margin-bottom: 12px;
+        }
+        
+        .success-message {
+            font-size: 16px;
+            color: #94a3b8;
+            margin-bottom: 32px;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        /* Loading State */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #94a3b8;
+        }
+        
+        .spinner {
+            border: 3px solid #334155;
+            border-top-color: #3b82f6;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 16px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🏠 Welcome to OfferWise</h1>
+            <p>Let's get you set up in just a few steps</p>
+        </div>
+        
+        <!-- Progress Bar -->
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+            
+            <div class="step active" id="step1Indicator">
+                <div class="step-circle">1</div>
+                <div class="step-label">Legal Agreements</div>
+            </div>
+            
+            <div class="step" id="step2Indicator">
+                <div class="step-circle">2</div>
+                <div class="step-label">Your Preferences</div>
+            </div>
+            
+            <div class="step" id="step3Indicator">
+                <div class="step-circle">3</div>
+                <div class="step-label">All Set!</div>
+            </div>
+        </div>
+        
+        <!-- Loading State -->
+        <div id="loadingState" class="step-content">
+            <div class="loading">
+                <div class="spinner"></div>
+                <div>Loading...</div>
+            </div>
+        </div>
+        
+        <!-- Step 1: Legal Agreements -->
+        <div id="step1Content" class="step-content hidden">
+            <h2>⚖️ Legal Agreements</h2>
+            <p class="subtitle">Please review and accept our legal terms to continue</p>
+            
+            <div id="consentsContainer">
+                <!-- Consents will be inserted here -->
+            </div>
+            
+            <div class="nav-buttons">
+                <button class="btn btn-primary" id="continueToStep2" disabled>
+                    Continue to Preferences →
+                </button>
+            </div>
+        </div>
+        
+        <!-- Step 2: Buyer Preferences -->
+        <div id="step2Content" class="step-content hidden">
+            <h2>🎯 Your Buyer Preferences</h2>
+            <p class="subtitle">Help us provide better recommendations tailored to you</p>
+            
+            <div class="form-group">
+                <label class="form-label">Maximum Budget</label>
+                <input type="number" id="maxBudget" class="form-input" placeholder="e.g., 2,000,000">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Repair Tolerance</label>
+                <select id="repairTolerance" class="form-select">
+                    <option value="" disabled selected>Select your repair tolerance...</option>
+                    <option value="Low">Low - Prefer minimal repairs</option>
+                    <option value="Moderate">Moderate - Some repairs are okay</option>
+                    <option value="High">High - Willing to do major repairs</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Biggest Regret to Avoid</label>
+                <textarea id="biggestRegret" class="form-input" placeholder="e.g., Overpaying, Hidden foundation issues, Buying wrong location, etc."></textarea>
+            </div>
+            
+            <div class="nav-buttons">
+                <button class="btn btn-secondary" id="backToStep1">← Back</button>
+                <button class="btn btn-primary" id="savePreferences">Save & Continue →</button>
+            </div>
+        </div>
+        
+        <!-- Step 3: Success / Complete -->
+        <div id="step3Content" class="step-content hidden">
+            <div class="success-screen">
+                <div class="success-icon">🎉</div>
+                <h2 class="success-title">You're All Set!</h2>
+                <p class="success-message">
+                    Your account is configured and ready to go.<br>
+                    Let's analyze your first property!
+                </p>
+                
+                <button class="btn btn-success" id="startAnalysis" style="max-width: 400px; margin: 0 auto;">
+                    🚀 Start Your First Analysis
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // State management
+        let currentStep = 1;
+        let consentsData = [];
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadConsents();
+            updateUI();
+            
+            // Attach button handlers AFTER DOM is loaded
+            document.getElementById('startAnalysis').addEventListener('click', () => {
+                console.log('🚀 START ANALYSIS BUTTON CLICKED');
+                console.log('📍 Current location:', window.location.href);
+                console.log('📍 About to redirect to /app');
+                
+                // Add a small delay to see console logs
+                setTimeout(() => {
+                    window.location.href = '/app';
+                }, 100);
+            });
+            
+            document.getElementById('continueToStep2').addEventListener('click', () => {
+                currentStep = 2;
+                updateUI();
+            });
+            
+            document.getElementById('backToStep1').addEventListener('click', () => {
+                currentStep = 1;
+                updateUI();
+            });
+            
+            document.getElementById('savePreferences').addEventListener('click', async () => {
+                const maxBudget = document.getElementById('maxBudget').value;
+                const repairTolerance = document.getElementById('repairTolerance').value;
+                const biggestRegret = document.getElementById('biggestRegret').value;
+                
+                try {
+                    const response = await fetch('/api/user/preferences', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        credentials: 'include',
+                        body: JSON.stringify({
+                            max_budget: parseInt(maxBudget),
+                            repair_tolerance: repairTolerance,
+                            biggest_regret: biggestRegret
+                        })
+                    });
+                    
+                    if (response.ok) {
+                        currentStep = 3;
+                        updateUI();
+                    } else {
+                        alert('Failed to save preferences. Please try again.');
+                    }
+                } catch (error) {
+                    console.error('Error saving preferences:', error);
+                    alert('Error saving preferences. Please try again.');
+                }
+            });
+        });
+        
+        // Load consent status
+        async function loadConsents() {
+            try {
+                console.log('🔍 [ONBOARDING] Loading consent status...');
+                const response = await fetch('/api/consent/status', { credentials: 'include' });
+                const data = await response.json();
+                console.log('📊 [ONBOARDING] Consent data:', data);
+                
+                consentsData = data.consents || data.statuses || [];
+                
+                // Check if all consents are accepted
+                const allAccepted = consentsData.every(c => c.has_consent);
+                console.log('✅ [ONBOARDING] All consents accepted?', allAccepted);
+                
+                if (allAccepted) {
+                    // Also check if preferences are saved
+                    try {
+                        console.log('🔍 [ONBOARDING] Checking preferences...');
+                        const prefResponse = await fetch('/api/user/preferences', { credentials: 'include' });
+                        const prefData = await prefResponse.json();
+                        console.log('📊 [ONBOARDING] Preferences:', prefData);
+                        
+                        // If preferences exist, go to Step 3 (complete)
+                        if (prefData.max_budget !== null || prefData.repair_tolerance !== null || prefData.biggest_regret !== null) {
+                            currentStep = 3; // Everything complete!
+                            console.log('✅ [ONBOARDING] Has preferences → Step 3 (Complete)');
+                        } else {
+                            currentStep = 2; // Skip to preferences
+                            console.log('⚠️ [ONBOARDING] No preferences → Step 2');
+                        }
+                    } catch (e) {
+                        // If preference check fails, assume not saved
+                        currentStep = 2;
+                        console.log('❌ [ONBOARDING] Preference check failed → Step 2:', e);
+                    }
+                } else {
+                    currentStep = 1; // Need to accept consents first
+                    console.log('⚠️ [ONBOARDING] Missing consents → Step 1');
+                }
+                
+                console.log('📍 [ONBOARDING] Final step:', currentStep);
+                renderConsents();
+            } catch (error) {
+                console.error('❌ [ONBOARDING] Error loading consents:', error);
+                document.getElementById('consentsContainer').innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: #ef4444;">
+                        <div style="font-size: 32px; margin-bottom: 12px;">❌</div>
+                        <div>Failed to load consent information</div>
+                    </div>
+                `;
+            }
+        }
+        
+        // Render consent items
+        function renderConsents() {
+            const container = document.getElementById('consentsContainer');
+            const displayNames = {
+                'analysis_disclaimer': 'Analysis Disclaimer',
+                'terms_of_service': 'Terms of Service',
+                'privacy_policy': 'Privacy Policy'
+            };
+            const icons = {
+                'analysis_disclaimer': '⚖️',
+                'terms_of_service': '📋',
+                'privacy_policy': '🔒'
+            };
+            
+            let html = '';
+            consentsData.forEach(consent => {
+                const isAccepted = consent.has_consent;
+                const itemClass = isAccepted ? 'accepted' : 'required';
+                const statusClass = isAccepted ? 'status-accepted' : 'status-required';
+                const statusText = isAccepted ? '✓ Accepted' : '⚠️ Required';
+                
+                html += `
+                    <div class="consent-item ${itemClass}">
+                        <div class="consent-icon">${icons[consent.consent_type] || '📄'}</div>
+                        <div class="consent-info">
+                            <div class="consent-title">${displayNames[consent.consent_type] || consent.consent_type}</div>
+                            <div class="consent-version">Version ${consent.required_version}</div>
+                        </div>
+                        <div class="consent-status ${statusClass}">${statusText}</div>
+                        ${!isAccepted ? `
+                            <button class="review-button" onclick="showConsentModal('${consent.consent_type}')">
+                                Review & Accept
+                            </button>
+                        ` : ''}
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+            updateContinueButton();
+        }
+        
+        // Update continue button state
+        function updateContinueButton() {
+            const allAccepted = consentsData.every(c => c.has_consent);
+            document.getElementById('continueToStep2').disabled = !allAccepted;
+        }
+        
+        // Show consent modal
+        window.showConsentModal = async function(consentType) {
+            try {
+                const response = await fetch(`/api/consent/text?consent_type=${consentType}`);
+                const data = await response.json();
+                
+                const displayNames = {
+                    'analysis_disclaimer': 'Analysis Disclaimer',
+                    'terms_of_service': 'Terms of Service',
+                    'privacy_policy': 'Privacy Policy'
+                };
+                
+                const modal = document.createElement('div');
+                modal.id = 'consentModal';
+                modal.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    background: rgba(0, 0, 0, 0.85);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    z-index: 10000;
+                    padding: 20px;
+                `;
+                
+                modal.innerHTML = `
+                    <div style="
+                        background: #1e293b;
+                        border-radius: 16px;
+                        max-width: 800px;
+                        width: 100%;
+                        max-height: 90vh;
+                        display: flex;
+                        flex-direction: column;
+                        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+                        border: 2px solid #334155;
+                    ">
+                        <div style="padding: 24px; border-bottom: 2px solid #334155;">
+                            <h2 style="margin: 0; font-size: 24px; color: #f1f5f9;">
+                                ${displayNames[consentType] || consentType}
+                            </h2>
+                            <div style="color: #94a3b8; font-size: 13px; margin-top: 4px;">
+                                Version ${data.version}
+                            </div>
+                        </div>
+                        
+                        <div style="
+                            padding: 24px;
+                            overflow-y: auto;
+                            flex: 1;
+                            font-size: 14px;
+                            line-height: 1.8;
+                            color: #cbd5e1;
+                        ">
+                            <pre style="white-space: pre-wrap; font-family: inherit; margin: 0;">${data.text || 'Text not available'}</pre>
+                        </div>
+                        
+                        <div style="
+                            padding: 24px;
+                            border-top: 2px solid #334155;
+                            display: flex;
+                            gap: 12px;
+                            justify-content: flex-end;
+                        ">
+                            <button 
+                                onclick="closeConsentModal()"
+                                style="
+                                    background: #334155;
+                                    color: #cbd5e1;
+                                    border: none;
+                                    padding: 12px 24px;
+                                    border-radius: 8px;
+                                    font-size: 14px;
+                                    font-weight: 600;
+                                    cursor: pointer;
+                                "
+                            >
+                                Cancel
+                            </button>
+                            <button 
+                                onclick="acceptConsent('${consentType}')"
+                                style="
+                                    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+                                    color: white;
+                                    border: none;
+                                    padding: 12px 24px;
+                                    border-radius: 8px;
+                                    font-size: 14px;
+                                    font-weight: 600;
+                                    cursor: pointer;
+                                    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+                                "
+                            >
+                                ✓ I Accept
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                document.body.appendChild(modal);
+            } catch (error) {
+                console.error('Error showing consent modal:', error);
+                alert('Failed to load consent text');
+            }
+        };
+        
+        // Close consent modal
+        window.closeConsentModal = function() {
+            const modal = document.getElementById('consentModal');
+            if (modal) modal.remove();
+        };
+        
+        // Accept consent
+        window.acceptConsent = async function(consentType) {
+            try {
+                const response = await fetch('/api/consent/record', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ consent_type: consentType })
+                });
+                
+                if (response.ok) {
+                    closeConsentModal();
+                    await loadConsents(); // Reload to update UI
+                } else {
+                    alert('Failed to record consent. Please try again.');
+                }
+            } catch (error) {
+                console.error('Error accepting consent:', error);
+                alert('Error accepting consent. Please try again.');
+            }
+        };
+        
+        // Update UI based on current step
+        function updateUI() {
+            // Hide loading
+            document.getElementById('loadingState').classList.add('hidden');
+            
+            // Hide all steps
+            document.getElementById('step1Content').classList.add('hidden');
+            document.getElementById('step2Content').classList.add('hidden');
+            document.getElementById('step3Content').classList.add('hidden');
+            
+            // Update progress indicators
+            const steps = ['step1Indicator', 'step2Indicator', 'step3Indicator'];
+            steps.forEach((id, index) => {
+                const el = document.getElementById(id);
+                el.classList.remove('active', 'completed');
+                
+                if (index + 1 < currentStep) {
+                    el.classList.add('completed');
+                    el.querySelector('.step-circle').innerHTML = '✓';
+                } else if (index + 1 === currentStep) {
+                    el.classList.add('active');
+                    el.querySelector('.step-circle').innerHTML = index + 1;
+                } else {
+                    el.querySelector('.step-circle').innerHTML = index + 1;
+                }
+            });
+            
+            // Update progress fill
+            const progressPercent = ((currentStep - 1) / 2) * 80; // 0%, 40%, 80%
+            document.getElementById('progressFill').style.width = progressPercent + '%';
+            
+            // Show current step
+            if (currentStep === 1) {
+                document.getElementById('step1Content').classList.remove('hidden');
+            } else if (currentStep === 2) {
+                document.getElementById('step2Content').classList.remove('hidden');
+            } else if (currentStep === 3) {
+                document.getElementById('step3Content').classList.remove('hidden');
+            }
+        }
+    </script>
+</body>
+</html>

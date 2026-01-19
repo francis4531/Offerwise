@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>OfferWise Debug</title>
+    <style>
+        body {
+            font-family: monospace;
+            padding: 20px;
+            background: #1a1a1a;
+            color: #00ff00;
+        }
+        .section {
+            margin: 20px 0;
+            padding: 15px;
+            background: #2a2a2a;
+            border: 1px solid #00ff00;
+        }
+        h2 { color: #00ff00; }
+        button {
+            background: #00ff00;
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        pre {
+            background: #000;
+            padding: 10px;
+            overflow: auto;
+        }
+        .error { color: #ff0000; }
+        .success { color: #00ff00; }
+    </style>
+</head>
+<body>
+    <h1>🔍 OfferWise Diagnostic Tool</h1>
+    
+    <button onclick="runAllTests()">🚀 Run All Tests</button>
+    <button onclick="clearOutput()">🗑️ Clear Output</button>
+    
+    <div id="output"></div>
+    
+    <script>
+        const output = document.getElementById('output');
+        
+        function log(title, data) {
+            const section = document.createElement('div');
+            section.className = 'section';
+            section.innerHTML = `
+                <h2>${title}</h2>
+                <pre>${JSON.stringify(data, null, 2)}</pre>
+            `;
+            output.appendChild(section);
+        }
+        
+        function logError(title, error) {
+            const section = document.createElement('div');
+            section.className = 'section error';
+            section.innerHTML = `
+                <h2>❌ ${title}</h2>
+                <pre>${error}</pre>
+            `;
+            output.appendChild(section);
+        }
+        
+        function clearOutput() {
+            output.innerHTML = '';
+        }
+        
+        async function runAllTests() {
+            clearOutput();
+            
+            // Test 1: Consent Status
+            try {
+                const response = await fetch('/api/consent/status', {credentials: 'include'});
+                const data = await response.json();
+                log('✅ Test 1: Consent Status', {
+                    status: response.status,
+                    needs_onboarding: data.needs_onboarding,
+                    has_preferences: data.has_preferences,
+                    all_consented: data.all_consented,
+                    statuses: data.statuses
+                });
+                
+                // Analyze
+                if (data.needs_onboarding) {
+                    logError('🚨 PROBLEM FOUND', 'needs_onboarding is TRUE - this causes redirect loop!');
+                    if (!data.has_preferences) {
+                        logError('Root Cause', 'User has NO PREFERENCES set. Preferences were not saved!');
+                    }
+                }
+            } catch (e) {
+                logError('Test 1 Failed', e.toString());
+            }
+            
+            // Test 2: User Info
+            try {
+                const response = await fetch('/api/user', {credentials: 'include'});
+                const data = await response.json();
+                log('✅ Test 2: User Info', data);
+            } catch (e) {
+                logError('Test 2 Failed', e.toString());
+            }
+            
+            // Test 3: Preferences
+            try {
+                const response = await fetch('/api/user/preferences', {credentials: 'include'});
+                const data = await response.json();
+                log('✅ Test 3: User Preferences', {
+                    max_budget: data.max_budget,
+                    repair_tolerance: data.repair_tolerance,
+                    biggest_regret: data.biggest_regret,
+                    analysis: {
+                        max_budget_is_null: data.max_budget === null,
+                        repair_tolerance_is_null: data.repair_tolerance === null,
+                        biggest_regret_is_null: data.biggest_regret === null,
+                        all_null: data.max_budget === null && data.repair_tolerance === null && data.biggest_regret === null
+                    }
+                });
+                
+                if (data.max_budget === null && data.repair_tolerance === null && data.biggest_regret === null) {
+                    logError('🚨 PROBLEM FOUND', 'ALL preferences are NULL! User never saved preferences in onboarding!');
+                }
+            } catch (e) {
+                logError('Test 3 Failed', e.toString());
+            }
+            
+            // Test 4: Test saving preferences
+            log('📝 Test 4: Testing Preference Save', {
+                message: 'Click the button below to test saving preferences'
+            });
+            
+            const testButton = document.createElement('button');
+            testButton.textContent = 'Test Save Preferences';
+            testButton.onclick = async () => {
+                try {
+                    const testData = {
+                        max_budget: 500000,
+                        repair_tolerance: 'moderate',
+                        biggest_regret: 'test save'
+                    };
+                    
+                    const response = await fetch('/api/user/preferences', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        credentials: 'include',
+                        body: JSON.stringify(testData)
+                    });
+                    
+                    const result = await response.json();
+                    log('✅ Save Test Result', {
+                        status: response.status,
+                        result: result
+                    });
+                    
+                    // Verify it saved
+                    const verify = await fetch('/api/user/preferences', {credentials: 'include'});
+                    const saved = await verify.json();
+                    log('✅ Verification: Data After Save', saved);
+                    
+                } catch (e) {
+                    logError('Save Test Failed', e.toString());
+                }
+            };
+            output.appendChild(testButton);
+        }
+        
+        // Auto-run on load
+        window.onload = runAllTests;
+    </script>
+</body>
+</html>
