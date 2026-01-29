@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us - OfferWise AI</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+            min-height: 100vh;
+            color: #e2e8f0;
+            padding: 40px 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: rgba(30, 41, 59, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            border-radius: 16px;
+            padding: 48px;
+        }
+        
+        h1 {
+            font-size: var(--text-display-l);
+            font-weight: 800;
+            background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 12px;
+        }
+        
+        .subtitle {
+            color: #94a3b8;
+            margin-bottom: 40px;
+            font-size: var(--text-body);
+            line-height: 1.6;
+        }
+        
+        h2 {
+            color: #60a5fa;
+            font-size: var(--text-h2);
+            margin-top: 32px;
+            margin-bottom: 16px;
+        }
+        
+        p {
+            color: #cbd5e1;
+            line-height: 1.8;
+            margin-bottom: 16px;
+        }
+        
+        .contact-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 24px;
+            margin: 32px 0;
+        }
+        
+        .contact-card {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 12px;
+            padding: 24px;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+        
+        .contact-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(59, 130, 246, 0.5);
+        }
+        
+        .contact-card-icon {
+            font-size: var(--text-h1);
+            margin-bottom: 12px;
+        }
+        
+        .contact-card h3 {
+            color: #60a5fa;
+            font-size: var(--text-body-lg);
+            margin-bottom: 8px;
+        }
+        
+        .contact-card a {
+            color: #cbd5e1;
+            text-decoration: none;
+            word-break: break-all;
+        }
+        
+        .contact-card a:hover {
+            color: #60a5fa;
+            text-decoration: underline;
+        }
+        
+        .faq-section {
+            margin-top: 40px;
+        }
+        
+        .faq-item {
+            background: rgba(30, 41, 59, 0.6);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+        
+        .faq-question {
+            color: #60a5fa;
+            font-weight: 600;
+            font-size: var(--text-body);
+            margin-bottom: 8px;
+        }
+        
+        .faq-answer {
+            color: #cbd5e1;
+            line-height: 1.6;
+        }
+        
+        .faq-answer a {
+            color: #60a5fa;
+            text-decoration: none;
+        }
+        
+        .faq-answer a:hover {
+            text-decoration: underline;
+        }
+        
+        .back-link {
+            margin-top: 40px;
+            text-align: center;
+        }
+        
+        .back-link a {
+            color: #60a5fa;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        .back-link a:hover {
+            text-decoration: underline;
+        }
+        
+        .legal-links {
+            margin-top: 32px;
+            padding-top: 24px;
+            border-top: 1px solid rgba(59, 130, 246, 0.2);
+            text-align: center;
+        }
+        
+        .legal-links a {
+            color: #94a3b8;
+            text-decoration: none;
+            margin: 0 16px;
+            font-size: var(--text-body-sm);
+        }
+        
+        .legal-links a:hover {
+            color: #60a5fa;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Contact Us</h1>
+        <p class="subtitle">
+            Have questions? We're here to help. Choose the best way to reach us below.
+        </p>
+        
+        <h2>Get in Touch</h2>
+        
+        <div class="contact-grid">
+            <div class="contact-card">
+                <div class="contact-card-icon">👋</div>
+                <h3>General Inquiries</h3>
+                <p><a href="mailto:hello@getofferwise.ai">hello@getofferwise.ai</a></p>
+                <p style="font-size: var(--text-caption-lg); color: #94a3b8; margin-top: 8px;">
+                    Sales questions, partnerships, media inquiries, general questions
+                </p>
+            </div>
+            
+            <div class="contact-card">
+                <div class="contact-card-icon">💳</div>
+                <h3>Billing & Payments</h3>
+                <p><a href="mailto:billing@getofferwise.ai">billing@getofferwise.ai</a></p>
+                <p style="font-size: var(--text-caption-lg); color: #94a3b8; margin-top: 8px;">
+                    Refunds, payment issues, credits, invoices
+                </p>
+            </div>
+            
+            <div class="contact-card">
+                <div class="contact-card-icon">🛠️</div>
+                <h3>Technical Support</h3>
+                <p><a href="mailto:support@getofferwise.ai">support@getofferwise.ai</a></p>
+                <p style="font-size: var(--text-caption-lg); color: #94a3b8; margin-top: 8px;">
+                    Technical help, account issues, bug reports, privacy requests
+                </p>
+            </div>
+        </div>
+        
+        <div class="faq-section">
+            <h2>Quick Answers</h2>
+            
+            <div class="faq-item">
+                <div class="faq-question">📄 Do you store my documents?</div>
+                <div class="faq-answer">
+                    No. Your uploaded documents (seller disclosures and inspection reports) are processed temporarily for analysis only and are automatically deleted immediately after your report is generated. We do not store, retain, or maintain any copies. See our <a href="/privacy">Privacy Policy</a> for details.
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question">💳 How does the credit system work?</div>
+                <div class="faq-answer">
+                    Each property analysis requires 1 credit. New users receive 1 free credit. Additional credits can be purchased at $15 for 1 credit, $50 for 5 credits (save $25), or $75 for 10 credits (save $75). Credits never expire.
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question">🔐 How do I sign in?</div>
+                <div class="faq-answer">
+                    OfferWise uses secure OAuth authentication. Sign in with your Google, Apple, or Facebook account. We don't use passwords - it's faster, easier, and more secure.
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question">📊 Can I get a refund?</div>
+                <div class="faq-answer">
+                    Credits are non-refundable once purchased. However, if you experience technical issues that prevent you from using your credits, contact <a href="mailto:billing@getofferwise.ai">billing@getofferwise.ai</a> and we'll work with you to resolve the issue.
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question">🏠 Is OfferWise professional advice?</div>
+                <div class="faq-answer">
+                    No. OfferWise is an analysis tool that provides risk assessment and recommendations based on document analysis. We are not licensed real estate agents, inspectors, appraisers, or attorneys. Always consult qualified professionals before making real estate decisions. See our <a href="/terms">Terms of Service</a> for full disclaimers.
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question">⚖️ What is OfferScore™?</div>
+                <div class="faq-answer">
+                    OfferScore™ is our proprietary patent-pending algorithm that analyzes property risk, seller transparency, and repair costs to calculate a recommended offer price. Our methodology uses category-weighted risk scoring and a three-component pricing model (repair costs + risk premium + transparency discount).
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question">🗑️ How do I delete my account?</div>
+                <div class="faq-answer">
+                    You can delete your account at any time from your <a href="/settings">Settings</a> page. All your data will be permanently removed within 30 days. Note: Unused credits are not refundable upon account deletion.
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question">⏰ How long does analysis take?</div>
+                <div class="faq-answer">
+                    Most analyses complete in under 5 minutes. Processing time depends on document size and complexity. You'll see a progress indicator while your analysis runs.
+                </div>
+            </div>
+        </div>
+        
+        <h2 style="margin-top: 48px;">Response Times</h2>
+        <p>
+            We typically respond to inquiries within 24-48 hours during business days (Monday-Friday, 9 AM - 5 PM Pacific Time). For urgent technical issues, please mark your email as "URGENT" in the subject line.
+        </p>
+        
+        <div class="legal-links">
+            <a href="/terms">Terms of Service</a>
+            <a href="/privacy">Privacy Policy</a>
+            <a href="/">OfferWise Home</a>
+        </div>
+        
+        <div class="back-link">
+            <a href="/">← Back to OfferWise</a>
+        </div>
+    </div>
+</body>
+</html>

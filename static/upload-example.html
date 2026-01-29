@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OfferWise - Upload Example</title>
+    <style>
+        /* Simple styling for example */
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        
+        .upload-section {
+            margin: 30px 0;
+            padding: 20px;
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+        }
+        
+        .upload-section h3 {
+            margin-top: 0;
+        }
+        
+        .file-input {
+            margin: 10px 0;
+        }
+        
+        .progress-container {
+            margin: 15px 0;
+            display: none;
+        }
+        
+        .progress-container.active {
+            display: block;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 30px;
+            background: #f0f0f0;
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: #4CAF50;
+            width: 0%;
+            transition: width 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .progress-text {
+            margin-top: 5px;
+            font-size: var(--text-body-sm);
+            color: #666;
+        }
+        
+        .status-message {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            display: none;
+        }
+        
+        .status-message.active {
+            display: block;
+        }
+        
+        .status-info {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+        
+        .status-success {
+            background: #e8f5e9;
+            color: #388e3c;
+        }
+        
+        .status-error {
+            background: #ffebee;
+            color: #c62828;
+        }
+        
+        #analyze-button {
+            padding: 15px 30px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: var(--text-body);
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        
+        #analyze-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        #analyze-button:hover:not(:disabled) {
+            background: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <h1>OfferWise Property Analysis</h1>
+    
+    <!-- Inspection Upload -->
+    <div class="upload-section">
+        <h3>📄 Inspection Report</h3>
+        <input type="file" 
+               id="inspection-upload" 
+               class="file-input" 
+               accept=".pdf"
+               aria-label="Upload inspection report">
+        
+        <div id="inspection-progress" class="progress-container">
+            <div class="progress-bar">
+                <div id="inspection-progress-bar" class="progress-fill">0%</div>
+            </div>
+            <div id="inspection-progress-text" class="progress-text">Ready to upload</div>
+        </div>
+    </div>
+    
+    <!-- Disclosure Upload -->
+    <div class="upload-section">
+        <h3>📋 Seller Disclosure</h3>
+        <input type="file" 
+               id="disclosure-upload" 
+               class="file-input" 
+               accept=".pdf"
+               aria-label="Upload seller disclosure">
+        
+        <div id="disclosure-progress" class="progress-container">
+            <div class="progress-bar">
+                <div id="disclosure-progress-bar" class="progress-fill">0%</div>
+            </div>
+            <div id="disclosure-progress-text" class="progress-text">Ready to upload</div>
+        </div>
+    </div>
+    
+    <!-- Status Message -->
+    <div id="upload-status" class="status-message"></div>
+    
+    <!-- Analyze Button -->
+    <button id="analyze-button" disabled>
+        Analyze Property
+    </button>
+    
+    <!-- Include the async upload manager -->
+    <script src="/static/async-upload-manager.js"></script>
+    
+    <!-- Custom UI updates for your design -->
+    <script>
+        // Override the default showMessage to use our styled divs
+        function showMessage(message, type = 'info') {
+            console.log(`[${type.toUpperCase()}] ${message}`);
+            
+            const statusEl = document.getElementById('upload-status');
+            if (statusEl) {
+                statusEl.textContent = message;
+                statusEl.className = `status-message active status-${type}`;
+                
+                // Auto-hide success/info messages after 5 seconds
+                if (type !== 'error') {
+                    setTimeout(() => {
+                        statusEl.className = 'status-message';
+                    }, 5000);
+                }
+            }
+        }
+        
+        // Override progress bar update
+        function updateProgressBar(documentType, current, total, message) {
+            const progressContainer = document.getElementById(`${documentType}-progress`);
+            const progressBar = document.getElementById(`${documentType}-progress-bar`);
+            const progressText = document.getElementById(`${documentType}-progress-text`);
+            
+            // Show progress container
+            if (progressContainer) {
+                progressContainer.classList.add('active');
+            }
+            
+            // Update progress bar
+            if (progressBar && total > 0) {
+                const percent = (current / total) * 100;
+                progressBar.style.width = `${percent}%`;
+                progressBar.textContent = `${Math.round(percent)}%`;
+            }
+            
+            // Update progress text
+            if (progressText) {
+                progressText.textContent = total > 0 
+                    ? `${current}/${total} pages - ${message}`
+                    : message;
+            }
+        }
+        
+        // Handle analyze button click
+        document.getElementById('analyze-button').addEventListener('click', async () => {
+            const inspectionJobId = uploadManager.getJobId('inspection');
+            const disclosureJobId = uploadManager.getJobId('disclosure');
+            
+            if (!inspectionJobId || !disclosureJobId) {
+                showMessage('Please upload both documents first', 'error');
+                return;
+            }
+            
+            showMessage('Starting analysis...', 'info');
+            
+            // Call your analysis function
+            // analyzeProperty(inspectionJobId, disclosureJobId);
+            
+            // For demo, just show message
+            setTimeout(() => {
+                showMessage('Analysis complete! (This is a demo)', 'success');
+            }, 2000);
+        });
+    </script>
+</body>
+</html>

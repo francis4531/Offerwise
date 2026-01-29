@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OfferWise AI - Stop Overpaying for Real Estate</title>
+    <meta name="description" content="AI-powered property analysis that calculates your perfect offer price. Patent-pending OfferScore™ reveals hidden risks and seller transparency.">
+    
+    <!-- Distinctive Font: DM Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            /* Modern Financial Tech Colors */
+            --midnight: #0a0e27;
+            --slate: #1a1f3a;
+            --navy: #2d3250;
+            --cyan: #00d9ff;
+            --cyan-glow: #00ffff;
+            --teal: #14b8a6;
+            --white: #ffffff;
+            --gray-100: #f8fafc;
+            --gray-300: #cbd5e1;
+            --gray-400: #94a3b8;
+            --gray-600: #475569;
+            
+            /* Spacing */
+            --space-xs: 0.5rem;
+            --space-sm: 1rem;
+            --space-md: 1.5rem;
+            --space-lg: 2rem;
+            --space-xl: 3rem;
+            --space-2xl: 4rem;
+            --space-3xl: 6rem;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--midnight);
+            color: var(--gray-100);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        
+        /* Animated background gradient */
+        body::before {
+            content: '';
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(
+                circle at 50% 50%,
+                rgba(0, 217, 255, 0.03) 0%,
+                rgba(20, 184, 166, 0.02) 25%,
+                transparent 50%
+            );
+            animation: rotate 30s linear infinite;
+            z-index: -1;
+            pointer-events: none;
+        }
+        
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: rgba(10, 14, 39, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(0, 217, 255, 0.1);
+        }
+        
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: var(--space-md) var(--space-lg);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 900;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, var(--cyan), var(--teal));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: var(--space-lg);
+            align-items: center;
+        }
+        
+        .nav-links a {
+            color: var(--gray-300);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: color 0.3s ease;
+        }
+        
+        .nav-links a:hover {
+            color: var(--cyan);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--cyan), var(--teal));
+            color: var(--midnight);
+            padding: 0.7rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            text-decoration: none;
+            display: inline-block;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 217, 255, 0.3);
+        }
+        
+        /* Hero Section */
+        .hero {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: calc(var(--space-3xl) + 60px) var(--space-lg) var(--space-3xl);
+            text-align: center;
+        }
+        
+        .patent-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(0, 217, 255, 0.1);
+            border: 1px solid rgba(0, 217, 255, 0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--cyan);
+            margin-bottom: var(--space-lg);
+            animation: fadeInDown 0.6s ease;
+        }
+        
+        .badge-icon {
+            width: 16px;
+            height: 16px;
+            background: var(--cyan);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(0.95); }
+        }
+        
+        h1 {
+            font-size: clamp(2.5rem, 6vw, 5rem);
+            font-weight: 900;
+            line-height: 1.1;
+            margin-bottom: var(--space-md);
+            letter-spacing: -0.03em;
+            animation: fadeInUp 0.8s ease 0.2s both;
+        }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, var(--white) 0%, var(--cyan) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .hero-subtitle {
+            font-size: clamp(1.1rem, 2vw, 1.4rem);
+            color: var(--gray-400);
+            max-width: 700px;
+            margin: 0 auto var(--space-xl);
+            line-height: 1.6;
+            animation: fadeInUp 0.8s ease 0.4s both;
+        }
+        
+        .cta-group {
+            display: flex;
+            gap: var(--space-md);
+            justify-content: center;
+            flex-wrap: wrap;
+            animation: fadeInUp 0.8s ease 0.6s both;
+        }
+        
+        .btn-large {
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+        }
+        
+        .btn-secondary {
+            background: transparent;
+            border: 2px solid rgba(0, 217, 255, 0.3);
+            color: var(--cyan);
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(0, 217, 255, 0.1);
+            border-color: var(--cyan);
+            transform: translateY(-2px);
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Stats Section */
+        .stats {
+            max-width: 1200px;
+            margin: var(--space-3xl) auto;
+            padding: 0 var(--space-lg);
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: var(--space-xl);
+        }
+        
+        .stat-card {
+            text-align: center;
+            padding: var(--space-xl);
+            background: linear-gradient(135deg, rgba(0, 217, 255, 0.05), rgba(20, 184, 166, 0.05));
+            border: 1px solid rgba(0, 217, 255, 0.1);
+            border-radius: 16px;
+            transition: transform 0.3s ease, border-color 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(0, 217, 255, 0.3);
+        }
+        
+        .stat-number {
+            font-size: 3rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--cyan), var(--teal));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: var(--space-xs);
+        }
+        
+        .stat-label {
+            color: var(--gray-400);
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+        
+        /* Features Section */
+        .features {
+            max-width: 1400px;
+            margin: var(--space-3xl) auto;
+            padding: var(--space-3xl) var(--space-lg);
+        }
+        
+        .section-title {
+            text-align: center;
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 900;
+            margin-bottom: var(--space-2xl);
+            letter-spacing: -0.02em;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: var(--space-xl);
+            margin-top: var(--space-2xl);
+        }
+        
+        .feature-card {
+            background: rgba(26, 31, 58, 0.6);
+            border: 1px solid rgba(0, 217, 255, 0.1);
+            border-radius: 20px;
+            padding: var(--space-xl);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--cyan), var(--teal));
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+        
+        .feature-card:hover::before {
+            transform: scaleX(1);
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(0, 217, 255, 0.3);
+            box-shadow: 0 20px 40px rgba(0, 217, 255, 0.1);
+        }
+        
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: var(--space-md);
+            display: inline-block;
+            transition: transform 0.3s ease;
+        }
+        
+        .feature-card:hover .feature-icon {
+            transform: scale(1.1) rotate(-5deg);
+        }
+        
+        .feature-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: var(--space-sm);
+            color: var(--white);
+        }
+        
+        .feature-description {
+            color: var(--gray-400);
+            line-height: 1.7;
+            margin-bottom: var(--space-md);
+        }
+        
+        .feature-highlight {
+            background: rgba(0, 217, 255, 0.1);
+            border-left: 3px solid var(--cyan);
+            padding: var(--space-sm) var(--space-md);
+            border-radius: 4px;
+            font-size: 0.9rem;
+            color: var(--cyan);
+            font-weight: 600;
+            font-family: 'Courier New', monospace;
+        }
+        
+        /* Pricing Section */
+        .pricing {
+            max-width: 1400px;
+            margin: var(--space-3xl) auto;
+            padding: var(--space-3xl) var(--space-lg);
+            background: rgba(26, 31, 58, 0.3);
+        }
+        
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: var(--space-xl);
+            margin-top: var(--space-2xl);
+        }
+        
+        .pricing-card {
+            background: rgba(10, 14, 39, 0.8);
+            border: 2px solid rgba(0, 217, 255, 0.1);
+            border-radius: 20px;
+            padding: var(--space-xl);
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .pricing-card.popular {
+            border-color: var(--cyan);
+            transform: scale(1.05);
+            box-shadow: 0 20px 40px rgba(0, 217, 255, 0.2);
+        }
+        
+        .pricing-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            border-color: var(--cyan);
+        }
+        
+        .pricing-badge {
+            background: var(--cyan);
+            color: var(--midnight);
+            padding: 0.3rem 0.8rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: var(--space-md);
+            display: inline-block;
+        }
+        
+        .pricing-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: var(--space-sm);
+        }
+        
+        .pricing-price {
+            font-size: 3rem;
+            font-weight: 900;
+            color: var(--cyan);
+            margin-bottom: var(--space-sm);
+        }
+        
+        .pricing-note {
+            color: var(--gray-400);
+            font-size: 0.9rem;
+            margin-bottom: var(--space-lg);
+        }
+        
+        .pricing-features {
+            list-style: none;
+            margin-bottom: var(--space-lg);
+            text-align: left;
+        }
+        
+        .pricing-features li {
+            padding: var(--space-sm) 0;
+            color: var(--gray-300);
+            border-bottom: 1px solid rgba(0, 217, 255, 0.1);
+        }
+        
+        .pricing-features li:last-child {
+            border-bottom: none;
+        }
+        
+        /* CTA Section */
+        .final-cta {
+            max-width: 1000px;
+            margin: var(--space-3xl) auto;
+            padding: var(--space-3xl) var(--space-lg);
+            text-align: center;
+            background: linear-gradient(135deg, rgba(0, 217, 255, 0.1), rgba(20, 184, 166, 0.1));
+            border-radius: 24px;
+            border: 1px solid rgba(0, 217, 255, 0.2);
+        }
+        
+        .final-cta h2 {
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 900;
+            margin-bottom: var(--space-md);
+        }
+        
+        .final-cta p {
+            color: var(--gray-400);
+            font-size: 1.2rem;
+            margin-bottom: var(--space-xl);
+        }
+        
+        /* Footer */
+        footer {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: var(--space-xl) var(--space-lg);
+            border-top: 1px solid rgba(0, 217, 255, 0.1);
+            text-align: center;
+            color: var(--gray-400);
+            font-size: 0.9rem;
+        }
+        
+        footer a {
+            color: var(--cyan);
+            text-decoration: none;
+            transition: opacity 0.3s ease;
+        }
+        
+        footer a:hover {
+            opacity: 0.7;
+        }
+        
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .nav-links {
+                gap: var(--space-sm);
+            }
+            
+            .nav-links a:not(.btn-primary) {
+                display: none;
+            }
+            
+            .cta-group {
+                flex-direction: column;
+            }
+            
+            .features-grid,
+            .pricing-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .pricing-card.popular {
+                transform: scale(1);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <div class="logo">OfferWise AI</div>
+            <div class="nav-links">
+                <a href="#features">Features</a>
+                <a href="#pricing">Pricing</a>
+                <a href="/app" class="btn-primary">Get Started</a>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="patent-badge">
+            <span class="badge-icon"></span>
+            Patent-Pending OfferScore™ Technology
+        </div>
+        
+        <h1>
+            <span class="gradient-text">Stop Overpaying</span><br>
+            for Real Estate
+        </h1>
+        
+        <p class="hero-subtitle">
+            AI-powered property analysis that reveals hidden risks, calculates fair market value, 
+            and tells you exactly what to offer. Make data-driven decisions, not emotional ones.
+        </p>
+        
+        <div class="cta-group">
+            <a href="/app" class="btn-primary btn-large">Analyze a Property →</a>
+            <a href="#features" class="btn-secondary">See How It Works</a>
+        </div>
+    </section>
+    
+    <!-- Stats Section -->
+    <section class="stats">
+        <div class="stat-card">
+            <div class="stat-number">$47K</div>
+            <div class="stat-label">Average Savings Per Property</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">10K+</div>
+            <div class="stat-label">Properties Analyzed</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">98%</div>
+            <div class="stat-label">Accuracy Rate</div>
+        </div>
+    </section>
+    
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <h2 class="section-title">Patent-Pending Innovations</h2>
+        
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">🎯</div>
+                <h3 class="feature-title">OfferScore™</h3>
+                <p class="feature-description">
+                    Proprietary algorithm that analyzes 50+ data points to calculate your optimal offer price. 
+                    Considers repairs, market trends, seller motivation, and hidden risks.
+                </p>
+                <div class="feature-highlight">Patent-Pending Technology</div>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">🧬</div>
+                <h3 class="feature-title">Property Risk DNA™</h3>
+                <p class="feature-description">
+                    Unique risk fingerprint for every property. Identifies structural issues, 
+                    environmental hazards, and potential deal-breakers before you make an offer.
+                </p>
+                <div class="feature-highlight">Composite Risk Score: 0-100</div>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">🔍</div>
+                <h3 class="feature-title">Seller Transparency Report™</h3>
+                <p class="feature-description">
+                    Cross-references seller disclosures against inspection findings. 
+                    Flags inconsistencies and hidden issues sellers didn't disclose.
+                </p>
+                <div class="feature-highlight">Truth Score: High/Medium/Low</div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Pricing Section -->
+    <section class="pricing" id="pricing">
+        <h2 class="section-title">Simple, Transparent Pricing</h2>
+        
+        <div class="pricing-grid">
+            <div class="pricing-card">
+                <h3 class="pricing-title">Single Analysis</h3>
+                <div class="pricing-price">$15</div>
+                <div class="pricing-note">per property</div>
+                <ul class="pricing-features">
+                    <li>Full OfferScore™ Report</li>
+                    <li>Property Risk DNA™</li>
+                    <li>Seller Transparency Check</li>
+                    <li>Recommended Offer Price</li>
+                    <li>Repair Cost Estimates</li>
+                </ul>
+                <a href="/app" class="btn-primary" style="width: 100%;">Analyze Now</a>
+            </div>
+            
+            <div class="pricing-card popular">
+                <div class="pricing-badge">Best Value</div>
+                <h3 class="pricing-title">5-Pack</h3>
+                <div class="pricing-price">$50</div>
+                <div class="pricing-note">$10 per property</div>
+                <ul class="pricing-features">
+                    <li>Everything in Single Analysis</li>
+                    <li>5 Property Analyses</li>
+                    <li>Compare Multiple Properties</li>
+                    <li>Save $25</li>
+                </ul>
+                <a href="/app" class="btn-primary" style="width: 100%;">Get Started</a>
+            </div>
+            
+            <div class="pricing-card">
+                <h3 class="pricing-title">Pro Bundle</h3>
+                <div class="pricing-price">$100</div>
+                <div class="pricing-note">$8 per property</div>
+                <ul class="pricing-features">
+                    <li>Everything in 5-Pack</li>
+                    <li>12 Property Analyses</li>
+                    <li>Priority Support</li>
+                    <li>Save $80</li>
+                </ul>
+                <a href="/app" class="btn-primary" style="width: 100%;">Get Started</a>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Final CTA -->
+    <section class="final-cta">
+        <h2>Ready to Stop Overpaying?</h2>
+        <p>Join thousands of smart buyers making data-driven offers.</p>
+        <a href="/app" class="btn-primary btn-large">Analyze Your First Property →</a>
+    </section>
+    
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2026 OfferWise AI. All rights reserved. | <a href="/pricing">Pricing</a> | <a href="/app">My Account</a></p>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Test - OfferWise</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+        }
+        .upload-section {
+            margin: 20px 0;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 4px;
+        }
+        input[type="file"] {
+            display: block;
+            margin: 10px 0;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            width: 100%;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: var(--text-body);
+            margin-top: 10px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .status {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .status.info {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+        .status.success {
+            background: #e8f5e9;
+            color: #388e3c;
+        }
+        .status.error {
+            background: #ffebee;
+            color: #c62828;
+        }
+        .progress {
+            margin: 20px 0;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 30px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4CAF50, #45a049);
+            transition: width 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        .logs {
+            margin: 20px 0;
+            padding: 15px;
+            background: #263238;
+            color: #4CAF50;
+            font-family: 'Courier New', monospace;
+            font-size: var(--text-body-sm);
+            border-radius: 4px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .log-entry {
+            margin: 5px 0;
+            padding: 2px 0;
+        }
+        .log-success {
+            color: #4CAF50;
+        }
+        .log-error {
+            color: #f44336;
+        }
+        .log-info {
+            color: #2196F3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 OfferWise Upload Test</h1>
+        <p class="subtitle">Test async PDF upload and verify backend connection</p>
+        
+        <div class="upload-section">
+            <h3>Upload PDF</h3>
+            <input type="file" id="pdfFile" accept=".pdf">
+            <button id="uploadBtn" onclick="testUpload()">Upload & Test</button>
+        </div>
+        
+        <div id="status" style="display: none;" class="status"></div>
+        
+        <div id="progressContainer" style="display: none;" class="progress">
+            <div class="progress-bar">
+                <div id="progressFill" class="progress-fill" style="width: 0%;">0%</div>
+            </div>
+            <p id="progressText" style="margin-top: 10px; color: #666;"></p>
+        </div>
+        
+        <div class="logs" id="logs">
+            <div class="log-entry log-info">Console logs will appear here...</div>
+        </div>
+    </div>
+
+    <script>
+        let currentJobId = null;
+        let pollInterval = null;
+
+        function log(message, type = 'info') {
+            const logsDiv = document.getElementById('logs');
+            const entry = document.createElement('div');
+            entry.className = `log-entry log-${type}`;
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logsDiv.appendChild(entry);
+            logsDiv.scrollTop = logsDiv.scrollHeight;
+            console.log(message);
+        }
+
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+            statusDiv.style.display = 'block';
+        }
+
+        function showProgress(current, total, message) {
+            const container = document.getElementById('progressContainer');
+            const fill = document.getElementById('progressFill');
+            const text = document.getElementById('progressText');
+            
+            container.style.display = 'block';
+            
+            if (total > 0) {
+                const percent = Math.round((current / total) * 100);
+                fill.style.width = `${percent}%`;
+                fill.textContent = `${percent}%`;
+                text.textContent = `${current}/${total} - ${message}`;
+            } else {
+                fill.style.width = '100%';
+                fill.textContent = 'Processing...';
+                text.textContent = message;
+            }
+        }
+
+        async function testUpload() {
+            const fileInput = document.getElementById('pdfFile');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                alert('Please select a PDF file first');
+                return;
+            }
+            
+            if (!file.name.endsWith('.pdf')) {
+                alert('Please select a PDF file');
+                return;
+            }
+            
+            log('🚀 Starting upload test...', 'info');
+            log(`📄 File: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`, 'info');
+            
+            document.getElementById('uploadBtn').disabled = true;
+            showStatus('Converting file to base64...', 'info');
+            
+            try {
+                // Convert to base64
+                log('🔄 Converting to base64...', 'info');
+                const base64 = await new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = () => resolve(reader.result);
+                    reader.onerror = reject;
+                    reader.readAsDataURL(file);
+                });
+                
+                log('✅ Base64 conversion complete', 'success');
+                showStatus('Uploading to server...', 'info');
+                
+                // Upload to server
+                log('📤 Sending to /api/upload-pdf...', 'info');
+                const uploadResponse = await fetch('/api/upload-pdf', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ 
+                        pdf_base64: base64,
+                        filename: file.name
+                    })
+                });
+                
+                log(`📥 Upload response: ${uploadResponse.status} ${uploadResponse.statusText}`, 'info');
+                
+                if (!uploadResponse.ok) {
+                    const error = await uploadResponse.json().catch(() => ({ error: 'Upload failed' }));
+                    throw new Error(error.error || 'Upload failed');
+                }
+                
+                const uploadData = await uploadResponse.json();
+                log(`✅ Upload successful!`, 'success');
+                log(`📋 Response: ${JSON.stringify(uploadData, null, 2)}`, 'info');
+                
+                // Check if async mode
+                if (uploadData.job_id) {
+                    log(`🎯 Async mode detected! Job ID: ${uploadData.job_id}`, 'success');
+                    currentJobId = uploadData.job_id;
+                    showStatus(`Processing... (Job: ${uploadData.job_id})`, 'info');
+                    
+                    // Start polling
+                    startPolling(uploadData.job_id);
+                } else {
+                    log('⚠️ Sync mode (old system)', 'info');
+                    showStatus('Complete! (Sync mode - no job tracking)', 'success');
+                    document.getElementById('uploadBtn').disabled = false;
+                }
+                
+            } catch (error) {
+                log(`❌ Error: ${error.message}`, 'error');
+                showStatus(`Error: ${error.message}`, 'error');
+                document.getElementById('uploadBtn').disabled = false;
+            }
+        }
+
+        function startPolling(jobId) {
+            log(`🔄 Starting to poll /api/jobs/${jobId}...`, 'info');
+            
+            pollInterval = setInterval(async () => {
+                try {
+                    const jobResponse = await fetch(`/api/jobs/${jobId}`, {
+                        credentials: 'include'
+                    });
+                    
+                    if (!jobResponse.ok) {
+                        log(`⚠️ Job status request failed: ${jobResponse.status}`, 'error');
+                        return;
+                    }
+                    
+                    const job = await jobResponse.json();
+                    log(`📊 Status: ${job.status}, Progress: ${job.progress}/${job.total}`, 'info');
+                    
+                    // Update progress bar
+                    showProgress(job.progress || 0, job.total || 0, job.message || 'Processing...');
+                    
+                    // Check if complete
+                    if (job.status === 'complete') {
+                        clearInterval(pollInterval);
+                        log(`✅ JOB COMPLETE!`, 'success');
+                        log(`📝 Result: ${job.result.pages} pages, ${job.result.chars} characters`, 'success');
+                        log(`⏱️ Duration: ${job.duration_seconds}s`, 'info');
+                        showStatus(`Complete! Processed ${job.result.pages} pages in ${job.duration_seconds}s`, 'success');
+                        document.getElementById('uploadBtn').disabled = false;
+                    }
+                    
+                    // Check if failed
+                    if (job.status === 'failed') {
+                        clearInterval(pollInterval);
+                        log(`❌ JOB FAILED: ${job.error}`, 'error');
+                        showStatus(`Failed: ${job.error}`, 'error');
+                        document.getElementById('uploadBtn').disabled = false;
+                    }
+                    
+                } catch (error) {
+                    log(`❌ Polling error: ${error.message}`, 'error');
+                }
+            }, 1000);
+            
+            // Safety timeout: 10 minutes
+            setTimeout(() => {
+                if (pollInterval) {
+                    clearInterval(pollInterval);
+                    log('⏰ Polling timeout (10 minutes)', 'error');
+                    showStatus('Timeout - processing took too long', 'error');
+                    document.getElementById('uploadBtn').disabled = false;
+                }
+            }, 600000);
+        }
+
+        log('🎬 Test page loaded and ready!', 'success');
+        log('👉 Select a PDF file and click "Upload & Test"', 'info');
+    </script>
+</body>
+</html>

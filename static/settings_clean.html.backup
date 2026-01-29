@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - OfferWise</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #e2e8f0;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-top: 20px;
+        }
+        
+        .header h1 {
+            font-size: 32px;
+            color: #60a5fa;
+            margin-bottom: 8px;
+        }
+        
+        .header p {
+            font-size: 16px;
+            color: #94a3b8;
+        }
+        
+        .nav-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 32px;
+            border-bottom: 2px solid #334155;
+            overflow-x: auto;
+        }
+        
+        .nav-tab {
+            padding: 12px 24px;
+            background: transparent;
+            border: none;
+            color: #94a3b8;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        
+        .nav-tab:hover {
+            color: #cbd5e1;
+        }
+        
+        .nav-tab.active {
+            color: #60a5fa;
+            border-bottom-color: #60a5fa;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .card {
+            background: #1e293b;
+            border-radius: 16px;
+            padding: 32px;
+            border: 2px solid #334155;
+            margin-bottom: 24px;
+        }
+        
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .card-icon {
+            font-size: 28px;
+        }
+        
+        .card-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #f1f5f9;
+        }
+        
+        .card-subtitle {
+            font-size: 14px;
+            color: #94a3b8;
+            margin-top: 4px;
+        }
+        
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 16px 0;
+            border-bottom: 1px solid #334155;
+        }
+        
+        .info-row:last-child {
+            border-bottom: none;
+        }
+        
+        .info-label {
+            font-size: 14px;
+            color: #94a3b8;
+            font-weight: 600;
+        }
+        
+        .info-value {
+            font-size: 14px;
+            color: #e2e8f0;
+        }
+        
+        .badge {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .badge-success {
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16, 185, 129, 0.4);
+            color: #10b981;
+        }
+        
+        .badge-google {
+            background: rgba(59, 130, 246, 0.15);
+            border: 1px solid rgba(59, 130, 246, 0.4);
+            color: #3b82f6;
+        }
+        
+        .form-group {
+            margin-bottom: 24px;
+        }
+        
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #cbd5e1;
+            margin-bottom: 8px;
+        }
+        
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            background: #0f172a;
+            border: 2px solid #334155;
+            color: #e2e8f0;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: all 0.3s;
+        }
+        
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        .form-textarea {
+            min-height: 100px;
+            resize: vertical;
+            font-family: inherit;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+        }
+        
+        .consent-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        
+        .consent-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px;
+            background: rgba(59, 130, 246, 0.1);
+            border: 2px solid rgba(59, 130, 246, 0.3);
+            border-radius: 12px;
+        }
+        
+        .consent-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .consent-icon {
+            font-size: 24px;
+        }
+        
+        .consent-details h4 {
+            font-size: 16px;
+            color: #f1f5f9;
+            margin-bottom: 4px;
+        }
+        
+        .consent-details p {
+            font-size: 13px;
+            color: #94a3b8;
+        }
+        
+        .btn-text {
+            background: none;
+            border: none;
+            color: #60a5fa;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            padding: 8px 16px;
+        }
+        
+        .btn-text:hover {
+            color: #3b82f6;
+            text-decoration: underline;
+        }
+        
+        .success-banner {
+            background: rgba(16, 185, 129, 0.1);
+            border: 2px solid rgba(16, 185, 129, 0.3);
+            border-radius: 12px;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        
+        .success-icon {
+            font-size: 24px;
+        }
+        
+        .success-text {
+            flex: 1;
+        }
+        
+        .success-text h4 {
+            color: #10b981;
+            font-size: 16px;
+            margin-bottom: 4px;
+        }
+        
+        .success-text p {
+            color: #94a3b8;
+            font-size: 13px;
+        }
+        
+        .danger-zone {
+            border: 2px solid #ef4444;
+            padding: 24px;
+            border-radius: 12px;
+            background: rgba(239, 68, 68, 0.05);
+        }
+        
+        .danger-zone h3 {
+            color: #ef4444;
+            font-size: 18px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .danger-zone p {
+            color: #cbd5e1;
+            font-size: 14px;
+            margin-bottom: 16px;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #94a3b8;
+        }
+        
+        .spinner {
+            border: 3px solid #334155;
+            border-top-color: #3b82f6;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 16px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>⚙️ Settings</h1>
+            <p>Manage your preferences and account settings</p>
+        </div>
+        
+        <!-- Navigation Tabs -->
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="showTab('account')">Account</button>
+            <button class="nav-tab" onclick="showTab('preferences')">Preferences</button>
+            <button class="nav-tab" onclick="showTab('legal')">Legal</button>
+            <button class="nav-tab" onclick="showTab('danger')">Account Management</button>
+        </div>
+        
+        <!-- Account Tab -->
+        <div id="account-tab" class="tab-content active">
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-icon">👤</span>
+                    <div>
+                        <div class="card-title">Account Information</div>
+                        <div class="card-subtitle">Your account details and login method</div>
+                    </div>
+                </div>
+                
+                <div class="info-row">
+                    <span class="info-label">Email</span>
+                    <span class="info-value" id="user-email">Loading...</span>
+                </div>
+                
+                <div class="info-row">
+                    <span class="info-label">Login Method</span>
+                    <span class="info-value" id="user-login-method">Loading...</span>
+                </div>
+                
+                <div class="info-row">
+                    <span class="info-label">Plan</span>
+                    <span class="info-value" id="user-plan">Loading...</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Preferences Tab -->
+        <div id="preferences-tab" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-icon">🎯</span>
+                    <div>
+                        <div class="card-title">Buyer Preferences</div>
+                        <div class="card-subtitle">Customize recommendations for your situation</div>
+                    </div>
+                </div>
+                
+                <form id="preferences-form">
+                    <div class="form-group">
+                        <label class="form-label">Maximum Budget</label>
+                        <input type="number" id="max-budget" class="form-input" placeholder="e.g., 2000000">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Repair Tolerance</label>
+                        <select id="repair-tolerance" class="form-select">
+                            <option value="Low">Low - Prefer minimal repairs</option>
+                            <option value="Moderate">Moderate - Some repairs are okay</option>
+                            <option value="High">High - Willing to do major repairs</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Biggest Regret to Avoid</label>
+                        <textarea id="biggest-regret" class="form-textarea" placeholder="e.g., Overpaying, Hidden foundation issues, etc."></textarea>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">💾 Save Preferences</button>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Legal Tab -->
+        <div id="legal-tab" class="tab-content">
+            <div id="consents-success" class="success-banner" style="display: none;">
+                <span class="success-icon">✅</span>
+                <div class="success-text">
+                    <h4>All Legal Agreements Accepted</h4>
+                    <p>You're all set to use OfferWise!</p>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-icon">⚖️</span>
+                    <div>
+                        <div class="card-title">Legal Agreements</div>
+                        <div class="card-subtitle">Review and manage your consent to our legal terms</div>
+                    </div>
+                </div>
+                
+                <div id="consents-list" class="consent-list">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        <div>Loading consents...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Danger Zone Tab -->
+        <div id="danger-tab" class="tab-content">
+            <div class="card">
+                <div class="danger-zone">
+                    <h3>⚠️ Account Management</h3>
+                    <p>Permanently delete your OfferWise AI account and all associated data. This action cannot be undone.</p>
+                    <button class="btn btn-danger" onclick="confirmDeleteAccount()">Delete My Account</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let currentUser = null;
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadUserData();
+            await loadPreferences();
+            await loadConsents();
+        });
+        
+        // Tab switching
+        function showTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Remove active from all nav tabs
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected tab
+            document.getElementById(`${tabName}-tab`).classList.add('active');
+            
+            // Activate nav tab
+            event.target.classList.add('active');
+        }
+        
+        // Load user data
+        async function loadUserData() {
+            try {
+                const response = await fetch('/api/user', { credentials: 'include' });
+                const data = await response.json();
+                currentUser = data;
+                
+                document.getElementById('user-email').textContent = data.email;
+                
+                // Login method badge
+                const loginMethodEl = document.getElementById('user-login-method');
+                if (data.email.includes('google')) {
+                    loginMethodEl.innerHTML = '<span class="badge badge-google">🔷 Google</span>';
+                } else {
+                    loginMethodEl.textContent = 'Email / Password';
+                }
+                
+                // Plan badge
+                const planEl = document.getElementById('user-plan');
+                planEl.innerHTML = `<span class="badge badge-success">${data.tier.toUpperCase()}</span>`;
+            } catch (error) {
+                console.error('Failed to load user data:', error);
+            }
+        }
+        
+        // Load preferences
+        async function loadPreferences() {
+            try {
+                const response = await fetch('/api/user/preferences', { credentials: 'include' });
+                const data = await response.json();
+                
+                document.getElementById('max-budget').value = data.max_budget || 2000000;
+                document.getElementById('repair-tolerance').value = data.repair_tolerance || 'Moderate';
+                document.getElementById('biggest-regret').value = data.biggest_regret || 'Overpaying';
+            } catch (error) {
+                console.error('Failed to load preferences:', error);
+            }
+        }
+        
+        // Save preferences
+        document.getElementById('preferences-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const preferences = {
+                max_budget: parseInt(document.getElementById('max-budget').value),
+                repair_tolerance: document.getElementById('repair-tolerance').value,
+                biggest_regret: document.getElementById('biggest-regret').value
+            };
+            
+            try {
+                const response = await fetch('/api/user/preferences', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify(preferences)
+                });
+                
+                if (response.ok) {
+                    alert('✅ Preferences saved successfully!');
+                } else {
+                    alert('❌ Failed to save preferences');
+                }
+            } catch (error) {
+                console.error('Error saving preferences:', error);
+                alert('❌ Error saving preferences');
+            }
+        });
+        
+        // Load consents
+        async function loadConsents() {
+            try {
+                const response = await fetch('/api/consent/status', { credentials: 'include' });
+                const data = await response.json();
+                
+                const consents = data.consents || data.statuses || [];
+                const allAccepted = consents.every(c => c.has_consent);
+                
+                // Show success banner if all accepted
+                if (allAccepted) {
+                    document.getElementById('consents-success').style.display = 'flex';
+                }
+                
+                // Render consents
+                const container = document.getElementById('consents-list');
+                const icons = {
+                    'analysis_disclaimer': '⚖️',
+                    'terms_of_service': '📋',
+                    'privacy_policy': '🔒'
+                };
+                const names = {
+                    'analysis_disclaimer': 'Analysis Disclaimer',
+                    'terms_of_service': 'Terms of Service',
+                    'privacy_policy': 'Privacy Policy'
+                };
+                
+                let html = '';
+                consents.forEach(consent => {
+                    const accepted = consent.has_consent;
+                    html += `
+                        <div class="consent-item">
+                            <div class="consent-info">
+                                <span class="consent-icon">${icons[consent.consent_type]}</span>
+                                <div class="consent-details">
+                                    <h4>${names[consent.consent_type]}</h4>
+                                    <p>Version ${consent.required_version} • ${accepted ? '✓ Accepted' : 'Not accepted'}</p>
+                                </div>
+                            </div>
+                            ${accepted ? 
+                                '<span class="badge badge-success">✓ Accepted</span>' :
+                                `<button class="btn-text" onclick="reviewConsent('${consent.consent_type}')">Review & Accept</button>`
+                            }
+                        </div>
+                    `;
+                });
+                
+                container.innerHTML = html;
+            } catch (error) {
+                console.error('Failed to load consents:', error);
+                document.getElementById('consents-list').innerHTML = '<p style="color: #ef4444;">Failed to load consents</p>';
+            }
+        }
+        
+        // Review consent (redirect to Settings Legal tab - now the primary flow)
+        function reviewConsent(consentType) {
+            // Redirect to Settings Legal tab to handle consent acceptance
+            window.location.href = '/settings?tab=legal';
+            window.location.href = '/onboarding';
+        }
+        
+        // Delete account
+        function confirmDeleteAccount() {
+            if (confirm('⚠️ Are you sure you want to delete your account? This cannot be undone.')) {
+                if (confirm('🚨 Really delete? All your data will be permanently removed.')) {
+                    deleteAccount();
+                }
+            }
+        }
+        
+        async function deleteAccount() {
+            try {
+                const response = await fetch('/api/user/delete', {
+                    method: 'POST',
+                    credentials: 'include'
+                });
+                
+                if (response.ok) {
+                    alert('Account deleted successfully');
+                    window.location.href = '/';
+                } else {
+                    alert('Failed to delete account');
+                }
+            } catch (error) {
+                console.error('Error deleting account:', error);
+                alert('Error deleting account');
+            }
+        }
+    </script>
+</body>
+</html>

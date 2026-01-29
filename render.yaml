@@ -1,0 +1,52 @@
+services:
+  - type: web
+    name: offerwise
+    runtime: docker
+    plan: starter
+    dockerfilePath: ./Dockerfile
+    
+    envVars:
+      # Database - using SQLite by default
+      - key: DATABASE_URL
+        value: sqlite:///offerwise.db
+      
+      # OCR Configuration - Optimized for 512MB Starter Plan
+      # CRITICAL: PaddleOCR disabled by default (uses too much memory on 512MB)
+      # Uses Tesseract-only: slower but stable
+      - key: OCR_DPI
+        value: "100"
+      
+      - key: OCR_PARALLEL_WORKERS
+        value: "1"
+      
+      - key: GUNICORN_TIMEOUT
+        value: "600"
+      
+      # DISABLE PaddleOCR for 512MB plans (enable on 1GB+ plans)
+      - key: DISABLE_PADDLEOCR
+        value: "true"
+      
+      # Secret Key - auto-generate a new one for new service
+      - key: SECRET_KEY
+        generateValue: true
+      
+      # Facebook OAuth - mark as required, will copy from old service
+      - key: FACEBOOK_CLIENT_ID
+        sync: false
+      
+      - key: FACEBOOK_CLIENT_SECRET
+        sync: false
+      
+      # Google OAuth - mark as required, will copy from old service
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+      
+      # Stripe Payment Keys - mark as required, will copy from old service
+      - key: STRIPE_PUBLISHABLE_KEY
+        sync: false
+      
+      - key: STRIPE_SECRET_KEY
+        sync: false

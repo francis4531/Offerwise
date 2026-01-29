@@ -1,0 +1,2167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OfferWise - Property Analysis</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+      body {
+        margin: 0;
+        font-family: system-ui, -apple-system, sans-serif;
+      }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+        
+        const OfferWise = () => {
+          const [currentStep, setCurrentStep] = useState('property');
+          const [propertyData, setPropertyData] = useState({});
+          const [buyerProfile, setBuyerProfile] = useState({});
+          const [result, setResult] = useState(null);
+          const [loading, setLoading] = useState(false);
+          const [error, setError] = useState('');
+          const [showRepairCalculation, setShowRepairCalculation] = useState(false);
+          const [showTransparencyCalculation, setShowTransparencyCalculation] = useState(false);
+          
+          // Load saved buyer profile from dashboard on mount
+          useEffect(() => {
+            const savedProfile = localStorage.getItem('buyer_profile');
+            if (savedProfile) {
+              try {
+                const profile = JSON.parse(savedProfile);
+                setBuyerProfile({
+                  max_budget: profile.max_budget || '',
+                  repair_tolerance: profile.repair_tolerance || 'moderate',
+                  biggest_regret: profile.biggest_regret || ''
+                });
+                console.log('Loaded saved buyer profile from dashboard');
+              } catch (e) {
+                console.error('Error loading saved profile:', e);
+              }
+            }
+          }, []);
+          
+          // Check for loaded analysis from dashboard on mount
+          useEffect(() => {
+            const loadedAnalysis = sessionStorage.getItem('loaded_analysis');
+            if (loadedAnalysis) {
+              try {
+                const analysisData = JSON.parse(loadedAnalysis);
+                
+                console.log('Loading analysis from dashboard:', analysisData);
+                
+                // Set property data
+                if (analysisData.property_address && analysisData.property_price) {
+                  setPropertyData({
+                    address: analysisData.property_address,
+                    price: analysisData.property_price
+                  });
+                }
+                
+                // Set result to display the analysis
+                setResult(analysisData);
+                setCurrentStep('results');  // FIXED: was 'result', should be 'results'
+                
+                // Clear from sessionStorage
+                sessionStorage.removeItem('loaded_analysis');
+              } catch (e) {
+                console.error('Error loading saved analysis:', e);
+                alert('Error loading saved analysis. Please try again.');
+                setCurrentStep('property');
+              }
+            }
+          }, []);
+          
+          // Combined Property & Documents Step
+          
+          // Function to save completed analysis to localStorage
+          const saveAnalysisToHistory = (analysisResult, propertyData, buyerProfile) => {
+            try {
+              // Get existing history
+              const history = JSON.parse(localStorage.getItem('analysis_history') || '[]');
+              
+              // Extract risk score - it might be an object with overall_risk_score property
+              const riskScore = typeof analysisResult.risk_score === 'object' 
+                ? (analysisResult.risk_score.overall_risk_score || analysisResult.risk_score.buyer_adjusted_score || 0)
+                : analysisResult.risk_score;
+              
+              // Extract risk level/tier
+              const riskLevel = typeof analysisResult.risk_score === 'object'
+                ? (analysisResult.risk_score.risk_tier || analysisResult.risk_level || 'UNKNOWN')
+                : (analysisResult.risk_level || 'UNKNOWN');
+              
+              // Create analysis record
+              const analysisRecord = {
+                id: Date.now() + '-' + Math.random().toString(36).substr(2, 9),
+                analyzed_at: new Date().toISOString(),
+                property_address: propertyData.address,
+                asking_price: parseFloat(propertyData.price),
+                risk_score: Math.round(parseFloat(riskScore)),  // Round to whole number
+                // Extract recommended_offer from nested offer_strategy object
+                recommended_offer: analysisResult.offer_strategy?.recommended_offer || 
+                                   analysisResult.recommended_offer ||
+                                   parseFloat(propertyData.price),
+                // Calculate potential savings correctly
+                potential_savings: parseFloat(propertyData.price) - 
+                                   (analysisResult.offer_strategy?.recommended_offer || 
+                                    analysisResult.recommended_offer ||
+                                    parseFloat(propertyData.price)),
+                discount_percentage: analysisResult.offer_strategy?.discount_percentage || 
+                                     analysisResult.discount_percentage || 0,
+                risk_level: riskLevel,
+                buyer_budget: buyerProfile.max_budget,
+                repair_tolerance: buyerProfile.repair_tolerance,
+                // Store full result for viewing later
+                full_result: analysisResult,
+                property_data: propertyData,
+                buyer_profile: buyerProfile
+              };
+              
+              // Add to beginning of array (most recent first)
+              history.unshift(analysisRecord);
+              
+              // Keep only last 50 analyses
+              const trimmedHistory = history.slice(0, 50);
+              
+              // Save back to localStorage
+              localStorage.setItem('analysis_history', JSON.stringify(trimmedHistory));
+              
+              console.log('Saved analysis to history:', analysisRecord);
+              
+              // TODO: Also save to backend database
+              // fetch('/api/user/analyses', {
+              //   method: 'POST',
+              //   headers: { 'Content-Type': 'application/json' },
+              //   body: JSON.stringify(analysisRecord)
+              // });
+              
+            } catch (error) {
+              console.error('Error saving analysis to history:', error);
+            }
+          };
+          
+          const PropertyDocumentsStep = () => {
+            const [address, setAddress] = useState('');
+            const [price, setPrice] = useState('');
+            const [disclosureText, setDisclosureText] = useState('');
+            const [inspectionText, setInspectionText] = useState('');
+            const [uploading, setUploading] = useState(false);
+            
+            const handleFileUpload = async (file, type) => {
+              setUploading(true);
+              setError('');
+              
+              try {
+                // Check file size (4.5MB limit for Vercel free tier)
+                const maxSize = 4.5 * 1024 * 1024;
+                if (file.size > maxSize) {
+                  throw new Error('File too large. Maximum 4.5MB (upgrade to Pro for 50MB limit)');
+                }
+                
+                const base64 = await new Promise((resolve, reject) => {
+                  const reader = new FileReader();
+                  reader.onload = () => resolve(reader.result);
+                  reader.onerror = reject;
+                  reader.readAsDataURL(file);
+                });
+                
+                const response = await fetch('/api/upload-pdf', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ pdf_base64: base64 })
+                });
+                
+                if (!response.ok) {
+                  const error = await response.json();
+                  throw new Error(error.error || 'Upload failed');
+                }
+                
+                const data = await response.json();
+                
+                if (type === 'disclosure') {
+                  setDisclosureText(data.text);
+                  alert(`✓ Disclosure uploaded (${data.page_count} pages)`);
+                } else {
+                  setInspectionText(data.text);
+                  alert(`✓ Inspection uploaded (${data.page_count} pages)`);
+                }
+                
+              } catch (err) {
+                setError(`Upload failed: ${err.message}`);
+              } finally {
+                setUploading(false);
+              }
+            };
+            
+            const handleContinue = () => {
+              // Robust price parsing with validation
+              let cleanPrice;
+              try {
+                const priceStr = String(price).replace(/[^0-9]/g, '');
+                console.log('Price parsing:', { original: price, cleaned: priceStr });
+                
+                cleanPrice = parseInt(priceStr, 10);
+                
+                if (isNaN(cleanPrice) || cleanPrice <= 0) {
+                  alert('Please enter a valid price (numbers only, greater than $0)');
+                  return;
+                }
+                
+                if (cleanPrice > 100000000) {
+                  alert('Price must be less than $100,000,000');
+                  return;
+                }
+                
+                console.log('Price parsed successfully:', cleanPrice.toLocaleString());
+              } catch (e) {
+                console.error('Price parsing error:', e);
+                alert('Error parsing price. Please enter numbers only.');
+                return;
+              }
+              
+              if (!address.trim()) {
+                alert('Please enter a property address');
+                return;
+              }
+              
+              if (!disclosureText) {
+                alert('Please upload seller disclosure document');
+                return;
+              }
+              
+              const propertyDataToStore = { 
+                address: address.trim(), 
+                price: cleanPrice,  // Store as number
+                disclosureText,
+                inspectionText
+              };
+              
+              console.log('Setting property data:', {
+                address: propertyDataToStore.address,
+                price: propertyDataToStore.price,
+                priceFormatted: propertyDataToStore.price.toLocaleString(),
+                hasDisclosure: !!propertyDataToStore.disclosureText,
+                hasInspection: !!propertyDataToStore.inspectionText
+              });
+              
+              setPropertyData(propertyDataToStore);
+              
+              // Check if buyer profile exists, if not prompt to create one
+              const savedProfile = localStorage.getItem('buyer_profile');
+              if (!savedProfile) {
+                setError('Please save your buyer preferences first. Go to Profile page from the menu.');
+                return;
+              }
+              
+              // Load saved profile
+              try {
+                const profile = JSON.parse(savedProfile);
+                setBuyerProfile({
+                  max_budget: profile.max_budget || '',
+                  repair_tolerance: profile.repair_tolerance || 'moderate',
+                  biggest_regret: profile.biggest_regret || ''
+                });
+              } catch (e) {
+                setError('Error loading your profile. Please check Profile page.');
+                return;
+              }
+              
+              setCurrentStep('analysis');
+            };
+            
+            return (
+              <div style={styles.container}>
+                <h1 style={styles.title}>OfferWise</h1>
+                <h2 style={styles.subtitle}>Property Details & Documents</h2>
+                
+                {error && <div style={styles.error}>{error}</div>}
+                
+                {/* Property Information Section */}
+                <div style={styles.section}>
+                  <h3 style={styles.sectionTitle}>Property Information</h3>
+                  
+                  <input
+                    type="text"
+                    placeholder="Property Address (e.g., 123 Main Street, San Jose, CA)"
+                    value={address}
+                    onChange={(e) => setAddress(e.target.value)}
+                    style={styles.input}
+                  />
+                  
+                  <input
+                    type="text"
+                    placeholder="Asking Price (e.g., 1480000)"
+                    value={price}
+                    onChange={(e) => setPrice(e.target.value)}
+                    style={styles.input}
+                  />
+                </div>
+                
+                {/* Documents Section */}
+                <div style={styles.section}>
+                  <h3 style={styles.sectionTitle}>Upload Documents</h3>
+                  
+                  <div style={styles.uploadSection}>
+                    <label style={styles.label}>
+                      Seller Disclosure Statement <span style={{color: '#ef4444'}}>*Required</span>
+                    </label>
+                    <input
+                      type="file"
+                      accept=".pdf"
+                      onChange={(e) => {
+                        if (e.target.files && e.target.files[0]) {
+                          handleFileUpload(e.target.files[0], 'disclosure');
+                        }
+                      }}
+                      disabled={uploading}
+                      style={styles.fileInput}
+                    />
+                    {disclosureText && <div style={styles.success}>✓ Disclosure Uploaded</div>}
+                  </div>
+                  
+                  <div style={styles.uploadSection}>
+                    <label style={styles.label}>
+                      Inspection Report <span style={{color: '#6b7280', fontWeight: 400}}>(Optional)</span>
+                    </label>
+                    <input
+                      type="file"
+                      accept=".pdf"
+                      onChange={(e) => {
+                        if (e.target.files && e.target.files[0]) {
+                          handleFileUpload(e.target.files[0], 'inspection');
+                        }
+                      }}
+                      disabled={uploading}
+                      style={styles.fileInput}
+                    />
+                    {inspectionText && <div style={styles.success}>✓ Inspection Uploaded</div>}
+                  </div>
+                  
+                  {uploading && (
+                    <div style={styles.loading}>
+                      <div style={styles.spinner}></div>
+                      Uploading and processing PDF...
+                    </div>
+                  )}
+                </div>
+                
+                <button
+                  onClick={handleContinue}
+                  disabled={!address || !price || !disclosureText || uploading}
+                  style={styles.button}
+                >
+                  Continue to Analysis →
+                </button>
+                
+                <div style={styles.helpText}>
+                  <p>💡 <strong>Tip:</strong> The seller disclosure is required. The inspection report provides more detailed analysis but is optional.</p>
+                </div>
+              </div>
+            );
+          };
+          
+          // Buyer Profile Step
+          const ProfileStep = () => {
+            const [profile, setProfile] = useState({
+              max_budget: '',
+              repair_tolerance: 'moderate',
+              biggest_regret: 'hidden_issues'
+            });
+            
+            return (
+              <div style={styles.container}>
+                <button onClick={() => setCurrentStep('documents')} style={styles.backButton}>
+                  ← Back
+                </button>
+                
+                <h2 style={styles.subtitle}>Buyer Profile</h2>
+                
+                <label style={styles.label}>Maximum Budget</label>
+                <input
+                  type="text"
+                  placeholder="1500000"
+                  value={profile.max_budget}
+                  onChange={(e) => setProfile({...profile, max_budget: e.target.value})}
+                  style={styles.input}
+                />
+                
+                <label style={styles.label}>Repair Tolerance</label>
+                <select
+                  value={profile.repair_tolerance}
+                  onChange={(e) => setProfile({...profile, repair_tolerance: e.target.value})}
+                  style={styles.input}
+                >
+                  <option value="low">Low</option>
+                  <option value="moderate">Moderate</option>
+                  <option value="high">High</option>
+                </select>
+                
+                <label style={styles.label}>Biggest Fear</label>
+                <select
+                  value={profile.biggest_regret}
+                  onChange={(e) => setProfile({...profile, biggest_regret: e.target.value})}
+                  style={styles.input}
+                >
+                  <option value="overpay">Overpaying</option>
+                  <option value="lose_house">Losing the house</option>
+                  <option value="hidden_issues">Hidden issues</option>
+                </select>
+                
+                <button
+                  onClick={() => {
+                    setBuyerProfile(profile);
+                    setCurrentStep('analyze');
+                  }}
+                  disabled={!profile.max_budget}
+                  style={styles.button}
+                >
+                  Continue →
+                </button>
+              </div>
+            );
+          };
+          
+          // Analysis Step
+          const AnalyzeStep = () => {
+            const handleAnalyze = async () => {
+              setLoading(true);
+              setError('');
+              
+              try {
+                console.log('Starting analysis...');
+                console.log('Property data:', propertyData);
+                console.log('Buyer profile:', buyerProfile);
+                
+                const requestBody = {
+                  seller_disclosure_text: propertyData.disclosureText,
+                  inspection_report_text: propertyData.inspectionText || '',
+                  property_price: propertyData.price,
+                  property_address: propertyData.address,
+                  buyer_profile: {
+                    max_budget: parseInt(buyerProfile.max_budget.replace(/[^0-9]/g, '')),
+                    repair_tolerance: buyerProfile.repair_tolerance,
+                    biggest_regret: buyerProfile.biggest_regret
+                  }
+                };
+                
+                console.log('Sending request:', requestBody);
+                
+                const response = await fetch('/api/analyze', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify(requestBody)
+                });
+                
+                console.log('Response status:', response.status);
+                console.log('Response headers:', [...response.headers.entries()]);
+                
+                if (!response.ok) {
+                  const errorText = await response.text();
+                  console.error('Error response:', errorText);
+                  try {
+                    const errorJson = JSON.parse(errorText);
+                    throw new Error(errorJson.error || 'Analysis failed');
+                  } catch (e) {
+                    throw new Error(`Analysis failed: ${response.status} - ${errorText}`);
+                  }
+                }
+                
+                const data = await response.json();
+                console.log('Analysis complete! Result:', data);
+                console.log('Setting result and moving to results step...');
+                
+                setResult(data);
+                setCurrentStep('results');
+                
+                // Save analysis to history
+                saveAnalysisToHistory(data, propertyData, buyerProfile);
+                
+                console.log('State updated, should show results now');
+                
+              } catch (err) {
+                console.error('Analysis error:', err);
+                setError(`Analysis failed: ${err.message}`);
+              } finally {
+                setLoading(false);
+              }
+            };
+            
+            return (
+              <div style={styles.container}>
+                <button onClick={() => setCurrentStep('property')} style={styles.backButton}>
+                  ← Back
+                </button>
+                
+                <h2 style={styles.subtitle}>Generate Analysis</h2>
+                
+                {error && <div style={styles.error}>{error}</div>}
+                
+                <div style={styles.summary}>
+                  <p><strong>Property:</strong> {propertyData.address}</p>
+                  <p><strong>Price:</strong> ${propertyData.price?.toLocaleString()}</p>
+                  <p><strong>Documents:</strong> {propertyData.inspectionText ? 'Disclosure + Inspection' : 'Disclosure only'}</p>
+                </div>
+                
+                <button
+                  onClick={handleAnalyze}
+                  disabled={loading}
+                  style={styles.button}
+                >
+                  {loading ? 'Analyzing (10-30s)...' : 'Generate Analysis'}
+                </button>
+              </div>
+            );
+          };
+          
+          // Results Step - Hybrid Design (Concept 2 + 4)
+          const ResultsStep = () => {
+            console.log('ResultsStep rendering, result:', result);
+            
+            if (!result) {
+              return (
+                <div style={styles.container}>
+                  <h2>Error: No Results</h2>
+                  <p>No analysis results available.</p>
+                  <button onClick={() => setCurrentStep('property')} style={styles.button}>
+                    Start New Analysis
+                  </button>
+                </div>
+              );
+            }
+            
+            try {
+              const { risk_score, cross_reference, offer_strategy, negotiation_strategy, decision_framework } = result;
+              
+              const isWalkAway = risk_score?.risk_tier === 'CRITICAL' || 
+                                (risk_score?.deal_breakers && risk_score.deal_breakers.length >= 3);
+              
+              // Calculate average repair cost
+              const avgRepairCost = risk_score?.total_repair_cost_low && risk_score?.total_repair_cost_high
+                ? Math.round((risk_score.total_repair_cost_low + risk_score.total_repair_cost_high) / 2000)
+                : 0;
+              
+              return (
+                <div style={{
+                  fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                  background: '#0f172a',
+                  color: 'white',
+                  minHeight: '100vh',
+                  margin: '-8px',
+                  padding: 0
+                }}>
+                  
+                  {/* Hero Banner */}
+                  <div style={{
+                    background: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #ef4444 100%)',
+                    padding: '60px 80px',
+                    borderBottom: '1px solid #334155'
+                  }}>
+                    <div style={{
+                      maxWidth: '1400px',
+                      margin: '0 auto',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      flexWrap: 'wrap',
+                      gap: '20px'
+                    }}>
+                      <div>
+                        <h1 style={{
+                          fontSize: '48px',
+                          fontWeight: '800',
+                          margin: '0 0 12px 0',
+                          color: 'white',
+                          textShadow: '0 2px 10px rgba(0,0,0,0.2)'
+                        }}>
+                          {result.property_address || 'Property Analysis'}
+                        </h1>
+                        <p style={{ fontSize: '20px', color: 'rgba(255,255,255,0.95)', margin: '0 0 12px 0' }}>
+                          Asking ${result.property_price?.toLocaleString() || 'N/A'}
+                        </p>
+                        <button
+                          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                          style={{
+                            background: 'rgba(59, 130, 246, 0.2)',
+                            backdropFilter: 'blur(10px)',
+                            border: '1px solid rgba(59, 130, 246, 0.5)',
+                            color: '#60a5fa',
+                            padding: '8px 16px',
+                            borderRadius: '8px',
+                            fontSize: '14px',
+                            fontWeight: '600',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '6px'
+                          }}
+                          onMouseEnter={(e) => {
+                            e.target.style.background = 'rgba(59, 130, 246, 0.3)';
+                            e.target.style.transform = 'translateY(-2px)';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.target.style.background = 'rgba(59, 130, 246, 0.2)';
+                            e.target.style.transform = 'translateY(0)';
+                          }}
+                        >
+                          ← Back to Analysis
+                        </button>
+                      </div>
+                      <div style={{
+                        background: 'rgba(0,0,0,0.3)',
+                        backdropFilter: 'blur(10px)',
+                        padding: '16px 32px',
+                        borderRadius: '50px',
+                        fontSize: '24px',
+                        fontWeight: '700',
+                        border: '2px solid rgba(255,255,255,0.3)'
+                      }}>
+                        {isWalkAway ? '⚠️ HIGH RISK PROPERTY' : '✓ MANAGEABLE RISK'}
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Main Container */}
+                  <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '60px 80px' }}>
+                    
+                    {/* STEP 1: The Numbers */}
+                    <div style={{
+                      background: '#1e293b',
+                      borderRadius: '20px',
+                      padding: '50px',
+                      marginBottom: '30px',
+                      border: '2px solid #334155',
+                      position: 'relative'
+                    }}>
+                      <div style={{
+                        position: 'absolute',
+                        top: '-25px',
+                        left: '50px',
+                        background: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #ef4444 100%)',
+                        color: 'white',
+                        width: '60px',
+                        height: '60px',
+                        borderRadius: '50%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontWeight: '800',
+                        fontSize: '28px',
+                        boxShadow: '0 5px 20px rgba(251, 191, 36, 0.4)',
+                        border: '3px solid #0f172a'
+                      }}>1</div>
+                      
+                      <h2 style={{
+                        fontSize: '36px',
+                        fontWeight: '700',
+                        marginBottom: '30px',
+                        background: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)',
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent',
+                        backgroundClip: 'text'
+                      }}>
+                        📊 The Numbers Tell a Story
+                      </h2>
+                      
+                      <div style={{ display: 'grid', gridTemplateColumns: '350px 1fr', gap: '40px', marginTop: '30px' }}>
+                        
+                        {/* Circular Gauge */}
+                        <div>
+                          <div style={{ position: 'relative', width: '280px', height: '280px', margin: '0 auto' }}>
+                            <div style={{
+                              width: '100%',
+                              height: '100%',
+                              borderRadius: '50%',
+                              background: `conic-gradient(#ef4444 0% ${risk_score?.overall_risk_score || 0}%, #334155 ${risk_score?.overall_risk_score || 0}% 100%)`,
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              position: 'relative'
+                            }}>
+                              <div style={{
+                                width: '200px',
+                                height: '200px',
+                                borderRadius: '50%',
+                                background: '#1e293b',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                border: '4px solid #0f172a'
+                              }}>
+                                <div style={{
+                                  fontSize: '72px',
+                                  fontWeight: '800',
+                                  lineHeight: '1',
+                                  background: 'linear-gradient(135deg, #fbbf24 0%, #ef4444 100%)',
+                                  WebkitBackgroundClip: 'text',
+                                  WebkitTextFillColor: 'transparent',
+                                  backgroundClip: 'text'
+                                }}>{Math.round(risk_score?.overall_risk_score || 0)}</div>
+                                <div style={{
+                                  fontSize: '14px',
+                                  color: '#94a3b8',
+                                  marginTop: '8px',
+                                  textTransform: 'uppercase',
+                                  letterSpacing: '2px'
+                                }}>OfferScore™</div>
+                                <div style={{
+                                  fontSize: '10px',
+                                  color: '#64748b',
+                                  marginTop: '4px',
+                                  fontStyle: 'italic'
+                                }}>Patent Pending</div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        {/* Metrics and Charts */}
+                        <div>
+                          <p style={{ fontSize: '18px', color: '#cbd5e1', lineHeight: '1.8', marginBottom: '30px' }}>
+                            This property scores <strong style={{color: '#ef4444'}}>{Math.round(risk_score?.overall_risk_score || 0)}/100 on our risk assessment</strong>, 
+                            placing it in the {risk_score?.risk_tier || 'UNKNOWN'} category. 
+                            {cross_reference?.undisclosed_count > 0 && ` The seller failed to disclose ${cross_reference.undisclosed_count} material defects.`}
+                          </p>
+                          
+                          {/* Icon Metrics */}
+                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px', marginBottom: '30px' }}>
+                            <div style={{
+                              background: '#0f172a',
+                              padding: '30px',
+                              borderRadius: '16px',
+                              textAlign: 'center',
+                              border: '2px solid #334155'
+                            }}>
+                              <div style={{ fontSize: '48px', marginBottom: '12px' }}>💰</div>
+                              <div style={{ fontSize: '42px', fontWeight: '800', color: '#ef4444', marginBottom: '8px' }}>
+                                ${avgRepairCost}K
+                              </div>
+                              <div style={{ fontSize: '13px', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                                Est. Repairs
+                              </div>
+                            </div>
+                            
+                            <div style={{
+                              background: '#0f172a',
+                              padding: '30px',
+                              borderRadius: '16px',
+                              textAlign: 'center',
+                              border: '2px solid #334155'
+                            }}>
+                              <div style={{ fontSize: '48px', marginBottom: '12px' }}>🔍</div>
+                              <div style={{ fontSize: '42px', fontWeight: '800', color: '#f59e0b', marginBottom: '8px' }}>
+                                {cross_reference?.transparency_score || 0}
+                              </div>
+                              <div style={{ fontSize: '13px', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                                Transparency
+                              </div>
+                              <div style={{ fontSize: '11px', color: '#64748b', marginTop: '6px' }}>
+                                0 = hid issues, 100 = disclosed all
+                              </div>
+                            </div>
+                            
+                            <div style={{
+                              background: '#0f172a',
+                              padding: '30px',
+                              borderRadius: '16px',
+                              textAlign: 'center',
+                              border: '2px solid #334155'
+                            }}>
+                              <div style={{ fontSize: '48px', marginBottom: '12px' }}>🚨</div>
+                              <div style={{ fontSize: '42px', fontWeight: '800', color: '#ef4444', marginBottom: '8px' }}>
+                                {Math.min(risk_score?.deal_breakers?.length || 0, 6)}
+                              </div>
+                              <div style={{ fontSize: '13px', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                                Critical Issues
+                              </div>
+                              <div style={{ fontSize: '11px', color: '#64748b', marginTop: '6px' }}>
+                                Top {Math.min(risk_score?.deal_breakers?.length || 0, 6)} shown below
+                              </div>
+                            </div>
+                          </div>
+                          
+                          {/* Category Bar Charts */}
+                          <div style={{ marginTop: '30px', marginBottom: '15px' }}>
+                            <h3 style={{ fontSize: '20px', fontWeight: '700', color: '#fbbf24', marginBottom: '8px' }}>
+                              📊 Risk Analysis by Category
+                            </h3>
+                            <p style={{ fontSize: '14px', color: '#94a3b8', marginBottom: '8px' }}>
+                              Severity levels: <span style={{color: '#fbbf24'}}>Moderate (0-49)</span>, <span style={{color: '#f59e0b'}}>Major (50-74)</span>, <span style={{color: '#ef4444'}}>Critical (75-100)</span>
+                            </p>
+                            <p style={{ fontSize: '13px', color: '#64748b', fontStyle: 'italic', marginBottom: '24px' }}>
+                              Estimated repair costs shown are category-specific. Total across all systems is reflected in the offer breakdown below.
+                            </p>
+                          </div>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                            {risk_score?.category_scores && risk_score.category_scores.slice(0, 4).map((cat, i) => {
+                              // Determine severity and color
+                              const score = Math.round(cat.score);
+                              let barColor, severityLabel, severityBg;
+                              if (score >= 75) {
+                                barColor = '#ef4444';
+                                severityLabel = 'CRITICAL';
+                                severityBg = 'rgba(239, 68, 68, 0.15)';
+                              } else if (score >= 50) {
+                                barColor = '#f59e0b';
+                                severityLabel = 'MAJOR';
+                                severityBg = 'rgba(245, 158, 11, 0.15)';
+                              } else {
+                                barColor = '#fbbf24';
+                                severityLabel = 'MODERATE';
+                                severityBg = 'rgba(251, 191, 36, 0.15)';
+                              }
+                              
+                              const avgCost = Math.round((cat.estimated_cost_low + cat.estimated_cost_high) / 2);
+                              
+                              return (
+                                <div key={i} style={{ 
+                                  background: '#0f172a',
+                                  padding: '20px',
+                                  borderRadius: '12px',
+                                  border: `2px solid ${barColor}20`
+                                }}>
+                                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+                                    <div style={{ fontWeight: '700', fontSize: '17px', color: '#f1f5f9' }}>
+                                      {cat.category}
+                                    </div>
+                                    <div style={{ 
+                                      background: severityBg,
+                                      color: barColor,
+                                      padding: '4px 12px',
+                                      borderRadius: '12px',
+                                      fontSize: '12px',
+                                      fontWeight: '700',
+                                      letterSpacing: '0.5px'
+                                    }}>
+                                      {severityLabel}
+                                    </div>
+                                  </div>
+                                  
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                                    <div style={{
+                                      flex: 1,
+                                      height: '36px',
+                                      background: '#1e293b',
+                                      borderRadius: '18px',
+                                      overflow: 'hidden',
+                                      position: 'relative'
+                                    }}>
+                                      <div style={{
+                                        height: '100%',
+                                        width: `${score}%`,
+                                        background: barColor,
+                                        borderRadius: '18px',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'flex-end',
+                                        paddingRight: '16px'
+                                      }}>
+                                        <span style={{
+                                          color: 'white',
+                                          fontWeight: '800',
+                                          fontSize: '16px',
+                                          textShadow: '0 1px 2px rgba(0,0,0,0.3)'
+                                        }}>
+                                          {score}
+                                        </span>
+                                      </div>
+                                    </div>
+                                    <div style={{ 
+                                      minWidth: '100px',
+                                      fontSize: '14px', 
+                                      color: '#94a3b8', 
+                                      textAlign: 'right',
+                                      fontWeight: '600'
+                                    }}>
+                                      ${avgCost.toLocaleString()} to fix
+                                    </div>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* STEP 2: Critical Issues */}
+                    {risk_score?.deal_breakers && risk_score.deal_breakers.length > 0 && (
+                      <div style={{
+                        background: '#1e293b',
+                        borderRadius: '20px',
+                        padding: '50px',
+                        marginBottom: '30px',
+                        border: '2px solid #334155',
+                        position: 'relative'
+                      }}>
+                        <div style={{
+                          position: 'absolute',
+                          top: '-25px',
+                          left: '50px',
+                          background: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #ef4444 100%)',
+                          color: 'white',
+                          width: '60px',
+                          height: '60px',
+                          borderRadius: '50%',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontWeight: '800',
+                          fontSize: '28px',
+                          boxShadow: '0 5px 20px rgba(251, 191, 36, 0.4)',
+                          border: '3px solid #0f172a'
+                        }}>2</div>
+                        
+                        <h2 style={{
+                          fontSize: '36px',
+                          fontWeight: '700',
+                          marginBottom: '20px',
+                          background: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)',
+                          WebkitBackgroundClip: 'text',
+                          WebkitTextFillColor: 'transparent',
+                          backgroundClip: 'text'
+                        }}>
+                          🚨 Critical Issues
+                        </h2>
+                        
+                        <p style={{ fontSize: '16px', color: '#94a3b8', lineHeight: '1.6', marginBottom: '16px' }}>
+                          Our professional analysis identified the following concerns requiring immediate attention:
+                        </p>
+                        
+                        <div style={{
+                          fontSize: '13px',
+                          color: '#64748b',
+                          fontStyle: 'italic',
+                          marginBottom: '24px',
+                          paddingLeft: '16px',
+                          borderLeft: '2px solid #334155'
+                        }}>
+                          Note: These are the most severe individual defects found. Category risk scores above reflect overall system health including all issues found.
+                        </div>
+                        
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                          {risk_score.deal_breakers.slice(0, 6).map((breaker, i) => (
+                            <div key={i} style={{
+                              display: 'flex',
+                              gap: '20px',
+                              padding: '24px',
+                              background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.9) 0%, rgba(15, 23, 42, 0.7) 100%)',
+                              borderRadius: '12px',
+                              borderLeft: '4px solid #ef4444',
+                              alignItems: 'flex-start',
+                              transition: 'all 0.2s ease'
+                            }}>
+                              <div style={{
+                                minWidth: '36px',
+                                height: '36px',
+                                background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+                                color: 'white',
+                                borderRadius: '50%',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                fontWeight: '700',
+                                fontSize: '17px',
+                                flexShrink: 0,
+                                boxShadow: '0 2px 10px rgba(239, 68, 68, 0.4)'
+                              }}>
+                                {i + 1}
+                              </div>
+                              <div style={{ flex: 1, paddingTop: '4px' }}>
+                                <div style={{
+                                  fontSize: '16px',
+                                  color: '#f1f5f9',
+                                  lineHeight: '1.65',
+                                  fontWeight: '400',
+                                  letterSpacing: '0.01em'
+                                }}>
+                                  {breaker}
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* STEP 3: Decision Path */}
+                    <div style={{
+                      background: '#1e293b',
+                      borderRadius: '20px',
+                      padding: '50px',
+                      marginBottom: '30px',
+                      border: '2px solid #334155',
+                      position: 'relative'
+                    }}>
+                      <div style={{
+                        position: 'absolute',
+                        top: '-25px',
+                        left: '50px',
+                        background: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #ef4444 100%)',
+                        color: 'white',
+                        width: '60px',
+                        height: '60px',
+                        borderRadius: '50%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontWeight: '800',
+                        fontSize: '28px',
+                        boxShadow: '0 5px 20px rgba(251, 191, 36, 0.4)',
+                        border: '3px solid #0f172a'
+                      }}>3</div>
+                      
+                      <h2 style={{
+                        fontSize: '36px',
+                        fontWeight: '700',
+                        marginBottom: '30px',
+                        background: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)',
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent',
+                        backgroundClip: 'text'
+                      }}>
+                        💡 Your Decision Path
+                      </h2>
+                      
+                      {/* Offer Strategy */}
+                      {offer_strategy && (
+                        <div style={{
+                          background: '#1e293b',
+                          padding: '40px',
+                          borderRadius: '20px',
+                          marginBottom: '30px',
+                          border: '2px solid #334155'
+                        }}>
+                          <h3 style={{
+                            fontSize: '24px',
+                            fontWeight: '700',
+                            marginBottom: '30px',
+                            color: '#0ea5e9'
+                          }}>
+                            💰 Recommended Offer Strategy
+                          </h3>
+                          
+                          {/* Main Offer Display */}
+                          <div style={{
+                            background: 'linear-gradient(135deg, #0ea5e9 0%, #06b6d4 100%)',
+                            padding: '40px',
+                            borderRadius: '16px',
+                            textAlign: 'center',
+                            marginBottom: '30px',
+                            boxShadow: '0 10px 40px rgba(14, 165, 233, 0.3)'
+                          }}>
+                            <div style={{
+                              fontSize: '14px',
+                              textTransform: 'uppercase',
+                              letterSpacing: '2px',
+                              opacity: '0.9',
+                              marginBottom: '12px'
+                            }}>
+                              Recommended Offer
+                            </div>
+                            <div style={{
+                              fontSize: '56px',
+                              fontWeight: '900',
+                              marginBottom: '12px'
+                            }}>
+                              ${typeof offer_strategy === 'object' && offer_strategy.recommended_offer 
+                                ? Math.round(offer_strategy.recommended_offer).toLocaleString()
+                                : 'N/A'}
+                            </div>
+                            <div style={{
+                              fontSize: '16px',
+                              opacity: '0.9'
+                            }}>
+                              {typeof offer_strategy === 'object' && offer_strategy.discount_percentage 
+                                ? `${Math.round(offer_strategy.discount_percentage)}% below asking price`
+                                : ''}
+                            </div>
+                          </div>
+                          
+                          {/* Breakdown */}
+                          {typeof offer_strategy === 'object' && offer_strategy.discount_breakdown && (
+                            <div style={{
+                              background: '#0f172a',
+                              padding: '30px',
+                              borderRadius: '12px',
+                              border: '1px solid #1e293b'
+                            }}>
+                              <div style={{
+                                fontSize: '18px',
+                                fontWeight: '700',
+                                marginBottom: '24px',
+                                color: '#f1f5f9'
+                              }}>
+                                📊 How We Calculated Your Recommended Offer
+                              </div>
+                              
+                              {/* Asking Price */}
+                              <div style={{ marginBottom: '30px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                                  <span style={{ color: '#cbd5e1', fontSize: '15px', fontWeight: '600' }}>Asking Price</span>
+                                  <span style={{ color: '#f1f5f9', fontSize: '17px', fontWeight: '700' }}>
+                                    ${result.property_price?.toLocaleString() || 'N/A'}
+                                  </span>
+                                </div>
+                              </div>
+                              
+                              <div style={{ height: '2px', background: '#1e293b', margin: '20px 0' }}></div>
+                              
+                              {/* REPAIR COSTS - Detailed */}
+                              <div style={{ marginBottom: '30px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                                  <div style={{ flex: 1 }}>
+                                    <div style={{ 
+                                      display: 'flex', 
+                                      alignItems: 'center', 
+                                      gap: '8px',
+                                      marginBottom: '4px'
+                                    }}>
+                                      <div style={{ color: '#ef4444', fontSize: '16px', fontWeight: '700' }}>
+                                        Estimated Repair Costs
+                                      </div>
+                                      <button
+                                        onClick={(e) => {
+                                          e.preventDefault();
+                                          e.stopPropagation();
+                                          setShowRepairCalculation(!showRepairCalculation);
+                                        }}
+                                        style={{
+                                          background: 'rgba(239, 68, 68, 0.1)',
+                                          border: '1px solid rgba(239, 68, 68, 0.3)',
+                                          color: '#ef4444',
+                                          padding: '4px 10px',
+                                          borderRadius: '4px',
+                                          fontSize: '11px',
+                                          cursor: 'pointer',
+                                          fontWeight: '600',
+                                          transition: 'all 0.2s'
+                                        }}
+                                        onMouseEnter={(e) => e.target.style.background = 'rgba(239, 68, 68, 0.2)'}
+                                        onMouseLeave={(e) => e.target.style.background = 'rgba(239, 68, 68, 0.1)'}
+                                      >
+                                        {showRepairCalculation ? '▼ Hide' : '▶ Show'} Breakdown
+                                      </button>
+                                    </div>
+                                    <div style={{ color: '#94a3b8', fontSize: '13px', marginTop: '4px' }}>
+                                      Based on inspection findings and typical contractor pricing
+                                    </div>
+                                  </div>
+                                  <span style={{ color: '#ef4444', fontSize: '18px', fontWeight: '700' }}>
+                                    -${Math.round(offer_strategy.discount_breakdown.repair_costs || 0).toLocaleString()}
+                                  </span>
+                                </div>
+                                
+                                {/* Expandable repair calculation breakdown */}
+                                {showRepairCalculation && (
+                                  <div style={{
+                                    background: 'rgba(15, 23, 42, 0.6)',
+                                    padding: '16px',
+                                    paddingLeft: '20px',
+                                    borderRadius: '8px',
+                                    marginBottom: '16px',
+                                    border: '1px solid rgba(239, 68, 68, 0.2)',
+                                    borderLeft: '3px solid #ef4444'
+                                  }}>
+                                    <div style={{ color: '#ef4444', fontSize: '13px', fontWeight: '600', marginBottom: '12px' }}>
+                                      📋 Repair Cost Breakdown by System
+                                    </div>
+                                    
+                                    <div style={{ color: '#94a3b8', fontSize: '12px', lineHeight: '1.7', marginBottom: '12px' }}>
+                                      Costs estimated based on inspection findings, contractor quotes, and typical repair pricing:
+                                    </div>
+                                    
+                                    {result && result.category_scores && result.category_scores.filter(cat => cat.estimated_cost_high > 0).length > 0 ? (
+                                      <>
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                          {result.category_scores
+                                            .filter(cat => cat.estimated_cost_high > 0)
+                                            .map((cat, idx) => (
+                                              <div key={idx} style={{ 
+                                                display: 'flex', 
+                                                justifyContent: 'space-between',
+                                                padding: '10px 12px',
+                                                background: 'rgba(30, 41, 59, 0.4)',
+                                                borderRadius: '6px',
+                                                border: '1px solid rgba(51, 65, 85, 0.5)'
+                                              }}>
+                                                <div>
+                                                  <div style={{ color: '#cbd5e1', fontSize: '13px', fontWeight: '600', marginBottom: '4px' }}>
+                                                    {cat.category.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                                                  </div>
+                                                  <div style={{ color: '#94a3b8', fontSize: '11px' }}>
+                                                    Range: ${Math.round(cat.estimated_cost_low).toLocaleString()} - ${Math.round(cat.estimated_cost_high).toLocaleString()}
+                                                  </div>
+                                                </div>
+                                                <div style={{ color: '#ef4444', fontSize: '14px', fontWeight: '700', textAlign: 'right' }}>
+                                                  ${Math.round((cat.estimated_cost_low + cat.estimated_cost_high) / 2).toLocaleString()}
+                                                  <div style={{ color: '#64748b', fontSize: '10px', fontWeight: '400' }}>
+                                                    (avg)
+                                                  </div>
+                                                </div>
+                                              </div>
+                                            ))}
+                                        </div>
+                                        
+                                        <div style={{ 
+                                          marginTop: '12px',
+                                          paddingTop: '12px',
+                                          borderTop: '1px solid rgba(51, 65, 85, 0.5)',
+                                          display: 'flex',
+                                          justifyContent: 'space-between',
+                                          alignItems: 'center'
+                                        }}>
+                                          <span style={{ color: '#cbd5e1', fontSize: '13px', fontWeight: '600' }}>
+                                            Total Estimated Repairs:
+                                          </span>
+                                          <span style={{ color: '#ef4444', fontSize: '16px', fontWeight: '700' }}>
+                                            ${Math.round(offer_strategy.discount_breakdown.repair_costs || 0).toLocaleString()}
+                                          </span>
+                                        </div>
+                                        
+                                        <div style={{ color: '#64748b', fontSize: '11px', lineHeight: '1.6', fontStyle: 'italic', marginTop: '12px' }}>
+                                          <strong>Note:</strong> These are estimated costs based on inspection findings. 
+                                          Actual costs may vary. We recommend getting contractor quotes before finalizing your offer.
+                                        </div>
+                                      </>
+                                    ) : (
+                                      <div style={{ color: '#94a3b8', fontSize: '13px', fontStyle: 'italic', padding: '12px' }}>
+                                        Detailed breakdown by category is not available. Total repair cost: ${Math.round(offer_strategy.discount_breakdown.repair_costs || 0).toLocaleString()}
+                                      </div>
+                                    )}
+                                  </div>
+                                )}
+                                
+                                {/* Old category breakdown - hide if showing detailed calculation */}
+                                {!showRepairCalculation && result && result.category_scores && result.category_scores.filter(cat => cat.estimated_cost_high > 0).length > 0 && (
+                                  <div style={{ 
+                                    marginTop: '12px', 
+                                    paddingLeft: '16px',
+                                    borderLeft: '2px solid #ef4444'
+                                  }}>
+                                    {result.category_scores
+                                      .filter(cat => cat.estimated_cost_high > 0)
+                                      .slice(0, 5)
+                                      .map((cat, idx) => (
+                                        <div key={idx} style={{ 
+                                          display: 'flex', 
+                                          justifyContent: 'space-between',
+                                          padding: '8px 0',
+                                          borderBottom: idx < 4 ? '1px solid #1e293b' : 'none'
+                                        }}>
+                                          <span style={{ color: '#94a3b8', fontSize: '13px' }}>
+                                            {cat.category.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                                          </span>
+                                          <span style={{ color: '#cbd5e1', fontSize: '13px', fontWeight: '600' }}>
+                                            ${Math.round((cat.estimated_cost_low + cat.estimated_cost_high) / 2).toLocaleString()}
+                                          </span>
+                                        </div>
+                                      ))}
+                                  </div>
+                                )}
+                              </div>
+                              
+                              {/* RISK PREMIUM - Detailed with explanation */}
+                              <div style={{ marginBottom: '30px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                                  <div>
+                                    <div style={{ color: '#f59e0b', fontSize: '16px', fontWeight: '700' }}>
+                                      Risk Premium
+                                    </div>
+                                    <div style={{ color: '#94a3b8', fontSize: '13px', marginTop: '4px' }}>
+                                      {result && result.risk_tier === 'CRITICAL' ? 'Critical issues require substantial risk compensation' :
+                                       result && result.risk_tier === 'HIGH' ? 'Significant issues warrant moderate risk premium' :
+                                       result && result.risk_tier === 'MODERATE' ? 'Standard risk premium for moderate concerns' :
+                                       'Compensation for taking on property condition risks'}
+                                    </div>
+                                  </div>
+                                  <span style={{ color: '#f59e0b', fontSize: '18px', fontWeight: '700' }}>
+                                    -${Math.round(offer_strategy.discount_breakdown.risk_premium || 0).toLocaleString()}
+                                  </span>
+                                </div>
+                                
+                                {/* Risk premium explanation */}
+                                <div style={{ 
+                                  marginTop: '12px', 
+                                  paddingLeft: '16px',
+                                  borderLeft: '2px solid #f59e0b'
+                                }}>
+                                  <div style={{ 
+                                    color: '#cbd5e1', 
+                                    fontSize: '13px', 
+                                    lineHeight: '1.6', 
+                                    marginBottom: '12px'
+                                  }}>
+                                    <strong>Why this premium?</strong>
+                                  </div>
+                                  
+                                  {/* Calculation methodology (expandable) */}
+                                  {showRiskCalculation && (
+                                    <div style={{
+                                      background: 'rgba(15, 23, 42, 0.6)',
+                                      padding: '16px',
+                                      paddingLeft: '20px',
+                                      borderRadius: '8px',
+                                      marginBottom: '16px',
+                                      border: '1px solid rgba(245, 158, 11, 0.2)',
+                                      borderLeft: '3px solid #f59e0b'
+                                    }}>
+                                      <div style={{ color: '#fbbf24', fontSize: '13px', fontWeight: '600', marginBottom: '12px' }}>
+                                        📊 Risk Premium Calculation (Objective Formula)
+                                      </div>
+                                      
+                                      <div style={{ color: '#94a3b8', fontSize: '12px', lineHeight: '1.7', marginBottom: '12px' }}>
+                                        The risk premium is calculated based on <strong style={{ color: '#cbd5e1' }}>property condition risk tier</strong>, 
+                                        not subjective opinion. This is an objective percentage of asking price:
+                                      </div>
+                                      
+                                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '12px' }}>
+                                        <div style={{ 
+                                          display: 'flex', 
+                                          justifyContent: 'space-between',
+                                          padding: '8px 12px',
+                                          background: result.risk_tier === 'CRITICAL' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(30, 41, 59, 0.4)',
+                                          borderRadius: '4px',
+                                          border: result.risk_tier === 'CRITICAL' ? '1px solid rgba(239, 68, 68, 0.3)' : '1px solid rgba(51, 65, 85, 0.5)'
+                                        }}>
+                                          <span style={{ color: '#cbd5e1', fontSize: '12px' }}>
+                                            <strong>CRITICAL</strong> Risk Tier
+                                          </span>
+                                          <span style={{ color: '#fbbf24', fontSize: '12px', fontWeight: '600' }}>
+                                            10% of asking price
+                                          </span>
+                                        </div>
+                                        
+                                        <div style={{ 
+                                          display: 'flex', 
+                                          justifyContent: 'space-between',
+                                          padding: '8px 12px',
+                                          background: result.risk_tier === 'HIGH' ? 'rgba(245, 158, 11, 0.1)' : 'rgba(30, 41, 59, 0.4)',
+                                          borderRadius: '4px',
+                                          border: result.risk_tier === 'HIGH' ? '1px solid rgba(245, 158, 11, 0.3)' : '1px solid rgba(51, 65, 85, 0.5)'
+                                        }}>
+                                          <span style={{ color: '#cbd5e1', fontSize: '12px' }}>
+                                            <strong>HIGH</strong> Risk Tier
+                                          </span>
+                                          <span style={{ color: '#fbbf24', fontSize: '12px', fontWeight: '600' }}>
+                                            5% of asking price
+                                          </span>
+                                        </div>
+                                        
+                                        <div style={{ 
+                                          display: 'flex', 
+                                          justifyContent: 'space-between',
+                                          padding: '8px 12px',
+                                          background: result.risk_tier === 'MODERATE' ? 'rgba(234, 179, 8, 0.1)' : 'rgba(30, 41, 59, 0.4)',
+                                          borderRadius: '4px',
+                                          border: result.risk_tier === 'MODERATE' ? '1px solid rgba(234, 179, 8, 0.3)' : '1px solid rgba(51, 65, 85, 0.5)'
+                                        }}>
+                                          <span style={{ color: '#cbd5e1', fontSize: '12px' }}>
+                                            <strong>MODERATE</strong> Risk Tier
+                                          </span>
+                                          <span style={{ color: '#fbbf24', fontSize: '12px', fontWeight: '600' }}>
+                                            2% of asking price
+                                          </span>
+                                        </div>
+                                        
+                                        <div style={{ 
+                                          display: 'flex', 
+                                          justifyContent: 'space-between',
+                                          padding: '8px 12px',
+                                          background: result.risk_tier === 'LOW' ? 'rgba(34, 197, 94, 0.1)' : 'rgba(30, 41, 59, 0.4)',
+                                          borderRadius: '4px',
+                                          border: result.risk_tier === 'LOW' ? '1px solid rgba(34, 197, 94, 0.3)' : '1px solid rgba(51, 65, 85, 0.5)'
+                                        }}>
+                                          <span style={{ color: '#cbd5e1', fontSize: '12px' }}>
+                                            <strong>LOW</strong> Risk Tier
+                                          </span>
+                                          <span style={{ color: '#10b981', fontSize: '12px', fontWeight: '600' }}>
+                                            0% (No premium)
+                                          </span>
+                                        </div>
+                                      </div>
+                                      
+                                      <div style={{ 
+                                        background: 'rgba(59, 130, 246, 0.1)',
+                                        padding: '12px',
+                                        borderRadius: '6px',
+                                        border: '1px solid rgba(59, 130, 246, 0.2)',
+                                        marginBottom: '12px'
+                                      }}>
+                                        <div style={{ color: '#60a5fa', fontSize: '12px', fontWeight: '600', marginBottom: '6px' }}>
+                                          Your Property: {result.risk_tier || 'Unknown'} Risk
+                                        </div>
+                                        <div style={{ color: '#94a3b8', fontSize: '11px', lineHeight: '1.6' }}>
+                                          {(() => {
+                                            const premium = offer_strategy.discount_breakdown?.risk_premium || 0;
+                                            const price = result.property_price || 1;
+                                            const actualPercentage = ((premium / price) * 100).toFixed(1);
+                                            return (
+                                              <>
+                                                Risk Premium = ${price.toLocaleString()} × {actualPercentage}% = <strong style={{ color: '#fbbf24' }}>${premium.toLocaleString()}</strong>
+                                              </>
+                                            );
+                                          })()}
+                                        </div>
+                                      </div>
+                                      
+                                      <div style={{ color: '#64748b', fontSize: '11px', lineHeight: '1.6', fontStyle: 'italic' }}>
+                                        <strong>Note:</strong> Risk tier is determined by analyzing inspection findings, 
+                                        disclosure transparency, and system condition across 12 categories. This is an objective, 
+                                        data-driven calculation—not a subjective opinion.
+                                      </div>
+                                    </div>
+                                  )}
+                                  
+                                  {/* Calculate and show premium components */}
+                                  {result && result.category_scores && (() => {
+                                    const criticalCount = result.category_scores.filter(c => c.score >= 75).length;
+                                    const majorCount = result.category_scores.filter(c => c.score >= 50 && c.score < 75).length;
+                                    const insurabilityIssues = result.category_scores.filter(c => c.affects_insurability && c.score >= 50).length;
+                                    const resaleIssues = result.category_scores.filter(c => c.affects_resale && c.score >= 50).length;
+                                    
+                                    return (
+                                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                        {criticalCount > 0 && (
+                                          <div style={{ color: '#94a3b8', fontSize: '12px' }}>
+                                            • <span style={{ color: '#cbd5e1', fontWeight: '600' }}>{criticalCount} critical system{criticalCount > 1 ? 's' : ''}</span> requiring immediate attention
+                                          </div>
+                                        )}
+                                        {majorCount > 0 && (
+                                          <div style={{ color: '#94a3b8', fontSize: '12px' }}>
+                                            • <span style={{ color: '#cbd5e1', fontWeight: '600' }}>{majorCount} major system{majorCount > 1 ? 's' : ''}</span> need professional repairs
+                                          </div>
+                                        )}
+                                        {insurabilityIssues > 0 && (
+                                          <div style={{ color: '#94a3b8', fontSize: '12px' }}>
+                                            • <span style={{ color: '#cbd5e1', fontWeight: '600' }}>Insurance risk:</span> Issues may affect insurability or increase premiums
+                                          </div>
+                                        )}
+                                        {resaleIssues > 0 && (
+                                          <div style={{ color: '#94a3b8', fontSize: '12px' }}>
+                                            • <span style={{ color: '#cbd5e1', fontWeight: '600' }}>Resale impact:</span> Issues will affect future marketability and time-to-sell
+                                          </div>
+                                        )}
+                                        {(criticalCount >= 2 || (criticalCount >= 1 && majorCount >= 2)) && (
+                                          <div style={{ color: '#94a3b8', fontSize: '12px' }}>
+                                            • <span style={{ color: '#cbd5e1', fontWeight: '600' }}>Elevated uncertainty:</span> Multiple significant issues suggest possible hidden problems
+                                          </div>
+                                        )}
+                                      </div>
+                                    );
+                                  })()}
+                                </div>
+                              </div>
+                              
+                              {/* TRANSPARENCY DISCOUNT - Detailed with what was hidden */}
+                              {offer_strategy.discount_breakdown.transparency_issues > 0 && (
+                                <div style={{ marginBottom: '30px' }}>
+                                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                                    <div style={{ flex: 1 }}>
+                                      <div style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '8px',
+                                        marginBottom: '4px'
+                                      }}>
+                                        <div style={{ color: '#fbbf24', fontSize: '16px', fontWeight: '700' }}>
+                                          Transparency Discount
+                                        </div>
+                                        <button
+                                          onClick={(e) => {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                            setShowTransparencyCalculation(!showTransparencyCalculation);
+                                          }}
+                                          style={{
+                                            background: 'rgba(251, 191, 36, 0.1)',
+                                            border: '1px solid rgba(251, 191, 36, 0.3)',
+                                            color: '#fbbf24',
+                                            padding: '4px 10px',
+                                            borderRadius: '4px',
+                                            fontSize: '11px',
+                                            cursor: 'pointer',
+                                            fontWeight: '600',
+                                            transition: 'all 0.2s'
+                                          }}
+                                          onMouseEnter={(e) => e.target.style.background = 'rgba(251, 191, 36, 0.2)'}
+                                          onMouseLeave={(e) => e.target.style.background = 'rgba(251, 191, 36, 0.1)'}
+                                        >
+                                          {showTransparencyCalculation ? '▼ Hide' : '▶ Show'} Calculation
+                                        </button>
+                                      </div>
+                                      <div style={{ color: '#94a3b8', fontSize: '13px', marginTop: '4px' }}>
+                                        Seller failed to disclose known defects
+                                      </div>
+                                    </div>
+                                    <span style={{ color: '#fbbf24', fontSize: '18px', fontWeight: '700' }}>
+                                      -${Math.round(offer_strategy.discount_breakdown.transparency_issues || 0).toLocaleString()}
+                                    </span>
+                                  </div>
+                                  
+                                  {/* Expandable transparency calculation */}
+                                  {showTransparencyCalculation && (
+                                    <div style={{
+                                      background: 'rgba(15, 23, 42, 0.6)',
+                                      padding: '16px',
+                                      paddingLeft: '20px',
+                                      borderRadius: '8px',
+                                      marginBottom: '16px',
+                                      border: '1px solid rgba(251, 191, 36, 0.2)',
+                                      borderLeft: '3px solid #fbbf24'
+                                    }}>
+                                      <div style={{ color: '#fbbf24', fontSize: '13px', fontWeight: '600', marginBottom: '12px' }}>
+                                        📊 Transparency Discount Calculation (Objective Formula)
+                                      </div>
+                                      
+                                      <div style={{ color: '#94a3b8', fontSize: '12px', lineHeight: '1.7', marginBottom: '12px' }}>
+                                        This discount compensates for <strong style={{ color: '#cbd5e1' }}>seller non-disclosure</strong> of defects. 
+                                        It's calculated based on transparency score:
+                                      </div>
+                                      
+                                      <div style={{
+                                        background: 'rgba(59, 130, 246, 0.1)',
+                                        padding: '12px',
+                                        borderRadius: '6px',
+                                        border: '1px solid rgba(59, 130, 246, 0.2)',
+                                        marginBottom: '12px'
+                                      }}>
+                                        <div style={{ color: '#60a5fa', fontSize: '12px', fontWeight: '600', marginBottom: '8px' }}>
+                                          Formula:
+                                        </div>
+                                        <div style={{ color: '#94a3b8', fontSize: '11px', lineHeight: '1.6' }}>
+                                          {(() => {
+                                            const transparencyScore = result?.cross_reference?.transparency_score || 100;
+                                            const discount = offer_strategy.discount_breakdown.transparency_issues || 0;
+                                            const price = result?.property_price || 1;
+                                            const percentage = ((discount / price) * 100).toFixed(1);
+                                            return (
+                                              <>
+                                                • Transparency Score: <strong style={{ color: '#fbbf24' }}>{transparencyScore}%</strong>
+                                                {transparencyScore < 50 && (
+                                                  <>
+                                                    <br />• Low transparency (under 50%) triggers <strong style={{ color: '#fbbf24' }}>3%</strong> discount
+                                                    <br />• ${price.toLocaleString()} × {percentage}% = <strong style={{ color: '#fbbf24' }}>${discount.toLocaleString()}</strong>
+                                                  </>
+                                                )}
+                                              </>
+                                            );
+                                          })()}
+                                        </div>
+                                      </div>
+                                      
+                                      <div style={{ color: '#94a3b8', fontSize: '12px', marginBottom: '8px', fontWeight: '600' }}>
+                                        Why this matters:
+                                      </div>
+                                      <div style={{ color: '#64748b', fontSize: '11px', lineHeight: '1.6', marginBottom: '12px' }}>
+                                        • Seller's failure to disclose increases your risk<br />
+                                        • You may discover additional hidden issues after purchase<br />
+                                        • Non-disclosure suggests potential bad faith dealing<br />
+                                        • Discount compensates for increased uncertainty and risk
+                                      </div>
+                                      
+                                      <div style={{ color: '#64748b', fontSize: '11px', lineHeight: '1.6', fontStyle: 'italic' }}>
+                                        <strong>Note:</strong> Transparency score is calculated by comparing what the seller 
+                                        disclosed versus what the inspector found. Scores below 50% indicate significant 
+                                        non-disclosure.
+                                      </div>
+                                    </div>
+                                  )}
+                                  
+                                  {/* Transparency explanation - issues not disclosed */}
+                                  {!showTransparencyCalculation && result && result.cross_reference && result.cross_reference.missing_from_disclosure && (
+                                    <div style={{ 
+                                      marginTop: '12px', 
+                                      paddingLeft: '16px',
+                                      borderLeft: '2px solid #fbbf24'
+                                    }}>
+                                      <div style={{ color: '#cbd5e1', fontSize: '13px', lineHeight: '1.6', marginBottom: '12px' }}>
+                                        <strong>Issues not disclosed by seller:</strong>
+                                      </div>
+                                      
+                                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                        {result.cross_reference.missing_from_disclosure.slice(0, 5).map((issue, idx) => (
+                                          <div key={idx} style={{ color: '#94a3b8', fontSize: '12px' }}>
+                                            • <span style={{ 
+                                              color: issue.severity === 'CRITICAL' ? '#ef4444' : 
+                                                     issue.severity === 'MAJOR' ? '#f59e0b' : '#fbbf24',
+                                              fontWeight: '600' 
+                                            }}>
+                                              {issue.severity}:
+                                            </span>{' '}
+                                            <span style={{ color: '#cbd5e1' }}>
+                                              {issue.category?.replace(/_/g, ' ')} - {issue.description?.substring(0, 80)}...
+                                            </span>
+                                          </div>
+                                        ))}
+                                        {result.cross_reference.missing_from_disclosure.length > 5 && (
+                                          <div style={{ color: '#64748b', fontSize: '12px', fontStyle: 'italic' }}>
+                                            + {result.cross_reference.missing_from_disclosure.length - 5} more undisclosed issue(s)
+                                          </div>
+                                        )}
+                                      </div>
+                                      
+                                      <div style={{ 
+                                        marginTop: '12px', 
+                                        padding: '8px 12px', 
+                                        background: 'rgba(251, 191, 36, 0.1)',
+                                        borderRadius: '6px'
+                                      }}>
+                                        <div style={{ color: '#cbd5e1', fontSize: '12px' }}>
+                                          <strong>Why this matters:</strong> Undisclosed defects suggest the seller knew about these issues 
+                                          but chose not to inform you. This lack of transparency justifies a discount to compensate for 
+                                          the risk you're taking on and to account for the seller's conduct.
+                                        </div>
+                                      </div>
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+                              
+                              <div style={{ height: '2px', background: '#1e293b', margin: '20px 0' }}></div>
+                              
+                              {/* Final Offer */}
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px', background: 'rgba(14, 165, 233, 0.1)', borderRadius: '8px' }}>
+                                <div>
+                                  <div style={{ color: '#0ea5e9', fontSize: '17px', fontWeight: '700' }}>
+                                    Recommended Offer
+                                  </div>
+                                  <div style={{ color: '#94a3b8', fontSize: '13px', marginTop: '4px' }}>
+                                    {Math.round(offer_strategy.discount_percentage || 0)}% below asking price
+                                  </div>
+                                </div>
+                                <span style={{ color: '#0ea5e9', fontSize: '22px', fontWeight: '900' }}>
+                                  ${typeof offer_strategy.recommended_offer === 'number' 
+                                    ? Math.round(offer_strategy.recommended_offer).toLocaleString()
+                                    : 'N/A'}
+                                </span>
+                              </div>
+                              
+                              {/* Summary Box */}
+                              <div style={{
+                                marginTop: '24px',
+                                padding: '20px',
+                                background: 'rgba(100, 116, 139, 0.1)',
+                                borderRadius: '8px',
+                                border: '1px solid #334155'
+                              }}>
+                                <div style={{ fontSize: '14px', color: '#cbd5e1', lineHeight: '1.8' }}>
+                                  <div style={{ marginBottom: '12px' }}>
+                                    <strong style={{ color: '#f1f5f9' }}>💡 About Our Methodology:</strong>
+                                  </div>
+                                  <div style={{ marginBottom: '8px' }}>
+                                    <strong>Repair Costs:</strong> Based on inspection findings and typical contractor pricing in your region for the scope of work identified.
+                                  </div>
+                                  <div style={{ marginBottom: '8px' }}>
+                                    <strong>Risk Premium:</strong> Calculated based on severity of issues, number of critical systems affected, insurance implications, resale impact, and uncertainty about hidden problems.
+                                  </div>
+                                  {offer_strategy.discount_breakdown.transparency_issues > 0 && (
+                                    <div>
+                                      <strong>Transparency Discount:</strong> Applied when seller failed to disclose defects they knew or should have known about, compensating you for increased risk and seller's conduct.
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                      
+                      {/* Action Cards */}
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+                        <div style={{
+                          background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)',
+                          padding: '40px',
+                          borderRadius: '16px',
+                          border: '2px solid #334155',
+                          position: 'relative',
+                          overflow: 'hidden'
+                        }}>
+                          <div style={{
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            height: '4px',
+                            background: 'linear-gradient(90deg, #fbbf24 0%, #f59e0b 50%, #ef4444 100%)'
+                          }}></div>
+                          <h3 style={{
+                            fontSize: '24px',
+                            fontWeight: '700',
+                            marginBottom: '16px',
+                            color: '#fbbf24'
+                          }}>Option 1: Walk Away</h3>
+                          <div style={{
+                            color: '#cbd5e1',
+                            lineHeight: '1.8',
+                            fontSize: '16px',
+                            whiteSpace: 'pre-line'
+                          }}>
+                            {decision_framework && typeof decision_framework === 'string' 
+                              ? decision_framework.split('\n').slice(0, 5).join('\n')
+                              : 'Given the multiple safety hazards and seller\'s lack of transparency, walking away is a valid option.'}
+                          </div>
+                        </div>
+                        
+                        <div style={{
+                          background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)',
+                          padding: '40px',
+                          borderRadius: '16px',
+                          border: '2px solid #334155',
+                          position: 'relative',
+                          overflow: 'hidden'
+                        }}>
+                          <div style={{
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            height: '4px',
+                            background: 'linear-gradient(90deg, #fbbf24 0%, #f59e0b 50%, #ef4444 100%)'
+                          }}></div>
+                          <h3 style={{
+                            fontSize: '24px',
+                            fontWeight: '700',
+                            marginBottom: '16px',
+                            color: '#fbbf24'
+                          }}>Option 2: Negotiate Hard</h3>
+                          <div style={{
+                            color: '#cbd5e1',
+                            lineHeight: '1.8',
+                            fontSize: '16px',
+                            whiteSpace: 'pre-line'
+                          }}>
+                            {negotiation_strategy && typeof negotiation_strategy === 'string'
+                              ? negotiation_strategy.split('\n').slice(0, 5).join('\n')
+                              : 'If you love the location, demand seller fix all safety items or reduce price significantly.'}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Final CTA */}
+                    <div style={{
+                      textAlign: 'center',
+                      marginTop: '60px',
+                      padding: '60px',
+                      background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)',
+                      borderRadius: '20px',
+                      border: '2px solid #334155'
+                    }}>
+                      <h2 style={{ fontSize: '36px', marginBottom: '20px' }}>
+                        What's Next?
+                      </h2>
+                      <p style={{ fontSize: '18px', color: '#94a3b8', marginBottom: '40px' }}>
+                        View all your analyses in the dashboard or start analyzing another property
+                      </p>
+                      
+                      {/* Button Container */}
+                      <div style={{ 
+                        display: 'flex', 
+                        gap: '20px', 
+                        flexWrap: 'wrap',
+                        justifyContent: 'center'
+                      }}>
+                        {/* View Dashboard Button - Primary */}
+                        <button
+                          onClick={() => {
+                            window.location.href = '/dashboard';
+                          }}
+                          style={{
+                            background: 'linear-gradient(135deg, #0ea5e9 0%, #06b6d4 100%)',
+                            color: 'white',
+                            padding: '18px 40px',
+                            borderRadius: '50px',
+                            fontSize: '18px',
+                            fontWeight: '700',
+                            border: 'none',
+                            cursor: 'pointer',
+                            boxShadow: '0 10px 30px rgba(14, 165, 233, 0.3)',
+                            minWidth: '250px',
+                            transition: 'transform 0.2s, box-shadow 0.2s'
+                          }}
+                          onMouseEnter={(e) => {
+                            e.target.style.transform = 'translateY(-2px)';
+                            e.target.style.boxShadow = '0 15px 40px rgba(14, 165, 233, 0.4)';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.target.style.transform = 'translateY(0)';
+                            e.target.style.boxShadow = '0 10px 30px rgba(14, 165, 233, 0.3)';
+                          }}
+                        >
+                          📊 View Dashboard
+                        </button>
+                        
+                        {/* Back to Analysis Summary Button */}
+                        <button
+                          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                          style={{
+                            background: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
+                            color: 'white',
+                            padding: '18px 40px',
+                            borderRadius: '50px',
+                            fontSize: '18px',
+                            fontWeight: '700',
+                            border: 'none',
+                            cursor: 'pointer',
+                            boxShadow: '0 10px 30px rgba(139, 92, 246, 0.3)',
+                            minWidth: '250px',
+                            transition: 'transform 0.2s, box-shadow 0.2s',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '8px'
+                          }}
+                          onMouseEnter={(e) => {
+                            e.target.style.transform = 'translateY(-2px)';
+                            e.target.style.boxShadow = '0 15px 40px rgba(139, 92, 246, 0.4)';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.target.style.transform = 'translateY(0)';
+                            e.target.style.boxShadow = '0 10px 30px rgba(139, 92, 246, 0.3)';
+                          }}
+                        >
+                          ↑ Back to Analysis Summary
+                        </button>
+                        
+                        {/* Analyze Another Property Button - Secondary */}
+                        <button
+                          onClick={() => {
+                            setResult(null);
+                            setCurrentStep('property');
+                          }}
+                          style={{
+                            background: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #ef4444 100%)',
+                            color: 'white',
+                            padding: '18px 40px',
+                            borderRadius: '50px',
+                            fontSize: '18px',
+                            fontWeight: '700',
+                            border: 'none',
+                            cursor: 'pointer',
+                            boxShadow: '0 10px 30px rgba(251, 191, 36, 0.3)',
+                            minWidth: '250px',
+                            transition: 'transform 0.2s, box-shadow 0.2s'
+                          }}
+                          onMouseEnter={(e) => {
+                            e.target.style.transform = 'translateY(-2px)';
+                            e.target.style.boxShadow = '0 15px 40px rgba(251, 191, 36, 0.4)';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.target.style.transform = 'translateY(0)';
+                            e.target.style.boxShadow = '0 10px 30px rgba(251, 191, 36, 0.3)';
+                          }}
+                        >
+                          🏠 Analyze Another Property
+                        </button>
+                      </div>
+                    </div>
+                    
+                  </div>
+                </div>
+              );
+            } catch (err) {
+              console.error('Error rendering results:', err);
+              return (
+                <div style={styles.container}>
+                  <h2>Rendering Error</h2>
+                  <p style={{color: 'red'}}>{err.message}</p>
+                  <button onClick={() => setCurrentStep('property')} style={styles.button}>
+                    Start New Analysis
+                  </button>
+                </div>
+              );
+            }
+          };
+          
+          // Navigation component
+          const Navigation = () => (
+            <div style={{
+              background: 'rgba(30, 41, 59, 0.8)',
+              borderBottom: '1px solid rgba(96, 165, 250, 0.2)',
+              padding: '20px 40px',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              backdropFilter: 'blur(10px)',
+              position: 'sticky',
+              top: 0,
+              zIndex: 1000
+            }}>
+              <div style={{
+                fontSize: '24px',
+                fontWeight: '800',
+                background: 'linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent'
+              }}>OfferWise</div>
+              <div style={{ display: 'flex', gap: '24px', alignItems: 'center' }}>
+                <a href="/" style={{ color: '#94a3b8', textDecoration: 'none', fontWeight: '600' }}>Home</a>
+                <a href="/pricing" style={{ color: '#94a3b8', textDecoration: 'none', fontWeight: '600' }}>Pricing</a>
+                <a href="/dashboard" style={{ color: '#94a3b8', textDecoration: 'none', fontWeight: '600' }}>Dashboard</a>
+                <a href="/profile" style={{ color: '#94a3b8', textDecoration: 'none', fontWeight: '600' }}>Profile</a>
+                <a href="/app" style={{ color: '#60a5fa', textDecoration: 'none', fontWeight: '600' }}>Analyze Property</a>
+                <a href="/logout" style={{ 
+                  background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)', 
+                  color: 'white', 
+                  padding: '10px 20px', 
+                  borderRadius: '8px', 
+                  textDecoration: 'none',
+                  fontWeight: '600',
+                  marginLeft: '16px'
+                }}>Logout</a>
+              </div>
+            </div>
+          );
+          
+          // Render current step with navigation
+          return (
+            <>
+              <Navigation />
+              {currentStep === 'property' && <PropertyDocumentsStep />}
+              {currentStep === 'analysis' && <AnalyzeStep />}
+              {currentStep === 'results' && <ResultsStep />}
+            </>
+          );
+        };
+        
+        // Styles
+        const styles = {
+          container: {
+            maxWidth: '600px',
+            margin: '0 auto',
+            padding: '40px 20px',
+            fontFamily: 'system-ui, sans-serif'
+          },
+          title: {
+            fontSize: '32px',
+            marginBottom: '8px',
+            fontWeight: '600'
+          },
+          subtitle: {
+            fontSize: '24px',
+            marginBottom: '24px',
+            fontWeight: '500'
+          },
+          input: {
+            width: '100%',
+            padding: '12px',
+            fontSize: '16px',
+            border: '1px solid #ddd',
+            borderRadius: '4px',
+            marginBottom: '16px',
+            boxSizing: 'border-box'
+          },
+          button: {
+            width: '100%',
+            padding: '14px',
+            fontSize: '16px',
+            fontWeight: '600',
+            backgroundColor: '#000',
+            color: '#fff',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer',
+            marginTop: '8px'
+          },
+          backButton: {
+            background: 'none',
+            border: 'none',
+            fontSize: '16px',
+            cursor: 'pointer',
+            marginBottom: '16px',
+            color: '#666'
+          },
+          uploadSection: {
+            marginBottom: '24px'
+          },
+          section: {
+            marginBottom: '32px',
+            padding: '24px',
+            backgroundColor: '#f9fafb',
+            borderRadius: '12px',
+            border: '1px solid #e5e7eb'
+          },
+          sectionTitle: {
+            fontSize: '18px',
+            fontWeight: '700',
+            marginBottom: '16px',
+            color: '#111827'
+          },
+          helpText: {
+            marginTop: '24px',
+            padding: '16px',
+            backgroundColor: '#f0f9ff',
+            borderRadius: '8px',
+            fontSize: '14px',
+            color: '#1e40af',
+            lineHeight: '1.6'
+          },
+          spinner: {
+            display: 'inline-block',
+            width: '20px',
+            height: '20px',
+            border: '3px solid #f3f3f3',
+            borderTop: '3px solid #3498db',
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite',
+            marginRight: '12px',
+            verticalAlign: 'middle'
+          },
+          label: {
+            display: 'block',
+            fontSize: '14px',
+            fontWeight: '600',
+            marginBottom: '8px'
+          },
+          fileInput: {
+            width: '100%',
+            padding: '12px',
+            fontSize: '14px',
+            border: '1px solid #ddd',
+            borderRadius: '4px',
+            cursor: 'pointer'
+          },
+          success: {
+            marginTop: '8px',
+            padding: '8px',
+            backgroundColor: '#d4edda',
+            color: '#155724',
+            borderRadius: '4px',
+            fontSize: '14px'
+          },
+          error: {
+            padding: '12px',
+            backgroundColor: '#f8d7da',
+            color: '#721c24',
+            borderRadius: '4px',
+            marginBottom: '16px'
+          },
+          loading: {
+            textAlign: 'center',
+            padding: '16px',
+            color: '#666'
+          },
+          summary: {
+            padding: '16px',
+            backgroundColor: '#f5f5f5',
+            borderRadius: '4px',
+            marginBottom: '16px'
+          },
+          resultBox: {
+            padding: '20px',
+            backgroundColor: '#f9f9f9',
+            borderRadius: '4px'
+          },
+          warning: {
+            padding: '12px',
+            backgroundColor: '#fff3cd',
+            borderRadius: '4px',
+            marginTop: '16px'
+          },
+          recommendation: {
+            padding: '16px',
+            backgroundColor: '#d1ecf1',
+            borderRadius: '4px',
+            marginTop: '16px'
+          }
+        };
+        
+        // Error Boundary Component
+        class ErrorBoundary extends React.Component {
+          constructor(props) {
+            super(props);
+            this.state = { hasError: false, error: null, errorInfo: null };
+          }
+          
+          static getDerivedStateFromError(error) {
+            return { hasError: true };
+          }
+          
+          componentDidCatch(error, errorInfo) {
+            console.error('React Error Boundary caught:', error, errorInfo);
+            this.setState({ error, errorInfo });
+          }
+          
+          render() {
+            if (this.state.hasError) {
+              return (
+                <div style={{
+                  maxWidth: '600px',
+                  margin: '40px auto',
+                  padding: '20px',
+                  fontFamily: 'system-ui, sans-serif'
+                }}>
+                  <h1 style={{color: '#d32f2f'}}>Something went wrong</h1>
+                  <p>The app encountered an error. Please refresh the page and try again.</p>
+                  <details style={{marginTop: '20px', fontSize: '14px'}}>
+                    <summary style={{cursor: 'pointer'}}>Error Details</summary>
+                    <pre style={{
+                      backgroundColor: '#f5f5f5',
+                      padding: '12px',
+                      borderRadius: '4px',
+                      overflow: 'auto',
+                      fontSize: '12px',
+                      marginTop: '12px'
+                    }}>
+                      {this.state.error && this.state.error.toString()}
+                      {'\n\n'}
+                      {this.state.errorInfo && this.state.errorInfo.componentStack}
+                    </pre>
+                  </details>
+                  <button
+                    onClick={() => window.location.reload()}
+                    style={{
+                      marginTop: '20px',
+                      padding: '12px 24px',
+                      backgroundColor: '#000',
+                      color: '#fff',
+                      border: 'none',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                      fontSize: '16px'
+                    }}
+                  >
+                    Refresh Page
+                  </button>
+                </div>
+              );
+            }
+            
+            return this.props.children;
+          }
+        }
+        
+        // Global error handlers
+        window.addEventListener('error', (event) => {
+          console.error('Global error:', event.error);
+        });
+        
+        window.addEventListener('unhandledrejection', (event) => {
+          console.error('Unhandled promise rejection:', event.reason);
+        });
+        
+        // Render with error boundary
+        console.log('Rendering OfferWise app...');
+        ReactDOM.render(
+          <ErrorBoundary>
+            <OfferWise />
+          </ErrorBoundary>,
+          document.getElementById('root')
+        );
+        console.log('App rendered successfully');
+    </script>
+</body>
+</html>

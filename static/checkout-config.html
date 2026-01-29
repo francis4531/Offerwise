@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - OfferWise AI</title>
+    <script src="https://js.stripe.com/v3/"></script>
+    <style>
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+            color: #ffffff;
+        }
+        
+        .config-message {
+            max-width: 600px;
+            margin: 100px auto;
+            padding: 40px;
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid rgba(96, 165, 250, 0.3);
+            border-radius: 20px;
+            text-align: center;
+        }
+        
+        .config-message h1 {
+            font-size: var(--text-h1);
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .config-message p {
+            font-size: var(--text-body-lg);
+            color: #94a3b8;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+        
+        .instructions {
+            background: rgba(15, 23, 42, 0.6);
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+            text-align: left;
+        }
+        
+        .instructions strong {
+            color: #cbd5e1;
+            font-size: var(--text-body-sm);
+            display: block;
+            margin-bottom: 10px;
+        }
+        
+        .instructions ol {
+            font-size: var(--text-body-sm);
+            color: #94a3b8;
+            line-height: 1.8;
+            margin-left: 20px;
+        }
+        
+        .instructions a {
+            color: #60a5fa;
+            text-decoration: none;
+        }
+        
+        .instructions a:hover {
+            text-decoration: underline;
+        }
+        
+        .back-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
+            color: white;
+            padding: 14px 32px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .back-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(96, 165, 250, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="config-message">
+        <h1>⚙️ Payment System Configuration Needed</h1>
+        <p>
+            The payment system is almost ready!<br>
+            Your Stripe keys just need to be added to complete the setup.
+        </p>
+        
+        <div class="instructions">
+            <strong>For the site owner:</strong>
+            <ol>
+                <li>Get your Stripe keys from: <a href="https://dashboard.stripe.com/test/apikeys" target="_blank">dashboard.stripe.com</a></li>
+                <li>In Render dashboard, go to your web service</li>
+                <li>Click "Environment" tab</li>
+                <li>Add variable: <code>STRIPE_PUBLISHABLE_KEY</code> with your <code>pk_test_...</code> key</li>
+                <li>Add variable: <code>STRIPE_SECRET_KEY</code> with your <code>sk_test_...</code> key</li>
+                <li>Click "Save Changes" and wait for redeploy</li>
+            </ol>
+        </div>
+        
+        <p style="font-size: var(--text-body-sm); color: #64748b; margin-top: 20px;">
+            Once configured, payments will process automatically through Stripe's secure platform.
+        </p>
+        
+        <a href="/pricing" class="back-button">← Back to Pricing</a>
+    </div>
+</body>
+</html>

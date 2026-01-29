@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>OfferWise - DEBUG</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #0f172a;
+            color: #e2e8f0;
+        }
+        .section {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            border-radius: 6px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+        }
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+        pre {
+            background: #0f172a;
+            padding: 15px;
+            border-radius: 6px;
+            overflow-x: auto;
+            font-size: 12px;
+        }
+        h1 { color: #60a5fa; }
+        h2 { color: #94a3b8; margin-top: 0; }
+    </style>
+</head>
+<body>
+    <h1>🔧 OfferWise DEBUG Console</h1>
+    
+    <div class="section">
+        <h2>Step 1: See What's in Database</h2>
+        <button class="btn-primary" onclick="checkDatabase()">Check Database</button>
+        <pre id="dbResult">Click button to see your database state...</pre>
+    </div>
+    
+    <div class="section">
+        <h2>Step 2: Delete Specific Property</h2>
+        <input type="number" id="propertyId" placeholder="Property ID" style="padding: 8px; border-radius: 4px; border: 1px solid #334155; background: #0f172a; color: white;">
+        <button class="btn-danger" onclick="deleteProperty()">Delete Property</button>
+        <pre id="deleteResult">Enter property ID and click delete...</pre>
+    </div>
+    
+    <div class="section">
+        <h2>Step 3: NUCLEAR OPTION</h2>
+        <p style="color: #fbbf24;">⚠️ This will delete ALL your properties and analyses!</p>
+        <button class="btn-danger" onclick="confirmNuclear()">Delete Everything</button>
+        <pre id="nuclearResult">Click to delete all data...</pre>
+    </div>
+
+    <script>
+        async function checkDatabase() {
+            const result = document.getElementById('dbResult');
+            result.textContent = 'Loading...';
+            
+            try {
+                const response = await fetch('/api/debug/my-data', {
+                    credentials: 'include'
+                });
+                const data = await response.json();
+                result.textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                result.textContent = 'ERROR: ' + error.message;
+            }
+        }
+        
+        async function deleteProperty() {
+            const propertyId = document.getElementById('propertyId').value;
+            const result = document.getElementById('deleteResult');
+            
+            if (!propertyId) {
+                result.textContent = 'ERROR: Enter a property ID!';
+                return;
+            }
+            
+            result.textContent = 'Deleting...';
+            
+            try {
+                const response = await fetch(`/api/properties/${propertyId}`, {
+                    method: 'DELETE',
+                    credentials: 'include',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                const data = await response.json();
+                result.textContent = JSON.stringify(data, null, 2);
+                
+                // Refresh database view
+                setTimeout(checkDatabase, 500);
+            } catch (error) {
+                result.textContent = 'ERROR: ' + error.message;
+            }
+        }
+        
+        function confirmNuclear() {
+            if (confirm('⚠️ DELETE EVERYTHING? This cannot be undone!')) {
+                if (confirm('Are you ABSOLUTELY SURE? This will delete ALL your analyses!')) {
+                    executeNuclear();
+                }
+            }
+        }
+        
+        async function executeNuclear() {
+            const result = document.getElementById('nuclearResult');
+            result.textContent = 'DELETING EVERYTHING...';
+            
+            try {
+                const response = await fetch('/api/debug/delete-all-my-data', {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                const data = await response.json();
+                result.textContent = JSON.stringify(data, null, 2);
+                
+                // Refresh database view
+                setTimeout(checkDatabase, 500);
+            } catch (error) {
+                result.textContent = 'ERROR: ' + error.message;
+            }
+        }
+    </script>
+</body>
+</html>

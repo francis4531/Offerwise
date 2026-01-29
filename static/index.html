@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OfferWise AI - Stop Overpaying for Real Estate</title>
+    <meta name="description" content="AI-powered property analysis. Get your perfect offer price in 60 seconds.">
+    
+    <!-- Distinctive Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary: #0ea5e9;
+            --primary-dark: #0284c7;
+            --accent: #06b6d4;
+            --dark: #0f172a;
+            --darker: #020617;
+            --light: #f8fafc;
+            --gray: #64748b;
+            --gray-light: #cbd5e1;
+        }
+        
+        body {
+            font-family: 'Outfit', -apple-system, sans-serif;
+            background: var(--dark);
+            color: var(--light);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        
+        /* Animated gradient background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 20%, rgba(14, 165, 233, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(6, 182, 212, 0.15) 0%, transparent 50%);
+            animation: pulse 8s ease-in-out infinite;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 0.8; }
+        }
+        
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(14, 165, 233, 0.1);
+            z-index: 100;
+        }
+        
+        .nav-content {
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 1.2rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.02em;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+        
+        .nav-links a {
+            color: var(--gray-light);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: color 0.2s;
+        }
+        
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white;
+            padding: 0.7rem 1.8rem;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            text-decoration: none;
+            display: inline-block;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(14, 165, 233, 0.3);
+        }
+        
+        .btn-large {
+            padding: 1rem 2.5rem;
+            font-size: 1.1rem;
+        }
+        
+        .btn-ghost {
+            background: transparent;
+            border: 2px solid rgba(14, 165, 233, 0.3);
+            color: var(--primary);
+        }
+        
+        .btn-ghost:hover {
+            background: rgba(14, 165, 233, 0.1);
+            border-color: var(--primary);
+        }
+        
+        /* Hero Section */
+        .hero {
+            position: relative;
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 8rem 2rem 5rem;
+            text-align: center;
+        }
+        
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(14, 165, 233, 0.1);
+            border: 1px solid rgba(14, 165, 233, 0.2);
+            padding: 0.5rem 1.2rem;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 2rem;
+            animation: fadeIn 0.6s ease;
+        }
+        
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--primary);
+            border-radius: 50%;
+            animation: pulse-dot 2s infinite;
+        }
+        
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.8); }
+        }
+        
+        h1 {
+            font-size: clamp(2.5rem, 7vw, 5rem);
+            font-weight: 900;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            letter-spacing: -0.03em;
+            animation: fadeIn 0.8s ease 0.2s both;
+        }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, #fff 0%, var(--primary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .subtitle {
+            font-size: clamp(1.1rem, 2.5vw, 1.5rem);
+            color: var(--gray-light);
+            max-width: 700px;
+            margin: 0 auto 3rem;
+            line-height: 1.7;
+            animation: fadeIn 0.8s ease 0.4s both;
+        }
+        
+        .cta-group {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            animation: fadeIn 0.8s ease 0.6s both;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Stats */
+        .stats {
+            max-width: 1100px;
+            margin: 4rem auto;
+            padding: 0 2rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 3rem;
+        }
+        
+        .stat {
+            text-align: center;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(14, 165, 233, 0.1);
+            border-radius: 20px;
+            transition: transform 0.3s, border-color 0.3s;
+        }
+        
+        .stat:hover {
+            transform: translateY(-5px);
+            border-color: rgba(14, 165, 233, 0.3);
+        }
+        
+        .stat-number {
+            font-size: 3rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-label {
+            color: var(--gray-light);
+            font-size: 1rem;
+            font-weight: 500;
+        }
+        
+        /* Features */
+        .features {
+            max-width: 1300px;
+            margin: 6rem auto;
+            padding: 0 2rem;
+        }
+        
+        .section-header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+        
+        .section-title {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 900;
+            margin-bottom: 1rem;
+            letter-spacing: -0.02em;
+        }
+        
+        .section-subtitle {
+            color: var(--gray-light);
+            font-size: 1.2rem;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2rem;
+        }
+        
+        .feature {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(14, 165, 233, 0.1);
+            border-radius: 24px;
+            padding: 2.5rem;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .feature::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            transform: scaleX(0);
+            transition: transform 0.3s;
+        }
+        
+        .feature:hover::before {
+            transform: scaleX(1);
+        }
+        
+        .feature:hover {
+            transform: translateY(-8px);
+            border-color: rgba(14, 165, 233, 0.3);
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            display: block;
+        }
+        
+        .feature-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+        
+        .feature-desc {
+            color: var(--gray-light);
+            line-height: 1.7;
+            margin-bottom: 1.5rem;
+        }
+        
+        .feature-tag {
+            display: inline-block;
+            background: rgba(14, 165, 233, 0.1);
+            color: var(--primary);
+            padding: 0.4rem 0.9rem;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        
+        /* Pricing */
+        .pricing {
+            max-width: 1300px;
+            margin: 6rem auto;
+            padding: 4rem 2rem;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 30px;
+        }
+        
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+        
+        .price-card {
+            background: rgba(15, 23, 42, 0.8);
+            border: 2px solid rgba(14, 165, 233, 0.1);
+            border-radius: 24px;
+            padding: 2.5rem;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        
+        .price-card.featured {
+            border-color: var(--primary);
+            transform: scale(1.05);
+            box-shadow: 0 20px 60px rgba(14, 165, 233, 0.2);
+        }
+        
+        .price-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            border-color: var(--primary);
+        }
+        
+        .price-badge {
+            background: var(--primary);
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 1.5rem;
+            display: inline-block;
+        }
+        
+        .price-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+        
+        .price {
+            font-size: 3rem;
+            font-weight: 900;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .price-note {
+            color: var(--gray);
+            font-size: 0.9rem;
+            margin-bottom: 2rem;
+        }
+        
+        .price-features {
+            list-style: none;
+            margin-bottom: 2rem;
+            text-align: left;
+        }
+        
+        .price-features li {
+            padding: 0.7rem 0;
+            color: var(--gray-light);
+            border-bottom: 1px solid rgba(14, 165, 233, 0.1);
+        }
+        
+        .price-features li:last-child {
+            border-bottom: none;
+        }
+        
+        /* Final CTA */
+        .final-cta {
+            max-width: 900px;
+            margin: 6rem auto;
+            padding: 4rem 2rem;
+            text-align: center;
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.1), rgba(6, 182, 212, 0.1));
+            border-radius: 30px;
+            border: 1px solid rgba(14, 165, 233, 0.2);
+        }
+        
+        .final-cta h2 {
+            font-size: clamp(2rem, 5vw, 3rem);
+            font-weight: 900;
+            margin-bottom: 1rem;
+        }
+        
+        .final-cta p {
+            color: var(--gray-light);
+            font-size: 1.2rem;
+            margin-bottom: 2.5rem;
+        }
+        
+        /* Footer */
+        footer {
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+            border-top: 1px solid rgba(14, 165, 233, 0.1);
+            text-align: center;
+            color: var(--gray);
+        }
+        
+        footer a {
+            color: var(--primary);
+            text-decoration: none;
+            transition: opacity 0.2s;
+        }
+        
+        footer a:hover {
+            opacity: 0.7;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-links a:not(.btn) {
+                display: none;
+            }
+            
+            .hero {
+                padding: 6rem 1.5rem 4rem;
+            }
+            
+            .cta-group {
+                flex-direction: column;
+            }
+            
+            .price-card.featured {
+                transform: scale(1);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-content">
+            <div class="logo">OfferWise AI</div>
+            <div class="nav-links">
+                <a href="#features">Features</a>
+                <a href="#pricing">Pricing</a>
+                <a href="/app" class="btn">Get Started</a>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Hero -->
+    <section class="hero">
+        <div class="badge">
+            <span class="pulse-dot"></span>
+            Patent-Pending Technology
+        </div>
+        
+        <h1>
+            <span class="gradient-text">Stop Overpaying</span><br>
+            for Real Estate
+        </h1>
+        
+        <p class="subtitle">
+            AI-powered property analysis that reveals hidden risks and calculates 
+            your perfect offer price in 60 seconds.
+        </p>
+        
+        <div class="cta-group">
+            <a href="/app" class="btn btn-large">Analyze a Property →</a>
+            <a href="#features" class="btn btn-large btn-ghost">How It Works</a>
+        </div>
+    </section>
+    
+    <!-- Stats -->
+    <section class="stats">
+        <div class="stat">
+            <div class="stat-number">$47K</div>
+            <div class="stat-label">Avg. Savings Per Home</div>
+        </div>
+        <div class="stat">
+            <div class="stat-number">10K+</div>
+            <div class="stat-label">Properties Analyzed</div>
+        </div>
+        <div class="stat">
+            <div class="stat-number">98%</div>
+            <div class="stat-label">Accuracy Rate</div>
+        </div>
+    </section>
+    
+    <!-- Features -->
+    <section class="features" id="features">
+        <div class="section-header">
+            <h2 class="section-title">Three Patent-Pending Innovations</h2>
+            <p class="section-subtitle">Powered by proprietary AI algorithms</p>
+        </div>
+        
+        <div class="features-grid">
+            <div class="feature">
+                <span class="feature-icon">🎯</span>
+                <h3 class="feature-title">OfferScore™</h3>
+                <p class="feature-desc">
+                    Analyzes 50+ data points to calculate your optimal offer price. 
+                    Considers repairs, market conditions, and seller motivation.
+                </p>
+                <span class="feature-tag">Patent-Pending</span>
+            </div>
+            
+            <div class="feature">
+                <span class="feature-icon">🧬</span>
+                <h3 class="feature-title">Property Risk DNA™</h3>
+                <p class="feature-desc">
+                    Unique risk fingerprint for every property. Flags structural issues, 
+                    environmental hazards, and deal-breakers instantly.
+                </p>
+                <span class="feature-tag">Composite Score: 0-100</span>
+            </div>
+            
+            <div class="feature">
+                <span class="feature-icon">🔍</span>
+                <h3 class="feature-title">Seller Transparency Report™</h3>
+                <p class="feature-desc">
+                    Cross-references seller disclosures against inspection findings. 
+                    Reveals what sellers didn't tell you.
+                </p>
+                <span class="feature-tag">Truth Score</span>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Pricing -->
+    <section class="pricing" id="pricing">
+        <div class="section-header">
+            <h2 class="section-title">Simple Pricing</h2>
+            <p class="section-subtitle">Pay per analysis. No subscriptions.</p>
+        </div>
+        
+        <div class="pricing-grid">
+            <div class="price-card">
+                <h3 class="price-title">Single</h3>
+                <div class="price">$15</div>
+                <div class="price-note">per property</div>
+                <ul class="price-features">
+                    <li>OfferScore™ Report</li>
+                    <li>Property Risk DNA™</li>
+                    <li>Seller Transparency Check</li>
+                    <li>Recommended Offer</li>
+                </ul>
+                <a href="/app" class="btn" style="width: 100%;">Analyze Now</a>
+            </div>
+            
+            <div class="price-card featured">
+                <div class="price-badge">Best Value</div>
+                <h3 class="price-title">5-Pack</h3>
+                <div class="price">$50</div>
+                <div class="price-note">$10 per property</div>
+                <ul class="price-features">
+                    <li>All Single features</li>
+                    <li>Compare Properties</li>
+                    <li>Save $25</li>
+                    <li>Priority Support</li>
+                </ul>
+                <a href="/app" class="btn" style="width: 100%;">Get Started</a>
+            </div>
+            
+            <div class="price-card">
+                <h3 class="price-title">Pro</h3>
+                <div class="price">$100</div>
+                <div class="price-note">$8 per property</div>
+                <ul class="price-features">
+                    <li>All 5-Pack features</li>
+                    <li>12 Analyses</li>
+                    <li>Save $80</li>
+                    <li>Priority Support</li>
+                </ul>
+                <a href="/app" class="btn" style="width: 100%;">Get Started</a>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Final CTA -->
+    <section class="final-cta">
+        <h2>Ready to Make Smarter Offers?</h2>
+        <p>Join thousands of buyers who stopped overpaying.</p>
+        <a href="/app" class="btn btn-large">Start Your First Analysis →</a>
+    </section>
+    
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2026 OfferWise AI. All rights reserved. | <a href="/pricing">Pricing</a> | <a href="/app">My Account</a></p>
+    </footer>
+</body>
+</html>

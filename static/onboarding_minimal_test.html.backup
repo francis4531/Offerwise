@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Onboarding Test - Minimal</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 40px;
+            background: #0f172a;
+            color: #e2e8f0;
+        }
+        .status {
+            padding: 20px;
+            margin: 20px 0;
+            border: 2px solid #334155;
+            border-radius: 8px;
+        }
+        .success { border-color: #10b981; background: rgba(16, 185, 129, 0.1); }
+        .error { border-color: #ef4444; background: rgba(239, 68, 68, 0.1); }
+        pre {
+            background: #1e293b;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 Minimal Onboarding Test</h1>
+    <p>This is a stripped-down version to test if the route works.</p>
+    
+    <div id="results">
+        <div class="status">Loading...</div>
+    </div>
+    
+    <script>
+        console.log('✅ Script loaded');
+        
+        async function testAPIs() {
+            const results = document.getElementById('results');
+            let html = '';
+            
+            // Test 1: Basic page load
+            html += '<div class="status success">';
+            html += '<h3>✅ Test 1: Page Loaded</h3>';
+            html += '<p>This HTML file is being served correctly!</p>';
+            html += '</div>';
+            
+            // Test 2: JavaScript execution
+            html += '<div class="status success">';
+            html += '<h3>✅ Test 2: JavaScript Works</h3>';
+            html += '<p>JavaScript is executing properly!</p>';
+            html += '</div>';
+            
+            // Test 3: Fetch API
+            html += '<div class="status">';
+            html += '<h3>🔍 Test 3: Consent API</h3>';
+            try {
+                console.log('Fetching /api/consent/status...');
+                const response = await fetch('/api/consent/status', { credentials: 'include' });
+                console.log('Response status:', response.status);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('Consent data:', data);
+                    html += '<p>✅ API Response: ' + response.status + '</p>';
+                    html += '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+                } else {
+                    html += '<p>❌ API Error: Status ' + response.status + '</p>';
+                    const text = await response.text();
+                    html += '<pre>' + text + '</pre>';
+                }
+            } catch (error) {
+                console.error('Fetch error:', error);
+                html += '<p>❌ Fetch failed: ' + error.message + '</p>';
+            }
+            html += '</div>';
+            
+            // Test 4: User API
+            html += '<div class="status">';
+            html += '<h3>🔍 Test 4: User API</h3>';
+            try {
+                console.log('Fetching /api/user...');
+                const response = await fetch('/api/user', { credentials: 'include' });
+                console.log('Response status:', response.status);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('User data:', data);
+                    html += '<p>✅ API Response: ' + response.status + '</p>';
+                    html += '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+                } else {
+                    html += '<p>❌ API Error: Status ' + response.status + '</p>';
+                }
+            } catch (error) {
+                console.error('Fetch error:', error);
+                html += '<p>❌ Fetch failed: ' + error.message + '</p>';
+            }
+            html += '</div>';
+            
+            results.innerHTML = html;
+        }
+        
+        // Run tests on load
+        document.addEventListener('DOMContentLoaded', testAPIs);
+    </script>
+</body>
+</html>
