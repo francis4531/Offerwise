@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>{{ sharer_name }} wants your opinion — OfferWise</title>
+
+<!-- Open Graph for rich link previews in iMessage/WhatsApp -->
+<meta property="og:title" content="What do you think of this property?">
+<meta property="og:description" content="{{ sharer_name }} wants your opinion on {{ snapshot.address }} — OfferScore: {{ snapshot.offerscore }}/100">
+<meta property="og:type" content="website">
+<meta property="og:url" content="{{ share_url }}">
+<meta property="og:site_name" content="OfferWise">
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="What do you think of this property?">
+<meta name="twitter:description" content="{{ sharer_name }} wants your opinion on {{ snapshot.address }}">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --bg-primary: #0a0f1a;
+    --bg-card: #111827;
+    --bg-elevated: #1a2236;
+    --border-subtle: rgba(148, 163, 184, 0.12);
+    --text-primary: #f1f5f9;
+    --text-secondary: #94a3b8;
+    --text-muted: #64748b;
+    --blue: #3b82f6;
+    --green: #22c55e;
+    --amber: #f59e0b;
+    --red: #ef4444;
+    --teal: #14b8a6;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'DM Sans', -apple-system, sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    min-height: 100vh;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  .page-wrapper {
+    max-width: 520px;
+    margin: 0 auto;
+    padding: 24px 16px 80px;
+  }
+
+  /* Header */
+  .header { text-align: center; padding: 32px 0 28px; }
+  .header-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.2);
+    padding: 6px 14px; border-radius: 100px; font-size: 13px; color: var(--blue);
+    font-weight: 500; margin-bottom: 20px;
+  }
+  .header h1 { font-size: 22px; font-weight: 600; line-height: 1.35; margin-bottom: 6px; }
+  .header h1 .name { color: var(--blue); }
+  .header .subtitle { font-size: 15px; color: var(--text-secondary); }
+
+  /* Property Card */
+  .property-card {
+    background: var(--bg-card); border: 1px solid var(--border-subtle);
+    border-radius: 20px; overflow: hidden; margin-bottom: 16px;
+  }
+  .property-header { padding: 24px 24px 20px; border-bottom: 1px solid var(--border-subtle); }
+  .property-address { font-size: 18px; font-weight: 600; margin-bottom: 4px; }
+  .property-price { font-weight: 600; color: var(--text-primary); font-size: 16px; margin-top: 4px; }
+
+  /* Score Section */
+  .score-section {
+    padding: 24px; display: flex; align-items: center; gap: 24px;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .score-ring { position: relative; width: 100px; height: 100px; flex-shrink: 0; }
+  .score-ring svg { transform: rotate(-90deg); width: 100px; height: 100px; }
+  .score-ring .track { fill: none; stroke: rgba(148, 163, 184, 0.1); stroke-width: 8; }
+  .score-ring .progress { fill: none; stroke-width: 8; stroke-linecap: round; transition: stroke-dashoffset 1.5s ease-out; }
+  .score-number {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center;
+  }
+  .score-number .value { font-family: 'DM Mono', monospace; font-size: 32px; font-weight: 500; line-height: 1; }
+  .score-number .label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 2px; }
+  .score-details h3 { font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+  .score-details .tier-description { font-size: 14px; color: var(--text-secondary); line-height: 1.5; }
+
+  /* Findings */
+  .findings-section { padding: 24px; border-bottom: 1px solid var(--border-subtle); }
+  .section-label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 16px; }
+  .finding { display: flex; gap: 12px; padding: 14px 0; border-bottom: 1px solid rgba(148, 163, 184, 0.06); }
+  .finding:last-child { border-bottom: none; }
+  .finding-severity { width: 8px; height: 8px; border-radius: 50%; margin-top: 7px; flex-shrink: 0; }
+  .severity-critical { background: var(--red); box-shadow: 0 0 8px rgba(239, 68, 68, 0.4); }
+  .severity-elevated { background: var(--amber); box-shadow: 0 0 8px rgba(245, 158, 11, 0.3); }
+  .severity-moderate { background: var(--blue); }
+  .finding-text { font-size: 15px; font-weight: 500; }
+  .finding-category { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
+
+  /* Numbers */
+  .numbers-section { padding: 24px; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .number-card { background: var(--bg-elevated); border-radius: 14px; padding: 18px; }
+  .number-card .num-label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted); margin-bottom: 10px; }
+  .number-card .num-value { font-family: 'DM Mono', monospace; font-size: 18px; font-weight: 500; line-height: 1.3; }
+  .number-card .num-sub { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
+  .offer-highlight { border: 1px solid rgba(34, 197, 94, 0.25); background: rgba(34, 197, 94, 0.05); }
+  .offer-highlight .num-value { color: var(--green); }
+
+  /* Trust Score */
+  .trust-section {
+    padding: 20px 24px; border-top: 1px solid var(--border-subtle);
+    display: flex; align-items: center; gap: 14px;
+  }
+  .trust-icon {
+    width: 40px; height: 40px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0;
+  }
+  .trust-low { background: rgba(239, 68, 68, 0.1); }
+  .trust-mid { background: rgba(245, 158, 11, 0.1); }
+  .trust-high { background: rgba(34, 197, 94, 0.1); }
+  .trust-text .trust-label { font-size: 14px; font-weight: 600; }
+  .trust-text .trust-desc { font-size: 13px; color: var(--text-secondary); }
+
+  /* Personal Note */
+  .personal-note {
+    background: var(--bg-card); border: 1px solid var(--border-subtle);
+    border-radius: 16px; padding: 20px 24px; margin-bottom: 16px;
+  }
+  .note-content { font-size: 15px; font-style: italic; line-height: 1.6; }
+  .note-author { font-size: 13px; color: var(--text-muted); margin-top: 10px; }
+
+  /* Reaction Section */
+  .reaction-section {
+    background: var(--bg-card); border: 1px solid var(--border-subtle);
+    border-radius: 20px; padding: 28px 24px; text-align: center; margin-bottom: 16px;
+  }
+  .reaction-question { font-size: 18px; font-weight: 600; margin-bottom: 6px; }
+  .reaction-hint { font-size: 14px; color: var(--text-secondary); margin-bottom: 20px; }
+  .reaction-buttons { display: flex; gap: 10px; justify-content: center; }
+  .reaction-btn {
+    flex: 1; padding: 16px 12px; border-radius: 14px;
+    border: 2px solid var(--border-subtle); background: var(--bg-elevated);
+    color: var(--text-primary); font-family: 'DM Sans', sans-serif;
+    font-size: 14px; font-weight: 600; cursor: pointer;
+    transition: all 0.25s ease; display: flex; flex-direction: column;
+    align-items: center; gap: 6px;
+  }
+  .reaction-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3); }
+  .reaction-btn .btn-emoji { font-size: 28px; line-height: 1; }
+  .reaction-btn.good:hover { border-color: var(--green); background: rgba(34, 197, 94, 0.1); }
+  .reaction-btn.fair:hover { border-color: var(--amber); background: rgba(245, 158, 11, 0.1); }
+  .reaction-btn.walk:hover { border-color: var(--red); background: rgba(239, 68, 68, 0.1); }
+  .reaction-btn.selected { transform: scale(1.05); }
+  .reaction-btn.selected.good { border-color: var(--green); background: rgba(34, 197, 94, 0.15); box-shadow: 0 0 20px rgba(34, 197, 94, 0.2); }
+  .reaction-btn.selected.fair { border-color: var(--amber); background: rgba(245, 158, 11, 0.15); box-shadow: 0 0 20px rgba(245, 158, 11, 0.2); }
+  .reaction-btn.selected.walk { border-color: var(--red); background: rgba(239, 68, 68, 0.15); box-shadow: 0 0 20px rgba(239, 68, 68, 0.2); }
+  .reaction-btn.dimmed { opacity: 0.35; transform: scale(0.97); }
+  .thank-you { display: none; text-align: center; padding: 8px 0; }
+  .thank-you.visible { display: block; }
+  .thank-you-text { font-size: 15px; color: var(--text-secondary); margin-top: 16px; }
+  .thank-you-text .name { color: var(--blue); font-weight: 600; }
+
+  /* CTA */
+  .cta-section {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.08), rgba(20, 184, 166, 0.08));
+    border: 1px solid rgba(59, 130, 246, 0.15); border-radius: 20px;
+    padding: 32px 24px; text-align: center; margin-bottom: 24px;
+    transition: all 0.4s ease;
+  }
+  .cta-section.highlighted {
+    border-color: rgba(59, 130, 246, 0.4);
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.12), rgba(20, 184, 166, 0.12));
+    box-shadow: 0 0 40px rgba(59, 130, 246, 0.08);
+  }
+  .cta-headline { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+  .cta-sub { font-size: 15px; color: var(--text-secondary); margin-bottom: 24px; line-height: 1.5; }
+  .cta-button {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 16px 36px; background: linear-gradient(135deg, var(--blue), #2563eb);
+    color: white; border: none; border-radius: 14px; font-family: 'DM Sans', sans-serif;
+    font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.25s ease;
+    text-decoration: none; box-shadow: 0 4px 16px rgba(59, 130, 246, 0.3);
+  }
+  .cta-button:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(59, 130, 246, 0.4); }
+  .cta-features { display: flex; justify-content: center; gap: 24px; margin-top: 20px; font-size: 13px; color: var(--text-muted); }
+
+  /* Footer */
+  .footer { text-align: center; padding: 24px 0; border-top: 1px solid var(--border-subtle); }
+  .footer-logo { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+  .footer-logo .accent { color: var(--blue); }
+  .footer-tagline { font-size: 13px; color: var(--text-muted); }
+
+  /* Animations */
+  @keyframes fadeInUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+  .animate-in { animation: fadeInUp 0.6s ease-out forwards; opacity: 0; }
+  .delay-1 { animation-delay: 0.1s; } .delay-2 { animation-delay: 0.25s; }
+  .delay-3 { animation-delay: 0.4s; } .delay-4 { animation-delay: 0.55s; }
+  .delay-5 { animation-delay: 0.7s; }
+
+  @media (max-width: 400px) {
+    .page-wrapper { padding: 16px 12px 60px; }
+    .reaction-buttons { gap: 8px; }
+    .reaction-btn { padding: 14px 8px; font-size: 13px; }
+    .reaction-btn .btn-emoji { font-size: 24px; }
+    .cta-features { flex-direction: column; gap: 8px; }
+    .numbers-section { grid-template-columns: 1fr; }
+    .score-section { flex-direction: column; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page-wrapper">
+
+  <!-- Header -->
+  <div class="header animate-in delay-1">
+    <div class="header-badge">🏠 Property Analysis</div>
+    <h1><span class="name">{{ sharer_name }}</span> wants your opinion on a property they're considering.</h1>
+    <p class="subtitle">Review the AI analysis below and share your take.</p>
+  </div>
+
+  <!-- Property Card -->
+  <div class="property-card animate-in delay-2">
+
+    <!-- Address & Price -->
+    <div class="property-header">
+      <div class="property-address">{{ snapshot.address }}</div>
+      <div class="property-price">${{ "{:,.0f}".format(snapshot.price) }}</div>
+    </div>
+
+    <!-- OfferScore Ring -->
+    {% set score = snapshot.offerscore | int %}
+    {% set tier = snapshot.risk_tier | upper %}
+    {# OfferScore is a QUALITY score: higher = better property condition #}
+    {# Thresholds: <=25 Critical/High, <=40 Elevated, <=60 Moderate, >60 Low/Minimal #}
+    {% if score <= 25 %}
+      {% set score_color = '#ef4444' %}
+      {% set tier_class = 'risk-high' %}
+      {% set tier_label = '🚨 High Risk' %}
+      {% set tier_desc = 'This property has significant issues. Proceed with caution and negotiate aggressively.' %}
+    {% elif score <= 40 %}
+      {% set score_color = '#f97316' %}
+      {% set tier_class = 'risk-high' %}
+      {% set tier_label = '⚠️ Elevated Risk' %}
+      {% set tier_desc = 'This property has elevated concerns that should factor into the offer. Strong negotiation leverage available.' %}
+    {% elif score <= 60 %}
+      {% set score_color = '#f59e0b' %}
+      {% set tier_class = 'risk-moderate' %}
+      {% set tier_label = '⚠️ Moderate Risk' %}
+      {% set tier_desc = 'This property has notable issues that should factor into the offer. Negotiation leverage is available.' %}
+    {% else %}
+      {% set score_color = '#22c55e' %}
+      {% set tier_class = 'risk-low' %}
+      {% set tier_label = '✅ Low Risk' %}
+      {% set tier_desc = 'This property is in relatively good condition. Minor items may still be worth negotiating.' %}
+    {% endif %}
+
+    <div class="score-section">
+      <div class="score-ring">
+        <svg viewBox="0 0 100 100">
+          <circle class="track" cx="50" cy="50" r="42" />
+          <circle class="progress" cx="50" cy="50" r="42"
+            stroke="{{ score_color }}"
+            stroke-dasharray="264"
+            stroke-dashoffset="264"
+            id="scoreProgress" />
+        </svg>
+        <div class="score-number">
+          <span class="value" style="color: {{ score_color }}" id="scoreValue">0</span>
+          <span class="label">Score</span>
+        </div>
+      </div>
+      <div class="score-details">
+        <h3 class="{{ tier_class }}">{{ tier_label }}</h3>
+        <p class="tier-description">{{ tier_desc }}</p>
+      </div>
+    </div>
+
+    <!-- Top Findings -->
+    {% if snapshot.top_findings %}
+    <div class="findings-section">
+      <div class="section-label">Top Findings</div>
+      {% for finding in snapshot.top_findings %}
+      <div class="finding">
+        <div class="finding-severity severity-{{ finding.severity }}"></div>
+        <div>
+          <div class="finding-text">{{ finding.text }}</div>
+          <div class="finding-category">{{ finding.category }}</div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Numbers: Repair Costs & Recommended Offer -->
+    <div class="numbers-section">
+      {% if snapshot.repair_cost_low or snapshot.repair_cost_high %}
+      <div class="number-card">
+        <div class="num-label">Est. Repair Costs</div>
+        <div class="num-value">${{ "{:,.0f}".format(snapshot.repair_cost_low / 1000) }}K – ${{ "{:,.0f}".format(snapshot.repair_cost_high / 1000) }}K</div>
+      </div>
+      {% endif %}
+      {% if snapshot.offer_range_low or snapshot.offer_range_high %}
+      <div class="number-card offer-highlight">
+        <div class="num-label">Recommended Offer</div>
+        <div class="num-value">${{ "{:,.0f}".format(snapshot.offer_range_low / 1000) }}K – ${{ "{:,.0f}".format(snapshot.offer_range_high / 1000) }}K</div>
+        {% if snapshot.discount_percentage %}
+        <div class="num-sub">{{ "%.1f" | format(snapshot.discount_percentage) }}% below asking</div>
+        {% endif %}
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Seller Transparency Score -->
+    {% if snapshot.transparency_score is not none %}
+    {% set ts = snapshot.transparency_score | int %}
+    <div class="trust-section">
+      <div class="trust-icon {% if ts < 50 %}trust-low{% elif ts < 75 %}trust-mid{% else %}trust-high{% endif %}">🔍</div>
+      <div class="trust-text">
+        <div class="trust-label">Seller Transparency Score: {{ ts }} / 100</div>
+        {% if snapshot.contradictions_count %}
+        <div class="trust-desc">{{ snapshot.contradictions_count }} contradiction{{ 's' if snapshot.contradictions_count != 1 }} found between seller disclosures and inspection findings</div>
+        {% endif %}
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Personal Note -->
+  {% if personal_note %}
+  <div class="personal-note animate-in delay-3">
+    <div class="note-content">"{{ personal_note }}"</div>
+    <div class="note-author">— {{ sharer_name }}</div>
+  </div>
+  {% endif %}
+
+  <!-- Reaction Section -->
+  <div class="reaction-section animate-in delay-4" id="reactionSection">
+    <div class="reaction-question">What's your take?</div>
+    <div class="reaction-hint">Help {{ sharer_name }} decide — your opinion matters.</div>
+    <div class="reaction-buttons" id="reactionButtons">
+      <button class="reaction-btn good" onclick="submitReaction('good_deal', this)">
+        <span class="btn-emoji">👍</span>
+        Good Deal
+      </button>
+      <button class="reaction-btn fair" onclick="submitReaction('fair_price', this)">
+        <span class="btn-emoji">🤔</span>
+        Fair Price
+      </button>
+      <button class="reaction-btn walk" onclick="submitReaction('walk_away', this)">
+        <span class="btn-emoji">🚩</span>
+        Walk Away
+      </button>
+    </div>
+    <div class="thank-you" id="thankYou">
+      <div class="thank-you-text">Thanks! <span class="name">{{ sharer_name }}</span> will see your take.</div>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div class="cta-section animate-in delay-5" id="ctaSection">
+    <div class="cta-headline">Buying a home yourself?</div>
+    <div class="cta-sub">Get the same AI-powered analysis for any property. Upload an inspection report and know exactly what to offer.</div>
+    <a href="/app?ref=opinion&token={{ token }}" class="cta-button">
+      Analyze Your Property →
+    </a>
+    <div class="cta-features">
+      <span>✓ Results in 60 seconds</span>
+      <span>✓ First analysis free</span>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <div class="footer-logo">Offer<span class="accent">Wise</span></div>
+    <div class="footer-tagline">AI-Powered Property Analysis</div>
+  </div>
+
+</div>
+
+<script>
+  // Animate score ring on load
+  var TARGET_SCORE = {{ score }};
+  window.addEventListener('load', function() {
+    var circumference = 264;
+    var offset = circumference - (TARGET_SCORE / 100) * circumference;
+    setTimeout(function() {
+      document.getElementById('scoreProgress').style.strokeDashoffset = offset;
+      var current = 0;
+      var interval = setInterval(function() {
+        current += 1;
+        document.getElementById('scoreValue').textContent = current;
+        if (current >= TARGET_SCORE) clearInterval(interval);
+      }, 20);
+    }, 600);
+  });
+
+  // Reaction handling
+  var hasReacted = false;
+  function submitReaction(reaction, btn) {
+    if (hasReacted) return;
+    hasReacted = true;
+
+    var buttons = document.querySelectorAll('.reaction-btn');
+    buttons.forEach(function(b) {
+      if (b === btn) {
+        b.classList.add('selected');
+      } else {
+        b.classList.add('dimmed');
+      }
+      b.style.pointerEvents = 'none';
+    });
+
+    // POST the reaction
+    fetch('/api/share/{{ token }}/react', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ reaction: reaction })
+    }).catch(function() { /* silent fail is fine */ });
+
+    // Show thank you + highlight CTA
+    setTimeout(function() {
+      document.getElementById('thankYou').classList.add('visible');
+      document.getElementById('ctaSection').classList.add('highlighted');
+    }, 400);
+  }
+</script>
+
+</body>
+</html>

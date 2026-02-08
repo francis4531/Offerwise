@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logging Out - OfferWise AI</title>
+    <!-- Google Analytics (GA4) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-KXYFZ5BYPL"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag("js", new Date());
+        gtag("config", "G-KXYFZ5BYPL");
+    </script>
+</head>
+<body>
+    <script>
+        // Clear ALL localStorage when logging out
+        console.log('Clearing localStorage on logout...');
+        localStorage.clear();
+        
+        // Redirect to home
+        window.location.href = '/';
+    </script>
+    <p>Logging out...</p>
+</body>
+</html>

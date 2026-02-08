@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sample Analysis Report - OfferWise AI</title>
+    <meta name="description" content="See what an OfferWise property analysis looks like. Real example showing OfferScore, Risk DNA, and Seller Transparency Report.">
+    <link rel="icon" type="image/svg+xml" href="/logo-icon-only.svg">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="Sample OfferWise Analysis Report">
+    <meta property="og:description" content="See what you get: OfferScore, Risk DNA, Seller Transparency Report, and offer recommendations.">
+    <meta property="og:url" content="https://www.getofferwise.ai/sample-analysis.html">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #f1f5f9;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 48px;
+        }
+        
+        .header h1 {
+            font-size: var(--text-display-l);
+            font-weight: 800;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .header p {
+            font-size: var(--text-body-lg);
+            color: #94a3b8;
+        }
+        
+        .notice {
+            background: rgba(59, 130, 246, 0.1);
+            border: 2px solid rgba(59, 130, 246, 0.3);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 32px;
+            text-align: center;
+        }
+        
+        .notice h3 {
+            color: #60a5fa;
+            font-size: var(--text-h3);
+            margin-bottom: 8px;
+        }
+        
+        .notice p {
+            color: #cbd5e1;
+            font-size: var(--text-body);
+        }
+        
+        .sample-image {
+            background: rgba(30, 41, 59, 0.6);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            border-radius: 20px;
+            padding: 24px;
+            margin-bottom: 32px;
+        }
+        
+        .sample-image img {
+            width: 100%;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 48px;
+        }
+        
+        .feature-card {
+            background: rgba(30, 41, 59, 0.6);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            border-radius: 16px;
+            padding: 32px 24px;
+        }
+        
+        .feature-card h3 {
+            font-size: var(--text-h3);
+            color: #f1f5f9;
+            margin-bottom: 12px;
+        }
+        
+        .feature-card p {
+            color: #94a3b8;
+            line-height: 1.6;
+            font-size: var(--text-body);
+        }
+        
+        .cta-section {
+            text-align: center;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            border-radius: 20px;
+            padding: 48px 32px;
+            margin-top: 48px;
+        }
+        
+        .cta-section h2 {
+            font-size: var(--text-h1);
+            margin-bottom: 16px;
+        }
+        
+        .cta-section p {
+            font-size: var(--text-body-lg);
+            margin-bottom: 32px;
+            opacity: 0.95;
+        }
+        
+        .cta-button {
+            display: inline-block;
+            background: white;
+            color: #2563eb;
+            padding: 18px 48px;
+            border-radius: 12px;
+            font-size: var(--text-body-lg);
+            font-weight: 700;
+            text-decoration: none;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+        }
+        
+        .back-link {
+            text-align: center;
+            margin-top: 32px;
+        }
+        
+        .back-link a {
+            color: #60a5fa;
+            text-decoration: none;
+            font-size: var(--text-body);
+        }
+        
+        .back-link a:hover {
+            text-decoration: underline;
+        }
+    </style>
+    <!-- Google Analytics (GA4) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-KXYFZ5BYPL"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag("js", new Date());
+        gtag("config", "G-KXYFZ5BYPL");
+    </script>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Sample Analysis Report</h1>
+            <p>See exactly what you'll get with OfferWise</p>
+        </div>
+        
+        <div class="notice">
+            <h3>👁️ This is a Real Analysis</h3>
+            <p>Below is an actual OfferWise analysis report (with address anonymized for privacy). This is what every analysis includes.</p>
+        </div>
+        
+        <div class="sample-image">
+            <p style="text-align: center; color: #94a3b8; margin-bottom: 24px; font-size: var(--text-body);">
+                <strong>Sample Report Preview:</strong> This is what every analysis includes
+            </p>
+            
+            <!-- Sample OfferScore Section -->
+            <div style="background: rgba(15, 23, 42, 0.8); border: 2px solid rgba(59, 130, 246, 0.3); border-radius: 12px; padding: 32px; margin-bottom: 24px;">
+                <div style="text-align: center; margin-bottom: 24px;">
+                    <h2 style="font-size: var(--text-h1); color: #60a5fa; margin-bottom: 8px;">📊 OfferScore™</h2>
+                    <p style="color: #94a3b8; font-size: var(--text-body-sm);">Overall Property Condition Rating</p>
+                </div>
+                
+                <div style="text-align: center; margin-bottom: 32px;">
+                    <div style="display: inline-block; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); border-radius: 50%; width: 180px; height: 180px; display: flex; align-items: center; justify-content: center; box-shadow: 0 20px 60px rgba(59, 130, 246, 0.4);">
+                        <div style="text-align: center;">
+                            <div style="font-size: 72px; font-weight: 800; color: white; line-height: 1;">78</div>
+                            <div style="font-size: var(--text-body); color: rgba(255,255,255,0.9); font-weight: 600;">out of 100</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px;">
+                    <div style="text-align: center; padding: 16px; background: rgba(30, 41, 59, 0.6); border-radius: 8px;">
+                        <div style="font-size: var(--text-body-sm); color: #94a3b8; margin-bottom: 8px;">Structural</div>
+                        <div style="font-size: var(--text-h1); font-weight: 700; color: #10b981;">85</div>
+                    </div>
+                    <div style="text-align: center; padding: 16px; background: rgba(30, 41, 59, 0.6); border-radius: 8px;">
+                        <div style="font-size: var(--text-body-sm); color: #94a3b8; margin-bottom: 8px;">Systems</div>
+                        <div style="font-size: var(--text-h1); font-weight: 700; color: #f59e0b;">72</div>
+                    </div>
+                    <div style="text-align: center; padding: 16px; background: rgba(30, 41, 59, 0.6); border-radius: 8px;">
+                        <div style="font-size: var(--text-body-sm); color: #94a3b8; margin-bottom: 8px;">Cosmetic</div>
+                        <div style="font-size: var(--text-h1); font-weight: 700; color: #60a5fa;">76</div>
+                    </div>
+                </div>
+                
+                <div style="background: rgba(59, 130, 246, 0.1); border-left: 4px solid #3b82f6; padding: 16px; border-radius: 8px;">
+                    <p style="color: #cbd5e1; font-size: var(--text-body); line-height: 1.6; margin: 0;">
+                        <strong style="color: #60a5fa;">Interpretation:</strong> This property scores 78/100, indicating <strong>good overall condition</strong> with some moderate repairs needed. Foundation and structure are solid (85), but HVAC system requires attention (72). Cosmetic updates recommended but not urgent.
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Sample Risk DNA Section -->
+            <div style="background: rgba(15, 23, 42, 0.8); border: 2px solid rgba(168, 85, 247, 0.3); border-radius: 12px; padding: 32px; margin-bottom: 24px;">
+                <div style="text-align: center; margin-bottom: 24px;">
+                    <h2 style="font-size: var(--text-h1); color: #a78bfa; margin-bottom: 8px;">🧬 Property Risk DNA™</h2>
+                    <p style="color: #94a3b8; font-size: var(--text-body-sm);">64-Dimensional Risk Analysis</p>
+                </div>
+                
+                <!-- Legend -->
+                <div style="background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 8px; padding: 12px 16px; margin-bottom: 20px; font-size: var(--text-caption-lg); color: #cbd5e1;">
+                    <div style="font-weight: 600; color: #60a5fa; margin-bottom: 8px;">
+                        📊 How to Read: Risk Level (0-100%, lower = better)
+                    </div>
+                    <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <div style="width: 16px; height: 16px; background: #10b981; border-radius: 3px;"></div>
+                            <span>0-29%: Low Risk</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <div style="width: 16px; height: 16px; background: #fbbf24; border-radius: 3px;"></div>
+                            <span>30-49%: Moderate-Low</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <div style="width: 16px; height: 16px; background: #f59e0b; border-radius: 3px;"></div>
+                            <span>50-69%: Moderate-High</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <div style="width: 16px; height: 16px; background: #ef4444; border-radius: 3px;"></div>
+                            <span>70-100%: High Risk</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 20px;">
+                    <div style="background: rgba(30, 41, 59, 0.6); padding: 20px; border-radius: 8px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+                            <span style="color: #94a3b8; font-size: var(--text-body-sm);">Foundation Risk</span>
+                            <span style="color: #10b981; font-weight: 700;">Low</span>
+                        </div>
+                        <div style="height: 8px; background: rgba(148, 163, 184, 0.2); border-radius: 4px; overflow: hidden;">
+                            <div style="width: 15%; height: 100%; background: linear-gradient(90deg, #10b981, #059669);"></div>
+                        </div>
+                    </div>
+                    
+                    <div style="background: rgba(30, 41, 59, 0.6); padding: 20px; border-radius: 8px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+                            <span style="color: #94a3b8; font-size: var(--text-body-sm);">Electrical Risk</span>
+                            <span style="color: #10b981; font-weight: 700;">Low</span>
+                        </div>
+                        <div style="height: 8px; background: rgba(148, 163, 184, 0.2); border-radius: 4px; overflow: hidden;">
+                            <div style="width: 22%; height: 100%; background: linear-gradient(90deg, #10b981, #059669);"></div>
+                        </div>
+                    </div>
+                    
+                    <div style="background: rgba(30, 41, 59, 0.6); padding: 20px; border-radius: 8px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+                            <span style="color: #94a3b8; font-size: var(--text-body-sm);">HVAC Risk</span>
+                            <span style="color: #f59e0b; font-weight: 700;">Moderate</span>
+                        </div>
+                        <div style="height: 8px; background: rgba(148, 163, 184, 0.2); border-radius: 4px; overflow: hidden;">
+                            <div style="width: 58%; height: 100%; background: linear-gradient(90deg, #f59e0b, #d97706);"></div>
+                        </div>
+                    </div>
+                    
+                    <div style="background: rgba(30, 41, 59, 0.6); padding: 20px; border-radius: 8px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+                            <span style="color: #94a3b8; font-size: var(--text-body-sm);">Plumbing Risk</span>
+                            <span style="color: #10b981; font-weight: 700;">Low</span>
+                        </div>
+                        <div style="height: 8px; background: rgba(148, 163, 184, 0.2); border-radius: 4px; overflow: hidden;">
+                            <div style="width: 28%; height: 100%; background: linear-gradient(90deg, #10b981, #059669);"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="background: rgba(168, 85, 247, 0.1); border-left: 4px solid #a78bfa; padding: 16px; border-radius: 8px;">
+                    <p style="color: #cbd5e1; font-size: var(--text-body); line-height: 1.6; margin: 0;">
+                        <strong style="color: #a78bfa;">Key Insight:</strong> Property shows low risk in structural and electrical systems. Primary concern is aging HVAC system (installed 2005, 19 years old) - budget $8,000-$12,000 for replacement within 2-3 years.
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Sample Transparency Report Section -->
+            <div style="background: rgba(15, 23, 42, 0.8); border: 2px solid rgba(239, 68, 68, 0.3); border-radius: 12px; padding: 32px; margin-bottom: 24px;">
+                <div style="text-align: center; margin-bottom: 24px;">
+                    <h2 style="font-size: var(--text-h1); color: #f87171; margin-bottom: 8px;">🔍 Seller Transparency Report™</h2>
+                    <p style="color: #94a3b8; font-size: var(--text-body-sm);">Cross-Reference: Disclosure vs Inspection</p>
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 16px;">
+                        <div style="text-align: center; flex: 1;">
+                            <div style="font-size: 48px; font-weight: 800; color: #10b981; line-height: 1;">6</div>
+                            <div style="font-size: var(--text-caption-lg); color: #94a3b8;">Matches</div>
+                        </div>
+                        <div style="text-align: center; flex: 1;">
+                            <div style="font-size: 48px; font-weight: 800; color: #f59e0b; line-height: 1;">2</div>
+                            <div style="font-size: var(--text-caption-lg); color: #94a3b8;">Minor Issues</div>
+                        </div>
+                        <div style="text-align: center; flex: 1;">
+                            <div style="font-size: 48px; font-weight: 800; color: #ef4444; line-height: 1;">0</div>
+                            <div style="font-size: var(--text-caption-lg); color: #94a3b8;">Red Flags</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="background: rgba(239, 68, 68, 0.1); border-left: 4px solid #ef4444; padding: 16px; border-radius: 8px; margin-bottom: 16px;">
+                    <div style="font-weight: 700; color: #f87171; margin-bottom: 8px;">⚠️ Minor Discrepancy Found:</div>
+                    <p style="color: #cbd5e1; font-size: var(--text-body-sm); line-height: 1.6; margin: 0;">
+                        <strong>HVAC System:</strong> Seller disclosed "good condition" but inspection found unit is 19 years old (typical lifespan 15-20 years) with minor refrigerant leak. Not a dealbreaker, but suggests replacement needed soon. Use this in negotiations.
+                    </p>
+                </div>
+                
+                <div style="background: rgba(16, 185, 129, 0.1); border-left: 4px solid #10b981; padding: 16px; border-radius: 8px;">
+                    <div style="font-weight: 700; color: #10b981; margin-bottom: 8px;">✅ Overall Assessment:</div>
+                    <p style="color: #cbd5e1; font-size: var(--text-body-sm); line-height: 1.6; margin: 0;">
+                        Seller appears honest with mostly accurate disclosures. The HVAC discrepancy appears to be optimism rather than intentional concealment. Recommend proceeding with appropriate price adjustment.
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Sample Offer Recommendation -->
+            <div style="background: rgba(15, 23, 42, 0.8); border: 2px solid rgba(16, 185, 129, 0.3); border-radius: 12px; padding: 32px;">
+                <div style="text-align: center; margin-bottom: 24px;">
+                    <h2 style="font-size: var(--text-h1); color: #10b981; margin-bottom: 8px;">💰 Offer Recommendation</h2>
+                    <p style="color: #94a3b8; font-size: var(--text-body-sm);">Data-Driven Guidance</p>
+                </div>
+                
+                <div style="background: rgba(16, 185, 129, 0.1); border: 2px solid rgba(16, 185, 129, 0.3); border-radius: 8px; padding: 24px; margin-bottom: 20px;">
+                    <div style="text-align: center;">
+                        <div style="font-size: var(--text-body); color: #94a3b8; margin-bottom: 8px;">Recommended Offer Range</div>
+                        <div style="font-size: var(--text-display-l); font-weight: 800; color: #10b981; line-height: 1;">$465K - $485K</div>
+                        <div style="font-size: var(--text-body-sm); color: #10b981; margin-top: 8px;">List Price: $495,000</div>
+                    </div>
+                </div>
+                
+                <div style="background: rgba(30, 41, 59, 0.6); padding: 20px; border-radius: 8px; margin-bottom: 16px;">
+                    <div style="font-weight: 700; color: #f1f5f9; margin-bottom: 12px;">📋 Negotiation Points:</div>
+                    <ul style="color: #cbd5e1; font-size: var(--text-body-sm); line-height: 1.8; margin: 0; padding-left: 20px;">
+                        <li><strong>HVAC Replacement:</strong> Deduct $10,000 for imminent replacement</li>
+                        <li><strong>Roof Age:</strong> 12 years old - request seller credit $3,000</li>
+                        <li><strong>Cosmetic Updates:</strong> Kitchen/bathrooms dated - factor $8,000</li>
+                        <li><strong>Total Justification:</strong> $21,000 in near-term costs = $474K fair offer</li>
+                    </ul>
+                </div>
+                
+                <div style="background: rgba(59, 130, 246, 0.1); border-left: 4px solid #3b82f6; padding: 16px; border-radius: 8px;">
+                    <p style="color: #cbd5e1; font-size: var(--text-body); line-height: 1.6; margin: 0;">
+                        <strong style="color: #60a5fa;">Strategy:</strong> Start at $465K citing inspection findings. Be prepared to go up to $485K if seller counters. Walk away above $490K unless they agree to address HVAC and roof issues.
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="feature-grid">
+            <div class="feature-card">
+                <h3>📊 OfferScore™</h3>
+                <p>Overall property condition score (0-100) with detailed breakdown by category. See exactly how the property rates.</p>
+            </div>
+            
+            <div class="feature-card">
+                <h3>🧬 Property Risk DNA™</h3>
+                <p>64-dimensional risk analysis across structural, systems, transparency, temporal, and financial factors.</p>
+            </div>
+            
+            <div class="feature-card">
+                <h3>🔍 Seller Transparency Report™</h3>
+                <p>Cross-reference seller disclosures vs inspection findings. Detect omissions, minimizations, and red flags.</p>
+            </div>
+            
+            <div class="feature-card">
+                <h3>💰 Repair Cost Estimates</h3>
+                <p>Detailed cost breakdowns for all identified issues, from minor repairs to major problems.</p>
+            </div>
+            
+            <div class="feature-card">
+                <h3>🎯 Offer Recommendations</h3>
+                <p>Data-driven guidance on offer amounts, including negotiation leverage based on issues found.</p>
+            </div>
+            
+            <div class="feature-card">
+                <h3>⚠️ Risk Warnings</h3>
+                <p>Clear alerts about critical issues, safety concerns, and items requiring immediate attention.</p>
+            </div>
+        </div>
+        
+        <div class="cta-section">
+            <h2>Ready to Analyze Your Property?</h2>
+            <p>Get your professional analysis in minutes</p>
+            <a href="/pricing" class="cta-button">View Pricing & Get Started →</a>
+        </div>
+        
+        <div class="back-link">
+            <a href="/pricing">← Back to Pricing</a>
+        </div>
+    </div>
+</body>
+</html>

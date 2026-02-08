@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OfferWise AI - Diagnostic</title>
+</head>
+<body>
+    <div id="status" style="padding: 40px; font-family: system-ui, sans-serif; max-width: 800px; margin: 0 auto;">
+        <h1>🔍 Loading Diagnostic...</h1>
+        <div id="checks"></div>
+    </div>
+    
+    <script>
+        // Immediate status update
+        console.log('=== DIAGNOSTIC PAGE STARTED ===');
+        document.getElementById('status').innerHTML = '<h1>✅ HTML Loaded</h1>';
+        
+        const checks = document.getElementById('checks');
+        
+        // Check 1: JavaScript works
+        checks.innerHTML += '<p>✅ JavaScript is running</p>';
+        console.log('Check 1: JavaScript works');
+        
+        // Check 2: Can we reach the API?
+        checks.innerHTML += '<p>⏳ Testing API connection...</p>';
+        console.log('Check 2: Testing API...');
+        
+        fetch('/api/health')
+            .then(response => {
+                console.log('API response status:', response.status);
+                return response.json();
+            })
+            .then(data => {
+                console.log('API response data:', data);
+                checks.innerHTML += '<p>✅ API is responding: ' + JSON.stringify(data) + '</p>';
+                
+                // Check 3: Test PDF upload endpoint
+                checks.innerHTML += '<p>⏳ Testing PDF upload endpoint...</p>';
+                return fetch('/api/upload-pdf', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ pdf_base64: 'test' })
+                });
+            })
+            .then(response => {
+                console.log('Upload endpoint status:', response.status);
+                checks.innerHTML += '<p>✅ Upload endpoint responding (status: ' + response.status + ')</p>';
+                
+                // Check 4: Can we load React?
+                checks.innerHTML += '<p>⏳ Loading React...</p>';
+                const script = document.createElement('script');
+                script.src = 'https://unpkg.com/react@18/umd/react.production.min.js';
+                script.onload = () => {
+                    console.log('React loaded:', typeof React);
+                    checks.innerHTML += '<p>✅ React loaded: ' + typeof React + '</p>';
+                    
+                    // Check 5: Load ReactDOM
+                    const script2 = document.createElement('script');
+                    script2.src = 'https://unpkg.com/react-dom@18/umd/react-dom.production.min.js';
+                    script2.onload = () => {
+                        console.log('ReactDOM loaded:', typeof ReactDOM);
+                        checks.innerHTML += '<p>✅ ReactDOM loaded: ' + typeof ReactDOM + '</p>';
+                        
+                        checks.innerHTML += '<h2>✅ ALL CHECKS PASSED</h2>';
+                        checks.innerHTML += '<p><a href="/app" style="display: inline-block; padding: 12px 24px; background: #000; color: #fff; text-decoration: none; border-radius: 4px; margin-top: 20px;">Go to Full App</a></p>';
+                    };
+                    script2.onerror = (err) => {
+                        console.error('ReactDOM failed to load:', err);
+                        checks.innerHTML += '<p>❌ ReactDOM failed to load</p>';
+                    };
+                    document.head.appendChild(script2);
+                };
+                script.onerror = (err) => {
+                    console.error('React failed to load:', err);
+                    checks.innerHTML += '<p>❌ React failed to load</p>';
+                };
+                document.head.appendChild(script);
+            })
+            .catch(error => {
+                console.error('API test failed:', error);
+                checks.innerHTML += '<p>❌ API test failed: ' + error.message + '</p>';
+            });
+        
+        // Check 6: Log browser info
+        console.log('Browser:', navigator.userAgent);
+        checks.innerHTML += '<p>Browser: ' + navigator.userAgent + '</p>';
+        
+        console.log('=== DIAGNOSTIC CHECKS COMPLETE ===');
+    </script>
+</body>
+</html>

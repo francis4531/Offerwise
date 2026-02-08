@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analysis Disclaimer - OfferWise AI</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+            min-height: 100vh;
+            color: #e2e8f0;
+            padding: 40px 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: rgba(30, 41, 59, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            border-radius: 16px;
+            padding: 60px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+        h1 {
+            font-size: var(--text-display-l);
+            font-weight: 800;
+            background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 16px;
+        }
+        .last-updated {
+            color: #94a3b8;
+            margin-bottom: 40px;
+            font-size: var(--text-body);
+            padding-bottom: 24px;
+            border-bottom: 1px solid rgba(59, 130, 246, 0.2);
+        }
+        .disclaimer-content {
+            background: rgba(15, 23, 42, 0.6);
+            border: 2px solid rgba(239, 68, 68, 0.3);
+            border-radius: 12px;
+            padding: 32px;
+            white-space: pre-wrap;
+            font-family: 'SF Mono', 'Monaco', 'Courier New', monospace;
+            font-size: var(--text-body-sm);
+            line-height: 1.8;
+            color: #cbd5e1;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+        .back-link {
+            margin-top: 40px;
+            text-align: center;
+        }
+        .back-link a {
+            color: #60a5fa;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: var(--text-body);
+        }
+        .back-link a:hover {
+            text-decoration: underline;
+        }
+    </style>
+    <!-- Google Analytics (GA4) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-KXYFZ5BYPL"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag("js", new Date());
+        gtag("config", "G-KXYFZ5BYPL");
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>⚖️ Analysis Disclaimer</h1>
+        <p class="last-updated">
+            Version 3.0 | Last Updated: January 21, 2026
+        </p>
+        
+        <div class="disclaimer-content" id="disclaimer-text">
+            Loading disclaimer...
+        </div>
+
+        <div class="back-link">
+            <a href="javascript:window.close()">← Close Window</a> | 
+            <a href="/">← Back to OfferWise AI</a>
+        </div>
+    </div>
+
+    <script>
+        // Fetch and display the disclaimer text
+        fetch('/api/get-disclaimer')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('disclaimer-text').textContent = data.text;
+                } else {
+                    document.getElementById('disclaimer-text').textContent = 'Error loading disclaimer. Please try again.';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('disclaimer-text').textContent = 'Error loading disclaimer. Please try again.';
+            });
+    </script>
+</body>
+</html>

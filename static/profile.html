@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile - OfferWise</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            min-height: 100vh;
+            color: white;
+        }
+        
+        .header {
+            background: rgba(30, 41, 59, 0.8);
+            border-bottom: 1px solid rgba(96, 165, 250, 0.2);
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(10px);
+        }
+        
+        .logo {
+            font-size: var(--text-h2);
+            font-weight: 800;
+            background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .nav { display: flex; gap: 24px; align-items: center; }
+        
+        .nav a {
+            color: #94a3b8;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s;
+        }
+        
+        .nav a:hover { color: #60a5fa; }
+        .nav a.active { color: #60a5fa; }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 60px 20px;
+        }
+        
+        .page-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+        
+        .page-header h1 {
+            font-size: var(--text-display-l);
+            margin-bottom: 12px;
+        }
+        
+        .page-header p {
+            color: #94a3b8;
+            font-size: var(--text-body-lg);
+        }
+        
+        .card {
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid rgba(96, 165, 250, 0.2);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 30px;
+        }
+        
+        .card h2 {
+            font-size: var(--text-h2);
+            margin-bottom: 10px;
+        }
+        
+        .card-subtitle {
+            color: #94a3b8;
+            font-size: var(--text-body);
+            margin-bottom: 30px;
+        }
+        
+        .success-message {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #10b981;
+            padding: 16px 20px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            display: none;
+            align-items: center;
+            gap: 12px;
+            font-weight: 600;
+        }
+        
+        .success-message.show {
+            display: flex;
+        }
+        
+        .profile-form {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .form-group label {
+            color: #cbd5e1;
+            font-weight: 600;
+            font-size: var(--text-body);
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(96, 165, 250, 0.3);
+            border-radius: 10px;
+            padding: 14px 18px;
+            color: white;
+            font-size: var(--text-body);
+            font-family: inherit;
+            transition: all 0.3s;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #60a5fa;
+            background: rgba(15, 23, 42, 0.8);
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+        
+        .button-primary {
+            background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
+            color: white;
+            padding: 16px 40px;
+            border-radius: 12px;
+            border: none;
+            font-weight: 700;
+            font-size: var(--text-body);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            align-self: flex-start;
+        }
+        
+        .button-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(96, 165, 250, 0.4);
+        }
+        
+        .info-box {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+        
+        .info-box h3 {
+            font-size: var(--text-body);
+            margin-bottom: 10px;
+            color: #60a5fa;
+        }
+        
+        .info-box p {
+            color: #94a3b8;
+            font-size: var(--text-body-sm);
+            line-height: 1.7;
+        }
+    </style>
+    <!-- Google Analytics (GA4) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-KXYFZ5BYPL"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag("js", new Date());
+        gtag("config", "G-KXYFZ5BYPL");
+    </script>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">OfferWise AI</div>
+        <div class="nav">
+            <a href="/pricing">Pricing</a>
+            <a href="/profile" class="active">Profile</a>
+            <a href="/app">New Analysis</a>
+            <a href="/logout" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white; padding: 10px 20px; border-radius: 8px; margin-left: 16px;">Logout</a>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="page-header">
+            <h1>💼 My Buyer Profile</h1>
+            <p>Save your preferences once - they'll auto-fill on every property analysis</p>
+        </div>
+        
+        <div class="card">
+            <h2>Buyer Preferences</h2>
+            <p class="card-subtitle">
+                These preferences help our AI tailor recommendations specifically for you
+            </p>
+            
+            <div id="success-message" class="success-message">
+                <span style="font-size: var(--text-h3);">✓</span>
+                <span>Settings saved successfully! Your preferences will auto-fill on all future analyses.</span>
+            </div>
+            
+            <form class="profile-form" id="profile-form">
+                <div class="form-group">
+                    <label for="max-budget">Maximum Budget</label>
+                    <input 
+                        type="text" 
+                        id="max-budget" 
+                        name="max-budget" 
+                        placeholder="e.g., $800,000"
+                    >
+                </div>
+                
+                <div class="form-group">
+                    <label for="repair-tolerance">Repair Tolerance</label>
+                    <select id="repair-tolerance" name="repair-tolerance">
+                        <option value="low">Low - I prefer move-in ready homes</option>
+                        <option value="moderate" selected>Moderate - Some repairs are okay</option>
+                        <option value="high">High - I'm comfortable with major renovations</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="biggest-regret">Biggest Regret to Avoid</label>
+                    <textarea 
+                        id="biggest-regret" 
+                        name="biggest-regret" 
+                        placeholder="Describe what you want to avoid when buying a home (e.g., 'Overpaying for a property with hidden foundation issues that cost more to fix than the house is worth')"
+                    ></textarea>
+                </div>
+                
+                <button type="submit" class="button-primary">
+                    💾 Save My Preferences
+                </button>
+            </form>
+            
+            <div class="info-box">
+                <h3>💡 How This Helps</h3>
+                <p>
+                    Your saved preferences allow our AI to provide personalized recommendations. 
+                    When you analyze a property, these fields will be automatically filled, saving you time. 
+                    You can update them anytime by revisiting this page.
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Handle profile form submission
+        document.getElementById('profile-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Parse budget correctly - remove commas and convert to number
+            const budgetInput = document.getElementById('max-budget');
+            const budgetValue = budgetInput.value;
+            
+            console.log('=== BUDGET DEBUGGING ===');
+            console.log('1. Raw input value:', budgetValue);
+            console.log('2. Input value type:', typeof budgetValue);
+            
+            // Clean the value
+            const cleanedValue = budgetValue.replace(/[^0-9]/g, '');
+            console.log('3. After removing non-numeric:', cleanedValue);
+            
+            const budgetNumber = parseInt(cleanedValue) || 0;
+            console.log('4. Parsed as integer:', budgetNumber);
+            console.log('5. Is it a number?', typeof budgetNumber);
+            console.log('6. Is NaN?', isNaN(budgetNumber));
+            
+            const formData = {
+                max_budget: budgetNumber,  // Store as number, not string
+                repair_tolerance: document.getElementById('repair-tolerance').value,
+                biggest_regret: document.getElementById('biggest-regret').value,
+                saved_at: new Date().toISOString()
+            };
+            
+            console.log('7. FormData object:', formData);
+            console.log('8. FormData.max_budget:', formData.max_budget);
+            console.log('9. FormData.max_budget type:', typeof formData.max_budget);
+            
+            // Save to localStorage
+            const jsonString = JSON.stringify(formData);
+            console.log('10. JSON string to save:', jsonString);
+            localStorage.setItem('buyer_profile', jsonString);
+            
+            // Verify what was actually saved
+            const savedString = localStorage.getItem('buyer_profile');
+            console.log('11. What was actually saved:', savedString);
+            const parsedBack = JSON.parse(savedString);
+            console.log('12. Parsed back:', parsedBack);
+            console.log('13. Parsed back max_budget:', parsedBack.max_budget);
+            console.log('=== END DEBUGGING ===');
+            
+            // Show success message
+            const successMsg = document.getElementById('success-message');
+            successMsg.classList.add('show');
+            
+            // Scroll to top to see success message
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            
+            // SMART NAVIGATION: Check if user came from analysis page with documents
+            const tempPropertyData = localStorage.getItem('temp_property_data');
+            
+            setTimeout(() => {
+                const actionDiv = document.createElement('div');
+                actionDiv.style.cssText = 'margin-top: 16px; display: flex; gap: 12px; flex-wrap: wrap; justify-content: center;';
+                
+                if (tempPropertyData) {
+                    // User came from analysis - take them back
+                    const continueButton = document.createElement('a');
+                    continueButton.href = '/app';
+                    continueButton.style.cssText = 'display: inline-block; padding: 12px 24px; background: linear-gradient(135deg, #0ea5e9 0%, #06b6d4 100%); color: white; text-decoration: none; border-radius: 8px; font-weight: 700; box-shadow: 0 4px 12px rgba(14, 165, 233, 0.4);';
+                    continueButton.textContent = '← Continue Your Analysis';
+                    actionDiv.appendChild(continueButton);
+                    
+                    const helpText = document.createElement('div');
+                    helpText.style.cssText = 'width: 100%; text-align: center; font-size: var(--text-body-sm); color: #94a3b8; margin-top: 8px;';
+                    helpText.textContent = 'Your uploaded documents and property info are saved';
+                    actionDiv.appendChild(helpText);
+                } else {
+                    // Fresh start - offer new analysis
+                    const startButton = document.createElement('a');
+                    startButton.href = '/app';
+                    startButton.style.cssText = 'display: inline-block; padding: 12px 24px; background: linear-gradient(135deg, #0ea5e9 0%, #06b6d4 100%); color: white; text-decoration: none; border-radius: 8px; font-weight: 700; box-shadow: 0 4px 12px rgba(14, 165, 233, 0.4);';
+                    startButton.textContent = '→ Start New Analysis';
+                    actionDiv.appendChild(startButton);
+                    
+                    const dashboardButton = document.createElement('a');
+                    dashboardButton.href = '/dashboard';
+                    dashboardButton.style.cssText = 'display: inline-block; padding: 12px 24px; background: transparent; color: #cbd5e1; text-decoration: none; border-radius: 8px; border: 1px solid #334155; font-weight: 600;';
+                    dashboardButton.textContent = 'View Dashboard';
+                    actionDiv.appendChild(dashboardButton);
+                }
+                
+                successMsg.appendChild(actionDiv);
+            }, 500);
+            
+            setTimeout(() => {
+                successMsg.classList.remove('show');
+            }, 10000);
+            
+            console.log('Profile saved:', formData);
+            console.log('Budget parsed as number:', budgetNumber);
+            
+            // TODO: Also save to backend
+            // fetch('/api/user/profile', {
+            //     method: 'POST',
+            //     headers: { 'Content-Type': 'application/json' },
+            //     body: JSON.stringify(formData)
+            // });
+        });
+        
+        // Load saved profile on page load
+        window.addEventListener('DOMContentLoaded', function() {
+            const savedProfile = localStorage.getItem('buyer_profile');
+            console.log('=== LOADING PROFILE ===');
+            console.log('Saved profile from localStorage:', savedProfile);
+            
+            if (savedProfile) {
+                const profile = JSON.parse(savedProfile);
+                console.log('Parsed profile object:', profile);
+                console.log('max_budget value:', profile.max_budget);
+                console.log('max_budget type:', typeof profile.max_budget);
+                
+                // Format budget with commas for display
+                const budgetValue = profile.max_budget || '';
+                const formattedBudget = budgetValue ? parseInt(budgetValue).toLocaleString() : '';
+                console.log('Formatted budget for display:', formattedBudget);
+                
+                document.getElementById('max-budget').value = formattedBudget;
+                document.getElementById('repair-tolerance').value = profile.repair_tolerance || 'moderate';
+                document.getElementById('biggest-regret').value = profile.biggest_regret || '';
+                
+                console.log('=== LOADED INTO FORM ===');
+            } else {
+                console.log('No saved profile found');
+            }
+        });
+    </script>
+</body>
+</html>

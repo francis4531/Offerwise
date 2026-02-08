@@ -1,0 +1,51 @@
+# Version control
+.git
+.gitignore
+
+# Documentation
+*.md
+!README.md
+
+# Test files
+test_*
+test_files/
+run_tests.py
+
+# Diagnostic & migration scripts (not needed in production)
+give_*.py
+diagnose_*.py
+fix_*.py
+migrate_*.py
+check_*.py
+cleanup_database.py
+clear_cache.py
+verify_fixes.py
+verify_deployment.sh
+run_agent.sh
+
+# Backup files
+*.backup
+*_backup.*
+*_old_backup.*
+
+# Agent/tester tools
+agent_autonomous.py
+agent_tester.py
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# IDE
+.vscode/
+.idea/
+
+# Local database
+*.db
+*.sqlite
+
+# Environment
+.env
+.env.*
+static/checkout-config.html

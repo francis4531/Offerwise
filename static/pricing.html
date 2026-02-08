@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pricing - OfferWise | AI-Powered Property Analysis</title>
+    <meta name="description" content="Simple, transparent pricing. Pay per analysis, no subscriptions. Start at $29 per property.">
+    <link rel="icon" type="image/svg+xml" href="/logo-icon-only.svg">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="OfferWise Pricing - Simple, Transparent">
+    <meta property="og:description" content="Pay per analysis, no subscriptions. Start at $29 per property.">
+    <meta property="og:url" content="https://www.getofferwise.ai/pricing">
+    
+    <style>
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            min-height: 100vh;
+            color: #ffffff;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px 80px;
+        }
+        
+        /* Header Section */
+        .header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+        
+        .header h1 {
+            font-size: 56px;
+            font-weight: 800;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 50%, #f472b6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .header .subtitle {
+            font-size: var(--text-h2);
+            color: #94a3b8;
+            margin-bottom: 12px;
+        }
+        
+        .header .tagline {
+            font-size: var(--text-body-lg);
+            color: #64748b;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        /* Top Header Banner */
+        .top-header {
+            background: rgba(30, 41, 59, 0.8);
+            border-bottom: 1px solid rgba(96, 165, 250, 0.2);
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .logo {
+            font-size: var(--text-h2);
+            font-weight: 800;
+            background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            cursor: pointer;
+        }
+        
+        .top-nav {
+            display: flex;
+            gap: 24px;
+            align-items: center;
+        }
+        
+        .top-nav a {
+            color: #94a3b8;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: var(--text-body-sm);
+            transition: color 0.2s;
+        }
+        
+        .top-nav a:hover {
+            color: #60a5fa;
+        }
+        
+        .top-nav a.active {
+            color: #60a5fa;
+        }
+        
+        /* User Profile Dropdown Styles */
+        .user-profile-dropdown {
+            position: relative;
+            margin-left: 16px;
+        }
+        
+        .user-profile-button {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 12px;
+            padding: 6px 12px 6px 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #e2e8f0;
+        }
+        
+        .user-profile-button:hover {
+            background: rgba(59, 130, 246, 0.1);
+            border-color: rgba(59, 130, 246, 0.5);
+        }
+        
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: var(--text-body-sm);
+            color: white;
+            text-transform: uppercase;
+        }
+        
+        .oauth-badge {
+            width: 18px;
+            height: 18px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: var(--text-caption-sm);
+            font-weight: 700;
+        }
+        
+        .oauth-badge.google {
+            background: #4285F4;
+            color: white;
+        }
+        
+        .oauth-badge.facebook {
+            background: #1877F2;
+            color: white;
+        }
+        
+        .oauth-badge.apple {
+            background: #ffffff;
+            color: #000000;
+        }
+        
+        .oauth-badge.email {
+            background: rgba(148, 163, 184, 0.3);
+            color: #94a3b8;
+        }
+        
+        .user-dropdown-menu {
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 0;
+            background: rgba(15, 23, 42, 0.95);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 12px;
+            min-width: 240px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            display: none;
+            z-index: 1000;
+            backdrop-filter: blur(12px);
+        }
+        
+        .user-dropdown-menu.show {
+            display: block;
+            animation: slideDownMenu 0.2s ease-out;
+        }
+        
+        @keyframes slideDownMenu {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .user-dropdown-header {
+            padding: 16px;
+            border-bottom: 1px solid rgba(59, 130, 246, 0.2);
+        }
+        
+        .user-dropdown-email {
+            font-size: var(--text-body-sm);
+            font-weight: 600;
+            color: #e2e8f0;
+            margin-bottom: 4px;
+            word-break: break-all;
+        }
+        
+        .user-dropdown-tier {
+            font-size: var(--text-caption);
+            color: #94a3b8;
+            text-transform: capitalize;
+        }
+        
+        .user-dropdown-divider {
+            height: 1px;
+            background: rgba(59, 130, 246, 0.2);
+        }
+        
+        .user-dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            color: #e2e8f0;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        
+        .user-dropdown-item:hover {
+            background: rgba(59, 130, 246, 0.1);
+        }
+        
+        .user-dropdown-item svg {
+            color: #94a3b8;
+        }
+        
+        .user-dropdown-logout {
+            border-top: 1px solid rgba(59, 130, 246, 0.2);
+            color: #fca5a5;
+        }
+        
+        .user-dropdown-logout:hover {
+            background: rgba(239, 68, 68, 0.1);
+        }
+        
+        .user-dropdown-logout svg {
+            color: #fca5a5;
+        }
+        
+        /* Guarantee Section */
+        .guarantee-section {
+            background: rgba(59, 130, 246, 0.1);
+            border: 2px solid rgba(59, 130, 246, 0.3);
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 32px;
+            text-align: center;
+        }
+        
+        .guarantee-section h3 {
+            font-size: var(--text-h1);
+            font-weight: 700;
+            color: #60a5fa;
+            margin-bottom: 12px;
+        }
+        
+        .guarantee-text {
+            font-size: var(--text-body);
+            color: #cbd5e1;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        /* Expectations Section */
+        .expectations-section {
+            background: rgba(30, 41, 59, 0.6);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 48px;
+        }
+        
+        .expectations-section h3 {
+            font-size: var(--text-h1);
+            font-weight: 700;
+            color: #f1f5f9;
+            margin-bottom: 32px;
+            text-align: center;
+        }
+        
+        .expectations-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+        
+        .expectation-item {
+            display: flex;
+            gap: 16px;
+            align-items: flex-start;
+        }
+        
+        .expectation-icon {
+            font-size: var(--text-h1);
+            flex-shrink: 0;
+        }
+        
+        .expectation-content h4 {
+            font-size: var(--text-body-lg);
+            font-weight: 700;
+            color: #f1f5f9;
+            margin-bottom: 8px;
+        }
+        
+        .expectation-content p {
+            font-size: var(--text-body-sm);
+            color: #94a3b8;
+            line-height: 1.6;
+        }
+        
+        .sample-analysis-cta {
+            text-align: center;
+            padding-top: 32px;
+            border-top: 1px solid rgba(148, 163, 184, 0.2);
+        }
+        
+        .sample-link {
+            display: inline-block;
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+            color: white;
+            padding: 16px 40px;
+            border-radius: 12px;
+            font-size: var(--text-body-lg);
+            font-weight: 700;
+            text-decoration: none;
+            box-shadow: 0 10px 25px rgba(139, 92, 246, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .sample-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 35px rgba(139, 92, 246, 0.4);
+        }
+        
+        .sample-note {
+            margin-top: 12px;
+            font-size: var(--text-body-sm);
+            color: #94a3b8;
+        }
+        
+        /* Pricing Grid */
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 32px;
+            margin-bottom: 48px;
+        }
+        
+        /* Pricing Cards */
+        .pricing-card {
+            background: rgba(30, 41, 59, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(148, 163, 184, 0.1);
+            border-radius: 20px;
+            padding: 40px 32px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .pricing-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.4);
+            border-color: rgba(148, 163, 184, 0.3);
+        }
+        
+        .pricing-card.featured {
+            background: linear-gradient(135deg, rgba(251, 191, 36, 0.15) 0%, rgba(245, 158, 11, 0.15) 100%);
+            border: 2px solid #fbbf24;
+            box-shadow: 0 25px 50px rgba(251, 191, 36, 0.3);
+        }
+        
+        .pricing-card.best-value {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.15) 0%, rgba(124, 58, 237, 0.15) 100%);
+            border: 2px solid #a78bfa;
+            box-shadow: 0 25px 50px rgba(139, 92, 246, 0.3);
+        }
+        
+        .badge {
+            position: absolute;
+            top: -16px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 8px 24px;
+            border-radius: 20px;
+            font-size: var(--text-caption-lg);
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+        
+        .badge.best-value-badge {
+            background: linear-gradient(135deg, #a78bfa 0%, #8b5cf6 100%);
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+        }
+        
+        .badge.popular-badge {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            box-shadow: 0 4px 12px rgba(251, 191, 36, 0.4);
+        }
+        
+        .plan-name {
+            font-size: var(--text-h1);
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: #f1f5f9;
+        }
+        
+        .plan-description {
+            font-size: var(--text-body);
+            color: #94a3b8;
+            margin-bottom: 24px;
+            line-height: 1.6;
+        }
+        
+        .price-container {
+            margin-bottom: 8px;
+        }
+        
+        .price {
+            font-size: var(--text-display-xl);
+            font-weight: 800;
+            line-height: 1;
+            color: #ffffff;
+        }
+        
+        .price-unit {
+            font-size: var(--text-h3);
+            color: #94a3b8;
+            font-weight: 400;
+        }
+        
+        .price-detail {
+            font-size: var(--text-body);
+            color: #64748b;
+            margin-bottom: 24px;
+        }
+        
+        .savings {
+            display: inline-block;
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: var(--text-body-sm);
+            font-weight: 700;
+            margin-bottom: 24px;
+        }
+        
+        .features {
+            list-style: none;
+            margin-bottom: 32px;
+        }
+        
+        .features li {
+            padding: 12px 0;
+            font-size: var(--text-body);
+            color: #cbd5e1;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            line-height: 1.5;
+        }
+        
+        .features li::before {
+            content: '✓';
+            color: #10b981;
+            font-weight: 700;
+            font-size: var(--text-h3);
+            flex-shrink: 0;
+        }
+        
+        .cta-button {
+            width: 100%;
+            padding: 18px;
+            border-radius: 12px;
+            font-size: var(--text-body);
+            font-weight: 700;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: block;
+            text-align: center;
+        }
+        
+        .cta-button.primary {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3);
+        }
+        
+        .cta-button.primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 35px rgba(59, 130, 246, 0.4);
+        }
+        
+        .cta-button.secondary {
+            background: rgba(148, 163, 184, 0.1);
+            color: #e2e8f0;
+            border: 2px solid rgba(148, 163, 184, 0.3);
+        }
+        
+        .cta-button.secondary:hover {
+            background: rgba(148, 163, 184, 0.2);
+            border-color: rgba(148, 163, 184, 0.5);
+        }
+        
+        .cta-button.featured {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            color: #78350f;
+            box-shadow: 0 10px 25px rgba(251, 191, 36, 0.3);
+        }
+        
+        .cta-button.featured:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 35px rgba(251, 191, 36, 0.4);
+        }
+        
+        .cta-button.best-value {
+            background: linear-gradient(135deg, #a78bfa 0%, #8b5cf6 100%);
+            color: white;
+            box-shadow: 0 10px 25px rgba(139, 92, 246, 0.3);
+        }
+        
+        .cta-button.best-value:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 35px rgba(139, 92, 246, 0.4);
+        }
+        
+        /* Professional Tier */
+        .pro-banner {
+            background: linear-gradient(135deg, rgba(6, 182, 212, 0.1) 0%, rgba(14, 165, 233, 0.1) 100%);
+            border: 1px solid rgba(6, 182, 212, 0.3);
+            border-radius: 16px;
+            padding: 32px;
+            text-align: center;
+            margin-bottom: 48px;
+        }
+        
+        .pro-banner h3 {
+            font-size: var(--text-h2);
+            color: #06b6d4;
+            margin-bottom: 12px;
+            font-weight: 700;
+        }
+        
+        .pro-banner p {
+            font-size: var(--text-body);
+            color: #94a3b8;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+        
+        .pro-banner .contact-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #06b6d4 0%, #0ea5e9 100%);
+            color: white;
+            padding: 14px 32px;
+            border-radius: 10px;
+            font-size: var(--text-body);
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .pro-banner .contact-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(6, 182, 212, 0.4);
+        }
+        
+        /* Support Section */
+        .support-section {
+            background: rgba(30, 41, 59, 0.6);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            border-radius: 20px;
+            padding: 48px 40px;
+            margin: 60px auto;
+            max-width: 1000px;
+        }
+        
+        .support-section h2 {
+            font-size: var(--text-h1);
+            font-weight: 700;
+            color: #f1f5f9;
+            text-align: center;
+            margin-bottom: 8px;
+        }
+        
+        .support-subtitle {
+            text-align: center;
+            color: #94a3b8;
+            font-size: var(--text-body-lg);
+            margin-bottom: 40px;
+        }
+        
+        .support-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 24px;
+        }
+        
+        .support-card {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(148, 163, 184, 0.1);
+            border-radius: 16px;
+            padding: 32px 24px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .support-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(59, 130, 246, 0.3);
+            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.2);
+        }
+        
+        .support-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+        
+        .support-card h3 {
+            font-size: var(--text-h3);
+            font-weight: 700;
+            color: #f1f5f9;
+            margin-bottom: 12px;
+        }
+        
+        .support-card p {
+            font-size: var(--text-body);
+            color: #94a3b8;
+            line-height: 1.6;
+            margin-bottom: 8px;
+        }
+        
+        .support-time {
+            font-size: var(--text-caption-lg);
+            color: #10b981;
+            font-weight: 600;
+        }
+        
+        /* FAQ Section */
+        .faq-section {
+            max-width: 800px;
+            margin: 60px auto 0;
+        }
+        
+        .faq-section h2 {
+            font-size: var(--text-h1);
+            text-align: center;
+            margin-bottom: 32px;
+            color: #f1f5f9;
+        }
+        
+        .faq-item {
+            background: rgba(30, 41, 59, 0.6);
+            border: 1px solid rgba(148, 163, 184, 0.1);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 16px;
+        }
+        
+        .faq-item h3 {
+            font-size: var(--text-body-lg);
+            color: #f1f5f9;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+        
+        .faq-item p {
+            font-size: var(--text-body);
+            color: #94a3b8;
+            line-height: 1.6;
+        }
+        
+        /* Back Link */
+        .back-link {
+            text-align: center;
+            margin-top: 48px;
+        }
+        
+        .back-link a {
+            color: #60a5fa;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: var(--text-body);
+            transition: color 0.3s ease;
+        }
+        
+        .back-link a:hover {
+            color: #93c5fd;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: var(--text-display-l);
+            }
+            
+            .header .subtitle {
+                font-size: var(--text-h3);
+            }
+            
+            .guarantee-section {
+                padding: 24px;
+            }
+            
+            .guarantee-section h3 {
+                font-size: var(--text-h2);
+            }
+            
+            .expectations-section {
+                padding: 24px;
+            }
+            
+            .expectations-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .sample-link {
+                padding: 14px 32px;
+                font-size: var(--text-body);
+            }
+            
+            .support-section {
+                padding: 32px 24px;
+            }
+            
+            .support-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .pricing-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .price {
+                font-size: 52px;
+            }
+        }
+        
+        /* Footer */
+        .footer {
+            background: rgba(15, 23, 42, 0.8);
+            border-top: 1px solid #334155;
+            padding: 40px 0;
+            margin-top: 80px;
+            text-align: center;
+            color: #64748b;
+        }
+        
+        .footer a {
+            color: #94a3b8;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        
+        .footer a:hover {
+            color: #60a5fa;
+        }
+    </style>
+    <!-- Google Analytics (GA4) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-KXYFZ5BYPL"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag("js", new Date());
+        gtag("config", "G-KXYFZ5BYPL");
+    </script>
+</head>
+<body>
+    <!-- Top Header Banner -->
+    <div class="top-header">
+        <a href="/settings?tab=analyses" style="text-decoration: none; color: inherit;"><div class="logo">OfferWise AI</div></a>
+        <div class="top-nav">
+            <a href="/pricing" class="active">Pricing</a>
+            <a href="/settings">My Account</a>
+            <a href="/app">New Analysis</a>
+            
+            <!-- User Profile Dropdown -->
+            <div class="user-profile-dropdown" id="user-profile-dropdown">
+                <button class="user-profile-button" id="user-profile-button">
+                    <div class="user-avatar" id="user-avatar">
+                        <span id="user-initial">?</span>
+                    </div>
+                    <div class="oauth-badge" id="oauth-badge" title="Login method"></div>
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" style="margin-left: 4px;">
+                        <path d="M4 6l4 4 4-4"/>
+                    </svg>
+                </button>
+                
+                <div class="user-dropdown-menu" id="user-dropdown-menu">
+                    <div class="user-dropdown-header">
+                        <div class="user-dropdown-email" id="user-dropdown-email">Loading...</div>
+                        <div class="user-dropdown-tier" id="user-dropdown-tier">Free Plan</div>
+                    </div>
+                    <div class="user-dropdown-divider"></div>
+                    <a href="/settings" class="user-dropdown-item">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="3"/>
+                            <path d="M12 1v6m0 6v6M1 12h6m6 0h6"/>
+                        </svg>
+                        Settings
+                    </a>
+                    <a href="/logout" class="user-dropdown-item user-dropdown-logout">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4m7 14l5-5-5-5m5 5H9"/>
+                        </svg>
+                        Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>Simple, Transparent Pricing</h1>
+            <p class="subtitle">Professional Property Analysis Powered by AI</p>
+            <p class="tagline">No subscriptions. No hidden fees. Pay only for what you need.</p>
+        </div>
+        
+        <!-- Guarantee Policy -->
+        <div class="guarantee-section">
+            <h3>🛡️ Quality Guarantee</h3>
+            <p class="guarantee-text">
+                If our analysis fails to process your documents due to a technical issue, 
+                contact us and we'll make it right. We stand behind our technology.
+            </p>
+        </div>
+        
+        <!-- Important Notes - Set Clear Expectations -->
+        <div class="expectations-section">
+            <h3>📋 Before You Purchase - Important Notes</h3>
+            <div class="expectations-grid">
+                <!-- Merged Document Requirements -->
+                <div class="expectation-item">
+                    <div class="expectation-icon">📄</div>
+                    <div class="expectation-content">
+                        <h4>Document Requirements</h4>
+                        <p>Upload both inspection report and seller disclosure for best results. Best results with typed, professional documents. Scanned or handwritten documents may have limitations and reduce analysis accuracy.</p>
+                    </div>
+                </div>
+                
+                <!-- AI-Powered Insights -->
+                <div class="expectation-item">
+                    <div class="expectation-icon">🤖</div>
+                    <div class="expectation-content">
+                        <h4>AI-Powered Insights</h4>
+                        <p>Our AI provides data-driven insights and recommendations, not professional advice. Always verify findings with licensed professionals.</p>
+                    </div>
+                </div>
+                
+                <!-- Decision Support Tool -->
+                <div class="expectation-item">
+                    <div class="expectation-icon">🎯</div>
+                    <div class="expectation-content">
+                        <h4>Decision Support Tool</h4>
+                        <p>OfferWise helps you make informed decisions by analyzing documents you provide. Results depend on document quality and completeness.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="sample-analysis-cta">
+                <a href="/sample-analysis" class="sample-link">
+                    👁️ View Sample Analysis Report
+                </a>
+                <p class="sample-note">See exactly what you'll get before you buy</p>
+            </div>
+        </div>
+        
+        <!-- Pricing Cards -->
+        <div class="pricing-grid">
+            <!-- Investor Pro - 12 Pack -->
+            <div class="pricing-card best-value">
+                <div class="badge best-value-badge">💎 Investor Pro</div>
+                <div class="plan-name">12-Analysis Bundle</div>
+                <p class="plan-description">For serious investors analyzing multiple properties</p>
+                
+                <div class="price-container">
+                    <span class="price">$199</span>
+                </div>
+                <p class="price-detail">$16.58 per analysis</p>
+                
+                <ul class="features">
+                    <li>12 complete property analyses</li>
+                    <li>All premium features included</li>
+                    <li>Credits never expire</li>
+                    <li>Professional-grade reports</li>
+                    <li>AI Negotiation Coach access</li>
+                    <li>Bulk upload support</li>
+                    <li>Dedicated support</li>
+                </ul>
+                
+                <button class="cta-button best-value" onclick="window.location.href='/checkout?plan=bundle_12'">
+                    Get 12 Analyses for $199
+                </button>
+            </div>
+            
+            <!-- Popular - 5 Pack -->
+            <div class="pricing-card featured">
+                <div class="badge popular-badge">⭐ Most Popular</div>
+                <div class="plan-name">5-Analysis Bundle</div>
+                <p class="plan-description">Great for active property searchers</p>
+                
+                <div class="price-container">
+                    <span class="price">$99</span>
+                </div>
+                <p class="price-detail">$19.80 per analysis</p>
+                
+                <ul class="features">
+                    <li>5 complete property analyses</li>
+                    <li>All premium features included</li>
+                    <li>Credits never expire</li>
+                    <li>Professional-grade reports</li>
+                    <li>Detailed repair cost estimates</li>
+                    <li>AI Negotiation Coach access</li>
+                    <li>Priority email support</li>
+                </ul>
+                
+                <button class="cta-button featured" onclick="window.location.href='/checkout?plan=bundle_5'">
+                    Get 5 Analyses for $99
+                </button>
+            </div>
+            
+            <!-- Single Analysis -->
+            <div class="pricing-card">
+                <div class="plan-name">Single Analysis</div>
+                <p class="plan-description">Pay as you go - perfect for one property</p>
+                
+                <div class="price-container">
+                    <span class="price">$29</span>
+                </div>
+                <p class="price-detail">per analysis</p>
+                
+                <ul class="features">
+                    <li>1 complete property analysis</li>
+                    <li>All premium features included</li>
+                    <li>Professional-grade report</li>
+                    <li>Detailed repair cost estimates</li>
+                    <li>Objective offer recommendations</li>
+                    <li>Negotiation talking points</li>
+                    <li>Email support</li>
+                </ul>
+                
+                <button class="cta-button secondary" onclick="window.location.href='/checkout?plan=single'">
+                    Buy Single Analysis
+                </button>
+            </div>
+        </div>
+        
+        <!-- Professional Tier -->
+        <div class="pro-banner">
+            <h3>💼 Professional / High-Volume Use</h3>
+            <p>Are you a real estate agent, investor, or property manager analyzing 20+ properties per month?<br>
+            Let's talk about custom pricing and API access.</p>
+            <a href="mailto:hello@getofferwise.ai" class="contact-button">Contact Us for Enterprise Pricing</a>
+        </div>
+        
+        <!-- Support Section -->
+        <div class="support-section">
+            <h2>💬 Questions? We're Here to Help</h2>
+            <p class="support-subtitle">Get fast, friendly support whenever you need it</p>
+            
+            <div class="support-grid">
+                <div class="support-card">
+                    <div class="support-icon">📧</div>
+                    <h3>Email Support</h3>
+                    <p>support@getofferwise.ai</p>
+                    <p class="support-time">Response within 24 hours</p>
+                </div>
+                
+                <div class="support-card">
+                    <div class="support-icon">💡</div>
+                    <h3>Before Purchase</h3>
+                    <p>Unsure if your documents will work? Email us a sample and we'll let you know before you buy.</p>
+                </div>
+                
+                <div class="support-card">
+                    <div class="support-icon">🔧</div>
+                    <h3>Issues or Questions</h3>
+                    <p>Analysis didn't work as expected? We'll help troubleshoot and make it right.</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- FAQ Section -->
+        <div class="faq-section">
+            <h2>Frequently Asked Questions</h2>
+            
+            <div class="faq-item">
+                <h3>Do my credits expire?</h3>
+                <p>No! Your analysis credits never expire. Buy them today and use them whenever you're ready, even years from now.</p>
+            </div>
+            
+            <div class="faq-item">
+                <h3>What's included in each analysis?</h3>
+                <p>Every analysis includes: AI-powered document parsing, cross-reference checking (disclosure vs inspection), risk scoring across 12 categories, detailed repair cost estimates, transparency analysis, and objective offer recommendations.</p>
+            </div>
+            
+            <div class="faq-item">
+                <h3>What if something goes wrong?</h3>
+                <p><strong>Quality Guarantee:</strong> If our analysis fails to process your documents due to a technical issue on our end, contact support@getofferwise.ai and we'll work with you to resolve it.</p>
+            </div>
+            
+            <div class="faq-item">
+                <h3>What if my documents aren't clear enough?</h3>
+                <p>Our AI works best with typed, professional documents (PDFs). Scanned or handwritten documents may have limitations. Before purchasing, ensure your inspection report and disclosure forms are reasonably clear and complete. Contact us if you're unsure about document quality.</p>
+            </div>
+            
+            <div class="faq-item">
+                <h3>Can I get help if I have issues?</h3>
+                <p>Absolutely! Email support@getofferwise.ai and we'll respond within 24 hours (usually much faster). We'll help troubleshoot document issues, re-run failed analyses, or answer any questions about your results.</p>
+            </div>
+            
+            <div class="faq-item">
+                <h3>Can I buy more analyses later?</h3>
+                <p>Absolutely! You can purchase additional analyses at any time. Your credits stack and never expire, so you can build up your analysis balance whenever you want.</p>
+            </div>
+            
+            <div class="faq-item">
+                <h3>Is this better than a traditional home inspection?</h3>
+                <p>OfferWise complements (doesn't replace) home inspections. Use OfferWise to analyze properties BEFORE making offers, then get a physical inspection on your finalist. At $16-29 per analysis vs $300-500 per inspection, you can analyze many properties affordably.</p>
+            </div>
+            
+            <div class="faq-item">
+                <h3>What payment methods do you accept?</h3>
+                <p>We accept all major credit cards (Visa, Mastercard, American Express, Discover) through our secure Stripe payment processor.</p>
+            </div>
+        </div>
+        
+        <!-- Back Link -->
+        <div class="back-link">
+            <a href="/">← Back to Home</a>
+        </div>
+    </div>
+    
+    <!-- Message Banner (shows when redirected from credits error) -->
+    <div id="messageBanner" style="display: none; position: fixed; top: 20px; left: 50%; transform: translateX(-50%); max-width: 600px; width: 90%; background: #ef4444; color: white; padding: 20px 24px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 1000; text-align: center;">
+        <div style="font-size: var(--text-body-lg); font-weight: 700; margin-bottom: 8px;">⚠️ No Credits Remaining</div>
+        <div id="messageText" style="font-size: var(--text-body-sm); line-height: 1.5;"></div>
+        <button onclick="document.getElementById('messageBanner').style.display='none'" style="margin-top: 12px; background: white; color: #ef4444; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600; cursor: pointer;">Got it</button>
+    </div>
+    
+    <script>
+        // User Profile Dropdown
+        async function loadUserProfile() {
+            try {
+                const response = await fetch('/api/user', { credentials: 'include' });
+                const data = await response.json();
+                
+                // Set initial
+                const initial = data.email ? data.email.charAt(0).toUpperCase() : '?';
+                document.getElementById('user-initial').textContent = initial;
+                
+                // Set email
+                document.getElementById('user-dropdown-email').textContent = data.email || 'No email';
+                
+                // Set tier
+                const tierEl = document.getElementById('user-dropdown-tier');
+                tierEl.textContent = `${data.tier || 'free'} Plan`.toUpperCase();
+                
+                // Set OAuth badge
+                const badge = document.getElementById('oauth-badge');
+                if (data.email && data.email.includes('google')) {
+                    badge.classList.add('google');
+                    badge.textContent = 'G';
+                } else if (data.email && data.email.includes('apple')) {
+                    badge.classList.add('apple');
+                    badge.textContent = '';
+                } else {
+                    badge.classList.add('email');
+                    badge.textContent = '@';
+                }
+            } catch (error) {
+                console.error('Error loading user profile:', error);
+            }
+        }
+        
+        // Toggle dropdown
+        document.getElementById('user-profile-button').addEventListener('click', function(e) {
+            e.stopPropagation();
+            const menu = document.getElementById('user-dropdown-menu');
+            menu.classList.toggle('show');
+        });
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            const dropdown = document.getElementById('user-profile-dropdown');
+            const menu = document.getElementById('user-dropdown-menu');
+            if (dropdown && !dropdown.contains(e.target)) {
+                menu.classList.remove('show');
+            }
+        });
+        
+        // Load user profile on page load
+        loadUserProfile();
+        
+        // Check for message parameter in URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const message = urlParams.get('message');
+        
+        if (message) {
+            // Show the message banner
+            document.getElementById('messageText').textContent = decodeURIComponent(message);
+            document.getElementById('messageBanner').style.display = 'block';
+            
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            
+            // Clean URL (remove message parameter)
+            const newUrl = window.location.pathname;
+            window.history.replaceState({}, document.title, newUrl);
+        }
+    </script>
+    
+    <!-- Footer -->
+    <div class="footer">
+        <div class="container">
+            <p>&copy; 2025 OfferWise. All rights reserved.</p>
+            <p style="margin-top: 16px;">
+                <a href="/terms">Terms of Service</a> • 
+                <a href="/privacy">Privacy Policy</a> • 
+                <a href="/contact">Contact</a>
+            </p>
+            <p style="margin-top: 12px; font-size: var(--text-caption); color: #475569;">
+                OfferScore™ Patent Pending
+            </p>
+        </div>
+    </div>
+</body>
+</html>

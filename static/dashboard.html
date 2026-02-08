@@ -1,0 +1,1954 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - OfferWise AI</title>
+    <link rel="stylesheet" href="typography.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            min-height: 100vh;
+            color: white;
+        }
+        
+        .top-header {
+            background: rgba(30, 41, 59, 0.8);
+            border-bottom: 1px solid rgba(96, 165, 250, 0.2);
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .logo {
+            font-size: var(--text-h2);
+            font-weight: 800;
+            background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .top-nav { display: flex; gap: 24px; align-items: center; }
+        
+        .top-nav a {
+            color: #94a3b8;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s;
+        }
+        
+        .top-nav a:hover { color: #60a5fa; }
+        .top-nav a.active { color: #60a5fa; }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        
+        .welcome {
+            margin-bottom: 40px;
+        }
+        
+        .welcome h1 {
+            font-size: var(--text-display-l);
+            margin-bottom: 8px;
+        }
+        
+        .welcome p {
+            color: #94a3b8;
+            font-size: var(--text-body-lg);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+        
+        .stat-card {
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid rgba(96, 165, 250, 0.2);
+            border-radius: 16px;
+            padding: 32px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        
+        .stat-card:hover {
+            border-color: rgba(96, 165, 250, 0.5);
+            transform: translateY(-4px);
+        }
+        
+        .stat-value {
+            font-size: var(--text-h1);  /* 32px - consistent size */
+            font-weight: var(--font-weight-bold);
+            background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+            line-height: var(--line-height-tight);
+        }
+        
+        .stat-label {
+            color: #94a3b8;
+            font-size: var(--text-caption-lg);  /* 13px - consistent size */
+            font-weight: var(--font-weight-semibold);
+            line-height: var(--line-height-normal);
+        }
+        
+        .card {
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid rgba(96, 165, 250, 0.2);
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 24px;
+        }
+        
+        .card h2 {
+            font-size: var(--text-h2);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .card-subtitle {
+            color: #94a3b8;
+            font-size: var(--text-body-sm);
+            margin-bottom: 24px;
+        }
+        
+        .history-item {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(96, 165, 250, 0.2);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 16px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .history-item:hover {
+            border-color: rgba(96, 165, 250, 0.6);
+            background: rgba(15, 23, 42, 0.9);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(96, 165, 250, 0.2);
+        }
+        
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        
+        .history-address {
+            font-size: var(--text-body-lg);
+            font-weight: 700;
+            color: #cbd5e1;
+            flex: 1;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-size: var(--text-caption);
+            font-weight: 700;
+            text-transform: uppercase;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        
+        .badge-minimal { background: rgba(16, 185, 129, 0.2); color: #10b981; }
+        .badge-low { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
+        .badge-moderate { background: rgba(251, 191, 36, 0.2); color: #fbbf24; }
+        .badge-elevated { background: rgba(245, 158, 11, 0.2); color: #f59e0b; }
+        .badge-high { background: rgba(249, 115, 22, 0.2); color: #f97316; }
+        .badge-critical { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+        
+        .history-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 12px;
+        }
+        
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        
+        .detail-label {
+            color: #64748b;
+            font-size: var(--text-caption);
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+        
+        .detail-value {
+            color: #cbd5e1;
+            font-size: var(--text-body);
+            font-weight: 700;
+        }
+        
+        .history-date {
+            color: #64748b;
+            font-size: var(--text-caption-lg);
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid rgba(96, 165, 250, 0.1);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            color: #64748b;
+        }
+        
+        .empty-state-icon {
+            font-size: 72px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+        
+        .empty-state h3 {
+            font-size: var(--text-h2);
+            margin-bottom: 12px;
+        }
+        
+        .empty-state p {
+            font-size: var(--text-body);
+            margin-bottom: 32px;
+        }
+        
+        .button-primary {
+            background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
+            color: white;
+            padding: 14px 32px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: var(--text-body);
+            display: inline-block;
+        }
+        
+        .footer {
+            background: rgba(15, 23, 42, 0.8);
+            border-top: 1px solid rgba(59, 130, 246, 0.2);
+            padding: 40px 0;
+            margin-top: 80px;
+            text-align: center;
+        }
+        
+        .footer a {
+            color: #60a5fa;
+            text-decoration: none;
+        }
+        
+        .footer a:hover {
+            text-decoration: underline;
+        }
+        
+        /* User Profile Dropdown Styles */
+        .user-profile-dropdown {
+            position: relative;
+            margin-left: 16px;
+        }
+        
+        .user-profile-button {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 12px;
+            padding: 6px 12px 6px 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #e2e8f0;
+        }
+        
+        .user-profile-button:hover {
+            background: rgba(59, 130, 246, 0.1);
+            border-color: rgba(59, 130, 246, 0.5);
+        }
+        
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: var(--text-body-sm);
+            color: white;
+            text-transform: uppercase;
+        }
+        
+        .oauth-badge {
+            width: 18px;
+            height: 18px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: var(--text-caption-sm);
+            font-weight: 700;
+        }
+        
+        .oauth-badge.google {
+            background: #4285F4;
+            color: white;
+        }
+        
+        .oauth-badge.facebook {
+            background: #1877F2;
+            color: white;
+        }
+        
+        .oauth-badge.apple {
+            background: #ffffff;
+            color: #000000;
+        }
+        
+        .oauth-badge.email {
+            background: rgba(148, 163, 184, 0.3);
+            color: #94a3b8;
+        }
+        
+        .user-dropdown-menu {
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 0;
+            background: rgba(15, 23, 42, 0.95);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 12px;
+            min-width: 240px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            display: none;
+            z-index: 1000;
+            backdrop-filter: blur(12px);
+        }
+        
+        .user-dropdown-menu.show {
+            display: block;
+            animation: slideDown 0.2s ease-out;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .user-dropdown-header {
+            padding: 16px;
+            border-bottom: 1px solid rgba(59, 130, 246, 0.2);
+        }
+        
+        .user-dropdown-email {
+            font-size: var(--text-body-sm);
+            font-weight: 600;
+            color: #e2e8f0;
+            margin-bottom: 4px;
+            word-break: break-all;
+        }
+        
+        .user-dropdown-tier {
+            font-size: var(--text-caption);
+            color: #94a3b8;
+            text-transform: capitalize;
+        }
+        
+        .user-dropdown-divider {
+            height: 1px;
+            background: rgba(59, 130, 246, 0.2);
+        }
+        
+        .user-dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            color: #e2e8f0;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        
+        .user-dropdown-item:hover {
+            background: rgba(59, 130, 246, 0.1);
+        }
+        
+        .user-dropdown-item svg {
+            color: #94a3b8;
+        }
+        
+        .user-dropdown-logout {
+            border-top: 1px solid rgba(59, 130, 246, 0.2);
+            color: #fca5a5;
+        }
+        
+        .user-dropdown-logout:hover {
+            background: rgba(239, 68, 68, 0.1);
+        }
+        
+        .user-dropdown-logout svg {
+            color: #fca5a5;
+        }
+    </style>
+    <!-- Google Analytics (GA4) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-KXYFZ5BYPL"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag("js", new Date());
+        gtag("config", "G-KXYFZ5BYPL");
+    </script>
+</head>
+<body>
+    <div class="top-header">
+        <a href="/dashboard" style="text-decoration: none; color: inherit;"><div class="logo">OfferWise AI</div></a>
+        <div class="top-nav">
+            <a href="/pricing">Pricing</a>
+            <a href="/settings">My Account</a>
+            <a href="#" onclick="event.preventDefault(); handleStartAnalysis();">New Analysis</a>
+            
+            <!-- User Profile Dropdown -->
+            <div class="user-profile-dropdown" id="user-profile-dropdown">
+                <button class="user-profile-button" id="user-profile-button">
+                    <div class="user-avatar" id="user-avatar">
+                        <span id="user-initial">?</span>
+                    </div>
+                    <div class="oauth-badge" id="oauth-badge" title="Login method"></div>
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" style="margin-left: 4px;">
+                        <path d="M4 6l4 4 4-4"/>
+                    </svg>
+                </button>
+                
+                <div class="user-dropdown-menu" id="user-dropdown-menu">
+                    <div class="user-dropdown-header">
+                        <div class="user-dropdown-email" id="user-dropdown-email">Loading...</div>
+                        <div class="user-dropdown-tier" id="user-dropdown-tier">Free Plan</div>
+                    </div>
+                    <div class="user-dropdown-divider"></div>
+                    <a href="/settings" class="user-dropdown-item">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="3"/>
+                            <path d="M12 1v6m0 6v6M1 12h6m6 0h6"/>
+                        </svg>
+                        My Account
+                    </a>
+                    <a href="/logout" class="user-dropdown-item user-dropdown-logout">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4m7 14l5-5-5-5m5 5H9"/>
+                        </svg>
+                        Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="welcome">
+            <h1>📊 My Dashboard</h1>
+            <p>Track your analyzed properties and insights</p>
+        </div>
+        
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value" id="credits">
+                    <span style="opacity: 0.5;">...</span>
+                </div>
+                <div class="stat-label">Analysis Credits</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-value" id="analyses-completed">0</div>
+                <div class="stat-label">Properties Analyzed</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-value" id="total-saved">$0</div>
+                <div class="stat-label">Potential Savings</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-value" id="avg-discount">0%</div>
+                <div class="stat-label">Avg Discount Found</div>
+            </div>
+        </div>
+        
+        <!-- Action Buttons -->
+        <div style="text-align: center; margin: 40px 0;">
+            <button id="analyze-button" style="
+                display: inline-block;
+                background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+                color: white;
+                padding: 18px 48px;
+                border-radius: 12px;
+                border: none;
+                cursor: pointer;
+                font-size: var(--text-body-lg);
+                font-weight: 700;
+                box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3);
+                transition: transform 0.2s, box-shadow 0.2s;
+            " 
+            onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 15px 35px rgba(59, 130, 246, 0.4)';"
+            onmouseout="this.style.transform=''; this.style.boxShadow='0 10px 25px rgba(59, 130, 246, 0.3)';"
+            onclick="handleStartAnalysis()">
+                🏘️ Analyze Property
+            </button>
+        </div>
+
+            onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 10px 25px rgba(59, 130, 246, 0.3)';"
+            onclick="handleStartAnalysis()">
+                🚀 Analyze New Property
+            </button>
+            <div style="margin-top: 12px; color: #64748b; font-size: var(--text-body-sm);">
+                <span id="credits-status">Loading credits...</span>
+            </div>
+        </div>
+        
+        <!-- Analysis History -->
+        <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px;">
+                <div>
+                    <h2>📋 Analysis History</h2>
+                    <p class="card-subtitle">
+                        Your recently analyzed properties and recommendations
+                    </p>
+                </div>
+                
+                <!-- Filter Buttons -->
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                    <button id="filter-all" onclick="setHistoryFilter('all')" style="
+                        padding: 8px 16px;
+                        background: linear-gradient(135deg, #3b82f6, #2563eb);
+                        color: white;
+                        border: none;
+                        border-radius: 8px;
+                        font-weight: 600;
+                        cursor: pointer;
+                        font-size: var(--text-body-sm);
+                        transition: all 0.2s;
+                    ">
+                        All
+                    </button>
+                    <button id="filter-favorites" onclick="setHistoryFilter('favorites')" style="
+                        padding: 8px 16px;
+                        background: rgba(96, 165, 250, 0.2);
+                        color: #60a5fa;
+                        border: 2px solid #60a5fa;
+                        border-radius: 8px;
+                        font-weight: 600;
+                        cursor: pointer;
+                        font-size: var(--text-body-sm);
+                        transition: all 0.2s;
+                    ">
+                        ⭐ Favorites
+                    </button>
+                </div>
+            </div>
+            
+            <div id="history-container">
+                <!-- Will be populated with actual analyses -->
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Load and display analysis history from localStorage
+        let currentFilter = 'all';
+        
+        function setHistoryFilter(filter) {
+            currentFilter = filter;
+            
+            // Update button styles
+            const allBtn = document.getElementById('filter-all');
+            const favBtn = document.getElementById('filter-favorites');
+            
+            if (filter === 'all') {
+                allBtn.style.background = 'linear-gradient(135deg, #3b82f6, #2563eb)';
+                allBtn.style.color = 'white';
+                allBtn.style.border = 'none';
+                
+                favBtn.style.background = 'rgba(96, 165, 250, 0.2)';
+                favBtn.style.color = '#60a5fa';
+                favBtn.style.border = '2px solid #60a5fa';
+            } else {
+                allBtn.style.background = 'rgba(96, 165, 250, 0.2)';
+                allBtn.style.color = '#60a5fa';
+                allBtn.style.border = '2px solid #60a5fa';
+                
+                favBtn.style.background = 'linear-gradient(135deg, #fbbf24, #f59e0b)';
+                favBtn.style.color = 'white';
+                favBtn.style.border = 'none';
+            }
+            
+            loadAnalysisHistory();
+        }
+        
+        async function loadAnalysisHistory() {
+            // STEP 1: Load from localStorage (fast, immediate display)
+            let localAnalyses = JSON.parse(localStorage.getItem('analysis_history') || '[]');
+            
+            // STEP 2: Try to load from backend (cross-device sync)
+            let backendAnalyses = [];
+            try {
+                console.log('🔄 Syncing analyses from backend...');
+                const response = await fetch('/api/user/analyses', { 
+                    credentials: 'include',
+                    headers: { 'Accept': 'application/json' }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    backendAnalyses = data.analyses || [];
+                    console.log(`✅ Loaded ${backendAnalyses.length} analyses from backend`);
+                } else {
+                    console.log('⚠️ Backend analyses not available, using localStorage only');
+                }
+            } catch (error) {
+                console.warn('⚠️ Could not sync from backend:', error);
+            }
+            
+            // STEP 3: Merge localStorage and backend analyses (deduplication)
+            const mergedAnalyses = [];
+            const seenIds = new Set();
+            
+            // Prefer backend data if both exist (it's authoritative)
+            for (const analysis of backendAnalyses) {
+                if (!seenIds.has(analysis.id)) {
+                    mergedAnalyses.push(analysis);
+                    seenIds.add(analysis.id);
+                }
+            }
+            
+            // Add localStorage analyses that aren't in backend yet
+            for (const analysis of localAnalyses) {
+                if (!seenIds.has(analysis.id)) {
+                    mergedAnalyses.push(analysis);
+                    seenIds.add(analysis.id);
+                }
+            }
+            
+            // STEP 4: Sort by date (newest first)
+            mergedAnalyses.sort((a, b) => {
+                const dateA = new Date(a.analyzed_at || 0);
+                const dateB = new Date(b.analyzed_at || 0);
+                return dateB - dateA;
+            });
+            
+            // STEP 5: Save merged data back to localStorage
+            localStorage.setItem('analysis_history', JSON.stringify(mergedAnalyses));
+            
+            // STEP 6: Render the UI
+            const analyses = mergedAnalyses;
+            const container = document.getElementById('history-container');
+            
+            // Filter out old analyses without full_result (from before we started saving them)
+            let validAnalyses = analyses.filter(a => a.full_result);
+            
+            // Apply favorites filter if active
+            if (currentFilter === 'favorites') {
+                const favorites = getFavorites();
+                validAnalyses = validAnalyses.filter(a => favorites.includes(a.id));
+                
+                if (validAnalyses.length === 0) {
+                    container.innerHTML = `
+                        <div style="text-align: center; padding: 60px 20px;">
+                            <div style="font-size: var(--text-display-xl); margin-bottom: 20px;">⭐</div>
+                            <h3 style="font-size: var(--text-h2); font-weight: 700; color: #f1f5f9; margin-bottom: 12px;">
+                                No Favorites Yet
+                            </h3>
+                            <p style="font-size: var(--text-body); color: #94a3b8; margin-bottom: 24px; max-width: 500px; margin-left: auto; margin-right: auto;">
+                                Click the star icon on any property to add it to your favorites!
+                            </p>
+                            <button onclick="setHistoryFilter('all')" style="
+                                padding: 12px 24px;
+                                background: linear-gradient(135deg, #3b82f6, #2563eb);
+                                color: white;
+                                border: none;
+                                border-radius: 12px;
+                                font-weight: 600;
+                                cursor: pointer;
+                                transition: all 0.2s;
+                            " onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+                                View All Properties
+                            </button>
+                        </div>
+                    `;
+                    return;
+                }
+            }
+            
+            if (validAnalyses.length === 0) {
+                // Show AMAZING empty state with guidance
+                container.innerHTML = `
+                    <div class="empty-state" style="text-align: center; padding: 60px 40px;">
+                        <!-- Animated illustration -->
+                        <div style="margin-bottom: 32px;">
+                            <svg width="200" height="200" viewBox="0 0 200 200" style="filter: drop-shadow(0 10px 30px rgba(96, 165, 250, 0.3));">
+                                <!-- House illustration -->
+                                <rect x="50" y="80" width="100" height="80" fill="#3b82f6" opacity="0.2" rx="4"/>
+                                <path d="M40 90 L100 50 L160 90" fill="none" stroke="#60a5fa" stroke-width="4" stroke-linecap="round"/>
+                                <rect x="50" y="80" width="100" height="80" fill="none" stroke="#60a5fa" stroke-width="3" rx="4"/>
+                                <rect x="80" y="110" width="20" height="30" fill="#60a5fa" opacity="0.6"/>
+                                <rect x="110" y="110" width="20" height="20" fill="#60a5fa" opacity="0.4"/>
+                                
+                                <!-- Magnifying glass -->
+                                <circle cx="140" cy="140" r="25" fill="none" stroke="#a78bfa" stroke-width="4"/>
+                                <line x1="158" y1="158" x2="175" y2="175" stroke="#a78bfa" stroke-width="4" stroke-linecap="round"/>
+                                
+                                <!-- Sparkles -->
+                                <text x="30" y="60" font-size="20" fill="#fbbf24">✨</text>
+                                <text x="165" y="70" font-size="16" fill="#fbbf24">✨</text>
+                                <text x="170" y="130" font-size="14" fill="#fbbf24">✨</text>
+                            </svg>
+                        </div>
+                        
+                        <!-- Headline -->
+                        <h3 style="font-size: var(--text-h1); font-weight: 700; color: #f1f5f9; margin-bottom: 12px;">
+                            Ready to Find Your Dream Home?
+                        </h3>
+                        
+                        <p style="font-size: var(--text-body-lg); color: #cbd5e1; margin-bottom: 40px; max-width: 600px; margin-left: auto; margin-right: auto; line-height: 1.6;">
+                            Upload property documents and get instant AI-powered insights to make confident offers. 
+                            Our patent-pending analysis helps you <strong style="color: #60a5fa;">understand what you're buying</strong> and <strong style="color: #22c55e;">negotiate from a position of strength</strong>.
+                        </p>
+                        
+                        <!-- How it works -->
+                        <div style="background: rgba(15, 23, 42, 0.5); border: 2px solid rgba(96, 165, 250, 0.2); border-radius: 16px; padding: 32px; margin-bottom: 40px; max-width: 700px; margin-left: auto; margin-right: auto;">
+                            <h4 style="font-size: var(--text-body-lg); font-weight: 600; color: #60a5fa; margin-bottom: 24px;">How It Works - 3 Simple Steps</h4>
+                            
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 24px; text-align: left;">
+                                <!-- Step 1 -->
+                                <div style="display: flex; gap: 16px;">
+                                    <div style="flex-shrink: 0; width: 40px; height: 40px; background: linear-gradient(135deg, #3b82f6, #2563eb); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: var(--text-body-lg);">1</div>
+                                    <div>
+                                        <div style="font-weight: 600; color: #f1f5f9; margin-bottom: 4px;">Upload Documents</div>
+                                        <div style="font-size: var(--text-body-sm); color: #94a3b8; line-height: 1.5;">Inspection reports, disclosures, and property details</div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Step 2 -->
+                                <div style="display: flex; gap: 16px;">
+                                    <div style="flex-shrink: 0; width: 40px; height: 40px; background: linear-gradient(135deg, #8b5cf6, #7c3aed); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: var(--text-body-lg);">2</div>
+                                    <div>
+                                        <div style="font-weight: 600; color: #f1f5f9; margin-bottom: 4px;">AI Analysis</div>
+                                        <div style="font-size: var(--text-body-sm); color: #94a3b8; line-height: 1.5;">Our AI finds hidden issues and calculates fair value</div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Step 3 -->
+                                <div style="display: flex; gap: 16px;">
+                                    <div style="flex-shrink: 0; width: 40px; height: 40px; background: linear-gradient(135deg, #22c55e, #16a34a); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: var(--text-body-lg);">3</div>
+                                    <div>
+                                        <div style="font-weight: 600; color: #f1f5f9; margin-bottom: 4px;">Get Insights</div>
+                                        <div style="font-size: var(--text-body-sm); color: #94a3b8; line-height: 1.5;">Receive detailed report with offer recommendation</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- CTA Buttons -->
+                        <div style="display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; margin-bottom: 32px;">
+                            <button onclick="handleStartAnalysis()" style="
+                                padding: 18px 40px;
+                                background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+                                color: white;
+                                border: none;
+                                border-radius: 12px;
+                                font-size: var(--text-body-lg);
+                                font-weight: 700;
+                                cursor: pointer;
+                                box-shadow: 0 10px 25px rgba(59, 130, 246, 0.4);
+                                transition: all 0.3s ease;
+                            " onmouseover="this.style.transform='translateY(-2px) scale(1.02)'; this.style.boxShadow='0 15px 35px rgba(59, 130, 246, 0.5)';" onmouseout="this.style.transform='translateY(0) scale(1)'; this.style.boxShadow='0 10px 25px rgba(59, 130, 246, 0.4)';">
+                                🚀 Analyze Your First Property
+                            </button>
+                            
+                            <button onclick="showExampleAnalysis()" style="
+                                padding: 18px 40px;
+                                background: rgba(96, 165, 250, 0.15);
+                                color: #60a5fa;
+                                border: 2px solid #60a5fa;
+                                border-radius: 12px;
+                                font-size: var(--text-body-lg);
+                                font-weight: 600;
+                                cursor: pointer;
+                                transition: all 0.3s ease;
+                            " onmouseover="this.style.background='rgba(96, 165, 250, 0.25)';" onmouseout="this.style.background='rgba(96, 165, 250, 0.15)';">
+                                👀 See Example Analysis
+                            </button>
+                        </div>
+                        
+                        <!-- Social Proof -->
+                        <div style="display: flex; align-items: center; justify-content: center; gap: 32px; flex-wrap: wrap; padding-top: 32px; border-top: 1px solid rgba(96, 165, 250, 0.2);">
+                            <div style="text-align: center;">
+                                <div style="font-size: var(--text-h1); font-weight: 700; color: #22c55e;">1,000+</div>
+                                <div style="font-size: var(--text-caption-lg); color: #94a3b8;">Properties Analyzed</div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="font-size: var(--text-h1); font-weight: 700; color: #60a5fa;">$47K</div>
+                                <div style="font-size: var(--text-caption-lg); color: #94a3b8;">Avg. Savings Found</div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="font-size: var(--text-h1); font-weight: 700; color: #a78bfa;">98%</div>
+                                <div style="font-size: var(--text-caption-lg); color: #94a3b8;">Satisfaction Rate</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Testimonial -->
+                        <div style="margin-top: 40px; padding: 24px; background: rgba(139, 92, 246, 0.1); border-left: 4px solid #a78bfa; border-radius: 8px; max-width: 600px; margin-left: auto; margin-right: auto;">
+                            <div style="font-size: var(--text-body); color: #cbd5e1; line-height: 1.6; margin-bottom: 12px; font-style: italic;">
+                                "OfferWise found $65K in hidden repair costs the inspector missed. I negotiated the seller down and still love my home 2 years later!"
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #a78bfa, #8b5cf6); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700;">S</div>
+                                <div style="text-align: left;">
+                                    <div style="font-weight: 600; color: #f1f5f9;">Sarah M.</div>
+                                    <div style="font-size: var(--text-caption-lg); color: #94a3b8;">First-time Homebuyer, Seattle</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Update stats with valid analyses only
+            updateStats(validAnalyses);
+            
+            // Display each analysis (most recent first)
+            container.innerHTML = validAnalyses
+                .sort((a, b) => new Date(b.analyzed_at) - new Date(a.analyzed_at))
+                .map(analysis => createAnalysisCard(analysis))
+                .join('');
+        }
+        
+        function updateStats(analyses) {
+            // Total analyses
+            document.getElementById('analyses-completed').textContent = analyses.length;
+            
+            // Total potential savings - recalculate to fix old bad data
+            const totalSavings = analyses.reduce((sum, a) => {
+                // Recalculate: asking - recommended
+                const askingPrice = a.asking_price || 0;
+                const recommendedOffer = a.recommended_offer || askingPrice;
+                const savings = askingPrice - recommendedOffer;
+                return sum + Math.max(0, savings);
+            }, 0);
+            
+            if (totalSavings >= 1000) {
+                document.getElementById('total-saved').textContent = '$' + (totalSavings / 1000).toFixed(0) + 'K';
+            } else {
+                document.getElementById('total-saved').textContent = '$' + totalSavings.toFixed(0);
+            }
+            
+            // Average discount
+            const validDiscounts = analyses.filter(a => a.discount_percentage).map(a => a.discount_percentage);
+            if (validDiscounts.length > 0) {
+                const avgDiscount = validDiscounts.reduce((sum, d) => sum + d, 0) / validDiscounts.length;
+                document.getElementById('avg-discount').textContent = avgDiscount.toFixed(0) + '%';
+            }
+        }
+        
+        function createAnalysisCard(analysis) {
+            // Safely extract risk score - handle both number and object
+            const riskScore = safeRiskScore(analysis.risk_score);
+            const riskLevel = getRiskLevel(riskScore);
+            const badgeClass = getRiskBadgeClass(riskLevel);
+            const formattedDate = formatDate(analysis.analyzed_at);
+            
+            // Recalculate potential savings to fix old bad data
+            const askingPrice = analysis.asking_price || 0;
+            const recommendedOffer = analysis.recommended_offer || askingPrice;
+            const potentialSavings = askingPrice - recommendedOffer;
+            
+            return `
+                <div class="history-item" style="position: relative;">
+                    <div class="history-header" onclick="viewAnalysis('${analysis.id}')" style="cursor: pointer; position: relative;">
+                        <!-- Delete Button -->
+                        <button onclick="event.stopPropagation(); confirmDeleteAnalysis('${analysis.id}')" 
+                                style="
+                                    position: absolute;
+                                    top: 8px;
+                                    right: 52px;
+                                    background: rgba(239, 68, 68, 0.15);
+                                    border: 2px solid rgba(239, 68, 68, 0.3);
+                                    width: 36px;
+                                    height: 36px;
+                                    border-radius: 50%;
+                                    cursor: pointer;
+                                    font-size: var(--text-body-lg);
+                                    display: flex;
+                                    align-items: center;
+                                    justify-content: center;
+                                    transition: all 0.2s;
+                                    z-index: 10;
+                                "
+                                onmouseover="this.style.background='rgba(239, 68, 68, 0.25)'; this.style.borderColor='#ef4444'"
+                                onmouseout="this.style.background='rgba(239, 68, 68, 0.15)'; this.style.borderColor='rgba(239, 68, 68, 0.3)'"
+                                title="Delete analysis">
+                            🗑️
+                        </button>
+                        
+                        <!-- Favorite Star -->
+                        <button onclick="event.stopPropagation(); toggleFavorite('${analysis.id}')" 
+                                id="fav-${analysis.id}"
+                                style="
+                                    position: absolute;
+                                    top: 8px;
+                                    right: 8px;
+                                    background: rgba(15, 23, 42, 0.8);
+                                    border: 2px solid #334155;
+                                    width: 36px;
+                                    height: 36px;
+                                    border-radius: 50%;
+                                    cursor: pointer;
+                                    font-size: var(--text-body-lg);
+                                    display: flex;
+                                    align-items: center;
+                                    justify-content: center;
+                                    transition: all 0.2s;
+                                    z-index: 10;
+                                "
+                                onmouseover="this.style.transform='scale(1.1)'"
+                                onmouseout="this.style.transform='scale(1)'">
+                            ${isFavorite(analysis.id) ? '⭐' : '☆'}
+                        </button>
+                        
+                        <div style="flex: 1; padding-right: 100px;">
+                            <div class="history-address">
+                                ${analysis.property_address || 'Property Analysis'}
+                            </div>
+                            <div style="color: #94a3b8; font-size: var(--text-caption-lg); margin-top: 4px;">
+                                🕒 ${formattedDate}
+                            </div>
+                        </div>
+                        <span class="badge ${badgeClass}">${riskLevel} RISK</span>
+                    </div>
+                    <div class="history-details" onclick="viewAnalysis('${analysis.id}')" style="cursor: pointer;">
+                        <div class="detail-item">
+                            <div class="detail-label">Asking Price</div>
+                            <div class="detail-value">${formatCurrency(askingPrice)}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Recommended Offer</div>
+                            <div class="detail-value" style="color: #22c55e;">${formatCurrency(recommendedOffer)}</div>
+                        </div>
+                        ${potentialSavings > 0 ? `
+                        <div class="detail-item">
+                            <div class="detail-label">Potential Savings</div>
+                            <div class="detail-value" style="color: #10b981;">${formatCurrency(potentialSavings)}</div>
+                        </div>
+                        ` : ''}
+                    </div>
+                    ${potentialSavings > 1000 ? `
+                    <div style="padding: 16px; border-top: 1px solid #334155; display: flex; gap: 8px; justify-content: flex-end;">
+                        <button onclick="event.stopPropagation(); celebrateSuccess('${analysis.id}')" style="
+                            padding: 10px 20px;
+                            background: linear-gradient(135deg, #a78bfa 0%, #8b5cf6 100%);
+                            color: white;
+                            border: none;
+                            border-radius: 8px;
+                            font-weight: 600;
+                            cursor: pointer;
+                            transition: all 0.2s;
+                            font-size: var(--text-body-sm);
+                            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+                        " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(139, 92, 246, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(139, 92, 246, 0.3)'">
+                            🎉 Celebrate & Share
+                        </button>
+                    </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+        
+        function viewAnalysis(analysisId) {
+            // Find the analysis in history
+            const history = JSON.parse(localStorage.getItem('analysis_history') || '[]');
+            const analysis = history.find(a => a.id === analysisId);
+            
+            if (analysis && analysis.full_result) {
+                // Store in format that app.html expects
+                sessionStorage.setItem('loaded_analysis', JSON.stringify(analysis.full_result));
+                
+                // Redirect to app to view full analysis
+                window.location.href = '/app';
+            } else {
+                alert('Full analysis not available for this property. This may be an older analysis from before we started saving full results.');
+            }
+        }
+        
+        // ============================================
+        // SUCCESS CELEBRATION & VIRAL SHARING
+        // ============================================
+        
+        function celebrateSuccess(analysisId) {
+            // Sanitize the ID first
+            const safeId = String(analysisId).replace(/[^a-zA-Z0-9\-_]/g, '');
+            
+            const history = JSON.parse(localStorage.getItem('analysis_history') || '[]');
+            const analysis = history.find(a => a.id === safeId);
+            
+            if (!analysis) {
+                console.warn('Analysis not found for celebration:', safeId);
+                return;
+            }
+            
+            const savings = Math.max(0, (analysis.asking_price || 0) - (analysis.recommended_offer || 0));
+            const savingsFormatted = savings >= 1000 ? `$${(savings/1000).toFixed(0)}K` : `$${Math.round(savings)}`;
+            
+            // Create celebration modal
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.9);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 10000;
+                padding: 20px;
+                backdrop-filter: blur(10px);
+                animation: fadeIn 0.3s ease;
+            `;
+            
+            // Store safeId for the button click handler
+            modal.dataset.analysisId = safeId;
+            
+            modal.innerHTML = `
+                <style>
+                    @keyframes fadeIn {
+                        from { opacity: 0; }
+                        to { opacity: 1; }
+                    }
+                    @keyframes slideUp {
+                        from { transform: translateY(30px); opacity: 0; }
+                        to { transform: translateY(0); opacity: 1; }
+                    }
+                    @keyframes confetti {
+                        0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+                        100% { transform: translateY(500px) rotate(360deg); opacity: 0; }
+                    }
+                    .confetti {
+                        position: absolute;
+                        width: 10px;
+                        height: 10px;
+                        background: #fbbf24;
+                        animation: confetti 3s ease-out forwards;
+                    }
+                </style>
+                
+                <div style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border: 2px solid rgba(96, 165, 250, 0.3); border-radius: 24px; max-width: 600px; width: 100%; position: relative; overflow: hidden; animation: slideUp 0.5s ease;">
+                    <!-- Confetti background -->
+                    ${Array(20).fill(0).map((_, i) => `
+                        <div class="confetti" style="left: ${Math.random() * 100}%; animation-delay: ${i * 0.1}s; background: ${['#fbbf24', '#60a5fa', '#a78bfa', '#22c55e', '#f87171'][i % 5]};"></div>
+                    `).join('')}
+                    
+                    <!-- Close button -->
+                    <button onclick="this.closest('[style*=fixed]').remove()" style="position: absolute; top: 20px; right: 20px; background: rgba(239, 68, 68, 0.2); color: #f87171; border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; font-size: var(--text-h3); z-index: 10; transition: all 0.2s;" onmouseover="this.style.background='rgba(239, 68, 68, 0.3)'" onmouseout="this.style.background='rgba(239, 68, 68, 0.2)'">×</button>
+                    
+                    <div style="padding: 48px 40px; text-align: center; position: relative; z-index: 1;">
+                        <!-- Celebration Icon -->
+                        <div style="font-size: 80px; margin-bottom: 24px; animation: bounce 1s ease infinite;">🎉</div>
+                        
+                        <!-- Headline -->
+                        <h2 style="font-size: var(--text-h1); font-weight: 800; color: #f1f5f9; margin-bottom: 16px;">
+                            Congratulations!
+                        </h2>
+                        
+                        <p style="font-size: var(--text-h3); color: #cbd5e1; margin-bottom: 8px;">
+                            You could save up to
+                        </p>
+                        
+                        <!-- Savings Amount -->
+                        <div style="font-size: 56px; font-weight: 900; background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 24px;">
+                            ${savingsFormatted}
+                        </div>
+                        
+                        <p style="font-size: var(--text-body); color: #94a3b8; margin-bottom: 32px; line-height: 1.6;">
+                            on your offer for this property by negotiating based on our AI analysis!
+                        </p>
+                        
+                        <!-- Share the Win -->
+                        <div style="background: rgba(96, 165, 250, 0.1); border: 2px solid rgba(96, 165, 250, 0.3); border-radius: 16px; padding: 24px; margin-bottom: 32px;">
+                            <div style="font-size: var(--text-body-lg); font-weight: 600; color: #60a5fa; margin-bottom: 16px;">
+                                📣 Share Your Win!
+                            </div>
+                            <p style="font-size: var(--text-body-sm); color: #cbd5e1; margin-bottom: 20px; line-height: 1.6;">
+                                Help your friends save money too. Share on social media and they'll thank you!
+                            </p>
+                            
+                            <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+                                <button onclick="shareSuccessTwitter(${savings})" style="flex: 1; min-width: 120px; padding: 12px 20px; background: rgba(59, 130, 246, 0.2); color: #93c5fd; border: 2px solid #3b82f6; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='rgba(59, 130, 246, 0.3)'" onmouseout="this.style.background='rgba(59, 130, 246, 0.2)'">
+                                    𝕏 Twitter
+                                </button>
+                                <button onclick="shareSuccessFacebook()" style="flex: 1; min-width: 120px; padding: 12px 20px; background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 2px solid #2563eb; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='rgba(59, 130, 246, 0.3)'" onmouseout="this.style.background='rgba(59, 130, 246, 0.2)'">
+                                    📘 Facebook
+                                </button>
+                                <button onclick="shareSuccessLinkedIn(${savings})" style="flex: 1; min-width: 120px; padding: 12px 20px; background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 2px solid #0284c7; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='rgba(59, 130, 246, 0.3)'" onmouseout="this.style.background='rgba(59, 130, 246, 0.2)'">
+                                    💼 LinkedIn
+                                </button>
+                            </div>
+                            
+                            <div style="margin-top: 16px; padding: 12px; background: rgba(139, 92, 246, 0.1); border-radius: 8px;">
+                                <div style="font-size: var(--text-caption); color: #cbd5e1; line-height: 1.5;">
+                                    💡 <strong>Tip:</strong> Tag the property address or real estate agent for maximum impact!
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- CTAs -->
+                        <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+                            <button id="view-analysis-btn" style="padding: 16px 32px; background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; border: none; border-radius: 12px; font-size: var(--text-body); font-weight: 700; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(59, 130, 246, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(59, 130, 246, 0.3)'">
+                                📊 View Full Analysis
+                            </button>
+                            <button onclick="handleStartAnalysis()" style="padding: 16px 32px; background: rgba(96, 165, 250, 0.2); color: #60a5fa; border: 2px solid #60a5fa; border-radius: 12px; font-size: var(--text-body); font-weight: 600; cursor: pointer; transition: all 0.3s;" onmouseover="this.style.background='rgba(96, 165, 250, 0.3)'" onmouseout="this.style.background='rgba(96, 165, 250, 0.2)'">
+                                🏡 Analyze Another Property
+                            </button>
+                        </div>
+                        
+                        <!-- Referral CTA -->
+                        <div style="margin-top: 24px; padding: 16px; background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(124, 58, 237, 0.2)); border: 2px solid #a78bfa; border-radius: 12px;">
+                            <div style="font-size: var(--text-body-sm); color: #e9d5ff; margin-bottom: 8px;">
+                                🎁 <strong>Love OfferWise?</strong> Get $10 for each friend you refer!
+                            </div>
+                            <a href="/settings?tab=referrals" style="display: inline-block; padding: 8px 20px; background: #a78bfa; color: white; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: var(--text-body-sm); transition: all 0.2s;" onmouseover="this.style.background='#8b5cf6'" onmouseout="this.style.background='#a78bfa'">
+                                Get Your Referral Link →
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            // Add event listener for View Analysis button (safe from XSS)
+            const viewBtn = modal.querySelector('#view-analysis-btn');
+            if (viewBtn) {
+                viewBtn.addEventListener('click', () => {
+                    viewAnalysis(safeId);
+                });
+            }
+            
+            // Close on background click
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.remove();
+                }
+            });
+        }
+        
+        // Share success on Twitter
+        function shareSuccessTwitter(savings) {
+            const savingsText = savings >= 1000 ? `$${(savings/1000).toFixed(0)}K` : `$${savings}`;
+            const text = encodeURIComponent(
+                `I just saved ${savingsText} on my property offer using @OfferWiseAI! 🎉\\n\\n` +
+                `Their AI found hidden issues the inspector missed. Every home buyer needs this!\\n\\n` +
+                `Get $10 off your first analysis:`
+            );
+            const referralLink = document.getElementById('referral-link') ? document.getElementById('referral-link').value : 'https://offerwise.ai';
+            window.open(`https://twitter.com/intent/tweet?text=${text}&url=${encodeURIComponent(referralLink)}`, '_blank', 'width=600,height=400');
+        }
+        
+        // Share success on Facebook
+        function shareSuccessFacebook() {
+            const referralLink = document.getElementById('referral-link') ? document.getElementById('referral-link').value : 'https://offerwise.ai';
+            window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(referralLink)}`, '_blank', 'width=600,height=400');
+        }
+        
+        // Share success on LinkedIn
+        function shareSuccessLinkedIn(savings) {
+            const referralLink = document.getElementById('referral-link') ? document.getElementById('referral-link').value : 'https://offerwise.ai';
+            window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(referralLink)}`, '_blank', 'width=600,height=400');
+        }
+        
+        
+        // ============================================
+        // FAVORITES / WATCHLIST SYSTEM
+        // ============================================
+        
+        function getFavorites() {
+            return JSON.parse(localStorage.getItem('favorites') || '[]');
+        }
+        
+        function saveFavorites(favorites) {
+            localStorage.setItem('favorites', JSON.stringify(favorites));
+        }
+        
+        function isFavorite(analysisId) {
+            const favorites = getFavorites();
+            return favorites.includes(analysisId);
+        }
+        
+        function toggleFavorite(analysisId) {
+            let favorites = getFavorites();
+            const button = document.getElementById(`fav-${analysisId}`);
+            
+            if (favorites.includes(analysisId)) {
+                // Remove from favorites
+                favorites = favorites.filter(id => id !== analysisId);
+                if (button) button.textContent = '☆';
+                
+                // Show notification
+                showNotification('Removed from favorites', 'info');
+            } else {
+                // Add to favorites
+                favorites.push(analysisId);
+                if (button) button.textContent = '⭐';
+                
+                // Show notification
+                showNotification('Added to favorites!', 'success');
+            }
+            
+            saveFavorites(favorites);
+            
+            // If we're viewing favorites, reload the list
+            if (window.location.hash === '#favorites') {
+                loadFavoritesList();
+            }
+        }
+        
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                bottom: 24px;
+                right: 24px;
+                background: ${type === 'success' ? 'linear-gradient(135deg, #22c55e, #16a34a)' : 'linear-gradient(135deg, #3b82f6, #2563eb)'};
+                color: white;
+                padding: 16px 24px;
+                border-radius: 12px;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+                font-weight: 600;
+                z-index: 10000;
+                animation: slideIn 0.3s ease;
+            `;
+            
+            notification.innerHTML = `
+                <style>
+                    @keyframes slideIn {
+                        from { transform: translateX(400px); opacity: 0; }
+                        to { transform: translateX(0); opacity: 1; }
+                    }
+                    @keyframes slideOut {
+                        from { transform: translateX(0); opacity: 1; }
+                        to { transform: translateX(400px); opacity: 0; }
+                    }
+                </style>
+                ${type === 'success' ? '✅' : 'ℹ️'} ${message}
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => notification.remove(), 300);
+            }, 2000);
+        }
+        
+        function safeRiskScore(riskScore) {
+            // Handle objects (e.g., PropertyRiskScore with overall_risk_score)
+            if (typeof riskScore === 'object' && riskScore !== null) {
+                return Math.round(parseFloat(riskScore.overall_risk_score || riskScore.buyer_adjusted_score || 0));
+            }
+            // Handle numbers - always round to whole number
+            return Math.round(parseFloat(riskScore) || 0);
+        }
+        
+        function getRiskLevel(riskScore) {
+            // Consistent with Property Risk DNA composite score scale
+            if (riskScore >= 90) return 'CRITICAL';
+            if (riskScore >= 75) return 'HIGH';
+            if (riskScore >= 60) return 'ELEVATED';
+            if (riskScore >= 40) return 'MODERATE';
+            if (riskScore >= 20) return 'LOW';
+            return 'MINIMAL';
+        }
+        
+        function getRiskBadgeClass(riskLevel) {
+            const map = {
+                'MINIMAL': 'badge-minimal',
+                'LOW': 'badge-low',
+                'MODERATE': 'badge-moderate',
+                'ELEVATED': 'badge-elevated',
+                'HIGH': 'badge-high',
+                'CRITICAL': 'badge-critical'
+            };
+            return map[riskLevel] || 'badge-moderate';
+        }
+        
+        function formatCurrency(amount) {
+            if (!amount) return 'N/A';
+            return '$' + amount.toLocaleString();
+        }
+        
+        function formatDate(isoString) {
+            const date = new Date(isoString);
+            return date.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+        
+        // Show example analysis to give users a preview
+        function showExampleAnalysis() {
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.8);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 10000;
+                padding: 20px;
+                backdrop-filter: blur(10px);
+            `;
+            
+            modal.innerHTML = `
+                <div style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border: 2px solid rgba(96, 165, 250, 0.3); border-radius: 20px; max-width: 900px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);">
+                    <div style="padding: 32px; border-bottom: 1px solid rgba(96, 165, 250, 0.2);">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 16px;">
+                            <div>
+                                <h2 style="font-size: var(--text-h1); font-weight: 700; color: #f1f5f9; margin-bottom: 8px;">📊 Example Analysis</h2>
+                                <p style="color: #94a3b8; font-size: var(--text-body);">See what insights you'll get for your property</p>
+                            </div>
+                            <button onclick="this.closest('[style*=fixed]').remove()" style="background: rgba(239, 68, 68, 0.2); color: #f87171; border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; font-size: var(--text-h3); transition: all 0.2s;" onmouseover="this.style.background='rgba(239, 68, 68, 0.3)'" onmouseout="this.style.background='rgba(239, 68, 68, 0.2)'">×</button>
+                        </div>
+                    </div>
+                    
+                    <div style="padding: 32px;">
+                        <!-- Property Header -->
+                        <div style="background: rgba(96, 165, 250, 0.1); border: 2px solid rgba(96, 165, 250, 0.3); border-radius: 16px; padding: 24px; margin-bottom: 32px;">
+                            <div style="font-size: var(--text-h2); font-weight: 700; color: #f1f5f9; margin-bottom: 8px;">🏡 123 Maple Street, Seattle, WA 98101</div>
+                            <div style="display: flex; gap: 24px; flex-wrap: wrap; margin-top: 16px;">
+                                <div><span style="color: #94a3b8;">Asking Price:</span> <strong style="color: #f1f5f9;">$875,000</strong></div>
+                                <div><span style="color: #94a3b8;">Bedrooms:</span> <strong style="color: #f1f5f9;">4</strong></div>
+                                <div><span style="color: #94a3b8;">Bathrooms:</span> <strong style="color: #f1f5f9;">2.5</strong></div>
+                                <div><span style="color: #94a3b8;">Square Feet:</span> <strong style="color: #f1f5f9;">2,400</strong></div>
+                            </div>
+                        </div>
+                        
+                        <!-- OfferScore -->
+                        <div style="background: linear-gradient(135deg, rgba(34, 197, 94, 0.2), rgba(16, 185, 129, 0.2)); border: 2px solid #22c55e; border-radius: 16px; padding: 24px; margin-bottom: 24px;">
+                            <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 16px;">
+                                <div style="font-size: 48px; font-weight: 800; color: #22c55e;">87</div>
+                                <div>
+                                    <div style="font-size: var(--text-body-lg); font-weight: 600; color: #f1f5f9;">OfferScore™</div>
+                                    <div style="font-size: var(--text-body-sm); color: #a7f3d0;">Strong Buy Candidate</div>
+                                </div>
+                            </div>
+                            <p style="color: #cbd5e1; font-size: var(--text-body-sm); line-height: 1.6;">This property shows strong fundamentals with minor issues. Well-maintained home in desirable neighborhood with good long-term value potential.</p>
+                        </div>
+                        
+                        <!-- Recommended Offer -->
+                        <div style="background: rgba(59, 130, 246, 0.1); border: 2px solid #3b82f6; border-radius: 16px; padding: 24px; margin-bottom: 24px;">
+                            <div style="font-size: var(--text-body); font-weight: 600; color: #60a5fa; margin-bottom: 12px;">💰 Recommended Offer Range</div>
+                            <div style="display: flex; align-items: baseline; gap: 12px; margin-bottom: 12px;">
+                                <div style="font-size: var(--text-h1); font-weight: 700; color: #f1f5f9;">$828,000</div>
+                                <div style="color: #94a3b8;">to</div>
+                                <div style="font-size: var(--text-h1); font-weight: 700; color: #f1f5f9;">$847,000</div>
+                            </div>
+                            <div style="background: rgba(34, 197, 94, 0.2); border-left: 4px solid #22c55e; padding: 12px; border-radius: 8px;">
+                                <div style="color: #22c55e; font-weight: 600; margin-bottom: 4px;">💎 Potential Savings: $28,000 - $47,000</div>
+                                <div style="color: #cbd5e1; font-size: var(--text-caption-lg);">Based on comparable sales and identified repair costs</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Key Issues -->
+                        <div style="background: rgba(251, 191, 36, 0.1); border: 2px solid #fbbf24; border-radius: 16px; padding: 24px; margin-bottom: 24px;">
+                            <div style="font-size: var(--text-body); font-weight: 600; color: #fbbf24; margin-bottom: 16px;">⚠️ Key Issues Found (3)</div>
+                            <div style="display: flex; flex-direction: column; gap: 12px;">
+                                <div style="background: rgba(15, 23, 42, 0.5); padding: 12px; border-radius: 8px;">
+                                    <div style="color: #f1f5f9; font-weight: 600; margin-bottom: 4px;">🔧 Roof Needs Replacement (5-7 years)</div>
+                                    <div style="color: #94a3b8; font-size: var(--text-caption-lg);">Estimated cost: $15,000 - $20,000</div>
+                                </div>
+                                <div style="background: rgba(15, 23, 42, 0.5); padding: 12px; border-radius: 8px;">
+                                    <div style="color: #f1f5f9; font-weight: 600; margin-bottom: 4px;">🌊 Minor Foundation Settling</div>
+                                    <div style="color: #94a3b8; font-size: var(--text-caption-lg);">Monitor for progression, typical for age</div>
+                                </div>
+                                <div style="background: rgba(15, 23, 42, 0.5); padding: 12px; border-radius: 8px;">
+                                    <div style="color: #f1f5f9; font-weight: 600; margin-bottom: 4px;">🔌 Electrical Panel Upgrade Recommended</div>
+                                    <div style="color: #94a3b8; font-size: var(--text-caption-lg);">Estimated cost: $2,500 - $4,000</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Strengths -->
+                        <div style="background: rgba(34, 197, 94, 0.1); border: 2px solid #22c55e; border-radius: 16px; padding: 24px; margin-bottom: 32px;">
+                            <div style="font-size: var(--text-body); font-weight: 600; color: #22c55e; margin-bottom: 16px;">✅ Property Strengths (5)</div>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 12px;">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <span style="font-size: var(--text-h3);">🎯</span>
+                                    <span style="color: #cbd5e1; font-size: var(--text-body-sm);">Prime location near schools</span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <span style="font-size: var(--text-h3);">🔥</span>
+                                    <span style="color: #cbd5e1; font-size: var(--text-body-sm);">New HVAC system (2023)</span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <span style="font-size: var(--text-h3);">💧</span>
+                                    <span style="color: #cbd5e1; font-size: var(--text-body-sm);">Updated plumbing</span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <span style="font-size: var(--text-h3);">🪟</span>
+                                    <span style="color: #cbd5e1; font-size: var(--text-body-sm);">Energy-efficient windows</span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <span style="font-size: var(--text-h3);">🌳</span>
+                                    <span style="color: #cbd5e1; font-size: var(--text-body-sm);">Mature landscaping</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- CTA -->
+                        <div style="text-align: center; padding-top: 24px; border-top: 2px solid rgba(96, 165, 250, 0.2);">
+                            <button onclick="this.closest('[style*=fixed]').remove(); handleStartAnalysis();" style="
+                                padding: 18px 48px;
+                                background: linear-gradient(135deg, #3b82f6, #2563eb);
+                                color: white;
+                                border: none;
+                                border-radius: 12px;
+                                font-size: var(--text-body-lg);
+                                font-weight: 700;
+                                cursor: pointer;
+                                box-shadow: 0 10px 25px rgba(59, 130, 246, 0.4);
+                                transition: all 0.3s;
+                            " onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+                                🚀 Analyze Your Property Now
+                            </button>
+                            <div style="margin-top: 12px; color: #94a3b8; font-size: var(--text-body-sm);">Get insights like these for your property</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            // Close on background click
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.remove();
+                }
+            });
+        }
+        
+        // Handle starting a new analysis - check credits first
+        async function handleStartAnalysis() {
+            try {
+                // SMART CHECK: Check backend first to see if user has analyses
+                let hasCompletedAnalyses = false;
+                
+                try {
+                    const analysesResponse = await fetch('/api/user/analyses', { 
+                        credentials: 'include',
+                        headers: { 'Accept': 'application/json' }
+                    });
+                    
+                    if (analysesResponse.ok) {
+                        const analysesData = await analysesResponse.json();
+                        hasCompletedAnalyses = (analysesData.analyses || []).some(a => a.full_result);
+                        console.log(`Backend check: User has ${hasCompletedAnalyses ? '' : 'NO'} completed analyses`);
+                    } else {
+                        // Fallback to localStorage
+                        const localAnalyses = JSON.parse(localStorage.getItem('analysis_history') || '[]');
+                        hasCompletedAnalyses = localAnalyses.some(a => a.full_result);
+                    }
+                } catch (err) {
+                    console.warn('⚠️ Could not check backend analyses, using localStorage:', err);
+                    const localAnalyses = JSON.parse(localStorage.getItem('analysis_history') || '[]');
+                    hasCompletedAnalyses = localAnalyses.some(a => a.full_result);
+                }
+                
+                if (!hasCompletedAnalyses) {
+                    // NEW USER: Check if they've accepted all legal agreements
+                    console.log('🔍 New user - checking consent status before first analysis...');
+                    const consentResponse = await fetch('/api/consent/status', { credentials: 'include' });
+                    
+                    if (consentResponse.ok) {
+                        const consentData = await consentResponse.json();
+                        const consents = consentData.consents || consentData.statuses || [];
+                        const allAccepted = consents.every(c => c.has_consent);
+                        
+                        if (!allAccepted) {
+                            console.log('❌ User has not accepted all legal agreements - redirecting to settings');
+                            alert('⚠️ Please accept all legal agreements before starting your first analysis.\n\nYou will be redirected to the Legal tab in Settings.');
+                            window.location.href = '/settings?tab=legal';
+                            return;
+                        }
+                        
+                        console.log('✅ All consents accepted');
+                    }
+                } else {
+                    console.log('✅ Returning user with existing analyses - skipping consent check');
+                }
+                
+                // SECOND: Check credits
+                const response = await fetch('/api/user/credits');
+                
+                // Handle auth failure
+                if (response.status === 401) {
+                    console.log('🚫 Not authenticated - redirecting to login');
+                    window.location.href = '/login';
+                    return;
+                }
+                
+                if (!response.ok) {
+                    throw new Error('Failed to fetch credits');
+                }
+                
+                // Check content type before parsing
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    console.error('❌ Response is not JSON - redirecting to login');
+                    window.location.href = '/login';
+                    return;
+                }
+                
+                const data = await response.json();
+                const credits = data.credits || 0;
+                
+                if (credits === 0) {
+                    // No credits - redirect to pricing
+                    console.log('🚫 No credits available - redirecting to pricing');
+                    window.location.href = '/pricing?message=' + encodeURIComponent('You need to purchase credits before starting a new analysis.');
+                } else {
+                    // Has credits and consents - allow to continue
+                    console.log(`✅ User has ${credits} credits and all consents - allowing analysis`);
+                    window.location.href = '/app';
+                }
+            } catch (error) {
+                console.error('❌ Error checking credits:', error);
+                // On error, still allow (fail open)
+                window.location.href = '/app';
+            }
+        }
+        
+        // Load user credits from API
+        async function loadUserCredits() {
+            try {
+                const response = await fetch('/api/user/credits');
+                
+                // Handle auth failure
+                if (response.status === 401) {
+                    console.log('🚫 Not authenticated - redirecting to login');
+                    window.location.href = '/login';
+                    return;
+                }
+                
+                if (!response.ok) {
+                    throw new Error('Failed to fetch credits');
+                }
+                
+                // Check content type before parsing
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    console.error('❌ Response is not JSON - redirecting to login');
+                    window.location.href = '/login';
+                    return;
+                }
+                
+                const data = await response.json();
+                
+                const creditsElement = document.getElementById('credits');
+                const credits = data.credits || 0;
+                
+                // Update credits display
+                creditsElement.textContent = credits;
+                
+                // Update CTA status text
+                const statusElement = document.getElementById('credits-status');
+                
+                if (statusElement) {
+                    if (credits === 0) {
+                        statusElement.innerHTML = '❌ <span style="color: #ef4444;">No credits remaining</span>';
+                    } else if (credits === 1) {
+                        statusElement.innerHTML = `⚠️ <span style="color: #f59e0b;">${credits} credit remaining</span>`;
+                    } else {
+                        statusElement.innerHTML = `✅ <span style="color: #10b981;">${credits} credits available</span>`;
+                    }
+                }
+                
+                // Add color coding based on credit level
+                const statCard = creditsElement.closest('.stat-card');
+                if (credits === 0) {
+                    creditsElement.style.color = '#ef4444'; // Red
+                    if (statCard) statCard.style.borderLeft = '4px solid #ef4444';
+                } else if (credits <= 2) {
+                    creditsElement.style.color = '#f59e0b'; // Orange/yellow
+                    if (statCard) statCard.style.borderLeft = '4px solid #f59e0b';
+                } else {
+                    creditsElement.style.color = '#10b981'; // Green
+                    if (statCard) statCard.style.borderLeft = '4px solid #10b981';
+                }
+                
+                console.log(`✅ Loaded user credits: ${credits}`);
+            } catch (error) {
+                console.error('❌ Error loading credits:', error);
+                document.getElementById('credits').textContent = '?';
+            }
+        }
+        
+        // Clear old buggy analyses on page load (one-time migration)
+        function clearOldAnalyses() {
+            const migrationKey = 'analyses_migration_v2';
+            if (!localStorage.getItem(migrationKey)) {
+                console.log('Clearing old analyses due to showRepairCalculation bug fix...');
+                localStorage.removeItem('analysis_history');
+                localStorage.setItem(migrationKey, 'done');
+                console.log('Old analyses cleared. Fresh start!');
+            }
+        }
+        
+        // Show first-time user prompt ONLY after onboarding is complete
+        
+        // PERFORMANCE OPTIMIZATION (v4.85): Combined dashboard initialization
+        // OLD: 6 sequential API calls (1.2-3s load time)
+        // NEW: 1 combined API call (200-500ms load time)
+        
+        let dashboardCache = null; // Cache for combined dashboard data
+        
+        async function initializeDashboard() {
+            try {
+                console.log('🚀 [PERF] Initializing dashboard with combined endpoint...');
+                const startTime = performance.now();
+                
+                // Single API call gets ALL data
+                const response = await fetch('/api/dashboard/init', {
+                    credentials: 'include',
+                    headers: { 'Accept': 'application/json' }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`Dashboard init failed: ${response.status}`);
+                }
+                
+                dashboardCache = await response.json();
+                const loadTime = (performance.now() - startTime).toFixed(0);
+                console.log(`✅ [PERF] Dashboard loaded in ${loadTime}ms (was 1200-3000ms)`);
+                console.log('📊 [PERF] Data received:', {
+                    analyses: dashboardCache.analyses.length,
+                    credits: dashboardCache.credits.remaining,
+                    consents: dashboardCache.consent_status.all_accepted,
+                    preferences: !!dashboardCache.preferences.max_budget
+                });
+                
+                // Now render using cached data
+                renderDashboardFromCache();
+                
+            } catch (error) {
+                console.error('❌ [PERF] Dashboard initialization failed:', error);
+                // Fallback to old sequential method
+                console.log('⚠️ [PERF] Falling back to sequential loads...');
+                clearOldAnalyses();
+                loadAnalysisHistory();
+                loadUserCredits();
+            }
+        }
+        
+        function renderDashboardFromCache() {
+            if (!dashboardCache) return;
+            
+            // 1. Update credits display
+            const creditsElement = document.getElementById('credits');
+            const credits = dashboardCache.credits.remaining;
+            if (creditsElement) {
+                creditsElement.textContent = credits;
+                
+                // Color code based on remaining credits
+                const statCard = creditsElement.closest('.stat-card');
+                if (credits === 0) {
+                    creditsElement.style.color = '#ef4444';
+                    if (statCard) statCard.style.borderLeft = '4px solid #ef4444';
+                } else if (credits <= 2) {
+                    creditsElement.style.color = '#f59e0b';
+                    if (statCard) statCard.style.borderLeft = '4px solid #f59e0b';
+                } else {
+                    creditsElement.style.color = '#10b981';
+                    if (statCard) statCard.style.borderLeft = '4px solid #10b981';
+                }
+            }
+            
+            // 2. Store analyses in localStorage for existing render function
+            const analyses = dashboardCache.analyses || [];
+            localStorage.setItem('analysis_history', JSON.stringify(analyses));
+            
+            // 3. Call existing render function (it will use localStorage)
+            loadAnalysisHistory();
+        }
+        
+        // Load history on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            // NEW: Single combined call replaces 4 sequential calls
+            initializeDashboard();
+            
+            // Check if we should auto-celebrate (coming from app.html Share button)
+            const urlParams = new URLSearchParams(window.location.search);
+            const celebrateId = urlParams.get('celebrate');
+            if (celebrateId) {
+                const safeCelebrateId = String(celebrateId).replace(/[^a-zA-Z0-9\-_]/g, '');
+                if (safeCelebrateId) {
+                    setTimeout(() => celebrateSuccess(safeCelebrateId), 1000);
+                }
+                window.history.replaceState({}, document.title, '/dashboard');
+            }
+        });
+    </script>
+    
+    <!-- Footer -->
+    <div class="footer">
+        <div class="container">
+            <p style="color: #94a3b8;">&copy; 2025 OfferWise. All rights reserved.</p>
+            <p style="margin-top: 16px; color: #cbd5e1;">
+                <a href="/terms">Terms of Service</a> • 
+                <a href="/privacy">Privacy Policy</a> • 
+                <a href="/contact">Contact</a>
+            </p>
+            <p style="margin-top: 12px; font-size: var(--text-caption); color: #64748b;">
+                OfferScore™ Patent Pending
+            </p>
+        </div>
+    </div>
+    
+    
+    <!-- Delete Analysis Functionality -->
+    <script>
+        // Confirmation modal for delete
+        function confirmDeleteAnalysis(analysisId) {
+            const history = JSON.parse(localStorage.getItem('analysis_history') || '[]');
+            const analysis = history.find(a => a.id === analysisId);
+            
+            if (!analysis) {
+                showToast('❌ Analysis not found', 'error');
+                return;
+            }
+            
+            // Create confirmation modal
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.85);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 10000;
+                padding: 20px;
+                backdrop-filter: blur(10px);
+                animation: fadeIn 0.2s ease;
+            `;
+            
+            modal.innerHTML = `
+                <style>
+                    @keyframes fadeIn {
+                        from { opacity: 0; }
+                        to { opacity: 1; }
+                    }
+                    @keyframes slideUp {
+                        from { transform: translateY(20px); opacity: 0; }
+                        to { transform: translateY(0); opacity: 1; }
+                    }
+                </style>
+                <div style="
+                    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+                    border: 2px solid rgba(239, 68, 68, 0.3);
+                    border-radius: 16px;
+                    max-width: 500px;
+                    width: 100%;
+                    padding: 32px;
+                    text-align: center;
+                    animation: slideUp 0.3s ease;
+                ">
+                    <div style="font-size: var(--text-display-xl); margin-bottom: 16px;">⚠️</div>
+                    
+                    <h2 style="font-size: var(--text-h2); font-weight: 700; color: #f1f5f9; margin-bottom: 12px;">
+                        Delete Analysis?
+                    </h2>
+                    
+                    <p style="font-size: var(--text-body); color: #cbd5e1; margin-bottom: 8px; font-weight: 600;">
+                        ${analysis.property_address || 'Property Analysis'}
+                    </p>
+                    
+                    <p style="font-size: var(--text-body-sm); color: #94a3b8; margin-bottom: 24px; line-height: 1.6;">
+                        This action cannot be undone. The analysis will be permanently removed from your account.
+                    </p>
+                    
+                    <div style="display: flex; gap: 12px; justify-content: center;">
+                        <button onclick="this.closest('[style*=fixed]').remove()" style="
+                            flex: 1;
+                            padding: 12px 24px;
+                            background: rgba(96, 165, 250, 0.2);
+                            color: #60a5fa;
+                            border: 2px solid #60a5fa;
+                            border-radius: 8px;
+                            font-weight: 600;
+                            cursor: pointer;
+                            transition: all 0.2s;
+                            font-size: var(--text-body);
+                        " onmouseover="this.style.background='rgba(96, 165, 250, 0.3)'" onmouseout="this.style.background='rgba(96, 165, 250, 0.2)'">
+                            Cancel
+                        </button>
+                        
+                        <button onclick="deleteAnalysis('${analysisId}'); this.closest('[style*=fixed]').remove();" style="
+                            flex: 1;
+                            padding: 12px 24px;
+                            background: linear-gradient(135deg, #ef4444, #dc2626);
+                            color: white;
+                            border: none;
+                            border-radius: 8px;
+                            font-weight: 600;
+                            cursor: pointer;
+                            transition: all 0.2s;
+                            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+                            font-size: var(--text-body);
+                        " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(239, 68, 68, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(239, 68, 68, 0.3)'">
+                            🗑️ Delete
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+        }
+        
+        // Delete analysis function
+        async function deleteAnalysis(analysisId) {
+            try {
+                console.log('🗑️ Deleting analysis:', analysisId);
+                
+                // STEP 1: Remove from localStorage immediately (optimistic delete)
+                let history = JSON.parse(localStorage.getItem('analysis_history') || '[]');
+                const originalLength = history.length;
+                history = history.filter(a => a.id !== analysisId);
+                localStorage.setItem('analysis_history', JSON.stringify(history));
+                console.log(`✅ Removed from localStorage (${originalLength} → ${history.length})`);
+                
+                // STEP 2: Remove from favorites if present
+                let favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+                if (favorites.includes(analysisId)) {
+                    favorites = favorites.filter(id => id !== analysisId);
+                    localStorage.setItem('favorites', JSON.stringify(favorites));
+                    console.log('✅ Removed from favorites');
+                }
+                
+                // STEP 3: Delete from backend using SIMPLE timestamp endpoint
+                console.log(`   Calling: DELETE /api/analyses/by-timestamp/${analysisId}`);
+                try {
+                    const response = await fetch(`/api/analyses/by-timestamp/${analysisId}`, {
+                        method: 'DELETE',
+                        credentials: 'include',
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        console.log('✅ Backend delete successful:', data.message);
+                    } else {
+                        console.log(`⚠️ Backend returned ${response.status} - UI still updated`);
+                    }
+                } catch (error) {
+                    console.log('⚠️ Backend delete error:', error);
+                    // Continue anyway - UI is already updated
+                }
+                
+                // STEP 4: Reload to show updated list
+                loadAnalysisHistory();
+                
+                // STEP 5: Success message
+                showToast('✅ Analysis deleted successfully', 'success');
+                
+            } catch (error) {
+                console.error('❌ Error deleting analysis:', error);
+                showToast('❌ Failed to delete analysis', 'error');
+            }
+        }
+        
+        // Toast notification function
+        function showToast(message, type = 'info') {
+            const bgColor = type === 'success' ? '#22c55e' : type === 'error' ? '#ef4444' : '#60a5fa';
+            
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed;
+                bottom: 24px;
+                right: 24px;
+                background: ${bgColor};
+                color: white;
+                padding: 16px 24px;
+                border-radius: 12px;
+                font-weight: 600;
+                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+                z-index: 10001;
+                animation: slideInRight 0.3s ease;
+            `;
+            
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            // Add CSS animation
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes slideInRight {
+                    from { transform: translateX(400px); opacity: 0; }
+                    to { transform: translateX(0); opacity: 1; }
+                }
+                @keyframes slideOutRight {
+                    from { transform: translateX(0); opacity: 1; }
+                    to { transform: translateX(400px); opacity: 0; }
+                }
+            `;
+            document.head.appendChild(style);
+            
+            // Auto-remove after 3 seconds
+            setTimeout(() => {
+                toast.style.animation = 'slideOutRight 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+    </script>
+    
+    <!-- User Profile Dropdown Script -->
+    <script src="/static/user-profile.js"></script>
+</body>
+</html>

@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us - OfferWise AI</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+            min-height: 100vh;
+            color: #e2e8f0;
+            padding: 40px 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: rgba(30, 41, 59, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            border-radius: 16px;
+            padding: 48px;
+        }
+        
+        h1 {
+            font-size: var(--text-display-l);
+            font-weight: 800;
+            background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 12px;
+        }
+        
+        .subtitle {
+            color: #94a3b8;
+            margin-bottom: 40px;
+            font-size: var(--text-body);
+            line-height: 1.6;
+        }
+        
+        h2 {
+            color: #60a5fa;
+            font-size: var(--text-h2);
+            margin-top: 32px;
+            margin-bottom: 16px;
+        }
+        
+        p {
+            color: #cbd5e1;
+            line-height: 1.8;
+            margin-bottom: 16px;
+        }
+        
+        .contact-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 24px;
+            margin: 32px 0;
+        }
+        
+        .contact-card {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 12px;
+            padding: 24px;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+        
+        .contact-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(59, 130, 246, 0.5);
+        }
+        
+        .contact-card-icon {
+            font-size: var(--text-h1);
+            margin-bottom: 12px;
+        }
+        
+        .contact-card h3 {
+            color: #60a5fa;
+            font-size: var(--text-body-lg);
+            margin-bottom: 8px;
+        }
+        
+        .contact-card a {
+            color: #cbd5e1;
+            text-decoration: none;
+            word-break: break-all;
+        }
+        
+        .contact-card a:hover {
+            color: #60a5fa;
+            text-decoration: underline;
+        }
+        
+        .faq-section {
+            margin-top: 40px;
+        }
+        
+        .faq-item {
+            background: rgba(30, 41, 59, 0.6);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+        
+        .faq-question {
+            color: #60a5fa;
+            font-weight: 600;
+            font-size: var(--text-body);
+            margin-bottom: 8px;
+        }
+        
+        .faq-answer {
+            color: #cbd5e1;
+            line-height: 1.6;
+        }
+        
+        .faq-answer a {
+            color: #60a5fa;
+            text-decoration: none;
+        }
+        
+        .faq-answer a:hover {
+            text-decoration: underline;
+        }
+        
+        .back-link {
+            margin-top: 40px;
+            text-align: center;
+        }
+        
+        .back-link a {
+            color: #60a5fa;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        .back-link a:hover {
+            text-decoration: underline;
+        }
+        
+        @media (max-width: 600px) {
+            .container { padding: 24px 20px; }
+            .contact-grid { grid-template-columns: 1fr; }
+            #contact-form-container .name-email-row { grid-template-columns: 1fr !important; }
+        }
+        
+        .legal-links {
+            margin-top: 32px;
+            padding-top: 24px;
+            border-top: 1px solid rgba(59, 130, 246, 0.2);
+            text-align: center;
+        }
+        
+        .legal-links a {
+            color: #94a3b8;
+            text-decoration: none;
+            margin: 0 16px;
+            font-size: var(--text-body-sm);
+        }
+        
+        .legal-links a:hover {
+            color: #60a5fa;
+            text-decoration: underline;
+        }
+    </style>
+    <!-- Google Analytics (GA4) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-KXYFZ5BYPL"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag("js", new Date());
+        gtag("config", "G-KXYFZ5BYPL");
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>Contact Us</h1>
+        <p class="subtitle">
+            Have questions? We're here to help. Choose the best way to reach us below.
+        </p>
+        
+        <h2>Get in Touch</h2>
+        
+        <div class="contact-grid">
+            <div class="contact-card">
+                <div class="contact-card-icon">👋</div>
+                <h3>General Inquiries</h3>
+                <p><a href="mailto:hello@getofferwise.ai">hello@getofferwise.ai</a></p>
+                <p style="font-size: var(--text-caption-lg); color: #94a3b8; margin-top: 8px;">
+                    Sales questions, partnerships, media inquiries, general questions
+                </p>
+            </div>
+            
+            <div class="contact-card">
+                <div class="contact-card-icon">💳</div>
+                <h3>Billing & Payments</h3>
+                <p><a href="mailto:billing@getofferwise.ai">billing@getofferwise.ai</a></p>
+                <p style="font-size: var(--text-caption-lg); color: #94a3b8; margin-top: 8px;">
+                    Payment issues, credits, invoices
+                </p>
+            </div>
+            
+            <div class="contact-card">
+                <div class="contact-card-icon">🛠️</div>
+                <h3>Technical Support</h3>
+                <p><a href="mailto:support@getofferwise.ai">support@getofferwise.ai</a></p>
+                <p style="font-size: var(--text-caption-lg); color: #94a3b8; margin-top: 8px;">
+                    Technical help, account issues, bug reports, privacy requests
+                </p>
+            </div>
+        </div>
+        
+        <!-- Contact Form -->
+        <div id="contact-form-section" style="margin-top: 40px;">
+            <h2>Send Us a Message</h2>
+            <p style="margin-bottom: 24px;">Fill out the form below and we'll get back to you within 24-48 hours.</p>
+            
+            <div id="contact-form-container" style="
+                background: rgba(59, 130, 246, 0.05);
+                border: 1px solid rgba(59, 130, 246, 0.2);
+                border-radius: 16px;
+                padding: 32px;
+            ">
+                <div style="display: flex; flex-direction: column; gap: 20px;">
+                    
+                    <!-- Category -->
+                    <div>
+                        <label style="display: block; font-size: 14px; font-weight: 600; color: #94a3b8; margin-bottom: 8px;">What can we help with?</label>
+                        <div id="category-buttons" style="display: flex; flex-wrap: wrap; gap: 8px;">
+                            <button type="button" class="cat-btn active" data-cat="general" style="padding: 8px 16px; border-radius: 20px; border: 1px solid rgba(59, 130, 246, 0.4); background: rgba(59, 130, 246, 0.15); color: #60a5fa; font-size: 14px; font-weight: 500; cursor: pointer; font-family: inherit; transition: all 0.2s;">👋 General</button>
+                            <button type="button" class="cat-btn" data-cat="feedback" style="padding: 8px 16px; border-radius: 20px; border: 1px solid rgba(100, 116, 139, 0.3); background: transparent; color: #94a3b8; font-size: 14px; font-weight: 500; cursor: pointer; font-family: inherit; transition: all 0.2s;">💬 Feedback</button>
+                            <button type="button" class="cat-btn" data-cat="support" style="padding: 8px 16px; border-radius: 20px; border: 1px solid rgba(100, 116, 139, 0.3); background: transparent; color: #94a3b8; font-size: 14px; font-weight: 500; cursor: pointer; font-family: inherit; transition: all 0.2s;">🛠️ Support</button>
+                            <button type="button" class="cat-btn" data-cat="billing" style="padding: 8px 16px; border-radius: 20px; border: 1px solid rgba(100, 116, 139, 0.3); background: transparent; color: #94a3b8; font-size: 14px; font-weight: 500; cursor: pointer; font-family: inherit; transition: all 0.2s;">💳 Billing</button>
+                            <button type="button" class="cat-btn" data-cat="partnership" style="padding: 8px 16px; border-radius: 20px; border: 1px solid rgba(100, 116, 139, 0.3); background: transparent; color: #94a3b8; font-size: 14px; font-weight: 500; cursor: pointer; font-family: inherit; transition: all 0.2s;">🤝 Partnership</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Name & Email row -->
+                    <div class="name-email-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div>
+                            <label for="contact-name" style="display: block; font-size: 14px; font-weight: 600; color: #94a3b8; margin-bottom: 8px;">Your name</label>
+                            <input id="contact-name" type="text" placeholder="Jane Smith" maxlength="200" style="
+                                width: 100%; padding: 12px 16px; background: rgba(15, 23, 42, 0.6);
+                                border: 1px solid rgba(100, 116, 139, 0.3); border-radius: 10px;
+                                color: #e2e8f0; font-size: 15px; font-family: inherit; outline: none;
+                                transition: border-color 0.2s;
+                            " onfocus="this.style.borderColor='rgba(59,130,246,0.5)'" onblur="this.style.borderColor='rgba(100,116,139,0.3)'" />
+                        </div>
+                        <div>
+                            <label for="contact-email" style="display: block; font-size: 14px; font-weight: 600; color: #94a3b8; margin-bottom: 8px;">Email address <span style="color: #ef4444;">*</span></label>
+                            <input id="contact-email" type="email" placeholder="jane@example.com" maxlength="255" required style="
+                                width: 100%; padding: 12px 16px; background: rgba(15, 23, 42, 0.6);
+                                border: 1px solid rgba(100, 116, 139, 0.3); border-radius: 10px;
+                                color: #e2e8f0; font-size: 15px; font-family: inherit; outline: none;
+                                transition: border-color 0.2s;
+                            " onfocus="this.style.borderColor='rgba(59,130,246,0.5)'" onblur="this.style.borderColor='rgba(100,116,139,0.3)'" />
+                        </div>
+                    </div>
+                    
+                    <!-- Message -->
+                    <div>
+                        <label for="contact-message" style="display: block; font-size: 14px; font-weight: 600; color: #94a3b8; margin-bottom: 8px;">Message <span style="color: #ef4444;">*</span></label>
+                        <textarea id="contact-message" placeholder="How can we help?" maxlength="5000" rows="5" required style="
+                            width: 100%; padding: 12px 16px; background: rgba(15, 23, 42, 0.6);
+                            border: 1px solid rgba(100, 116, 139, 0.3); border-radius: 10px;
+                            color: #e2e8f0; font-size: 15px; font-family: inherit; outline: none;
+                            resize: vertical; min-height: 100px; line-height: 1.6;
+                            transition: border-color 0.2s;
+                        " onfocus="this.style.borderColor='rgba(59,130,246,0.5)'" onblur="this.style.borderColor='rgba(100,116,139,0.3)'"></textarea>
+                        <div style="text-align: right; font-size: 12px; color: #64748b; margin-top: 4px;">
+                            <span id="char-count">0</span> / 5,000
+                        </div>
+                    </div>
+                    
+                    <!-- Submit -->
+                    <button id="contact-submit" onclick="submitContactForm()" style="
+                        width: 100%; padding: 16px; background: linear-gradient(135deg, #3b82f6, #2563eb);
+                        color: white; border: none; border-radius: 12px; font-size: 16px;
+                        font-weight: 700; cursor: pointer; font-family: inherit;
+                        transition: all 0.2s; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+                    " onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 20px rgba(59,130,246,0.4)'" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 4px 12px rgba(59,130,246,0.3)'">
+                        Send Message →
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Success state (hidden by default) -->
+            <div id="contact-success" style="display: none; text-align: center; padding: 48px 24px;
+                background: rgba(34, 197, 94, 0.08); border: 1px solid rgba(34, 197, 94, 0.2);
+                border-radius: 16px;">
+                <div style="font-size: 48px; margin-bottom: 16px;">✅</div>
+                <h3 style="color: #22c55e; font-size: 20px; margin-bottom: 8px;">Message Sent!</h3>
+                <p style="color: #94a3b8; font-size: 15px; line-height: 1.6;">
+                    We'll get back to you within 24-48 hours.<br>
+                    Check your inbox at <strong id="confirm-email" style="color: #e2e8f0;"></strong>
+                </p>
+                <button onclick="resetContactForm()" style="
+                    margin-top: 20px; padding: 10px 24px; background: transparent;
+                    border: 1px solid rgba(100, 116, 139, 0.3); border-radius: 8px;
+                    color: #94a3b8; font-size: 14px; cursor: pointer; font-family: inherit;
+                ">Send another message</button>
+            </div>
+        </div>
+        
+        <div class="faq-section">
+            <h2>Quick Answers</h2>
+            
+            <div class="faq-item">
+                <div class="faq-question">📄 Do you store my documents?</div>
+                <div class="faq-answer">
+                    No. Your uploaded documents (seller disclosures and inspection reports) are processed temporarily for analysis only and are automatically deleted immediately after your report is generated. We do not store, retain, or maintain any copies. See our <a href="/privacy">Privacy Policy</a> for details.
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question">💳 How does the credit system work?</div>
+                <div class="faq-answer">
+                    Each property analysis requires 1 credit. New users receive 1 complimentary credit to get started. Additional credits can be purchased at $29 for 1 credit, $99 for 5 credits, or $199 for 12 credits. Credits never expire.
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question">🔐 How do I sign in?</div>
+                <div class="faq-answer">
+                    OfferWise uses secure OAuth authentication. Sign in with your Google or Facebook account. We don't store passwords - it's faster, easier, and more secure.
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question">📊 What if something goes wrong?</div>
+                <div class="faq-answer">
+                    If you experience technical issues with your analysis, contact <a href="mailto:support@getofferwise.ai">support@getofferwise.ai</a> and we'll work with you to resolve the issue. We stand behind our technology.
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question">🏠 Is OfferWise professional advice?</div>
+                <div class="faq-answer">
+                    No. OfferWise is an analysis tool that provides risk assessment and recommendations based on document analysis. We are not licensed real estate agents, inspectors, appraisers, or attorneys. Always consult qualified professionals before making real estate decisions. See our <a href="/terms">Terms of Service</a> for full disclaimers.
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question">⚖️ What is OfferScore™?</div>
+                <div class="faq-answer">
+                    OfferScore™ is our proprietary patent-pending algorithm that analyzes property risk, seller transparency, and repair costs to calculate a recommended offer price. Our methodology uses category-weighted risk scoring and a three-component pricing model (repair costs + risk premium + transparency discount).
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question">🗑️ How do I delete my account?</div>
+                <div class="faq-answer">
+                    You can delete your account at any time from your <a href="/settings">Settings</a> page. All your data will be permanently removed within 30 days. Note: Unused credits will be forfeited upon account deletion.
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question">⏰ How long does analysis take?</div>
+                <div class="faq-answer">
+                    Most analyses complete in under 5 minutes. Processing time depends on document size and complexity. You'll see a progress indicator while your analysis runs.
+                </div>
+            </div>
+        </div>
+        
+        <h2 style="margin-top: 48px;">Response Times</h2>
+        <p>
+            We typically respond to inquiries within 24-48 hours during business days (Monday-Friday, 9 AM - 5 PM Pacific Time). For urgent technical issues, please mark your email as "URGENT" in the subject line.
+        </p>
+        
+        <div class="legal-links">
+            <a href="/terms">Terms of Service</a>
+            <a href="/privacy">Privacy Policy</a>
+            <a href="/">OfferWise Home</a>
+        </div>
+        
+        <div class="back-link">
+            <a href="/">← Back to OfferWise</a>
+        </div>
+    </div>
+    
+    <script>
+        // Category selection
+        var selectedCategory = 'general';
+        document.querySelectorAll('.cat-btn').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.cat-btn').forEach(function(b) {
+                    b.style.background = 'transparent';
+                    b.style.borderColor = 'rgba(100, 116, 139, 0.3)';
+                    b.style.color = '#94a3b8';
+                    b.classList.remove('active');
+                });
+                this.style.background = 'rgba(59, 130, 246, 0.15)';
+                this.style.borderColor = 'rgba(59, 130, 246, 0.4)';
+                this.style.color = '#60a5fa';
+                this.classList.add('active');
+                selectedCategory = this.getAttribute('data-cat');
+            });
+        });
+        
+        // Character counter
+        var messageEl = document.getElementById('contact-message');
+        messageEl.addEventListener('input', function() {
+            document.getElementById('char-count').textContent = this.value.length;
+        });
+        
+        // Submit
+        async function submitContactForm() {
+            var name = document.getElementById('contact-name').value.trim();
+            var email = document.getElementById('contact-email').value.trim();
+            var message = document.getElementById('contact-message').value.trim();
+            var btn = document.getElementById('contact-submit');
+            
+            if (!email) { 
+                document.getElementById('contact-email').style.borderColor = '#ef4444';
+                document.getElementById('contact-email').focus();
+                return; 
+            }
+            if (!message) { 
+                document.getElementById('contact-message').style.borderColor = '#ef4444';
+                document.getElementById('contact-message').focus();
+                return; 
+            }
+            
+            btn.textContent = 'Sending...';
+            btn.style.opacity = '0.7';
+            btn.style.pointerEvents = 'none';
+            
+            try {
+                var res = await fetch('/api/contact', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name: name,
+                        email: email,
+                        category: selectedCategory,
+                        message: message
+                    })
+                });
+                
+                var data = await res.json();
+                
+                if (res.ok && data.success) {
+                    document.getElementById('contact-form-container').style.display = 'none';
+                    document.getElementById('confirm-email').textContent = email;
+                    document.getElementById('contact-success').style.display = 'block';
+                    
+                    // GA event
+                    if (typeof gtag === 'function') {
+                        gtag('event', 'contact_form_submit', { 
+                            event_category: 'engagement',
+                            event_label: selectedCategory 
+                        });
+                    }
+                } else {
+                    throw new Error(data.error || 'Failed to send');
+                }
+            } catch (err) {
+                btn.textContent = 'Failed — try again';
+                btn.style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
+                btn.style.opacity = '1';
+                btn.style.pointerEvents = 'auto';
+                setTimeout(function() {
+                    btn.textContent = 'Send Message →';
+                    btn.style.background = 'linear-gradient(135deg, #3b82f6, #2563eb)';
+                }, 3000);
+            }
+        }
+        
+        // Reset form
+        function resetContactForm() {
+            document.getElementById('contact-form-container').style.display = 'block';
+            document.getElementById('contact-success').style.display = 'none';
+            document.getElementById('contact-name').value = '';
+            document.getElementById('contact-email').value = '';
+            document.getElementById('contact-message').value = '';
+            document.getElementById('char-count').textContent = '0';
+            var btn = document.getElementById('contact-submit');
+            btn.textContent = 'Send Message →';
+            btn.style.opacity = '1';
+            btn.style.pointerEvents = 'auto';
+        }
+        
+        // Enter key in fields submits
+        document.getElementById('contact-email').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') document.getElementById('contact-message').focus();
+        });
+    </script>
+</body>
+</html>

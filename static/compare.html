@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Property Battle Royale - OfferWise AI</title>
+    <link rel="stylesheet" href="typography.css">
+    <meta name="description" content="Compare 3 properties side-by-side and see which one wins. Our AI ranks them by OfferScore™, repair costs, and ROI.">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+            color: #e2e8f0;
+            min-height: 100vh;
+        }
+        
+        /* Top Navigation Banner */
+        .top-header {
+            background: rgba(30, 41, 59, 0.8);
+            border-bottom: 1px solid rgba(96, 165, 250, 0.2);
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            margin-bottom: 20px;
+        }
+        
+        .logo {
+            font-size: var(--text-h2);
+            font-weight: 800;
+            background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            cursor: pointer;
+        }
+        
+        .top-nav {
+            display: flex;
+            gap: 24px;
+            align-items: center;
+        }
+        
+        .top-nav a {
+            color: #94a3b8;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: var(--text-body-sm);
+            transition: color 0.2s;
+        }
+        
+        .top-nav a:hover {
+            color: #60a5fa;
+        }
+        
+        .top-nav a.active {
+            color: #60a5fa;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px 20px 20px;
+        }
+        
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-top: 20px;
+        }
+        
+        .header h1 {
+            font-size: 48px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 50%, #FF6347 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 12px;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+        
+        @keyframes glow {
+            from { filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.5)); }
+            to { filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.8)); }
+        }
+        
+        .header p {
+            font-size: var(--text-h3);
+            color: #94a3b8;
+            font-weight: 600;
+        }
+        
+        .credits-display {
+            display: inline-block;
+            margin-top: 16px;
+            padding: 8px 20px;
+            background: rgba(59, 130, 246, 0.2);
+            border: 2px solid #3b82f6;
+            border-radius: 20px;
+            font-size: var(--text-body);
+            font-weight: 600;
+            color: #60a5fa;
+        }
+        
+        /* Input Form */
+        .input-section {
+            background: rgba(30, 41, 59, 0.6);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 40px;
+            border: 1px solid rgba(96, 165, 250, 0.2);
+            margin-bottom: 40px;
+        }
+        
+        .property-input {
+            margin-bottom: 24px;
+            padding: 20px;
+            background: rgba(15, 23, 42, 0.5);
+            border-radius: 12px;
+            border: 2px solid rgba(96, 165, 250, 0.1);
+            transition: all 0.3s;
+        }
+        
+        .property-input:hover {
+            border-color: rgba(96, 165, 250, 0.3);
+        }
+        
+        .property-input.valid {
+            border-color: #22c55e;
+            background: rgba(34, 197, 94, 0.05);
+        }
+        
+        .property-label {
+            font-size: var(--text-body);
+            font-weight: 600;
+            color: #cbd5e1;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .property-number {
+            display: inline-block;
+            width: 28px;
+            height: 28px;
+            background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+            border-radius: 50%;
+            text-align: center;
+            line-height: 28px;
+            font-size: var(--text-body-sm);
+            font-weight: 700;
+        }
+        
+        .input-row {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 12px;
+        }
+        
+        input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 14px 16px;
+            background: rgba(15, 23, 42, 0.8);
+            border: 2px solid #334155;
+            border-radius: 8px;
+            color: #f1f5f9;
+            font-size: var(--text-body);
+            transition: all 0.2s;
+        }
+        
+        input[type="text"]:focus, input[type="number"]:focus {
+            outline: none;
+            border-color: #60a5fa;
+            background: rgba(15, 23, 42, 1);
+        }
+        
+        input[type="number"] {
+            width: 180px;
+        }
+        
+        .address-preview {
+            font-size: var(--text-caption-lg);
+            color: #22c55e;
+            margin-top: 8px;
+            display: none;
+        }
+        
+        .address-preview.show {
+            display: block;
+        }
+        
+        .compare-button {
+            width: 100%;
+            padding: 20px;
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            color: #1e293b;
+            border: none;
+            border-radius: 12px;
+            font-size: var(--text-body-lg);
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 24px;
+            box-shadow: 0 4px 20px rgba(255, 215, 0, 0.4);
+        }
+        
+        .compare-button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(255, 215, 0, 0.6);
+        }
+        
+        .compare-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        /* Loading State */
+        .loading-section {
+            display: none;
+            text-align: center;
+            padding: 60px 20px;
+        }
+        
+        .loading-section.show {
+            display: block;
+        }
+        
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(96, 165, 250, 0.2);
+            border-top-color: #60a5fa;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 24px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .loading-text {
+            font-size: var(--text-body-lg);
+            font-weight: 600;
+            color: #cbd5e1;
+            margin-bottom: 32px;
+        }
+        
+        .progress-bars {
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        
+        .progress-item {
+            margin-bottom: 16px;
+        }
+        
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: var(--text-body-sm);
+            color: #94a3b8;
+            margin-bottom: 8px;
+        }
+        
+        .progress-bar-bg {
+            height: 8px;
+            background: rgba(15, 23, 42, 0.5);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #60a5fa 0%, #3b82f6 100%);
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+        
+        /* Results Section */
+        .results-section {
+            display: none;
+        }
+        
+        .results-section.show {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Winner Card */
+        .winner-card {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.15) 0%, rgba(255, 165, 0, 0.15) 100%);
+            border: 3px solid #FFD700;
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 32px;
+            position: relative;
+            overflow: hidden;
+            animation: popIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+        
+        @keyframes popIn {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        
+        .winner-badge {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: var(--text-display-xl);
+            animation: bounce 1s ease infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .winner-title {
+            font-size: var(--text-body-sm);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #FFA500;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        
+        .winner-address {
+            font-size: var(--text-h1);
+            font-weight: 800;
+            color: #FFD700;
+            margin-bottom: 16px;
+        }
+        
+        .winner-grade {
+            display: inline-block;
+            padding: 8px 24px;
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+            border-radius: 24px;
+            font-size: var(--text-h2);
+            font-weight: 800;
+            color: white;
+            margin-right: 16px;
+        }
+        
+        .winner-score {
+            display: inline-block;
+            font-size: var(--text-h2);
+            font-weight: 700;
+            color: #f1f5f9;
+        }
+        
+        .winner-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin: 24px 0;
+        }
+        
+        .metric {
+            padding: 16px;
+            background: rgba(15, 23, 42, 0.6);
+            border-radius: 8px;
+        }
+        
+        .metric-label {
+            font-size: var(--text-caption);
+            color: #94a3b8;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .metric-value {
+            font-size: var(--text-h3);
+            font-weight: 700;
+            color: #f1f5f9;
+        }
+        
+        .winner-reason {
+            background: rgba(96, 165, 250, 0.1);
+            border-left: 4px solid #60a5fa;
+            padding: 16px;
+            border-radius: 8px;
+            margin: 24px 0;
+        }
+        
+        .winner-reason strong {
+            color: #60a5fa;
+        }
+        
+        .winner-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 14px 28px;
+            border-radius: 8px;
+            font-size: var(--text-body);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+        }
+        
+        .btn-secondary {
+            background: rgba(96, 165, 250, 0.2);
+            color: #60a5fa;
+            border: 2px solid #60a5fa;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(96, 165, 250, 0.3);
+        }
+        
+        /* Comparison Grid */
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+        
+        .property-card {
+            background: rgba(30, 41, 59, 0.6);
+            border-radius: 12px;
+            padding: 24px;
+            border: 2px solid rgba(96, 165, 250, 0.2);
+            transition: all 0.3s;
+            animation: slideUp 0.6s ease;
+        }
+        
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .property-card:nth-child(1) { animation-delay: 0.1s; }
+        .property-card:nth-child(2) { animation-delay: 0.2s; }
+        .property-card:nth-child(3) { animation-delay: 0.3s; }
+        
+        .property-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(96, 165, 250, 0.5);
+        }
+        
+        .rank-badge {
+            font-size: 48px;
+            text-align: center;
+            margin-bottom: 16px;
+        }
+        
+        .card-address {
+            font-size: var(--text-body-lg);
+            font-weight: 700;
+            color: #f1f5f9;
+            margin-bottom: 12px;
+        }
+        
+        .card-grade-score {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .card-grade {
+            display: inline-block;
+            padding: 6px 16px;
+            border-radius: 16px;
+            font-size: var(--text-body-lg);
+            font-weight: 700;
+            margin-right: 8px;
+        }
+        
+        .grade-a { background: #22c55e; color: white; }
+        .grade-b { background: #3b82f6; color: white; }
+        .grade-c { background: #eab308; color: #1e293b; }
+        .grade-d { background: #f97316; color: white; }
+        .grade-f { background: #ef4444; color: white; }
+        
+        .card-score {
+            font-size: var(--text-body);
+            font-weight: 600;
+            color: #cbd5e1;
+        }
+        
+        .card-metrics {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .card-metric {
+            display: flex;
+            justify-content: space-between;
+            font-size: var(--text-body-sm);
+        }
+        
+        .card-metric-label {
+            color: #94a3b8;
+        }
+        
+        .card-metric-value {
+            font-weight: 600;
+            color: #f1f5f9;
+        }
+        
+        /* Action Buttons */
+        .action-bar {
+            text-align: center;
+            padding: 40px 0;
+        }
+        
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: var(--text-h1);
+            }
+            
+            .input-section {
+                padding: 24px;
+            }
+            
+            .input-row {
+                grid-template-columns: 1fr;
+            }
+            
+            input[type="number"] {
+                width: 100%;
+            }
+            
+            .winner-address {
+                font-size: var(--text-h2);
+            }
+            
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* Error State */
+        .error-message {
+            background: rgba(239, 68, 68, 0.1);
+            border: 2px solid #ef4444;
+            border-radius: 8px;
+            padding: 16px;
+            color: #fca5a5;
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .error-message.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Navigation Banner -->
+    <div class="top-header">
+        <a href="/dashboard" style="text-decoration: none; color: inherit;"><div class="logo">OfferWise AI</div></a>
+        <div class="top-nav">
+            <a href="/compare" class="active">🏆 Compare</a>
+            <a href="/pricing">Pricing</a>
+            <a href="/settings">My Account</a>
+            <a href="/app">New Analysis</a>
+        </div>
+    </div>
+    
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🏆 PROPERTY BATTLE ROYALE</h1>
+            <p>Which house should you buy? Let AI decide.</p>
+            <div class="credits-display">
+                💳 Credits: <span id="credits-count">Loading...</span>
+            </div>
+        </div>
+        
+        <!-- Input Section -->
+        <div class="input-section" id="input-section">
+            <div class="property-input" id="property1-input">
+                <div class="property-label">
+                    <span class="property-number">1</span>
+                    <span>Property 1</span>
+                </div>
+                <div class="input-row">
+                    <input type="text" id="property1-url" placeholder="Paste Zillow or Redfin link..." />
+                    <input type="number" id="property1-price" placeholder="Price (optional)" />
+                </div>
+                <div class="address-preview" id="property1-preview"></div>
+            </div>
+            
+            <div class="property-input" id="property2-input">
+                <div class="property-label">
+                    <span class="property-number">2</span>
+                    <span>Property 2</span>
+                </div>
+                <div class="input-row">
+                    <input type="text" id="property2-url" placeholder="Paste Zillow or Redfin link..." />
+                    <input type="number" id="property2-price" placeholder="Price (optional)" />
+                </div>
+                <div class="address-preview" id="property2-preview"></div>
+            </div>
+            
+            <div class="property-input" id="property3-input">
+                <div class="property-label">
+                    <span class="property-number">3</span>
+                    <span>Property 3 (Optional)</span>
+                </div>
+                <div class="input-row">
+                    <input type="text" id="property3-url" placeholder="Paste Zillow or Redfin link..." />
+                    <input type="number" id="property3-price" placeholder="Price (optional)" />
+                </div>
+                <div class="address-preview" id="property3-preview"></div>
+            </div>
+            
+            <button class="compare-button" id="compare-btn" onclick="startComparison()">
+                🏆 COMPARE PROPERTIES - 1 CREDIT
+            </button>
+            
+            <div class="error-message" id="error-message"></div>
+        </div>
+        
+        <!-- Loading Section -->
+        <div class="loading-section" id="loading-section">
+            <div class="spinner"></div>
+            <div class="loading-text">🔮 Analyzing properties...</div>
+            <div class="progress-bars">
+                <div class="progress-item">
+                    <div class="progress-label">
+                        <span>Property 1</span>
+                        <span id="progress1-percent">0%</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" id="progress1-bar"></div>
+                    </div>
+                </div>
+                <div class="progress-item">
+                    <div class="progress-label">
+                        <span>Property 2</span>
+                        <span id="progress2-percent">0%</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" id="progress2-bar"></div>
+                    </div>
+                </div>
+                <div class="progress-item">
+                    <div class="progress-label">
+                        <span>Property 3</span>
+                        <span id="progress3-percent">0%</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" id="progress3-bar"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Results Section -->
+        <div class="results-section" id="results-section">
+            <!-- Winner Card -->
+            <div class="winner-card" id="winner-card">
+                <div class="winner-badge">🥇</div>
+                <div class="winner-title">🎉 AND THE WINNER IS...</div>
+                <div class="winner-address" id="winner-address">Loading...</div>
+                <div>
+                    <span class="winner-grade" id="winner-grade">A</span>
+                    <span class="winner-score" id="winner-score">Score: 87/100</span>
+                </div>
+                
+                <div class="winner-metrics" id="winner-metrics">
+                    <!-- Populated dynamically -->
+                </div>
+                
+                <div class="winner-reason" id="winner-reason">
+                    <strong>💡 Why this property won:</strong> <span id="winner-reason-text">Loading...</span>
+                </div>
+                
+                <div class="winner-actions">
+                    <button class="btn btn-primary" onclick="analyzeWinner()">🔍 Analyze Deeper - 1 Credit</button>
+                    <button class="btn btn-secondary" onclick="shareResults()">📤 Share Results</button>
+                    <button class="btn btn-secondary" onclick="newComparison()">🔄 New Comparison</button>
+                </div>
+            </div>
+            
+            <!-- Full Comparison Grid -->
+            <h2 style="font-size: var(--text-h2); font-weight: 700; margin-bottom: 24px; text-align: center;">Full Comparison</h2>
+            <div class="comparison-grid" id="comparison-grid">
+                <!-- Populated dynamically -->
+            </div>
+            
+            <div class="action-bar">
+                <button class="btn btn-secondary" onclick="newComparison()">🔄 Compare More Properties</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="/compare.js"></script>
+</body>
+</html>

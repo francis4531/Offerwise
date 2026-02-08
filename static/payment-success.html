@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Successful - OfferWise</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            color: white;
+        }
+        
+        .container {
+            max-width: 600px;
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid rgba(96, 165, 250, 0.2);
+            border-radius: 20px;
+            padding: 60px 40px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+        
+        .success-icon {
+            font-size: 80px;
+            margin-bottom: 30px;
+            animation: bounce 0.6s ease;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        h1 {
+            font-size: var(--text-display-l);
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        p {
+            font-size: var(--text-body-lg);
+            color: #cbd5e1;
+            line-height: 1.6;
+            margin-bottom: 40px;
+        }
+        
+        .button {
+            display: inline-block;
+            background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
+            color: white;
+            padding: 16px 40px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: var(--text-body-lg);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(96, 165, 250, 0.3);
+        }
+        
+        .credits-box {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 30px 0;
+        }
+        
+        .credits-box strong {
+            color: #10b981;
+            font-size: var(--text-h2);
+        }
+    </style>
+    <!-- Google Analytics (GA4) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-KXYFZ5BYPL"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag("js", new Date());
+        gtag("config", "G-KXYFZ5BYPL");
+    </script>
+</head>
+<body>
+    <div class="container">
+        <div class="success-icon">🎉</div>
+        
+        <h1>Payment Successful!</h1>
+        
+        <p>
+            Thank you for your purchase! Your credits have been added to your account
+            and are ready to use.
+        </p>
+        
+        <div class="credits-box">
+            <p style="margin-bottom: 10px; color: #94a3b8;">
+                Your analysis credits are now available
+            </p>
+            <strong>Start Analyzing Properties</strong>
+        </div>
+        
+        <p style="font-size: var(--text-body); margin-bottom: 30px;">
+            You can view your credit balance on the dashboard and start analyzing
+            properties right away.
+        </p>
+        
+        <a href="/settings?tab=analyses" class="button">Go to Dashboard</a>
+        <div style="margin-top: 20px;">
+            <a href="/app" style="color: #60a5fa; text-decoration: none; font-weight: 600;">
+                Or start analyzing →
+            </a>
+        </div>
+    </div>
+</body>
+</html>

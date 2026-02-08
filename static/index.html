@@ -1,0 +1,1493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OfferWise - AI-Powered Property Analysis for Smarter Offers</title>
+    <meta name="description" content="Stop overpaying for real estate. Upload your inspection report and seller disclosure - get your optimal offer price in 60 seconds.">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://www.getofferwise.ai/">
+    <meta property="og:title" content="OfferWise - Stop Overpaying for Real Estate">
+    <meta property="og:description" content="AI-powered property analysis that reveals hidden risks and calculates your perfect offer price in 60 seconds.">
+    <meta property="og:image" content="https://www.getofferwise.ai/logo-1024.svg">
+    
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://www.getofferwise.ai/">
+    <meta name="twitter:title" content="OfferWise - Stop Overpaying for Real Estate">
+    <meta name="twitter:description" content="AI-powered property analysis that reveals hidden risks and calculates your perfect offer price in 60 seconds.">
+    <meta name="twitter:image" content="https://www.getofferwise.ai/logo-1024.svg">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/logo-icon-only.svg">
+    
+    <!-- Schema.org Organization -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "OfferWise",
+        "url": "https://www.getofferwise.ai",
+        "logo": "https://www.getofferwise.ai/logo-1024.svg",
+        "description": "AI-powered property analysis that helps homebuyers understand what they're really buying.",
+        "sameAs": [],
+        "contactPoint": {
+            "@type": "ContactPoint",
+            "email": "support@getofferwise.ai",
+            "contactType": "customer support"
+        }
+    }
+    </script>
+    
+    <!-- Schema.org SoftwareApplication -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "OfferWise",
+        "applicationCategory": "BusinessApplication",
+        "operatingSystem": "Web",
+        "url": "https://www.getofferwise.ai",
+        "description": "AI-powered property analysis platform that cross-references inspection reports and seller disclosures to identify risks, estimate repair costs, and recommend offer prices.",
+        "offers": {
+            "@type": "Offer",
+            "price": "29",
+            "priceCurrency": "USD",
+            "description": "Single property analysis"
+        },
+        "featureList": [
+            "OfferScore™ — Overall property rating",
+            "Property Risk DNA™ — Risk analysis across 12 categories",
+            "Seller Transparency Report™ — Disclosure honesty scoring",
+            "Cross-reference inspection reports and seller disclosures",
+            "Automated repair cost estimation",
+            "Negotiation talking points",
+            "Scanned PDF and OCR support"
+        ]
+    }
+    </script>
+    
+    <!-- Schema.org FAQPage -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+            {
+                "@type": "Question",
+                "name": "What if I don't have an inspection report yet?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "You can still use OfferWise with just the seller disclosure. For the most accurate results, we recommend having both documents. You can order an inspection after your offer is accepted (typically $300-500)."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "How accurate is the AI analysis?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Our analysis cross-references your specific documents and applies current repair cost data. It helps you understand what you're looking at and what questions to ask."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "What file formats do you accept?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "We accept any PDF including scanned documents, handwritten disclosures, and multi-page inspection reports. Our OCR technology reads even poor-quality scans."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "Is my data secure?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Yes. All documents are encrypted in transit (256-bit SSL) and at rest. We delete your uploaded documents after analysis. We never share your data with third parties."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "Can I use this for multiple properties?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Absolutely! Many users analyze 3-5 properties before making an offer. The 5-pack ($99) and Investor Pro ($199) plans offer significant savings for multiple analyses."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "What if something goes wrong?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "If our analysis fails to process your documents due to a technical issue on our end, we'll work with you to resolve it. Contact support@getofferwise.ai and we'll make it right."
+                }
+            }
+        ]
+    }
+    </script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --primary: #3b82f6;
+            --primary-dark: #2563eb;
+            --accent: #f59e0b;
+            --success: #10b981;
+            --dark: #0f172a;
+            --darker: #020617;
+            --light: #f8fafc;
+            --gray: #64748b;
+            --gray-light: #94a3b8;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--dark);
+            color: var(--light);
+            line-height: 1.6;
+        }
+        
+        /* Navigation */
+        nav {
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .nav-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--primary);
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+        
+        .nav-links a {
+            color: var(--gray-light);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: color 0.2s;
+        }
+        
+        .nav-links a:hover { color: white; }
+        
+        .btn {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            background: var(--primary);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.2s;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+        
+        .btn-large { padding: 1rem 2rem; font-size: 1.1rem; }
+        
+        .btn-ghost {
+            background: transparent;
+            border: 2px solid var(--gray);
+            color: var(--gray-light);
+        }
+        
+        .btn-ghost:hover {
+            border-color: white;
+            color: white;
+            background: transparent;
+        }
+        
+        .btn-accent { background: var(--accent); color: #fff; font-weight: 700; }
+        .btn-accent:hover { background: #d97706; color: #fff; }
+        
+        /* Hero */
+        .hero {
+            padding: 6rem 2rem 4rem;
+            text-align: center;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            color: var(--primary);
+            margin-bottom: 2rem;
+        }
+        
+        .hero h1 {
+            font-size: clamp(2.5rem, 6vw, 3.5rem);
+            font-weight: 900;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+        }
+        
+        .hero h1 span { color: var(--accent); }
+        
+        .hero .subtitle {
+            font-size: 1.2rem;
+            color: var(--gray-light);
+            max-width: 600px;
+            margin: 0 auto 2rem;
+            line-height: 1.7;
+        }
+        
+        .cta-group {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 1.5rem;
+        }
+        
+        .hero-note {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+        
+        /* How It Works */
+        .how-it-works {
+            padding: 5rem 2rem;
+            background: rgba(255,255,255,0.02);
+        }
+        
+        .section-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .section-title {
+            font-size: 2.25rem;
+            font-weight: 800;
+            margin-bottom: 0.75rem;
+        }
+        
+        .section-subtitle {
+            color: var(--gray-light);
+            font-size: 1.1rem;
+        }
+        
+        .steps {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+        
+        .step {
+            text-align: center;
+            padding: 2rem;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+        }
+        
+        .step-number {
+            width: 48px;
+            height: 48px;
+            background: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 1.25rem;
+            margin: 0 auto 1rem;
+        }
+        
+        .step-icon { font-size: 2.5rem; margin-bottom: 1rem; }
+        .step h3 { font-size: 1.2rem; margin-bottom: 0.5rem; }
+        .step p { color: var(--gray-light); font-size: 0.95rem; }
+        
+        /* Sample CTA */
+        .sample-cta {
+            background: linear-gradient(135deg, #1e3a5f 0%, #0f172a 100%);
+            border: 2px solid var(--primary);
+            border-radius: 20px;
+            padding: 2.5rem;
+            text-align: center;
+            max-width: 700px;
+            margin: 3rem auto 0;
+        }
+        
+        .sample-cta h3 { font-size: 1.5rem; margin-bottom: 0.75rem; }
+        .sample-cta p { color: var(--gray-light); margin-bottom: 1.5rem; }
+        
+        /* Features */
+        .features {
+            padding: 5rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        
+        .feature {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 2rem;
+            transition: all 0.3s;
+        }
+        
+        .feature:hover {
+            border-color: var(--primary);
+            transform: translateY(-4px);
+        }
+        
+        .feature-icon { font-size: 2.5rem; margin-bottom: 1rem; }
+        .feature h3 { font-size: 1.2rem; margin-bottom: 0.5rem; }
+        .feature p { color: var(--gray-light); font-size: 0.95rem; margin-bottom: 1rem; }
+        
+        .feature-tag {
+            display: inline-block;
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--primary);
+            padding: 0.25rem 0.75rem;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        /* Why OfferWise Comparison */
+        .why-section {
+            padding: 5rem 2rem;
+            background: rgba(255,255,255,0.02);
+        }
+        
+        .comparison-table {
+            max-width: 900px;
+            margin: 0 auto;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .comparison-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .comparison-row:last-child { border-bottom: none; }
+        .comparison-header { background: rgba(59, 130, 246, 0.1); font-weight: 700; }
+        
+        .comparison-cell {
+            padding: 1rem;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+        
+        .comparison-cell:first-child {
+            text-align: left;
+            color: var(--gray-light);
+        }
+        
+        .comparison-header .comparison-cell { color: white; }
+        .check { color: var(--success); font-size: 1.2rem; }
+        .cross { color: #ef4444; font-size: 1.2rem; }
+        .partial { color: var(--accent); font-size: 0.85rem; }
+        
+        /* Testimonials */
+        .testimonials {
+            padding: 5rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .testimonials-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        
+        .testimonial {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 2rem;
+        }
+        
+        .testimonial-stars { color: var(--accent); margin-bottom: 1rem; font-size: 1.1rem; }
+        
+        .testimonial-text {
+            color: var(--gray-light);
+            font-style: italic;
+            margin-bottom: 1.5rem;
+            line-height: 1.7;
+        }
+        
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .testimonial-avatar {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+        
+        .testimonial-name { font-weight: 600; font-size: 0.95rem; }
+        .testimonial-role { color: var(--gray); font-size: 0.85rem; }
+        
+        /* Document Requirements */
+        .docs-section {
+            padding: 5rem 2rem;
+            background: rgba(255,255,255,0.02);
+        }
+        
+        .docs-grid {
+            max-width: 800px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        
+        .doc-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 1.5rem;
+        }
+        
+        .doc-card h3 {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+        
+        .doc-card ul {
+            list-style: none;
+            color: var(--gray-light);
+            font-size: 0.9rem;
+        }
+        
+        .doc-card li {
+            padding: 0.4rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+        
+        .doc-card li::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: var(--success);
+            font-weight: 700;
+        }
+        
+        .docs-note {
+            text-align: center;
+            margin-top: 2rem;
+            padding: 1.25rem;
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            border-radius: 12px;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+            font-size: 0.95rem;
+        }
+        
+        .docs-note strong { color: var(--accent); }
+        
+        /* Email Capture */
+        .email-capture {
+            padding: 4rem 2rem;
+            text-align: center;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+            border-top: 1px solid rgba(255,255,255,0.1);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .email-capture h3 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+        .email-capture > p { color: var(--gray-light); margin-bottom: 1.5rem; }
+        
+        .email-form {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            max-width: 450px;
+            margin: 0 auto;
+        }
+        
+        .email-form input {
+            flex: 1;
+            min-width: 220px;
+            padding: 0.9rem 1.25rem;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 8px;
+            background: rgba(255,255,255,0.05);
+            color: white;
+            font-size: 1rem;
+        }
+        
+        .email-form input::placeholder { color: var(--gray); }
+        .email-form input:focus { outline: none; border-color: var(--primary); }
+        
+        /* Trust Badges */
+        .trust-section {
+            padding: 2.5rem 2rem;
+            text-align: center;
+        }
+        
+        .trust-badges {
+            display: flex;
+            gap: 2.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        .trust-badge {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--gray-light);
+            font-size: 0.85rem;
+        }
+        
+        .trust-badge span { font-size: 1.1rem; }
+        
+        /* Pricing */
+        .pricing {
+            padding: 5rem 2rem;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+        
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+        
+        .price-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+            position: relative;
+        }
+        
+        .price-card.featured {
+            border-color: var(--primary);
+            background: rgba(59, 130, 246, 0.05);
+        }
+        
+        .price-badge {
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--primary);
+            color: white;
+            padding: 0.25rem 1rem;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+        
+        .price-title { font-size: 1.15rem; margin-bottom: 0.75rem; }
+        .price { font-size: 2.75rem; font-weight: 900; }
+        .price-note { color: var(--gray); font-size: 0.9rem; margin-bottom: 1.25rem; }
+        
+        .price-features {
+            list-style: none;
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+        
+        .price-features li {
+            padding: 0.4rem 0;
+            color: var(--gray-light);
+            padding-left: 1.5rem;
+            position: relative;
+            font-size: 0.9rem;
+        }
+        
+        .price-features li::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: var(--success);
+            font-weight: 700;
+        }
+        
+        /* Guarantee */
+        .guarantee {
+            text-align: center;
+            margin-top: 2.5rem;
+            padding: 1.5rem;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 12px;
+            max-width: 550px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .guarantee h4 { color: var(--success); margin-bottom: 0.4rem; font-size: 1rem; }
+        .guarantee p { color: var(--gray-light); font-size: 0.9rem; }
+        
+        /* FAQ Section */
+        .faq-section {
+            max-width: 900px;
+            margin: 5rem auto;
+            padding: 0 2rem;
+        }
+        
+        .faq-grid {
+            display: grid;
+            gap: 1.5rem;
+        }
+        
+        .faq-item {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+        
+        .faq-item h4 {
+            color: var(--light);
+            font-size: 1.1rem;
+            margin-bottom: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .faq-item p {
+            color: var(--gray-light);
+            font-size: 0.95rem;
+            line-height: 1.7;
+        }
+        
+        /* Final CTA */
+        .final-cta {
+            padding: 5rem 2rem;
+            text-align: center;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, transparent 100%);
+        }
+        
+        .final-cta h2 { font-size: 2.25rem; margin-bottom: 0.75rem; }
+        .final-cta p { color: var(--gray-light); font-size: 1.1rem; margin-bottom: 2rem; }
+        
+        /* Footer */
+        footer {
+            padding: 2.5rem 2rem;
+            text-align: center;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+        
+        footer a {
+            color: var(--gray-light);
+            text-decoration: none;
+            margin: 0 0.75rem;
+        }
+        
+        footer a:hover { color: white; }
+        footer p { margin-bottom: 0.75rem; }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-links a:not(.btn) { display: none; }
+            .steps { grid-template-columns: 1fr; }
+            .comparison-row { grid-template-columns: 1fr 1fr; }
+            .comparison-cell { padding: 0.75rem 0.5rem; font-size: 0.8rem; }
+            .docs-grid { grid-template-columns: 1fr; }
+            .hero { padding: 4rem 1.5rem 3rem; }
+            .hero h1 { font-size: 2rem; }
+        }
+    </style>
+    <!-- Google Analytics (GA4) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-KXYFZ5BYPL"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag("js", new Date());
+        gtag("config", "G-KXYFZ5BYPL");
+    </script>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-content">
+            <div class="logo">OfferWise</div>
+            <div class="nav-links">
+                <a href="#how-it-works">How It Works</a>
+                <a href="#pricing">Pricing</a>
+                <a href="#faq">FAQ</a>
+                <a href="/sample-analysis.html">Sample Report</a>
+                <a href="/login" class="login-link">Login</a>
+                <a href="/app" class="btn btn-accent" style="padding: 0.6rem 1.25rem; color: #fff;">Get Started</a>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Hero -->
+    <section class="hero">
+        <div class="hero-badge">
+            🎯 Patent-Pending AI Technology
+        </div>
+        
+        <h1>
+            Stop Overpaying.<br>
+            <span>Know Your Number.</span>
+        </h1>
+        
+        <p class="subtitle">
+            Upload your inspection report and seller disclosure. Our AI analyzes 
+            50+ data points and tells you exactly what to offer — in 60 seconds.
+        </p>
+        
+        <div class="cta-group">
+            <a href="/app" class="btn btn-large btn-accent">Analyze Your Property →</a>
+            <a href="/sample-analysis.html" class="btn btn-large btn-ghost">See Sample Report</a>
+        </div>
+        
+        <p class="hero-note">No credit card required to sign up. Your first analysis is complimentary.</p>
+    </section>
+    
+    <!-- How It Works -->
+    <section class="how-it-works" id="how-it-works">
+        <div class="section-header">
+            <h2 class="section-title">How It Works</h2>
+            <p class="section-subtitle">From documents to decision in 3 simple steps</p>
+        </div>
+        
+        <div class="steps">
+            <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-icon">📄</div>
+                <h3>Upload Documents</h3>
+                <p>Upload your inspection report and seller disclosure. We accept any PDF — even scanned handwritten documents.</p>
+            </div>
+            
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-icon">🤖</div>
+                <h3>AI Analyzes</h3>
+                <p>Our patent-pending AI cross-references both documents, identifies risks, and calculates repair costs automatically.</p>
+            </div>
+            
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-icon">💰</div>
+                <h3>Get Your Number</h3>
+                <p>Receive your OfferScore™, Risk DNA™, and recommended offer price — plus negotiation talking points.</p>
+            </div>
+        </div>
+        
+        <!-- Animated Product Demo -->
+        <div style="margin-top: 48px; text-align: center;">
+            <div id="product-demo" style="
+                max-width: 900px;
+                margin: 0 auto;
+                background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+                border: 2px solid rgba(59, 130, 246, 0.3);
+                border-radius: 20px;
+                padding: 32px;
+                position: relative;
+                overflow: hidden;
+                min-height: 400px;
+            ">
+                <!-- Demo Container -->
+                <div id="demo-container" style="position: relative; height: 350px;">
+                    
+                    <!-- Step 1: Upload -->
+                    <div id="demo-step-1" class="demo-step" style="
+                        position: absolute;
+                        top: 0; left: 0; right: 0; bottom: 0;
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                        justify-content: center;
+                        opacity: 1;
+                        transition: opacity 0.5s ease;
+                    ">
+                        <div style="
+                            width: 120px; height: 150px;
+                            background: linear-gradient(135deg, #334155 0%, #1e293b 100%);
+                            border: 2px dashed #3b82f6;
+                            border-radius: 12px;
+                            display: flex;
+                            flex-direction: column;
+                            align-items: center;
+                            justify-content: center;
+                            margin-bottom: 24px;
+                            animation: pulse-border 2s ease-in-out infinite;
+                        ">
+                            <span style="font-size: 40px; margin-bottom: 8px;">📄</span>
+                            <span style="color: #64748b; font-size: 12px;">Drop PDFs</span>
+                        </div>
+                        <div style="display: flex; gap: 16px; margin-bottom: 24px;">
+                            <div class="doc-icon" style="
+                                padding: 12px 20px;
+                                background: rgba(251, 191, 36, 0.1);
+                                border: 1px solid rgba(251, 191, 36, 0.3);
+                                border-radius: 8px;
+                                animation: float-in-left 0.5s ease-out;
+                            ">
+                                <span style="color: #fbbf24;">📋 Disclosure.pdf</span>
+                            </div>
+                            <div class="doc-icon" style="
+                                padding: 12px 20px;
+                                background: rgba(59, 130, 246, 0.1);
+                                border: 1px solid rgba(59, 130, 246, 0.3);
+                                border-radius: 8px;
+                                animation: float-in-right 0.5s ease-out 0.2s both;
+                            ">
+                                <span style="color: #60a5fa;">🔍 Inspection.pdf</span>
+                            </div>
+                        </div>
+                        <h3 style="color: #f1f5f9; font-size: 1.3rem; margin-bottom: 8px;">Step 1: Upload Your Documents</h3>
+                        <p style="color: #94a3b8; font-size: 0.95rem;">Any PDF works — even scanned handwritten docs</p>
+                    </div>
+                    
+                    <!-- Step 2: AI Processing -->
+                    <div id="demo-step-2" class="demo-step" style="
+                        position: absolute;
+                        top: 0; left: 0; right: 0; bottom: 0;
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                        justify-content: center;
+                        opacity: 0;
+                        transition: opacity 0.5s ease;
+                    ">
+                        <div style="position: relative; margin-bottom: 24px;">
+                            <div id="ai-brain" style="
+                                width: 100px; height: 100px;
+                                background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+                                border-radius: 50%;
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                font-size: 48px;
+                                box-shadow: 0 0 40px rgba(59, 130, 246, 0.5);
+                                animation: ai-pulse 1.5s ease-in-out infinite;
+                            ">🤖</div>
+                            <!-- Scanning lines -->
+                            <div id="scan-lines" style="
+                                position: absolute;
+                                top: -20px; left: -40px; right: -40px; bottom: -20px;
+                                border: 2px solid rgba(59, 130, 246, 0.3);
+                                border-radius: 50%;
+                                animation: scan-expand 2s ease-out infinite;
+                            "></div>
+                        </div>
+                        <div style="margin-bottom: 24px;">
+                            <div id="process-text" style="color: #60a5fa; font-size: 14px; font-family: monospace;"></div>
+                        </div>
+                        <div style="width: 300px; height: 8px; background: #334155; border-radius: 4px; overflow: hidden;">
+                            <div id="progress-bar" style="
+                                width: 0%;
+                                height: 100%;
+                                background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+                                border-radius: 4px;
+                                transition: width 0.3s ease;
+                            "></div>
+                        </div>
+                        <h3 style="color: #f1f5f9; font-size: 1.3rem; margin-top: 24px; margin-bottom: 8px;">Step 2: AI Cross-References Everything</h3>
+                        <p style="color: #94a3b8; font-size: 0.95rem;">Comparing disclosure claims vs inspection findings</p>
+                    </div>
+                    
+                    <!-- Step 3: Results -->
+                    <div id="demo-step-3" class="demo-step" style="
+                        position: absolute;
+                        top: 0; left: 0; right: 0; bottom: 0;
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                        justify-content: center;
+                        opacity: 0;
+                        transition: opacity 0.5s ease;
+                    ">
+                        <!-- Results Card -->
+                        <div style="
+                            background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%);
+                            border: 2px solid rgba(34, 197, 94, 0.4);
+                            border-radius: 16px;
+                            padding: 24px 40px;
+                            margin-bottom: 20px;
+                            animation: result-pop 0.5s ease-out;
+                        ">
+                            <div style="text-align: center; margin-bottom: 16px;">
+                                <div style="color: #94a3b8; font-size: 12px; text-transform: uppercase; letter-spacing: 1px;">Your OfferScore™</div>
+                                <div id="score-display" style="
+                                    font-size: 56px;
+                                    font-weight: 800;
+                                    background: linear-gradient(135deg, #22c55e 0%, #3b82f6 100%);
+                                    -webkit-background-clip: text;
+                                    -webkit-text-fill-color: transparent;
+                                    background-clip: text;
+                                ">72</div>
+                            </div>
+                            <div style="display: flex; gap: 24px; justify-content: center;">
+                                <div style="text-align: center;">
+                                    <div style="color: #22c55e; font-size: 20px; font-weight: 700;">$47,500</div>
+                                    <div style="color: #64748b; font-size: 11px;">Potential Savings</div>
+                                </div>
+                                <div style="width: 1px; background: #334155;"></div>
+                                <div style="text-align: center;">
+                                    <div style="color: #60a5fa; font-size: 20px; font-weight: 700;">$702,500</div>
+                                    <div style="color: #64748b; font-size: 11px;">Recommended Offer</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; justify-content: center;">
+                            <span style="background: rgba(239, 68, 68, 0.15); color: #ef4444; padding: 6px 12px; border-radius: 20px; font-size: 12px;">🚨 3 Red Flags</span>
+                            <span style="background: rgba(251, 191, 36, 0.15); color: #fbbf24; padding: 6px 12px; border-radius: 20px; font-size: 12px;">💰 $28K Repairs</span>
+                            <span style="background: rgba(34, 197, 94, 0.15); color: #22c55e; padding: 6px 12px; border-radius: 20px; font-size: 12px;">✓ 5 Strengths</span>
+                        </div>
+                        <h3 style="color: #f1f5f9; font-size: 1.3rem; margin-bottom: 8px;">Step 3: Know Your Number</h3>
+                        <p style="color: #94a3b8; font-size: 0.95rem;">Complete analysis with negotiation talking points</p>
+                    </div>
+                </div>
+                
+                <!-- Progress Dots -->
+                <div style="display: flex; justify-content: center; gap: 12px; margin-top: 20px;">
+                    <div id="dot-1" class="demo-dot" style="width: 12px; height: 12px; border-radius: 50%; background: #3b82f6; transition: all 0.3s;"></div>
+                    <div id="dot-2" class="demo-dot" style="width: 12px; height: 12px; border-radius: 50%; background: #334155; transition: all 0.3s;"></div>
+                    <div id="dot-3" class="demo-dot" style="width: 12px; height: 12px; border-radius: 50%; background: #334155; transition: all 0.3s;"></div>
+                </div>
+                
+                <!-- CTA -->
+                <div style="margin-top: 28px;">
+                    <a href="/app" class="btn btn-accent" style="padding: 14px 32px; font-size: 1rem;">
+                        Try It Now — Results in Minutes →
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <style>
+            @keyframes pulse-border {
+                0%, 100% { border-color: rgba(59, 130, 246, 0.3); }
+                50% { border-color: rgba(59, 130, 246, 0.8); }
+            }
+            @keyframes float-in-left {
+                from { opacity: 0; transform: translateX(-20px); }
+                to { opacity: 1; transform: translateX(0); }
+            }
+            @keyframes float-in-right {
+                from { opacity: 0; transform: translateX(20px); }
+                to { opacity: 1; transform: translateX(0); }
+            }
+            @keyframes ai-pulse {
+                0%, 100% { transform: scale(1); box-shadow: 0 0 40px rgba(59, 130, 246, 0.5); }
+                50% { transform: scale(1.05); box-shadow: 0 0 60px rgba(139, 92, 246, 0.7); }
+            }
+            @keyframes scan-expand {
+                0% { transform: scale(0.8); opacity: 1; }
+                100% { transform: scale(1.5); opacity: 0; }
+            }
+            @keyframes result-pop {
+                from { opacity: 0; transform: scale(0.9); }
+                to { opacity: 1; transform: scale(1); }
+            }
+            
+            /* Mobile responsive */
+            @media (max-width: 640px) {
+                #product-demo { padding: 20px 16px; }
+                #demo-container { height: 320px; }
+                #score-display { font-size: 42px !important; }
+                .doc-icon { padding: 8px 12px !important; font-size: 13px; }
+            }
+        </style>
+        
+        <script>
+            // Animated Product Demo
+            (function() {
+                let currentStep = 1;
+                const processingTexts = [
+                    'Parsing inspection report...',
+                    'Reading seller disclosure...',
+                    'Cross-referencing documents...',
+                    'Identifying discrepancies...',
+                    'Calculating repair costs...',
+                    'Scoring property risks...',
+                    'Generating OfferScore™...'
+                ];
+                
+                function showStep(step) {
+                    // Hide all steps
+                    document.querySelectorAll('.demo-step').forEach(el => el.style.opacity = '0');
+                    document.querySelectorAll('.demo-dot').forEach(el => el.style.background = '#334155');
+                    
+                    // Show current step
+                    const stepEl = document.getElementById('demo-step-' + step);
+                    const dotEl = document.getElementById('dot-' + step);
+                    if (stepEl) stepEl.style.opacity = '1';
+                    if (dotEl) dotEl.style.background = '#3b82f6';
+                    
+                    // Run step-specific animations
+                    if (step === 2) {
+                        runProcessingAnimation();
+                    }
+                }
+                
+                function runProcessingAnimation() {
+                    const progressBar = document.getElementById('progress-bar');
+                    const processText = document.getElementById('process-text');
+                    let progress = 0;
+                    let textIndex = 0;
+                    
+                    progressBar.style.width = '0%';
+                    
+                    const interval = setInterval(() => {
+                        progress += 2;
+                        progressBar.style.width = progress + '%';
+                        
+                        if (progress % 15 === 0 && textIndex < processingTexts.length) {
+                            processText.textContent = processingTexts[textIndex];
+                            textIndex++;
+                        }
+                        
+                        if (progress >= 100) {
+                            clearInterval(interval);
+                            processText.textContent = '✓ Analysis complete!';
+                        }
+                    }, 50);
+                }
+                
+                function nextStep() {
+                    currentStep = currentStep >= 3 ? 1 : currentStep + 1;
+                    showStep(currentStep);
+                }
+                
+                // Start demo loop
+                showStep(1);
+                setInterval(nextStep, 4000); // Change step every 4 seconds
+            })();
+        </script>
+        
+        <!-- Sample CTA -->
+        <div class="sample-cta">
+            <h3>🔍 Want to See Real Results First?</h3>
+            <p>Check out a complete sample analysis before you sign up. No email required.</p>
+            <a href="/sample-analysis.html" class="btn btn-large">View Sample Analysis →</a>
+        </div>
+    </section>
+    
+    <!-- Features -->
+    <section class="features" id="features">
+        <div class="section-header">
+            <h2 class="section-title">Three Patent-Pending Innovations</h2>
+            <p class="section-subtitle">Technology that gives you an unfair advantage</p>
+        </div>
+        
+        <div class="features-grid">
+            <div class="feature">
+                <div class="feature-icon">🎯</div>
+                <h3>OfferScore™</h3>
+                <p>Your property's investment grade at a glance. We analyze 50+ factors to calculate exactly what this property is worth to you.</p>
+                <span class="feature-tag">Patent-Pending</span>
+            </div>
+            
+            <div class="feature">
+                <div class="feature-icon">🧬</div>
+                <h3>Property Risk DNA™</h3>
+                <p>A unique risk fingerprint for every property. See structural, systems, environmental, and financial risks mapped visually.</p>
+                <span class="feature-tag">Composite Score 0-100</span>
+            </div>
+            
+            <div class="feature">
+                <div class="feature-icon">🔍</div>
+                <h3>Seller Transparency Report™</h3>
+                <p>We cross-reference what sellers disclosed vs. what inspectors found. Reveals gaps, omissions, and potential red flags.</p>
+                <span class="feature-tag">Truth Score</span>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Why OfferWise Comparison -->
+    <section class="why-section">
+        <div class="section-header">
+            <h2 class="section-title">Why OfferWise?</h2>
+            <p class="section-subtitle">Your agent wants you to buy. We want you to buy smart.</p>
+        </div>
+        
+        <div class="comparison-table">
+            <div class="comparison-row comparison-header">
+                <div class="comparison-cell"></div>
+                <div class="comparison-cell">OfferWise</div>
+                <div class="comparison-cell">Your Agent</div>
+                <div class="comparison-cell">DIY</div>
+            </div>
+            <div class="comparison-row">
+                <div class="comparison-cell">Unbiased (no commission incentive)</div>
+                <div class="comparison-cell"><span class="check">✓</span></div>
+                <div class="comparison-cell"><span class="cross">✗</span></div>
+                <div class="comparison-cell"><span class="check">✓</span></div>
+            </div>
+            <div class="comparison-row">
+                <div class="comparison-cell">Cross-references disclosure vs inspection</div>
+                <div class="comparison-cell"><span class="check">✓</span></div>
+                <div class="comparison-cell"><span class="partial">Rarely</span></div>
+                <div class="comparison-cell"><span class="partial">Maybe</span></div>
+            </div>
+            <div class="comparison-row">
+                <div class="comparison-cell">Calculates repair costs automatically</div>
+                <div class="comparison-cell"><span class="check">✓</span></div>
+                <div class="comparison-cell"><span class="cross">✗</span></div>
+                <div class="comparison-cell"><span class="cross">✗</span></div>
+            </div>
+            <div class="comparison-row">
+                <div class="comparison-cell">Specific offer recommendation</div>
+                <div class="comparison-cell"><span class="check">✓</span></div>
+                <div class="comparison-cell"><span class="partial">Vague</span></div>
+                <div class="comparison-cell"><span class="cross">✗</span></div>
+            </div>
+            <div class="comparison-row">
+                <div class="comparison-cell">Ready in 60 seconds</div>
+                <div class="comparison-cell"><span class="check">✓</span></div>
+                <div class="comparison-cell"><span class="cross">Days</span></div>
+                <div class="comparison-cell"><span class="cross">Hours</span></div>
+            </div>
+            <div class="comparison-row">
+                <div class="comparison-cell">Negotiation talking points</div>
+                <div class="comparison-cell"><span class="check">✓</span></div>
+                <div class="comparison-cell"><span class="partial">Generic</span></div>
+                <div class="comparison-cell"><span class="cross">✗</span></div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Testimonials -->
+    <section class="testimonials">
+        <div class="section-header">
+            <h2 class="section-title">What Users Are Saying</h2>
+            <p class="section-subtitle">Real feedback from our beta testing program</p>
+        </div>
+        
+        <div class="testimonials-grid">
+            <div class="testimonial">
+                <div class="testimonial-stars">★★★★★</div>
+                <p class="testimonial-text">"The seller disclosure said 'no known issues' but OfferWise caught 3 things the inspection found that weren't disclosed. Saved me from a nightmare."</p>
+                <div class="testimonial-author">
+                    <div class="testimonial-avatar">MK</div>
+                    <div>
+                        <div class="testimonial-name">Beta Tester</div>
+                        <div class="testimonial-role">First-time homebuyer, Bay Area</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="testimonial">
+                <div class="testimonial-stars">★★★★★</div>
+                <p class="testimonial-text">"Used the negotiation talking points word-for-word. Seller came down $35K. Best $29 I've ever spent."</p>
+                <div class="testimonial-author">
+                    <div class="testimonial-avatar">SR</div>
+                    <div>
+                        <div class="testimonial-name">Beta Tester</div>
+                        <div class="testimonial-role">Relocating buyer, Texas</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="testimonial">
+                <div class="testimonial-stars">★★★★★</div>
+                <p class="testimonial-text">"As an investor, I analyze dozens of properties. OfferWise cuts my due diligence time by 80%. The Risk DNA feature alone is worth 10x the price."</p>
+                <div class="testimonial-author">
+                    <div class="testimonial-avatar">JT</div>
+                    <div>
+                        <div class="testimonial-name">Beta Tester</div>
+                        <div class="testimonial-role">Real estate investor, Arizona</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <p style="text-align: center; color: #64748b; font-size: 0.85rem; margin-top: 24px;">
+            * Feedback collected during our private beta program. Individual results may vary.
+        </p>
+    </section>
+    
+    <!-- FAQ Section -->
+    <section class="faq-section" id="faq">
+        <div class="section-header">
+            <h2 class="section-title">Common Questions</h2>
+            <p class="section-subtitle">Everything you need to know before your first analysis</p>
+        </div>
+        
+        <div class="faq-grid">
+            <div class="faq-item">
+                <h4>What if I don't have an inspection report yet?</h4>
+                <p>You can still use OfferWise with just the seller disclosure - we'll analyze what's available. For the most accurate results, we recommend having both documents. You can order an inspection after your offer is accepted (typically $300-500).</p>
+            </div>
+            
+            <div class="faq-item">
+                <h4>How accurate is the AI analysis?</h4>
+                <p>Our analysis cross-references your specific documents and applies current repair cost data. It's not a substitute for professional inspection, but it helps you understand what you're looking at and what questions to ask.</p>
+            </div>
+            
+            <div class="faq-item">
+                <h4>What file formats do you accept?</h4>
+                <p>We accept any PDF - including scanned documents, handwritten disclosures, and multi-page inspection reports. Our OCR technology reads even poor-quality scans.</p>
+            </div>
+            
+            <div class="faq-item">
+                <h4>Is my data secure?</h4>
+                <p>Yes. All documents are encrypted in transit (256-bit SSL) and at rest. We delete your uploaded documents after analysis. We never share your data with third parties.</p>
+            </div>
+            
+            <div class="faq-item">
+                <h4>Can I use this for multiple properties?</h4>
+                <p>Absolutely! Many of our users analyze 3-5 properties before making an offer. Our 5-pack ($99) and Investor Pro ($199) plans offer significant savings for multiple analyses.</p>
+            </div>
+            
+            <div class="faq-item">
+                <h4>What if something goes wrong?</h4>
+                <p>If our analysis fails to process your documents due to a technical issue on our end, we'll work with you to resolve it. Contact support@getofferwise.ai and we'll make it right.</p>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Document Requirements -->
+    <section class="docs-section" id="documents">
+        <div class="section-header">
+            <h2 class="section-title">What You'll Need</h2>
+            <p class="section-subtitle">Two documents, any format</p>
+        </div>
+        
+        <div class="docs-grid">
+            <div class="doc-card">
+                <h3>📋 Seller Disclosure</h3>
+                <ul>
+                    <li>Transfer Disclosure Statement (TDS)</li>
+                    <li>Seller Property Questionnaire (SPQ)</li>
+                    <li>Natural Hazard Disclosure</li>
+                    <li>Any state-required disclosure forms</li>
+                </ul>
+            </div>
+            
+            <div class="doc-card">
+                <h3>🔍 Inspection Report</h3>
+                <ul>
+                    <li>General home inspection</li>
+                    <li>Pest/termite inspection</li>
+                    <li>Roof, foundation, or specialty reports</li>
+                    <li>Any professional property assessment</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="docs-note">
+            <p><strong>Don't have documents yet?</strong> Ask your agent for the seller's disclosures (often provided upfront). You can order your own inspection for $300-500 after your offer is accepted.</p>
+        </div>
+    </section>
+    
+    <!-- Email Capture -->
+    <section class="email-capture">
+        <h3>📬 Not Ready to Analyze Yet?</h3>
+        <p>Get our free Home Buying Negotiation Guide — 10 tactics the pros use.</p>
+        <form class="email-form" onsubmit="return handleSubscribe(event)">
+            <input type="email" name="email" placeholder="Enter your email" required>
+            <button type="submit" class="btn btn-accent">Get Free Guide</button>
+        </form>
+    </section>
+    
+    <!-- Trust Badges -->
+    <section class="trust-section">
+        <div class="trust-badges">
+            <div class="trust-badge">
+                <span>🔒</span> 256-bit SSL Encryption
+            </div>
+            <div class="trust-badge">
+                <span>🗑️</span> Documents Deleted After Analysis
+            </div>
+            <div class="trust-badge">
+                <span>🛡️</span> SOC 2 Compliant Infrastructure
+            </div>
+        </div>
+    </section>
+    
+    <!-- Pricing -->
+    <section class="pricing" id="pricing">
+        <div class="section-header">
+            <h2 class="section-title">Simple, Transparent Pricing</h2>
+            <p class="section-subtitle">Pay per analysis. No subscriptions. No hidden fees.</p>
+        </div>
+        
+        <div class="pricing-grid">
+            <div class="price-card">
+                <h3 class="price-title">Single Analysis</h3>
+                <div class="price">$29</div>
+                <div class="price-note">one property</div>
+                <ul class="price-features">
+                    <li>Complete OfferScore™ Report</li>
+                    <li>Property Risk DNA™</li>
+                    <li>Seller Transparency Report™</li>
+                    <li>Recommended offer price</li>
+                    <li>Negotiation talking points</li>
+                </ul>
+                <a href="/app" class="btn" style="width: 100%;">Get Started</a>
+            </div>
+            
+            <div class="price-card featured">
+                <div class="price-badge">Most Popular</div>
+                <h3 class="price-title">5-Pack</h3>
+                <div class="price">$99</div>
+                <div class="price-note">$19.80 per property</div>
+                <ul class="price-features">
+                    <li>Everything in Single</li>
+                    <li>5 property analyses</li>
+                    <li>AI Negotiation Coach</li>
+                    <li>Priority support</li>
+                    <li>Credits never expire</li>
+                </ul>
+                <a href="/app" class="btn btn-accent" style="width: 100%;">Get Started →</a>
+            </div>
+            
+            <div class="price-card">
+                <h3 class="price-title">Investor Pro</h3>
+                <div class="price">$199</div>
+                <div class="price-note">$16.58 per property</div>
+                <ul class="price-features">
+                    <li>Everything in 5-Pack</li>
+                    <li>12 property analyses</li>
+                    <li>Bulk upload support</li>
+                    <li>Dedicated support</li>
+                    <li>Credits never expire</li>
+                </ul>
+                <a href="/app" class="btn" style="width: 100%;">Get Started</a>
+            </div>
+        </div>
+        
+        <div class="guarantee">
+            <h4>🛡️ Quality Guarantee</h4>
+            <p>If our analysis fails to process your documents due to a technical issue, contact us and we'll make it right. We stand behind our technology.</p>
+        </div>
+    </section>
+    
+    <!-- Final CTA -->
+    <section class="final-cta">
+        <h2>Ready to Make a Smarter Offer?</h2>
+        <p>Join smart homebuyers who refuse to overpay.</p>
+        <a href="/app" class="btn btn-large btn-accent">Analyze Your Property →</a>
+    </section>
+    
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2026 OfferWise. All rights reserved.</p>
+        <p>
+            <a href="/guides">Guides</a>
+            <a href="/pricing">Pricing</a>
+            <a href="/contact">Contact</a>
+            <a href="/terms">Terms</a>
+            <a href="/privacy">Privacy</a>
+        </p>
+    </footer>
+    
+    <!-- Live Chat Widget (Crisp) -->
+    <!-- To enable: Sign up at crisp.chat, get your website ID, and uncomment below -->
+    <!-- 
+    <script type="text/javascript">
+      window.$crisp=[];window.CRISP_WEBSITE_ID="YOUR_CRISP_WEBSITE_ID";
+      (function(){d=document;s=d.createElement("script");
+      s.src="https://client.crisp.chat/l.js";s.async=1;
+      d.getElementsByTagName("head")[0].appendChild(s);})();
+    </script>
+    -->
+    
+    <!-- Floating Support Button (works without Crisp) -->
+    <a href="/contact" id="support-button" style="
+        position: fixed;
+        bottom: 24px;
+        right: 24px;
+        background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+        color: white;
+        padding: 14px 20px;
+        border-radius: 50px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 14px;
+        box-shadow: 0 4px 20px rgba(59, 130, 246, 0.4);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: transform 0.2s, box-shadow 0.2s;
+        z-index: 1000;
+    " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 25px rgba(59, 130, 246, 0.5)';"
+       onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 20px rgba(59, 130, 246, 0.4)';">
+        <span style="font-size: 18px;">💬</span>
+        Need Help?
+    </a>
+    
+    <script>
+        function handleSubscribe(e) {
+            e.preventDefault();
+            const form = e.target;
+            const email = form.querySelector('input[name="email"]').value;
+            
+            fetch('/api/subscribe', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: email, source: 'landing_page' })
+            }).then(() => {
+                form.innerHTML = '<p style="color: #10b981; font-weight: 600;">✓ Check your email for the guide!</p>';
+            }).catch(() => {
+                form.innerHTML = '<p style="color: #10b981; font-weight: 600;">✓ Thanks! Guide coming soon.</p>';
+            });
+            
+            return false;
+        }
+    </script>
+</body>
+</html>

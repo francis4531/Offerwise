@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Buying Guides | OfferWise</title>
+    <meta name="description" content="Free guides to help you navigate the home buying process. Learn to negotiate after inspections, spot disclosure red flags, and make smarter offers.">
+    <link rel="canonical" href="https://www.getofferwise.ai/guides">
+    
+    <style>
+        :root {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --accent: #3b82f6;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+        
+        header {
+            background: var(--bg-secondary);
+            padding: 16px 24px;
+            border-bottom: 1px solid #334155;
+        }
+        
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            text-decoration: none;
+        }
+        
+        .logo span { color: var(--accent); }
+        
+        .header-cta {
+            background: var(--accent);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        main {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 60px 24px;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 16px;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            margin-bottom: 48px;
+        }
+        
+        .guides-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+        }
+        
+        .guide-card {
+            background: var(--bg-secondary);
+            border: 1px solid #334155;
+            border-radius: 16px;
+            padding: 32px;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+        
+        .guide-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent);
+        }
+        
+        .guide-card h2 {
+            font-size: 1.3rem;
+            margin-bottom: 12px;
+        }
+        
+        .guide-card h2 a {
+            color: var(--text-primary);
+            text-decoration: none;
+        }
+        
+        .guide-card h2 a:hover {
+            color: var(--accent);
+        }
+        
+        .guide-card p {
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+            font-size: 15px;
+        }
+        
+        .guide-meta {
+            display: flex;
+            gap: 16px;
+            color: var(--text-secondary);
+            font-size: 13px;
+        }
+        
+        .tag {
+            background: rgba(59, 130, 246, 0.15);
+            color: var(--accent);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        footer {
+            background: var(--bg-secondary);
+            padding: 40px 24px;
+            text-align: center;
+            border-top: 1px solid #334155;
+            margin-top: 80px;
+        }
+        
+        footer p {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+        
+        footer a {
+            color: var(--accent);
+            text-decoration: none;
+            margin: 0 12px;
+        }
+    </style>
+    <!-- Google Analytics (GA4) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-KXYFZ5BYPL"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag("js", new Date());
+        gtag("config", "G-KXYFZ5BYPL");
+    </script>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <a href="/" class="logo">Offer<span>Wise</span></a>
+            <a href="/app" class="header-cta">Analyze Your Property</a>
+        </div>
+    </header>
+    
+    <main>
+        <h1>Home Buying Guides</h1>
+        <p class="subtitle">Expert advice to help you make smarter real estate decisions</p>
+        
+        <div class="guides-grid">
+            <div class="guide-card">
+                <span class="tag">Negotiation</span>
+                <h2><a href="/guides/negotiate-after-inspection">How to Negotiate After a Home Inspection</a></h2>
+                <p>Step-by-step strategies to request repairs, credits, or price reductions based on inspection findings — without losing the deal.</p>
+                <div class="guide-meta">
+                    <span>📅 Feb 2026</span>
+                    <span>⏱️ 12 min read</span>
+                </div>
+            </div>
+            
+            <div class="guide-card">
+                <span class="tag">Due Diligence</span>
+                <h2><a href="/guides/seller-disclosure-red-flags">12 Seller Disclosure Red Flags</a></h2>
+                <p>Learn to spot the warning signs that indicate hidden problems. These red flags could save you from buying a money pit.</p>
+                <div class="guide-meta">
+                    <span>📅 Feb 2026</span>
+                    <span>⏱️ 15 min read</span>
+                </div>
+            </div>
+            
+            <div class="guide-card">
+                <span class="tag">Inspection</span>
+                <h2><a href="/guides/how-to-read-inspection-report">How to Read a Home Inspection Report</a></h2>
+                <p>Your report is 30+ pages. Learn to decode severity ratings, inspector language, and the Big 6 issues that actually affect your decision.</p>
+                <div class="guide-meta">
+                    <span>📅 Feb 2026</span>
+                    <span>⏱️ 14 min read</span>
+                </div>
+            </div>
+            
+            <div class="guide-card">
+                <span class="tag">Costs</span>
+                <h2><a href="/guides/home-inspection-cost-estimates">Home Inspection Repair Costs</a></h2>
+                <p>2026 cost estimates for every common inspection finding — foundation, roof, electrical, plumbing, HVAC, and more.</p>
+                <div class="guide-meta">
+                    <span>📅 Feb 2026</span>
+                    <span>⏱️ 12 min read</span>
+                </div>
+            </div>
+            
+            <div class="guide-card">
+                <span class="tag">First-Time Buyers</span>
+                <h2><a href="/guides/first-time-homebuyer-inspection-checklist">First-Time Homebuyer Inspection Checklist</a></h2>
+                <p>Everything you need to do before, during, and after your home inspection — written for people who've never done this before.</p>
+                <div class="guide-meta">
+                    <span>📅 Feb 2026</span>
+                    <span>⏱️ 11 min read</span>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <footer>
+        <p>&copy; 2026 OfferWise. All rights reserved.</p>
+        <p>
+            <a href="/terms">Terms</a>
+            <a href="/privacy">Privacy</a>
+            <a href="/contact">Contact</a>
+        </p>
+    </footer>
+</body>
+</html>

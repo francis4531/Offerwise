@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to OfferWise - Get Started</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #f1f5f9;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .onboarding-container {
+            max-width: 700px;
+            width: 100%;
+        }
+        
+        /* Progress Bar */
+        .progress-header {
+            text-align: center;
+            margin-bottom: 48px;
+        }
+        
+        .progress-bar {
+            height: 8px;
+            background: rgba(30, 41, 59, 0.8);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 16px;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+            transition: width 0.3s ease;
+            border-radius: 4px;
+        }
+        
+        .progress-text {
+            color: #94a3b8;
+            font-size: var(--text-body-sm);
+            font-weight: 600;
+        }
+        
+        /* Card */
+        .card {
+            background: rgba(30, 41, 59, 0.9);
+            border: 2px solid rgba(96, 165, 250, 0.3);
+            border-radius: 24px;
+            padding: 48px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+        
+        .card-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .step-icon {
+            font-size: var(--text-display-xl);
+            margin-bottom: 20px;
+            animation: bounce 0.6s ease;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .card-title {
+            font-size: var(--text-h1);
+            font-weight: 800;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, #60a5fa, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .card-subtitle {
+            font-size: var(--text-body);
+            color: #94a3b8;
+            line-height: 1.6;
+        }
+        
+        /* Form */
+        .form-group {
+            margin-bottom: 24px;
+        }
+        
+        .form-label {
+            display: block;
+            font-size: var(--text-body);
+            font-weight: 600;
+            color: #e2e8f0;
+            margin-bottom: 8px;
+        }
+        
+        .form-help {
+            font-size: var(--text-caption-lg);
+            color: #94a3b8;
+            margin-top: 6px;
+        }
+        
+        input[type="number"],
+        input[type="text"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 14px 16px;
+            background: rgba(15, 23, 42, 0.6);
+            border: 2px solid rgba(96, 165, 250, 0.2);
+            border-radius: 12px;
+            color: #f1f5f9;
+            font-size: var(--text-body);
+            transition: all 0.2s;
+        }
+        
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #60a5fa;
+            background: rgba(15, 23, 42, 0.8);
+        }
+        
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+            font-family: inherit;
+        }
+        
+        /* Consent Section */
+        .consent-item {
+            background: rgba(15, 23, 42, 0.4);
+            border: 2px solid rgba(96, 165, 250, 0.2);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+            transition: all 0.2s;
+        }
+        
+        .consent-item:hover {
+            border-color: rgba(96, 165, 250, 0.4);
+        }
+        
+        .consent-label {
+            display: flex;
+            align-items: start;
+            gap: 12px;
+            cursor: pointer;
+        }
+        
+        .consent-label input[type="checkbox"] {
+            width: 24px;
+            height: 24px;
+            margin-top: 2px;
+            cursor: pointer;
+            accent-color: #3b82f6;
+        }
+        
+        .consent-text {
+            flex: 1;
+        }
+        
+        .consent-title {
+            font-size: var(--text-body);
+            font-weight: 600;
+            color: #f1f5f9;
+            margin-bottom: 6px;
+        }
+        
+        .consent-description {
+            font-size: var(--text-body-sm);
+            color: #94a3b8;
+            line-height: 1.6;
+        }
+        
+        /* Buttons */
+        .button-group {
+            display: flex;
+            gap: 16px;
+            margin-top: 32px;
+        }
+        
+        .btn {
+            flex: 1;
+            padding: 16px 32px;
+            border: none;
+            border-radius: 12px;
+            font-size: var(--text-body);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            color: white;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(59, 130, 246, 0.5);
+        }
+        
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .btn-secondary {
+            background: rgba(96, 165, 250, 0.1);
+            color: #60a5fa;
+            border: 2px solid #60a5fa;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(96, 165, 250, 0.2);
+        }
+        
+        /* Success Screen */
+        .success-content {
+            text-align: center;
+        }
+        
+        .success-icon {
+            font-size: 100px;
+            margin-bottom: 24px;
+        }
+        
+        .success-title {
+            font-size: var(--text-display-l);
+            font-weight: 800;
+            color: #22c55e;
+            margin-bottom: 16px;
+        }
+        
+        .success-message {
+            font-size: var(--text-body-lg);
+            color: #cbd5e1;
+            margin-bottom: 32px;
+            line-height: 1.6;
+        }
+        
+        .credit-status {
+            background: rgba(34, 197, 94, 0.1);
+            border: 2px solid #22c55e;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 32px;
+        }
+        
+        .credit-status.no-credits {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: #ef4444;
+        }
+        
+        /* Hidden class */
+        .hidden {
+            display: none;
+        }
+    </style>
+    <!-- Google Analytics (GA4) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-KXYFZ5BYPL"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag("js", new Date());
+        gtag("config", "G-KXYFZ5BYPL");
+    </script>
+</head>
+<body>
+    <div class="onboarding-container">
+        <!-- Progress Header -->
+        <div class="progress-header">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-fill" style="width: 33%;"></div>
+            </div>
+            <div class="progress-text" id="progress-text">Step 1 of 3</div>
+        </div>
+        
+        <!-- Step 1: Preferences -->
+        <div class="card" id="step-1">
+            <div class="card-header">
+                <div class="step-icon">🎯</div>
+                <h1 class="card-title">Tell Us About Your Goals</h1>
+                <p class="card-subtitle">
+                    Help us personalize your experience. These preferences guide our AI in analyzing properties for you.
+                </p>
+            </div>
+            
+            <form id="preferences-form">
+                <div class="form-group">
+                    <label class="form-label">💰 Maximum Budget (Optional)</label>
+                    <input type="number" id="max-budget" placeholder="e.g., 2000000">
+                    <div class="form-help">What's the most you're willing to spend?</div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">🔧 Repair Tolerance</label>
+                    <select id="repair-tolerance" required>
+                        <option value="">Select your tolerance...</option>
+                        <option value="Low">Low - Flag even minor issues</option>
+                        <option value="Moderate">Moderate - Focus on major issues</option>
+                        <option value="High">High - Only critical safety concerns</option>
+                    </select>
+                    <div class="form-help">How comfortable are you with property repairs?</div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">⚠️ Biggest Home-Buying Fear</label>
+                    <textarea id="biggest-regret" placeholder="e.g., Overpaying for the property, missing hidden issues, buying in wrong location..."></textarea>
+                    <div class="form-help">What keeps you up at night about buying a home?</div>
+                </div>
+                
+                <div class="button-group">
+                    <button type="button" class="btn btn-secondary" onclick="skipOnboarding()">
+                        Skip for Now
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        Continue →
+                    </button>
+                </div>
+            </form>
+        </div>
+        
+        <!-- Step 2: Legal Consents -->
+        <div class="card hidden" id="step-2">
+            <div class="card-header">
+                <div class="step-icon">⚖️</div>
+                <h1 class="card-title">Legal Agreements</h1>
+                <p class="card-subtitle">
+                    Quick legal stuff - we're committed to transparency. Accept these three agreements to continue.
+                </p>
+            </div>
+            
+            <div class="consent-item">
+                <label class="consent-label">
+                    <input type="checkbox" id="consent-disclaimer">
+                    <div class="consent-text">
+                        <div class="consent-title">⚖️ Analysis Disclaimer</div>
+                        <div class="consent-description">
+                            This is for informational purposes only, not professional advice. You should verify important details with qualified professionals.
+                            <br><a href="#" onclick="window.open('/disclaimer', '_blank'); return false;" style="color: #60a5fa; text-decoration: underline; font-size: var(--text-caption-lg); margin-top: 8px; display: inline-block; cursor: pointer;">📄 Read Analysis Disclaimer</a>
+                        </div>
+                    </div>
+                </label>
+            </div>
+            
+            <div class="consent-item">
+                <label class="consent-label">
+                    <input type="checkbox" id="consent-terms">
+                    <div class="consent-text">
+                        <div class="consent-title">📋 Terms of Service</div>
+                        <div class="consent-description">
+                            You retain all rights to your uploaded documents. We use your data only to provide analysis services. You can delete your account anytime.
+                            <br><a href="#" onclick="window.open('/terms', '_blank'); return false;" style="color: #60a5fa; text-decoration: underline; font-size: var(--text-caption-lg); margin-top: 8px; display: inline-block; cursor: pointer;">📄 Read Terms of Service</a>
+                        </div>
+                    </div>
+                </label>
+            </div>
+            
+            <div class="consent-item">
+                <label class="consent-label">
+                    <input type="checkbox" id="consent-privacy">
+                    <div class="consent-text">
+                        <div class="consent-title">🔒 Privacy Policy</div>
+                        <div class="consent-description">
+                            Your documents are encrypted and secure. We never sell or share your personal data. You control who sees your information.
+                            <br><a href="#" onclick="window.open('/privacy', '_blank'); return false;" style="color: #60a5fa; text-decoration: underline; font-size: var(--text-caption-lg); margin-top: 8px; display: inline-block; cursor: pointer;">📄 Read Privacy Policy</a>
+                        </div>
+                    </div>
+                </label>
+            </div>
+            
+            <div class="button-group">
+                <button type="button" class="btn btn-secondary" onclick="previousStep()">
+                    ← Back
+                </button>
+                <button type="button" class="btn btn-primary" id="accept-consents-btn" disabled onclick="acceptConsents()">
+                    Accept & Continue →
+                </button>
+            </div>
+        </div>
+        
+        <!-- Step 3: Success / Ready -->
+        <div class="card hidden" id="step-3">
+            <div class="success-content">
+                <div class="success-icon">🎉</div>
+                <h1 class="success-title">You're All Set!</h1>
+                <p class="success-message">
+                    Your account is ready. Let's analyze your first property and find out if it's a good deal!
+                </p>
+                
+                <div class="credit-status" id="credit-status">
+                    <div style="font-size: 48px; margin-bottom: 12px;">✨</div>
+                    <div style="font-size: var(--text-h3); font-weight: 600; color: #22c55e; margin-bottom: 8px;">
+                        <span id="credits-available">3</span> Free Analyses Available
+                    </div>
+                    <div style="font-size: var(--text-body-sm); color: #94a3b8;">
+                        You're ready to start analyzing properties
+                    </div>
+                </div>
+                
+                <div class="button-group">
+                    <button type="button" class="btn btn-secondary" onclick="goToAccount()">
+                        Go to My Account
+                    </button>
+                    <button type="button" class="btn btn-primary" id="start-analysis-btn" onclick="startAnalysis()">
+                        🏡 Start Your First Analysis
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let currentStep = 1;
+        let savedPreferences = {};
+        
+        // Update progress
+        function updateProgress(step) {
+            currentStep = step;
+            const progress = (step / 3) * 100;
+            document.getElementById('progress-fill').style.width = progress + '%';
+            document.getElementById('progress-text').textContent = `Step ${step} of 3`;
+        }
+        
+        // Show specific step
+        function showStep(step) {
+            document.getElementById('step-1').classList.add('hidden');
+            document.getElementById('step-2').classList.add('hidden');
+            document.getElementById('step-3').classList.add('hidden');
+            document.getElementById(`step-${step}`).classList.remove('hidden');
+            updateProgress(step);
+        }
+        
+        // Step 1: Save Preferences
+        document.getElementById('preferences-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            console.log('');
+            console.log('='.repeat(80));
+            console.log('🎯 STEP 1: SAVING PREFERENCES');
+            console.log('='.repeat(80));
+            
+            const submitBtn = e.target.querySelector('.btn-primary');
+            submitBtn.disabled = true;
+            submitBtn.textContent = '⏳ Saving...';
+            
+            savedPreferences = {
+                max_budget: parseInt(document.getElementById('max-budget').value) || null,
+                repair_tolerance: document.getElementById('repair-tolerance').value || null,
+                biggest_regret: document.getElementById('biggest-regret').value || null
+            };
+            
+            console.log('📋 Preferences to save:', savedPreferences);
+            
+            try {
+                console.log('📤 Sending POST /api/user/preferences...');
+                
+                const response = await fetch('/api/user/preferences', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify(savedPreferences)
+                });
+                
+                console.log(`   Response status: ${response.status}`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('   ✅ Preferences saved successfully!');
+                    console.log('   Response:', data);
+                    console.log('');
+                    console.log('='.repeat(80));
+                    console.log('');
+                    showStep(2);
+                } else {
+                    console.error('   ❌ Failed to save preferences');
+                    console.error('   Status:', response.status);
+                    alert('Failed to save preferences. Please try again.');
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Continue →';
+                }
+            } catch (error) {
+                console.error('');
+                console.error('='.repeat(80));
+                console.error('❌ ERROR SAVING PREFERENCES');
+                console.error('Error:', error);
+                console.error('='.repeat(80));
+                console.error('');
+                alert('Error saving preferences. Please try again.');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Continue →';
+            }
+        });
+        
+        // Step 2: Enable button when all consents checked
+        const consentCheckboxes = ['consent-disclaimer', 'consent-terms', 'consent-privacy'];
+        consentCheckboxes.forEach(id => {
+            document.getElementById(id).addEventListener('change', () => {
+                const allChecked = consentCheckboxes.every(cbId => 
+                    document.getElementById(cbId).checked
+                );
+                document.getElementById('accept-consents-btn').disabled = !allChecked;
+            });
+        });
+        
+        // Step 2: Accept Consents
+        async function acceptConsents() {
+            console.log('');
+            console.log('='.repeat(80));
+            console.log('🎯 STEP 2: ACCEPTING CONSENTS');
+            console.log('='.repeat(80));
+            
+            const btn = document.getElementById('accept-consents-btn');
+            btn.disabled = true;
+            btn.textContent = '⏳ Processing...';
+            
+            const consentTypes = ['analysis_disclaimer', 'terms', 'privacy'];
+            console.log('📋 Consents to accept:', consentTypes);
+            
+            try {
+                // Accept each consent
+                for (const type of consentTypes) {
+                    console.log('');
+                    console.log(`📜 Accepting consent: ${type}`);
+                    
+                    const response = await fetch('/api/consent/accept', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        credentials: 'include',
+                        body: JSON.stringify({ consent_type: type })
+                    });
+                    
+                    console.log(`   Response status: ${response.status}`);
+                    
+                    if (!response.ok) {
+                        console.error(`   ❌ Failed to accept ${type}`);
+                        throw new Error(`Failed to accept ${type}`);
+                    }
+                    
+                    const data = await response.json();
+                    console.log(`   ✅ Success! Consent ID: ${data.consent_id}`);
+                }
+                
+                console.log('');
+                console.log('✅ All 3 consents accepted successfully');
+                console.log('');
+                console.log('🎯 Now marking onboarding as complete...');
+                
+                // Mark onboarding as complete
+                const completeResponse = await fetch('/api/user/complete-onboarding', {
+                    method: 'POST',
+                    credentials: 'include'
+                });
+                
+                console.log(`   Response status: ${completeResponse.status}`);
+                
+                if (completeResponse.ok) {
+                    const completeData = await completeResponse.json();
+                    console.log('   ✅ Onboarding marked as complete!');
+                    console.log('   Response:', completeData);
+                } else {
+                    console.error('   ❌ Failed to mark onboarding as complete');
+                    console.error('   Status:', completeResponse.status);
+                }
+                
+                console.log('');
+                console.log('='.repeat(80));
+                console.log('');
+                
+                // Check credits
+                await checkCreditsAndShowFinal();
+                
+            } catch (error) {
+                console.error('');
+                console.error('='.repeat(80));
+                console.error('❌ ERROR IN ONBOARDING');
+                console.error('Error:', error);
+                console.error('='.repeat(80));
+                console.error('');
+                
+                alert('Error accepting consents. Please try again.');
+                btn.disabled = false;
+                btn.textContent = 'Accept & Continue →';
+            }
+        }
+        
+        // Check credits and show final screen
+        async function checkCreditsAndShowFinal() {
+            try {
+                const response = await fetch('/api/usage', { credentials: 'include' });
+                const data = await response.json();
+                
+                const remaining = data.analyses_limit - data.analyses_used;
+                document.getElementById('credits-available').textContent = remaining;
+                
+                if (remaining === 0) {
+                    // No credits
+                    const creditStatus = document.getElementById('credit-status');
+                    creditStatus.classList.add('no-credits');
+                    creditStatus.innerHTML = `
+                        <div style="font-size: 48px; margin-bottom: 12px;">💳</div>
+                        <div style="font-size: var(--text-h3); font-weight: 600; color: #ef4444; margin-bottom: 8px;">
+                            No Credits Available
+                        </div>
+                        <div style="font-size: var(--text-body-sm); color: #94a3b8;">
+                            Upgrade your plan to start analyzing properties
+                        </div>
+                    `;
+                    document.getElementById('start-analysis-btn').textContent = '💎 Upgrade Plan';
+                    document.getElementById('start-analysis-btn').onclick = () => window.location.href = '/pricing';
+                }
+                
+                showStep(3);
+            } catch (error) {
+                console.error('Error checking credits:', error);
+                // Show step 3 anyway with default
+                showStep(3);
+            }
+        }
+        
+        // Navigation
+        function previousStep() {
+            if (currentStep > 1) {
+                showStep(currentStep - 1);
+            }
+        }
+        
+        function skipOnboarding() {
+            if (confirm('Are you sure? You can complete this setup later in your account settings.')) {
+                window.location.href = '/settings';
+            }
+        }
+        
+        function startAnalysis() {
+            window.location.href = '/app';
+        }
+        
+        function goToAccount() {
+            window.location.href = '/settings';
+        }
+    </script>
+</body>
+</html>

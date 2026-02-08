@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OfferWise AI - Property Analysis</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+        #loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            z-index: 9999;
+        }
+        #loading.hidden {
+            display: none;
+        }
+        .loading-text {
+            margin: 10px 0;
+            font-size: var(--text-body-sm);
+            color: #666;
+        }
+        .error-display {
+            background: #fee;
+            border: 2px solid #f00;
+            padding: 20px;
+            margin: 20px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: var(--text-caption);
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading indicator -->
+    <div id="loading">
+        <h2>Loading OfferWise...</h2>
+        <div id="loading-steps"></div>
+    </div>
+    
+    <!-- React app container -->
+    <div id="root"></div>
+    
+    <!-- Fallback error display -->
+    <div id="error-fallback" style="display: none;">
+        <div class="error-display">
+            <h2>❌ App Failed to Load</h2>
+            <p>Check the browser console (F12) for details.</p>
+            <div id="error-details"></div>
+            <button onclick="window.location.reload()" style="margin-top: 20px; padding: 10px 20px; font-size: var(--text-body);">
+                Reload Page
+            </button>
+        </div>
+    </div>
+    
+    <script>
+        // ===== STEP 0: Immediate logging =====
+        console.log('%c=== OFFERWISE APP STARTING ===', 'color: blue; font-size: var(--text-body); font-weight: bold');
+        console.log('Timestamp:', new Date().toISOString());
+        console.log('URL:', window.location.href);
+        console.log('Browser:', navigator.userAgent);
+        
+        const loadingSteps = document.getElementById('loading-steps');
+        const errorFallback = document.getElementById('error-fallback');
+        const errorDetails = document.getElementById('error-details');
+        
+        function logStep(message, success = true) {
+            console.log((success ? '✅' : '❌') + ' ' + message);
+            const div = document.createElement('div');
+            div.className = 'loading-text';
+            div.textContent = (success ? '✅' : '❌') + ' ' + message;
+            div.style.color = success ? '#060' : '#c00';
+            loadingSteps.appendChild(div);
+        }
+        
+        function showError(message, error) {
+            console.error('FATAL ERROR:', message, error);
+            document.getElementById('loading').style.display = 'none';
+            errorFallback.style.display = 'block';
+            errorDetails.textContent = message + '\n\n' + (error ? error.stack || error.message || error : '');
+        }
+        
+        // Global error handlers
+        window.addEventListener('error', function(event) {
+            console.error('Global error event:', event);
+            logStep('Global error: ' + event.message, false);
+            showError('JavaScript Error: ' + event.message, event.error);
+        });
+        
+        window.addEventListener('unhandledrejection', function(event) {
+            console.error('Unhandled promise rejection:', event);
+            logStep('Promise rejection: ' + event.reason, false);
+            showError('Unhandled Promise: ' + event.reason, event.reason);
+        });
+        
+        logStep('HTML loaded');
+        logStep('JavaScript executing');
+        
+        // ===== STEP 1: Test API =====
+        logStep('Testing API connection...');
+        fetch('/api/health')
+            .then(response => {
+                logStep('API responded with status: ' + response.status);
+                if (!response.ok) {
+                    throw new Error('API health check failed: ' + response.status);
+                }
+                return response.json();
+            })
+            .then(data => {
+                logStep('API health check passed: ' + JSON.stringify(data));
+            })
+            .catch(error => {
+                logStep('API health check failed: ' + error.message, false);
+                console.warn('API may not be ready, continuing anyway...');
+            })
+            .finally(() => {
+                // Continue regardless of API status
+                loadReact();
+            });
+        
+        function loadReact() {
+            // ===== STEP 2: Load React =====
+            logStep('Loading React library...');
+            const reactScript = document.createElement('script');
+            reactScript.crossOrigin = 'anonymous';
+            reactScript.src = 'https://unpkg.com/react@18/umd/react.production.min.js';
+            
+            reactScript.onload = function() {
+                logStep('React loaded: ' + (typeof React !== 'undefined' ? 'SUCCESS' : 'FAILED'));
+                if (typeof React === 'undefined') {
+                    showError('React failed to load properly');
+                    return;
+                }
+                loadReactDOM();
+            };
+            
+            reactScript.onerror = function(error) {
+                logStep('React failed to load', false);
+                showError('Failed to load React library', error);
+            };
+            
+            document.head.appendChild(reactScript);
+        }
+        
+        function loadReactDOM() {
+            // ===== STEP 3: Load ReactDOM =====
+            logStep('Loading ReactDOM library...');
+            const reactDOMScript = document.createElement('script');
+            reactDOMScript.crossOrigin = 'anonymous';
+            reactDOMScript.src = 'https://unpkg.com/react-dom@18/umd/react-dom.production.min.js';
+            
+            reactDOMScript.onload = function() {
+                logStep('ReactDOM loaded: ' + (typeof ReactDOM !== 'undefined' ? 'SUCCESS' : 'FAILED'));
+                if (typeof ReactDOM === 'undefined') {
+                    showError('ReactDOM failed to load properly');
+                    return;
+                }
+                loadBabel();
+            };
+            
+            reactDOMScript.onerror = function(error) {
+                logStep('ReactDOM failed to load', false);
+                showError('Failed to load ReactDOM library', error);
+            };
+            
+            document.head.appendChild(reactDOMScript);
+        }
+        
+        function loadBabel() {
+            // ===== STEP 4: Load Babel =====
+            logStep('Loading Babel transformer...');
+            const babelScript = document.createElement('script');
+            babelScript.src = 'https://unpkg.com/@babel/standalone/babel.min.js';
+            
+            babelScript.onload = function() {
+                logStep('Babel loaded: ' + (typeof Babel !== 'undefined' ? 'SUCCESS' : 'FAILED'));
+                if (typeof Babel === 'undefined') {
+                    showError('Babel failed to load properly');
+                    return;
+                }
+                loadApp();
+            };
+            
+            babelScript.onerror = function(error) {
+                logStep('Babel failed to load', false);
+                showError('Failed to load Babel transformer', error);
+            };
+            
+            document.head.appendChild(babelScript);
+        }
+        
+        function loadApp() {
+            // ===== STEP 5: Load App Code =====
+            logStep('Loading application code...');
+            
+            const appScript = document.createElement('script');
+            appScript.type = 'text/babel';
+            appScript.textContent = `
+                console.log('App script executing...');
+                
+                try {
+                    const { useState } = React;
+                    console.log('useState imported:', typeof useState);
+                    
+                    const SimpleApp = () => {
+                        console.log('SimpleApp component rendering...');
+                        const [message, setMessage] = useState('App loaded successfully! 🎉');
+                        
+                        return (
+                            <div style={{
+                                padding: '40px',
+                                fontFamily: 'system-ui, sans-serif',
+                                maxWidth: '600px',
+                                margin: '0 auto'
+                            }}>
+                                <h1>OfferWise Diagnostic Mode</h1>
+                                <div style={{
+                                    padding: '20px',
+                                    background: '#e8f5e9',
+                                    borderRadius: '8px',
+                                    marginBottom: '20px'
+                                }}>
+                                    <p style={{fontSize: '18px', margin: 0}}>{message}</p>
+                                </div>
+                                
+                                <div style={{
+                                    padding: '20px',
+                                    background: '#f5f5f5',
+                                    borderRadius: '8px',
+                                    marginBottom: '20px'
+                                }}>
+                                    <h3>System Status:</h3>
+                                    <p>✅ HTML loaded</p>
+                                    <p>✅ JavaScript running</p>
+                                    <p>✅ React loaded: {typeof React}</p>
+                                    <p>✅ ReactDOM loaded: {typeof ReactDOM}</p>
+                                    <p>✅ Component rendered</p>
+                                </div>
+                                
+                                <button
+                                    onClick={() => setMessage('Button works! State updated at ' + new Date().toLocaleTimeString())}
+                                    style={{
+                                        padding: '12px 24px',
+                                        fontSize: '16px',
+                                        background: '#000',
+                                        color: '#fff',
+                                        border: 'none',
+                                        borderRadius: '4px',
+                                        cursor: 'pointer',
+                                        marginRight: '10px'
+                                    }}
+                                >
+                                    Test State Update
+                                </button>
+                                
+                                <button
+                                    onClick={async () => {
+                                        try {
+                                            const response = await fetch('/api/health');
+                                            const data = await response.json();
+                                            setMessage('API Response: ' + JSON.stringify(data));
+                                        } catch (error) {
+                                            setMessage('API Error: ' + error.message);
+                                        }
+                                    }}
+                                    style={{
+                                        padding: '12px 24px',
+                                        fontSize: '16px',
+                                        background: '#1976d2',
+                                        color: '#fff',
+                                        border: 'none',
+                                        borderRadius: '4px',
+                                        cursor: 'pointer'
+                                    }}
+                                >
+                                    Test API
+                                </button>
+                                
+                                <div style={{
+                                    marginTop: '30px',
+                                    padding: '20px',
+                                    background: '#fff3e0',
+                                    borderRadius: '8px'
+                                }}>
+                                    <h3>Next Steps:</h3>
+                                    <p>If you see this page, the app infrastructure is working!</p>
+                                    <ol>
+                                        <li>Click "Test State Update" to verify React state works</li>
+                                        <li>Click "Test API" to verify backend connection</li>
+                                        <li>Check browser console (F12) for detailed logs</li>
+                                        <li>If both work, the main app should work too</li>
+                                    </ol>
+                                </div>
+                            </div>
+                        );
+                    };
+                    
+                    console.log('Rendering app to DOM...');
+                    ReactDOM.render(<SimpleApp />, document.getElementById('root'));
+                    
+                    console.log('App rendered successfully');
+                    document.getElementById('loading').classList.add('hidden');
+                    
+                } catch (error) {
+                    console.error('App initialization error:', error);
+                    throw error;
+                }
+            `;
+            
+            appScript.onerror = function(error) {
+                logStep('App script failed', false);
+                showError('Failed to execute application code', error);
+            };
+            
+            document.body.appendChild(appScript);
+            logStep('App script injected');
+        }
+    </script>
+</body>
+</html>

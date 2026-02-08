@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - OfferWise AI</title>
+    <script src="https://js.stripe.com/v3/"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+            color: white;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 100px 20px;
+        }
+        
+        .spinner {
+            border: 4px solid rgba(96, 165, 250, 0.3);
+            border-top: 4px solid #60a5fa;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .error-box {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 16px;
+            padding: 30px;
+            text-align: center;
+            margin-top: 50px;
+        }
+        
+        .error-box h2 {
+            color: #ef4444;
+            margin-bottom: 16px;
+        }
+        
+        .button {
+            display: inline-block;
+            background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
+            color: white;
+            padding: 14px 32px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            margin-top: 20px;
+        }
+    </style>
+    <!-- Google Analytics (GA4) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-KXYFZ5BYPL"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag("js", new Date());
+        gtag("config", "G-KXYFZ5BYPL");
+    </script>
+</head>
+<body>
+    <div class="container">
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Loading checkout...</p>
+        </div>
+        
+        <div id="checkout-container"></div>
+        
+        <div id="error-container"></div>
+    </div>
+    
+    <script>
+        // Get plan from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const plan = urlParams.get('plan') || 'bundle_5';
+        
+        const plans = {
+            'single': { name: 'Single Analysis', price: 15, credits: 1 },
+            'bundle_5': { name: '5-Analysis Bundle', price: 50, credits: 5 },
+            'bundle_10': { name: '10-Analysis Bundle', price: 75, credits: 10 }
+        };
+        
+        const selectedPlan = plans[plan];
+        
+        // Initialize checkout
+        async function initCheckout() {
+            try {
+                // Get Stripe publishable key
+                const configResponse = await fetch('/api/stripe-config');
+                
+                if (!configResponse.ok) {
+                    throw new Error('Could not load Stripe configuration');
+                }
+                
+                const config = await configResponse.json();
+                
+                if (!config.publishableKey || config.publishableKey === 'STRIPE_PUBLISHABLE_KEY') {
+                    showError('Stripe is not yet configured. Please contact support.');
+                    return;
+                }
+                
+                // Initialize Stripe
+                const stripe = Stripe(config.publishableKey);
+                
+                // Create checkout session
+                const sessionResponse = await fetch('/api/create-checkout-session', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        plan: plan
+                    })
+                });
+                
+                if (!sessionResponse.ok) {
+                    const error = await sessionResponse.json();
+                    throw new Error(error.error || 'Failed to create checkout session');
+                }
+                
+                const session = await sessionResponse.json();
+                
+                // Redirect to Stripe checkout
+                const result = await stripe.redirectToCheckout({
+                    sessionId: session.sessionId
+                });
+                
+                if (result.error) {
+                    showError(result.error.message);
+                }
+                
+            } catch (error) {
+                console.error('Checkout error:', error);
+                showError(error.message);
+            }
+        }
+        
+        function showError(message) {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('error-container').innerHTML = `
+                <div class="error-box">
+                    <h2>⚠️ Configuration Error</h2>
+                    <p style="color: #94a3b8; margin-bottom: 20px;">${message}</p>
+                    <a href="/pricing" class="button">← Back to Pricing</a>
+                </div>
+            `;
+        }
+        
+        // Start initialization
+        initCheckout();
+    </script>
+</body>
+</html>

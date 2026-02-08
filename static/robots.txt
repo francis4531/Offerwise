@@ -1,0 +1,13 @@
+# OfferWise robots.txt
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://www.getofferwise.ai/sitemap.xml
+
+# Disallow admin and debug pages
+Disallow: /admin
+Disallow: /debug
+Disallow: /api/
+Disallow: /app-diagnostic.html
+Disallow: /diagnostic.html

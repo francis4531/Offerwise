@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - OfferWise AI</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            padding: 20px;
+        }
+        
+        .message-box {
+            max-width: 600px;
+            background: rgba(30, 41, 59, 0.9);
+            border: 2px solid rgba(96, 165, 250, 0.5);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .icon { font-size: var(--text-display-xl); margin-bottom: 20px; }
+        
+        h1 {
+            font-size: var(--text-h1);
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        p { color: #94a3b8; font-size: var(--text-body-lg); line-height: 1.6; margin-bottom: 30px; }
+        
+        .instructions {
+            background: rgba(15, 23, 42, 0.8);
+            padding: 24px;
+            border-radius: 12px;
+            margin: 30px 0;
+            text-align: left;
+            border: 1px solid rgba(96, 165, 250, 0.3);
+        }
+        
+        .instructions strong {
+            color: #cbd5e1;
+            font-size: var(--text-body);
+            font-weight: 600;
+            display: block;
+            margin-bottom: 16px;
+        }
+        
+        .instructions ol {
+            color: #94a3b8;
+            font-size: var(--text-body-sm);
+            line-height: 2;
+            margin-left: 24px;
+        }
+        
+        .instructions code {
+            background: rgba(96, 165, 250, 0.1);
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: #93c5fd;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .instructions a {
+            color: #60a5fa;
+            text-decoration: none;
+        }
+        
+        .instructions a:hover { text-decoration: underline; }
+        
+        .note { font-size: var(--text-caption-lg); color: #64748b; margin: 24px 0; }
+        
+        .button {
+            display: inline-block;
+            background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
+            color: white;
+            padding: 16px 36px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(96, 165, 250, 0.3);
+        }
+        
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(96, 165, 250, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <div class="message-box">
+        <div class="icon">⚙️</div>
+        <h1>Stripe Configuration Needed</h1>
+        <p>
+            The payment system is ready to go!<br>
+            Just add your Stripe API key to complete the setup.
+        </p>
+        
+        <div class="instructions">
+            <strong>📝 For the site owner - Quick 2-Minute Setup:</strong>
+            <ol>
+                <li>Get your test key from <a href="https://dashboard.stripe.com/test/apikeys" target="_blank">Stripe Dashboard</a> (copy the <code>pk_test_...</code> key)</li>
+                <li>In your code, open: <code>static/checkout.html</code></li>
+                <li>At the very bottom of the file, find: <code>STRIPE_KEY_HERE</code></li>
+                <li>Replace it with your actual Stripe publishable key</li>
+                <li>Save and redeploy to Render</li>
+            </ol>
+        </div>
+        
+        <p class="note">
+            This message will automatically disappear once your Stripe key is configured.<br>
+            The checkout page will then work perfectly!
+        </p>
+        
+        <a href="/pricing" class="button">← Back to Pricing</a>
+    </div>
+    
+    <!-- 
+    =============================================================================
+    CONFIGURATION: Replace STRIPE_KEY_HERE below with your actual Stripe key
+    =============================================================================
+    Example: const STRIPE_KEY = 'pk_test_51ABC123DEF456...';
+    Get your key from: https://dashboard.stripe.com/test/apikeys
+    =============================================================================
+    -->
+    
+    <script>
+        // ⚠️ REPLACE THIS WITH YOUR ACTUAL STRIPE KEY ⚠️
+        const STRIPE_KEY = 'STRIPE_KEY_HERE';
+        
+        // If you've added your key above, this page will redirect to the real checkout
+        // If not, you'll see the configuration instructions above
+        
+        if (STRIPE_KEY !== 'STRIPE_KEY_HERE' && STRIPE_KEY.startsWith('pk_')) {
+            // Key is configured! Redirect to real checkout page
+            const plan = new URLSearchParams(window.location.search).get('plan') || 'bundle_5';
+            window.location.href = `/checkout-live?plan=${plan}&key=${STRIPE_KEY}`;
+        }
+        // Otherwise, show the configuration message (already visible above)
+    </script>
+</body>
+</html>
