@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unsubscribe — OfferWise</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #0f172a;
+            color: #e2e8f0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            max-width: 480px;
+            padding: 40px;
+            text-align: center;
+        }
+        .logo {
+            font-size: 28px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 32px;
+        }
+        .card {
+            background: #1e293b;
+            border-radius: 16px;
+            padding: 40px 32px;
+            border: 1px solid #334155;
+        }
+        .icon { font-size: 48px; margin-bottom: 16px; }
+        h1 { font-size: 22px; font-weight: 700; margin-bottom: 12px; color: #f8fafc; }
+        p { font-size: 15px; line-height: 1.6; color: #94a3b8; margin-bottom: 20px; }
+        .email-display {
+            background: #0f172a;
+            border-radius: 8px;
+            padding: 10px 16px;
+            font-size: 14px;
+            color: #60a5fa;
+            margin-bottom: 24px;
+            word-break: break-all;
+        }
+
+        /* States */
+        .state { display: none; }
+        .state.active { display: block; }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 28px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            text-decoration: none;
+        }
+        .btn-unsub {
+            background: #ef4444;
+            color: #fff;
+        }
+        .btn-unsub:hover { background: #dc2626; }
+        .btn-secondary {
+            background: transparent;
+            color: #94a3b8;
+            border: 1px solid #475569;
+            margin-left: 12px;
+        }
+        .btn-secondary:hover { color: #e2e8f0; border-color: #64748b; }
+        .btn-home {
+            background: #3b82f6;
+            color: #fff;
+        }
+
+        .footer {
+            margin-top: 24px;
+            font-size: 13px;
+            color: #475569;
+        }
+        .footer a { color: #60a5fa; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">OfferWise</div>
+        <div class="card">
+            <!-- CONFIRM STATE -->
+            <div class="state active" id="confirmState">
+                <div class="icon">📬</div>
+                <h1>Unsubscribe from OfferWise emails?</h1>
+                <p>You'll stop receiving our homebuyer tips and product updates. You can always re-subscribe later.</p>
+                <div class="email-display" id="emailDisplay"></div>
+                <div>
+                    <button class="btn btn-unsub" onclick="confirmUnsubscribe()">Unsubscribe</button>
+                    <a href="/" class="btn btn-secondary">Never mind</a>
+                </div>
+            </div>
+
+            <!-- SUCCESS STATE -->
+            <div class="state" id="successState">
+                <div class="icon">✅</div>
+                <h1>You've been unsubscribed</h1>
+                <p>You won't receive any more emails from us. If you change your mind, you can always sign up again at getofferwise.ai.</p>
+                <a href="/" class="btn btn-home">Back to OfferWise</a>
+            </div>
+
+            <!-- ERROR STATE -->
+            <div class="state" id="errorState">
+                <div class="icon">⚠️</div>
+                <h1>Something went wrong</h1>
+                <p id="errorMessage">We couldn't process your unsubscribe request. Please try again or contact support.</p>
+                <a href="mailto:support@getofferwise.ai" class="btn btn-home">Contact Support</a>
+            </div>
+
+            <!-- ALREADY STATE -->
+            <div class="state" id="alreadyState">
+                <div class="icon">👍</div>
+                <h1>Already unsubscribed</h1>
+                <p>You're already unsubscribed from OfferWise emails. No further action needed.</p>
+                <a href="/" class="btn btn-home">Back to OfferWise</a>
+            </div>
+        </div>
+        <div class="footer">
+            <a href="/privacy">Privacy Policy</a> · <a href="/terms">Terms</a> · <a href="mailto:support@getofferwise.ai">Support</a>
+        </div>
+    </div>
+
+    <script>
+    var token = window.location.pathname.split('/').pop();
+
+    // Check if already unsubscribed on page load
+    fetch('/api/unsubscribe/' + token + '/status')
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            if (data.email) {
+                document.getElementById('emailDisplay').textContent = data.email;
+            }
+            if (data.already_unsubscribed) {
+                showState('alreadyState');
+            }
+        })
+        .catch(function() {});
+
+    function showState(id) {
+        document.querySelectorAll('.state').forEach(function(el) { el.classList.remove('active'); });
+        document.getElementById(id).classList.add('active');
+    }
+
+    function confirmUnsubscribe() {
+        fetch('/api/unsubscribe/' + token, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            if (data.success) {
+                showState('successState');
+            } else if (data.already_unsubscribed) {
+                showState('alreadyState');
+            } else {
+                document.getElementById('errorMessage').textContent = data.error || 'Please try again.';
+                showState('errorState');
+            }
+        })
+        .catch(function() {
+            showState('errorState');
+        });
+    }
+    </script>
+    <script src="/static/js/compliance.js"></script>
+</body>
+</html>

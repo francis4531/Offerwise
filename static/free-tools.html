@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Free Homebuyer Tools | OfferWise AI</title>
+    <meta name="description" content="Free AI-powered tools for homebuyers. Check property risks, verify seller disclosures, scan nearby listings, and preview your analysis — all free, no credit card.">
+    <link rel="icon" type="image/svg+xml" href="/logo-icon-only.svg">
+    <meta property="og:title" content="Free AI Tools for Homebuyers | OfferWise">
+    <meta property="og:description" content="Risk Check, Truth Check, Market Scanner, and Quick Look — all free. Make smarter offers on your next home.">
+    <meta property="og:url" content="https://www.getofferwise.ai/free-tools">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=DM+Serif+Display&display=swap" rel="stylesheet">
+    <script src="/static/analytics-loader.js" defer></script>
+    <style>
+        :root {
+            --bg-deep: #0B1121;
+            --bg-card: #111827;
+            --bg-card-hover: #1a2235;
+            --bg-input: #0f172a;
+            --border: rgba(59, 130, 246, 0.15);
+            --border-active: rgba(59, 130, 246, 0.5);
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --blue: #3b82f6;
+            --blue-glow: rgba(59, 130, 246, 0.15);
+            --green: #22c55e;
+            --amber: #f59e0b;
+            --red: #ef4444;
+            --purple: #a78bfa;
+            --cyan: #06b6d4;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'DM Sans', -apple-system, sans-serif; background: var(--bg-deep); color: var(--text-primary); min-height: 100vh; }
+        .top-bar { background: rgba(17,24,39,0.8); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 16px 32px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
+        .logo { font-family: 'DM Sans', sans-serif; font-size: 20px; font-weight: 800; background: linear-gradient(135deg, #60a5fa, #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-decoration: none; }
+        .top-nav { display: flex; gap: 20px; align-items: center; }
+        .top-nav a { color: var(--text-secondary); text-decoration: none; font-weight: 600; font-size: 14px; transition: color 0.2s; }
+        .top-nav a:hover { color: var(--blue); }
+        .btn-cta { background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; padding: 8px 20px; border-radius: 8px; font-weight: 700; font-size: 13px; text-decoration: none; transition: all 0.2s; }
+        .btn-cta:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(59,130,246,0.4); }
+        .hero { text-align: center; padding: 56px 24px 40px; position: relative; }
+        .hero::before { content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 600px; height: 600px; background: radial-gradient(circle, rgba(59,130,246,0.06) 0%, transparent 70%); pointer-events: none; }
+        .hero-badge { display: inline-block; background: rgba(34,197,94,0.12); border: 1px solid rgba(34,197,94,0.3); color: var(--green); padding: 6px 16px; border-radius: 20px; font-size: 13px; font-weight: 700; margin-bottom: 20px; letter-spacing: 0.5px; }
+        .hero h1 { font-family: 'DM Serif Display', Georgia, serif; font-size: clamp(32px, 5vw, 48px); font-weight: 400; line-height: 1.15; margin-bottom: 16px; }
+        .hero h1 span { background: linear-gradient(135deg, #60a5fa, #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .hero p { color: var(--text-secondary); font-size: 17px; max-width: 600px; margin: 0 auto; line-height: 1.6; }
+        .stats-bar { display: flex; gap: 16px; justify-content: center; margin-bottom: 40px; flex-wrap: wrap; }
+        .stat-pill { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 10px 20px; text-align: center; }
+        .stat-pill .num { font-size: 20px; font-weight: 800; color: var(--blue); }
+        .stat-pill .label { font-size: 11px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        .tab-bar { display: flex; justify-content: center; gap: 6px; padding: 0 24px; margin-bottom: 32px; flex-wrap: wrap; }
+        .tab-btn { background: var(--bg-card); border: 1px solid var(--border); color: var(--text-secondary); padding: 12px 22px; border-radius: 12px; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.25s; display: flex; align-items: center; gap: 8px; }
+        .tab-btn:hover { background: var(--bg-card-hover); border-color: var(--border-active); color: var(--text-primary); }
+        .tab-btn.active { background: linear-gradient(135deg, rgba(59,130,246,0.12), rgba(167,139,250,0.08)); border-color: var(--blue); color: white; box-shadow: 0 0 20px rgba(59,130,246,0.15); }
+        .tab-icon { font-size: 18px; }
+        .tab-label-sub { font-size: 11px; color: var(--text-muted); font-weight: 500; display: block; margin-top: 2px; }
+        .tab-btn.active .tab-label-sub { color: var(--text-secondary); }
+        .content-area { max-width: 800px; margin: 0 auto; padding: 0 24px 80px; }
+        .tool-panel { display: none; animation: fadeIn 0.3s ease; }
+        .tool-panel.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        .tool-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; padding: 36px; margin-bottom: 24px; }
+        .tool-header { display: flex; align-items: center; gap: 16px; margin-bottom: 8px; }
+        .tool-header .icon { width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+        .tool-header h2 { font-size: 22px; font-weight: 700; }
+        .tool-desc { color: var(--text-secondary); font-size: 15px; line-height: 1.6; margin-bottom: 28px; margin-left: 64px; }
+        .input-group { display: flex; gap: 12px; margin-bottom: 16px; }
+        .input-group input { flex: 1; background: var(--bg-input); border: 1px solid var(--border); color: var(--text-primary); padding: 14px 16px; border-radius: 12px; font-family: 'DM Sans', sans-serif; font-size: 15px; transition: border-color 0.2s; outline: none; }
+        .input-group input:focus { border-color: var(--blue); box-shadow: 0 0 0 3px var(--blue-glow); }
+        .input-group input::placeholder { color: var(--text-muted); }
+        .run-btn { background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; border: none; padding: 14px 28px; border-radius: 12px; font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 700; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+        .run-btn:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(59,130,246,0.35); }
+        .run-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .run-btn.green { background: linear-gradient(135deg, #22c55e, #16a34a); }
+        .run-btn.green:hover:not(:disabled) { box-shadow: 0 6px 20px rgba(34,197,94,0.35); }
+        .run-btn.amber { background: linear-gradient(135deg, #f59e0b, #d97706); }
+        .run-btn.purple { background: linear-gradient(135deg, #a78bfa, #7c3aed); }
+        .run-btn.cyan { background: linear-gradient(135deg, #06b6d4, #0891b2); }
+        .upload-zone { border: 2px dashed rgba(59,130,246,0.3); border-radius: 16px; padding: 32px; text-align: center; cursor: pointer; transition: all 0.25s; margin-bottom: 16px; background: rgba(59,130,246,0.03); }
+        .upload-zone:hover, .upload-zone.dragover { border-color: var(--blue); background: rgba(59,130,246,0.06); }
+        .upload-zone.has-file { border-color: var(--green); background: rgba(34,197,94,0.05); }
+        .upload-zone .icon { font-size: 32px; margin-bottom: 8px; }
+        .upload-zone .label { font-size: 15px; font-weight: 600; color: var(--text-secondary); }
+        .upload-zone .sublabel { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
+        .upload-zone input { display: none; }
+        .results-area { margin-top: 24px; animation: fadeIn 0.4s ease; }
+        .result-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+        .grade-badge { width: 52px; height: 52px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 800; color: white; flex-shrink: 0; }
+        .grade-A { background: linear-gradient(135deg, #22c55e, #16a34a); }
+        .grade-B { background: linear-gradient(135deg, #84cc16, #65a30d); }
+        .grade-C { background: linear-gradient(135deg, #f59e0b, #d97706); }
+        .grade-D { background: linear-gradient(135deg, #f97316, #ea580c); }
+        .grade-F { background: linear-gradient(135deg, #ef4444, #dc2626); }
+        .result-item { background: rgba(15,23,42,0.5); border: 1px solid var(--border); border-radius: 12px; padding: 16px 20px; margin-bottom: 10px; display: flex; align-items: flex-start; gap: 12px; }
+        .result-item .severity { width: 8px; min-height: 24px; border-radius: 4px; flex-shrink: 0; margin-top: 2px; }
+        .severity-high { background: var(--red); }
+        .severity-medium { background: var(--amber); }
+        .severity-low { background: var(--green); }
+        .result-item .detail h4 { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+        .result-item .detail p { font-size: 13px; color: var(--text-secondary); line-height: 1.5; }
+        .listing-card { background: rgba(15,23,42,0.5); border: 1px solid var(--border); border-radius: 12px; padding: 16px 20px; margin-bottom: 10px; }
+        .listing-card .address { font-weight: 700; font-size: 14px; margin-bottom: 4px; }
+        .listing-card .meta { font-size: 13px; color: var(--text-secondary); }
+        .listing-card .price-tag { font-size: 16px; font-weight: 800; color: var(--green); }
+        .upsell { background: linear-gradient(135deg, rgba(59,130,246,0.1), rgba(167,139,250,0.08)); border: 1px solid rgba(59,130,246,0.25); border-radius: 16px; padding: 24px; text-align: center; margin-top: 24px; }
+        .upsell h3 { font-size: 17px; font-weight: 700; margin-bottom: 8px; }
+        .upsell p { font-size: 14px; color: var(--text-secondary); margin-bottom: 16px; line-height: 1.5; }
+        .upsell .btn-cta { display: inline-block; padding: 12px 28px; font-size: 15px; border-radius: 10px; }
+        .spinner { display: inline-block; width: 18px; height: 18px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.6s linear infinite; vertical-align: middle; margin-right: 8px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .blurred-preview { filter: blur(6px); user-select: none; pointer-events: none; opacity: 0.5; }
+        @media (max-width: 640px) {
+            .tab-bar { gap: 4px; } .tab-btn { padding: 10px 14px; font-size: 13px; } .tab-label-sub { display: none; }
+            .tool-card { padding: 24px; } .input-group { flex-direction: column; } .tool-desc { margin-left: 0; }
+            .top-nav a:not(.btn-cta) { display: none; }
+        }
+    </style>
+</head>
+<body>
+<div class="top-bar">
+    <a href="/" class="logo">OfferWise AI</a>
+    <div class="top-nav">
+        <a href="/pricing">Pricing</a>
+        <a href="/app" class="btn-cta">Full Analysis →</a>
+    </div>
+</div>
+
+<div class="hero">
+    <div class="hero-badge">100% FREE — NO CREDIT CARD</div>
+    <h1>Your Home-Buying <span>Toolkit</span></h1>
+    <p>Four AI-powered tools to research any property before you make an offer. All free, all instant.</p>
+</div>
+
+<div class="stats-bar">
+    <div class="stat-pill"><div class="num">11</div><div class="label">Data Sources</div></div>
+    <div class="stat-pill"><div class="num">&lt;30s</div><div class="label">Results</div></div>
+    <div class="stat-pill"><div class="num">$0</div><div class="label">Cost</div></div>
+    <div class="stat-pill"><div class="num">CA</div><div class="label">Coverage</div></div>
+</div>
+
+<div class="tab-bar">
+    <button class="tab-btn active" onclick="switchTab('risk', this)"><span class="tab-icon">🛡️</span><span>Risk Check<span class="tab-label-sub">Address scan</span></span></button>
+    <button class="tab-btn" onclick="switchTab('truth', this)"><span class="tab-icon">🔍</span><span>Truth Check<span class="tab-label-sub">Disclosure scan</span></span></button>
+    <button class="tab-btn" onclick="switchTab('quick', this)"><span class="tab-icon">⚡</span><span>Quick Look<span class="tab-label-sub">Free preview</span></span></button>
+    <button class="tab-btn" onclick="switchTab('nearby', this)"><span class="tab-icon">🏘️</span><span>Nearby Listings<span class="tab-label-sub">Market data</span></span></button>
+    <button class="tab-btn" onclick="switchTab('games', this)"><span class="tab-icon">🎮</span><span>Games<span class="tab-label-sub">Learn &amp; play</span></span></button>
+</div>
+
+<div class="content-area">
+    <!-- RISK CHECK -->
+    <div class="tool-panel active" id="panel-risk">
+        <div class="tool-card">
+            <div class="tool-header"><div class="icon" style="background:rgba(34,197,94,0.12);">🛡️</div><h2>Property Risk Check</h2></div>
+            <p class="tool-desc">Enter any address to scan FEMA flood zones, earthquake faults, EPA contamination sites, wildfire risk, and more. We check 11 government databases instantly.</p>
+            <div class="input-group">
+                <input type="text" id="risk-address" placeholder="Enter property address (e.g., 123 Main St, San Jose, CA 95112)" autocomplete="off">
+                <button class="run-btn green" id="risk-btn" onclick="runRiskCheck()">Scan Address</button>
+            </div>
+            <div id="risk-results"></div>
+        </div>
+    </div>
+
+    <!-- TRUTH CHECK -->
+    <div class="tool-panel" id="panel-truth">
+        <div class="tool-card">
+            <div class="tool-header"><div class="icon" style="background:rgba(245,158,11,0.12);">🔍</div><h2>Seller Truth Check</h2></div>
+            <p class="tool-desc">Upload a seller disclosure (TDS/SPQ) and our AI scans for red flags, vague language, contradictions, and items sellers commonly minimize or omit.</p>
+            <div class="upload-zone" id="truth-upload" onclick="document.getElementById('truth-file').click()">
+                <div class="icon">📄</div>
+                <div class="label">Drop seller disclosure PDF here</div>
+                <div class="sublabel">or click to browse</div>
+                <input type="file" id="truth-file" accept=".pdf" onchange="handleTruthFile(this)">
+            </div>
+            <button class="run-btn amber" id="truth-btn" onclick="runTruthCheck()" disabled>Analyze Disclosure</button>
+            <div id="truth-results"></div>
+        </div>
+    </div>
+
+    <!-- QUICK LOOK -->
+    <div class="tool-panel" id="panel-quick">
+        <div class="tool-card">
+            <div class="tool-header"><div class="icon" style="background:rgba(167,139,250,0.12);">⚡</div><h2>Quick Look Preview</h2></div>
+            <p class="tool-desc">Upload your inspection report and disclosure to get a free preview: top 3 critical findings, an overall risk grade, and estimated repair cost range. Want the full 12-category analysis? Unlock it for just $19.</p>
+            <div style="display:flex; gap:12px; margin-bottom:16px; flex-wrap:wrap;">
+                <div class="upload-zone" id="quick-inspection-upload" onclick="document.getElementById('quick-inspection').click()" style="flex:1; min-width:200px;">
+                    <div class="icon">📋</div><div class="label">Inspection Report</div><div class="sublabel">PDF format</div>
+                    <input type="file" id="quick-inspection" accept=".pdf" onchange="handleQuickFile(this, 'inspection')">
+                </div>
+                <div class="upload-zone" id="quick-disclosure-upload" onclick="document.getElementById('quick-disclosure').click()" style="flex:1; min-width:200px;">
+                    <div class="icon">📄</div><div class="label">Seller Disclosure</div><div class="sublabel">PDF (optional)</div>
+                    <input type="file" id="quick-disclosure" accept=".pdf" onchange="handleQuickFile(this, 'disclosure')">
+                </div>
+            </div>
+            <div class="input-group">
+                <input type="text" id="quick-address" placeholder="Property address with ZIP (e.g., 123 Main St, San Jose, CA 95112)">
+                <button class="run-btn purple" id="quick-btn" onclick="runQuickLook()" disabled>Get Free Preview</button>
+            </div>
+            <div id="quick-results"></div>
+        </div>
+    </div>
+
+    <!-- NEARBY LISTINGS -->
+    <div class="tool-panel" id="panel-nearby">
+        <div class="tool-card">
+            <div class="tool-header"><div class="icon" style="background:rgba(6,182,212,0.12);">🏘️</div><h2>Nearby Listings</h2></div>
+            <p class="tool-desc">Enter a ZIP code to see active listings in the area with estimated offer ranges, days on market, and risk assessments. Great for scoping out a neighborhood before touring.</p>
+            <div class="input-group">
+                <input type="text" id="nearby-zip" placeholder="Enter ZIP code (e.g., 95112)" maxlength="5">
+                <button class="run-btn cyan" id="nearby-btn" onclick="runNearby()">Search Area</button>
+            </div>
+            <div id="nearby-results"></div>
+        </div>
+    </div>
+    <!-- GAMES -->
+    <div class="tool-panel" id="panel-games">
+        <div class="tool-card">
+            <div class="tool-header"><div class="icon" style="background:rgba(244,114,182,0.12);">🎮</div><h2>Homebuyer Games</h2></div>
+            <p class="tool-desc">Learn to spot red flags and negotiate like a pro — while having fun. These interactive games teach you real homebuying skills using actual disclosure scenarios.</p>
+            <div style="display:flex; gap:16px; flex-wrap:wrap;">
+                <a href="/games/red-flag-game" style="flex:1; min-width:240px; background:rgba(15,23,42,0.5); border:1px solid var(--border); border-radius:16px; padding:24px; text-decoration:none; color:inherit; transition:all 0.2s;">
+                    <div style="font-size:36px; margin-bottom:12px;">🚩</div>
+                    <h3 style="font-size:17px; font-weight:700; margin-bottom:6px;">Red Flag Game</h3>
+                    <p style="font-size:13px; color:var(--text-secondary); line-height:1.5;">Swipe through real disclosure statements and spot the red flags before time runs out. Can you beat the high score?</p>
+                </a>
+                <a href="/games/disclosure-detective" style="flex:1; min-width:240px; background:rgba(15,23,42,0.5); border:1px solid var(--border); border-radius:16px; padding:24px; text-decoration:none; color:inherit; transition:all 0.2s;">
+                    <div style="font-size:36px; margin-bottom:12px;">🔎</div>
+                    <h3 style="font-size:17px; font-weight:700; margin-bottom:6px;">Disclosure Detective</h3>
+                    <p style="font-size:13px; color:var(--text-secondary); line-height:1.5;">Read real seller disclosures and find what they are trying to hide. Train your eye for the tricks sellers use.</p>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div style="background:rgba(15,23,42,0.8); border-top:1px solid var(--border); padding:32px; text-align:center; color:var(--text-muted); font-size:13px;">
+    <p>&copy; 2026 OfferWise. All rights reserved.</p>
+    <p style="margin-top:12px;"><a href="/terms" style="color:var(--text-secondary); text-decoration:none;">Terms</a> · <a href="/privacy" style="color:var(--text-secondary); text-decoration:none;">Privacy</a> · <a href="/pricing" style="color:var(--text-secondary); text-decoration:none;">Pricing</a> · <a href="https://www.reddit.com/r/offerwiseAi/" target="_blank" style="color:var(--text-secondary); text-decoration:none;">r/offerwiseAi</a></p>
+</div>
+
+<script>
+function switchTab(tab, el) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tool-panel').forEach(p => p.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById('panel-' + tab).classList.add('active');
+}
+function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+function gradeClass(g) { if (!g) return 'grade-C'; const c = g.charAt(0).toUpperCase(); return 'grade-' + (['A','B','C','D','F'].includes(c) ? c : 'C'); }
+function severityClass(l) { if (!l) return 'severity-medium'; const s = l.toLowerCase(); return s.includes('high') || s.includes('critical') ? 'severity-high' : s.includes('low') || s.includes('none') ? 'severity-low' : 'severity-medium'; }
+function upsell(h, p, cta, href) { return '<div class="upsell"><h3>' + h + '</h3><p>' + p + '</p><a href="' + href + '" class="btn-cta">' + cta + '</a></div>'; }
+
+async function runRiskCheck() {
+    const addr = document.getElementById('risk-address').value.trim();
+    if (!addr) return;
+    const btn = document.getElementById('risk-btn');
+    btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Scanning...';
+    document.getElementById('risk-results').innerHTML = '';
+    try {
+        const res = await fetch('/api/risk-check', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({address: addr}) });
+        const data = await res.json();
+        if (data.error) { document.getElementById('risk-results').innerHTML = '<div class="result-item"><div class="detail"><p style="color:var(--red);">' + esc(data.error) + '</p></div></div>'; return; }
+        let html = '<div class="results-area"><div class="result-header"><div class="grade-badge ' + gradeClass(data.risk_grade) + '">' + esc(data.risk_grade || '?') + '</div><div><h3 style="font-size:16px;">' + esc(data.address || addr) + '</h3><p style="font-size:13px; color:var(--text-secondary);">' + (data.risk_count || 0) + ' risks found · ' + (data.source_count || 0) + ' databases checked · ' + ((data.scan_time_ms || 0)/1000).toFixed(1) + 's</p></div></div>';
+        if (data.risks && data.risks.length > 0) { data.risks.forEach(function(r) { html += '<div class="result-item"><div class="severity ' + severityClass(r.level) + '"></div><div class="detail"><h4>' + (r.icon || '⚠️') + ' ' + esc(r.title) + '</h4><p>' + esc(r.detail) + '</p></div></div>'; }); }
+        else { html += '<div class="result-item"><div class="detail"><h4>✅ No significant risks found</h4><p>This address looks clean across all databases we checked.</p></div></div>'; }
+        html += upsell('Want the full picture?', 'Upload your inspection report and disclosure for a complete AI analysis with offer recommendations, negotiation talking points, and repair cost breakdown.', 'Get Full Analysis — $19 →', '/app');
+        html += '</div>';
+        document.getElementById('risk-results').innerHTML = html;
+    } catch(e) { document.getElementById('risk-results').innerHTML = '<div class="result-item"><div class="detail"><p style="color:var(--red);">Something went wrong. Please try again.</p></div></div>'; }
+    finally { btn.disabled = false; btn.innerHTML = 'Scan Address'; }
+}
+
+var truthFile = null;
+function handleTruthFile(input) {
+    if (input.files.length > 0) {
+        truthFile = input.files[0];
+        var zone = document.getElementById('truth-upload');
+        zone.classList.add('has-file');
+        zone.querySelector('.label').textContent = truthFile.name;
+        zone.querySelector('.sublabel').textContent = (truthFile.size / 1024 / 1024).toFixed(1) + ' MB';
+        document.getElementById('truth-btn').disabled = false;
+    }
+}
+async function runTruthCheck() {
+    if (!truthFile) return;
+    var btn = document.getElementById('truth-btn');
+    btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Analyzing...';
+    document.getElementById('truth-results').innerHTML = '';
+    try {
+        var fd = new FormData(); fd.append('disclosure', truthFile);
+        var res = await fetch('/api/truth-check', { method: 'POST', body: fd });
+        var data = await res.json();
+        if (data.error) { document.getElementById('truth-results').innerHTML = '<div class="result-item"><div class="detail"><p style="color:var(--red);">' + esc(data.error) + '</p></div></div>'; return; }
+        var score = data.transparency_score || data.score || 50;
+        var grade = data.grade || (score >= 80 ? 'A' : score >= 60 ? 'B' : score >= 40 ? 'C' : 'D');
+        var html = '<div class="results-area"><div class="result-header"><div class="grade-badge ' + gradeClass(grade) + '">' + esc(grade) + '</div><div><h3 style="font-size:16px;">Seller Transparency: ' + score + '/100</h3><p style="font-size:13px; color:var(--text-secondary);">' + (data.red_flags || []).length + ' red flags · ' + (data.concerns || []).length + ' concerns found</p></div></div>';
+        (data.red_flags || []).forEach(function(f) { var t = typeof f === 'string' ? f : (f.title || f.description || 'Red flag'); var d = typeof f === 'string' ? '' : (f.detail || f.explanation || ''); html += '<div class="result-item"><div class="severity severity-high"></div><div class="detail"><h4>🚩 ' + esc(t) + '</h4><p>' + esc(d) + '</p></div></div>'; });
+        (data.concerns || []).slice(0, 3).forEach(function(c) { var t = typeof c === 'string' ? c : (c.title || c.description || 'Concern'); var d = typeof c === 'string' ? '' : (c.detail || c.explanation || ''); html += '<div class="result-item"><div class="severity severity-medium"></div><div class="detail"><h4>⚠️ ' + esc(t) + '</h4><p>' + esc(d) + '</p></div></div>'; });
+        html += upsell('Cross-reference with the inspection report', 'Our full analysis compares the disclosure against the inspection report to find contradictions, omissions, and items the seller may be hiding.', 'Upload Inspection Report — $19 →', '/app');
+        html += '</div>';
+        document.getElementById('truth-results').innerHTML = html;
+    } catch(e) { document.getElementById('truth-results').innerHTML = '<div class="result-item"><div class="detail"><p style="color:var(--red);">Something went wrong. Please try again.</p></div></div>'; }
+    finally { btn.disabled = false; btn.innerHTML = 'Analyze Disclosure'; }
+}
+
+var quickFiles = { inspection: null, disclosure: null };
+function handleQuickFile(input, type) {
+    if (input.files.length > 0) {
+        quickFiles[type] = input.files[0];
+        var zone = document.getElementById('quick-' + type + '-upload');
+        zone.classList.add('has-file');
+        zone.querySelector('.label').textContent = quickFiles[type].name;
+        zone.querySelector('.sublabel').textContent = (quickFiles[type].size / 1024 / 1024).toFixed(1) + ' MB';
+        document.getElementById('quick-btn').disabled = !quickFiles.inspection;
+    }
+}
+async function runQuickLook() {
+    if (!quickFiles.inspection) return;
+    var btn = document.getElementById('quick-btn');
+    btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Analyzing...';
+    document.getElementById('quick-results').innerHTML = '';
+    var html = '<div class="results-area"><div class="result-header"><div class="grade-badge grade-C" style="font-size:14px;">⚡</div><div><h3 style="font-size:16px;">Quick Look requires a free account</h3><p style="font-size:13px; color:var(--text-secondary);">Sign up free to get your Quick Look preview — top 3 findings, risk grade, and repair range.</p></div></div>';
+    html += '<div class="blurred-preview">';
+    html += '<div class="result-item"><div class="severity severity-high"></div><div class="detail"><h4>🚨 Critical Finding #1</h4><p>Major structural concern identified in the inspection report that the seller disclosure does not mention.</p></div></div>';
+    html += '<div class="result-item"><div class="severity severity-high"></div><div class="detail"><h4>⚠️ Finding #2</h4><p>Significant plumbing issue with estimated repair cost of $4,200–$8,500 based on local contractor rates.</p></div></div>';
+    html += '<div class="result-item"><div class="severity severity-medium"></div><div class="detail"><h4>📋 Finding #3</h4><p>Seller marked "unknown" on 3 items that the inspection report clearly identifies as existing conditions.</p></div></div>';
+    html += '</div>';
+    html += upsell('Sign up free to see your actual results', 'Create a free account to unlock your Quick Look preview. Then upgrade to the full analysis for just $19 to see all 12 categories, negotiation talking points, and your recommended offer price.', 'Sign Up Free →', '/app');
+    html += '</div>';
+    document.getElementById('quick-results').innerHTML = html;
+    btn.disabled = false; btn.innerHTML = 'Get Free Preview';
+}
+
+async function runNearby() {
+    var zip = document.getElementById('nearby-zip').value.trim();
+    if (!zip || zip.length !== 5) return;
+    var btn = document.getElementById('nearby-btn');
+    btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Searching...';
+    document.getElementById('nearby-results').innerHTML = '';
+    try {
+        var res = await fetch('/api/nearby-listings/public?zip=' + encodeURIComponent(zip));
+        var data = await res.json();
+        if (data.error) { document.getElementById('nearby-results').innerHTML = '<div class="result-item"><div class="detail"><p style="color:var(--red);">' + esc(data.error) + '</p></div></div>'; return; }
+        var listings = data.listings || [];
+        var html = '<div class="results-area"><div class="result-header"><div class="grade-badge grade-B">🏘️</div><div><h3 style="font-size:16px;">Listings near ' + esc(zip) + '</h3><p style="font-size:13px; color:var(--text-secondary);">' + listings.length + ' active listings found</p></div></div>';
+        if (listings.length === 0) { html += '<div class="result-item"><div class="detail"><p>No active listings found in this ZIP code. Try a nearby ZIP.</p></div></div>'; }
+        else { listings.forEach(function(l) { var price = l.price ? '$' + Number(l.price).toLocaleString() : 'Price N/A'; var meta = []; if (l.beds) meta.push(l.beds + ' bed'); if (l.baths) meta.push(l.baths + ' bath'); if (l.sqft) meta.push(Number(l.sqft).toLocaleString() + ' sqft'); if (l.days_on_market) meta.push(l.days_on_market + ' days'); html += '<div class="listing-card"><div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;"><div><div class="address">' + esc(l.address || 'Address unavailable') + '</div>' + (meta.length ? '<div class="meta">' + meta.join(' · ') + '</div>' : '') + '</div><div class="price-tag">' + price + '</div></div></div>'; }); }
+        html += upsell('Found a property you like?', 'Upload the inspection report and disclosure to get an AI-powered offer recommendation with repair costs and negotiation strategy.', 'Analyze a Property — $19 →', '/app');
+        html += '</div>';
+        document.getElementById('nearby-results').innerHTML = html;
+    } catch(e) { document.getElementById('nearby-results').innerHTML = '<div class="result-item"><div class="detail"><p style="color:var(--red);">Something went wrong. Please try again.</p></div></div>'; }
+    finally { btn.disabled = false; btn.innerHTML = 'Search Area'; }
+}
+
+document.getElementById('risk-address').addEventListener('keypress', function(e) { if (e.key === 'Enter') runRiskCheck(); });
+document.getElementById('nearby-zip').addEventListener('keypress', function(e) { if (e.key === 'Enter') runNearby(); });
+document.querySelectorAll('.upload-zone').forEach(function(zone) {
+    zone.addEventListener('dragover', function(e) { e.preventDefault(); zone.classList.add('dragover'); });
+    zone.addEventListener('dragleave', function() { zone.classList.remove('dragover'); });
+    zone.addEventListener('drop', function(e) { e.preventDefault(); zone.classList.remove('dragover'); var input = zone.querySelector('input[type="file"]'); if (e.dataTransfer.files.length > 0) { input.files = e.dataTransfer.files; input.dispatchEvent(new Event('change')); } });
+});
+</script>
+<script src="/static/js/compliance.js"></script>
+<script src="/static/js/analytics.js" defer></script>
+</body>
+</html>

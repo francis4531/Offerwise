@@ -1,0 +1,54 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Environment
+.env
+.env.local
+-e 
+# Claude skills (contains sensitive deploy key)
+skills/
+
+# Document repository (binary files — keep only metadata/catalog.json)
+document_repo/inspection_reports/
+document_repo/disclosure_statements/
+document_repo/reference_docs/
+document_repo/html_reports/
+document_repo/anonymized/
+docrepo_files.tar.gz
+!document_repo/metadata/

@@ -1,0 +1,6 @@
+name: offerwiseai-app
+version: 0.0.9
+permissions:
+  http:
+    domains:
+      - offerwise-docker.onrender.com

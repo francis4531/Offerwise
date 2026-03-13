@@ -1,0 +1,2786 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>OfferWise Admin Dashboard</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #0f172a; color: #e2e8f0; padding: 24px; }
+        h1 { color: #60a5fa; margin-bottom: 8px; }
+        h2 { color: #94a3b8; font-size: 18px; margin: 24px 0 16px; border-bottom: 1px solid #334155; padding-bottom: 8px; }
+        h3 { color: #cbd5e1; font-size: 16px; margin: 16px 0 12px; }
+        .subtitle { color: #94a3b8; margin-bottom: 24px; font-size: 14px; }
+        
+        .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; }
+        
+        /* Cards and sections */
+        .card { background: #1e293b; padding: 24px; border-radius: 12px; margin-bottom: 24px; }
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        
+        /* Stats */
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 12px; margin-bottom: 20px; }
+        .stat { background: #334155; padding: 16px; border-radius: 8px; text-align: center; }
+        .stat-value { font-size: 28px; font-weight: 800; color: #60a5fa; }
+        .stat-label { color: #94a3b8; font-size: 11px; margin-top: 4px; text-transform: uppercase; }
+        .stat.success .stat-value { color: #22c55e; }
+        .stat.warning .stat-value { color: #f59e0b; }
+        .stat.error .stat-value { color: #ef4444; }
+        .stat.purple .stat-value { color: #a78bfa; }
+        .stat.clickable { cursor: pointer; transition: all 0.2s; }
+        .stat.clickable:hover { background: #475569; }
+        .stat-large { padding: 24px; }
+        .stat-large .stat-value { font-size: 36px; }
+        .stat-large .stat-label { font-size: 13px; }
+        
+        /* Forms */
+        .form-row { display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 12px; align-items: end; }
+        .form-group { display: flex; flex-direction: column; gap: 6px; }
+        label { color: #94a3b8; font-size: 12px; font-weight: 600; }
+        select, input { background: #0f172a; border: 1px solid #334155; color: #e2e8f0; padding: 10px 12px; border-radius: 6px; font-size: 14px; }
+        select:focus, input:focus { outline: none; border-color: #60a5fa; }
+        
+        /* Buttons */
+        .btn { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 14px; transition: all 0.2s; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+        .btn-primary { background: linear-gradient(135deg, #3b82f6, #8b5cf6); color: white; }
+        .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        .btn-secondary { background: #334155; color: #e2e8f0; }
+        .btn-secondary:hover { background: #475569; }
+        .btn-danger { background: #ef4444; color: white; }
+        .btn-success { background: #22c55e; color: white; }
+        .btn-warning { background: #f59e0b; color: white; }
+        .btn-sm { padding: 6px 12px; font-size: 12px; }
+        
+        /* Progress bar */
+        .progress { height: 6px; background: #334155; border-radius: 3px; overflow: hidden; margin-top: 12px; display: none; }
+        .progress.active { display: block; }
+        .progress-bar { height: 100%; background: linear-gradient(90deg, #3b82f6, #8b5cf6); transition: width 0.3s; }
+        
+        /* Results grid */
+        .results-grid { display: grid; gap: 12px; max-height: 400px; overflow-y: auto; }
+        .result-item { background: #0f172a; padding: 16px; border-radius: 8px; border-left: 4px solid #22c55e; }
+        .result-item.error { border-left-color: #ef4444; }
+        .result-item.warning { border-left-color: #f59e0b; }
+        .result-header { display: flex; justify-content: space-between; align-items: center; }
+        .result-address { font-weight: 600; color: #f1f5f9; font-size: 14px; }
+        .result-score { font-size: 24px; font-weight: 800; }
+        .result-meta { display: flex; gap: 12px; color: #94a3b8; font-size: 12px; margin-top: 8px; flex-wrap: wrap; }
+        .result-rec { margin-top: 8px; color: #94a3b8; font-size: 13px; }
+        .result-validation { margin-top: 8px; padding: 8px; background: rgba(239,68,68,0.1); border-radius: 4px; font-size: 11px; color: #f87171; }
+        
+        /* Bugs Found Section */
+        .bugs-found { margin-top: 24px; padding: 20px; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 12px; }
+        .bugs-found-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .bugs-found-title { color: #f87171; font-weight: 700; font-size: 16px; }
+        .bug-item { background: #0f172a; padding: 14px; border-radius: 8px; margin-bottom: 10px; border-left: 4px solid #ef4444; }
+        .bug-item:last-child { margin-bottom: 0; }
+        .bug-item-header { display: flex; justify-content: space-between; align-items: flex-start; }
+        .bug-item-title { color: #f1f5f9; font-weight: 600; font-size: 13px; flex: 1; }
+        .bug-item-actions { display: flex; gap: 8px; }
+        .bug-item-desc { color: #94a3b8; font-size: 12px; margin-top: 6px; }
+        .bug-item-meta { display: flex; gap: 8px; margin-top: 8px; }
+        
+        /* AI Fix Panel (inline) */
+        .ai-fix-panel { margin-top: 12px; padding: 14px; background: rgba(139, 92, 246, 0.1); border-radius: 8px; border: 1px solid rgba(139, 92, 246, 0.3); display: none; }
+        .ai-fix-panel.active { display: block; }
+        .ai-fix-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .ai-fix-title { color: #a78bfa; font-weight: 700; font-size: 13px; }
+        .ai-fix-content { color: #e2e8f0; font-size: 12px; white-space: pre-wrap; line-height: 1.5; }
+        .ai-fix-code { background: #0f172a; padding: 12px; border-radius: 6px; font-family: monospace; font-size: 11px; white-space: pre-wrap; max-height: 200px; overflow-y: auto; margin-top: 10px; }
+        .ai-fix-actions { display: flex; gap: 8px; margin-top: 12px; }
+        
+        /* Table */
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid #334155; }
+        th { background: #334155; color: #94a3b8; font-weight: 600; text-transform: uppercase; font-size: 11px; position: sticky; top: 0; }
+        tr:hover { background: rgba(96, 165, 250, 0.1); }
+        .table-container { max-height: 500px; overflow-y: auto; border-radius: 8px; }
+        
+        /* Badges */
+        .badge { padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+        .badge-complete { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
+        .badge-pending { background: rgba(245, 158, 11, 0.2); color: #f59e0b; }
+        .badge-auto { background: rgba(139, 92, 246, 0.2); color: #a78bfa; }
+        .badge-manual { background: rgba(96, 165, 250, 0.2); color: #60a5fa; }
+        .badge-clean { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
+        .badge-moderate { background: rgba(245, 158, 11, 0.2); color: #f59e0b; }
+        .badge-problematic { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+        .badge-nightmare { background: rgba(139, 92, 246, 0.2); color: #a78bfa; }
+        .badge-high { background: rgba(245, 158, 11, 0.2); color: #f59e0b; }
+        .badge-ai { background: rgba(139, 92, 246, 0.2); color: #a78bfa; }
+        
+        /* Progress Steps */
+        .progress-steps { display: flex; gap: 4px; }
+        .progress-step { padding: 2px 6px; border-radius: 3px; font-size: 9px; font-weight: 700; }
+        .progress-step.done { background: rgba(34, 197, 94, 0.3); color: #22c55e; }
+        .progress-step.pending { background: #334155; color: #64748b; }
+        
+        /* Code */
+        .code { font-family: 'SF Mono', Monaco, monospace; background: #334155; padding: 2px 6px; border-radius: 4px; font-size: 11px; }
+        
+        /* Filter */
+        .filter-row { display: flex; gap: 12px; margin-bottom: 16px; align-items: center; }
+        .filter-row select { width: auto; }
+        
+        /* Empty state */
+        .empty-state { text-align: center; padding: 40px; color: #64748b; }
+        .empty-state .icon { font-size: 48px; margin-bottom: 16px; }
+        
+        /* Loading spinner */
+        .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid #64748b; border-top-color: #a78bfa; border-radius: 50%; animation: spin 0.8s linear infinite; }
+        
+        /* Tabs */
+        .tab-btn { background: #334155; color: #94a3b8; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px; transition: all 0.2s; }
+        .tab-btn:hover { background: #475569; color: #e2e8f0; }
+        .tab-btn.active { background: linear-gradient(135deg, #3b82f6, #8b5cf6); color: white; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        /* Modal */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; justify-content: center; align-items: center; }
+        .modal.active { display: flex; }
+        .modal-content { background: #1e293b; border-radius: 12px; width: 90%; max-width: 500px; max-height: 90vh; overflow-y: auto; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-bottom: 1px solid #334155; }
+        .modal-header h3 { margin: 0; color: #e2e8f0; }
+        .modal-close { background: none; border: none; color: #94a3b8; font-size: 24px; cursor: pointer; }
+        .modal-close:hover { color: #e2e8f0; }
+        #bugForm { padding: 20px; }
+        #bugForm .form-group { margin-bottom: 12px; }
+        #bugForm textarea { width: 100%; resize: vertical; }
+        #bugForm input, #bugForm textarea { width: 100%; }
+        
+        /* Bug items */
+        .bug-item { background: #0a1628; border-radius: 8px; padding: 14px 16px; margin-bottom: 8px; cursor: pointer; transition: background 0.15s; border-left: 3px solid #64748b; }
+        .bug-item:hover { background: #111f35; }
+        .bug-item.critical { border-left-color: #ef4444; }
+        .bug-item.high { border-left-color: #f97316; }
+        .bug-item.medium { border-left-color: #f59e0b; }
+        .bug-item.low { border-left-color: #64748b; }
+        .bug-item-header { display: flex; justify-content: space-between; align-items: center; }
+        .bug-item-title { font-weight: 600; color: #e2e8f0; }
+        .bug-item-meta { font-size: 12px; color: #64748b; margin-top: 4px; }
+
+        /* ── QA Dashboard ─────────────────────────────────────── */
+        .qa-card { background: #0d1f35; border: 1px solid #1a2f48; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+        .qa-failures-card { border-color: rgba(248,113,113,0.25); background: rgba(239,68,68,0.04); }
+        .qa-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+        .qa-card-title { font-size: 13px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.08em; }
+
+        /* Suite toggles */
+        .qa-suite-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+        .qa-suite-toggle { display: flex; align-items: center; gap: 7px; padding: 7px 12px; background: #0a1628; border: 1px solid #1e2d45; border-radius: 8px; cursor: pointer; font-size: 13px; color: #64748b; transition: all 0.15s; user-select: none; }
+        .qa-suite-toggle:has(input:checked) { background: rgba(59,130,246,0.1); border-color: rgba(59,130,246,0.35); color: #93c5fd; }
+        .qa-suite-toggle input { display: none; }
+        .qa-suite-icon { font-size: 15px; }
+        .qa-suite-name { font-weight: 500; }
+
+        /* Options row */
+        .qa-options-row { display: flex; gap: 20px; align-items: flex-end; flex-wrap: wrap; }
+        .qa-option-group { display: flex; flex-direction: column; gap: 4px; }
+        .qa-option-label { font-size: 11px; color: #475569; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; }
+        .qa-select { background: #0a1628; border: 1px solid #1e2d45; color: #cbd5e1; border-radius: 6px; padding: 6px 10px; font-size: 13px; }
+
+        /* Progress */
+        .qa-progress-wrap { margin-top: 16px; display: flex; align-items: center; gap: 12px; }
+        .qa-progress-bar-track { flex: 1; height: 6px; background: #1e2d45; border-radius: 3px; overflow: hidden; }
+        .qa-progress-bar-fill { height: 100%; background: linear-gradient(90deg, #3b82f6, #8b5cf6); border-radius: 3px; transition: width 0.4s ease; }
+        .qa-progress-label { font-size: 12px; color: #64748b; white-space: nowrap; min-width: 120px; }
+
+        /* Buttons */
+        .qa-btn { border: none; border-radius: 6px; padding: 7px 14px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.15s; }
+        .qa-btn-primary { background: #3b82f6; color: white; }
+        .qa-btn-primary:hover { background: #2563eb; }
+        .qa-btn-ghost { background: rgba(255,255,255,0.05); color: #94a3b8; border: 1px solid #1e2d45; }
+        .qa-btn-ghost:hover { background: rgba(255,255,255,0.1); color: #e2e8f0; }
+
+        /* Scoreboard */
+        .qa-scoreboard-row { display: grid; grid-template-columns: 180px 1fr 90px; gap: 0; border-bottom: 1px solid #0f1e30; align-items: stretch; }
+        .qa-scoreboard-row:last-child { border-bottom: none; }
+        .qa-scoreboard-suite { display: flex; align-items: center; gap: 10px; padding: 12px 0; font-size: 13px; color: #cbd5e1; font-weight: 500; }
+        .qa-scoreboard-bar-wrap { display: flex; align-items: center; padding: 12px 16px; gap: 8px; }
+        .qa-scoreboard-bar-track { flex: 1; height: 8px; background: #0a1628; border-radius: 4px; overflow: hidden; }
+        .qa-scoreboard-bar-fill { height: 100%; border-radius: 4px; transition: width 0.6s ease; }
+        .qa-scoreboard-count { padding: 12px 0; text-align: right; font-size: 12px; font-weight: 700; white-space: nowrap; }
+
+        /* Failure drill-down */
+        .qa-failure-group { margin-bottom: 16px; border-radius: 8px; overflow: hidden; border: 1px solid rgba(248,113,113,0.2); }
+        .qa-failure-group-header { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: rgba(239,68,68,0.08); }
+        .qa-failure-group-name { font-size: 13px; font-weight: 700; color: #fca5a5; }
+        .qa-failure-group-count { font-size: 11px; font-weight: 700; color: #ef4444; background: rgba(239,68,68,0.15); padding: 2px 8px; border-radius: 4px; }
+        .qa-failure-row { padding: 10px 14px; border-top: 1px solid rgba(239,68,68,0.1); background: rgba(239,68,68,0.03); }
+        .qa-failure-name { font-size: 13px; color: #f87171; font-weight: 600; margin-bottom: 3px; }
+        .qa-failure-detail { font-size: 12px; color: #94a3b8; font-family: 'SF Mono', 'Fira Code', monospace; }
+        .qa-failure-error { font-size: 12px; color: #fca5a5; margin-top: 6px; padding: 6px 10px; background: rgba(239,68,68,0.1); border-radius: 4px; border-left: 2px solid #ef4444; }
+        .qa-passing-pills { display: flex; flex-wrap: wrap; gap: 5px; padding: 8px 14px; border-top: 1px solid #0f1e30; background: rgba(0,0,0,0.2); }
+        .qa-passing-pill { font-size: 11px; color: #1e4d2e; background: rgba(34,197,94,0.07); border: 1px solid rgba(34,197,94,0.12); border-radius: 4px; padding: 2px 7px; }
+
+        /* Bug stats bar */
+        .qa-bug-stats { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+        .qa-bug-stat { padding: 8px 14px; border-radius: 8px; text-align: center; min-width: 70px; }
+        .qa-bug-stat-value { font-size: 22px; font-weight: 800; line-height: 1; }
+        .qa-bug-stat-label { font-size: 10px; color: #64748b; text-transform: uppercase; letter-spacing: 0.06em; margin-top: 3px; }
+
+        /* Session history table */
+        .qa-filter-row { display: flex; gap: 10px; align-items: center; padding-top: 4px; }
+        .qa-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 12px; }
+        .qa-table th { text-align: left; color: #475569; font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; padding: 6px 10px; border-bottom: 1px solid #1a2f48; }
+        .qa-table td { padding: 8px 10px; border-bottom: 1px solid #0f1e30; color: #94a3b8; vertical-align: middle; }
+        .qa-table tr:last-child td { border-bottom: none; }
+        .qa-table tr:hover td { background: rgba(59,130,246,0.04); }
+
+        /* Config status dots */
+        .qa-config-dot { display: flex; align-items: center; gap: 5px; font-size: 11px; color: #64748b; }
+        .qa-config-dot::before { content: ''; width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+        .qa-config-dot.ok::before { background: #22c55e; }
+        .qa-config-dot.warn::before { background: #f59e0b; }
+        .qa-config-dot.err::before { background: #ef4444; }
+    </style>
+</head>
+<body>
+    <!-- Admin Navigation -->
+    <div style="display:flex;gap:8px;margin-bottom:20px;padding:12px 16px;background:#1e293b;border-radius:10px;align-items:center;flex-wrap:wrap;">
+        <span style="color:#60a5fa;font-weight:800;margin-right:12px;">⚙️ Admin</span>
+        <a href="/admin?admin_key=__ADMIN_KEY__" style="padding:6px 14px;background:#3b82f6;color:white;border-radius:6px;text-decoration:none;font-size:13px;font-weight:600;">📊 Dashboard</a>
+        <a href="/admin/insights?admin_key=__ADMIN_KEY__" style="padding:6px 14px;background:rgba(139,92,246,0.2);color:#a78bfa;border-radius:6px;text-decoration:none;font-size:13px;font-weight:600;border:1px solid rgba(139,92,246,0.3);">🔬 Insights</a>
+        <a href="/admin/gtm?admin_key=__ADMIN_KEY__" style="padding:6px 14px;background:rgba(255,255,255,0.08);color:#e2e8f0;border-radius:6px;text-decoration:none;font-size:13px;font-weight:600;">🚀 GTM</a>
+        <a href="/admin/api-costs?admin_key=__ADMIN_KEY__" style="padding:6px 14px;background:rgba(255,255,255,0.08);color:#e2e8f0;border-radius:6px;text-decoration:none;font-size:13px;font-weight:600;">💸 API Costs</a>
+        <a href="/admin/infra-costs?admin_key=__ADMIN_KEY__" style="padding:6px 14px;background:rgba(255,255,255,0.08);color:#e2e8f0;border-radius:6px;text-decoration:none;font-size:13px;font-weight:600;">🏗️ Infra Costs</a>
+        <a href="/admin/support-shares?admin_key=__ADMIN_KEY__" style="padding:6px 14px;background:rgba(255,255,255,0.08);color:#e2e8f0;border-radius:6px;text-decoration:none;font-size:13px;font-weight:600;">🆘 Support</a>
+        <a href="/admin/shared-analyses?admin_key=__ADMIN_KEY__" style="padding:6px 14px;background:rgba(255,255,255,0.08);color:#e2e8f0;border-radius:6px;text-decoration:none;font-size:13px;font-weight:600;">🔍 Shared</a>
+        <a href="/debug?admin_key=__ADMIN_KEY__" style="padding:6px 14px;background:rgba(255,255,255,0.08);color:#e2e8f0;border-radius:6px;text-decoration:none;font-size:13px;font-weight:600;">🔧 Debug</a>
+        <a href="/dashboard" style="padding:6px 14px;background:rgba(255,255,255,0.08);color:#e2e8f0;border-radius:6px;text-decoration:none;font-size:13px;font-weight:600;">← App</a>
+    </div>
+
+    <div class="header">
+        <div>
+            <h1>📊 OfferWise Command Center</h1>
+            <p class="subtitle">Users, feedback, QA, and operations</p>
+        </div>
+        <div style="display: flex; gap: 12px; align-items: center;">
+            <span id="healthBadge" style="font-size:13px; padding:6px 14px; border-radius:20px; background:rgba(100,116,139,0.2); color:#94a3b8;">⏳ Checking...</span>
+            <button class="btn btn-secondary btn-sm" onclick="analyzeSystem()" id="analyzeSystemBtn" style="font-size:12px;">↻ Recheck</button>
+        </div>
+    </div>
+    
+    <!-- Tab Navigation -->
+    <div class="tabs" style="display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap;">
+        <button class="tab-btn active" id="tabAnalytics" onclick="switchTab('analytics')">📊 Overview</button>
+        <button class="tab-btn" id="tabSurveys" onclick="switchTab('surveys')">💬 Feedback (<span id="pmfScore">-</span>% PMF · <span id="feedbackTotal">0</span>)</button>
+        <button class="tab-btn" id="tabTests" onclick="switchTab('tests')">🧪 QA (<span id="openBugCount">0</span> bugs)</button>
+        <button class="tab-btn" id="tabDocrepo" onclick="switchTab('docrepo')">📄 Docs (<span id="docrepoTotal">0</span>)</button>
+    </div>
+    
+    <!-- ANALYTICS TAB -->
+    <div id="analyticsTab" class="tab-content active">
+    
+    <!-- Key Metrics -->
+    <div class="card">
+        <div class="section-header">
+            <h2 style="margin: 0; border: none; padding: 0;">🎯 Key Metrics</h2>
+            <button class="btn btn-secondary btn-sm" onclick="loadAnalytics()">🔄 Refresh</button>
+        </div>
+        <div class="stats" id="keyMetrics">
+            <div class="stat stat-large"><div class="stat-value">-</div><div class="stat-label">Loading...</div></div>
+        </div>
+    </div>
+    
+    <!-- Lead Nurture (Drip Campaign) -->
+    <div class="card">
+        <div class="section-header">
+            <h2 style="margin: 0; border: none; padding: 0;">📧 Lead Nurture</h2>
+            <button class="btn btn-secondary btn-sm" onclick="loadWaitlist()">↻ Refresh</button>
+        </div>
+        <p style="color:#64748b; font-size:12px; margin-bottom:12px;">Pre-signup funnel: anonymous visitors who used a free tool &rarr; email captured &rarr; 5-email drip sequence &rarr; monthly listings &rarr; account signup.</p>
+        <div class="stats" id="dripFunnel">
+            <div class="stat"><div class="stat-value">-</div><div class="stat-label">Loading...</div></div>
+        </div>
+        <div id="dripBarChart" style="margin-top:16px;"></div>
+        <div id="dripDetail" style="margin-top:12px; font-size:12px; color:#64748b;"></div>
+        <div id="dripEngagement" style="margin-top:16px;"></div>
+    </div>
+    
+    <!-- Funnel Metrics -->
+    <div class="card">
+        <div class="section-header">
+            <h2 style="margin: 0; border: none; padding: 0;">🔄 Conversion Funnel</h2>
+        </div>
+        <p style="color:#64748b; font-size:12px; margin-bottom:12px;">Post-signup funnel: registered users &rarr; first analysis &rarr; repeat usage &rarr; purchase.</p>
+        <div class="stats" id="funnelMetrics">
+            <div class="stat"><div class="stat-value">-</div><div class="stat-label">Loading...</div></div>
+        </div>
+        <div id="funnelVisualization" style="margin-top: 20px;"></div>
+    </div>
+    
+    <!-- User Engagement -->
+    <div class="card">
+        <div class="section-header">
+            <h2 style="margin: 0; border: none; padding: 0;">👥 User Engagement</h2>
+        </div>
+        <div class="stats" id="engagementMetrics">
+            <div class="stat"><div class="stat-value">-</div><div class="stat-label">Loading...</div></div>
+        </div>
+    </div>
+    
+    <!-- Revenue -->
+    <div class="card">
+        <div class="section-header">
+            <h2 style="margin: 0; border: none; padding: 0;">💰 Revenue</h2>
+        </div>
+        <div class="stats" id="revenueMetrics">
+            <div class="stat"><div class="stat-value">-</div><div class="stat-label">Loading...</div></div>
+        </div>
+    </div>
+    
+    <!-- Power Users -->
+    <div class="card">
+        <div class="section-header">
+            <h2 style="margin: 0; border: none; padding: 0;">⭐ Power Users (3+ analyses or purchased)</h2>
+        </div>
+        <div class="table-container" style="max-height: 300px;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Email</th>
+                        <th>Analyses</th>
+                        <th>Credits</th>
+                        <th>Purchased</th>
+                        <th>Joined</th>
+                        <th>Last Login</th>
+                    </tr>
+                </thead>
+                <tbody id="powerUsersTable">
+                    <tr><td colspan="6" style="text-align: center; color: #64748b;">Loading...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- All Users -->
+    <div class="card">
+        <div class="section-header">
+            <h2 style="margin: 0; border: none; padding: 0;">👥 All Users</h2>
+        </div>
+        <div class="table-container" style="max-height: 500px;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Email</th>
+                        <th>Analyses</th>
+                        <th>Credits</th>
+                        <th>Tier</th>
+                        <th>Referral Code</th>
+                        <th>Joined</th>
+                        <th>Last Login</th>
+                    </tr>
+                </thead>
+                <tbody id="allUsersTable">
+                    <tr><td colspan="7" style="text-align: center; color: #64748b;">Loading...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- Recent Activity -->
+    <div class="card">
+        <div class="section-header">
+            <h2 style="margin: 0; border: none; padding: 0;">📈 Recent Activity (Last 7 Days)</h2>
+        </div>
+        <p style="color:#64748b; font-size:12px; margin-bottom:12px;">Daily count of analyses, signups, and purchases across all users.</p>
+        <div id="recentActivity">
+            <div style="color: #64748b; text-align: center; padding: 20px;">Loading...</div>
+        </div>
+    </div>
+    
+    <!-- Waitlist Detail Table -->
+    <div class="card">
+        <div class="section-header">
+            <h2 style="margin: 0; border: none; padding: 0;">🏘️ Recent Leads</h2>
+        </div>
+        <p style="color:#64748b; font-size:12px; margin-bottom:12px;">Most recent waitlist signups from free tools. Shows drip progress and source.</p>
+        <div style="overflow-x: auto;">
+            <table class="table">
+                <thead><tr>
+                    <th>Email</th><th>Source</th><th>ZIP</th><th>Grade</th><th>Drip Step</th><th>Status</th><th>Signed Up</th>
+                </tr></thead>
+                <tbody id="waitlistTableBody">
+                    <tr><td colspan="7" style="color:#64748b; text-align:center; padding:20px;">Loading...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- Market Intelligence (v5.62.92) -->
+    <div class="card">
+        <div class="section-header">
+            <h2 style="margin: 0; border: none; padding: 0;">📊 Market Intelligence</h2>
+            <button class="btn btn-primary btn-sm" onclick="runMarketIntel()" id="runIntelBtn">🚀 Run Now</button>
+        </div>
+        <p style="color:#64748b; font-size:12px; margin-bottom:12px;">Nightly scan of listings in ZIP codes where users have analyzed properties. Generates market snapshots and price-change alerts sent via drip email.</p>
+        <div class="stats" id="intelStats">
+            <div class="stat"><div class="stat-value" id="intelSnapshots">-</div><div class="stat-label">Snapshots Today</div></div>
+            <div class="stat"><div class="stat-value" id="intelAlerts">-</div><div class="stat-label">Alerts Sent</div></div>
+            <div class="stat"><div class="stat-value" id="intelPrefs">-</div><div class="stat-label">Users w/ ZIP Set</div></div>
+        </div>
+        <div id="intelResult" style="margin-top:12px;display:none;padding:10px 14px;border-radius:8px;font-size:13px;"></div>
+    </div>
+    
+    </div><!-- END ANALYTICS TAB -->
+    
+    <!-- SURVEYS TAB -->
+    <div id="surveysTab" class="tab-content">
+    
+    <!-- PMF Score Card -->
+    <div class="card" style="border: 2px solid #8b5cf6;">
+        <div class="section-header">
+            <h2 style="margin: 0; border: none; padding: 0;">🎯 Product-Market Fit Score</h2>
+            <button class="btn btn-secondary btn-sm" onclick="loadSurveys()">🔄 Refresh</button>
+        </div>
+        <div style="color: #94a3b8; font-size: 13px; margin-bottom: 20px; font-style: italic;">
+            Question: "How would you feel if you could no longer use OfferWise?"
+        </div>
+        
+        <div style="display: flex; align-items: center; gap: 40px; margin-bottom: 24px;">
+            <div style="text-align: center;">
+                <div id="pmfScoreLarge" style="font-size: 72px; font-weight: 800; color: #8b5cf6;">-</div>
+                <div style="color: #94a3b8; font-size: 14px;">PMF Score</div>
+            </div>
+            <div style="flex: 1;">
+                <div style="background: #334155; border-radius: 8px; height: 24px; overflow: hidden; position: relative;">
+                    <div id="pmfProgressBar" style="background: linear-gradient(90deg, #ef4444, #f59e0b, #22c55e); height: 100%; width: 0%; transition: width 0.5s;"></div>
+                    <div style="position: absolute; left: 40%; top: 0; bottom: 0; width: 2px; background: white;"></div>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-top: 8px; color: #64748b; font-size: 12px;">
+                    <span>0%</span>
+                    <span style="color: #22c55e;">40% = PMF</span>
+                    <span>100%</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="stats" id="pmfStats">
+            <div class="stat"><div class="stat-value">-</div><div class="stat-label">Loading...</div></div>
+        </div>
+        
+        <div id="pmfVerdict" style="padding: 16px; border-radius: 8px; text-align: center; margin-top: 16px;"></div>
+    </div>
+    
+    <!-- Exit Survey Summary -->
+    <div class="card">
+        <div class="section-header">
+            <h2 style="margin: 0; border: none; padding: 0;">🚪 Exit Survey Reasons</h2>
+        </div>
+        <div style="color: #94a3b8; font-size: 13px; margin-bottom: 16px; font-style: italic;">
+            Question: "What stopped you from completing your analysis?"
+        </div>
+        <div id="exitReasons" class="stats">
+            <div class="stat"><div class="stat-value">-</div><div class="stat-label">Loading...</div></div>
+        </div>
+    </div>
+    
+    <!-- Recent PMF Responses -->
+    <div class="card">
+        <div class="section-header">
+            <h2 style="margin: 0; border: none; padding: 0;">💬 Recent PMF Responses</h2>
+        </div>
+        <div id="recentPMF" class="results-grid" style="max-height: 400px; overflow-y: auto;">
+            <div style="color: #64748b; text-align: center; padding: 20px;">Loading...</div>
+        </div>
+    </div>
+    
+    <!-- Recent Exit Responses -->
+    <div class="card">
+        <div class="section-header">
+            <h2 style="margin: 0; border: none; padding: 0;">🚪 Recent Exit Responses</h2>
+        </div>
+        <div id="recentExit" class="results-grid" style="max-height: 400px; overflow-y: auto;">
+            <div style="color: #64748b; text-align: center; padding: 20px;">Loading...</div>
+        </div>
+    </div>
+    
+    <!-- Quick Feedback (in-app reactions) -->
+    <div class="card" style="border: 2px solid #3b82f6;">
+        <div class="section-header">
+            <h2 style="margin: 0; border: none; padding: 0;">⚡ Quick Feedback (In-App Reactions)</h2>
+        </div>
+        <div style="color: #94a3b8; font-size: 13px; margin-bottom: 16px; font-style: italic;">
+            From the persistent feedback tab on the analysis page. Lowest friction — users click a reaction + optional message.
+        </div>
+        <div class="stats" id="quickFeedbackStats">
+            <div class="stat"><div class="stat-value">-</div><div class="stat-label">Loading...</div></div>
+        </div>
+        <div id="quickFeedbackSentiment" style="margin-top: 12px; padding: 12px; border-radius: 8px; text-align: center; display: none;"></div>
+    </div>
+    
+    <!-- Recent Quick Feedback Messages -->
+    <div class="card">
+        <div class="section-header">
+            <h2 style="margin: 0; border: none; padding: 0;">💬 Recent Quick Feedback</h2>
+        </div>
+        <div id="recentQuick" class="results-grid" style="max-height: 400px; overflow-y: auto;">
+            <div style="color: #64748b; text-align: center; padding: 20px;">Loading...</div>
+        </div>
+    </div>
+    
+    <!-- Unified Feedback Timeline -->
+    <div class="card" style="border: 2px solid #a78bfa;">
+        <div class="section-header">
+            <h2 style="margin: 0; border: none; padding: 0;">📋 All Feedback Timeline</h2>
+            <div style="display: flex; gap: 8px; align-items: center;">
+                <select id="timelineFilter" onchange="renderTimeline()" style="background: #334155; color: #e2e8f0; border: 1px solid #475569; border-radius: 6px; padding: 6px 12px; font-size: 12px;">
+                    <option value="all">All Sources</option>
+                    <option value="pmf">PMF Survey</option>
+                    <option value="quick">Quick Feedback</option>
+                    <option value="exit">Exit Survey</option>
+                </select>
+            </div>
+        </div>
+        <div style="color: #94a3b8; font-size: 13px; margin-bottom: 16px; font-style: italic;">
+            Every piece of feedback across all channels, newest first.
+        </div>
+        <div id="feedbackTimeline" class="results-grid" style="max-height: 600px; overflow-y: auto;">
+            <div style="color: #64748b; text-align: center; padding: 20px;">Loading...</div>
+        </div>
+    </div>
+    
+    <!-- Email Templates for User Interviews -->
+    <div class="card">
+        <div class="section-header">
+            <h2 style="margin: 0; border: none; padding: 0;">📧 Power User Interview Templates</h2>
+        </div>
+        
+        <!-- Template 1: Initial Outreach -->
+        <div style="background: #334155; padding: 20px; border-radius: 8px; margin-bottom: 16px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                <h3 style="color: #60a5fa; font-size: 14px; margin: 0;">Initial Outreach Email</h3>
+                <button class="btn btn-sm btn-secondary" onclick="copyTemplate('template1')">📋 Copy</button>
+            </div>
+            <pre id="template1" style="background: #1e293b; padding: 16px; border-radius: 6px; color: #e2e8f0; font-size: 13px; white-space: pre-wrap; line-height: 1.6;">Subject: Quick chat about your OfferWise experience? (15 min)
+
+Hi [NAME],
+
+I noticed you've analyzed [X] properties with OfferWise - that's awesome! I'm Francis, the founder, and I'd love to learn more about your experience.
+
+Would you be open to a quick 15-minute call? I'm genuinely curious:
+• What made you try OfferWise?
+• How has it helped (or not helped) your home buying process?
+• What would make it even better?
+
+As a thank you, I'll add 3 free analysis credits to your account.
+
+Here's my calendar if any time works: [CALENDLY_LINK]
+
+Or just reply to this email with a time that works for you.
+
+Thanks for being an early user!
+
+Francis
+Founder, OfferWise</pre>
+        </div>
+        
+        <!-- Template 2: Follow-up -->
+        <div style="background: #334155; padding: 20px; border-radius: 8px; margin-bottom: 16px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                <h3 style="color: #22c55e; font-size: 14px; margin: 0;">Interview Questions (for the call)</h3>
+                <button class="btn btn-sm btn-secondary" onclick="copyTemplate('template2')">📋 Copy</button>
+            </div>
+            <pre id="template2" style="background: #1e293b; padding: 16px; border-radius: 6px; color: #e2e8f0; font-size: 13px; white-space: pre-wrap; line-height: 1.6;">POWER USER INTERVIEW SCRIPT (15 min)
+
+BACKGROUND (2 min)
+• Tell me about your home buying journey. Where are you in the process?
+• How many properties have you looked at?
+
+DISCOVERY (3 min)  
+• Before OfferWise, how did you review disclosure documents?
+• What was the most frustrating part of that process?
+• How did you find out about OfferWise?
+
+VALUE (5 min)
+• What's the main benefit you get from OfferWise?
+• Can you tell me about a specific time it helped you?
+• Has it changed how you evaluate properties?
+• Would you feel confident making an offer without it now?
+
+IMPROVEMENT (3 min)
+• What's missing? What would make it 10x better?
+• Is there anything confusing or frustrating?
+• What would make you recommend it to a friend?
+
+CLOSING (2 min)
+• On a scale of 1-10, how likely are you to recommend OfferWise?
+• Anything else you want to share?
+
+THANK THEM & ADD 3 CREDITS TO THEIR ACCOUNT</pre>
+        </div>
+        
+        <!-- Template 3: Churned User -->
+        <div style="background: #334155; padding: 20px; border-radius: 8px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                <h3 style="color: #f59e0b; font-size: 14px; margin: 0;">Churned User Email</h3>
+                <button class="btn btn-sm btn-secondary" onclick="copyTemplate('template3')">📋 Copy</button>
+            </div>
+            <pre id="template3" style="background: #1e293b; padding: 16px; border-radius: 6px; color: #e2e8f0; font-size: 13px; white-space: pre-wrap; line-height: 1.6;">Subject: We miss you! Quick question about OfferWise
+
+Hi [NAME],
+
+I noticed you signed up for OfferWise but haven't analyzed a property yet. I'm Francis, the founder, and I wanted to personally reach out.
+
+Was there something that didn't work for you? I'd genuinely love to know - even a one-line reply helps us improve.
+
+Common reasons people don't continue:
+• Didn't have documents ready yet
+• Pricing wasn't right  
+• Something was confusing
+• Found another solution
+
+If you reply with what happened, I'll add 2 free credits to your account either way - no strings attached.
+
+Thanks,
+Francis
+Founder, OfferWise
+
+P.S. If you did find another solution, I'd actually love to know what it was. Understanding the alternatives helps us build something better.</pre>
+        </div>
+    </div>
+    
+    <!-- Competitive Analysis -->
+    <div class="card">
+        <div class="section-header">
+            <h2 style="margin: 0; border: none; padding: 0;">🔍 Competitive Landscape <span style="font-size:11px;color:#64748b;font-weight:400;">(Updated Feb 2026)</span></h2>
+        </div>
+        
+        <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+                <thead>
+                    <tr style="background: #334155;">
+                        <th style="padding: 12px; text-align: left; border-bottom: 2px solid #475569;">Competitor</th>
+                        <th style="padding: 12px; text-align: left; border-bottom: 2px solid #475569;">Target</th>
+                        <th style="padding: 12px; text-align: left; border-bottom: 2px solid #475569;">Key Features</th>
+                        <th style="padding: 12px; text-align: left; border-bottom: 2px solid #475569;">Pricing</th>
+                        <th style="padding: 12px; text-align: left; border-bottom: 2px solid #475569;">OfferWise Edge</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="border-bottom: 1px solid #334155;">
+                        <td style="padding: 12px;"><strong style="color: #60a5fa;">DisclosureDuo</strong></td>
+                        <td style="padding: 12px;">Agents & Buyers</td>
+                        <td style="padding: 12px;">AI summaries, chat with docs, Duo Grading, repair cost estimates, client chatbot sharing</td>
+                        <td style="padding: 12px;"><strong>Free trial (70 credits), $34.99/mo (70 credits/mo), Teams: custom</strong></td>
+                        <td style="padding: 12px; color: #22c55e;">✓ OfferScore™ + negotiation toolkit + seller contradiction detection</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #334155;">
+                        <td style="padding: 12px;"><strong style="color: #60a5fa;">DiscloseFlow</strong></td>
+                        <td style="padding: 12px;">Agents & Teams</td>
+                        <td style="padding: 12px;">PDF analysis, 2-3 min processing, team pricing, HOA doc support</td>
+                        <td style="padding: 12px;"><strong>Free 1st analysis, then subscription (pricing hidden)</strong></td>
+                        <td style="padding: 12px; color: #22c55e;">✓ Transparent pricing, inspection + disclosure cross-reference</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #334155;">
+                        <td style="padding: 12px;"><strong style="color: #60a5fa;">DisclosureIQ</strong></td>
+                        <td style="padding: 12px;">Agents</td>
+                        <td style="padding: 12px;">AI summaries, issue detection, repair costs, handwriting OCR, 14-day trial</td>
+                        <td style="padding: 12px;"><strong>14-day free trial, then subscription (pricing hidden)</strong></td>
+                        <td style="padding: 12px; color: #22c55e;">✓ Buyer-first + offer strategy, not just summarization</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #334155;">
+                        <td style="padding: 12px;"><strong style="color: #60a5fa;">Disclosures.io (HomeLight)</strong></td>
+                        <td style="padding: 12px;">Agents (listing side)</td>
+                        <td style="padding: 12px;">Document management, sharing, offer tracking, form filling, DocuSign</td>
+                        <td style="padding: 12px;"><strong>Free basic, $39/mo Pro, $399/yr</strong></td>
+                        <td style="padding: 12px; color: #22c55e;">✓ AI analysis (they do doc management, not analysis)</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #334155;">
+                        <td style="padding: 12px;"><strong style="color: #60a5fa;">PropDisc</strong> <span style="font-size:10px;color:#f59e0b;">NEW</span></td>
+                        <td style="padding: 12px;">Agents & TCs</td>
+                        <td style="padding: 12px;">AI-first disclosure management, buyer engagement analytics, offer management (by Disclosures.io founder)</td>
+                        <td style="padding: 12px;"><strong>Unknown (early stage)</strong></td>
+                        <td style="padding: 12px; color: #22c55e;">✓ OfferScore™ gives actionable offer price, not just summaries</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #334155;">
+                        <td style="padding: 12px;"><strong style="color: #60a5fa;">RealReports (Aiden AI)</strong></td>
+                        <td style="padding: 12px;">Agents</td>
+                        <td style="padding: 12px;">Property data aggregation, multimodal AI, 30+ data sources</td>
+                        <td style="padding: 12px;"><strong>Subscription (B2B, pricing hidden)</strong></td>
+                        <td style="padding: 12px; color: #22c55e;">✓ Direct buyer access, per-analysis pricing</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #334155;">
+                        <td style="padding: 12px;"><strong style="color: #60a5fa;">Konfer</strong></td>
+                        <td style="padding: 12px;">Agents (compliance)</td>
+                        <td style="padding: 12px;">Agentic AI, HOA analysis, regulatory compliance (WA, CA), deadline tracking</td>
+                        <td style="padding: 12px;"><strong>Enterprise (demo-based)</strong></td>
+                        <td style="padding: 12px; color: #22c55e;">✓ Consumer pricing, no enterprise sales cycle</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #334155;">
+                        <td style="padding: 12px;"><strong style="color: #60a5fa;">Brixely</strong></td>
+                        <td style="padding: 12px;">Commercial RE</td>
+                        <td style="padding: 12px;">Data room, document intelligence, due diligence automation</td>
+                        <td style="padding: 12px;"><strong>Enterprise</strong></td>
+                        <td style="padding: 12px; color: #22c55e;">✓ Residential focus, consumer pricing</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #334155;">
+                        <td style="padding: 12px;"><strong style="color: #60a5fa;">ChatGPT / Gemini / Claude</strong></td>
+                        <td style="padding: 12px;">DIY users</td>
+                        <td style="padding: 12px;">Generic AI, user must craft prompts, no real estate structure, no cross-referencing</td>
+                        <td style="padding: 12px;"><strong>$20/mo subscription</strong></td>
+                        <td style="padding: 12px; color: #22c55e;">✓ Purpose-built, no prompting, structured output, OfferScore</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 12px;"><strong style="color: #f59e0b;">OfferWise (Us)</strong></td>
+                        <td style="padding: 12px;"><strong>Buyers (direct)</strong></td>
+                        <td style="padding: 12px;">OfferScore™, seller contradiction detection, repair cost estimation, negotiation toolkit, risk check</td>
+                        <td style="padding: 12px;"><strong style="color: #22c55e;">$19 single, $79/5-pack ($15.80), $149/12-pack ($12.42)</strong></td>
+                        <td style="padding: 12px; color: #f59e0b;">⭐ Only buyer-first product with per-analysis pay-as-you-go pricing</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <div style="margin-top: 20px; padding: 16px; background: rgba(59,130,246,.08); border: 1px solid rgba(59,130,246,.2); border-radius: 8px;">
+            <h4 style="color: #f59e0b; margin-bottom: 12px;">📊 Pricing Analysis</h4>
+            <div style="font-size: 13px; color: #cbd5e1; line-height: 1.7;">
+                <strong style="color: #22c55e;">Our strengths:</strong> Only platform with per-analysis pricing (no monthly commitment). $29 single is lower commitment than $34.99/mo subscription. Buyer-first positioning is unique — every competitor targets agents.<br><br>
+                <strong style="color: #f59e0b;">Pricing risk:</strong> DisclosureDuo gives 70 free credits on signup + $34.99/mo for 70 credits. If 1 credit ≈ 1 document, their per-doc price could be as low as ~$0.50/doc. Our $19/analysis is higher per-document if buyers compare naively. But our analysis is a full cross-referenced report with OfferScore, not just a summary.<br><br>
+                <strong style="color: #60a5fa;">Recommendation:</strong> Consider adding a free first analysis (no credit card) to match competitor onboarding friction. The $19 single, $79/5, $149/12 tier structure is strong for serious buyers who value quality over volume. Keep per-analysis pricing — it aligns with how buyers actually purchase (1-3 homes, not monthly subscription).
+            </div>
+        </div>
+        
+        <div style="margin-top: 16px; padding: 16px; background: #334155; border-radius: 8px;">
+            <h4 style="color: #f59e0b; margin-bottom: 12px;">🎯 OfferWise Differentiation</h4>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+                <div>
+                    <div style="color: #22c55e; font-weight: bold;">For Buyers, Not Agents</div>
+                    <div style="color: #94a3b8; font-size: 12px;">Every competitor targets agents. We serve buyers directly — unique positioning.</div>
+                </div>
+                <div>
+                    <div style="color: #22c55e; font-weight: bold;">OfferScore™</div>
+                    <div style="color: #94a3b8; font-size: 12px;">Single actionable number. No one else gives a concrete offer price recommendation.</div>
+                </div>
+                <div>
+                    <div style="color: #22c55e; font-weight: bold;">Seller Contradiction Detection</div>
+                    <div style="color: #94a3b8; font-size: 12px;">Cross-references disclosures vs inspection findings — unique to OfferWise.</div>
+                </div>
+                <div>
+                    <div style="color: #22c55e; font-weight: bold;">Pay-Per-Analysis</div>
+                    <div style="color: #94a3b8; font-size: 12px;">No subscription trap. Buyers use it 1-3 times then close. Aligned with the buying journey.</div>
+                </div>
+                <div>
+                    <div style="color: #22c55e; font-weight: bold;">Negotiation Toolkit</div>
+                    <div style="color: #94a3b8; font-size: 12px;">Specific dollar amounts to ask for in negotiations, not just "things to look into."</div>
+                </div>
+                <div>
+                    <div style="color: #22c55e; font-weight: bold;">Free Risk Check Tools</div>
+                    <div style="color: #94a3b8; font-size: 12px;">Risk Check, Truth Check — free tools drive organic traffic and build trust before purchase.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    </div><!-- END SURVEYS TAB -->
+    
+    <!-- TESTS TAB -->
+    <div id="testsTab" class="tab-content">
+
+      <!-- SECTION 1: RUN CONTROLS -->
+      <div class="qa-card" id="qaRunCard">
+        <div class="qa-card-header">
+          <span class="qa-card-title">Test Suite</span>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <span id="qaLastRun" style="font-size:11px;color:#475569;"></span>
+            <button class="qa-btn qa-btn-ghost" onclick="checkAllTestConfigs()">Check Configs</button>
+            <button class="qa-btn qa-btn-primary" id="runAllTestsBtn" onclick="runAllTests()">&#9654; Run Tests</button>
+          </div>
+        </div>
+        <div class="qa-suite-grid">
+          <label class="qa-suite-toggle"><input type="checkbox" id="testAnalysis" checked onchange="updateToggleUI(this)"><span class="qa-suite-icon">&#127968;</span><span class="qa-suite-name">Analysis</span></label>
+          <label class="qa-suite-toggle"><input type="checkbox" id="testStripe" checked onchange="updateToggleUI(this)"><span class="qa-suite-icon">&#128179;</span><span class="qa-suite-name">Payments</span></label>
+          <label class="qa-suite-toggle"><input type="checkbox" id="testCredits" checked onchange="updateToggleUI(this)"><span class="qa-suite-icon">&#127903;&#65039;</span><span class="qa-suite-name">Credits</span></label>
+          <label class="qa-suite-toggle"><input type="checkbox" id="testReferrals" checked onchange="updateToggleUI(this)"><span class="qa-suite-icon">&#127873;</span><span class="qa-suite-name">Referrals</span></label>
+          <label class="qa-suite-toggle"><input type="checkbox" id="testIntegrity" checked onchange="updateToggleUI(this)"><span class="qa-suite-icon">&#128300;</span><span class="qa-suite-name">Integrity</span></label>
+          <label class="qa-suite-toggle"><input type="checkbox" id="testAdversarial" checked onchange="updateToggleUI(this)"><span class="qa-suite-icon">&#128737;&#65039;</span><span class="qa-suite-name">Adversarial PDF</span></label>
+          <label class="qa-suite-toggle"><input type="checkbox" id="testCorpusPipeline" checked onchange="updateToggleUI(this)"><span class="qa-suite-icon">&#128196;</span><span class="qa-suite-name">PDF Corpus</span></label>
+        </div>
+        <div class="qa-options-row">
+          <div class="qa-option-group">
+            <label class="qa-option-label">Count per suite</label>
+            <select id="testCount" class="qa-select"><option value="1">1</option><option value="3">3</option><option value="5" selected>5</option><option value="10">10</option><option value="20">20</option></select>
+          </div>
+          <div class="qa-option-group">
+            <label class="qa-option-label">Scenario</label>
+            <select id="testScenario" class="qa-select"><option value="mixed" selected>Mixed</option><option value="clean">Clean</option><option value="moderate">Moderate issues</option><option value="problematic">Problematic</option><option value="nightmare">Nightmare</option></select>
+          </div>
+          <div id="allConfigStatus" style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;"></div>
+        </div>
+        <div class="qa-progress-wrap" id="qaProgressWrap" style="display:none;">
+          <div class="qa-progress-bar-track"><div class="qa-progress-bar-fill" id="testProgressBar" style="width:0%"></div></div>
+          <span class="qa-progress-label" id="qaProgressLabel">Running...</span>
+        </div>
+      </div>
+
+      <!-- SECTION 2: SCOREBOARD -->
+      <div class="qa-card" id="qaScoreboard" style="display:none;">
+        <div class="qa-card-header">
+          <span class="qa-card-title">Results</span>
+          <span id="qaScoreboardDuration" style="font-size:12px;color:#475569;"></span>
+        </div>
+        <div id="qaScoreboardGrid"></div>
+      </div>
+
+      <!-- SECTION 3: FAILURES DRILL-DOWN -->
+      <div class="qa-card qa-failures-card" id="qaFailuresCard" style="display:none;">
+        <div class="qa-card-header">
+          <span class="qa-card-title" style="color:#f87171;">Failures</span>
+          <div style="display:flex;gap:8px;">
+            <button class="qa-btn qa-btn-ghost" onclick="copyBugsForClaude()">&#128203; Copy for Claude</button>
+            <button class="qa-btn qa-btn-ghost" onclick="analyzeAllFoundBugs()">&#129302; AI Analyze</button>
+          </div>
+        </div>
+        <div id="qaFailuresList"></div>
+      </div>
+
+      <!-- SECTION 4: OPEN BUGS -->
+      <div class="qa-card" id="allBugsSection">
+        <div class="qa-card-header">
+          <span class="qa-card-title">Open Bugs</span>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <select id="bugStatusFilter" onchange="loadAllBugs()" class="qa-select" style="font-size:12px;padding:4px 8px;"><option value="open">Open</option><option value="all">All</option><option value="in_progress">In Progress</option><option value="fixed">Fixed</option></select>
+            <button class="qa-btn qa-btn-ghost" onclick="loadAllBugs()">&#8635;</button>
+            <button class="qa-btn qa-btn-ghost" onclick="copyAllBugsForClaude()">&#128203; Copy</button>
+            <button class="qa-btn qa-btn-ghost" onclick="closeOldBugs()">&#129529; Close Old</button>
+            <button class="qa-btn qa-btn-primary" onclick="openNewBugModal()">+ Bug</button>
+          </div>
+        </div>
+        <div class="qa-bug-stats" id="allBugStats"></div>
+        <div id="allBugsList"></div>
+      </div>
+
+      <!-- SECTION 5: SESSION HISTORY (collapsed) -->
+      <div class="qa-card">
+        <div class="qa-card-header" onclick="toggleSessions()" style="cursor:pointer;user-select:none;">
+          <span class="qa-card-title">Session History</span>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <span id="sessionCount" style="font-size:12px;color:#475569;"></span>
+            <button class="qa-btn qa-btn-ghost" onclick="event.stopPropagation();loadSessions()">&#8635;</button>
+            <button class="qa-btn qa-btn-ghost" onclick="event.stopPropagation();cleanupStale()">&#129529; Stale</button>
+            <span id="sessionsChevron" style="color:#475569;font-size:12px;transition:transform 0.2s;display:inline-block;">&#9660;</span>
+          </div>
+        </div>
+        <div id="sessionsPanel" style="display:none;">
+          <div class="qa-filter-row">
+            <label class="qa-option-label">Filter</label>
+            <select id="sessionFilter" onchange="loadSessions()" class="qa-select"><option value="all">All Sessions</option><option value="auto">Auto Only</option><option value="manual">Manual Only</option><option value="complete">Completed</option><option value="pending">In Progress</option></select>
+          </div>
+          <div style="overflow-x:auto;margin-top:12px;">
+            <table class="qa-table"><thead><tr><th>ID</th><th>Type</th><th>Scenario</th><th>Status</th><th>Time</th><th>Progress</th><th>Code</th><th>Started</th></tr></thead><tbody id="sessionsTable"></tbody></table>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- END TESTS TAB -->
+    
+    <!-- DOCUMENT REPO TAB -->
+    <div id="docrepoTab" class="tab-content">
+        <div class="card">
+            <div class="section-header">
+                <h2 style="margin:0;border:none;padding:0;">📄 Document Repository</h2>
+                <div style="display:flex;gap:8px;">
+                    <button class="btn btn-secondary btn-sm" onclick="loadDocRepo()">🔄 Refresh</button>
+                    <button class="btn btn-primary btn-sm" onclick="runParserTest()">🧪 Run Parser on Selected</button>
+                </div>
+            </div>
+
+            <!-- Stats -->
+            <div class="stats" id="docrepoStats">
+                <div class="stat"><div class="stat-value">-</div><div class="stat-label">Total Docs</div></div>
+            </div>
+
+            <!-- Filters -->
+            <div class="filter-row">
+                <select id="docCategoryFilter" onchange="filterDocs()">
+                    <option value="all">All Categories</option>
+                    <option value="inspection_report">🔍 Inspection Reports</option>
+                    <option value="disclosure_statement">📋 Disclosure Statements</option>
+                    <option value="reference">📚 Reference Docs</option>
+                </select>
+                <select id="docStateFilter" onchange="filterDocs()">
+                    <option value="all">All States</option>
+                    <option value="CA">California</option>
+                    <option value="TX">Texas</option>
+                    <option value="PA">Pennsylvania</option>
+                    <option value="NH">New Hampshire</option>
+                </select>
+                <select id="docParserFilter" onchange="filterDocs()">
+                    <option value="all">All Status</option>
+                    <option value="tested">✅ Parser Tested</option>
+                    <option value="untested">⏳ Not Tested</option>
+                    <option value="failed">❌ Parser Failed</option>
+                </select>
+            </div>
+
+            <!-- Document Table -->
+            <div class="table-container" style="max-height:600px;">
+                <table id="docTable">
+                    <thead>
+                        <tr>
+                            <th style="width:30px;"><input type="checkbox" id="selectAllDocs" onchange="toggleAllDocs(this)"></th>
+                            <th>ID</th>
+                            <th>Document</th>
+                            <th>Category</th>
+                            <th>Source</th>
+                            <th>State</th>
+                            <th>Format</th>
+                            <th>Parser</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="docTableBody">
+                        <tr><td colspan="9" class="empty-state">Loading documents...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Sources Tracking & Document Crawler -->
+        <div class="card">
+            <div class="section-header">
+                <h2 style="margin:0;border:none;padding:0;">🌐 Public Document Crawler</h2>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                    <button class="btn btn-secondary btn-sm" onclick="checkSources()">📡 DRE Monitor</button>
+                    <button class="btn btn-secondary btn-sm" onclick="crawlerScan()" id="btnScan">🔍 Scan Sources</button>
+                    <button class="btn btn-primary btn-sm" onclick="crawlerCrawl()" id="btnCrawl">⬇️ Crawl &amp; Download</button>
+                    <button class="btn btn-secondary btn-sm" onclick="crawlerCorpus()" id="btnCorpus">📊 Corpus Report</button>
+                </div>
+            </div>
+            <p style="color:#94a3b8;font-size:13px;margin:0 0 12px 0;">
+                Discovers and downloads public inspection reports &amp; disclosures from US court records, state commissions, inspector software samples, and open data archives.
+            </p>
+            <!-- Crawler status bar -->
+            <div id="crawlerStatus" style="display:none;margin-bottom:12px;padding:12px;background:#1e293b;border-radius:8px;border:1px solid #334155;">
+                <div style="display:flex;align-items:center;gap:8px;">
+                    <div id="crawlerSpinner" class="spinner" style="display:none;width:16px;height:16px;border-width:2px;"></div>
+                    <span id="crawlerStatusText" style="color:#94a3b8;font-size:13px;">Ready</span>
+                </div>
+                <div id="crawlerProgress" style="margin-top:8px;display:none;">
+                    <div style="background:#334155;border-radius:4px;height:6px;overflow:hidden;">
+                        <div id="crawlerProgressBar" style="background:#3b82f6;height:100%;width:0%;transition:width 0.3s;"></div>
+                    </div>
+                </div>
+            </div>
+            <!-- Crawler results area -->
+            <div id="crawlerResults" style="display:none;margin-bottom:16px;"></div>
+            <div class="table-container">
+                <table id="sourcesTable">
+                    <thead>
+                        <tr>
+                            <th>Source</th>
+                            <th>Type</th>
+                            <th>Available</th>
+                            <th>Downloaded</th>
+                            <th>Last Checked</th>
+                            <th>Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody id="sourcesTableBody">
+                        <tr><td colspan="6" class="empty-state">Loading sources...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Document Detail Modal -->
+        <div class="modal" id="docDetailModal">
+            <div class="modal-content" style="max-width:700px;">
+                <div class="modal-header">
+                    <h3 id="docDetailTitle">Document Details</h3>
+                    <button class="modal-close" onclick="closeDocModal()">&times;</button>
+                </div>
+                <div id="docDetailBody" style="padding:20px;">Loading...</div>
+            </div>
+        </div>
+    </div><!-- END DOCUMENT REPO TAB -->
+    
+    <!-- Bug Modal -->
+    <div class="modal" id="bugModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="bugModalTitle">Bug Details</h3>
+                <button class="modal-close" onclick="closeBugModal()">&times;</button>
+            </div>
+            <form id="bugForm" onsubmit="saveBug(event)">
+                <input type="hidden" id="bugId">
+                <div class="form-group">
+                    <label>Title</label>
+                    <input type="text" id="bugTitle" required>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="bugDescription" rows="3"></textarea>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <div class="form-group">
+                        <label>Severity</label>
+                        <select id="bugSeverity">
+                            <option value="low">Low</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="high">High</option>
+                            <option value="critical">Critical</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select id="bugStatus">
+                            <option value="open">Open</option>
+                            <option value="in_progress">In Progress</option>
+                            <option value="fixed">Fixed</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Fix Notes</label>
+                    <textarea id="bugFixNotes" rows="2"></textarea>
+                </div>
+                <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 16px;">
+                    <button type="button" class="btn btn-secondary" onclick="closeBugModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        /* ============================================================
+         * BOOTSTRAP BLOCK — isolated so a syntax error in the main
+         * script block can never take down tabs or data loading.
+         * ============================================================ */
+        var adminKey = new URLSearchParams(window.location.search).get('admin_key') || '';
+        var TZ = 'America/Los_Angeles';
+
+        function escapeHtml(s) { if (!s) return ''; var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+        function fmtDate(d) { return d ? new Date(d).toLocaleDateString('en-US', {timeZone: TZ}) : 'N/A'; }
+        function fmtDateTime(d) { return d ? new Date(d).toLocaleString('en-US', {timeZone: TZ}) : 'N/A'; }
+
+        function fetchWithTimeout(url, ms) {
+            var c = new AbortController();
+            var t = setTimeout(function(){ c.abort(); }, ms || 15000);
+            return fetch(url, {signal: c.signal}).finally(function(){ clearTimeout(t); });
+        }
+
+        function switchTab(name) {
+            document.querySelectorAll('.tab-content').forEach(function(el) { el.classList.remove('active'); el.style.display = 'none'; });
+            document.querySelectorAll('.tab-btn').forEach(function(el) { el.classList.remove('active'); });
+            var content = document.getElementById(name + 'Tab');
+            var btn = document.getElementById('tab' + name.charAt(0).toUpperCase() + name.slice(1));
+            if (content) { content.classList.add('active'); content.style.display = 'block'; }
+            if (btn) btn.classList.add('active');
+        }
+    </script>
+    <script>
+        /* ============================================================
+         * MAIN SCRIPT BLOCK — all dashboard logic
+         * ============================================================ */
+
+        var testStartTime = null;
+
+        // ========== QA DASHBOARD (redesigned) ==========
+
+        var foundBugs = [];
+        var qaResults = {}; // suite -> {passed, total, failures[], duration}
+        var totalBugsFiled = 0; // bugs auto-filed across all suites this run
+
+        // Suite definitions
+        var SUITES = [
+            { id: 'analysis',   label: 'Analysis',       icon: '🏠', checkboxId: 'testAnalysis',      color: '#60a5fa' },
+            { id: 'stripe',     label: 'Payments',       icon: '💳', checkboxId: 'testStripe',         color: '#a78bfa' },
+            { id: 'credits',    label: 'Credits',        icon: '🎟️', checkboxId: 'testCredits',        color: '#22c55e' },
+            { id: 'referrals',  label: 'Referrals',      icon: '🎁', checkboxId: 'testReferrals',      color: '#f59e0b' },
+            { id: 'integrity',  label: 'Integrity',      icon: '🔬', checkboxId: 'testIntegrity',      color: '#06b6d4' },
+            { id: 'adversarial',label: 'Adversarial PDF',icon: '🛡️', checkboxId: 'testAdversarial',    color: '#f97316' },
+            { id: 'corpus',     label: 'PDF Corpus',     icon: '📄', checkboxId: 'testCorpusPipeline', color: '#8b5cf6' },
+        ];
+
+        function updateToggleUI(checkbox) {
+            // Visual handled by CSS :has selector — nothing needed
+        }
+
+        // ─── Config Check ───────────────────────────────────────────
+        async function checkAllTestConfigs() {
+            try {
+                const res = await fetchWithTimeout('/api/system-info?admin_key=' + adminKey);
+                const data = await res.json();
+                var html = '';
+                var checks = [
+                    { label: 'Analysis API', ok: data.anthropic_configured },
+                    { label: 'Stripe Live',  ok: data.stripe_live_configured },
+                    { label: 'Stripe Test',  ok: data.stripe_test_configured },
+                    { label: 'Webhook',      ok: data.webhook_configured },
+                ];
+                checks.forEach(function(c) {
+                    html += '<span class="qa-config-dot ' + (c.ok ? 'ok' : 'warn') + '">' + c.label + '</span>';
+                });
+                document.getElementById('allConfigStatus').innerHTML = html;
+            } catch(e) {
+                document.getElementById('allConfigStatus').innerHTML = '<span style="font-size:12px;color:#f59e0b;">Could not load config</span>';
+            }
+        }
+
+        // ─── Master Run ──────────────────────────────────────────────
+        async function runAllTests() {
+            const btn = document.getElementById('runAllTestsBtn');
+            btn.disabled = true;
+            btn.innerHTML = '⏳ Running...';
+            foundBugs = [];
+            qaResults = {};
+            totalBugsFiled = 0;
+
+            const count = parseInt(document.getElementById('testCount').value);
+            const scenario = document.getElementById('testScenario').value;
+
+            // Show progress
+            const progressWrap = document.getElementById('qaProgressWrap');
+            const progressBar  = document.getElementById('testProgressBar');
+            const progressLabel = document.getElementById('qaProgressLabel');
+            progressWrap.style.display = 'flex';
+            progressBar.style.width = '0%';
+
+            const selected = SUITES.filter(s => document.getElementById(s.checkboxId) && document.getElementById(s.checkboxId).checked);
+            var completed = 0;
+            var totalStart = Date.now();
+
+            // Hide old results
+            document.getElementById('qaScoreboard').style.display = 'none';
+            document.getElementById('qaFailuresCard').style.display = 'none';
+
+            async function tick(label) {
+                completed++;
+                progressBar.style.width = Math.round((completed / selected.length) * 100) + '%';
+                progressLabel.textContent = label;
+                await new Promise(r => setTimeout(r, 30));
+            }
+
+            try {
+                for (var i = 0; i < selected.length; i++) {
+                    var suite = selected[i];
+                    progressLabel.textContent = 'Running ' + suite.label + '...';
+                    try {
+                        var data;
+                        if (suite.id === 'analysis')    data = await runAnalysisTests(count, scenario);
+                        else if (suite.id === 'stripe') data = await runStripeTestsAPI(count);
+                        else if (suite.id === 'credits') { var r = await runStripeTestsAPI(count); data = extractCreditData(r); }
+                        else if (suite.id === 'referrals') data = await runReferralTests();
+                        else if (suite.id === 'integrity') data = await runIntegrityTests();
+                        else if (suite.id === 'adversarial') data = await runAdversarialTests();
+                        else if (suite.id === 'corpus') data = await runCorpusPipelineTests();
+
+                        qaResults[suite.id] = parseSuiteResult(suite.id, data);
+                    } catch(err) {
+                        qaResults[suite.id] = { passed: 0, total: 1, failures: [{ name: 'Suite Error', error: err.message }], duration: 0 };
+                    }
+                    await tick('Completed ' + suite.label);
+                }
+            } finally {
+                var totalDuration = ((Date.now() - totalStart) / 1000).toFixed(1);
+                progressBar.style.width = '100%';
+                progressLabel.textContent = 'Done in ' + totalDuration + 's';
+
+                document.getElementById('qaLastRun').textContent = 'Last run: ' + new Date().toLocaleTimeString();
+                renderScoreboard(selected, totalDuration);
+
+                btn.disabled = false;
+                btn.innerHTML = '&#9654; Run Tests';
+            }
+        }
+
+        // ─── Parse suite results into unified shape ──────────────────
+        function parseSuiteResult(suiteId, data) {
+            if (!data) return { passed: 0, total: 1, failures: [{ name: 'No data returned' }], duration: 0 };
+            if (data.error) return { passed: 0, total: 1, failures: [{ name: 'Error', error: data.error }], duration: 0 };
+
+            // Accumulate bugs filed by the backend across all suites
+            if (data.bugs_filed && data.bugs_filed > 0) {
+                totalBugsFiled += data.bugs_filed;
+            }
+
+            var result = { passed: 0, total: 0, failures: [], duration: data.summary ? data.summary.duration_seconds : (data.total_elapsed || 0) };
+
+            if (suiteId === 'analysis') {
+                var completed = (data.results || []).filter(function(r) { return r.status === 'completed'; });
+                var errors    = (data.results || []).filter(function(r) { return r.status === 'error'; });
+                var withIssues = completed.filter(function(r) { return r.validation_passed === false || (r.validation_errors && r.validation_errors.length > 0); });
+                result.total  = data.total || 0;
+                result.passed = completed.length - withIssues.length;
+                errors.forEach(function(r) {
+                    result.failures.push({ name: r.test_id || 'Test Error', detail: r.scenario, error: r.error, stackTrace: r.stack_trace, bugId: r.bug_id });
+                    if (r.bug_id) foundBugs.push({ title: 'Test Error: ' + r.test_id, description: r.error, severity: 'high', bugId: r.bug_id });
+                });
+                withIssues.forEach(function(r) {
+                    var issues = r.validation_errors || ['Validation failed'];
+                    result.failures.push({ name: r.address || r.test_id, detail: 'Validation: ' + issues[0], error: issues.slice(1).join('; ') || null });
+                    foundBugs.push({ title: 'Validation: ' + issues[0], description: issues.join('\n'), severity: 'medium' });
+                });
+                return result;
+            }
+
+            // Integrity / Adversarial / Corpus / Referral — all use data.results[] with .passed
+            if (data.results && data.results[0] && typeof data.results[0].passed !== 'undefined') {
+                // Group-structured (integrity, adversarial, corpus, referral)
+                // Handle both flat and group:name format
+                var grouped = {};
+                data.results.forEach(function(t) {
+                    var group = t.name.includes(':') ? t.name.split(':')[0].trim() : 'General';
+                    if (!grouped[group]) grouped[group] = [];
+                    grouped[group].push(t);
+                });
+                Object.keys(grouped).forEach(function(group) {
+                    grouped[group].forEach(function(t) {
+                        result.total++;
+                        if (t.passed) { result.passed++; }
+                        else {
+                            var shortName = t.name.includes(':') ? t.name.split(':').slice(1).join(':').trim() : t.name;
+                            result.failures.push({ group: group, name: shortName, detail: t.details, error: t.error });
+                            foundBugs.push({ title: 'Integrity: ' + shortName, description: (t.details || '') + (t.error ? '\n' + t.error : ''), severity: 'medium' });
+                        }
+                    });
+                });
+                return result;
+            }
+
+            // Stripe / Credit — data.results[] with run.tests{}
+            if (data.results && data.results[0] && data.results[0].tests) {
+                data.results.forEach(function(run) {
+                    Object.keys(run.tests).forEach(function(k) {
+                        var t = run.tests[k];
+                        result.total++;
+                        if (t.passed) { result.passed++; }
+                        else {
+                            result.failures.push({ name: t.name || k, error: t.error || null });
+                            foundBugs.push({ title: 'Payment: ' + (t.name || k), description: t.error || '', severity: 'high' });
+                        }
+                    });
+                });
+                return result;
+            }
+
+            // Fallback
+            if (data.summary) {
+                result.total  = data.summary.total  || 0;
+                result.passed = data.summary.passed  || 0;
+            }
+            return result;
+        }
+
+        function extractCreditData(stripeData) {
+            // Credit tests are a subset of stripe results — filter to credit-related keys
+            if (!stripeData.results) return stripeData;
+            var creditKeys = ['initial_credits','credit_addition','can_analyze_with_credits','credit_deduction','blocked_without_credits'];
+            var filtered = stripeData.results.map(function(run) {
+                var tests = {};
+                creditKeys.forEach(function(k) { if (run.tests && run.tests[k]) tests[k] = run.tests[k]; });
+                return Object.assign({}, run, { tests: tests });
+            });
+            return Object.assign({}, stripeData, { results: filtered });
+        }
+
+        // ─── Render scoreboard ───────────────────────────────────────
+        function renderScoreboard(selected, totalDuration) {
+            var totalPassed = 0, totalTotal = 0, anyFailure = false;
+
+            var rows = selected.map(function(suite) {
+                var r = qaResults[suite.id] || { passed: 0, total: 0, failures: [], duration: 0 };
+                totalPassed += r.passed;
+                totalTotal  += r.total;
+                var pct = r.total > 0 ? (r.passed / r.total) : 1;
+                var allPass = r.failures.length === 0;
+                if (!allPass) anyFailure = true;
+                var barColor = allPass ? '#22c55e' : (pct > 0.7 ? '#f59e0b' : '#ef4444');
+                var countColor = allPass ? '#22c55e' : '#ef4444';
+                return '<div class="qa-scoreboard-row">' +
+                    '<div class="qa-scoreboard-suite"><span style="font-size:16px;">' + suite.icon + '</span>' + suite.label + '</div>' +
+                    '<div class="qa-scoreboard-bar-wrap">' +
+                        '<div class="qa-scoreboard-bar-track"><div class="qa-scoreboard-bar-fill" style="width:' + Math.round(pct * 100) + '%;background:' + barColor + ';"></div></div>' +
+                        (!allPass ? '<span style="font-size:11px;color:#ef4444;">' + r.failures.length + ' failing</span>' : '<span style="font-size:11px;color:#22c55e;">✓ all pass</span>') +
+                    '</div>' +
+                    '<div class="qa-scoreboard-count" style="color:' + countColor + ';">' + r.passed + '/' + r.total + '</div>' +
+                '</div>';
+            }).join('');
+
+            document.getElementById('qaScoreboardGrid').innerHTML = rows;
+            var durationText = totalPassed + '/' + totalTotal + ' passed · ' + totalDuration + 's';
+            if (totalBugsFiled > 0) {
+                durationText += ' · 🐛 ' + totalBugsFiled + ' bug' + (totalBugsFiled === 1 ? '' : 's') + ' filed';
+            }
+            document.getElementById('qaScoreboardDuration').textContent = durationText;
+            document.getElementById('qaScoreboard').style.display = 'block';
+
+            if (anyFailure) {
+                renderFailures(selected);
+            }
+        }
+
+        // ─── Render failures drill-down ──────────────────────────────
+        function renderFailures(selected) {
+            var html = '';
+            var INTEGRITY_GROUP_ICONS = { 'Risk': '📊','Transparency': '🔍','DNA': '🧬','Offer': '💰','IDOR': '🛡️','Auth': '🔐','Credits': '🎟️','Edge': '⚡','CRASH': '💥','Schema': '🗄️','Payment': '💳','Code': '📝','Concurrency': '⚙️','AI': '🤖','Market': '🏘️','Nearby': '📍','GTM': '📡','General': '🔬' };
+
+            selected.forEach(function(suite) {
+                var r = qaResults[suite.id];
+                if (!r || r.failures.length === 0) return;
+
+                // Group failures by .group field if present
+                var grouped = {};
+                r.failures.forEach(function(f) {
+                    var g = f.group || suite.label;
+                    if (!grouped[g]) grouped[g] = [];
+                    grouped[g].push(f);
+                });
+
+                // Passing tests for integrity-style suites
+                var passingNames = [];
+                if (['integrity','adversarial','corpus','referrals'].indexOf(suite.id) !== -1) {
+                    var suiteData = arguments.callee; // self-ref not needed, just collect from original data
+                }
+
+                html += '<div style="margin-bottom:20px;">';
+                html += '<div style="font-size:11px;font-weight:700;color:' + suite.color + ';text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px;">' + suite.icon + ' ' + suite.label + '</div>';
+
+                Object.keys(grouped).forEach(function(groupName) {
+                    var failures = grouped[groupName];
+                    var icon = INTEGRITY_GROUP_ICONS[groupName] || '🔬';
+                    var groupLabel = groupName === suite.label ? '' : icon + ' ' + groupName;
+
+                    html += '<div class="qa-failure-group">';
+                    html += '<div class="qa-failure-group-header"><span class="qa-failure-group-name">' + (groupLabel || suite.label) + '</span><span class="qa-failure-group-count">' + failures.length + ' failing</span></div>';
+                    failures.forEach(function(f) {
+                        html += '<div class="qa-failure-row">';
+                        html += '<div class="qa-failure-name">✗ ' + escapeHtml(f.name) + '</div>';
+                        if (f.detail) html += '<div class="qa-failure-detail">' + escapeHtml(f.detail) + '</div>';
+                        if (f.error)  html += '<div class="qa-failure-error">' + escapeHtml(f.error) + '</div>';
+                        if (f.bugId)  html += '<div style="font-size:11px;color:#475569;margin-top:4px;">Bug #' + f.bugId + ' filed</div>';
+                        html += '</div>';
+                    });
+                    html += '</div>';
+                });
+
+                html += '</div>';
+            });
+
+            document.getElementById('qaFailuresList').innerHTML = html;
+            document.getElementById('qaFailuresCard').style.display = 'block';
+
+            // Also populate legacy foundBugs for copy/AI functions
+            document.getElementById('bugCount') && (document.getElementById('bugCount').textContent = foundBugs.length);
+        }
+
+        // ─── Individual suite runners (unchanged API calls) ──────────
+        async function runAnalysisTests(count, scenario) {
+            var allResults = [], totalElapsed = 0, validationStats = { total:0, passed:0, failed:0 };
+            for (var i = 0; i < count; i++) {
+                var btn = document.getElementById('runAllTestsBtn');
+                var res = await fetch('/api/auto-test/run?admin_key=' + adminKey, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+                    body: JSON.stringify({ count: 1, scenario: scenario })
+                });
+                if (!res.ok) { var t = await res.text(); throw new Error('Analysis test ' + (i+1) + ' failed (' + res.status + '): ' + t.substring(0,200)); }
+                var data = await res.json();
+                if (data.results) allResults = allResults.concat(data.results);
+                if (data.validation_stats) {
+                    validationStats.total  += data.validation_stats.total  || 0;
+                    validationStats.passed += data.validation_stats.passed || 0;
+                    validationStats.failed += data.validation_stats.failed || 0;
+                }
+                totalElapsed += data.total_elapsed || 0;
+            }
+            return { results: allResults, total: allResults.length, completed: allResults.filter(function(r){return r.status==='completed';}).length, errors: allResults.filter(function(r){return r.status==='error';}).length, total_elapsed: totalElapsed, validation_stats: validationStats };
+        }
+
+        async function runStripeTestsAPI(count) {
+            var res = await fetch('/api/test/stripe?admin_key=' + adminKey, {
+                method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+                body: JSON.stringify({ count: count })
+            });
+            if (!res.ok) { var t = await res.text(); throw new Error('Stripe tests failed (' + res.status + '): ' + t.substring(0,200)); }
+            return await res.json();
+        }
+
+        async function runReferralTests() {
+            var res = await fetch('/api/test/referrals?admin_key=' + adminKey, {
+                method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+            });
+            if (!res.ok) { var t = await res.text(); throw new Error('Referral tests failed (' + res.status + '): ' + t.substring(0,200)); }
+            return await res.json();
+        }
+
+        async function runIntegrityTests() {
+            var res = await fetch('/api/test/integrity', {
+                method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest', 'X-Admin-Key': adminKey }
+            });
+            if (!res.ok) { var t = await res.text(); throw new Error('Integrity tests failed (' + res.status + '): ' + t.substring(0,200)); }
+            return await res.json();
+        }
+
+        async function runAdversarialTests() {
+            var res = await fetch('/api/test/adversarial-pdfs?admin_key=' + adminKey, {
+                method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+            });
+            if (!res.ok) { var t = await res.text(); throw new Error('Adversarial tests failed (' + res.status + '): ' + t.substring(0,200)); }
+            return await res.json();
+        }
+
+        async function runCorpusPipelineTests() {
+            var res = await fetch('/api/test/pdf-corpus-pipeline?admin_key=' + adminKey, {
+                method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+            });
+            if (!res.ok) { var t = await res.text(); throw new Error('Corpus pipeline tests failed (' + res.status + '): ' + t.substring(0,200)); }
+            return await res.json();
+        }
+
+        // ─── Sessions ────────────────────────────────────────────────
+        var sessionsOpen = false;
+        function toggleSessions() {
+            sessionsOpen = !sessionsOpen;
+            document.getElementById('sessionsPanel').style.display = sessionsOpen ? 'block' : 'none';
+            document.getElementById('sessionsChevron').style.transform = sessionsOpen ? 'rotate(180deg)' : '';
+            if (sessionsOpen) loadSessions();
+        }
+
+        async function loadSessions() {
+            const filter = document.getElementById('sessionFilter').value;
+            try {
+                const res = await fetchWithTimeout('/api/turk/sessions?admin_key=' + adminKey + '&filter=' + filter + '&limit=50');
+                const data = await res.json();
+                if (data.error) { document.getElementById('sessionsTable').innerHTML = '<tr><td colspan="8" style="color:#ef4444;">'+escapeHtml(data.error)+'</td></tr>'; return; }
+                const sessions = data.sessions || [];
+                document.getElementById('sessionCount').textContent = sessions.length + ' sessions';
+                if (sessions.length === 0) { document.getElementById('sessionsTable').innerHTML = '<tr><td colspan="8" style="color:#475569;text-align:center;padding:20px;">No sessions found</td></tr>'; return; }
+                document.getElementById('sessionsTable').innerHTML = sessions.map(function(s) {
+                    var statusColor = s.is_complete ? '#22c55e' : s.status === 'error' ? '#ef4444' : '#f59e0b';
+                    var pct = s.tasks_total > 0 ? Math.round((s.tasks_completed / s.tasks_total) * 100) : 0;
+                    return '<tr>' +
+                        '<td style="color:#94a3b8;">' + s.turk_id + '</td>' +
+                        '<td><span style="font-size:10px;background:rgba(59,130,246,0.1);color:#60a5fa;padding:2px 6px;border-radius:3px;">' + (s.session_type || 'manual') + '</span></td>' +
+                        '<td style="color:#64748b;">' + escapeHtml(s.task_id || '-') + '</td>' +
+                        '<td style="color:' + statusColor + ';font-weight:600;font-size:12px;">' + (s.is_complete ? 'Done' : s.status || 'active') + '</td>' +
+                        '<td style="color:#64748b;">' + (s.total_time_seconds ? s.total_time_seconds + 's' : '-') + '</td>' +
+                        '<td><div style="display:flex;align-items:center;gap:6px;"><div style="width:60px;height:4px;background:#0a1628;border-radius:2px;overflow:hidden;"><div style="width:' + pct + '%;height:100%;background:#3b82f6;border-radius:2px;"></div></div><span style="font-size:10px;color:#475569;">' + pct + '%</span></div></td>' +
+                        '<td style="font-family:monospace;font-size:11px;color:#64748b;">' + escapeHtml(s.completion_code || '-') + '</td>' +
+                        '<td style="color:#64748b;">' + fmtDate(s.started_at) + '</td>' +
+                    '</tr>';
+                }).join('');
+            } catch(err) {
+                document.getElementById('sessionsTable').innerHTML = '<tr><td colspan="8" style="color:#ef4444;">' + escapeHtml(err.message) + '</td></tr>';
+            }
+        }
+
+        async function cleanupStale() {
+            if (!confirm('Remove sessions older than 24h with no activity?')) return;
+            try {
+                const res = await fetch('/api/turk/cleanup-stale?admin_key=' + adminKey, { method: 'POST' });
+                const data = await res.json();
+                alert('Cleaned ' + (data.removed || 0) + ' stale sessions.');
+                loadSessions();
+            } catch(e) { alert('Error: ' + e.message); }
+        }
+
+        // ─── Bugs copy / AI analyze (preserve existing behavior) ─────
+        function scrollToBugs() {
+            document.getElementById('allBugsSection').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function copyBugsForClaude() {
+            if (foundBugs.length === 0) { alert('No failures to copy.'); return; }
+            var text = '== OFFERWISE FAILURES ==\nFound: ' + foundBugs.length + '\n\n';
+            foundBugs.forEach(function(b, i) {
+                text += '#' + (i+1) + ' ' + b.title + '\n';
+                if (b.description) text += b.description + '\n';
+                text += '\n';
+            });
+            navigator.clipboard.writeText(text).then(function() { alert('Copied ' + foundBugs.length + ' failures'); });
+        }
+
+        async function analyzeAllFoundBugs() {
+            if (foundBugs.length === 0) { alert('No failures to analyze.'); return; }
+            alert('Analyzing ' + foundBugs.length + ' failures... (check AI Analyze in bugs section)');
+        }
+
+        // ─── Legacy stubs (keep IDs that other code references) ──────
+        // These hidden elements are no longer in DOM but JS may reference them
+        function displayTestResults() {}
+        function displayAnalysisResults(data) { /* merged into parseSuiteResult */ }
+        function displayStripeResults(data)   { /* merged into parseSuiteResult */ }
+        function displayCreditResults(data)   { /* merged into parseSuiteResult */ }
+        function displayReferralResults(data) { /* merged into parseSuiteResult */ }
+        function displayIntegrityResults(data){ /* merged into parseSuiteResult */ }
+        function displayAdversarialResults(data){ /* merged */ }
+        function displayCorpusPipelineResults(data){ /* merged */ }
+
+                // ========== ALL BUGS MANAGEMENT ==========
+        
+        async function loadAllBugs() {
+            const status = document.getElementById('bugStatusFilter').value;
+            try {
+                const res = await fetchWithTimeout('/api/bugs?admin_key=' + adminKey + '&status=' + status);
+                const data = await res.json();
+                
+                if (data.error) {
+                    document.getElementById('allBugsList').innerHTML = '<div class="empty-state">Error loading bugs</div>';
+                    return;
+                }
+                
+                const bugs = data.bugs || [];
+                const stats = data.stats || {};
+                
+                // Update bug count in tab
+                document.getElementById('openBugCount').textContent = stats.open || 0;
+                
+                document.getElementById('allBugStats').innerHTML = 
+                    '<div class="qa-bug-stat" style="background:rgba(255,255,255,0.04);"><div class="qa-bug-stat-value" style="color:#e2e8f0;">' + (stats.total || 0) + '</div><div class="qa-bug-stat-label">Total</div></div>' +
+                    '<div class="qa-bug-stat" style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);"><div class="qa-bug-stat-value" style="color:#f87171;">' + (stats.open || 0) + '</div><div class="qa-bug-stat-label">Open</div></div>' +
+                    '<div class="qa-bug-stat" style="background:rgba(249,115,22,0.08);border:1px solid rgba(249,115,22,0.2);"><div class="qa-bug-stat-value" style="color:#fb923c;">' + (stats.in_progress || 0) + '</div><div class="qa-bug-stat-label">In Progress</div></div>' +
+                    '<div class="qa-bug-stat" style="background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.2);"><div class="qa-bug-stat-value" style="color:#4ade80;">' + (stats.fixed || 0) + '</div><div class="qa-bug-stat-label">Fixed</div></div>';
+                
+                if (bugs.length === 0) {
+                    document.getElementById('allBugsList').innerHTML = '<div class="empty-state"><div class="icon">✅</div><div>No bugs found</div></div>';
+                    return;
+                }
+                
+                document.getElementById('allBugsList').innerHTML = bugs.map(function(bug) {
+                    var severityColor = bug.severity === 'critical' ? '#ef4444' : bug.severity === 'high' ? '#f97316' : bug.severity === 'medium' ? '#f59e0b' : '#64748b';
+                    var statusBg = bug.status === 'open' ? 'rgba(239,68,68,0.1)' : bug.status === 'in_progress' ? 'rgba(249,115,22,0.1)' : 'rgba(34,197,94,0.1)';
+                    var statusColor = bug.status === 'open' ? '#f87171' : bug.status === 'in_progress' ? '#fb923c' : '#4ade80';
+                    var statusLabel = bug.status === 'in_progress' ? 'In Progress' : bug.status.charAt(0).toUpperCase() + bug.status.slice(1);
+                    var desc = (bug.description || '').trim();
+                    var shortDesc = desc.length > 160 ? desc.substring(0, 160).trim() + '…' : desc;
+                    return '<div class="bug-item ' + bug.severity + '" onclick="openBugModal(' + bug.id + ')" style="border-left: 3px solid ' + severityColor + '; cursor: pointer;">' +
+                        '<div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 6px;">' +
+                            '<div style="font-size: 14px; font-weight: 600; color: #e2e8f0; line-height: 1.4;">' +
+                                '<span style="color: ' + severityColor + '; font-size: 12px; font-weight: 700; margin-right: 6px;">#' + bug.id + '</span>' +
+                                escapeHtml(bug.title) +
+                            '</div>' +
+                            '<span style="flex-shrink: 0; font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 4px; background: ' + statusBg + '; color: ' + statusColor + ';">' + statusLabel + '</span>' +
+                        '</div>' +
+                        (shortDesc ? '<div style="font-size: 12px; color: #94a3b8; line-height: 1.5; margin-bottom: 8px;">' + escapeHtml(shortDesc) + '</div>' : '') +
+                        '<div style="display: flex; gap: 12px; font-size: 11px; color: #475569;">' +
+                            '<span style="color: ' + severityColor + '; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em;">' + (bug.severity || 'medium') + '</span>' +
+                            '<span>v' + (bug.version_reported || '?') + '</span>' +
+                            (bug.category ? '<span>' + escapeHtml(bug.category) + '</span>' : '') +
+                        '</div>' +
+                    '</div>';
+                }).join('');
+                
+            } catch (err) {
+                document.getElementById('allBugsList').innerHTML = '<div class="empty-state">Error: ' + err.message + '</div>';
+            }
+        }
+        
+        function openNewBugModal() {
+            document.getElementById('bugModalTitle').textContent = 'New Bug';
+            document.getElementById('bugId').value = '';
+            document.getElementById('bugTitle').value = '';
+            document.getElementById('bugDescription').value = '';
+            document.getElementById('bugSeverity').value = 'medium';
+            document.getElementById('bugStatus').value = 'open';
+            document.getElementById('bugFixNotes').value = '';
+            document.getElementById('bugModal').classList.add('active');
+        }
+        
+        async function openBugModal(bugId) {
+            try {
+                const res = await fetch('/api/bugs/' + bugId + '?admin_key=' + adminKey);
+                const data = await res.json();
+                
+                if (data.error) {
+                    alert('Error loading bug: ' + data.error);
+                    return;
+                }
+                
+                const bug = data.bug;
+                document.getElementById('bugModalTitle').textContent = 'Edit Bug #' + bug.id;
+                document.getElementById('bugId').value = bug.id;
+                document.getElementById('bugTitle').value = bug.title || '';
+                document.getElementById('bugDescription').value = bug.description || '';
+                document.getElementById('bugSeverity').value = bug.severity || 'medium';
+                document.getElementById('bugStatus').value = bug.status || 'open';
+                document.getElementById('bugFixNotes').value = bug.fix_notes || '';
+                document.getElementById('bugModal').classList.add('active');
+            } catch (err) {
+                alert('Error: ' + err.message);
+            }
+        }
+        
+        function closeBugModal() {
+            document.getElementById('bugModal').classList.remove('active');
+        }
+        
+        async function saveBug(event) {
+            event.preventDefault();
+            
+            const bugId = document.getElementById('bugId').value;
+            const bugData = {
+                title: document.getElementById('bugTitle').value,
+                description: document.getElementById('bugDescription').value,
+                severity: document.getElementById('bugSeverity').value,
+                status: document.getElementById('bugStatus').value,
+                fix_notes: document.getElementById('bugFixNotes').value
+            };
+            
+            try {
+                const url = bugId ? '/api/bugs/' + bugId + '?admin_key=' + adminKey : '/api/bugs?admin_key=' + adminKey;
+                const method = bugId ? 'PUT' : 'POST';
+                
+                const res = await fetch(url, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(bugData)
+                });
+                
+                const data = await res.json();
+                
+                if (data.error) {
+                    alert('Error: ' + data.error);
+                    return;
+                }
+                
+                closeBugModal();
+                loadAllBugs();
+            } catch (err) {
+                alert('Error: ' + err.message);
+            }
+        }
+        
+        async function copyAllBugsForClaude() {
+            try {
+                const res = await fetch('/api/bugs?admin_key=' + adminKey + '&status=open');
+                const data = await res.json();
+                
+                if (!data.bugs || data.bugs.length === 0) {
+                    alert('No open bugs to copy');
+                    return;
+                }
+                
+                var nl = String.fromCharCode(10);
+                var lines = ['== OFFERWISE ALL BUGS ==', 'Open Bugs: ' + data.bugs.length, ''];
+                
+                data.bugs.forEach(function(bug, i) {
+                    lines.push('#' + bug.id + ' [' + bug.severity + '] ' + bug.title);
+                    if (bug.description) lines.push('   ' + bug.description.substring(0, 200));
+                    if (bug.error_message) lines.push('   Error: ' + bug.error_message.substring(0, 150));
+                    lines.push('   Version: ' + (bug.version_reported || 'unknown') + ' | Category: ' + (bug.category || 'general'));
+                    lines.push('');
+                });
+                
+                lines.push('Paste into Claude chat for analysis');
+                
+                var output = lines.join(nl);
+                await navigator.clipboard.writeText(output);
+                alert('Copied ' + data.bugs.length + ' bugs to clipboard!');
+            } catch (err) {
+                alert('Error copying: ' + err.message);
+            }
+        }
+        
+        async function closeOldBugs() {
+            // Get all open bugs and find unique versions
+            try {
+                const res = await fetch('/api/bugs?admin_key=' + adminKey + '&status=open');
+                const data = await res.json();
+                
+                if (!data.bugs || data.bugs.length === 0) {
+                    alert('No open bugs to close');
+                    return;
+                }
+                
+                // Get unique versions
+                var versions = {};
+                data.bugs.forEach(function(bug) {
+                    var v = bug.version_reported || 'unknown';
+                    if (!versions[v]) versions[v] = 0;
+                    versions[v]++;
+                });
+                
+                // Get current version
+                var currentVersion = '5.54.59'; // Will be updated
+                
+                // Find old versions (not current)
+                var oldVersions = Object.keys(versions).filter(function(v) {
+                    return v !== currentVersion && v !== 'unknown';
+                });
+                
+                if (oldVersions.length === 0) {
+                    alert('No old version bugs to close. All bugs are from current version.');
+                    return;
+                }
+                
+                // Show confirmation with counts
+                var msg = 'Close bugs from old versions?\n\n';
+                oldVersions.forEach(function(v) {
+                    msg += v + ': ' + versions[v] + ' bugs\n';
+                });
+                msg += '\nThis will mark them as fixed.';
+                
+                if (!confirm(msg)) return;
+                
+                // Close each old version
+                var totalClosed = 0;
+                for (var i = 0; i < oldVersions.length; i++) {
+                    var closeRes = await fetch('/api/bugs/bulk-close?admin_key=' + adminKey, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            version: oldVersions[i],
+                            fix_notes: 'Bulk closed - superseded by v' + currentVersion
+                        })
+                    });
+                    var closeData = await closeRes.json();
+                    if (closeData.closed_count) {
+                        totalClosed += closeData.closed_count;
+                    }
+                }
+                
+                alert('Closed ' + totalClosed + ' bugs from old versions!');
+                loadAllBugs();
+                updateBugCount();
+                
+            } catch (err) {
+                alert('Error: ' + err.message);
+            }
+        }
+        
+        async function closeInProgressBugs() {
+            try {
+                const res = await fetch('/api/bugs?admin_key=' + adminKey + '&status=in_progress');
+                const data = await res.json();
+                
+                if (!data.bugs || data.bugs.length === 0) {
+                    alert('No in-progress bugs to close');
+                    return;
+                }
+                
+                if (!confirm('Close ' + data.bugs.length + ' in-progress bugs?\n\nThis will mark them as fixed.')) {
+                    return;
+                }
+                
+                // Get bug IDs
+                var bugIds = data.bugs.map(function(b) { return b.id; });
+                
+                var closeRes = await fetch('/api/bugs/bulk-close?admin_key=' + adminKey, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        bug_ids: bugIds,
+                        fix_notes: 'Bulk closed - stale in-progress'
+                    })
+                });
+                var closeData = await closeRes.json();
+                
+                alert('Closed ' + (closeData.closed_count || 0) + ' in-progress bugs!');
+                loadAllBugs();
+                updateBugCount();
+                
+            } catch (err) {
+                alert('Error: ' + err.message);
+            }
+        }
+        
+        // ========== END ALL BUGS ==========
+        
+        // Get bug count for tab
+        async function updateBugCount() {
+            try {
+                const res = await fetch('/api/bugs?admin_key=' + adminKey + '&status=open');
+                const data = await res.json();
+                if (data.stats) {
+                    document.getElementById('openBugCount').textContent = data.stats.open || 0;
+                }
+            } catch (err) {
+                console.log('Could not load bug count');
+            }
+        }
+        
+        // ===== DOCUMENT REPO TAB =====
+        var docRepoData = null;
+        
+        async function loadDocRepo() {
+            try {
+                var res = await fetchWithTimeout('/api/docrepo/catalog?admin_key=' + adminKey);
+                var data = await res.json();
+                docRepoData = data;
+                renderDocRepo(data);
+            } catch(e) {
+                document.getElementById('docTableBody').innerHTML = '<tr><td colspan="9" style="color:#ef4444;">Error loading: ' + e.message + '</td></tr>';
+            }
+        }
+        
+        function renderDocRepo(data) {
+            // Update stats
+            var stats = data.collection_stats || {};
+            document.getElementById('docrepoTotal').textContent = stats.total_documents || 0;
+            var tested = (data.documents || []).filter(d => d.parser_tested).length;
+            var failed = (data.documents || []).filter(d => d.parser_result === 'failed').length;
+            document.getElementById('docrepoStats').innerHTML = `
+                <div class="stat"><div class="stat-value">${stats.total_documents || 0}</div><div class="stat-label">Total Docs</div></div>
+                <div class="stat"><div class="stat-value">${stats.inspection_reports || 0}</div><div class="stat-label">Inspections</div></div>
+                <div class="stat"><div class="stat-value">${stats.disclosure_statements || 0}</div><div class="stat-label">Disclosures</div></div>
+                <div class="stat"><div class="stat-value">${stats.reference_docs || 0}</div><div class="stat-label">Reference</div></div>
+                <div class="stat success"><div class="stat-value">${tested}</div><div class="stat-label">Parser Tested</div></div>
+                <div class="stat error"><div class="stat-value">${failed}</div><div class="stat-label">Parser Failed</div></div>
+                <div class="stat purple"><div class="stat-value">${(stats.total_size_mb || 0)}MB</div><div class="stat-label">Total Size</div></div>
+                <div class="stat ${stats.disk_mounted ? 'success' : 'error'}"><div class="stat-value">${stats.on_disk || 0}/${stats.total_documents || 0}</div><div class="stat-label">💾 On Disk</div></div>
+                ${stats.missing > 0 ? '<div class="stat error"><div class="stat-value">' + stats.missing + '</div><div class="stat-label">⚠️ Missing</div></div>' : ''}
+            `;
+            
+            // Render documents table
+            renderDocTable(data.documents || []);
+            
+            // Render sources table
+            renderSourcesTable(data.sources_tracked || []);
+        }
+        
+        function renderDocTable(docs) {
+            var catFilter = document.getElementById('docCategoryFilter').value;
+            var stateFilter = document.getElementById('docStateFilter').value;
+            var parserFilter = document.getElementById('docParserFilter').value;
+            
+            var filtered = docs.filter(function(d) {
+                if (catFilter !== 'all' && d.category !== catFilter) return false;
+                if (stateFilter !== 'all' && d.state !== stateFilter) return false;
+                if (parserFilter === 'tested' && !d.parser_tested) return false;
+                if (parserFilter === 'untested' && d.parser_tested) return false;
+                if (parserFilter === 'failed' && d.parser_result !== 'failed') return false;
+                return true;
+            });
+            
+            if (filtered.length === 0) {
+                document.getElementById('docTableBody').innerHTML = '<tr><td colspan="9" class="empty-state">No documents match filters</td></tr>';
+                return;
+            }
+            
+            var catIcons = {inspection_report: '🔍', disclosure_statement: '📋', reference: '📚'};
+            var catLabels = {inspection_report: 'Inspection', disclosure_statement: 'Disclosure', reference: 'Reference'};
+            var catBadge = {inspection_report: 'badge-auto', disclosure_statement: 'badge-pending', reference: 'badge-manual'};
+            
+            var html = filtered.map(function(d) {
+                var parserBadge = !d.parser_tested ? '<span class="badge badge-pending">⏳ Untested</span>' :
+                    d.parser_result === 'failed' ? '<span class="badge badge-problematic">❌ Failed</span>' :
+                    '<span class="badge badge-complete">✅ Passed</span>';
+                return `<tr>
+                    <td><input type="checkbox" class="doc-select" data-id="${d.id}"></td>
+                    <td><code class="code">${d.id}</code></td>
+                    <td>
+                        <div style="font-weight:600;font-size:13px;cursor:pointer;" onclick="showDocDetail('${d.id}')">${d.title}</div>
+                        <div style="color:#64748b;font-size:11px;">${d.filename} · ${d.pages_est || '?'} pages</div>
+                    </td>
+                    <td><span class="badge ${catBadge[d.category] || ''}">${catIcons[d.category] || ''} ${catLabels[d.category] || d.category}</span></td>
+                    <td style="font-size:12px;color:#94a3b8;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${d.source}">${d.source}</td>
+                    <td><span class="badge">${d.state || '?'}</span></td>
+                    <td style="font-size:11px;">${(d.format || '').replace('_', ' ')}</td>
+                    <td>${parserBadge}</td>
+                    <td>
+                        <button class="btn btn-secondary btn-sm" onclick="viewDoc('${d.id}')" title="View/Download">📥</button>
+                        <button class="btn btn-secondary btn-sm" onclick="testDocParser('${d.id}')" title="Test Parser">🧪</button>
+                        <button class="btn btn-secondary btn-sm" onclick="anonymizeDoc('${d.id}')" title="Anonymize">🔒</button>
+                    </td>
+                </tr>`;
+            }).join('');
+            
+            document.getElementById('docTableBody').innerHTML = html;
+        }
+        
+        function renderSourcesTable(sources) {
+            if (!sources.length) {
+                document.getElementById('sourcesTableBody').innerHTML = '<tr><td colspan="6" class="empty-state">No sources tracked</td></tr>';
+                return;
+            }
+            var html = sources.map(function(s) {
+                var typeColors = {professional_organization: '#22c55e', software_vendor: '#3b82f6', court_records: '#f59e0b', government: '#8b5cf6', web_search: '#94a3b8'};
+                return `<tr>
+                    <td><a href="${s.url}" target="_blank" style="color:#60a5fa;text-decoration:none;font-weight:600;">${s.name}</a></td>
+                    <td><span class="badge" style="background:${typeColors[s.type] || '#334155'}22;color:${typeColors[s.type] || '#94a3b8'};">${(s.type || '').replace('_', ' ')}</span></td>
+                    <td>${s.documents_available}</td>
+                    <td>${s.documents_downloaded}</td>
+                    <td style="font-size:11px;">${s.last_checked || '-'}</td>
+                    <td style="font-size:11px;color:#94a3b8;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${s.notes || ''}">${s.notes || ''}</td>
+                </tr>`;
+            }).join('');
+            document.getElementById('sourcesTableBody').innerHTML = html;
+        }
+        
+        function filterDocs() {
+            if (docRepoData) renderDocTable(docRepoData.documents || []);
+        }
+        
+        function toggleAllDocs(cb) {
+            document.querySelectorAll('.doc-select').forEach(function(c) { c.checked = cb.checked; });
+        }
+        
+        function showDocDetail(docId) {
+            if (!docRepoData) return;
+            var doc = docRepoData.documents.find(function(d) { return d.id === docId; });
+            if (!doc) return;
+            
+            document.getElementById('docDetailTitle').textContent = doc.title;
+            var catLabels = {inspection_report: 'Inspection Report', disclosure_statement: 'Disclosure Statement', reference: 'Reference Document'};
+            document.getElementById('docDetailBody').innerHTML = `
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+                    <div>
+                        <div style="color:#94a3b8;font-size:11px;text-transform:uppercase;margin-bottom:4px;">Filename</div>
+                        <div style="font-weight:600;">${doc.filename}</div>
+                    </div>
+                    <div>
+                        <div style="color:#94a3b8;font-size:11px;text-transform:uppercase;margin-bottom:4px;">Category</div>
+                        <div>${catLabels[doc.category] || doc.category}</div>
+                    </div>
+                    <div>
+                        <div style="color:#94a3b8;font-size:11px;text-transform:uppercase;margin-bottom:4px;">Source</div>
+                        <div>${doc.source}</div>
+                    </div>
+                    <div>
+                        <div style="color:#94a3b8;font-size:11px;text-transform:uppercase;margin-bottom:4px;">State</div>
+                        <div>${doc.state || 'Unknown'}</div>
+                    </div>
+                    <div>
+                        <div style="color:#94a3b8;font-size:11px;text-transform:uppercase;margin-bottom:4px;">Format</div>
+                        <div>${(doc.format || '').replace('_', ' ')}</div>
+                    </div>
+                    <div>
+                        <div style="color:#94a3b8;font-size:11px;text-transform:uppercase;margin-bottom:4px;">Est. Pages</div>
+                        <div>${doc.pages_est || '?'}</div>
+                    </div>
+                    <div>
+                        <div style="color:#94a3b8;font-size:11px;text-transform:uppercase;margin-bottom:4px;">Has Photos</div>
+                        <div>${doc.has_photos ? '✅ Yes' : '❌ No'}</div>
+                    </div>
+                    <div>
+                        <div style="color:#94a3b8;font-size:11px;text-transform:uppercase;margin-bottom:4px;">Has Defects</div>
+                        <div>${doc.has_defects ? '✅ Yes' : '❌ No'}</div>
+                    </div>
+                </div>
+                ${doc.defect_categories && doc.defect_categories.length ? `
+                <div style="margin-top:16px;">
+                    <div style="color:#94a3b8;font-size:11px;text-transform:uppercase;margin-bottom:4px;">Defect Categories</div>
+                    <div>${doc.defect_categories.map(c => '<span class="badge badge-pending" style="margin-right:4px;">'+c+'</span>').join('')}</div>
+                </div>` : ''}
+                <div style="margin-top:16px;">
+                    <div style="color:#94a3b8;font-size:11px;text-transform:uppercase;margin-bottom:4px;">License</div>
+                    <div style="font-size:12px;">${doc.license || 'Unknown'}</div>
+                </div>
+                ${doc.source_url ? `
+                <div style="margin-top:16px;">
+                    <div style="color:#94a3b8;font-size:11px;text-transform:uppercase;margin-bottom:4px;">Source URL</div>
+                    <a href="${doc.source_url}" target="_blank" style="color:#60a5fa;font-size:12px;word-break:break-all;">${doc.source_url}</a>
+                </div>` : ''}
+                ${doc.notes ? `
+                <div style="margin-top:16px;">
+                    <div style="color:#94a3b8;font-size:11px;text-transform:uppercase;margin-bottom:4px;">Notes</div>
+                    <div style="font-size:12px;color:#cbd5e1;">${doc.notes}</div>
+                </div>` : ''}
+                <div style="margin-top:16px;">
+                    <div style="color:#94a3b8;font-size:11px;text-transform:uppercase;margin-bottom:4px;">Parser Status</div>
+                    <div>${!doc.parser_tested ? '⏳ Not yet tested' : doc.parser_result === 'failed' ? '❌ Failed' : '✅ Passed'}</div>
+                </div>
+                <div style="margin-top:20px;display:flex;gap:8px;">
+                    <button class="btn btn-primary btn-sm" onclick="viewDoc('${doc.id}')">📥 Download</button>
+                    <button class="btn btn-secondary btn-sm" onclick="testDocParser('${doc.id}');closeDocModal();">🧪 Test Parser</button>
+                    <button class="btn btn-secondary btn-sm" onclick="anonymizeDoc('${doc.id}');closeDocModal();">🔒 Anonymize</button>
+                </div>
+            `;
+            document.getElementById('docDetailModal').classList.add('active');
+        }
+        
+        function closeDocModal() {
+            document.getElementById('docDetailModal').classList.remove('active');
+        }
+        
+        async function viewDoc(docId) {
+            window.open('/api/docrepo/download/' + docId + '?admin_key=' + adminKey, '_blank');
+        }
+        
+        async function testDocParser(docId) {
+            // Show loading state
+            var btn = event ? event.target : null;
+            if (btn) { btn.disabled = true; btn.textContent = '⏳'; }
+            
+            try {
+                var res = await fetch('/api/docrepo/test/' + docId + '?admin_key=' + adminKey);
+                var data = await res.json();
+                
+                // Handle error responses (file not found, etc.)
+                if (data.error) {
+                    var html = '<div style="text-align:left;">';
+                    html += '<h3>❌ Parser Test: ' + docId + '</h3>';
+                    html += '<div style="margin:8px 0;padding:12px;background:rgba(239,68,68,0.15);border-left:3px solid #ef4444;border-radius:4px;color:#e2e8f0;">';
+                    html += '<b>Error:</b> ' + data.error + '<br><br>';
+                    html += 'The document file is not on the persistent disk. Check Render disk mount at /var/data/docrepo.';
+                    html += '</div></div>';
+                    document.getElementById('docDetailBody').innerHTML = html;
+                    document.getElementById('docDetailModal').classList.add('active');
+                    return;
+                }
+                
+                // Build results display
+                var html = '<div style="text-align:left;max-height:500px;overflow-y:auto;">';
+                html += '<h3>' + (data.success ? '✅' : '❌') + ' Parser Test: ' + data.doc_id + '</h3>';
+                html += '<p><b>File:</b> ' + (data.filename || '') + ' | <b>Format:</b> ' + (data.format || '') + ' | <b>Time:</b> ' + (data.elapsed_ms || 0) + 'ms</p>';
+                
+                (data.steps || []).forEach(function(step) {
+                    var icon = step.success ? '✅' : '❌';
+                    html += '<div style="margin:8px 0;padding:8px;background:' + (step.success ? 'rgba(34,197,94,0.15)' : 'rgba(239,68,68,0.15)') + ';border-left:3px solid ' + (step.success ? '#22c55e' : '#ef4444') + ';border-radius:4px;color:#e2e8f0;">';
+                    html += '<b>' + icon + ' ' + (step.step || '').toUpperCase() + '</b><br>';
+                    
+                    if (step.step === 'extraction') {
+                        html += 'Method: ' + (step.method || '?') + ' | Text: ' + (step.text_length || 0).toLocaleString() + ' chars<br>';
+                        if (step.text_preview) html += '<details><summary>Preview</summary><pre style="font-size:11px;max-height:150px;overflow:auto;white-space:pre-wrap;background:#1e293b;color:#cbd5e1;padding:8px;border-radius:4px;">' + step.text_preview.replace(/</g,'&lt;') + '</pre></details>';
+                    } else if (step.step === 'type_detection') {
+                        html += 'Detected: <b>' + (step.detected_type || '?') + '</b> | Expected: ' + (step.expected_type || '?') + ' | Match: ' + (step.match ? '✅' : '⚠️') + '<br>';
+                    } else if (step.step === 'parsing') {
+                        html += 'Parser: ' + (step.parser_type || '?') + '<br>';
+                        if (step.findings_count !== undefined) {
+                            html += 'Findings: <b>' + step.findings_count + '</b> | Address: ' + (step.address_detected || '?') + '<br>';
+                            if (step.severity_breakdown) html += 'Severity: ' + JSON.stringify(step.severity_breakdown) + '<br>';
+                            if (step.top_findings && step.top_findings.length) {
+                                html += '<details><summary>Top findings</summary><ul>';
+                                step.top_findings.forEach(function(f) {
+                                    html += '<li>[' + f.severity + '] ' + f.category + ': ' + f.description;
+                                    if (f.cost_low) html += ' ($' + f.cost_low + '-$' + f.cost_high + ')';
+                                    html += '</li>';
+                                });
+                                html += '</ul></details>';
+                            }
+                        }
+                        if (step.disclosure_items_count !== undefined) {
+                            html += 'Disclosure items: <b>' + step.disclosure_items_count + '</b> (Yes: ' + step.disclosed_yes + ', No: ' + step.disclosed_no + ')<br>';
+                            html += 'Address: ' + (step.address_detected || '?') + '<br>';
+                            if (step.top_items && step.top_items.length) {
+                                html += '<details><summary>Top items</summary><ul>';
+                                step.top_items.forEach(function(i) {
+                                    html += '<li>[' + (i.disclosed ? 'YES' : 'NO') + '] ' + i.category + ': ' + i.question + '</li>';
+                                });
+                                html += '</ul></details>';
+                            }
+                        }
+                        if (step.note) html += step.note + '<br>';
+                    } else if (step.error) {
+                        html += '<span style="color:#f87171;">' + step.error + '</span><br>';
+                        if (step.traceback) html += '<details><summary>Traceback</summary><pre style="font-size:10px;background:#1e293b;color:#cbd5e1;padding:8px;border-radius:4px;">' + step.traceback.replace(/</g,'&lt;') + '</pre></details>';
+                    }
+                    html += '</div>';
+                });
+                html += '</div>';
+                
+                // Show in modal
+                document.getElementById('docDetailBody').innerHTML = html;
+                document.getElementById('docDetailModal').classList.add('active');
+                
+                // Refresh the table to show updated parser status
+                loadDocRepo();
+            } catch(e) {
+                alert('Parser test failed: ' + e.message);
+            } finally {
+                if (btn) { btn.disabled = false; btn.textContent = '🧪'; }
+            }
+        }
+        
+        async function runParserTest() {
+            try {
+                var selected = Array.from(document.querySelectorAll('.doc-select:checked')).map(c => c.dataset.id);
+                if (!selected.length) { alert('Select documents to test'); return; }
+                
+                // Show modal immediately with progress
+                var resultEl = document.getElementById('docDetailBody');
+                if (!resultEl) { alert('Error: modal element not found'); return; }
+                document.getElementById('docDetailModal').classList.add('active');
+                resultEl.innerHTML = '<div style="text-align:left;"><h3>🧪 Batch Parser Test: 0/' + selected.length + ' documents</h3><div id="batchProgress"></div><div id="batchSummary"></div></div>';
+                
+                var passed = 0, failed = 0;
+                
+                for (var i = 0; i < selected.length; i++) {
+                    var docId = selected[i];
+                    var progressEl = document.getElementById('batchProgress');
+                    var headerEl = resultEl.querySelector('h3');
+                    if (headerEl) headerEl.textContent = '🧪 Batch Parser Test: ' + (i+1) + '/' + selected.length + ' (' + Math.round(((i+1)/selected.length)*100) + '%)';
+                    
+                    try {
+                        var res = await fetch('/api/docrepo/test/' + docId + '?admin_key=' + adminKey);
+                        var data = await res.json();
+                        if (data.error) {
+                            failed++;
+                            if (progressEl) progressEl.innerHTML += '<div style="color:#f87171;">❌ ' + docId + ' — ' + data.error + '</div>';
+                        } else if (data.success) {
+                            passed++;
+                            var detail = '';
+                            var parseStep = (data.steps || []).find(s => s.step === 'parsing');
+                            if (parseStep) {
+                                if (parseStep.findings_count !== undefined) detail = parseStep.findings_count + ' findings';
+                                else if (parseStep.disclosure_items_count !== undefined) detail = parseStep.disclosure_items_count + ' disclosures';
+                                else detail = parseStep.note || 'OK';
+                            }
+                            if (progressEl) progressEl.innerHTML += '<div style="color:#4ade80;">✅ ' + docId + ' — ' + detail + ' (' + data.elapsed_ms + 'ms)</div>';
+                        } else {
+                            failed++;
+                            var errStep = (data.steps || []).find(s => !s.success);
+                            if (progressEl) progressEl.innerHTML += '<div style="color:#f87171;">❌ ' + docId + ' — ' + (errStep ? errStep.step + ': ' + (errStep.error || 'failed') : 'unknown error') + '</div>';
+                        }
+                    } catch(e) {
+                        failed++;
+                        if (progressEl) progressEl.innerHTML += '<div style="color:#f87171;">❌ ' + docId + ' — ' + e.message + '</div>';
+                    }
+                    var summaryEl = document.getElementById('batchSummary');
+                    if (summaryEl) summaryEl.innerHTML = '<hr style="border-color:#334155;"><p><b>' + passed + ' passed, ' + failed + ' failed</b></p>';
+                }
+                
+                // Final summary
+                var finalHeader = resultEl.querySelector('h3');
+                if (finalHeader) finalHeader.textContent = '🧪 Batch Parser Test Complete: ' + selected.length + ' documents';
+                var finalSummary = document.getElementById('batchSummary');
+                if (finalSummary) finalSummary.innerHTML = '<hr style="border-color:#334155;"><p><b>Results: ' + passed + ' passed, ' + failed + ' failed out of ' + selected.length + '</b></p>';
+                loadDocRepo();
+            } catch(outerErr) {
+                alert('Batch test error: ' + outerErr.message);
+            }
+        }
+        
+        async function anonymizeDoc(docId) {
+            try {
+                var res = await fetch('/api/docrepo/anonymize/' + docId + '?admin_key=' + adminKey);
+                var data = await res.json();
+                
+                if (data.error) {
+                    var html = '<div style="text-align:left;">';
+                    html += '<h3>❌ Anonymization: ' + docId + '</h3>';
+                    html += '<div style="margin:8px 0;padding:12px;background:rgba(239,68,68,0.15);border-left:3px solid #ef4444;border-radius:4px;color:#e2e8f0;">';
+                    html += data.error + '</div></div>';
+                    document.getElementById('docDetailBody').innerHTML = html;
+                    document.getElementById('docDetailModal').classList.add('active');
+                    return;
+                }
+                
+                var html = '<div style="text-align:left;max-height:500px;overflow-y:auto;">';
+                html += '<h3>🔒 Anonymization: ' + data.doc_id + '</h3>';
+                html += '<p><b>PII found:</b> ' + data.pii_found + ' items</p>';
+                
+                if (data.pii_breakdown) {
+                    html += '<table style="width:100%;margin:8px 0;"><tr style="background:#334155;color:#e2e8f0;"><th>Type</th><th>Count</th></tr>';
+                    Object.entries(data.pii_breakdown).forEach(function(e) {
+                        html += '<tr><td>' + e[0] + '</td><td>' + e[1] + '</td></tr>';
+                    });
+                    html += '</table>';
+                }
+                
+                if (data.pii_samples && data.pii_samples.length) {
+                    html += '<details><summary>Sample PII found</summary><ul>';
+                    data.pii_samples.forEach(function(s) {
+                        html += '<li><b>' + s.type + ':</b> <code>' + s.value + '</code></li>';
+                    });
+                    html += '</ul></details>';
+                }
+                
+                html += '<details><summary>Anonymized text preview</summary><pre style="font-size:11px;max-height:200px;overflow:auto;white-space:pre-wrap;background:#1e293b;color:#cbd5e1;padding:8px;border-radius:4px;">' + (data.anonymized_preview || '').replace(/</g,'&lt;') + '</pre></details>';
+                html += '<p style="color:#4ade80;">✅ Saved to: ' + data.saved_to + '</p>';
+                html += '</div>';
+                
+                document.getElementById('docDetailBody').innerHTML = html;
+                document.getElementById('docDetailModal').classList.add('active');
+            } catch(e) {
+                alert('Anonymization failed: ' + e.message);
+            }
+        }
+        
+        async function checkSources() {
+            var btn = event ? event.target : null;
+            if (btn) { btn.disabled = true; btn.textContent = '⏳ Checking...'; }
+            
+            try {
+                var res = await fetch('/api/docrepo/check-sources?admin_key=' + adminKey);
+                var data = await res.json();
+                
+                var html = '<div style="text-align:left;max-height:600px;overflow-y:auto;">';
+                html += '<h3>🔍 Source Check Results</h3>';
+                
+                (data.sources_checked || []).forEach(function(src) {
+                    var icon = src.status === 'checked' ? '✅' : (src.status === 'info' ? 'ℹ️' : '❌');
+                    html += '<div style="margin:8px 0;padding:12px;background:#1e293b;border-radius:4px;color:#e2e8f0;">';
+                    html += '<b>' + icon + ' ' + src.source + '</b><br>';
+                    
+                    if (src.total_actions !== undefined) {
+                        html += 'Total actions (last ' + (src.months_checked || 3) + ' months): <b>' + src.total_actions + '</b><br>';
+                        html += 'Disclosure-related violations: <b style="color:#f59e0b;">' + (src.disclosure_related || 0) + '</b><br>';
+                        
+                        if (src.action_types && Object.keys(src.action_types).length) {
+                            html += '<details><summary style="cursor:pointer;color:#94a3b8;">Action type breakdown</summary>';
+                            html += '<table style="width:100%;margin:4px 0;font-size:12px;"><tr style="background:#334155;"><th style="text-align:left;padding:4px;">Action</th><th style="padding:4px;">Count</th></tr>';
+                            Object.entries(src.action_types).forEach(function(e) {
+                                html += '<tr><td style="padding:4px;">' + e[0] + '</td><td style="text-align:center;padding:4px;">' + e[1] + '</td></tr>';
+                            });
+                            html += '</table></details>';
+                        }
+                    }
+                    
+                    if (src.total_in_repo !== undefined) html += 'In repo: ' + src.total_in_repo + ' reports<br>';
+                    if (src.note) html += '<span style="color:#94a3b8;">' + src.note + '</span><br>';
+                    if (src.error) html += '<span style="color:#f87171;">' + src.error + '</span><br>';
+                    html += '</div>';
+                });
+                
+                if (data.details && data.details.length) {
+                    html += '<h4 style="margin-top:12px;">⚠️ Disclosure-Related Violations (top ' + data.details.length + ')</h4>';
+                    html += '<table style="width:100%;font-size:12px;border-collapse:collapse;">';
+                    html += '<tr style="background:#334155;color:#e2e8f0;"><th style="padding:6px;text-align:left;">Case</th><th style="padding:6px;text-align:left;">Licensee</th><th style="padding:6px;text-align:left;">Action</th><th style="padding:6px;text-align:left;">Violations</th><th style="padding:6px;">Date</th></tr>';
+                    data.details.forEach(function(d) {
+                        html += '<tr style="border-bottom:1px solid #334155;">';
+                        html += '<td style="padding:6px;">' + d.case_number + '</td>';
+                        html += '<td style="padding:6px;">' + d.licensee + '</td>';
+                        html += '<td style="padding:6px;">' + d.action + '</td>';
+                        html += '<td style="padding:6px;font-size:11px;color:#94a3b8;">' + (d.violations || '').substring(0, 60) + '</td>';
+                        html += '<td style="padding:6px;text-align:center;">' + d.date + '</td>';
+                        html += '</tr>';
+                    });
+                    html += '</table>';
+                }
+                html += '</div>';
+                
+                document.getElementById('docDetailBody').innerHTML = html;
+                document.getElementById('docDetailModal').classList.add('active');
+            } catch(e) {
+                alert('Source check failed: ' + e.message);
+            } finally {
+                if (btn) { btn.disabled = false; btn.textContent = '🔍 Check for New Docs'; }
+            }
+        }
+
+        // ---- CRAWLER MODE 1: SCAN ----
+        async function crawlerScan() {
+            var btn = document.getElementById('btnScan');
+            var statusDiv = document.getElementById('crawlerStatus');
+            var resultsDiv = document.getElementById('crawlerResults');
+            var statusText = document.getElementById('crawlerStatusText');
+            var spinner = document.getElementById('crawlerSpinner');
+
+            btn.disabled = true; btn.textContent = '⏳ Scanning...';
+            statusDiv.style.display = 'block';
+            spinner.style.display = 'block';
+            statusText.textContent = 'Scanning public sources for available documents...';
+            resultsDiv.style.display = 'none';
+
+            try {
+                var res = await fetch('/api/docrepo/crawler/scan?admin_key=' + adminKey);
+                var data = await res.json();
+
+                var html = '<div style="text-align:left;max-height:600px;overflow-y:auto;">';
+                html += '<h3 style="color:#f1f5f9;margin:0 0 12px;">🔍 Scan Results — ' + (data.total_new_found || 0) + ' New Documents Found</h3>';
+                html += '<p style="color:#94a3b8;font-size:12px;margin:0 0 12px;">Already in repo: ' + (data.total_known || 0) + ' documents</p>';
+
+                (data.sources || []).forEach(function(src) {
+                    var icon = src.status === 'scanned' ? '✅' : '❌';
+                    html += '<div style="margin:8px 0;padding:12px;background:#1e293b;border-radius:6px;border:1px solid #334155;">';
+                    html += '<div style="display:flex;justify-content:space-between;align-items:center;">';
+                    html += '<b style="color:#f1f5f9;">' + icon + ' ' + src.name + '</b>';
+                    html += '<span style="color:' + (src.new_docs_found > 0 ? '#22c55e' : '#94a3b8') + ';font-weight:600;">' + (src.new_docs_found || 0) + ' new</span>';
+                    html += '</div>';
+
+                    if (src.documents && src.documents.length > 0) {
+                        html += '<details style="margin-top:8px;"><summary style="cursor:pointer;color:#60a5fa;font-size:12px;">Show documents</summary>';
+                        html += '<div style="margin-top:6px;">';
+                        src.documents.forEach(function(doc) {
+                            var typeColor = doc.doc_type === 'inspection_report' ? '#22c55e' : doc.doc_type === 'disclosure' ? '#fbbf24' : '#94a3b8';
+                            html += '<div style="padding:6px 0;border-bottom:1px solid #334155;font-size:12px;">';
+                            html += '<span style="color:' + typeColor + ';font-size:10px;text-transform:uppercase;font-weight:600;">' + (doc.doc_type || 'unknown') + '</span> ';
+                            html += '<span style="color:#e2e8f0;">' + (doc.title || 'Untitled') + '</span>';
+                            if (doc.metadata && doc.metadata.state) html += ' <span style="color:#64748b;font-size:10px;">[' + doc.metadata.state + ']</span>';
+                            html += '</div>';
+                        });
+                        html += '</div></details>';
+                    }
+
+                    if (src.error) html += '<span style="color:#f87171;font-size:12px;">' + src.error + '</span>';
+                    html += '</div>';
+                });
+                html += '</div>';
+
+                resultsDiv.innerHTML = html;
+                resultsDiv.style.display = 'block';
+                statusText.textContent = 'Scan complete — ' + (data.total_new_found || 0) + ' new documents found across ' + (data.sources || []).length + ' sources';
+            } catch(e) {
+                statusText.textContent = 'Scan failed: ' + e.message;
+                statusText.style.color = '#f87171';
+            } finally {
+                spinner.style.display = 'none';
+                btn.disabled = false; btn.textContent = '🔍 Scan Sources';
+            }
+        }
+
+        // ---- CRAWLER MODE 2: CRAWL & DOWNLOAD ----
+        async function crawlerCrawl() {
+            if (!confirm('This will download new public documents to your repository. Proceed?')) return;
+
+            var btn = document.getElementById('btnCrawl');
+            var statusDiv = document.getElementById('crawlerStatus');
+            var resultsDiv = document.getElementById('crawlerResults');
+            var statusText = document.getElementById('crawlerStatusText');
+            var spinner = document.getElementById('crawlerSpinner');
+            var progressDiv = document.getElementById('crawlerProgress');
+            var progressBar = document.getElementById('crawlerProgressBar');
+
+            btn.disabled = true; btn.textContent = '⏳ Crawling...';
+            statusDiv.style.display = 'block';
+            spinner.style.display = 'block';
+            progressDiv.style.display = 'block';
+            progressBar.style.width = '10%';
+            statusText.textContent = 'Scanning and downloading public documents (this may take a few minutes)...';
+            resultsDiv.style.display = 'none';
+
+            // Animate progress
+            var progressInterval = setInterval(function() {
+                var w = parseFloat(progressBar.style.width);
+                if (w < 85) progressBar.style.width = (w + 2) + '%';
+            }, 2000);
+
+            try {
+                var res = await fetch('/api/docrepo/crawler/crawl?admin_key=' + adminKey, {method: 'POST'});
+                var data = await res.json();
+
+                clearInterval(progressInterval);
+                progressBar.style.width = '100%';
+
+                var html = '<div style="text-align:left;max-height:600px;overflow-y:auto;">';
+                html += '<h3 style="color:#f1f5f9;margin:0 0 12px;">⬇️ Crawl Complete</h3>';
+                html += '<div style="display:flex;gap:16px;margin-bottom:12px;">';
+                html += '<div style="padding:8px 16px;background:#0f2918;border-radius:6px;border:1px solid #22c55e;"><span style="font-size:20px;font-weight:700;color:#22c55e;">' + (data.total_downloaded || 0) + '</span><br><span style="font-size:11px;color:#94a3b8;">Downloaded</span></div>';
+                html += '<div style="padding:8px 16px;background:#451a1a;border-radius:6px;border:1px solid #ef4444;"><span style="font-size:20px;font-weight:700;color:#ef4444;">' + (data.total_failed || 0) + '</span><br><span style="font-size:11px;color:#94a3b8;">Failed</span></div>';
+                html += '</div>';
+
+                (data.sources || []).forEach(function(src) {
+                    var icon = src.status === 'crawled' ? '✅' : '❌';
+                    html += '<div style="margin:6px 0;padding:10px;background:#1e293b;border-radius:6px;font-size:13px;border:1px solid #334155;">';
+                    html += icon + ' <b style="color:#f1f5f9;">' + src.name + '</b> — ';
+                    html += '<span style="color:#22c55e;">' + (src.docs_downloaded || 0) + ' downloaded</span>';
+                    if (src.docs_found) html += ' / ' + src.docs_found + ' found';
+                    if (src.docs_failed) html += ' / <span style="color:#ef4444;">' + src.docs_failed + ' failed</span>';
+                    if (src.error) html += '<br><span style="color:#f87171;">' + src.error + '</span>';
+                    html += '</div>';
+                });
+                html += '</div>';
+
+                resultsDiv.innerHTML = html;
+                resultsDiv.style.display = 'block';
+                statusText.textContent = 'Crawl complete — ' + (data.total_downloaded || 0) + ' new documents added to repository';
+
+                // Refresh docrepo count
+                try {
+                    var catRes = await fetchWithTimeout('/api/docrepo/catalog?admin_key=' + adminKey);
+                    var catData = await catRes.json();
+                    document.getElementById('docrepoTotal').textContent = catData.collection_stats ? catData.collection_stats.total_documents : 0;
+                } catch(e2) {}
+
+            } catch(e) {
+                clearInterval(progressInterval);
+                statusText.textContent = 'Crawl failed: ' + e.message;
+                statusText.style.color = '#f87171';
+            } finally {
+                spinner.style.display = 'none';
+                progressDiv.style.display = 'none';
+                btn.disabled = false; btn.textContent = '⬇️ Crawl & Download';
+            }
+        }
+
+        // ---- CRAWLER MODE 3: CORPUS REPORT ----
+        async function crawlerCorpus() {
+            var btn = document.getElementById('btnCorpus');
+            var statusDiv = document.getElementById('crawlerStatus');
+            var resultsDiv = document.getElementById('crawlerResults');
+            var statusText = document.getElementById('crawlerStatusText');
+            var spinner = document.getElementById('crawlerSpinner');
+
+            btn.disabled = true; btn.textContent = '⏳ Loading...';
+            statusDiv.style.display = 'block';
+            spinner.style.display = 'block';
+            statusText.textContent = 'Generating training corpus report...';
+            resultsDiv.style.display = 'none';
+
+            try {
+                var res = await fetch('/api/docrepo/crawler/corpus?admin_key=' + adminKey);
+                var data = await res.json();
+
+                var html = '<div style="text-align:left;max-height:600px;overflow-y:auto;">';
+                html += '<h3 style="color:#f1f5f9;margin:0 0 16px;">📊 Training Corpus Report</h3>';
+
+                // Stats cards
+                html += '<div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px;">';
+                var cards = [
+                    {label: 'Total Documents', val: data.total_documents || 0, color: '#3b82f6'},
+                    {label: 'Inspection Reports', val: data.total_inspection_reports || 0, color: '#22c55e'},
+                    {label: 'Disclosures', val: data.total_disclosures || 0, color: '#fbbf24'},
+                    {label: 'Pending Discovery', val: data.total_discovered_pending || 0, color: '#a78bfa'},
+                ];
+                cards.forEach(function(c) {
+                    html += '<div style="padding:10px 16px;background:#1e293b;border-radius:8px;border-left:3px solid ' + c.color + ';min-width:120px;">';
+                    html += '<div style="font-size:22px;font-weight:700;color:' + c.color + ';">' + c.val + '</div>';
+                    html += '<div style="font-size:11px;color:#94a3b8;">' + c.label + '</div></div>';
+                });
+                html += '</div>';
+
+                // State coverage
+                if (data.states_covered && Object.keys(data.states_covered).length > 0) {
+                    html += '<div style="margin-bottom:12px;"><b style="color:#f1f5f9;font-size:13px;">State Coverage:</b> ';
+                    Object.entries(data.states_covered).forEach(function(e) {
+                        html += '<span style="display:inline-block;padding:2px 8px;margin:2px;background:#1e293b;border-radius:4px;font-size:11px;color:#e2e8f0;">' + e[0] + ': ' + e[1] + '</span>';
+                    });
+                    html += '</div>';
+                }
+
+                // Software coverage
+                if (data.inspector_software && Object.keys(data.inspector_software).length > 0) {
+                    html += '<div style="margin-bottom:12px;"><b style="color:#f1f5f9;font-size:13px;">Inspector Software Seen:</b> ';
+                    Object.entries(data.inspector_software).forEach(function(e) {
+                        html += '<span style="display:inline-block;padding:2px 8px;margin:2px;background:#1e293b;border-radius:4px;font-size:11px;color:#e2e8f0;">' + e[0] + ': ' + e[1] + '</span>';
+                    });
+                    html += '</div>';
+                }
+
+                // Coverage gaps
+                if (data.coverage_gaps && data.coverage_gaps.length > 0) {
+                    html += '<h4 style="color:#fbbf24;margin:16px 0 8px;">⚠️ Coverage Gaps</h4>';
+                    data.coverage_gaps.forEach(function(gap) {
+                        var priorityColor = gap.priority === 'high' ? '#ef4444' : '#fbbf24';
+                        html += '<div style="margin:6px 0;padding:10px;background:#1e293b;border-radius:6px;border-left:3px solid ' + priorityColor + ';font-size:12px;">';
+                        html += '<span style="color:' + priorityColor + ';font-weight:600;text-transform:uppercase;">' + gap.priority + '</span> ';
+                        if (gap.current !== undefined) html += '<span style="color:#e2e8f0;">' + gap.type + ': ' + gap.current + '/' + gap.target + '</span>';
+                        if (gap.missing_states) html += '<span style="color:#e2e8f0;">Missing states: ' + gap.missing_states.join(', ') + '</span>';
+                        if (gap.missing_software) html += '<span style="color:#e2e8f0;">Missing software: ' + gap.missing_software.join(', ') + '</span>';
+                        html += '<br><span style="color:#94a3b8;">' + gap.suggestion + '</span>';
+                        html += '</div>';
+                    });
+                }
+
+                // Last run times
+                if (data.last_runs && Object.keys(data.last_runs).length > 0) {
+                    html += '<h4 style="color:#94a3b8;margin:16px 0 8px;">Last Crawl Runs</h4>';
+                    Object.entries(data.last_runs).forEach(function(e) {
+                        var run = e[1];
+                        html += '<div style="font-size:11px;color:#64748b;margin:2px 0;">';
+                        html += '<b>' + e[0] + '</b>: ' + (run.timestamp || 'never') + ' — ' + (run.docs_found || 0) + ' found, ' + (run.docs_downloaded || 0) + ' downloaded';
+                        html += '</div>';
+                    });
+                }
+
+                html += '</div>';
+
+                resultsDiv.innerHTML = html;
+                resultsDiv.style.display = 'block';
+                statusText.textContent = 'Corpus report ready — ' + (data.total_documents || 0) + ' documents in training set';
+            } catch(e) {
+                statusText.textContent = 'Report failed: ' + e.message;
+                statusText.style.color = '#f87171';
+            } finally {
+                spinner.style.display = 'none';
+                btn.disabled = false; btn.textContent = '📊 Corpus Report';
+            }
+        }
+        
+        // ─── Analytics / Overview tab ───────────────────────────────
+        async function loadAnalytics() {
+            try {
+                var res = await fetchWithTimeout('/api/analytics?admin_key=' + adminKey, 20000);
+                var data = await res.json();
+                if (data.error && !data.users) return;
+
+                // Key Metrics
+                var u = data.users || {}, r = data.revenue || {}, a = data.analyses || {};
+                document.getElementById('keyMetrics').innerHTML =
+                    '<div class="stat stat-large"><div class="stat-value">' + (u.total||0) + '</div><div class="stat-label">Total Users</div></div>' +
+                    '<div class="stat success"><div class="stat-value">' + (u.active_7d||0) + '</div><div class="stat-label">Active 7d</div></div>' +
+                    '<div class="stat"><div class="stat-value">' + (a.total||0) + '</div><div class="stat-label">Analyses Run</div></div>' +
+                    '<div class="stat"><div class="stat-value">' + (u.purchased||0) + '</div><div class="stat-label">Purchased</div></div>' +
+                    '<div class="stat success"><div class="stat-value">$' + (r.total||0) + '</div><div class="stat-label">Est. Revenue</div></div>' +
+                    '<div class="stat"><div class="stat-value">' + (a.avg_per_user||0).toFixed(1) + '</div><div class="stat-label">Avg / User</div></div>';
+
+                // Funnel
+                var total = u.total || 1;
+                document.getElementById('funnelMetrics').innerHTML =
+                    '<div class="stat"><div class="stat-value">' + total + '</div><div class="stat-label">Signed Up</div></div>' +
+                    '<div class="stat"><div class="stat-value">' + (u.with_analyses||0) + '</div><div class="stat-label">Ran Analysis (' + Math.round((u.with_analyses||0)/total*100) + '%)</div></div>' +
+                    '<div class="stat"><div class="stat-value">' + (u.repeat||0) + '</div><div class="stat-label">Repeat Users (' + Math.round((u.repeat||0)/total*100) + '%)</div></div>' +
+                    '<div class="stat success"><div class="stat-value">' + (u.purchased||0) + '</div><div class="stat-label">Converted (' + Math.round((u.purchased||0)/total*100) + '%)</div></div>';
+
+                // Engagement
+                document.getElementById('engagementMetrics').innerHTML =
+                    '<div class="stat"><div class="stat-value">' + (u.power||0) + '</div><div class="stat-label">Power Users</div></div>' +
+                    '<div class="stat"><div class="stat-value">' + (a.avg_per_user||0).toFixed(1) + '</div><div class="stat-label">Avg Analyses/User</div></div>';
+
+                // Revenue
+                document.getElementById('revenueMetrics').innerHTML =
+                    '<div class="stat success"><div class="stat-value">$' + (r.total||0) + '</div><div class="stat-label">Total Revenue</div></div>' +
+                    '<div class="stat"><div class="stat-value">' + (r.transactions||0) + '</div><div class="stat-label">Transactions</div></div>' +
+                    '<div class="stat"><div class="stat-value">$' + (r.avg_transaction||0) + '</div><div class="stat-label">Avg Transaction</div></div>' +
+                    '<div class="stat"><div class="stat-value">$' + (r.arpu||0) + '</div><div class="stat-label">ARPU</div></div>';
+
+                // Power users table
+                var powerRows = (data.power_users || []).map(function(u) {
+                    return '<tr><td>' + escapeHtml(u.email||'') + '</td><td>' + (u.analyses||0) + '</td><td>' + (u.credits||0) + '</td><td>' + (u.purchased?'Yes':'No') + '</td><td>' + fmtDate(u.joined) + '</td><td>' + fmtDate(u.last_login) + '</td></tr>';
+                }).join('') || '<tr><td colspan="6" style="text-align:center;color:#64748b;">No power users yet</td></tr>';
+                document.getElementById('powerUsersTable').innerHTML = powerRows;
+
+                // All users table
+                var allRows = (data.all_users || []).map(function(u) {
+                    return '<tr><td>' + escapeHtml(u.email||'') + '</td><td>' + (u.analyses||0) + '</td><td>' + (u.credits||0) + '</td><td>' + escapeHtml(u.tier||'-') + '</td><td>' + escapeHtml(u.referral_code||'-') + '</td><td>' + fmtDate(u.joined) + '</td><td>' + fmtDate(u.last_login) + '</td></tr>';
+                }).join('') || '<tr><td colspan="7" style="text-align:center;color:#64748b;">No users yet</td></tr>';
+                document.getElementById('allUsersTable').innerHTML = allRows;
+
+                // Recent activity
+                var acts = (data.recent_activity || []);
+                document.getElementById('recentActivity').innerHTML = acts.length ? acts.map(function(a) {
+                    return '<div style="padding:8px 0;border-bottom:1px solid #1e293b;font-size:13px;color:#94a3b8;">' +
+                        '<span style="color:#475569;margin-right:10px;">' + fmtDate(a.date) + '</span>' +
+                        '<span style="color:#60a5fa;margin-right:8px;">' + (a.count||0) + 'x</span>' +
+                        escapeHtml(a.action||'') + '</div>';
+                }).join('') : '<div style="color:#64748b;text-align:center;padding:20px;">No recent activity</div>';
+
+            } catch(e) {
+                document.getElementById('keyMetrics').innerHTML = '<div class="stat"><div class="stat-value" style="color:#ef4444;">Error</div><div class="stat-label">' + escapeHtml(e.message) + '</div></div>';
+            }
+        }
+
+        // ─── System Health Check ─────────────────────────────────────
+        async function analyzeSystem() {
+            var badge = document.getElementById('healthBadge');
+            var btn = document.getElementById('analyzeSystemBtn');
+            badge.style.background = 'rgba(100,116,139,0.2)';
+            badge.style.color = '#94a3b8';
+            badge.textContent = '⏳ Checking...';
+            btn.disabled = true;
+            try {
+                var res = await fetchWithTimeout('/api/system-info?admin_key=' + adminKey, 15000);
+                var data = await res.json();
+                var issues = [];
+                if (data.database_connected === false) issues.push('DB');
+                if (data.stripe_configured === false) issues.push('Stripe');
+                if (data.openai_configured === false) issues.push('AI');
+                if (issues.length) {
+                    badge.style.background = 'rgba(239,68,68,0.15)';
+                    badge.style.color = '#f87171';
+                    badge.textContent = '⚠️ Issues: ' + issues.join(', ');
+                } else {
+                    badge.style.background = 'rgba(34,197,94,0.15)';
+                    badge.style.color = '#4ade80';
+                    badge.textContent = '✅ Healthy — v' + (data.version||'?');
+                }
+            } catch(e) {
+                badge.style.background = 'rgba(239,68,68,0.15)';
+                badge.style.color = '#f87171';
+                badge.textContent = '❌ ' + e.message;
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        // Load docrepo count on page load  
+        (async function() {
+            try {
+                var res = await fetchWithTimeout('/api/docrepo/catalog?admin_key=' + adminKey);
+                var data = await res.json();
+                document.getElementById('docrepoTotal').textContent = data.collection_stats ? data.collection_stats.total_documents : 0;
+            } catch(e) {}
+        })();
+        
+        // Initial load
+        analyzeSystem();
+        loadAnalytics();
+        loadWaitlist();
+        loadSessions();
+        updateBugCount();
+        loadIntelStats();
+        
+        // ─── Drip Campaign / Waitlist ────────────────────────────────
+        async function loadWaitlist() {
+            try {
+                var res = await fetchWithTimeout('/api/waitlist/stats?admin_key=' + adminKey, 15000);
+                var data = await res.json();
+
+                var total = data.total || 0;
+                var active = data.active || 0;
+                var unsub = data.unsubscribed || 0;
+                var completed = data.drip_completed || 0;
+                var converted = data.converted || 0;
+                var funnel = data.funnel || [];
+
+                // ── Lead Nurture funnel stats ──
+                var funnelHtml =
+                    '<div class="stat stat-large"><div class="stat-value">' + total + '</div><div class="stat-label">Emails Captured</div></div>' +
+                    '<div class="stat"><div class="stat-value">' + active + '</div><div class="stat-label">Active (not unsub)</div></div>' +
+                    '<div class="stat"><div class="stat-value">' + completed + '</div><div class="stat-label">Drip Completed</div></div>' +
+                    '<div class="stat"><div class="stat-value" style="color:#ef4444;">' + unsub + '</div><div class="stat-label">Unsubscribed</div></div>' +
+                    '<div class="stat success"><div class="stat-value">' + converted + '</div><div class="stat-label">Signed Up (' + (total ? Math.round(converted/total*100) : 0) + '%)</div></div>';
+                document.getElementById('dripFunnel').innerHTML = funnelHtml;
+
+                // ── Step-by-step bar chart ──
+                if (funnel.length > 0) {
+                    var maxReached = funnel[0].reached || 1;
+                    var barHtml = '<div style="display:flex; flex-direction:column; gap:6px;">';
+                    var stepLabels = ['Captured', 'Email 1 (Immediate)', 'Email 2 (Day 2)', 'Email 3 (Day 5)', 'Email 4 (Day 9)', 'Email 5 (Day 14)', 'Monthly Listings'];
+                    for (var i = 0; i < funnel.length; i++) {
+                        var f = funnel[i];
+                        var pct = maxReached > 0 ? Math.round(f.reached / maxReached * 100) : 0;
+                        var dropoff = i > 0 ? funnel[i-1].reached - f.reached : 0;
+                        var dropLabel = i > 0 && funnel[i-1].reached > 0 ? ' (' + dropoff + ' dropped)' : '';
+                        var barColor = i === 0 ? '#3b82f6' : i < 6 ? '#60a5fa' : '#8b5cf6';
+                        barHtml += '<div style="display:flex; align-items:center; gap:10px;">' +
+                            '<div style="width:130px; font-size:11px; color:#94a3b8; text-align:right; flex-shrink:0;">' + stepLabels[i] + '</div>' +
+                            '<div style="flex:1; height:20px; background:#0f172a; border-radius:4px; overflow:hidden; position:relative;">' +
+                                '<div style="width:' + pct + '%; height:100%; background:' + barColor + '; border-radius:4px; min-width:2px;"></div>' +
+                            '</div>' +
+                            '<div style="width:80px; font-size:12px; color:#e2e8f0; font-weight:600;">' + f.reached + '<span style="color:#475569; font-weight:400; font-size:10px;"> ' + pct + '%</span></div>' +
+                        '</div>';
+                    }
+                    barHtml += '</div>';
+                    document.getElementById('dripBarChart').innerHTML = barHtml;
+                }
+
+                // ── Detail line ──
+                var stepSends = data.step_sends || {};
+                var sendParts = [];
+                for (var s = 1; s <= 5; s++) {
+                    var cnt = stepSends['drip_' + s] || 0;
+                    if (cnt > 0) sendParts.push('E' + s + ': ' + cnt);
+                }
+                var detailParts = [];
+                if (sendParts.length) detailParts.push('Sends — ' + sendParts.join(', '));
+                if (unsub > 0 && total > 0) detailParts.push('Unsub rate: ' + Math.round(unsub/total*100) + '%');
+                if (converted > 0 && total > 0) detailParts.push('Lead-to-signup: ' + Math.round(converted/total*100) + '%');
+                document.getElementById('dripDetail').textContent = detailParts.join('  ·  ') || '';
+
+                // ── Recent leads table ──
+                var signups = data.signups || [];
+                if (signups.length === 0) {
+                    document.getElementById('waitlistTableBody').innerHTML = '<tr><td colspan="7" style="color:#64748b; text-align:center; padding:20px;">No leads yet</td></tr>';
+                } else {
+                    var stepColors = {0:'#475569', 1:'#3b82f6', 2:'#3b82f6', 3:'#60a5fa', 4:'#60a5fa', 5:'#22c55e'};
+                    document.getElementById('waitlistTableBody').innerHTML = signups.map(function(w) {
+                        var stepNum = w.drip_step || 0;
+                        var stepText = stepNum === 0 ? 'Not started' : stepNum <= 5 ? 'Step ' + stepNum + '/5' : 'Monthly';
+                        var statusBadge = w.unsubscribed ? '<span style="color:#ef4444;">Unsubscribed</span>' :
+                            w.drip_completed ? '<span style="color:#22c55e;">Completed</span>' :
+                            '<span style="color:#60a5fa;">Active</span>';
+                        return '<tr>' +
+                            '<td style="font-size:12px;">' + escapeHtml(w.email) + '</td>' +
+                            '<td style="font-size:11px; color:#94a3b8;">' + escapeHtml(w.source || '-') + '</td>' +
+                            '<td style="font-size:12px;">' + escapeHtml(w.result_zip || '-') + '</td>' +
+                            '<td style="font-size:12px; font-weight:600;">' + escapeHtml(w.result_grade || '-') + '</td>' +
+                            '<td style="font-size:12px; color:' + (stepColors[stepNum] || '#8b5cf6') + ';">' + stepText + '</td>' +
+                            '<td style="font-size:11px;">' + statusBadge + '</td>' +
+                            '<td style="font-size:11px; color:#64748b;">' + fmtDate(w.created_at) + '</td>' +
+                        '</tr>';
+                    }).join('');
+                }
+            } catch(e) {
+                document.getElementById('dripFunnel').innerHTML = '<div class="stat"><div class="stat-value" style="color:#ef4444;">Error</div><div class="stat-label">' + escapeHtml(e.message) + '</div></div>';
+            }
+
+            // Load email engagement data (opens, clicks per drip step)
+            try {
+                var engRes = await fetchWithTimeout('/api/admin/email-engagement?admin_key=' + adminKey, 10000);
+                var engData = await engRes.json();
+                var steps = engData.steps || [];
+                var totals = engData.totals || {};
+
+                if (totals.sent > 0) {
+                    var engHtml = '<div style="margin-top:4px; padding:12px; background:#0f172a; border-radius:8px;">' +
+                        '<div style="font-size:12px; color:#94a3b8; margin-bottom:8px; font-weight:600;">📬 Email Engagement</div>' +
+                        '<div style="display:flex; gap:16px; margin-bottom:10px;">' +
+                        '<span style="font-size:12px; color:#e2e8f0;">Open rate: <strong style="color:#22c55e;">' + totals.open_rate + '%</strong></span>' +
+                        '<span style="font-size:12px; color:#e2e8f0;">Click rate: <strong style="color:#3b82f6;">' + totals.click_rate + '%</strong></span>' +
+                        '<span style="font-size:12px; color:#64748b;">' + totals.sent + ' sent · ' + totals.opened + ' opened · ' + totals.clicked + ' clicked</span>' +
+                        '</div>';
+
+                    if (steps.length > 0) {
+                        engHtml += '<div style="display:flex; flex-direction:column; gap:4px;">';
+                        steps.forEach(function(s) {
+                            var openPct = s.open_rate || 0;
+                            var clickPct = s.click_rate || 0;
+                            var label = s.step.replace('drip_', 'Email ');
+                            engHtml += '<div style="display:flex; align-items:center; gap:8px; font-size:11px;">' +
+                                '<div style="width:60px; color:#94a3b8; text-align:right;">' + label + '</div>' +
+                                '<div style="flex:1; height:14px; background:#1e293b; border-radius:3px; overflow:hidden; position:relative;">' +
+                                    '<div style="width:' + openPct + '%; height:100%; background:#22c55e44; position:absolute;"></div>' +
+                                    '<div style="width:' + clickPct + '%; height:100%; background:#3b82f6; position:absolute;"></div>' +
+                                '</div>' +
+                                '<div style="width:100px; color:#64748b;">' + openPct + '% / ' + clickPct + '%</div>' +
+                            '</div>';
+                        });
+                        engHtml += '<div style="font-size:10px; color:#475569; margin-top:4px;">Green = open rate · Blue = click rate</div>';
+                        engHtml += '</div>';
+                    }
+                    engHtml += '</div>';
+                    document.getElementById('dripEngagement').innerHTML = engHtml;
+                } else {
+                    document.getElementById('dripEngagement').innerHTML = '<div style="font-size:11px; color:#475569; padding:8px; background:#0f172a; border-radius:8px;">📬 Email engagement tracking active — data will appear after Resend delivers emails and users interact with them.</div>';
+                }
+            } catch(engErr) {
+                console.log('Email engagement load error:', engErr);
+            }
+        }
+
+        // Market Intelligence admin functions (v5.62.92)
+        async function loadIntelStats() {
+            try {
+                var res = await fetchWithTimeout('/api/admin/market-intel-stats?admin_key=' + adminKey);
+                if (!res.ok) return;
+                var data = await res.json();
+                document.getElementById('intelSnapshots').textContent = data.snapshots_created || 0;
+                document.getElementById('intelAlerts').textContent = data.alerts_generated || 0;
+                document.getElementById('intelPrefs').textContent = data.users_processed || 0;
+            } catch(e) {
+                console.log('Intel stats load error:', e);
+            }
+        }
+        
+        async function runMarketIntel() {
+            var btn = document.getElementById('runIntelBtn');
+            var result = document.getElementById('intelResult');
+            btn.disabled = true;
+            btn.textContent = '⏳ Running...';
+            result.style.display = 'none';
+            
+            try {
+                var controller = new AbortController();
+                var timeout = setTimeout(function(){ controller.abort(); }, 120000);
+                var res = await fetch('/api/admin/run-market-intel?admin_key=' + adminKey, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    signal: controller.signal
+                });
+                clearTimeout(timeout);
+                var data = await res.json();
+                
+                result.style.display = 'block';
+                if (data.error) {
+                    result.style.background = 'rgba(239,68,68,0.1)';
+                    result.style.color = '#ef4444';
+                    result.textContent = 'Error: ' + data.error;
+                } else {
+                    result.style.background = 'rgba(34,197,94,0.1)';
+                    result.style.color = '#22c55e';
+                    result.textContent = 'Processed ' + data.users_processed + ' users, ' + data.snapshots_created + ' snapshots, ' + data.alerts_generated + ' alerts (' + data.errors + ' errors)';
+                }
+                loadIntelStats();
+            } catch(e) {
+                result.style.display = 'block';
+                result.style.background = 'rgba(239,68,68,0.1)';
+                result.style.color = '#ef4444';
+                result.textContent = e.name === 'AbortError' ? 'Request timed out (>2 min). Check Render logs — the job may still be running in background.' : 'Network error: ' + e.message;
+            }
+            
+            btn.disabled = false;
+            btn.textContent = '🚀 Run Now';
+        }
+    </script>
+<script>
+(function() {
+    var k = adminKey;
+    if (!k) return;
+    document.querySelectorAll('a').forEach(function(a) {
+        if (a.href.indexOf('__ADMIN_KEY__') !== -1) {
+            a.href = a.href.replace(/__ADMIN_KEY__/g, k);
+        }
+    });
+})();
+</script>
+</body>
+</html>
+    

@@ -1,0 +1,144 @@
+name: OfferWise CI
+
+on:
+  push:
+    branches: ["main", "master", "develop"]
+  pull_request:
+    branches: ["main", "master"]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y tesseract-ocr poppler-utils
+
+      - name: Install Python dependencies
+        run: pip install -r requirements.txt pytest
+
+      - name: Syntax check ALL Python modules
+        run: |
+          python -m py_compile app.py
+          python -m py_compile blueprint_helpers.py
+          python -m py_compile testing_routes.py
+          python -m py_compile bug_routes.py
+          python -m py_compile docrepo_routes.py
+          python -m py_compile survey_routes.py
+          python -m py_compile waitlist_routes.py
+          python -m py_compile sharing_routes.py
+          python -m py_compile payment_routes.py
+          python -m py_compile offerwise_intelligence.py
+          python -m py_compile document_parser.py
+          python -m py_compile risk_check_engine.py
+          python -m py_compile ai_output_validator.py
+          python -m py_compile integrity_tests.py
+          python -m py_compile nearby_listings.py
+          python -m py_compile state_disclosures.py
+          python -m py_compile drip_campaign.py
+          python -m py_compile market_intelligence.py
+          python -m py_compile google_ads_sync.py
+          python -m py_compile property_research_agent.py
+          python -m py_compile models.py
+
+      - name: Lint critical files
+        run: |
+          pip install ruff
+          ruff check --select E9,F63,F7,F82 \
+            app.py \
+            blueprint_helpers.py \
+            testing_routes.py \
+            bug_routes.py \
+            docrepo_routes.py \
+            survey_routes.py \
+            waitlist_routes.py \
+            sharing_routes.py \
+            payment_routes.py \
+            offerwise_intelligence.py \
+            document_parser.py \
+            risk_check_engine.py \
+            ai_output_validator.py \
+            integrity_tests.py \
+            nearby_listings.py \
+            state_disclosures.py \
+            drip_campaign.py \
+            market_intelligence.py \
+            google_ads_sync.py \
+            property_research_agent.py \
+            models.py \
+            gtm/conversion_intel.py \
+            gtm/routes.py
+
+      - name: Run unit tests
+        env:
+          FLASK_ENV: testing
+          SECRET_KEY: test-secret-key-for-ci
+          DATABASE_URL: sqlite:///test.db
+        run: |
+          python -m pytest \
+            test_risk_check_engine.py \
+            test_ai_output_validator.py \
+            test_algorithms.py \
+            test_adversarial_pdfs.py \
+            test_critical_paths.py \
+            test_document_parser.py \
+            test_pdf_handler.py \
+            test_cross_reference.py \
+            test_transparency_scorer.py \
+            test_confidence_scorer.py \
+            test_analysis_cache.py \
+            test_negotiation.py \
+            test_nearby_listings.py \
+            test_gtm.py \
+            -v --tb=short 2>&1 | tail -80
+
+      - name: Run integration tests
+        env:
+          FLASK_ENV: testing
+          SECRET_KEY: test-secret-key-for-ci
+          DATABASE_URL: sqlite:///test_e2e.db
+        run: |
+          python -m pytest test_integration.py -v --tb=short -x 2>&1 | tail -40
+
+      - name: Run integrity tests
+        env:
+          FLASK_ENV: testing
+          SECRET_KEY: test-secret-key-for-ci
+          DATABASE_URL: sqlite:///test.db
+        run: python run_ci_integrity.py
+
+  security:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check for secrets in code
+        run: |
+          ! grep -rn "api_key\s*=\s*['\"][a-zA-Z0-9]" --include="*.py" \
+            --exclude-dir=scripts_archive \
+            --exclude-dir=__pycache__ \
+            | grep -v "os.environ\|get(\|example\|test\|template\|\.env"
+
+      - name: Check for bare except clauses
+        run: |
+          count=$(grep -rn "except:$" --include="*.py" \
+            --exclude-dir=scripts_archive \
+            --exclude-dir=__pycache__ \
+            | wc -l)
+          if [ "$count" -gt "0" ]; then
+            echo "Found $count bare except: clauses in active code"
+            grep -rn "except:$" --include="*.py" \
+              --exclude-dir=scripts_archive \
+              --exclude-dir=__pycache__
+            exit 1
+          fi

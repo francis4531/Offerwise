@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Support Inbox — OfferWise Admin</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+  :root {
+    --bg: #080c14;
+    --surface: #0d1424;
+    --card: #111827;
+    --border: #1e2d45;
+    --border-bright: #2a3f5f;
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --faint: #1e293b;
+    --accent: #3b82f6;
+    --accent-dim: rgba(59,130,246,0.12);
+    --green: #22c55e;
+    --green-dim: rgba(34,197,94,0.12);
+    --amber: #f59e0b;
+    --amber-dim: rgba(245,158,11,0.12);
+    --red: #ef4444;
+    --red-dim: rgba(239,68,68,0.12);
+    --indigo: #6366f1;
+    --mono: 'JetBrains Mono', monospace;
+    --sans: 'DM Sans', sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    line-height: 1.5;
+  }
+
+  /* ── Header ── */
+  .topbar {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(8,12,20,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 28px;
+    display: flex; align-items: center; gap: 16px; height: 56px;
+  }
+  .topbar-logo { font-family: var(--mono); font-size: 13px; color: var(--accent); letter-spacing: 0.05em; }
+  .topbar-title { font-size: 15px; font-weight: 500; color: var(--text); }
+  .topbar-sep { color: var(--border-bright); }
+  .topbar-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+  .key-input {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 6px;
+    color: var(--text); font-family: var(--mono); font-size: 12px;
+    padding: 6px 10px; width: 180px; outline: none;
+    transition: border-color 0.2s;
+  }
+  .key-input:focus { border-color: var(--accent); }
+  .btn-sm {
+    padding: 6px 14px; border-radius: 6px; font-size: 13px; font-weight: 500;
+    cursor: pointer; border: none; transition: all 0.15s; font-family: var(--sans);
+  }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-primary:hover { background: #2563eb; }
+  .btn-ghost { background: transparent; color: var(--muted); border: 1px solid var(--border); }
+  .btn-ghost:hover { color: var(--text); border-color: var(--border-bright); }
+
+  /* ── Layout ── */
+  .layout { display: flex; height: calc(100vh - 56px); overflow: hidden; }
+
+  /* ── Sidebar list ── */
+  .sidebar {
+    width: 320px; flex-shrink: 0;
+    border-right: 1px solid var(--border);
+    display: flex; flex-direction: column;
+    overflow: hidden;
+  }
+  .sidebar-header {
+    padding: 16px 18px 12px;
+    border-bottom: 1px solid var(--faint);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .sidebar-title { font-size: 13px; font-weight: 600; color: var(--text); }
+  .sidebar-count {
+    background: var(--accent-dim); color: var(--accent);
+    font-size: 11px; font-family: var(--mono);
+    padding: 1px 7px; border-radius: 10px;
+  }
+  .filter-tabs {
+    display: flex; gap: 0;
+    padding: 0 18px 12px;
+    border-bottom: 1px solid var(--faint);
+  }
+  .filter-tab {
+    padding: 5px 12px; font-size: 12px; font-weight: 500;
+    border: 1px solid var(--border); cursor: pointer;
+    background: transparent; color: var(--muted);
+    transition: all 0.15s; font-family: var(--sans);
+  }
+  .filter-tab:first-child { border-radius: 6px 0 0 6px; }
+  .filter-tab:last-child { border-radius: 0 6px 6px 0; border-left: none; }
+  .filter-tab:not(:first-child):not(:last-child) { border-left: none; }
+  .filter-tab.active { background: var(--accent-dim); color: var(--accent); border-color: var(--accent); z-index:1; }
+  .filter-tab:hover:not(.active) { color: var(--text); }
+
+  .share-list { flex: 1; overflow-y: auto; }
+  .share-list::-webkit-scrollbar { width: 4px; }
+  .share-list::-webkit-scrollbar-track { background: transparent; }
+  .share-list::-webkit-scrollbar-thumb { background: var(--border-bright); border-radius: 2px; }
+
+  .share-item {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--faint);
+    cursor: pointer;
+    transition: background 0.12s;
+    position: relative;
+  }
+  .share-item:hover { background: rgba(255,255,255,0.02); }
+  .share-item.active { background: var(--accent-dim); border-left: 2px solid var(--accent); }
+  .share-item.active .si-address { color: var(--accent); }
+
+  .si-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-bottom: 4px; }
+  .si-address { font-size: 13px; font-weight: 500; color: var(--text); line-height: 1.3; }
+  .si-date { font-size: 11px; color: var(--muted); font-family: var(--mono); white-space: nowrap; flex-shrink: 0; }
+  .si-user { font-size: 12px; color: var(--muted); margin-bottom: 5px; }
+  .si-message {
+    font-size: 12px; color: #475569;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    font-style: italic;
+  }
+  .si-badges { display: flex; gap: 4px; margin-top: 6px; flex-wrap: wrap; }
+
+  .badge {
+    display: inline-flex; align-items: center; gap: 3px;
+    padding: 2px 7px; border-radius: 4px; font-size: 10px; font-weight: 600;
+    font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.04em;
+  }
+  .badge-open { background: var(--amber-dim); color: var(--amber); border: 1px solid rgba(245,158,11,0.2); }
+  .badge-reviewed { background: var(--accent-dim); color: var(--accent); border: 1px solid rgba(59,130,246,0.2); }
+  .badge-resolved { background: var(--green-dim); color: var(--green); border: 1px solid rgba(34,197,94,0.2); }
+  .badge-risk { background: rgba(239,68,68,0.1); color: #f87171; border: 1px solid rgba(239,68,68,0.2); }
+  .badge-tier { background: rgba(99,102,241,0.1); color: #a5b4fc; border: 1px solid rgba(99,102,241,0.2); }
+
+  /* ── Detail pane ── */
+  .detail {
+    flex: 1; overflow-y: auto; padding: 28px 32px;
+    background: var(--bg);
+  }
+  .detail::-webkit-scrollbar { width: 5px; }
+  .detail::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .empty-state {
+    height: 100%; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 12px;
+    color: var(--muted);
+  }
+  .empty-icon { font-size: 40px; opacity: 0.4; }
+  .empty-text { font-size: 14px; }
+
+  .detail-header { margin-bottom: 24px; }
+  .dh-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
+  .dh-address { font-size: 22px; font-weight: 600; color: var(--text); }
+  .dh-meta { font-size: 12px; color: var(--muted); font-family: var(--mono); }
+  .dh-actions { display: flex; gap: 8px; flex-shrink: 0; }
+
+  .section { margin-bottom: 24px; }
+  .section-title {
+    font-size: 11px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.08em; color: var(--muted); margin-bottom: 10px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .section-title::after {
+    content: ''; flex: 1; height: 1px; background: var(--faint);
+  }
+
+  /* User card */
+  .user-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 10px; padding: 16px;
+    display: flex; gap: 16px; align-items: flex-start;
+  }
+  .user-avatar {
+    width: 40px; height: 40px; border-radius: 50%;
+    background: linear-gradient(135deg, #6366f1, #3b82f6);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; font-weight: 700; color: white; flex-shrink: 0;
+    font-family: var(--mono);
+  }
+  .user-info { flex: 1; }
+  .user-name { font-size: 14px; font-weight: 500; color: var(--text); }
+  .user-email { font-size: 12px; color: var(--muted); font-family: var(--mono); }
+  .user-meta { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+  /* Message box */
+  .message-box {
+    background: rgba(99,102,241,0.06); border: 1px solid rgba(99,102,241,0.2);
+    border-radius: 10px; padding: 14px 16px;
+    font-size: 14px; color: #c7d2fe; line-height: 1.6;
+    font-style: italic;
+  }
+  .no-message { color: var(--muted); font-style: italic; font-size: 13px; }
+
+  /* Metrics grid */
+  .metrics-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 10px;
+  }
+  .metric-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 8px; padding: 12px 14px;
+  }
+  .metric-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin-bottom: 4px; }
+  .metric-value { font-size: 18px; font-weight: 600; color: var(--text); font-family: var(--mono); }
+  .metric-value.good { color: var(--green); }
+  .metric-value.warn { color: var(--amber); }
+  .metric-value.bad { color: var(--red); }
+
+  /* Findings table */
+  .findings-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .findings-table th {
+    text-align: left; padding: 8px 12px; font-size: 10px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.06em;
+    color: var(--muted); border-bottom: 1px solid var(--border);
+  }
+  .findings-table td {
+    padding: 10px 12px; border-bottom: 1px solid var(--faint);
+    vertical-align: top;
+  }
+  .findings-table tr:last-child td { border-bottom: none; }
+  .findings-table tr:hover td { background: rgba(255,255,255,0.015); }
+  .sev-critical { color: #f87171; }
+  .sev-major { color: var(--amber); }
+  .sev-moderate { color: #fbbf24; }
+  .sev-minor { color: var(--green); }
+  .sev-informational { color: var(--muted); }
+
+  /* JSON viewer */
+  .json-toggle {
+    padding: 8px 14px; background: var(--surface); border: 1px solid var(--border);
+    border-radius: 6px; color: var(--muted); font-size: 12px; font-family: var(--mono);
+    cursor: pointer; display: flex; align-items: center; gap: 6px;
+    transition: all 0.15s; width: 100%; text-align: left;
+  }
+  .json-toggle:hover { border-color: var(--border-bright); color: var(--text); }
+  .json-body {
+    background: #060a12; border: 1px solid var(--border); border-top: none;
+    border-radius: 0 0 6px 6px; padding: 16px;
+    font-family: var(--mono); font-size: 12px; color: #94a3b8;
+    max-height: 400px; overflow-y: auto; display: none;
+    white-space: pre-wrap; word-break: break-all; line-height: 1.6;
+  }
+  .json-body.open { display: block; }
+
+  /* Admin notes */
+  .notes-textarea {
+    width: 100%; background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; color: var(--text); font-family: var(--sans);
+    font-size: 13px; padding: 12px; resize: vertical; min-height: 80px;
+    outline: none; transition: border-color 0.2s; line-height: 1.5;
+  }
+  .notes-textarea:focus { border-color: var(--accent); }
+
+  .status-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 10px; }
+  .status-btn {
+    padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 500;
+    cursor: pointer; border: 1px solid var(--border); background: transparent;
+    color: var(--muted); transition: all 0.15s; font-family: var(--sans);
+  }
+  .status-btn:hover { color: var(--text); border-color: var(--border-bright); }
+  .status-btn.s-open.active { background: var(--amber-dim); color: var(--amber); border-color: rgba(245,158,11,0.4); }
+  .status-btn.s-reviewed.active { background: var(--accent-dim); color: var(--accent); border-color: rgba(59,130,246,0.4); }
+  .status-btn.s-resolved.active { background: var(--green-dim); color: var(--green); border-color: rgba(34,197,94,0.4); }
+  .save-feedback { font-size: 12px; color: var(--green); opacity: 0; transition: opacity 0.3s; }
+
+  /* Loading / error */
+  .loading { color: var(--muted); font-size: 13px; padding: 40px; text-align: center; }
+  .error-msg { color: var(--red); font-size: 13px; padding: 12px; }
+</style>
+</head>
+<body>
+  <div id="admin-nav" style="display:flex;gap:8px;padding:10px 28px;background:rgba(8,12,20,0.98);border-bottom:1px solid #1e2d45;flex-wrap:wrap;align-items:center;">
+    <span style="color:#60a5fa;font-weight:800;font-size:13px;margin-right:8px;">⚙️ Admin</span>
+  </div>
+  <script>
+  (function() {
+    const ak = new URLSearchParams(location.search).get('admin_key') || '';
+    const q = ak ? '?admin_key=' + ak : '';
+    const current = location.pathname;
+    const pages = [
+      ['📊 Dashboard',  '/admin'],
+      ['🔬 Insights',   '/admin/insights'],
+      ['🚀 GTM',        '/admin/gtm'],
+      ['💸 API Costs',  '/admin/api-costs'],
+      ['🏗️ Infra Costs','/admin/infra-costs'],
+      ['🆘 Support',    '/admin/support-shares'],
+      ['🔧 Debug',      '/debug'],
+      ['← App',         '/dashboard'],
+    ];
+    const nav = document.getElementById('admin-nav');
+    if (!nav) return;
+    const label = document.createElement('span');
+    label.style.cssText = 'color:#60a5fa;font-weight:800;font-size:13px;margin-right:8px;';
+    label.textContent = '⚙️ Admin';
+    nav.innerHTML = '';
+    nav.appendChild(label);
+    pages.forEach(([lbl, path]) => {
+      const active = current === path || (path !== '/admin' && current.startsWith(path));
+      const a = document.createElement('a');
+      a.href = path + q;
+      a.textContent = lbl;
+      a.style.cssText = 'padding:6px 14px;border-radius:6px;text-decoration:none;font-size:13px;font-weight:600;' +
+        (active ? 'background:#3b82f6;color:white;' : 'background:rgba(255,255,255,0.08);color:#e2e8f0;');
+      nav.appendChild(a);
+    });
+  })();
+  </script>
+
+<div class="topbar">
+  <span class="topbar-logo">OFFERWISE</span>
+  <span class="topbar-sep">/</span>
+  <span class="topbar-title">Support Inbox</span>
+  <div class="topbar-right">
+    <input class="key-input" type="password" id="admin-key-input" placeholder="Admin key…" autocomplete="off" style="display:none;">
+    <button class="btn-sm btn-primary" id="load-btn" onclick="loadShares()" style="display:none;">Load</button>
+    <button class="btn-sm btn-ghost" onclick="loadShares()">↺ Refresh</button>
+  </div>
+</div>
+
+<div class="layout">
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <span class="sidebar-title">Requests</span>
+      <span class="sidebar-count" id="share-count">—</span>
+    </div>
+    <div class="filter-tabs">
+      <button class="filter-tab active" onclick="setFilter('open', this)">Open</button>
+      <button class="filter-tab" onclick="setFilter('reviewed', this)">Reviewed</button>
+      <button class="filter-tab" onclick="setFilter('resolved', this)">Resolved</button>
+      <button class="filter-tab" onclick="setFilter('all', this)">All</button>
+    </div>
+    <div class="share-list" id="share-list">
+      <div class="loading">Enter your admin key and click Load.</div>
+    </div>
+  </div>
+
+  <!-- Detail pane -->
+  <div class="detail" id="detail-pane">
+    <div class="empty-state">
+      <div class="empty-icon">🆘</div>
+      <div class="empty-text">Select a support request to review.</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+var _shares = [];
+var _filter = 'open';
+var _activeId = null;
+var _adminKey = '';
+
+function adminKey() {
+  return document.getElementById('admin-key-input').value.trim();
+}
+
+function setFilter(f, btn) {
+  _filter = f;
+  document.querySelectorAll('.filter-tab').forEach(function(b) { b.classList.remove('active'); });
+  btn.classList.add('active');
+  loadShares();
+}
+
+function loadShares() {
+  _adminKey = adminKey();
+  if (!_adminKey) { alert('Enter your admin key first.'); return; }
+  document.getElementById('share-list').innerHTML = '<div class="loading">Loading…</div>';
+
+  fetch('/api/admin/support-shares?status=' + _filter + '&limit=100', {
+    headers: { 'X-Admin-Key': _adminKey, 'X-Requested-With': 'XMLHttpRequest' }
+  })
+  .then(function(r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+  .then(function(data) {
+    _shares = data.shares || [];
+    document.getElementById('share-count').textContent = _shares.length;
+    renderList();
+  })
+  .catch(function(e) {
+    document.getElementById('share-list').innerHTML = '<div class="error-msg">Failed to load — check your admin key. (' + e.message + ')</div>';
+  });
+}
+
+function renderList() {
+  var list = document.getElementById('share-list');
+  if (_shares.length === 0) {
+    list.innerHTML = '<div class="loading">No ' + _filter + ' requests.</div>';
+    return;
+  }
+  list.innerHTML = _shares.map(function(s) {
+    var snap = s.snapshot || {};
+    var date = new Date(s.created_at);
+    var dateStr = date.toLocaleDateString('en-US', { month:'short', day:'numeric' });
+    var msg = s.user_message ? '"' + s.user_message.slice(0,60) + (s.user_message.length > 60 ? '…' : '') + '"' : 'No message';
+    var tier = s.user_tier || 'free';
+    return '<div class="share-item' + (s.id === _activeId ? ' active' : '') + '" onclick="selectShare(' + s.id + ')" data-id="' + s.id + '">' +
+      '<div class="si-top">' +
+        '<div class="si-address">' + esc(snap.address || 'Unknown property') + '</div>' +
+        '<div class="si-date">' + dateStr + '</div>' +
+      '</div>' +
+      '<div class="si-user">' + esc(s.user_name || s.user_email) + ' · ' + esc(s.user_email) + '</div>' +
+      '<div class="si-message">' + esc(msg) + '</div>' +
+      '<div class="si-badges">' +
+        '<span class="badge badge-' + s.status + '">' + s.status + '</span>' +
+        (snap.risk_tier ? '<span class="badge badge-risk">' + snap.risk_tier + '</span>' : '') +
+        '<span class="badge badge-tier">' + tier + '</span>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function selectShare(id) {
+  _activeId = id;
+  document.querySelectorAll('.share-item').forEach(function(el) {
+    el.classList.toggle('active', parseInt(el.dataset.id) === id);
+  });
+
+  var pane = document.getElementById('detail-pane');
+  pane.innerHTML = '<div class="loading">Loading…</div>';
+
+  fetch('/api/admin/support-shares/' + id, {
+    headers: { 'X-Admin-Key': _adminKey, 'X-Requested-With': 'XMLHttpRequest' }
+  })
+  .then(function(r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+  .then(function(d) { renderDetail(d); })
+  .catch(function(e) {
+    pane.innerHTML = '<div class="error-msg">Failed to load detail: ' + e.message + '</div>';
+  });
+}
+
+function renderDetail(d) {
+  var snap = d.snapshot || {};
+  var user = d.user || {};
+  var findings = d.findings || [];
+  var full = d.full_result || {};
+
+  var offerScore = snap.offerscore != null ? snap.offerscore : '—';
+  var scoreColor = offerScore >= 70 ? 'good' : offerScore >= 45 ? 'warn' : 'bad';
+
+  var html = '<div class="detail-header">' +
+    '<div class="dh-top">' +
+      '<div>' +
+        '<div class="dh-address">' + esc(snap.address || 'Unknown property') + '</div>' +
+        '<div class="dh-meta" style="margin-top:4px;">Share #' + d.id + ' · Submitted ' + new Date(d.created_at).toLocaleString() + '</div>' +
+      '</div>' +
+      '<div class="dh-actions">' +
+        '<span class="badge badge-' + d.status + '" style="padding:4px 10px;font-size:11px;">' + d.status + '</span>' +
+      '</div>' +
+    '</div>' +
+  '</div>';
+
+  // User
+  html += '<div class="section"><div class="section-title">User</div>' +
+    '<div class="user-card">' +
+      '<div class="user-avatar">' + (user.email ? user.email[0].toUpperCase() : '?') + '</div>' +
+      '<div class="user-info">' +
+        '<div class="user-name">' + esc(user.name || 'Unknown') + '</div>' +
+        '<div class="user-email">' + esc(user.email || '—') + '</div>' +
+        '<div class="user-meta">Tier: <strong>' + esc(user.tier || 'free') + '</strong> · Member since ' + (user.created_at ? new Date(user.created_at).toLocaleDateString('en-US', {month:'short',year:'numeric'}) : '?') + '</div>' +
+      '</div>' +
+    '</div>' +
+  '</div>';
+
+  // Message
+  html += '<div class="section"><div class="section-title">User Message</div>' +
+    (d.user_message
+      ? '<div class="message-box">"' + esc(d.user_message) + '"</div>'
+      : '<div class="no-message">No message provided.</div>') +
+  '</div>';
+
+  // Metrics
+  html += '<div class="section"><div class="section-title">Analysis Summary</div>' +
+    '<div class="metrics-grid">' +
+      metric('Offer Score', offerScore, scoreColor) +
+      metric('Risk Tier', snap.risk_tier || '—') +
+      metric('Asking Price', fmtCurrency(snap.price)) +
+      metric('Rec. Offer', fmtCurrency(snap.recommended_offer), snap.recommended_offer < snap.price ? 'warn' : '') +
+      metric('Discount', snap.discount_percentage ? snap.discount_percentage.toFixed(1) + '%' : '—') +
+      metric('Repairs (Low)', fmtCurrency(snap.repair_cost_low)) +
+      metric('Repairs (High)', fmtCurrency(snap.repair_cost_high), snap.repair_cost_high > snap.price * 0.1 ? 'warn' : '') +
+      metric('Transparency', snap.transparency_score != null ? snap.transparency_score : '—') +
+    '</div>' +
+  '</div>';
+
+  // Findings
+  if (findings.length > 0) {
+    html += '<div class="section"><div class="section-title">Parsed Findings (' + findings.length + ')</div>' +
+      '<table class="findings-table">' +
+        '<thead><tr><th>Category</th><th>Severity</th><th>Description</th><th>Cost Range</th></tr></thead>' +
+        '<tbody>' +
+        findings.map(function(f) {
+          var sev = (f.severity || '').toLowerCase();
+          var costStr = (f.estimated_cost_low != null && f.estimated_cost_high != null)
+            ? fmtCurrency(f.estimated_cost_low) + ' – ' + fmtCurrency(f.estimated_cost_high)
+            : '—';
+          return '<tr>' +
+            '<td>' + esc(f.category || '—') + '</td>' +
+            '<td class="sev-' + sev + '">' + esc(f.severity || '—') + '</td>' +
+            '<td>' + esc(f.description || '—') + '</td>' +
+            '<td style="font-family:var(--mono);font-size:12px;">' + costStr + '</td>' +
+          '</tr>';
+        }).join('') +
+        '</tbody></table>' +
+    '</div>';
+  } else {
+    html += '<div class="section"><div class="section-title">Parsed Findings</div><div class="no-message">No individual findings stored for this analysis.</div></div>';
+  }
+
+  // Full JSON
+  html += '<div class="section"><div class="section-title">Full Analysis JSON</div>' +
+    '<button class="json-toggle" onclick="toggleJson(this)">' +
+      '<span>▶</span> Show raw analysis JSON (' + Object.keys(full).length + ' top-level keys)' +
+    '</button>' +
+    '<div class="json-body" id="json-body">' + esc(JSON.stringify(full, null, 2)) + '</div>' +
+  '</div>';
+
+  // Admin notes
+  html += '<div class="section"><div class="section-title">Admin Notes</div>' +
+    '<textarea class="notes-textarea" id="admin-notes-input" placeholder="Add notes…">' + esc(d.admin_notes || '') + '</textarea>' +
+    '<div class="status-row">' +
+      '<span style="font-size:12px;color:var(--muted);">Status:</span>' +
+      statusBtn('open', d.status) +
+      statusBtn('reviewed', d.status) +
+      statusBtn('resolved', d.status) +
+      '<button class="btn-sm btn-primary" onclick="saveNotes(' + d.id + ')" style="margin-left:auto;">Save</button>' +
+      '<span class="save-feedback" id="save-feedback">✓ Saved</span>' +
+    '</div>' +
+  '</div>';
+
+  document.getElementById('detail-pane').innerHTML = html;
+}
+
+function metric(label, value, colorClass) {
+  return '<div class="metric-card">' +
+    '<div class="metric-label">' + esc(label) + '</div>' +
+    '<div class="metric-value ' + (colorClass || '') + '">' + esc(String(value)) + '</div>' +
+  '</div>';
+}
+
+function statusBtn(status, current) {
+  return '<button class="status-btn s-' + status + (status === current ? ' active' : '') + '" onclick="setStatus(this, \'' + status + '\')">' + status + '</button>';
+}
+
+function setStatus(btn, status) {
+  document.querySelectorAll('.status-btn').forEach(function(b) {
+    b.classList.remove('active');
+  });
+  btn.classList.add('active');
+}
+
+function saveNotes(id) {
+  var notes = document.getElementById('admin-notes-input').value.trim();
+  var activeStatus = null;
+  document.querySelectorAll('.status-btn').forEach(function(b) {
+    if (b.classList.contains('active')) {
+      if (b.classList.contains('s-open')) activeStatus = 'open';
+      if (b.classList.contains('s-reviewed')) activeStatus = 'reviewed';
+      if (b.classList.contains('s-resolved')) activeStatus = 'resolved';
+    }
+  });
+
+  fetch('/api/admin/support-shares/' + id, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Admin-Key': _adminKey,
+      'X-Requested-With': 'XMLHttpRequest'
+    },
+    body: JSON.stringify({ admin_notes: notes, status: activeStatus })
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (data.success) {
+      var fb = document.getElementById('save-feedback');
+      fb.style.opacity = '1';
+      setTimeout(function() { fb.style.opacity = '0'; }, 2000);
+      // Update the sidebar item status badge
+      var item = document.querySelector('.share-item[data-id="' + id + '"]');
+      if (item && activeStatus) {
+        var badge = item.querySelector('.badge-open, .badge-reviewed, .badge-resolved');
+        if (badge) {
+          badge.className = 'badge badge-' + activeStatus;
+          badge.textContent = activeStatus;
+        }
+      }
+    }
+  })
+  .catch(function(e) { alert('Save failed: ' + e.message); });
+}
+
+function toggleJson(btn) {
+  var body = document.getElementById('json-body');
+  var isOpen = body.classList.contains('open');
+  body.classList.toggle('open', !isOpen);
+  btn.querySelector('span').textContent = isOpen ? '▶' : '▼';
+}
+
+function fmtCurrency(v) {
+  if (v == null || v === 0) return '$0';
+  return '$' + Number(v).toLocaleString('en-US', { maximumFractionDigits: 0 });
+}
+
+function esc(s) {
+  return String(s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+// Auto-load from ?admin_key= query param (set by nav links) or #key= hash
+(function() {
+  var k = new URLSearchParams(location.search).get('admin_key') || '';
+  if (!k) {
+    var hash = location.hash.replace('#','');
+    if (hash.startsWith('key=')) k = decodeURIComponent(hash.slice(4));
+  }
+  if (k) {
+    _adminKey = k;
+    document.getElementById('admin-key-input').value = k;
+    loadShares();
+  }
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,87 @@
+# OfferWise Changelog
+
+Historical deployment notes, bug fixes, and architecture decisions.
+Consolidated from 80 individual files on 2026-03-13.
+
+---
+
+- **misc** — START_HERE.md: 🚀 OfferWise v4.29.0 - COMPLETE DEPLOYMENT PACKAGE
+- **misc** — SCREENSHOT_EVIDENCE_DESIGN.md: Screenshot Evidence Feature Design
+- **misc** — QUICK_SUMMARY.md: QUICK SUMMARY - ALL BUGS FIXED ✅
+- **misc** — PROGRESS_BAR_GUIDE.md: V3.6.0 - REAL-TIME PROGRESS BAR! 📊
+- **misc** — PRODUCTION_CHECKLIST.md: OfferWise Production Deployment Checklist
+- **misc** — PARALLEL_UPLOAD_QUICK_REF.md: Parallel Upload Implementation - Quick Reference
+- **misc** — PARALLEL_OCR_UPGRADE.md: V3.5.0 - PARALLEL OCR: 3-5x FASTER! ⚡
+- **misc** — OCR_TROUBLESHOOTING.md: OCR Not Working - Complete Troubleshooting Guide
+- **misc** — OCR_SETUP.md: OCR Setup Guide for OfferWise
+- **misc** — OCR_502_TROUBLESHOOTING.md: OCR 502 ERROR TROUBLESHOOTING GUIDE
+- **misc** — NO_OCR_EMERGENCY.md: Emergency: Deploy Without OCR
+- **misc** — NEW_SERVICE_GUIDE.md: V3.4.8 - Complete Environment Variables + New Service Guide
+- **misc** — MULTI_WORKER_ISSUE.md: V3.6.4 - MULTI-WORKER PROGRESS FIX (Attempt)
+- **misc** — MEMORY_OPTIMIZED_OCR.md: V3.7.0 - MEMORY-OPTIMIZED BATCH OCR 🧠
+- **misc** — MEMORY_FIX_GUIDE.md: v4.5.5 MEMORY OPTIMIZATION - CRITICAL FIX
+- **misc** — LAUNCH_CHECKLIST.md: OfferWise v5.56.0 - BEST-IN-CLASS LAUNCH
+- **misc** — IMMEDIATE_FIX_GUIDE.md: IMMEDIATE FIX FOR OCR 502 ERRORS
+- **misc** — FRONTEND_TIMEOUT_FIX.md: V3.6.3 - FRONTEND TIMEOUT FIX 🔧
+- **misc** — FIX_502_ERROR.md: 502 Bad Gateway Error - Complete Fix Guide
+- **misc** — FILE_SIZE_CONFIG.md: OfferWise File Upload Configuration Guide
+- **misc** — EMAIL_SETUP.md: OfferWise Email Setup Guide
+- **misc** — DEPLOY_INSTRUCTIONS.md: How to Make OCR Actually Work
+- **misc** — DEPLOYMENT_INSTRUCTIONS.md: DEPLOYMENT INSTRUCTIONS - v4.5.4
+- **misc** — DEPLOY.md: 🚀 DEPLOY OFFERWISE TO RENDER.COM
+- **misc** — DEBUGGING_GUIDE.md: v4.5.6 DEBUGGING GUIDE - Still Crashing
+- **misc** — CRITICAL_WORKER_FIX.md: 🚨 CRITICAL FIX: V3.6.2 - Worker Count Issue
+- **misc** — CRITICAL_DOCKER_FIX.md: CRITICAL FIX: Tesseract Not Installed
+- **misc** — CRITICAL_512MB_DECISION.md: OfferWise v3.8.7 - 512MB Reality Check
+- **misc** — CREDIBILITY_ARCHITECTURE.md: OfferWise Credibility Architecture
+- **misc** — AGENT_TESTER_README.md: OfferWise Agentic Test Runner 🤖
+- **5.57.0** — RELEASE_NOTES_v5.57.0.md: Release Notes v5.57.0 — Security Hardening
+- **5.55.0** — RELEASE_NOTES_v5.55.0.md: OfferWise v5.55.0 - Production Launch Release
+- **5.51.0** — DEPLOYMENT_v5_51_0.md: OfferWise v5.51.0 - Screenshot Evidence Feature
+- **5.50.0** — DEPLOYMENT_v5_50_0.md: OfferWise v5.50.0 - Credibility Architecture Phase 1
+- **4.9.9** — DEPLOYMENT_v4_9_9.md: v4.9.9 - CRITICAL FIX: Completion Status Not Visible
+- **4.9.8** — DEPLOYMENT_v4_9_8.md: v4.9.8 - CRITICAL FIX: Continue to Analysis Button Not Working
+- **4.9.7** — DEPLOYMENT_v4_9_7.md: v4.9.7 - CRITICAL FIX: Parallel Upload Interference Bug
+- **4.9.6** — DEPLOYMENT_v4_9_6.md: v4.9.6 - CRITICAL FIX: Frontend-Backend Desync
+- **4.9.4** — DEPLOYMENT_v4_9_4.md: v4.9.4 - JOB TIMEOUT & STUCK JOB RECOVERY
+- **4.9.3** — DEPLOYMENT_v4_9_3.md: v4.9.3 - CRITICAL POLLING & ERROR HANDLING FIXES
+- **4.9.2** — DEPLOYMENT_v4_9_2.md: v4.9.2 - UNIFIED SECTION STYLING + CLARITY IMPROVEMENTS
+- **4.9.1** — DEPLOYMENT_v4_9_1.md: v4.9.1 - PROFESSIONAL TIGHT LAYOUT
+- **4.9.0** — DEPLOYMENT_v4_9_0.md: v4.9.0 - PARALLEL DOCUMENT UPLOADS
+- **4.84.** — QUICK_FIX_v4.84_ENDPOINT_CORRECTION.md: 🔧 QUICK FIX v4.84: Wrong API Endpoint in Dashboard
+- **4.83.** — MAJOR_UX_CHANGE_v4.83_REVERSED_ONBOARDING.md: 🎯 MAJOR UX CHANGE v4.83: Reversed Onboarding Flow
+- **4.82.** — CRITICAL_BUG_v4.82_PREFERENCES_NONE_HANDLING.md: 🚨 CRITICAL BUG v4.82: Preferences Crash on Empty Fields
+- **4.81.** — CRITICAL_BUG_v4.81_CONSENT_NAMES_INCOMPLETE_FIX.md: 🚨 CRITICAL BUG v4.81: Consent Names Still Broken in Settings.html
+- **4.80.** — CRITICAL_FIX_v4.80_MISSING_API_ENDPOINT.md: 🔴 CRITICAL FIX v4.80: Missing /api/user/analyses Endpoint
+- **4.8.3** — DEPLOYMENT_v4_8_3.md: v4.8.3 - CONSISTENT SECTION FORMATTING
+- **4.8.2** — DEPLOYMENT_v4_8_2.md: v4.8.2 - CRITICAL CATEGORIES COUNT FIX
+- **4.8.1** — DEPLOYMENT_v4_8_1.md: v4.8.1 - CACHE-AWARE RISK DNA FIX
+- **4.8.0** — DEPLOYMENT_v4_8_0.md: v4.8.0 - RISK DNA CONSISTENCY FIX
+- **4.79.** — CODE_REVIEW_v4.79_VERIFICATION.md: 🔍 COMPREHENSIVE CODE REVIEW & VERIFICATION v4.79
+- **4.78.** — CRITICAL_FIX_v4.78_FORCED_ONBOARDING.md: 🔒 CRITICAL FIX v4.78: Enforce Onboarding Before Dashboard Access
+- **4.78.** — BUG_FIX_v4.78_ENFORCE_ONBOARDING.md: 🔒 BUG FIX v4.78: Enforce Onboarding Before Dashboard
+- **4.77.** — CONSOLIDATION_v4.77_SINGLE_ONBOARDING.md: 🎯 FEATURE CONSOLIDATION v4.77: Single Onboarding Flow
+- **4.76.** — BUG_FIX_v4.76_DELETE_PROPERTY_MISSING.md: 🐛 BUG FIX v4.76: Implement Delete Property Feature
+- **4.75.** — RELEASE_NOTES_v4.75.md: 🚀 OfferWise v4.75 Release Notes
+- **4.75.** — BUG_FIX_v4.75_ONBOARDING_CONFLICTS.md: 🐛 BUG FIX v4.75: Onboarding Flow Conflicts & Permanent Banners
+- **4.7.2** — DEPLOYMENT_v4_7_2.md: v4.7.2 - CRITICAL BUG FIX
+- **4.7.1** — DEPLOYMENT_v4_7_1.md: v4.7.1 - PROGRESS BAR FOR ALL UPLOADS
+- **4.7.0** — DEPLOYMENT_v4_7_0.md: v4.7.0 - COMPREHENSIVE PROGRESS INDICATORS
+- **4.6.2** — DEPLOYMENT_v4_6_2.md: v4.6.2 CRITICAL BUG FIXES
+- **4.6.1** — DEPLOYMENT_v4_6_1.md: v4.6.1 - ENHANCED DEBUGGING & STATUS
+- **4.6.0** — DEPLOYMENT_v4_6_0.md: v4.6.0 CRITICAL FIXES - Speed & Privacy
+- **4.5.9** — TESTING_GUIDE_v4_5_9.md: v4.5.9 DEBUGGING - Test Page Approach
+- **4.5.8** — DEPLOYMENT_v4_5_8.md: v4.5.8 FINAL FIX - React Integration
+- **4.5.7** — DEPLOYMENT_v4_5_7.md: v4.5.7 FINAL FIX - Frontend Connected!
+- **4.29.3** — HOTFIX_v4.29.3_MISSING_DATETIME_IMPORT.md: HOTFIX v4.29.3 - Missing datetime Import
+- **4.29.3** — FINAL_HOTFIX_v4.29.3_SETTINGS_UI.md: FINAL HOTFIX v4.29.3 - Settings Page Consent UI
+- **4.29.2** — CRITICAL_HOTFIX_v4.29.2_CONSENT_NAMES.md: CRITICAL HOTFIX v4.29.2 - Consent Type Name Mismatch
+- **4.29.1** — HOTFIX_v4.29.1_CONSENT_BANNER.md: HOTFIX v4.29.1 - Consent Banner Bug
+- **4.29.0** — DEPLOYMENT_GUIDE_v4.29.0.md: DEPLOYMENT GUIDE - v4.29.0
+- **4.29.0** — ALL_BUGS_FIXED_v4.29.0.md: ALL BUGS FIXED - VERSION 4.29.0
+- **3.8.0** — PADDLEOCR_V3_8_0.md: V3.8.0 - PADDLEOCR: 3X FASTER LOCAL OCR 🚀
+- **3.6.6** — V3_6_6_UPGRADE_GUIDE.md: V3.6.6 - INCREASE OCR SPEED: 4 Parallel Workers
+- **3.6.5** — FINAL_FIX_V3_6_5.md: V3.6.5 - FINAL FIX: Hardcoded 1 Worker
+- **3.6.1** — PROGRESS_FIX_V3_6_1.md: V3.6.1 - PROGRESS BAR FIX 🔧
+- **3.4.2** — OCR_TIMEOUT_FIX_V3.4.2.md: V3.4.2 - OCR Timeout Fix
+- **3.4.1** — DEPLOYMENT_FIX_V3.4.1.md: V3.4.1 - Render Deployment Fix
