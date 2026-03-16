@@ -1,0 +1,349 @@
+/*
+ * OfferWise Results Theme v1.0
+ * ============================
+ * Premium visual treatment for the analysis results page.
+ * Based on the sample-analysis.html design language:
+ *   - DM Serif Display for headlines/numbers
+ *   - DM Sans for body text
+ *   - Refined spacing, subtle glows, editorial feel
+ *
+ * Applied via `.ow-results` wrapper class on the results container.
+ * Uses specificity + !important to override React inline styles
+ * without modifying the 10K-line component.
+ */
+
+/* ──────────────────────────────────────────────
+   Design Tokens
+   ────────────────────────────────────────────── */
+:root {
+  --ow-navy:        #0a0e1a;
+  --ow-navy-light:  #131928;
+  --ow-navy-card:   #161d2e;
+  --ow-slate:       #94a3b8;
+  --ow-slate-light: #cbd5e1;
+  --ow-white:       #f1f5f9;
+  --ow-blue:        #3b82f6;
+  --ow-blue-glow:   rgba(59, 130, 246, 0.15);
+  --ow-purple:      #7c3aed;
+  --ow-purple-glow: rgba(124, 58, 237, 0.12);
+  --ow-green:       #10b981;
+  --ow-green-glow:  rgba(16, 185, 129, 0.12);
+  --ow-amber:       #f59e0b;
+  --ow-red:         #ef4444;
+  --ow-serif:       'DM Serif Display', Georgia, 'Times New Roman', serif;
+  --ow-sans:        'DM Sans', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+}
+
+/* ──────────────────────────────────────────────
+   Base — Typography & Background
+   ────────────────────────────────────────────── */
+.ow-results {
+  font-family: var(--ow-sans) !important;
+  background: var(--ow-navy) !important;
+  color: var(--ow-white);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Ambient glow — subtle floating orbs like sample page */
+.ow-results::before {
+  content: '';
+  position: fixed;
+  width: 700px;
+  height: 700px;
+  top: -200px;
+  right: -200px;
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.06) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+  animation: ow-float1 22s ease-in-out infinite;
+}
+
+.ow-results::after {
+  content: '';
+  position: fixed;
+  width: 600px;
+  height: 600px;
+  bottom: 10%;
+  left: -200px;
+  background: radial-gradient(circle, rgba(124, 58, 237, 0.05) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+  animation: ow-float2 28s ease-in-out infinite;
+}
+
+@keyframes ow-float1 {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(-80px, 100px); }
+}
+
+@keyframes ow-float2 {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(50px, -70px); }
+}
+
+/* ──────────────────────────────────────────────
+   Hero / Property Header
+   ────────────────────────────────────────────── */
+.ow-results h1 {
+  font-family: var(--ow-serif) !important;
+  font-weight: 400 !important;
+  letter-spacing: -0.02em !important;
+  line-height: 1.15 !important;
+}
+
+/* The property header bar */
+.ow-results > div:first-child > div:nth-child(2) {
+  background: linear-gradient(180deg, #131928 0%, #0a0e1a 100%) !important;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.08) !important;
+}
+
+/* ──────────────────────────────────────────────
+   Summary Card (the "at a glance" card)
+   ────────────────────────────────────────────── */
+.ow-results .summary-card-grid {
+  font-family: var(--ow-sans);
+}
+
+/* OfferScore number */
+.ow-results .summary-card-grid .summary-card-score-col div[style*="font-size: 36px"],
+.ow-results .summary-card-grid .summary-card-score-col div[style*="fontSize"] {
+  font-family: var(--ow-serif) !important;
+}
+
+/* ──────────────────────────────────────────────
+   Large Score Numbers — Serif Treatment
+   ────────────────────────────────────────────── */
+
+/* Any big score number (OfferScore, transparency score, etc.) */
+.ow-results div[style*="fontSize: '72px'"],
+.ow-results div[style*="font-size: 72px"],
+.ow-results div[style*="fontSize: '48px'"],
+.ow-results div[style*="font-size: 48px"],
+.ow-results div[style*="fontSize: '36px'"],
+.ow-results div[style*="font-size: 36px"],
+.ow-results div[style*="fontSize: '32px'"],
+.ow-results div[style*="font-size: 32px"] {
+  font-family: var(--ow-serif) !important;
+}
+
+/* ──────────────────────────────────────────────
+   Section Headers — Refined
+   ────────────────────────────────────────────── */
+.ow-results h2,
+.ow-results h3 {
+  font-family: var(--ow-serif) !important;
+  font-weight: 400 !important;
+  letter-spacing: -0.01em;
+}
+
+/* Section title bars (Risk DNA, Transparency, etc.) */
+.ow-results .collapsible-header {
+  transition: background 0.3s ease, border-color 0.3s ease;
+}
+
+.ow-results .collapsible-header:hover {
+  background: rgba(148, 163, 184, 0.04) !important;
+}
+
+/* ──────────────────────────────────────────────
+   Section Navigation Pills — Refined
+   ────────────────────────────────────────────── */
+.ow-results .section-nav {
+  background: rgba(19, 25, 40, 0.6) !important;
+  border: 1px solid rgba(148, 163, 184, 0.06);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.ow-results .section-nav-pill {
+  font-family: var(--ow-sans) !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.02em;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.ow-results .section-nav-pill.active {
+  background: linear-gradient(135deg, var(--ow-blue), #1d4ed8) !important;
+  box-shadow: 0 4px 16px rgba(59, 130, 246, 0.3);
+}
+
+/* ──────────────────────────────────────────────
+   Sticky Summary Bar — Polish
+   ────────────────────────────────────────────── */
+.ow-results .sticky-summary-bar {
+  background: rgba(10, 14, 26, 0.92) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.06) !important;
+}
+
+/* ──────────────────────────────────────────────
+   Cards & Panels — Refined Glass
+   ────────────────────────────────────────────── */
+
+/* General card treatment for the main result blocks */
+.ow-results div[style*="borderRadius: '20px'"],
+.ow-results div[style*="border-radius: 20px"],
+.ow-results div[style*="borderRadius: '24px'"],
+.ow-results div[style*="border-radius: 24px"] {
+  border: 1px solid rgba(148, 163, 184, 0.08) !important;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.03) inset !important;
+}
+
+/* ──────────────────────────────────────────────
+   Risk DNA Radar Chart — Enhanced
+   ────────────────────────────────────────────── */
+.ow-results svg text {
+  font-family: var(--ow-sans) !important;
+}
+
+/* ──────────────────────────────────────────────
+   Strategy Cards — Match Sample Page
+   ────────────────────────────────────────────── */
+
+/* The offer strategy section */
+.ow-results div[style*="Recommended Offer Strategy"] {
+  font-family: var(--ow-serif) !important;
+}
+
+/* ──────────────────────────────────────────────
+   Tooltips — Refined
+   ────────────────────────────────────────────── */
+.ow-results .tooltip-content {
+  font-family: var(--ow-sans) !important;
+  background: var(--ow-navy-card) !important;
+  border: 1px solid rgba(148, 163, 184, 0.1) !important;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.03) inset !important;
+}
+
+/* ──────────────────────────────────────────────
+   Scroll Reveal Animations
+   ────────────────────────────────────────────── */
+.ow-reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.7s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.ow-reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Staggered delay classes */
+.ow-reveal-d1 { transition-delay: 0.1s; }
+.ow-reveal-d2 { transition-delay: 0.2s; }
+.ow-reveal-d3 { transition-delay: 0.3s; }
+
+/* ──────────────────────────────────────────────
+   Premium Button Treatment
+   ────────────────────────────────────────────── */
+.ow-results button {
+  font-family: var(--ow-sans) !important;
+}
+
+/* Print / Export button */
+.ow-results button[style*="Print"],
+.ow-results button[style*="print"] {
+  transition: all 0.25s ease !important;
+}
+
+/* ──────────────────────────────────────────────
+   Free Tier Gate — Upgraded
+   ────────────────────────────────────────────── */
+.ow-results a[href="/pricing"] {
+  font-family: var(--ow-sans) !important;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.ow-results a[href="/pricing"]:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 14px 40px rgba(59, 130, 246, 0.35) !important;
+}
+
+/* ──────────────────────────────────────────────
+   Page Dividers — Editorial Style
+   ────────────────────────────────────────────── */
+.ow-page-divider {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 48px auto;
+  max-width: 1200px;
+  padding: 0 24px;
+  color: rgba(148, 163, 184, 0.25);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  font-family: var(--ow-sans);
+  font-weight: 600;
+}
+
+.ow-page-divider::before,
+.ow-page-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(148, 163, 184, 0.1), transparent);
+}
+
+/* ──────────────────────────────────────────────
+   Report Branding Watermark
+   ────────────────────────────────────────────── */
+.ow-report-brand {
+  position: fixed;
+  bottom: 20px;
+  right: 24px;
+  font-family: var(--ow-sans);
+  font-size: 10px;
+  color: rgba(148, 163, 184, 0.15);
+  letter-spacing: 0.5px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ──────────────────────────────────────────────
+   Mobile Responsiveness
+   ────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .ow-results h1 {
+    font-size: clamp(24px, 6vw, 32px) !important;
+  }
+  
+  .ow-results::before,
+  .ow-results::after {
+    display: none; /* Remove ambient glow on mobile for perf */
+  }
+  
+  .ow-page-divider {
+    margin: 32px auto;
+  }
+  
+  .ow-report-brand {
+    display: none;
+  }
+}
+
+/* ──────────────────────────────────────────────
+   Print Optimization
+   ────────────────────────────────────────────── */
+@media print {
+  .ow-results::before,
+  .ow-results::after {
+    display: none !important;
+  }
+  
+  .ow-results .sticky-summary-bar,
+  .ow-results .section-nav,
+  .ow-report-brand {
+    display: none !important;
+  }
+  
+  .ow-results {
+    background: white !important;
+    color: #1e293b !important;
+  }
+}

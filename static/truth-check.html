@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Is Your Seller Telling the Truth? | Free Disclosure Check | OfferWise</title>
+    <meta name="description" content="Free instant analysis of your seller disclosure. Find out what your seller might be hiding before you make an offer.">
+    <meta property="og:title" content="Is Your Seller Telling the Truth?">
+    <meta property="og:description" content="68% of seller disclosures contain contradictions. Check yours free.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://www.getofferwise.ai/truth-check">
+    <link rel="icon" type="image/svg+xml" href="/logo-icon-only.svg">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=DM+Serif+Display&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #0f172a; --bg-card: #1e293b; --text: #f1f5f9;
+            --gray: #94a3b8; --gray-light: #cbd5e1;
+            --red: #ef4444; --red-glow: rgba(239,68,68,0.15);
+            --amber: #f59e0b; --green: #22c55e;
+            --blue: #3b82f6; --accent: #f59e0b;
+        }
+        body {
+            font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg); color: var(--text); line-height: 1.6;
+        }
+        .container { max-width: 800px; margin: 0 auto; padding: 0 24px; }
+
+        /* Nav */
+        nav {
+            padding: 16px 24px; display: flex; align-items: center;
+            justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+        nav a.logo { color: #f1f5f9; font-weight: 800; font-size: 1.2rem; text-decoration: none; }
+        nav a.logo .wise { background: linear-gradient(90deg, #f97316, #f59e0b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        nav a.back { color: var(--gray); text-decoration: none; font-size: 0.9rem; }
+        nav a.back:hover { color: var(--text); }
+
+        /* Hero */
+        .hero { text-align: center; padding: 60px 24px 40px; }
+        .hero-stat {
+            display: inline-block; background: var(--red-glow);
+            border: 1px solid rgba(239,68,68,0.3); padding: 8px 20px;
+            border-radius: 50px; color: #fca5a5; font-size: 0.85rem;
+            font-weight: 600; margin-bottom: 24px;
+        }
+        .hero h1 { font-size: clamp(2rem, 5vw, 3rem); font-weight: 900; line-height: 1.1; margin-bottom: 16px; }
+        .hero h1 em { color: var(--red); font-style: normal; }
+        .hero p { color: var(--gray-light); font-size: 1.1rem; max-width: 550px; margin: 0 auto; }
+
+        /* Upload */
+        .upload-section { padding: 0 24px 60px; }
+        .upload-zone {
+            border: 3px dashed rgba(255,255,255,0.15); border-radius: 20px;
+            padding: 60px 40px; text-align: center; cursor: pointer;
+            transition: all 0.3s; background: rgba(255,255,255,0.02);
+            position: relative;
+        }
+        .upload-zone:hover, .upload-zone.dragover {
+            border-color: var(--blue); background: rgba(59,130,246,0.05);
+        }
+        .upload-zone.has-file { border-color: var(--green); border-style: solid; }
+        .upload-icon { font-size: 3rem; margin-bottom: 16px; }
+        .upload-zone h3 { font-size: 1.2rem; margin-bottom: 8px; }
+        .upload-zone p { color: var(--gray); font-size: 0.9rem; }
+        .upload-zone input { display: none; }
+        .file-info { color: var(--green); font-weight: 600; margin-top: 12px; font-size: 0.95rem; }
+
+        .analyze-btn {
+            display: block; width: 100%; max-width: 400px; margin: 24px auto 0;
+            padding: 18px 32px; background: linear-gradient(135deg, var(--red), #dc2626);
+            color: white; border: none; border-radius: 14px; font-size: 1.1rem;
+            font-weight: 700; cursor: pointer; transition: all 0.3s;
+        }
+        .analyze-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(239,68,68,0.4); }
+        .analyze-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
+
+        .fine-print { text-align: center; margin-top: 16px; color: var(--gray); font-size: 0.8rem; }
+
+        /* Processing */
+        .processing { display: none; text-align: center; padding: 60px 24px; }
+        .processing.active { display: block; }
+        .spinner-ring {
+            width: 80px; height: 80px; border: 4px solid rgba(239,68,68,0.2);
+            border-top-color: var(--red); border-radius: 50%;
+            animation: spin 0.8s linear infinite; margin: 0 auto 24px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .processing h3 { font-size: 1.3rem; margin-bottom: 8px; }
+        .processing p { color: var(--gray-light); }
+        .scan-messages { margin-top: 20px; min-height: 24px; }
+        .scan-msg { color: var(--amber); font-size: 0.9rem; font-weight: 500; animation: fadeIn 0.5s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* Results */
+        .results { display: none; padding: 0 24px 60px; }
+        .results.active { display: block; }
+
+        .score-card {
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            border: 2px solid rgba(239,68,68,0.3); border-radius: 24px;
+            padding: 40px; text-align: center; margin-bottom: 32px;
+            position: relative; overflow: hidden;
+        }
+        .score-card::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
+            background: linear-gradient(90deg, var(--red), var(--amber), var(--red));
+        }
+        .score-label { color: var(--gray); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 12px; }
+        .score-value {
+            font-size: 5rem; font-weight: 900; line-height: 1;
+            margin-bottom: 4px;
+        }
+        .score-grade { font-size: 1.4rem; font-weight: 700; margin-bottom: 16px; }
+        .score-assessment { color: var(--gray-light); font-size: 1rem; max-width: 500px; margin: 0 auto; line-height: 1.6; }
+
+        .stats-row {
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
+            margin-bottom: 32px;
+        }
+        .stat-box {
+            background: var(--bg-card); border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 14px; padding: 20px; text-align: center;
+        }
+        .stat-box .stat-num { font-size: 2rem; font-weight: 800; margin-bottom: 4px; }
+        .stat-box .stat-label { color: var(--gray); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; }
+
+        .flags-section { margin-bottom: 32px; }
+        .flags-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 16px; color: #fca5a5; }
+        .flag-card {
+            background: var(--bg-card); border-left: 4px solid var(--red);
+            border-radius: 0 12px 12px 0; padding: 20px; margin-bottom: 12px;
+        }
+        .flag-card.medium { border-left-color: var(--amber); }
+        .flag-card.low { border-left-color: var(--gray); }
+        .flag-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .flag-title { font-weight: 700; font-size: 1rem; }
+        .flag-severity {
+            font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+            padding: 3px 10px; border-radius: 50px; letter-spacing: 1px;
+        }
+        .flag-severity.high { background: rgba(239,68,68,0.15); color: #fca5a5; }
+        .flag-severity.medium { background: rgba(245,158,11,0.15); color: #fcd34d; }
+        .flag-severity.low { background: rgba(148,163,184,0.15); color: var(--gray); }
+        .flag-detail { color: var(--gray-light); font-size: 0.9rem; line-height: 1.6; }
+
+        .evasions { margin-bottom: 32px; }
+        .evasion-tag {
+            display: inline-block; background: rgba(245,158,11,0.1);
+            border: 1px solid rgba(245,158,11,0.3); color: #fcd34d;
+            padding: 6px 14px; border-radius: 8px; font-size: 0.8rem;
+            margin: 0 8px 8px 0; font-style: italic;
+        }
+
+        .concerning-box {
+            background: linear-gradient(135deg, rgba(239,68,68,0.08), rgba(239,68,68,0.02));
+            border: 1px solid rgba(239,68,68,0.2); border-radius: 14px;
+            padding: 24px; margin-bottom: 32px; text-align: center;
+        }
+        .concerning-box h4 { color: #fca5a5; margin-bottom: 8px; font-size: 1rem; }
+        .concerning-box p { color: var(--gray-light); font-size: 0.95rem; }
+
+        /* CTA */
+        /* Buyer Community Waitlist */
+        .community-waitlist {
+            background: linear-gradient(135deg, rgba(139,92,246,0.12), rgba(59,130,246,0.12));
+            border: 1px solid rgba(139,92,246,0.3);
+            border-radius: 16px; padding: 32px; margin: 32px 0; text-align: center;
+        }
+        .waitlist-badge {
+            display: inline-block; background: rgba(139,92,246,0.2); color: #c4b5fd;
+            font-size: 0.7rem; font-weight: 800; letter-spacing: 2px;
+            padding: 4px 14px; border-radius: 20px; margin-bottom: 12px;
+        }
+        .waitlist-title { font-size: 1.4rem; font-weight: 800; margin-bottom: 8px; color: #f1f5f9; }
+        .waitlist-desc { color: #94a3b8; font-size: 0.9rem; line-height: 1.6; margin-bottom: 16px; max-width: 500px; margin-left: auto; margin-right: auto; }
+        .waitlist-features {
+            display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;
+            margin-bottom: 20px; font-size: 0.85rem; color: #cbd5e1;
+        }
+        .waitlist-form { display: flex; gap: 8px; max-width: 420px; margin: 0 auto; }
+        .waitlist-input {
+            flex: 1; padding: 12px 16px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.15);
+            background: rgba(255,255,255,0.06); color: #f1f5f9; font-size: 0.95rem; outline: none;
+        }
+        .waitlist-input:focus { border-color: #8b5cf6; }
+        .waitlist-input::placeholder { color: #64748b; }
+        .waitlist-btn {
+            padding: 12px 24px; border-radius: 10px; border: none;
+            background: linear-gradient(135deg, #8b5cf6, #6366f1); color: white;
+            font-weight: 700; font-size: 0.9rem; cursor: pointer; white-space: nowrap;
+            transition: all 0.2s;
+        }
+        .waitlist-btn:hover { filter: brightness(1.15); transform: translateY(-1px); }
+        .waitlist-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        .waitlist-success { color: #86efac; font-weight: 600; font-size: 0.95rem; margin-top: 4px; }
+        .waitlist-count { color: #64748b; font-size: 0.8rem; margin-top: 10px; }
+        @media (max-width: 500px) {
+            .waitlist-form { flex-direction: column; }
+            .waitlist-features { flex-direction: column; gap: 6px; }
+        }
+
+        .cta-box {
+            background: linear-gradient(135deg, #1e3a5f, #0f172a);
+            border: 2px solid var(--blue); border-radius: 20px;
+            padding: 40px; text-align: center; margin-bottom: 32px;
+        }
+        .cta-box h3 { font-size: 1.4rem; margin-bottom: 12px; }
+        .cta-box p { color: var(--gray-light); margin-bottom: 24px; font-size: 0.95rem; }
+        .cta-btn {
+            display: inline-block; padding: 16px 40px;
+            background: linear-gradient(135deg, var(--blue), #6366f1);
+            color: white; text-decoration: none; border-radius: 12px;
+            font-weight: 700; font-size: 1rem; transition: all 0.3s;
+        }
+        .cta-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(59,130,246,0.4); }
+
+        .share-row { display: flex; gap: 12px; justify-content: center; margin-bottom: 40px; }
+        .share-btn {
+            padding: 12px 24px; background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15); border-radius: 10px;
+            color: var(--text); font-size: 0.85rem; font-weight: 600;
+            cursor: pointer; transition: all 0.2s; text-decoration: none;
+        }
+        .share-btn:hover { background: rgba(255,255,255,0.15); }
+
+        /* Share Card */
+        .share-card-section {
+            margin-bottom: 32px; text-align: center;
+        }
+        .share-card-title {
+            font-size: 1.3rem; font-weight: 800; margin-bottom: 4px;
+            background: linear-gradient(135deg, #f59e0b, #ef4444);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .share-card-subtitle { color: var(--gray); font-size: 0.9rem; margin-bottom: 20px; }
+        .share-card-wrapper {
+            position: relative; display: inline-block; border-radius: 20px;
+            overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            margin-bottom: 20px;
+        }
+        #shareCanvas { display: block; max-width: 100%; height: auto; border-radius: 20px; }
+        .share-buttons {
+            display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;
+            margin-bottom: 12px;
+        }
+        .share-btn-platform {
+            display: flex; align-items: center; gap: 8px;
+            padding: 12px 20px; border-radius: 12px; font-size: 0.85rem;
+            font-weight: 700; cursor: pointer; transition: all 0.2s;
+            text-decoration: none; border: none; color: white;
+        }
+        .share-btn-platform:hover { transform: translateY(-2px); filter: brightness(1.1); }
+        .share-btn-platform.download { background: linear-gradient(135deg, #22c55e, #16a34a); }
+        .share-btn-platform.reddit { background: linear-gradient(135deg, #FF4500, #FF5722); }
+        .share-btn-platform.x { background: linear-gradient(135deg, #1a1a2e, #333); }
+        .share-btn-platform.facebook { background: linear-gradient(135deg, #1877F2, #4267B2); }
+        .share-btn-platform.imessage { background: linear-gradient(135deg, #34C759, #30B350); }
+        .share-btn-platform.copy { background: linear-gradient(135deg, #6366f1, #8b5cf6); }
+        .share-prompt {
+            color: var(--gray); font-size: 0.8rem; margin-top: 8px;
+        }
+
+        /* Shared result landing */
+        .shared-landing { display: none; padding: 40px 24px 0; text-align: center; }
+        .shared-landing.active { display: block; }
+        .shared-badge {
+            display: inline-block; background: rgba(239,68,68,0.12);
+            border: 1px solid rgba(239,68,68,0.3); padding: 6px 16px;
+            border-radius: 50px; color: #fca5a5; font-size: 0.8rem;
+            font-weight: 600; margin-bottom: 20px;
+        }
+        .shared-landing h2 {
+            font-size: clamp(1.6rem, 4vw, 2.2rem); font-weight: 900;
+            line-height: 1.15; margin-bottom: 12px;
+        }
+        .shared-landing .shared-score {
+            font-size: 4rem; font-weight: 900; line-height: 1; margin: 16px 0 4px;
+        }
+        .shared-landing .shared-grade { font-size: 1.2rem; font-weight: 700; margin-bottom: 12px; }
+        .shared-landing .shared-concern {
+            color: var(--gray-light); font-size: 1rem; max-width: 500px;
+            margin: 0 auto 28px; line-height: 1.6;
+        }
+        .shared-landing .shared-stat-row {
+            display: flex; gap: 24px; justify-content: center; margin-bottom: 32px;
+        }
+        .shared-landing .shared-stat { text-align: center; }
+        .shared-landing .shared-stat-num { font-size: 1.6rem; font-weight: 800; }
+        .shared-landing .shared-stat-label { color: var(--gray); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; }
+        .shared-cta-btn {
+            display: inline-block; padding: 18px 48px;
+            background: linear-gradient(135deg, var(--red), #dc2626);
+            color: white; text-decoration: none; border-radius: 14px;
+            font-weight: 800; font-size: 1.15rem; transition: all 0.3s;
+            box-shadow: 0 8px 30px rgba(239,68,68,0.4);
+        }
+        .shared-cta-btn:hover { transform: translateY(-3px); box-shadow: 0 12px 40px rgba(239,68,68,0.5); }
+
+        .error-msg {
+            background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3);
+            color: #fca5a5; padding: 16px; border-radius: 12px; text-align: center;
+            margin-top: 16px; display: none; font-size: 0.9rem;
+        }
+
+        @media (max-width: 600px) {
+            .hero h1 { font-size: 1.8rem; }
+            .stats-row { grid-template-columns: 1fr; }
+            .score-value { font-size: 3.5rem; }
+            .share-row { flex-direction: column; }
+        }
+        /* Enhanced mobile (v5.61.0) */
+        @media (max-width: 768px) {
+            .container { padding: 0 16px; }
+            .results { padding: 24px 16px; }
+            .red-flags-list { padding: 0; }
+            .cta-box { padding: 24px 16px; margin: 0 8px 24px; }
+            .cta-btn { width: 100%; text-align: center; padding: 16px 24px; }
+            .share-buttons { gap: 6px; }
+            .share-btn-platform { padding: 10px 14px; font-size: 0.8rem; }
+            .community-waitlist { padding: 24px 16px; margin: 0 8px; }
+            .shared-landing .shared-stat-row { flex-direction: column; gap: 12px; }
+        }
+        @media (max-width: 380px) {
+            .hero h1 { font-size: 1.5rem; }
+            .score-value { font-size: 2.8rem; }
+            .cta-box h3 { font-size: 1.1rem; }
+        }
+    </style>
+    <!-- Google Analytics loaded by compliance.js after cookie consent -->
+    <script src="/static/analytics-loader.js" defer></script>
+</head>
+<body>
+    <nav>
+        <a href="/" class="logo">Offer<span class="wise">Wise</span> AI</a>
+        <a href="/" class="back">&larr; Home</a>
+    </nav>
+
+    <!-- SHARED RESULT LANDING (shown when visiting via share link) -->
+    <div class="shared-landing" id="sharedLanding">
+        <div class="container">
+            <div class="shared-badge">🔍 Someone shared their AI disclosure analysis</div>
+            <h2>Their Seller Got a<br><span id="sharedGradeDisplay" style="color: var(--red);"></span></h2>
+            <div class="shared-score" id="sharedScoreDisplay">--</div>
+            <div class="shared-grade" id="sharedGradeLabel">Seller Transparency Score</div>
+            <div class="shared-stat-row">
+                <div class="shared-stat">
+                    <div class="shared-stat-num" id="sharedFlags" style="color: var(--red);">0</div>
+                    <div class="shared-stat-label">Red Flags</div>
+                </div>
+                <div class="shared-stat">
+                    <div class="shared-stat-num" id="sharedBlanks" style="color: var(--amber);">0</div>
+                    <div class="shared-stat-label">Blanks</div>
+                </div>
+                <div class="shared-stat">
+                    <div class="shared-stat-num" id="sharedEvasions" style="color: var(--amber);">0</div>
+                    <div class="shared-stat-label">Evasions</div>
+                </div>
+            </div>
+            <div class="shared-concern" id="sharedConcern"></div>
+            <a href="/truth-check" class="shared-cta-btn">Check YOUR Seller's Disclosure Free →</a>
+            <p style="color: var(--gray); font-size: 0.8rem; margin-top: 16px;">Takes 30 seconds. No signup required.</p>
+        </div>
+    </div>
+
+    <!-- HERO -->
+    <div class="hero" id="heroSection">
+        <div class="hero-stat">68% of disclosures we analyze contain contradictions</div>
+        <h1>Is Your Seller<br>Telling the <em>Truth</em>?</h1>
+        <p>Upload your seller disclosure. Our AI scans for red flags, evasions, and suspicious patterns in 30 seconds. Free, no signup required.</p>
+    </div>
+
+    <!-- UPLOAD -->
+    <div class="container">
+        <div class="upload-section" id="uploadSection">
+            <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()">
+                <div class="upload-icon">📄</div>
+                <h3>Drop your seller disclosure here</h3>
+                <p>or click to browse. PDF files only.</p>
+                <input type="file" id="fileInput" accept=".pdf">
+                <div class="file-info" id="fileInfo" style="display:none"></div>
+            </div>
+            <div class="error-msg" id="errorMsg"></div>
+            <button class="analyze-btn" id="analyzeBtn" disabled onclick="runAnalysis()">
+                Check This Disclosure
+            </button>
+            <p class="fine-print">Your document is analyzed securely and never stored. Free, no account needed.</p>
+        </div>
+
+        <!-- PROCESSING -->
+        <div class="processing" id="processingSection">
+            <div class="spinner-ring"></div>
+            <h3>Scanning disclosure for red flags...</h3>
+            <p>This takes about 30 seconds.</p>
+            <div class="scan-messages" id="scanMessages"></div>
+        </div>
+
+        <!-- RESULTS -->
+        <div class="results" id="resultsSection">
+            <div class="score-card">
+                <div class="score-label">Seller Transparency Score</div>
+                <div class="score-value" id="scoreValue">--</div>
+                <div class="score-grade" id="scoreGrade">--</div>
+                <div class="score-assessment" id="scoreAssessment"></div>
+            </div>
+
+            <div class="stats-row">
+                <div class="stat-box">
+                    <div class="stat-num" id="flagCount" style="color: var(--red);">0</div>
+                    <div class="stat-label">Red Flags</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-num" id="blankCount" style="color: var(--amber);">0</div>
+                    <div class="stat-label">Blanks / Unknowns</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-num" id="evasionCount" style="color: var(--amber);">0</div>
+                    <div class="stat-label">Evasive Phrases</div>
+                </div>
+            </div>
+
+            <div class="concerning-box" id="concerningBox">
+                <h4>Most Concerning Finding</h4>
+                <p id="concerningText"></p>
+            </div>
+
+            <div class="flags-section" id="flagsSection"></div>
+
+            <div class="evasions" id="evasionsSection" style="display:none">
+                <div class="flags-title" style="color: #fcd34d;">Evasive Language Detected</div>
+                <div id="evasionTags"></div>
+            </div>
+
+            <!-- SHARE CARD -->
+            <div class="share-card-section" id="shareCardSection">
+                <div class="share-card-title">Share Your Results</div>
+                <div class="share-card-subtitle">Screenshot or download your result card. Every share is a free ad.</div>
+                <div class="share-card-wrapper">
+                    <canvas id="shareCanvas" width="600" height="800"></canvas>
+                </div>
+                <div class="share-buttons">
+                    <button class="share-btn-platform download" onclick="downloadCard()">⬇ Save Image</button>
+                    <button class="share-btn-platform reddit" onclick="shareReddit()">Reddit</button>
+                    <button class="share-btn-platform x" onclick="shareTwitter()">𝕏 Post</button>
+                    <button class="share-btn-platform facebook" onclick="shareFacebook()">Facebook</button>
+                    <button class="share-btn-platform imessage" onclick="shareIMessage()">iMessage</button>
+                    <button class="share-btn-platform copy" onclick="copyShareLink()">📋 Copy Link</button>
+                </div>
+                <div class="share-prompt">Downloaded image is perfect for Instagram Stories and group chats</div>
+            </div>
+
+            <div class="share-row">
+                <button class="share-btn" onclick="tryAnother()">🔄 Check Another Disclosure</button>
+            </div>
+
+            <!-- BUYER COMMUNITY WAITLIST -->
+            <div class="community-waitlist" id="upgradePrompt">
+                <div class="waitlist-badge">FREE FIRST ANALYSIS</div>
+                <h3 class="waitlist-title">Truth Check Found Red Flags. Now Get the Full Picture.</h3>
+                <p class="waitlist-desc">You've seen the disclosure risks. Upload your inspection report too — our AI cross-references both documents, confirms or denies these red flags, estimates repair costs, and calculates exactly what to offer.</p>
+                <div class="waitlist-features">
+                    <span>🔍 Cross-Reference Analysis</span>
+                    <span>💰 Data-Backed Offer Price</span>
+                    <span>📋 Negotiation Playbook</span>
+                </div>
+                <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:16px;">
+                    <a href="/login?signup" class="waitlist-btn" style="text-decoration:none;display:inline-block;">Get Free Analysis →</a>
+                    <a href="/sample-analysis" class="waitlist-btn" style="text-decoration:none;display:inline-block;background:transparent;border:1px solid #475569;color:#e2e8f0;">See Sample Report</a>
+                </div>
+            </div>
+
+            <div class="cta-box">
+                <h3>Now See What the Inspector Actually Found</h3>
+                <p>Upload your inspection report alongside this disclosure. Our full analysis cross-references both documents to confirm or deny these red flags, estimates repair costs, and recommends your optimal offer price.</p>
+                <a href="/login?signup" class="cta-btn">Get Your Full Analysis (First One Free) &rarr;</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var selectedFile = null;
+        var lastResult = null;
+        var shareUrl = '';
+
+        // === CHECK FOR SHARED RESULT ON PAGE LOAD ===
+        (function() {
+            var params = new URLSearchParams(window.location.search);
+            var r = params.get('r');
+            if (r) {
+                try {
+                    var decoded = atob(r.replace(/-/g,'+').replace(/_/g,'/'));
+                    var data = JSON.parse(decoded);
+                    showSharedLanding(data);
+                } catch(e) { /* invalid share param, show normal page */ }
+            }
+        })();
+
+        function showSharedLanding(data) {
+            document.getElementById('heroSection').style.display = 'none';
+            document.getElementById('uploadSection').style.display = 'none';
+            var landing = document.getElementById('sharedLanding');
+            landing.classList.add('active');
+
+            var score = data.s || 50;
+            var grade = data.g || 'C';
+            var flags = data.f || 0;
+            var blanks = data.b || 0;
+            var evasions = data.e || 0;
+            var concern = data.c || '';
+
+            var color = score >= 70 ? 'var(--green)' : score >= 40 ? 'var(--amber)' : 'var(--red)';
+
+            document.getElementById('sharedGradeDisplay').textContent = 'Grade ' + grade;
+            document.getElementById('sharedGradeDisplay').style.color = color;
+            document.getElementById('sharedScoreDisplay').textContent = score + '/100';
+            document.getElementById('sharedScoreDisplay').style.color = color;
+            document.getElementById('sharedFlags').textContent = flags;
+            document.getElementById('sharedBlanks').textContent = blanks;
+            document.getElementById('sharedEvasions').textContent = evasions;
+            if (concern) {
+                document.getElementById('sharedConcern').textContent = '⚠️ ' + concern;
+            } else {
+                document.getElementById('sharedConcern').textContent = 'Run your own analysis to see the full details.';
+            }
+        }
+
+        // === DRAG AND DROP ===
+        var zone = document.getElementById('uploadZone');
+        if (zone) {
+            zone.addEventListener('dragover', function(e) {
+                e.preventDefault(); zone.classList.add('dragover');
+            });
+            zone.addEventListener('dragleave', function() {
+                zone.classList.remove('dragover');
+            });
+            zone.addEventListener('drop', function(e) {
+                e.preventDefault(); zone.classList.remove('dragover');
+                if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+            });
+        }
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            if (e.target.files.length) handleFile(e.target.files[0]);
+        });
+
+        function handleFile(file) {
+            if (!file.name.toLowerCase().endsWith('.pdf')) {
+                showError('Please upload a PDF file.');
+                return;
+            }
+            if (file.size > 15 * 1024 * 1024) {
+                showError('File is too large. Maximum 15MB.');
+                return;
+            }
+            selectedFile = file;
+            zone.classList.add('has-file');
+            document.getElementById('fileInfo').style.display = 'block';
+            document.getElementById('fileInfo').textContent = file.name + ' (' + (file.size / 1024 / 1024).toFixed(1) + ' MB)';
+            document.getElementById('analyzeBtn').disabled = false;
+            document.getElementById('errorMsg').style.display = 'none';
+        }
+
+        function showError(msg) {
+            var el = document.getElementById('errorMsg');
+            el.textContent = msg; el.style.display = 'block';
+        }
+
+        var scanMsgs = [
+            "Reading document pages...",
+            "Identifying disclosure sections...",
+            "Checking for blank and unknown answers...",
+            "Scanning for evasive language patterns...",
+            "Analyzing water damage disclosures...",
+            "Checking structural and foundation sections...",
+            "Evaluating permit and renovation history...",
+            "Cross-referencing environmental hazard responses...",
+            "Calculating transparency score...",
+            "Compiling red flag report..."
+        ];
+
+        async function runAnalysis() {
+            if (!selectedFile) return;
+            
+            document.getElementById('uploadSection').style.display = 'none';
+            document.getElementById('heroSection').style.display = 'none';
+            document.getElementById('processingSection').classList.add('active');
+
+            var msgIdx = 0;
+            var msgInterval = setInterval(function() {
+                if (msgIdx < scanMsgs.length) {
+                    document.getElementById('scanMessages').innerHTML = '<div class="scan-msg">' + scanMsgs[msgIdx] + '</div>';
+                    msgIdx++;
+                }
+            }, 3000);
+
+            try {
+                var base64 = await new Promise(function(resolve, reject) {
+                    var reader = new FileReader();
+                    reader.onload = function() { resolve(reader.result); };
+                    reader.onerror = function() { reject(new Error('Failed to read file')); };
+                    reader.readAsDataURL(selectedFile);
+                });
+
+                var res = await fetch('/api/truth-check', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ pdf_base64: base64 })
+                });
+
+                clearInterval(msgInterval);
+
+                if (!res.ok) {
+                    var errData = await res.json().catch(function() { return {}; });
+                    throw new Error(errData.error || 'Analysis failed (' + res.status + ')');
+                }
+
+                var data = await res.json();
+                lastResult = data;
+                displayResults(data);
+                generateShareCard(data);
+                generateShareUrl(data);
+
+                gtag('event', 'truth_check_complete', {
+                    trust_score: data.trust_score,
+                    red_flags: data.red_flags ? data.red_flags.length : 0
+                });
+
+            } catch (err) {
+                clearInterval(msgInterval);
+                document.getElementById('processingSection').classList.remove('active');
+                document.getElementById('uploadSection').style.display = 'block';
+                document.getElementById('heroSection').style.display = 'block';
+                showError(err.message || 'Something went wrong. Please try again.');
+            }
+        }
+
+        function displayResults(data) {
+            document.getElementById('processingSection').classList.remove('active');
+            document.getElementById('resultsSection').classList.add('active');
+
+            // Show AI disclaimer (v5.61.0)
+            if (window.OfferWiseCompliance) OfferWiseCompliance.showAIDisclaimer('resultsSection');
+
+            var score = data.trust_score || 0;
+            var color = score >= 70 ? 'var(--green)' : score >= 40 ? 'var(--amber)' : 'var(--red)';
+            
+            document.getElementById('scoreValue').textContent = score;
+            document.getElementById('scoreValue').style.color = color;
+            document.getElementById('scoreGrade').textContent = 'Grade: ' + (data.grade || 'N/A');
+            document.getElementById('scoreGrade').style.color = color;
+            document.getElementById('scoreAssessment').textContent = data.overall_assessment || '';
+
+            document.getElementById('flagCount').textContent = data.red_flags ? data.red_flags.length : 0;
+            document.getElementById('blankCount').textContent = data.blank_unknown_count || 0;
+            document.getElementById('evasionCount').textContent = data.evasion_phrases ? data.evasion_phrases.length : 0;
+
+            document.getElementById('concerningText').textContent = data.most_concerning || 'No major concerns identified.';
+
+            var flagsHtml = '';
+            if (data.red_flags && data.red_flags.length > 0) {
+                flagsHtml = '<div class="flags-title">Red Flags Found</div>';
+                data.red_flags.forEach(function(flag) {
+                    var sev = flag.severity || 'medium';
+                    var evidenceHtml = flag.evidence ? '<div style="margin-top: 8px; padding: 8px 12px; background: rgba(255,255,255,0.03); border-radius: 6px; font-size: 0.8rem; color: var(--gray); font-style: italic;">Evidence: ' + escapeHtml(flag.evidence) + '</div>' : '';
+                    flagsHtml += '<div class="flag-card ' + sev + '">' +
+                        '<div class="flag-header">' +
+                        '<span class="flag-title">' + escapeHtml(flag.title || '') + '</span>' +
+                        '<span class="flag-severity ' + sev + '">' + sev + '</span>' +
+                        '</div>' +
+                        '<div class="flag-detail">' + escapeHtml(flag.detail || '') + '</div>' +
+                        evidenceHtml +
+                        '</div>';
+                });
+            }
+            document.getElementById('flagsSection').innerHTML = flagsHtml;
+
+            if (data.evasion_phrases && data.evasion_phrases.length > 0) {
+                document.getElementById('evasionsSection').style.display = 'block';
+                var tagsHtml = '';
+                data.evasion_phrases.forEach(function(phrase) {
+                    tagsHtml += '<span class="evasion-tag">"' + escapeHtml(phrase) + '"</span>';
+                });
+                document.getElementById('evasionTags').innerHTML = tagsHtml;
+            }
+        }
+
+        // === SHARE CARD CANVAS GENERATION ===
+        function generateShareCard(data) {
+            var canvas = document.getElementById('shareCanvas');
+            var ctx = canvas.getContext('2d');
+            var w = 600, h = 800;
+            canvas.width = w; canvas.height = h;
+
+            var score = data.trust_score || 0;
+            var grade = data.grade || 'C';
+            var flags = data.red_flags ? data.red_flags.length : 0;
+            var blanks = data.blank_unknown_count || 0;
+            var evasions = data.evasion_phrases ? data.evasion_phrases.length : 0;
+            var concern = data.most_concerning || '';
+            var topFlag = (data.red_flags && data.red_flags[0]) ? data.red_flags[0].title : '';
+
+            // Background gradient
+            var bg = ctx.createLinearGradient(0, 0, 0, h);
+            bg.addColorStop(0, '#0c1222');
+            bg.addColorStop(0.5, '#131b30');
+            bg.addColorStop(1, '#0c1222');
+            ctx.fillStyle = bg;
+            ctx.fillRect(0, 0, w, h);
+
+            // Subtle grid pattern
+            ctx.strokeStyle = 'rgba(255,255,255,0.02)';
+            ctx.lineWidth = 1;
+            for (var i = 0; i < w; i += 30) { ctx.beginPath(); ctx.moveTo(i,0); ctx.lineTo(i,h); ctx.stroke(); }
+            for (var i = 0; i < h; i += 30) { ctx.beginPath(); ctx.moveTo(0,i); ctx.lineTo(w,i); ctx.stroke(); }
+
+            // Top accent line
+            var accent = ctx.createLinearGradient(0, 0, w, 0);
+            accent.addColorStop(0, '#ef4444');
+            accent.addColorStop(0.5, '#f59e0b');
+            accent.addColorStop(1, '#ef4444');
+            ctx.fillStyle = accent;
+            ctx.fillRect(0, 0, w, 5);
+
+            // Logo
+            ctx.fillStyle = '#3b82f6';
+            ctx.font = 'bold 18px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+            ctx.fillText('OfferWise AI', 40, 50);
+            ctx.fillStyle = 'rgba(255,255,255,0.4)';
+            ctx.font = '13px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+            ctx.fillText('Seller Disclosure Truth Check', 40, 72);
+
+            // Score display - solid badge design (works at every score level)
+            var cx = w / 2, cy = 200, r = 95;
+            var scoreColor = score >= 70 ? '#22c55e' : score >= 40 ? '#f59e0b' : '#ef4444';
+            var scoreBg = score >= 70 ? 'rgba(34,197,94,0.12)' : score >= 40 ? 'rgba(245,158,11,0.12)' : 'rgba(239,68,68,0.12)';
+            var scoreBorder = score >= 70 ? 'rgba(34,197,94,0.35)' : score >= 40 ? 'rgba(245,158,11,0.35)' : 'rgba(239,68,68,0.35)';
+
+            // Outer glow
+            ctx.shadowColor = scoreColor;
+            ctx.shadowBlur = 40;
+            ctx.beginPath();
+            ctx.arc(cx, cy, r, 0, Math.PI * 2);
+            ctx.fillStyle = scoreBg;
+            ctx.fill();
+            ctx.shadowBlur = 0;
+
+            // Border ring
+            ctx.beginPath();
+            ctx.arc(cx, cy, r, 0, Math.PI * 2);
+            ctx.strokeStyle = scoreBorder;
+            ctx.lineWidth = 3;
+            ctx.stroke();
+
+            // Score number (large, centered)
+            ctx.fillStyle = scoreColor;
+            ctx.font = 'bold 72px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(score, cx, cy - 8);
+
+            // "/100" below the score
+            ctx.fillStyle = 'rgba(255,255,255,0.4)';
+            ctx.font = '16px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+            ctx.fillText('/100', cx, cy + 36);
+
+            // Grade badge below circle
+            var badgeW = 120, badgeH = 36, badgeY = cy + r + 16;
+            ctx.fillStyle = scoreBg;
+            roundRect(ctx, cx - badgeW/2, badgeY, badgeW, badgeH, 18);
+            ctx.fill();
+            ctx.strokeStyle = scoreBorder;
+            ctx.lineWidth = 1.5;
+            roundRect(ctx, cx - badgeW/2, badgeY, badgeW, badgeH, 18);
+            ctx.stroke();
+            ctx.fillStyle = scoreColor;
+            ctx.font = 'bold 18px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('Grade ' + grade, cx, badgeY + badgeH/2);
+
+            ctx.textBaseline = 'alphabetic';
+
+            // Stats row
+            var statsY = 375;
+            var statData = [
+                { val: flags, label: 'Red Flags', color: '#ef4444' },
+                { val: blanks, label: 'Blanks', color: '#f59e0b' },
+                { val: evasions, label: 'Evasions', color: '#f59e0b' }
+            ];
+            statData.forEach(function(s, i) {
+                var sx = 100 + i * 200;
+                // Box background
+                ctx.fillStyle = 'rgba(255,255,255,0.04)';
+                roundRect(ctx, sx - 60, statsY - 10, 120, 65, 10);
+                ctx.fill();
+                // Number
+                ctx.fillStyle = s.color;
+                ctx.font = 'bold 28px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                ctx.fillText(s.val, sx, statsY + 22);
+                // Label
+                ctx.fillStyle = 'rgba(255,255,255,0.45)';
+                ctx.font = '11px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                ctx.fillText(s.label.toUpperCase(), sx, statsY + 44);
+            });
+
+            // Divider
+            ctx.fillStyle = 'rgba(255,255,255,0.06)';
+            ctx.fillRect(60, 465, w - 120, 1);
+
+            // Most concerning finding
+            if (concern) {
+                ctx.fillStyle = '#fca5a5';
+                ctx.font = 'bold 13px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                ctx.fillText('MOST CONCERNING', cx, 498);
+                ctx.fillStyle = 'rgba(255,255,255,0.7)';
+                ctx.font = '15px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                var lines = wrapText(ctx, concern, w - 100);
+                lines.forEach(function(line, i) {
+                    if (i < 4) ctx.fillText(line, cx, 523 + i * 22);
+                });
+            }
+
+            // Top red flag title
+            if (topFlag) {
+                var flagY = concern ? 523 + Math.min(wrapText(ctx, concern, w - 100).length, 4) * 22 + 30 : 510;
+                ctx.fillStyle = 'rgba(239,68,68,0.12)';
+                roundRect(ctx, 50, flagY - 5, w - 100, 36, 8);
+                ctx.fill();
+                ctx.fillStyle = '#fca5a5';
+                ctx.font = '600 13px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                ctx.fillText('🚩 ' + topFlag.substring(0, 55) + (topFlag.length > 55 ? '...' : ''), cx, flagY + 18);
+            }
+
+            // Bottom CTA
+            ctx.fillStyle = 'rgba(59,130,246,0.1)';
+            roundRect(ctx, 50, h - 120, w - 100, 80, 14);
+            ctx.fill();
+            ctx.strokeStyle = 'rgba(59,130,246,0.3)';
+            ctx.lineWidth = 1;
+            roundRect(ctx, 50, h - 120, w - 100, 80, 14);
+            ctx.stroke();
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 16px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+            ctx.fillText('Check YOUR seller — free at', cx, h - 80);
+            ctx.fillStyle = '#60a5fa';
+            ctx.font = 'bold 18px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+            ctx.fillText('getofferwise.ai/truth-check', cx, h - 55);
+
+            ctx.textAlign = 'left'; // reset
+        }
+
+        function roundRect(ctx, x, y, w, h, r) {
+            ctx.beginPath();
+            ctx.moveTo(x + r, y);
+            ctx.lineTo(x + w - r, y);
+            ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+            ctx.lineTo(x + w, y + h - r);
+            ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+            ctx.lineTo(x + r, y + h);
+            ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+            ctx.lineTo(x, y + r);
+            ctx.quadraticCurveTo(x, y, x + r, y);
+            ctx.closePath();
+        }
+
+        function wrapText(ctx, text, maxWidth) {
+            var words = text.split(' ');
+            var lines = [];
+            var line = '';
+            words.forEach(function(word) {
+                var test = line + (line ? ' ' : '') + word;
+                if (ctx.measureText(test).width > maxWidth && line) {
+                    lines.push(line);
+                    line = word;
+                } else {
+                    line = test;
+                }
+            });
+            if (line) lines.push(line);
+            return lines;
+        }
+
+        // === SHARE URL GENERATION ===
+        function generateShareUrl(data) {
+            var summary = {
+                s: data.trust_score || 50,
+                g: data.grade || 'C',
+                f: data.red_flags ? data.red_flags.length : 0,
+                b: data.blank_unknown_count || 0,
+                e: data.evasion_phrases ? data.evasion_phrases.length : 0,
+                c: (data.most_concerning || '').substring(0, 120)
+            };
+            var encoded = btoa(JSON.stringify(summary)).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+            shareUrl = 'https://www.getofferwise.ai/truth-check?r=' + encoded;
+        }
+
+        // === SHARE ACTIONS ===
+        function downloadCard() {
+            var canvas = document.getElementById('shareCanvas');
+            var link = document.createElement('a');
+            link.download = 'seller-truth-check.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+            gtag('event', 'share_card_download');
+        }
+
+        function shareReddit() {
+            var score = lastResult ? lastResult.trust_score : 0;
+            var flags = lastResult && lastResult.red_flags ? lastResult.red_flags.length : 0;
+            var title = 'AI found ' + flags + ' red flag' + (flags !== 1 ? 's' : '') + ' in my seller disclosure (Score: ' + score + '/100). Check yours free.';
+            window.open('https://www.reddit.com/submit?url=' + encodeURIComponent(shareUrl) + '&title=' + encodeURIComponent(title), '_blank');
+            gtag('event', 'share_reddit');
+        }
+
+        function shareTwitter() {
+            var score = lastResult ? lastResult.trust_score : 0;
+            var flags = lastResult && lastResult.red_flags ? lastResult.red_flags.length : 0;
+            var text = 'Just ran my seller disclosure through AI. Score: ' + score + '/100 with ' + flags + ' red flag' + (flags !== 1 ? 's' : '') + ' found 🚩\n\nCheck yours free:';
+            window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(text) + '&url=' + encodeURIComponent(shareUrl), '_blank');
+            gtag('event', 'share_twitter');
+        }
+
+        function shareFacebook() {
+            window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(shareUrl), '_blank');
+            gtag('event', 'share_facebook');
+        }
+
+        function shareIMessage() {
+            var score = lastResult ? lastResult.trust_score : 0;
+            var flags = lastResult && lastResult.red_flags ? lastResult.red_flags.length : 0;
+            var text = 'Check this out - AI found ' + flags + ' red flags in my seller disclosure (score: ' + score + '/100). You can run yours free: ' + shareUrl;
+            window.open('sms:&body=' + encodeURIComponent(text), '_self');
+            gtag('event', 'share_imessage');
+        }
+
+        function copyShareLink() {
+            navigator.clipboard.writeText(shareUrl).then(function() {
+                event.target.textContent = '✓ Copied!';
+                setTimeout(function() { event.target.textContent = '📋 Copy Link'; }, 2000);
+            });
+            gtag('event', 'share_copy_link');
+        }
+
+        function escapeHtml(str) {
+            var div = document.createElement('div');
+            div.appendChild(document.createTextNode(str));
+            return div.innerHTML;
+        }
+
+        // === COMMUNITY WAITLIST ===
+        async function joinWaitlist() {
+            var email = document.getElementById('waitlistEmail').value.trim();
+            if (!email || !email.includes('@') || !email.includes('.')) {
+                document.getElementById('waitlistEmail').style.borderColor = '#ef4444';
+                return;
+            }
+
+            var btn = document.getElementById('waitlistBtn');
+            btn.textContent = 'Joining...';
+            btn.disabled = true;
+
+            try {
+                var res = await fetch('/api/waitlist/community', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: email,
+                        source: 'truth-check-results',
+                        referrer: document.referrer || '',
+                        had_result: !!lastResult,
+                        result_score: lastResult ? lastResult.trust_score : null
+                    })
+                });
+                var data = await res.json();
+                if (data.success) {
+                    document.getElementById('waitlistForm').style.display = 'none';
+                    document.getElementById('waitlistSuccess').style.display = 'block';
+                    if (data.position) {
+                        document.getElementById('waitlistCount').textContent = 'You are #' + data.position + ' on the waitlist';
+                    }
+                    // GA4 event
+                    if (typeof gtag === 'function') {
+                        gtag('event', 'waitlist_signup', { event_category: 'community', event_label: 'truth_check_results' });
+                    }
+                } else {
+                    btn.textContent = data.error === 'already_joined' ? 'Already on the list ✓' : 'Try Again';
+                    btn.disabled = data.error === 'already_joined';
+                    if (data.error === 'already_joined') {
+                        document.getElementById('waitlistCount').textContent = 'You\'re already on the waitlist!';
+                    }
+                }
+            } catch (e) {
+                btn.textContent = 'Try Again';
+                btn.disabled = false;
+            }
+        }
+
+        // Enter key on email input
+        document.getElementById('waitlistEmail').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') joinWaitlist();
+        });
+
+        function tryAnother() {
+            selectedFile = null;
+            lastResult = null;
+            shareUrl = '';
+            document.getElementById('resultsSection').classList.remove('active');
+            document.getElementById('uploadSection').style.display = 'block';
+            document.getElementById('heroSection').style.display = 'block';
+            document.getElementById('fileInput').value = '';
+            document.getElementById('fileInfo').style.display = 'none';
+            document.getElementById('analyzeBtn').disabled = true;
+            zone.classList.remove('has-file');
+            document.getElementById('evasionsSection').style.display = 'none';
+            window.scrollTo(0, 0);
+        }
+    </script>
+<script src="/static/js/compliance.js"></script>
+</body>
+</html>

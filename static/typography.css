@@ -1,0 +1,25 @@
+/* OfferWise Typography — imports main design system */
+@import url('/static/ow-system.css');
+
+/* Legacy variable aliases */
+:root {
+  --text-display-xl: 4.5rem;
+  --text-display-l:  3rem;
+  --text-h1:         1.875rem;
+  --text-h2:         1.5rem;
+  --text-h3:         1.25rem;
+  --text-body-lg:    1.125rem;
+  --text-body:       1rem;
+  --text-body-sm:    0.875rem;
+  --text-caption-lg: 0.75rem;
+  --text-caption:    0.6875rem;
+  --text-caption-sm: 0.625rem;
+  --font-weight-regular:  400;
+  --font-weight-medium:   500;
+  --font-weight-semibold: 600;
+  --font-weight-bold:     700;
+  --font-weight-black:    800;
+  --line-height-tight:  1.2;
+  --line-height-normal: 1.5;
+  --line-height-loose:  1.7;
+}

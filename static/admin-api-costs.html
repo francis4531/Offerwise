@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>API Cost Dashboard — OfferWise Admin</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=DM+Sans:wght@300;400;500;600&display=swap');
+  :root {
+    --bg: #080c14; --surface: #0d1424; --card: #111827; --border: #1e2d45;
+    --text: #e2e8f0; --muted: #cbd5e1; --faint: #1e293b;
+    --accent: #3b82f6; --green: #22c55e; --amber: #f59e0b; --red: #ef4444;
+    --indigo: #6366f1; --cyan: #06b6d4; --violet: #8b5cf6;
+    --green-dim: rgba(34,197,94,0.1); --amber-dim: rgba(245,158,11,0.1);
+    --red-dim: rgba(239,68,68,0.1); --accent-dim: rgba(59,130,246,0.1);
+    --mono: 'JetBrains Mono', monospace; --sans: 'DM Sans', sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--sans); background: var(--bg); color: var(--text); min-height: 100vh; }
+
+  .topbar {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(8,12,20,0.95); backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 28px; display: flex; align-items: center; gap: 16px; height: 56px;
+  }
+  .topbar-title { font-size: 15px; font-weight: 600; color: var(--text); }
+  .topbar-sub { font-size: 12px; color: var(--muted); }
+  .topbar-right { margin-left: auto; display: flex; gap: 10px; align-items: center; }
+  .btn { padding: 7px 16px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); color: var(--text); font-size: 13px; font-family: var(--sans); cursor: pointer; transition: all 0.15s; }
+  .btn:hover { background: var(--faint); border-color: #2a3f5f; }
+  .btn-primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn-primary:hover { background: #2563eb; border-color: #2563eb; }
+
+  .main { max-width: 1300px; margin: 0 auto; padding: 28px; }
+
+  /* Period selector */
+  .period-bar { display: flex; gap: 8px; margin-bottom: 24px; align-items: center; }
+  .period-btn { padding: 6px 14px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); color: var(--muted); font-size: 13px; cursor: pointer; transition: all 0.15s; }
+  .period-btn.active { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
+
+  /* Summary cards row */
+  .cards-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin-bottom: 28px; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; }
+  .card-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; }
+  .card-value { font-size: 26px; font-weight: 600; font-family: var(--mono); line-height: 1; }
+  .card-sub { font-size: 12px; color: var(--muted); margin-top: 6px; }
+  .card-trend { font-size: 12px; margin-top: 4px; }
+  .card-trend.up { color: var(--red); } .card-trend.down { color: var(--green); } .card-trend.neutral { color: var(--muted); }
+
+  /* Section */
+  .section { background: var(--card); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 20px; overflow: hidden; }
+  .section-header { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+  .section-title { font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+  .section-badge { font-size: 11px; padding: 2px 8px; border-radius: 20px; font-family: var(--mono); }
+  .badge-paid { background: var(--red-dim); color: var(--red); border: 1px solid rgba(239,68,68,0.2); }
+  .badge-free { background: var(--green-dim); color: var(--green); border: 1px solid rgba(34,197,94,0.2); }
+  .badge-configured { background: var(--green-dim); color: var(--green); }
+  .badge-missing { background: var(--red-dim); color: var(--red); }
+
+  /* API table */
+  table { width: 100%; border-collapse: collapse; }
+  th { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; padding: 10px 16px; text-align: left; border-bottom: 1px solid var(--border); }
+  td { padding: 12px 16px; border-bottom: 1px solid rgba(30,45,69,0.5); font-size: 13px; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(255,255,255,0.02); }
+
+  .api-name { font-weight: 600; color: var(--text); }
+  .api-provider { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .cost-cell { font-family: var(--mono); font-size: 13px; }
+  .cost-zero { color: var(--muted); }
+  .cost-low { color: var(--green); }
+  .cost-med { color: var(--amber); }
+  .cost-high { color: var(--red); }
+
+  .status-dot { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+  .dot-green { background: var(--green); box-shadow: 0 0 6px rgba(34,197,94,0.5); }
+  .dot-amber { background: var(--amber); }
+  .dot-red { background: var(--red); }
+  .dot-grey { background: var(--muted); }
+
+  .pricing-note { font-size: 11px; color: var(--muted); margin-top: 3px; font-family: var(--mono); }
+  .pill { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-family: var(--mono); }
+  .pill-anthropic { background: rgba(99,102,241,0.12); color: #a5b4fc; }
+  .pill-stripe { background: rgba(99,102,241,0.12); color: #a5b4fc; }
+  .pill-resend { background: rgba(6,182,212,0.12); color: #67e8f9; }
+  .pill-google { background: rgba(59,130,246,0.12); color: #93c5fd; }
+  .pill-rentcast { background: rgba(245,158,11,0.12); color: #fcd34d; }
+  .pill-free { background: var(--green-dim); color: var(--green); }
+
+  /* AI call breakdown */
+  .endpoint-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid rgba(30,45,69,0.4); }
+  .endpoint-row:last-child { border-bottom: none; }
+  .endpoint-name { font-size: 12px; font-family: var(--mono); color: var(--muted); }
+  .endpoint-cost { font-size: 12px; font-family: var(--mono); color: var(--amber); }
+
+  /* Budget bar */
+  .budget-bar-wrap { margin-top: 8px; }
+  .budget-bar-track { height: 4px; background: var(--faint); border-radius: 2px; overflow: hidden; }
+  .budget-bar-fill { height: 100%; border-radius: 2px; transition: width 0.3s; }
+
+  /* Alert banner */
+  .alert { padding: 12px 16px; border-radius: 8px; margin-bottom: 16px; font-size: 13px; display: flex; align-items: center; gap: 8px; }
+  .alert-warn { background: var(--amber-dim); border: 1px solid rgba(245,158,11,0.3); color: var(--amber); }
+  .alert-err  { background: var(--red-dim); border: 1px solid rgba(239,68,68,0.3); color: var(--red); }
+  .alert-ok   { background: var(--green-dim); border: 1px solid rgba(34,197,94,0.3); color: var(--green); }
+
+  .loading { color: var(--muted); font-size: 13px; padding: 24px 20px; text-align: center; }
+  .refresh-ts { font-size: 11px; color: var(--muted); }
+
+  /* Monthly projection chart — simple bar */
+  .bar-chart { padding: 16px 20px; }
+  .bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .bar-label { width: 100px; font-size: 12px; color: var(--muted); text-align: right; flex-shrink: 0; }
+  .bar-track { flex: 1; height: 20px; background: var(--faint); border-radius: 4px; overflow: hidden; position: relative; }
+  .bar-fill { height: 100%; border-radius: 4px; display: flex; align-items: center; padding: 0 8px; font-size: 11px; font-family: var(--mono); color: #fff; min-width: 40px; transition: width 0.4s; }
+</style>
+</head>
+<body>
+  <div id="admin-nav" style="display:flex;gap:8px;padding:10px 28px;background:rgba(8,12,20,0.98);border-bottom:1px solid #1e2d45;flex-wrap:wrap;align-items:center;">
+    <span style="color:#60a5fa;font-weight:800;font-size:13px;margin-right:8px;">⚙️ Admin</span>
+  </div>
+  <script>
+  (function() {
+    const ak = new URLSearchParams(location.search).get('admin_key') || '';
+    const q = ak ? '?admin_key=' + ak : '';
+    const current = location.pathname;
+    const pages = [
+      ['📊 Dashboard',  '/admin'],
+      ['🔬 Insights',   '/admin/insights'],
+      ['🚀 GTM',        '/admin/gtm'],
+      ['💸 API Costs',  '/admin/api-costs'],
+      ['🏗️ Infra Costs','/admin/infra-costs'],
+      ['🆘 Support',    '/admin/support-shares'],
+      ['🔧 Debug',      '/debug'],
+      ['← App',         '/dashboard'],
+    ];
+    const nav = document.getElementById('admin-nav');
+    if (!nav) return;
+    const label = document.createElement('span');
+    label.style.cssText = 'color:#60a5fa;font-weight:800;font-size:13px;margin-right:8px;';
+    label.textContent = '⚙️ Admin';
+    nav.innerHTML = '';
+    nav.appendChild(label);
+    pages.forEach(([lbl, path]) => {
+      const active = current === path || (path !== '/admin' && current.startsWith(path));
+      const a = document.createElement('a');
+      a.href = path + q;
+      a.textContent = lbl;
+      a.style.cssText = 'padding:6px 14px;border-radius:6px;text-decoration:none;font-size:13px;font-weight:600;' +
+        (active ? 'background:#3b82f6;color:white;' : 'background:rgba(255,255,255,0.08);color:#e2e8f0;');
+      nav.appendChild(a);
+    });
+  })();
+  </script>
+
+<div class="topbar">
+  <div>
+    <div class="topbar-title">💸 API Cost Dashboard</div>
+    <div class="topbar-sub">OfferWise Admin · All external API spend</div>
+  </div>
+  <div class="topbar-right">
+    <span class="refresh-ts" id="refresh-ts">–</span>
+    <button class="btn btn-primary" onclick="loadAll()">↻ Refresh</button>
+  </div>
+</div>
+
+<div class="main">
+  <!-- Alerts -->
+  <div id="alerts-container"></div>
+
+  <!-- Period selector -->
+  <div class="period-bar">
+    <span style="font-size:12px;color:var(--muted);margin-right:4px;">Period:</span>
+    <button class="period-btn active" onclick="setPeriod(1,this)">Today</button>
+    <button class="period-btn" onclick="setPeriod(7,this)">7 days</button>
+    <button class="period-btn" onclick="setPeriod(30,this)">30 days</button>
+    <button class="period-btn" onclick="setPeriod(0,this)">This month</button>
+  </div>
+
+  <!-- Summary cards -->
+  <div class="cards-row" id="summary-cards">
+    <div class="card"><div class="card-label">Loading…</div></div>
+  </div>
+
+  <!-- ── SECTION 1: Anthropic (paid, highest cost) ── -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title">
+        <span class="pill pill-anthropic">Anthropic Claude</span>
+        <span class="section-badge badge-paid">PAID · per token</span>
+      </div>
+      <span id="anthropic-status" class="status-dot"><span class="dot dot-grey"></span> checking…</span>
+    </div>
+    <table>
+      <thead><tr>
+        <th>Use Case</th><th>Model</th><th>Calls (period)</th>
+        <th>Input tokens</th><th>Output tokens</th><th>Est. Cost</th><th>Budget</th>
+      </tr></thead>
+      <tbody id="anthropic-tbody">
+        <tr><td colspan="7" class="loading">Loading AI cost data…</td></tr>
+      </tbody>
+    </table>
+    <div style="padding:12px 20px;border-top:1px solid var(--border);">
+      <div style="font-size:11px;color:var(--muted);margin-bottom:8px;">Cost by endpoint (period)</div>
+      <div id="endpoint-breakdown"></div>
+    </div>
+  </div>
+
+  <!-- ── SECTION 2: Ad Spend (Google Ads + Reddit Ads — REAL data) ── -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title">
+        <span class="pill pill-google">Ad Spend</span>
+        <span class="section-badge badge-paid">PAID · actual spend</span>
+      </div>
+      <span id="ads-status" class="status-dot"><span class="dot dot-grey"></span> checking…</span>
+    </div>
+    <table>
+      <thead><tr><th>Channel</th><th>Spend (period)</th><th>Clicks</th><th>Impressions</th><th>Source</th></tr></thead>
+      <tbody id="ads-tbody">
+        <tr><td colspan="5" class="loading">Loading ad spend data…</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ── SECTION 3: Stripe ── -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title">
+        <span class="pill pill-stripe">Stripe</span>
+        <span class="section-badge badge-paid">PAID · % of revenue</span>
+      </div>
+      <span id="stripe-status" class="status-dot"><span class="dot dot-grey"></span> checking…</span>
+    </div>
+    <table>
+      <thead><tr>
+        <th>Metric</th><th>Value</th><th>Notes</th>
+      </tr></thead>
+      <tbody id="stripe-tbody">
+        <tr><td colspan="3" class="loading">Loading Stripe data…</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ── SECTION 4: Resend (email) ── -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title">
+        <span class="pill pill-resend">Resend</span>
+        <span class="section-badge badge-paid">PAID · per email</span>
+      </div>
+      <span id="resend-status" class="status-dot"><span class="dot dot-grey"></span> checking…</span>
+    </div>
+    <table>
+      <thead><tr><th>Metric</th><th>Value</th><th>Pricing</th><th>Est. Cost</th></tr></thead>
+      <tbody id="resend-tbody">
+        <tr><td colspan="4" class="loading">Loading email data…</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ── SECTION 4: RentCast ── -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title">
+        <span class="pill pill-rentcast">RentCast</span>
+        <span class="section-badge badge-paid">PAID · per call</span>
+      </div>
+      <span id="rentcast-status" class="status-dot"><span class="dot dot-grey"></span> checking…</span>
+    </div>
+    <table>
+      <thead><tr><th>Metric</th><th>Value</th><th>Pricing</th><th>Est. Cost</th></tr></thead>
+      <tbody id="rentcast-tbody">
+        <tr><td colspan="4" class="loading">Loading RentCast data…</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ── SECTION 5: Google APIs ── -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title">
+        <span class="pill pill-google">Google APIs</span>
+        <span class="section-badge badge-free">FREE (within quota)</span>
+      </div>
+    </div>
+    <table>
+      <thead><tr><th>API</th><th>Purpose</th><th>Status</th><th>Cost Model</th><th>Monthly Quota</th></tr></thead>
+      <tbody id="google-tbody">
+        <tr><td colspan="5" class="loading">Loading…</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ── SECTION 6: Free / Auth APIs ── -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title">
+        <span class="pill pill-free">Auth & OAuth</span>
+        <span class="section-badge badge-free">FREE</span>
+      </div>
+    </div>
+    <table>
+      <thead><tr><th>Provider</th><th>Purpose</th><th>Status</th><th>Cost</th></tr></thead>
+      <tbody id="auth-tbody">
+        <tr><td colspan="4" class="loading">Loading…</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ── SECTION 7: Monthly Projection ── -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title">📊 Monthly Cost Projection</div>
+    </div>
+    <div class="bar-chart" id="projection-chart">
+      <div class="loading">Loading projection…</div>
+    </div>
+  </div>
+
+</div>
+
+<script>/* OfferWise API Cost Dashboard v5.74.21 */
+const ADMIN_KEY = new URLSearchParams(location.search).get('admin_key') || '';
+const HEADERS = { 'X-Admin-Key': ADMIN_KEY, 'X-Requested-With': 'XMLHttpRequest' };
+
+let currentDays = 1;
+let cachedData = {};
+
+function setPeriod(days, btn) {
+  currentDays = days;
+  document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  loadAll();
+}
+
+async function apiFetch(url) {
+  const r = await fetch(url + (url.includes('?') ? '&' : '?') + `admin_key=${ADMIN_KEY}`, { headers: HEADERS });
+  if (!r.ok) throw new Error(`HTTP ${r.status}`);
+  return r.json();
+}
+
+function fmtCost(n) {
+  if (n === null || n === undefined) return '<span class="cost-zero">—</span>';
+  if (n === 0) return '<span class="cost-zero">$0.00</span>';
+  const cls = n < 1 ? 'cost-low' : n < 10 ? 'cost-med' : 'cost-high';
+  return `<span class="cost-cell ${cls}">$${n.toFixed(4)}</span>`;
+}
+function fmtDollars(n) {
+  if (!n) return '<span class="cost-zero">$0.00</span>';
+  return `<span class="cost-cell ${n < 5 ? 'cost-low' : n < 50 ? 'cost-med' : 'cost-high'}">$${n.toFixed(2)}</span>`;
+}
+function fmtNum(n) { return (n||0).toLocaleString(); }
+function statusDot(ok, label) {
+  const cls = ok ? 'dot-green' : 'dot-red';
+  return `<span class="status-dot"><span class="dot ${cls}"></span> ${label}</span>`;
+}
+function budgetBar(used, budget, color='var(--amber)') {
+  const pct = Math.min(100, (used/budget)*100);
+  const c = pct > 90 ? 'var(--red)' : pct > 60 ? 'var(--amber)' : 'var(--green)';
+  return `<div class="budget-bar-wrap">
+    <div style="font-size:11px;color:var(--muted);">$${used.toFixed(2)} / $${budget.toFixed(2)}</div>
+    <div class="budget-bar-track" style="margin-top:4px;">
+      <div class="budget-bar-fill" style="width:${pct}%;background:${c};"></div>
+    </div>
+  </div>`;
+}
+
+async function loadAll() {
+  document.getElementById('refresh-ts').textContent = 'Refreshing…';
+  try {
+    const [costData, systemData, emailStats, analysisStats] = await Promise.allSettled([
+      apiFetch(`/api/admin/ai-costs?days=${currentDays}`),
+      apiFetch('/api/admin/system-info'),
+      apiFetch(`/api/admin/email-stats?days=${currentDays}`),
+      apiFetch(`/api/admin/analysis-stats?days=${currentDays}`),
+    ]);
+
+    const cost = costData.status === 'fulfilled' ? costData.value : null;
+    const sys  = systemData.status === 'fulfilled' ? systemData.value : null;
+    const email = emailStats.status === 'fulfilled' ? emailStats.value : null;
+    const analysis = analysisStats.status === 'fulfilled' ? analysisStats.value : null;
+
+    renderSummaryCards(cost, email, analysis);
+    renderAlerts(cost);
+    renderAnthropic(cost);
+    renderAds(analysis);
+    renderStripe(sys, analysis);
+    renderResend(email);
+    renderRentCast(analysis);
+    renderGoogle(sys, analysis);
+    renderAuth(sys);
+    renderProjection(cost, email, analysis);
+
+    document.getElementById('refresh-ts').textContent = 'Updated ' + new Date().toLocaleTimeString();
+  } catch(e) {
+    document.getElementById('refresh-ts').textContent = 'Error: ' + e.message;
+  }
+}
+
+function renderSummaryCards(cost, email, analysis) {
+  const aiCost      = cost?.total_cost ?? 0;
+  const emailCost      = (email?.emails_sent ?? 0) * 0.0008;
+  const rentcastCost   = analysis?.rentcast_cost_est        ?? 0;
+  const mapsCost       = analysis?.google_maps_cost_est     ?? 0;
+  const wsCost         = analysis?.walkscore_cost_est       ?? 0;
+  const visionCost     = analysis?.google_vision_cost_est   ?? 0;
+  const mailgunCost    = analysis?.mailgun_cost_est         ?? 0;
+  const adSpend        = (analysis?.google_ads_spend ?? 0) + (analysis?.reddit_ads_spend ?? 0);
+  const totalEst = aiCost + emailCost + mailgunCost + rentcastCost + mapsCost + wsCost + visionCost + adSpend;
+
+  const periodLabel = currentDays === 0 ? 'this month' : currentDays === 1 ? 'today' : `${currentDays}d`;
+
+  document.getElementById('summary-cards').innerHTML = `
+    <div class="card">
+      <div class="card-label">Total Est. Spend (${periodLabel})</div>
+      <div class="card-value" style="color:${totalEst > 50 ? 'var(--red)' : totalEst > 10 ? 'var(--amber)' : 'var(--green)'};">$${totalEst.toFixed(2)}</div>
+      <div class="card-sub">All services incl. ad spend</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Anthropic AI Cost</div>
+      <div class="card-value" style="color:var(--amber);">$${aiCost.toFixed(4)}</div>
+      <div class="card-sub">${fmtNum(cost?.total_calls ?? 0)} API calls</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Analyses Run</div>
+      <div class="card-value" style="color:var(--accent);">${fmtNum(analysis?.completed_analyses ?? 0)}</div>
+      <div class="card-sub">Completed (${periodLabel})</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Emails Sent</div>
+      <div class="card-value" style="color:var(--cyan);">${fmtNum(email?.emails_sent ?? 0)}</div>
+      <div class="card-sub">Est. ${fmtDollars(emailCost)}</div>
+    </div>
+    <div class="card">
+      <div class="card-label">RentCast Calls</div>
+      <div class="card-value" style="color:var(--amber);">${fmtNum(analysis?.rentcast_total_calls ?? 0)}</div>
+      <div class="card-sub">Nearby Listings + AVM calls</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Cost / Analysis</div>
+      <div class="card-value" style="color:var(--violet);">$${analysis?.completed_analyses ? (totalEst / analysis.completed_analyses).toFixed(2) : '—'}</div>
+      <div class="card-sub">blended COGS per paid analysis</div>
+    </div>
+  `;
+}
+
+function renderAlerts(cost) {
+  const alerts = cost?.alerts ?? [];
+  const container = document.getElementById('alerts-container');
+  if (!alerts.length) { container.innerHTML = ''; return; }
+  container.innerHTML = alerts.map(a =>
+    `<div class="alert ${a.level === 'critical' ? 'alert-err' : 'alert-warn'}">⚠️ ${a.message}</div>`
+  ).join('');
+}
+
+function renderAnthropic(cost) {
+  const configured = cost && !cost.error;
+  document.getElementById('anthropic-status').innerHTML = statusDot(configured, configured ? `Connected · ${cost?.data_source === 'database' ? '📦 DB' : '📄 log file'}` : 'No data');
+
+  if (!cost || cost.error) {
+    document.getElementById('anthropic-tbody').innerHTML = `<tr><td colspan="7" style="color:var(--muted);padding:16px;">No AI call data for this period. Data is written to the DB after each analysis runs and persists across server restarts.</td></tr>`;
+    document.getElementById('endpoint-breakdown').innerHTML = '';
+    return;
+  }
+
+  const rows = [
+    { name: 'Full Analysis', desc: 'PDF parsing + offer strategy', endpoint: 'full-analysis', model: 'claude-sonnet-4-5' },
+    { name: 'Truth Check', desc: 'Seller disclosure verification', endpoint: 'truth-check', model: 'claude-sonnet-4-5' },
+    { name: 'Cross Reference', desc: 'Inspection vs disclosure match', endpoint: 'cross-reference', model: 'claude-sonnet-4' },
+    { name: 'Auto-Test / Debug', desc: 'Admin test runs', endpoint: 'auto-test', model: 'claude-sonnet-4' },
+  ];
+
+  const byEp = cost.by_endpoint || {};
+  let tbody = '';
+  let hasAny = false;
+
+  for (const row of rows) {
+    const ep = byEp[row.endpoint] || {};
+    const calls = ep.calls || 0;
+    const epCost = ep.cost || 0;
+    if (calls > 0) hasAny = true;
+    tbody += `<tr>
+      <td><div class="api-name">${row.name}</div><div class="api-provider">${row.desc}</div></td>
+      <td><span style="font-family:var(--mono);font-size:12px;color:var(--indigo);">${row.model}</span></td>
+      <td class="cost-cell ${calls ? '' : 'cost-zero'}">${fmtNum(calls)}</td>
+      <td class="cost-cell cost-zero">${fmtNum(ep.input_tokens || 0)}</td>
+      <td class="cost-cell cost-zero">${fmtNum(ep.output_tokens || 0)}</td>
+      <td>${fmtCost(epCost)}</td>
+      <td>—</td>
+    </tr>`;
+  }
+
+  // Totals row
+  tbody += `<tr style="border-top:2px solid var(--border);background:rgba(255,255,255,0.02);">
+    <td colspan="2"><strong>Total</strong></td>
+    <td class="cost-cell"><strong>${fmtNum(cost.total_calls)}</strong></td>
+    <td class="cost-cell"><strong>${fmtNum(cost.total_input_tokens)}</strong></td>
+    <td class="cost-cell"><strong>${fmtNum(cost.total_output_tokens)}</strong></td>
+    <td>${fmtDollars(cost.total_cost)}</td>
+    <td>${budgetBar(cost.total_cost, 5, 'var(--amber)')}</td>
+  </tr>`;
+
+  document.getElementById('anthropic-tbody').innerHTML = tbody;
+
+  // Endpoint breakdown mini-chart
+  const allEps = Object.entries(byEp).sort((a,b) => b[1].cost - a[1].cost);
+  if (allEps.length === 0) {
+    document.getElementById('endpoint-breakdown').innerHTML = '<span style="color:var(--muted);font-size:12px;">No calls this period.</span>';
+  } else {
+    document.getElementById('endpoint-breakdown').innerHTML = allEps.map(([ep, d]) =>
+      `<div class="endpoint-row">
+        <span class="endpoint-name">${ep}</span>
+        <span style="font-size:12px;color:var(--muted);font-family:var(--mono);">${d.calls} calls · ${fmtNum((d.input_tokens||0)+(d.output_tokens||0))} tokens</span>
+        <span class="endpoint-cost">$${(d.cost||0).toFixed(4)}</span>
+      </div>`
+    ).join('');
+  }
+
+  // Pricing note
+  const note = document.createElement('div');
+  note.style.cssText = 'padding:8px 20px;font-size:11px;color:var(--muted);border-top:1px solid var(--border);';
+  note.textContent = 'Pricing: claude-sonnet-4-5 $3.00/M input · $15.00/M output · claude-sonnet-4 $3.00/M input · $15.00/M output · claude-haiku-4-5 $0.80/M input · $4.00/M output';
+}
+
+function renderAds(analysis) {
+  const gSpend  = analysis?.google_ads_spend;
+  const rSpend  = analysis?.reddit_ads_spend;
+  const gSrc    = analysis?.google_ads_data_source ?? 'none';
+  const hasAny  = gSpend != null || rSpend != null;
+
+  document.getElementById('ads-status').innerHTML = statusDot(
+    hasAny,
+    hasAny ? `Real data · ${gSrc === 'gtm_ad_performance_db' ? '📦 GTM DB' : 'no sync yet'}` : 'No data — run Backfill in GTM tab'
+  );
+
+  const srcBadge = (src) => {
+    if (src === 'gtm_ad_performance_db') return '<span style="font-size:11px;color:var(--green);font-family:var(--mono);">📦 GTM DB (real)</span>';
+    return '<span style="font-size:11px;color:var(--amber);font-family:var(--mono);">⚠️ not synced yet</span>';
+  };
+
+  document.getElementById('ads-tbody').innerHTML = `
+    <tr>
+      <td><div class="api-name">Google Ads</div><div class="api-provider">Search campaigns</div></td>
+      <td class="cost-cell">${gSpend != null ? `<span class="cost-high">$${gSpend.toFixed(2)}</span>` : '<span class="cost-zero">—</span>'}</td>
+      <td class="cost-cell">${analysis?.google_ads_clicks != null ? fmtNum(analysis.google_ads_clicks) : '—'}</td>
+      <td class="cost-cell">${analysis?.google_ads_impressions != null ? fmtNum(analysis.google_ads_impressions) : '—'}</td>
+      <td>${srcBadge(analysis?.google_ads_data_source)}</td>
+    </tr>
+    <tr>
+      <td><div class="api-name">Reddit Ads</div><div class="api-provider">Traffic campaigns</div></td>
+      <td class="cost-cell">${rSpend != null ? `<span class="cost-high">$${rSpend.toFixed(2)}</span>` : '<span class="cost-zero">—</span>'}</td>
+      <td class="cost-cell">${analysis?.reddit_ads_clicks != null ? fmtNum(analysis.reddit_ads_clicks) : '—'}</td>
+      <td class="cost-cell">—</td>
+      <td>${srcBadge(analysis?.google_ads_data_source)}</td>
+    </tr>
+    ${(gSpend == null && rSpend == null) ? `<tr><td colspan="5" style="color:var(--muted);font-size:12px;padding:12px 16px;">
+      No ad spend synced for this period. Use <strong>Backfill 7d</strong> in the GTM tab to pull data from Google Ads API.
+      Reddit Ads data is entered manually via the GTM tab.
+    </td></tr>` : ''}
+  `;
+}
+
+function renderStripe(sys, analysis) {
+  const configured = sys?.stripe_configured;
+  document.getElementById('stripe-status').innerHTML = statusDot(configured, configured ? 'Configured' : 'Missing keys');
+
+  const revenue = analysis?.stripe_revenue ?? null;
+  const charges = analysis?.stripe_charges ?? null;
+  const src     = analysis?.stripe_data_source ?? 'none';
+  const srcBadge = src === 'stripe_api'
+    ? '<span style="font-size:11px;color:var(--green);font-family:var(--mono);">⚡ Stripe API (live)</span>'
+    : src === 'credit_transactions_db'
+    ? '<span style="font-size:11px;color:var(--amber);font-family:var(--mono);">📦 DB (local records)</span>'
+    : '<span style="font-size:11px;color:var(--muted);font-family:var(--mono);">—</span>';
+
+  document.getElementById('stripe-tbody').innerHTML = `
+    <tr><td>Revenue (period)</td><td>${revenue !== null ? fmtDollars(revenue) : '<span class="cost-zero">—</span>'}</td><td>${srcBadge}</td></tr>
+    <tr><td>Transactions</td><td class="cost-cell">${charges !== null ? fmtNum(charges) : '<span class="cost-zero">—</span>'}</td><td>Successful paid charges</td></tr>
+    <tr><td>Est. Stripe fees</td><td>${revenue !== null ? fmtDollars(revenue * 0.029 + (charges||0) * 0.30) : '<span class="cost-zero">—</span>'}</td><td>2.9% + $0.30 × transactions</td></tr>
+    <tr><td>Processing rate</td><td><span class="cost-cell">2.9% + $0.30 / txn</span></td><td>Standard Stripe rate</td></tr>
+    <tr><td>Webhook</td><td>${statusDot(sys?.webhook_configured, sys?.webhook_configured ? 'Configured' : 'Not set')}</td><td>Required for credit fulfilment</td></tr>
+    <tr><td>Test mode</td><td>${statusDot(sys?.stripe_test_configured, sys?.stripe_test_configured ? 'Available' : 'Not set')}</td><td>For CI/staging</td></tr>
+  `;
+}
+
+function renderResend(email) {
+  const configured = email?.resend_configured ?? (email && !email.error);
+  const emailSrc = email?.data_source ?? 'none';
+  const srcLabel = emailSrc === 'EmailSendLog'
+    ? 'Configured · 📦 send log (real)'
+    : configured ? 'Configured · ⚠️ EmailSendLog not yet migrated' : 'Missing key';
+  document.getElementById('resend-status').innerHTML = statusDot(configured, srcLabel);
+
+  const sent = email?.emails_sent ?? 0;
+  // Resend pricing: free up to 3000/mo, then $0.80/1000 (Pro plan $20/mo for 50k)
+  const estCost = sent <= 3000 ? 0 : ((sent - 3000) / 1000) * 0.90;  // $0.90/1k overage (Free plan)
+
+  document.getElementById('resend-tbody').innerHTML = `
+    <tr>
+      <td>Emails sent (period)</td>
+      <td class="cost-cell">${fmtNum(sent)}</td>
+      <td><span class="pricing-note">Free: 3,000/mo · $0.90/1k overage (100/day limit)</span></td>
+      <td>${fmtDollars(estCost)}</td>
+    </tr>
+    <tr>
+      <td>Breakdown</td>
+      <td colspan="2">
+        <span style="font-size:12px;color:var(--muted);">
+          Welcome: ${fmtNum(email?.welcome_sent ?? 0)} ·
+          Drip: ${fmtNum(email?.drip_sent ?? 0)} ·
+          Analysis: ${fmtNum(email?.analysis_sent ?? 0)} ·
+          Market intel: ${fmtNum(email?.market_intel_sent ?? 0)} ·
+          Receipts: ${fmtNum(email?.receipts_sent ?? 0)}
+          ${(email?.failed_total > 0) ? `· <span style="color:var(--red);">${fmtNum(email.failed_total)} failed</span>` : ''}
+        </span>
+      </td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Monthly free tier remaining</td>
+      <td colspan="2">
+        <div class="budget-bar-wrap">
+          <div style="font-size:11px;color:var(--muted);">${fmtNum(Math.min(sent, 3000))} / 3,000 free emails</div>
+          <div class="budget-bar-track" style="margin-top:4px;">
+            <div class="budget-bar-fill" style="width:${Math.min(100,(sent/3000)*100)}%;background:${sent>2700?'var(--amber)':'var(--green)'};"></div>
+          </div>
+        </div>
+      </td>
+      <td></td>
+    </tr>
+  `;
+}
+
+function renderRentCast(analysis) {
+  const configured = analysis?.rentcast_configured ?? false;
+  document.getElementById('rentcast-status').innerHTML = statusDot(configured, configured ? 'Configured' : 'Missing key');
+
+  const nearbyCalls  = analysis?.rentcast_nearby_calls   ?? 0;
+  const analysisCalls = analysis?.rentcast_analysis_calls ?? 0;
+  const totalCalls   = analysis?.rentcast_total_calls     ?? 0;
+  const costEst      = analysis?.rentcast_cost_est        ?? 0;
+
+  document.getElementById('rentcast-tbody').innerHTML = `
+    <tr>
+      <td>Total API calls (period)</td>
+      <td class="cost-cell">${fmtNum(totalCalls)}</td>
+      <td><span class="pricing-note">~$0.06/call est. (Growth plan overage) · subscription from $74/mo</span></td>
+      <td>${fmtDollars(costEst)}</td>
+    </tr>
+    <tr>
+      <td>Nearby Listings calls</td>
+      <td class="cost-cell cost-zero">${fmtNum(nearbyCalls)}</td>
+      <td><span class="pricing-note">2 calls per request: /listings/sale + /markets</span></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Full analysis AVM calls</td>
+      <td class="cost-cell cost-zero">${fmtNum(analysisCalls)}</td>
+      <td><span class="pricing-note">2 calls per completed analysis: /avm/value + /markets</span></td>
+      <td></td>
+    </tr>
+    <tr style="background:rgba(255,255,255,0.02);">
+      <td colspan="4" style="padding:10px 16px;font-size:11px;color:var(--muted);border-top:1px dashed var(--border);">
+        <strong style="color:var(--text);">RentCast API tiers:</strong>
+          Free: 50 req/mo included  · 
+        Foundation $74/mo → 1k included, <strong>$0.20/req</strong> overage  · 
+        Growth $199/mo → 5k included, <strong>$0.06/req</strong> overage  · 
+        Scale $449/mo → 25k included, <strong>$0.03/req</strong> overage.
+        <br>Cost estimate above uses <strong>$0.06/call</strong> (Growth overage rate). Adjust if on a different plan.
+      </td>
+    </tr>
+  `;
+}
+
+function renderGoogle(sys, analysis) {
+  const mapsConfigured   = analysis?.google_maps_configured   ?? sys?.google_maps_configured   ?? false;
+  const visionEnabled    = analysis?.google_vision_enabled    ?? false;
+  const visionConfigured = analysis?.google_vision_configured ?? sys?.google_vision_configured ?? false;
+  const wsConfigured     = analysis?.walkscore_configured     ?? sys?.walkscore_configured     ?? false;
+  const airConfigured    = analysis?.airnow_configured        ?? sys?.airnow_configured        ?? false;
+  const gsConfigured     = analysis?.greatschools_configured  ?? sys?.greatschools_configured  ?? false;
+  const mgConfigured     = analysis?.mailgun_configured       ?? sys?.mailgun_configured       ?? false;
+  const rdConfigured     = analysis?.reddit_configured        ?? sys?.reddit_configured        ?? false;
+
+  const mapsCalls    = analysis?.google_maps_calls      ?? 0;
+  const mapsCost     = analysis?.google_maps_cost_est   ?? 0;
+  const wsCalls      = analysis?.walkscore_calls        ?? 0;
+  const wsCost       = analysis?.walkscore_cost_est     ?? 0;
+  const visionPages  = analysis?.vision_pages_est       ?? 0;
+  const visionCost   = analysis?.google_vision_cost_est ?? 0;
+  const airTotal     = analysis?.airnow_total_calls     ?? 0;
+  const airAnalysis  = analysis?.airnow_analysis_calls  ?? 0;
+  const airRiskCheck = analysis?.airnow_riskcheck_calls ?? 0;
+  const gsCalls      = analysis?.greatschools_calls     ?? 0;
+  const mgCalls      = analysis?.mailgun_calls          ?? 0;
+  const mgCost       = analysis?.mailgun_cost_est       ?? 0;
+
+  document.getElementById('google-tbody').innerHTML = `
+    <tr>
+      <td><div class="api-name">Google Maps Geocoding</div><div class="api-provider">Address → lat/lng for Risk Check tool only · Full analysis uses Census (free)</div></td>
+      <td>${fmtNum(mapsCalls)} Risk Checks</td>
+      <td>${statusDot(mapsConfigured, mapsConfigured ? 'Configured' : 'Missing')}</td>
+      <td><span class="pricing-note">$5/1k calls · $200/mo free credit (~40k free)</span></td>
+      <td>${mapsCost > 0 ? fmtDollars(mapsCost) : '<span class="cost-zero">within free tier</span>'}</td>
+    </tr>
+    <tr>
+      <td><div class="api-name">Google Cloud Vision</div><div class="api-provider">OCR for scanned PDFs</div></td>
+      <td>~${fmtNum(visionPages)} pages est.</td>
+      <td>${statusDot(visionConfigured, visionEnabled ? (visionConfigured ? 'Enabled' : 'Missing credentials') : 'Disabled (USE_GOOGLE_VISION=false)')}</td>
+      <td><span class="pricing-note">$1.50/1k pages</span></td>
+      <td>${fmtDollars(visionCost)}</td>
+    </tr>
+    <tr>
+      <td><div class="api-name">WalkScore API</div><div class="api-provider">Walk/Transit/Bike scores per analysis</div></td>
+      <td>${fmtNum(wsCalls)} calls</td>
+      <td>${statusDot(wsConfigured, wsConfigured ? 'Configured' : 'Missing')}</td>
+      <td><span class="pricing-note">~$0.0025/call (Professional plan)</span></td>
+      <td>${fmtDollars(wsCost)}</td>
+    </tr>
+    <tr>
+      <td><div class="api-name">EPA AirNow</div><div class="api-provider">Air quality · called in both full analysis AND Risk Check tool</div></td>
+      <td>${fmtNum(airTotal)} calls (${fmtNum(airAnalysis)} analysis + ${fmtNum(airRiskCheck)} risk checks)</td>
+      <td>${statusDot(airConfigured, airConfigured ? 'Configured' : 'Missing')}</td>
+      <td><span style="color:var(--green);font-size:12px;">Free (government API)</span></td>
+      <td><span class="cost-zero">$0.00</span></td>
+    </tr>
+    <tr>
+      <td><div class="api-name">GreatSchools API</div><div class="api-provider">Nearby school ratings per analysis</div></td>
+      <td>${fmtNum(gsCalls)} calls</td>
+      <td>${statusDot(gsConfigured, gsConfigured ? 'Configured' : 'Missing — school data skipped')}</td>
+      <td><span class="pricing-note">Varies by plan · free legacy tier available</span></td>
+      <td>${gsConfigured ? '<span class="pricing-note">Check plan</span>' : '<span class="cost-zero">—</span>'}</td>
+    </tr>
+    <tr>
+      <td><div class="api-name">Mailgun</div><div class="api-provider">Market intel drip emails only · all other emails use Resend</div></td>
+      <td>${fmtNum(mgCalls)} emails</td>
+      <td>${statusDot(mgConfigured, mgConfigured ? 'Configured' : 'Missing — market intel emails disabled')}</td>
+      <td><span class="pricing-note">Flex: $0.80/1k after first 1k free/mo</span></td>
+      <td>${mgCost > 0 ? fmtDollars(mgCost) : '<span class="cost-zero">within free tier</span>'}</td>
+    </tr>
+    <tr>
+      <td><div class="api-name">Reddit OAuth API</div><div class="api-provider">GTM content posting bot</div></td>
+      <td>—</td>
+      <td>${statusDot(rdConfigured, rdConfigured ? 'Configured' : 'Missing — Reddit posting disabled')}</td>
+      <td><span style="color:var(--green);font-size:12px;">Free</span></td>
+      <td><span class="cost-zero">$0.00</span></td>
+    </tr>
+    <tr>
+      <td><div class="api-name">Google OAuth</div><div class="api-provider">Sign in with Google</div></td>
+      <td>—</td>
+      <td>${statusDot(sys?.google_oauth_configured, sys?.google_oauth_configured ? 'Configured' : 'Missing')}</td>
+      <td><span style="color:var(--green);font-size:12px;">Free</span></td>
+      <td><span class="cost-zero">$0.00</span></td>
+    </tr>
+    <tr>
+      <td><div class="api-name">Google Ads API</div><div class="api-provider">Campaign data sync</div></td>
+      <td>—</td>
+      <td>${statusDot(sys?.google_ads_configured, sys?.google_ads_configured ? 'Configured' : 'Missing')}</td>
+      <td><span class="pricing-note">Free (read-only) · Ad spend tracked in GTM tab</span></td>
+      <td>—</td>
+    </tr>
+    <tr>
+      <td><div class="api-name">GA4 Data API</div><div class="api-provider">Conversion Intel</div></td>
+      <td>—</td>
+      <td>${statusDot(sys?.ga4_configured, sys?.ga4_configured ? 'Configured' : 'Missing')}</td>
+      <td><span style="color:var(--green);font-size:12px;">Free</span></td>
+      <td><span class="cost-zero">$0.00</span></td>
+    </tr>
+    <tr style="background:rgba(34,197,94,0.03);">
+      <td colspan="5" style="padding:8px 16px;color:var(--muted);font-size:11px;border-top:1px dashed var(--border);">
+        <strong style="color:var(--green);">Free Government & Public APIs (no billing):</strong>
+          USGS Earthquakes  ·  FEMA Disasters & Flood Zones  ·  US Census ACS (geocoding + demographics)  · 
+        CAL FIRE hazard zones  ·  EPA EMEF facilities  · 
+        OpenStreetMap / Nominatim (amenities)  ·  EPA AirNow  ·  CGS Seismic Zones
+      </td>
+    </tr>
+  `;
+}
+
+function renderAuth(sys) {
+  const providers = [
+    { name: 'Google OAuth', key: 'google_oauth_configured', purpose: 'Sign in with Google' },
+    { name: 'Apple Sign In', key: 'apple_configured', purpose: 'Sign in with Apple' },
+    { name: 'Facebook OAuth', key: 'facebook_configured', purpose: 'Sign in with Facebook' },
+    { name: 'GitHub OAuth', key: 'github_configured', purpose: 'Sign in with GitHub (dev users)' },
+  ];
+  document.getElementById('auth-tbody').innerHTML = providers.map(p => `
+    <tr>
+      <td><div class="api-name">${p.name}</div></td>
+      <td>${p.purpose}</td>
+      <td>${statusDot(sys?.[p.key], sys?.[p.key] ? 'Configured' : 'Missing')}</td>
+      <td><span style="color:var(--green);font-size:12px;">Free</span></td>
+    </tr>
+  `).join('');
+}
+
+function renderProjection(cost, email, analysis) {
+  const daysInMonth = 30;
+  const daysElapsed = currentDays || 1;
+
+  const aiMonthly      = cost     ? (cost.total_cost / daysElapsed) * daysInMonth : 0;
+  const emailMonthly   = email    ? ((email.emails_sent / daysElapsed) * daysInMonth * 0.0008) : 0;
+  const rcMonthly      = analysis ? ((analysis.rentcast_total_calls ?? 0) / daysElapsed) * daysInMonth * 0.06 : 0;
+  const mapsMonthly    = analysis ? ((analysis.google_maps_calls ?? 0) / daysElapsed) * daysInMonth * 0.005 : 0;
+  const wsMonthly      = analysis ? ((analysis.walkscore_calls ?? 0) / daysElapsed) * daysInMonth * 0.0025 : 0;
+  const visionMonthly  = analysis ? ((analysis.vision_pages_est ?? 0) / daysElapsed) * daysInMonth * 0.0015 : 0;
+  const stripeMonthly  = analysis?.stripe_revenue ? analysis.stripe_revenue * 0.029 : 0;
+  const mailgunMonthly = analysis ? ((analysis.mailgun_calls ?? 0) / daysElapsed) * daysInMonth * 0.0008 : 0;
+  // Ad spend: use actual period data projected to month (real data, not estimated)
+  const gAdsMonthly    = analysis?.google_ads_spend != null ? (analysis.google_ads_spend / daysElapsed) * daysInMonth : 0;
+  const rAdsMonthly    = analysis?.reddit_ads_spend != null ? (analysis.reddit_ads_spend / daysElapsed) * daysInMonth : 0;
+  const total = aiMonthly + emailMonthly + mailgunMonthly + rcMonthly + mapsMonthly + wsMonthly + visionMonthly + stripeMonthly + gAdsMonthly + rAdsMonthly;
+  const maxVal = Math.max(total, 1);
+
+  const bars = [
+    { label: 'Google Ads',    value: gAdsMonthly,    color: '#4285f4' },
+    { label: 'Reddit Ads',    value: rAdsMonthly,    color: '#ff4500' },
+    { label: 'Anthropic',     value: aiMonthly,      color: '#6366f1' },
+    { label: 'RentCast',      value: rcMonthly,      color: '#f59e0b' },
+    { label: 'Google Maps',   value: mapsMonthly,    color: '#34d399' },
+    { label: 'Cloud Vision',  value: visionMonthly,  color: '#fb7185' },
+    { label: 'WalkScore',     value: wsMonthly,      color: '#a78bfa' },
+    { label: 'Resend',        value: emailMonthly,   color: '#06b6d4' },
+    { label: 'Mailgun',       value: mailgunMonthly, color: '#0ea5e9' },
+    { label: 'Stripe fees',   value: stripeMonthly,  color: '#8b5cf6' },
+    { label: 'TOTAL',         value: total,          color: '#22c55e' },
+  ];
+
+  document.getElementById('projection-chart').innerHTML = `
+    <div style="font-size:12px;color:var(--muted);margin-bottom:12px;">
+      Projected full-month cost based on ${currentDays === 0 ? 'this month so far' : `last ${currentDays} day(s)`}.
+      Stripe fees estimated from revenue. RentCast at ~$0.10/call.
+    </div>
+    ${bars.map(b => `
+      <div class="bar-row">
+        <div class="bar-label">${b.label}</div>
+        <div class="bar-track">
+          <div class="bar-fill" style="width:${Math.max(2,(b.value/maxVal)*100)}%;background:${b.color};">
+            $${b.value.toFixed(2)}
+          </div>
+        </div>
+      </div>
+    `).join('')}
+    <div style="margin-top:12px;font-size:11px;color:var(--muted);">
+      ⚠️ Projection is linear extrapolation only. Does not include Render hosting, domain, or other fixed costs.
+    </div>
+  `;
+}
+
+// Boot
+loadAll();
+</script>
+</body>
+</html>

@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>House Hunt — The Real Estate Survival Game</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#09090b;
+  --bg2:#111113;
+  --bg3:#18181b;
+  --bg4:#1f1f23;
+  --border:rgba(255,255,255,0.07);
+  --border2:rgba(255,255,255,0.13);
+  --text:#f4f4f5;
+  --text2:#a1a1aa;
+  --text3:#52525b;
+  --green:#22c55e;
+  --red:#ef4444;
+  --amber:#f59e0b;
+  --blue:#3b82f6;
+  --purple:#8b5cf6;
+  --cyan:#06b6d4;
+}
+html{font-size:16px}
+body{
+  font-family:'Inter',-apple-system,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+
+/* ── LAYOUT ── */
+#app{
+  max-width:760px;
+  margin:0 auto;
+  padding:2rem 1.25rem 4rem;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  gap:0;
+}
+
+/* ── HEADER ── */
+.game-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding-bottom:1.5rem;
+  border-bottom:1px solid var(--border);
+  margin-bottom:1.5rem;
+}
+.game-title{
+  font-size:.75rem;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:.15em;
+  color:var(--text3);
+}
+.game-title span{color:var(--amber)}
+
+/* ── STAT BAR ── */
+.stat-bar{
+  display:flex;
+  gap:.75rem;
+  flex-wrap:wrap;
+}
+.stat{
+  display:flex;
+  align-items:center;
+  gap:.4rem;
+  background:var(--bg3);
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:.3rem .65rem;
+  font-size:.75rem;
+  font-weight:600;
+}
+.stat-icon{font-size:.875rem}
+.stat-val{color:var(--text)}
+.stat-lbl{color:var(--text3);font-weight:500}
+
+/* ── SCENE ── */
+.scene{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  gap:1.25rem;
+}
+
+/* ── SCENE CARD ── */
+.scene-card{
+  background:var(--bg2);
+  border:1px solid var(--border);
+  border-radius:16px;
+  overflow:hidden;
+  animation:slideIn .35s cubic-bezier(.16,1,.3,1) both;
+}
+@keyframes slideIn{
+  from{opacity:0;transform:translateY(16px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+.scene-image{
+  width:100%;
+  height:200px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:5rem;
+  position:relative;
+  overflow:hidden;
+}
+
+.scene-body{padding:1.5rem}
+
+.scene-chapter{
+  font-size:.6875rem;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:.12em;
+  color:var(--amber);
+  margin-bottom:.5rem;
+}
+
+.scene-title{
+  font-size:1.375rem;
+  font-weight:800;
+  letter-spacing:-.025em;
+  line-height:1.25;
+  margin-bottom:.875rem;
+}
+
+.scene-text{
+  font-size:.9375rem;
+  color:var(--text2);
+  line-height:1.7;
+  margin-bottom:1.25rem;
+}
+
+.scene-text strong{color:var(--text);font-weight:600}
+
+/* ── ALERT BOX ── */
+.alert{
+  display:flex;
+  gap:.75rem;
+  align-items:flex-start;
+  padding:.875rem 1rem;
+  border-radius:10px;
+  font-size:.875rem;
+  line-height:1.55;
+  margin-bottom:1.25rem;
+}
+.alert-icon{font-size:1.1rem;flex-shrink:0;margin-top:1px}
+.alert.warn{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);color:#fde68a}
+.alert.danger{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);color:#fca5a5}
+.alert.good{background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);color:#86efac}
+.alert.info{background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.2);color:#93c5fd}
+.alert.wild{background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.2);color:#c4b5fd}
+
+/* ── CHOICES ── */
+.choices{
+  display:flex;
+  flex-direction:column;
+  gap:.625rem;
+}
+
+.choice-btn{
+  display:flex;
+  align-items:flex-start;
+  gap:.875rem;
+  padding:1rem 1.125rem;
+  background:var(--bg3);
+  border:1px solid var(--border);
+  border-radius:12px;
+  cursor:pointer;
+  text-align:left;
+  transition:border-color .15s, background .15s, transform .15s;
+  color:var(--text);
+  font-family:inherit;
+  width:100%;
+}
+.choice-btn:hover{
+  border-color:var(--border2);
+  background:var(--bg4);
+  transform:translateX(3px);
+}
+.choice-btn:active{transform:scale(.98)}
+.choice-btn.disabled{opacity:.4;pointer-events:none}
+
+.choice-key{
+  width:26px;height:26px;border-radius:7px;
+  background:var(--bg4);border:1px solid var(--border2);
+  display:flex;align-items:center;justify-content:center;
+  font-size:.75rem;font-weight:700;color:var(--text2);
+  flex-shrink:0;margin-top:1px;
+}
+.choice-text{flex:1}
+.choice-label{font-size:.9375rem;font-weight:600;line-height:1.35;margin-bottom:.2rem}
+.choice-sub{font-size:.8125rem;color:var(--text2);line-height:1.5}
+.choice-tag{
+  font-size:.6875rem;font-weight:700;
+  padding:.15rem .5rem;border-radius:100px;
+  white-space:nowrap;flex-shrink:0;margin-top:3px;
+  align-self:flex-start;
+}
+.tag-risky{background:rgba(239,68,68,.15);color:#fca5a5;border:1px solid rgba(239,68,68,.25)}
+.tag-safe{background:rgba(34,197,94,.15);color:#86efac;border:1px solid rgba(34,197,94,.25)}
+.tag-bold{background:rgba(139,92,246,.15);color:#c4b5fd;border:1px solid rgba(139,92,246,.25)}
+.tag-expensive{background:rgba(245,158,11,.15);color:#fde68a;border:1px solid rgba(245,158,11,.25)}
+
+/* ── OUTCOME ── */
+.outcome{
+  border-radius:12px;
+  padding:1.125rem 1.25rem;
+  margin-bottom:1rem;
+  font-size:.9375rem;
+  line-height:1.65;
+  animation:popIn .3s cubic-bezier(.34,1.56,.64,1) both;
+}
+@keyframes popIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
+.outcome.win{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.25)}
+.outcome.lose{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25)}
+.outcome.neutral{background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.25)}
+.outcome.chaos{background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.25)}
+.outcome-emoji{font-size:1.5rem;margin-bottom:.5rem;display:block}
+.outcome-title{font-size:1rem;font-weight:700;margin-bottom:.375rem}
+.outcome-text{color:var(--text2);font-size:.875rem}
+
+/* ── DELTA PILLS ── */
+.deltas{
+  display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.875rem;
+}
+.delta{
+  font-size:.75rem;font-weight:700;
+  padding:.25rem .625rem;border-radius:100px;
+  display:flex;align-items:center;gap:.3rem;
+}
+.delta.pos{background:rgba(34,197,94,.15);color:#86efac}
+.delta.neg{background:rgba(239,68,68,.15);color:#fca5a5}
+.delta.neu{background:rgba(59,130,246,.15);color:#93c5fd}
+
+/* ── NEXT BTN ── */
+.next-btn{
+  margin-top:1.25rem;
+  padding:.875rem 1.5rem;
+  background:var(--amber);
+  color:#09090b;
+  border:none;
+  border-radius:10px;
+  font-size:.9375rem;
+  font-weight:700;
+  cursor:pointer;
+  width:100%;
+  font-family:inherit;
+  transition:opacity .15s,transform .15s;
+}
+.next-btn:hover{opacity:.9;transform:translateY(-1px)}
+.next-btn:active{transform:scale(.98)}
+
+/* ── PROGRESS ── */
+.progress-wrap{
+  display:flex;align-items:center;gap:.75rem;
+  margin-bottom:1.25rem;
+}
+.progress-track{
+  flex:1;height:4px;background:var(--bg3);border-radius:2px;overflow:hidden;
+}
+.progress-fill{
+  height:100%;border-radius:2px;
+  background:linear-gradient(90deg,var(--amber),#f97316);
+  transition:width .4s cubic-bezier(.4,0,.2,1);
+}
+.progress-label{font-size:.75rem;color:var(--text3);white-space:nowrap}
+
+/* ── END SCREEN ── */
+.end-screen{
+  text-align:center;
+  padding:3rem 1.5rem;
+  animation:slideIn .4s cubic-bezier(.16,1,.3,1) both;
+}
+.end-house{font-size:5rem;margin-bottom:1.5rem;display:block}
+.end-title{font-size:2rem;font-weight:800;letter-spacing:-.03em;margin-bottom:.75rem}
+.end-sub{font-size:1rem;color:var(--text2);line-height:1.65;max-width:480px;margin:0 auto 2rem}
+.end-stats{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;
+  max-width:440px;margin:0 auto 2rem;
+}
+.end-stat{
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:12px;padding:1rem;
+}
+.end-stat-val{font-size:1.5rem;font-weight:800;letter-spacing:-.02em;margin-bottom:.25rem}
+.end-stat-lbl{font-size:.6875rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--text3)}
+.restart-btn{
+  padding:.875rem 2.5rem;
+  background:var(--amber);color:#09090b;
+  border:none;border-radius:10px;
+  font-size:1rem;font-weight:700;cursor:pointer;font-family:inherit;
+  transition:opacity .15s,transform .15s;
+}
+.restart-btn:hover{opacity:.9;transform:translateY(-1px)}
+
+/* ── TOOLTIP ── */
+.tip{
+  font-size:.75rem;color:var(--text3);
+  text-align:center;margin-top:1rem;
+  font-style:italic;
+}
+
+@media(max-width:500px){
+  .end-stats{grid-template-columns:1fr 1fr}
+  .stat-bar{gap:.5rem}
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="game-header">
+    <div class="game-title">🏠 <span>House Hunt</span> — The Real Estate Survival Game</div>
+    <div id="stat-bar" class="stat-bar"></div>
+  </div>
+  <div class="progress-wrap">
+    <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+    <div class="progress-label" id="progress-label">Week 1</div>
+  </div>
+  <div id="scene" class="scene"></div>
+</div>
+
+<script>
+// ── STATE ──────────────────────────────────────────────────────────
+const S = {
+  cash: 80000,       // down payment savings
+  sanity: 100,       // mental health
+  score: 0,          // deal quality
+  week: 1,
+  chapter: 0,
+  choicesMade: [],
+  flags: {},         // story flags
+};
+
+// ── STORY ──────────────────────────────────────────────────────────
+// Each node: { id, chapter, image, bg, title, text, alert?, choices, outcome }
+// Choice: { label, sub, tag, effect: {cash,sanity,score,flags}, next, outcome }
+
+const STORY = [
+
+// ═══════════════════════════════════════════
+// ACT 1 — THE SEARCH
+// ═══════════════════════════════════════════
+{
+  id:'start',
+  chapter:'Act 1 · The Search',
+  bg:'linear-gradient(135deg,#1a1a2e,#16213e)',
+  image:'🔑',
+  title:'You\'ve decided to buy a house.',
+  text:`Congratulations! After years of renting, you and your partner have saved <strong>$80,000</strong> for a down payment. The San Jose market is hot, homes are going 15% over asking, and your lease is up in 3 months.\n\nYour agent just texted: <strong>"Perfect house just hit Zillow. 3BR/2BA, $985K. Open house Sunday."</strong>\n\nWhat's your move?`,
+  choices:[
+    {
+      label:'Go to the open house Sunday',
+      sub:'Normal people pace. Browse and see.',
+      tag:'safe',
+      effect:{sanity:0,cash:0,score:5},
+      next:'open_house',
+      outcome:{type:'neutral',emoji:'🚶',title:'You play it cool.',text:"Sunday rolls around. The house is beautiful — and so is everyone else there. You count 22 people walking through. The agent is handing out offer packets like it's a concert."}
+    },
+    {
+      label:'Request a private showing TODAY',
+      sub:'Get there before the pack.',
+      tag:'bold',
+      effect:{sanity:-5,cash:-200,score:10},
+      next:'open_house',
+      outcome:{type:'win',emoji:'🏃',title:'First mover advantage.',text:"You get a private showing Friday evening. The house is lovely. You also spot the crawl space access hatch left ajar — you peek in and notice some suspicious moisture. Nobody else will see this before Sunday."},
+      setFlag:'saw_crawlspace'
+    },
+    {
+      label:'Skip it — the price is already too high',
+      sub:'Your budget is really $850K max.',
+      tag:'risky',
+      effect:{sanity:5,cash:0,score:-10},
+      next:'budget_crisis',
+      outcome:{type:'lose',emoji:'😬',title:'Sticker shock.',text:"You tell your agent to filter under $850K. She goes quiet for a moment, then says: \"Okay, but everything in that range needs $50–100K of work. Just... be ready.\""}
+    },
+  ]
+},
+
+{
+  id:'budget_crisis',
+  chapter:'Act 1 · The Search',
+  bg:'linear-gradient(135deg,#1a1020,#12101a)',
+  image:'💸',
+  title:'The $850K "deal"',
+  text:`Your agent sends you a listing at $839K. <strong>1497 Elm Court</strong>. Photos look decent. Then she adds a voice note:\n\n<em>"So... full disclosure... it's been on market 47 days. Previous buyer backed out after inspection. Sellers are motivated."</em>\n\nYou ask why the previous buyer backed out. Long pause. <em>"They didn't disclose."</em>`,
+  alert:{type:'danger',icon:'🚨',text:'A house sitting 47 days in this market means something scared off a buyer. The seller is not required to tell you why.'},
+  choices:[
+    {
+      label:'Tour it anyway — price is right',
+      sub:'Maybe the previous buyer was just picky.',
+      tag:'risky',
+      effect:{sanity:-10,cash:0,score:0},
+      next:'open_house',
+      outcome:{type:'chaos',emoji:'🎲',title:'Roll the dice.',text:"You tour it. The house smells fine. Looks fine. But the garage has suspicious drywall patches at knee height, and the backyard drains toward the foundation. Your agent whispers: \"I've seen worse.\""}
+    },
+    {
+      label:'Pass — go back to the $985K house',
+      sub:'Spend more now, worry less later.',
+      tag:'expensive',
+      effect:{sanity:5,cash:0,score:10},
+      next:'open_house',
+      outcome:{type:'win',emoji:'💡',title:'Wise call.',text:"You decide cheap upfront can mean expensive forever. Back to the original listing — still active, still drawing crowds."}
+    },
+  ]
+},
+
+{
+  id:'open_house',
+  chapter:'Act 1 · The Search',
+  bg:'linear-gradient(135deg,#0f1923,#1a2535)',
+  image:'🏡',
+  title:'742 Oak Street. You\'re in love.',
+  text:`The house is everything. Hardwood floors, updated kitchen, good bones. 3BR/2BA, <strong>listed at $985,000</strong>.\n\nBut you're not the only one in love. Your agent pulls you aside:\n\n<em>"I just heard from the listing agent. There are already 4 offers. They're reviewing everything Monday at 5pm. You need to be clean, strong, and fast."</em>\n\nYour pre-approval is for <strong>$1,050,000</strong>. Your actual comfort zone is $1,020,000.`,
+  alert:{type:'warn',icon:'⚡',text:'4 competing offers. San Jose median: homes close at 108% of list price. That means this $985K house will likely sell for $1,063,300. You\'re at your limit.'},
+  choices:[
+    {
+      label:'Offer $1,020,000 — your true max',
+      sub:'Disciplined. But you might lose.',
+      tag:'safe',
+      effect:{sanity:0,cash:0,score:5},
+      next:'bidding_war',
+      outcome:{type:'neutral',emoji:'✍️',title:'Offer submitted.',text:"Your agent submits at $1,020,000 with 3% down escalation up to $1,035,000. You feel responsible. You also feel nervous."}
+    },
+    {
+      label:'Offer $1,055,000 — go over asking',
+      sub:'Aggressive. This is how you win SF Bay Area.',
+      tag:'bold',
+      effect:{sanity:-10,cash:-500,score:20},
+      next:'bidding_war',
+      setFlag:'high_offer',
+      outcome:{type:'win',emoji:'💪',title:'You go big.',text:"$1,055,000, clean offer, 21-day close. Your agent says: \"Now we wait.\" Your partner says: \"Did we just offer a million dollars?\" You both stare at the wall."}
+    },
+    {
+      label:'Waive the loan contingency to look stronger',
+      sub:'Risky — if financing falls through, you lose your deposit.',
+      tag:'risky',
+      effect:{sanity:-20,cash:0,score:25},
+      next:'bidding_war',
+      setFlag:'waived_loan',
+      outcome:{type:'chaos',emoji:'😰',title:'All-in.',text:"Your agent warns you twice. You do it anyway. Your offer lands at $1,030,000 with no loan contingency. The listing agent calls yours within 20 minutes — \"Very competitive offer.\""}
+    },
+  ]
+},
+
+// ═══════════════════════════════════════════
+// ACT 2 — THE OFFER
+// ═══════════════════════════════════════════
+{
+  id:'bidding_war',
+  chapter:'Act 2 · The Offer',
+  bg:'linear-gradient(135deg,#1c1200,#1a1500)',
+  image:'⚔️',
+  title:'Monday 4:58 PM. Your phone rings.',
+  text:`Your agent. Voice tight.\n\n<em>"Good news and bad news. Good news: sellers love your offer. Bad news: there's one other offer at $1,060,000 — all cash, no contingencies. They're asking if you want to improve."</em>\n\nYou have exactly <strong>2 hours</strong> to respond.\n\nThis is called a "best and final." It's also sometimes called "making up a competing offer to squeeze you." You have no way to verify.`,
+  alert:{type:'wild',icon:'🎭',text:'All-cash offers are real and common in the Bay Area. They\'re also occasionally invented by listing agents to drive up price. You cannot legally demand proof.'},
+  choices:[
+    {
+      label:'Hold firm — you\'re already at your limit',
+      sub:'Call their bluff. If they take the cash offer, so be it.',
+      tag:'safe',
+      effect:{sanity:5,cash:0,score:-15},
+      next:'inspection',
+      setFlag:'held_firm',
+      outcome:{type:'neutral',emoji:'🧘',title:'You hold.',text:"You tell your agent: \"We're firm.\" Three hours later she calls back. Long pause. \"...They accepted your offer.\" Apparently the cash offer had conditions you didn't know about. You got the house."}
+    },
+    {
+      label:'Come up to $1,075,000 — end this',
+      sub:'15K more. Peace of mind. Maybe.',
+      tag:'expensive',
+      effect:{sanity:-5,cash:-15000,score:15},
+      next:'inspection',
+      setFlag:'overbid',
+      outcome:{type:'win',emoji:'🏆',title:'Offer accepted.',text:"Your agent calls at 6:47 PM. \"Congratulations. You're in contract.\" You scream. Your neighbor knocks to check if you're okay."}
+    },
+    {
+      label:'Write a personal letter to the sellers',
+      sub:'Controversial. Illegal in some states. Legal in CA — for now.',
+      tag:'bold',
+      effect:{sanity:-5,cash:0,score:10},
+      next:'inspection',
+      outcome:{type:'chaos',emoji:'📝',title:'The letter gambit.',text:"You pour your heart out. Two kids. Dog named Biscuit. You promise to love the house. The sellers — a retiring couple — call YOUR agent personally. \"We want them to have it.\" You win at $1,035,000. Your real estate attorney later says: \"Never do that again.\""}
+    },
+  ]
+},
+
+// ═══════════════════════════════════════════
+// ACT 3 — INSPECTION
+// ═══════════════════════════════════════════
+{
+  id:'inspection',
+  chapter:'Act 3 · Inspection Day',
+  bg:'linear-gradient(135deg,#0a1628,#0f1f38)',
+  image:'🔦',
+  title:'The inspector arrives at 8 AM sharp.',
+  text:`His name is Dave. He has a flashlight the size of a baseball bat, a drone for the roof, and the energy of someone who has seen everything twice.\n\nThree hours later he hands you a <strong>74-page report</strong>.\n\nHere are the highlights:\n• Roof: <strong>4–6 years of life left</strong> (replace: ~$18,000)\n• Crawl space: <strong>Active moisture</strong>, possible mold (remediation: ~$8,000–$22,000)\n• Electrical panel: <strong>Federal Pacific Stab-Lok</strong> — known fire hazard (replace: ~$4,500)\n• HVAC: <strong>Original 1987 unit</strong>, on borrowed time (replace: ~$12,000)\n\nSeller disclosed: <em>"No known material defects."</em>`,
+  alert:{type:'danger',icon:'💣',text:'Total estimated repairs: $42,500–$56,500. The seller said there were no known defects. The moisture was in the crawl space — exactly where you looked if you got the private showing.'},
+  choices:[
+    {
+      label:'Request $40,000 price reduction',
+      sub:'Negotiate hard based on the findings.',
+      tag:'bold',
+      effect:{sanity:-10,cash:35000,score:20},
+      next:'seller_response',
+      setFlag:'requested_reduction',
+      outcome:{type:'win',emoji:'💰',title:'You go in hard.',text:"Your agent submits a Request for Repair citing all four issues with contractor quotes. You ask for $40,000 off the purchase price. The seller\'s agent responds: \"They'll review.\" That means \"they're furious.\""}
+    },
+    {
+      label:'Ask for repairs instead of credit',
+      sub:'Sellers fix the electrical and HVAC before close.',
+      tag:'safe',
+      effect:{sanity:-5,cash:10000,score:10},
+      next:'seller_response',
+      outcome:{type:'neutral',emoji:'🔧',title:'Request for repair submitted.',text:"You ask for the Federal Pacific panel replaced and HVAC serviced. It's a reasonable ask. The roof and crawl space you'll handle yourself after close."}
+    },
+    {
+      label:'Accept as-is — you still love the house',
+      sub:'Common in competitive markets. Brave or naive?',
+      tag:'risky',
+      effect:{sanity:0,cash:-45000,score:-20},
+      next:'escrow',
+      outcome:{type:'lose',emoji:'🤷',title:'As-is it is.',text:"You waive the repair request. Your partner is quiet on the drive home. You both know you just accepted roughly $45,000 in future work. \"We'll fix it up,\" you say. \"Yeah,\" she says. Dave the inspector emails: \"Good luck.\""}
+    },
+    {
+      label:'Walk away — this is too much',
+      sub:'Burn your $5K inspection cost. Keep your sanity.',
+      tag:'safe',
+      effect:{sanity:20,cash:-5000,score:-30},
+      next:'start_over',
+      outcome:{type:'neutral',emoji:'🚪',title:'You walk.',text:"You invoke your inspection contingency and exit the deal. Your $5,000 inspection deposit is gone. But you didn't just buy a house with a fire hazard panel and active mold. Your agent says: \"Good call. On to the next one.\""}
+    },
+  ]
+},
+
+{
+  id:'start_over',
+  chapter:'Act 3 · Back to Square One',
+  bg:'linear-gradient(135deg,#120a0a,#1a0f0f)',
+  image:'🔄',
+  title:'The search continues.',
+  text:`Walking away from a bad deal is the right move. It just doesn't feel like it at 11 PM when you're scrolling Zillow again.\n\nYour agent calls with a new listing: <strong>891 Cedar Lane. $949,000. 3BR/2BA.</strong> \"Sellers just dropped the price. Only 12 days on market.\"\n\nYou're running out of runway — lease is up in 7 weeks.`,
+  alert:{type:'info',icon:'⏰',text:'Time pressure is a buyer\'s worst enemy. Sellers and their agents know when your lease is up if you told them.'},
+  choices:[
+    {
+      label:'Tour it this week — apply lessons learned',
+      sub:'You\'re a smarter buyer now.',
+      tag:'safe',
+      effect:{sanity:-5,cash:0,score:10},
+      next:'inspection',
+      outcome:{type:'win',emoji:'📚',title:'Wiser buyer.',text:"You tour Cedar Lane with fresh eyes. You check the crawl space first. You ask about the roof age before you even like the house. Dave the inspector calls you \"prepared\" — highest compliment in the field."}
+    },
+    {
+      label:'Extend your lease month-to-month',
+      sub:'$400 premium per month but no timeline pressure.',
+      tag:'expensive',
+      effect:{sanity:15,cash:-1200,score:5},
+      next:'inspection',
+      outcome:{type:'good',emoji:'😮‍💨',title:'Pressure valve released.',text:"You call your landlord. \"Month to month? Sure, $400 more.\" You wince but say yes. The panic lifts. You go back to the market from a position of patience."}
+    },
+  ]
+},
+
+// ═══════════════════════════════════════════
+// ACT 4 — SELLER RESPONSE
+// ═══════════════════════════════════════════
+{
+  id:'seller_response',
+  chapter:'Act 4 · Escrow Drama',
+  bg:'linear-gradient(135deg,#0d1f0d,#0a1a14)',
+  image:'📱',
+  title:'The sellers respond. Sort of.',
+  text:`Your agent calls at 9:14 PM.\n\n<em>"Okay. So. The sellers acknowledge the inspection findings. They're willing to... credit you $8,000 toward closing costs. That's it."</em>\n\nYou asked for $40,000. They came back with $8,000.\n\nYou have 3 days to respond before your inspection contingency expires.`,
+  alert:{type:'warn',icon:'⚡',text:'$8,000 vs $42,500+ in repairs. This is not a counter — it\'s an insult. But you\'re in a hot market and there are 4 backup buyers waiting.'},
+  choices:[
+    {
+      label:'Counter at $25,000 — split the difference',
+      sub:'Show you\'re flexible but not a pushover.',
+      tag:'bold',
+      effect:{sanity:-10,cash:20000,score:15},
+      next:'escrow',
+      setFlag:'countered',
+      outcome:{type:'win',emoji:'🤝',title:'Counter submitted.',text:"\"$25,000 or we walk,\" your agent says. Radio silence for 14 hours. Then: \"Sellers accept $22,000 credit.\" Not $25K but close. Your agent says: \"I've seen worse.\" This is her catchphrase."}
+    },
+    {
+      label:'Accept the $8,000 — you want this house',
+      sub:'You\'ll make up the rest over time. Hopefully.',
+      tag:'risky',
+      effect:{sanity:-5,cash:-35000,score:-15},
+      next:'escrow',
+      outcome:{type:'lose',emoji:'😞',title:'You take the lowball.',text:"You accept. The relief lasts about 6 hours, then the calculator comes out. Roof + panel + crawl space. You're going to need a very understanding credit card."}
+    },
+    {
+      label:'Walk away — invoke the contingency',
+      sub:'You get your earnest money back. You lose the house.',
+      tag:'safe',
+      effect:{sanity:15,cash:0,score:-25},
+      next:'start_over',
+      outcome:{type:'neutral',emoji:'🚶',title:'Exit stage left.',text:"\"We're exercising our inspection contingency,\" your agent says. Your earnest money is returned within 3 business days. A week later you see the house close for $1,041,000 — to someone who waived everything. You feel both relieved and annoyed."}
+    },
+  ]
+},
+
+// ═══════════════════════════════════════════
+// ACT 5 — ESCROW
+// ═══════════════════════════════════════════
+{
+  id:'escrow',
+  chapter:'Act 5 · The Escrow Gauntlet',
+  bg:'linear-gradient(135deg,#0a0a1e,#12122e)',
+  image:'📋',
+  title:'21 days of pure bureaucratic chaos.',
+  text:`You're in escrow. Congratulations! Here's what the next three weeks look like:\n\n• Day 1: Wire $45,000 in earnest money to an escrow company you've never heard of\n• Day 3: Your lender needs 47 documents, some of which are from 2019\n• Day 8: Appraisal scheduled\n• Day 14: Loan approval (maybe)\n• Day 21: Close (hopefully)\n\nYour loan officer emails: <em>"Quick question — did you change jobs in the last 60 days?"</em>\n\nYou did. Two months ago. You mentioned it. You think.`,
+  alert:{type:'danger',icon:'🚨',text:'Changing jobs during escrow — even to a better one — can tank your loan approval. Lenders want 2 years of employment history at the same employer or in the same field.'},
+  choices:[
+    {
+      label:'Yes I changed jobs — same industry, higher salary',
+      sub:'Be honest. Hope the lender is understanding.',
+      tag:'safe',
+      effect:{sanity:-20,cash:0,score:0},
+      next:'appraisal',
+      setFlag:'job_change',
+      outcome:{type:'chaos',emoji:'😱',title:'Lender initiates review.',text:"\"We'll need a new verification of employment, an offer letter, and 30 days of pay stubs from the new job.\" You have 0 pay stubs yet. You just started. Your loan officer goes very quiet."}
+    },
+    {
+      label:'It was a lateral move — technically a promotion',
+      sub:'Spin it positively and provide all documentation fast.',
+      tag:'bold',
+      effect:{sanity:-15,cash:-1500,score:5},
+      next:'appraisal',
+      outcome:{type:'neutral',emoji:'📊',title:'Documentation blitz.',text:"You overnight 200 pages of documentation to your lender. Your new employer writes a letter. Your loan officer says: \"This is the most prepared borrower I've had in 3 years.\" Contingency survived — barely."}
+    },
+  ]
+},
+
+// ═══════════════════════════════════════════
+// ACT 6 — APPRAISAL
+// ═══════════════════════════════════════════
+{
+  id:'appraisal',
+  chapter:'Act 6 · The Appraisal',
+  bg:'linear-gradient(135deg,#1a1000,#211500)',
+  image:'📐',
+  title:'The appraiser\'s verdict.',
+  text:`The bank sends an independent appraiser. Their job: confirm the house is worth what you agreed to pay.\n\nYou paid $1,055,000.\n\nThe appraiser's report comes back: <strong>$1,010,000.</strong>\n\nYou are $45,000 over the appraised value. Your bank will only lend against $1,010,000. You have to cover the gap in cash — or renegotiate — or walk.`,
+  alert:{type:'danger',icon:'💔',text:'Appraisal gaps are common in hot markets. You have three options: pay the gap in cash, get the seller to reduce price, or walk (and lose your earnest money if you waived the appraisal contingency).'},
+  choices:[
+    {
+      label:'Pay the $45K appraisal gap in cash',
+      sub:'You have reserves. It hurts but you close.',
+      tag:'expensive',
+      effect:{sanity:-15,cash:-45000,score:10},
+      next:'final_walkthrough',
+      outcome:{type:'win',emoji:'💸',title:'Gap paid. Loan approved.',text:"You wire the additional $45,000. Your savings account looks like it survived a heist. Your loan officer says \"Clear to close!\" which sounds like a medical diagnosis and feels like one."}
+    },
+    {
+      label:'Go back to sellers — they must reduce to $1,010,000',
+      sub:'Risky. They can say no and you lose the deal.',
+      tag:'risky',
+      effect:{sanity:-20,cash:0,score:20},
+      next:'final_walkthrough',
+      setFlag:'appraisal_fight',
+      outcome:{type:'chaos',emoji:'⚔️',title:'Standoff.',text:"48 hours of total silence. Then: sellers agree to $1,025,000. You split the gap. Neither side is happy. Both sides close anyway. This is how real estate works."}
+    },
+    {
+      label:'Walk — you can\'t cover the gap',
+      sub:'If you kept your appraisal contingency, you get your deposit back.',
+      tag:'safe',
+      effect:{sanity:10,cash:0,score:-40},
+      next:'start_over',
+      outcome:{type:'lose',emoji:'😔',title:'You walk away.',text:"You invoke the appraisal contingency. Your earnest money is returned. The house eventually closes with an all-cash buyer at $1,055,000 — they don't need an appraisal. \"I've seen worse,\" says your agent."}
+    },
+  ]
+},
+
+// ═══════════════════════════════════════════
+// ACT 7 — FINAL WALKTHROUGH
+// ═══════════════════════════════════════════
+{
+  id:'final_walkthrough',
+  chapter:'Act 7 · Final Walkthrough',
+  bg:'linear-gradient(135deg,#0d1a0d,#0f2010)',
+  image:'🚶',
+  title:'24 hours before closing. Final walkthrough.',
+  text:`You arrive at the house for your final walkthrough the morning before closing.\n\nThe sellers have moved out. The house is empty. You walk room to room...\n\nAnd then you see it.\n\nThe sellers took the <strong>built-in refrigerator</strong>, the <strong>dining room chandelier</strong> (listed as "included" in the disclosures), and there's a <strong>fresh hole in the garage wall</strong> the size of a microwave where a built-in unit clearly was.\n\nClosing is in 22 hours.`,
+  alert:{type:'danger',icon:'😤',text:'Sellers removing fixtures and items included in the sale is more common than you\'d think. Legally, anything bolted to the house is "real property" and conveys with the sale unless excluded in writing.'},
+  choices:[
+    {
+      label:'Demand replacement or cash credit before close',
+      sub:'Delay closing if needed. This is a contract violation.',
+      tag:'bold',
+      effect:{sanity:-20,cash:8000,score:20},
+      next:'closing_day',
+      setFlag:'walkthrough_fight',
+      outcome:{type:'win',emoji:'⚖️',title:'You hold the line.',text:"Your agent contacts the listing agent at 6 PM. Three hours of heated back-and-forth. Sellers agree to a $6,500 credit at closing for the missing items. Closing delayed 24 hours. Worth it."}
+    },
+    {
+      label:'Document everything and close anyway',
+      sub:'Get it in writing, then pursue in small claims if needed.',
+      tag:'safe',
+      effect:{sanity:-5,cash:-3000,score:-5},
+      next:'closing_day',
+      outcome:{type:'neutral',emoji:'📸',title:'You document and close.',text:"You take 200 photos and send a formal written complaint through your agent. You close on time. Three months later you file in small claims. The judge awards you $4,200. The sellers don't show up."}
+    },
+    {
+      label:'Let it go — you want to close tomorrow',
+      sub:'Pick your battles. You\'ve been through enough.',
+      tag:'risky',
+      effect:{sanity:10,cash:-5000,score:-10},
+      next:'closing_day',
+      outcome:{type:'lose',emoji:'😮‍💨',title:'You let it go.',text:"\"It's fine,\" you say to no one. You close tomorrow. You buy a new chandelier two weeks later. $800. It's not as nice. You notice every time you eat dinner."}
+    },
+  ]
+},
+
+// ═══════════════════════════════════════════
+// ACT 8 — CLOSING DAY
+// ═══════════════════════════════════════════
+{
+  id:'closing_day',
+  chapter:'Act 8 · Closing Day',
+  bg:'linear-gradient(135deg,#0a1a0a,#0f2015)',
+  image:'✍️',
+  title:'The day you sign 400 pages.',
+  text:`You arrive at the title company at 10 AM. A notary named Linda has a stack of documents that reaches her chin.\n\nYou will sign your name approximately <strong>87 times</strong> over the next 90 minutes.\n\nYour hand goes numb around page 200.\n\nThen Linda slides over the final document. It reads:\n\n<em>"Deed of Trust. Borrower agrees to repay $X over 30 years..."</em>\n\nThe total interest you will pay over 30 years is displayed on page 3.\n\nIt is more than the purchase price of the house.\n\nLinda smiles. <em>"Congratulations! Almost homeowners!"</em>`,
+  alert:{type:'info',icon:'📊',text:'On a $1,000,000 mortgage at 7.2% for 30 years, total interest paid = $1,438,000. You will pay $2.4M for a $1M house. This is normal. Linda has seen the look on your face before.'},
+  choices:[
+    {
+      label:'Sign everything. You\'ve come too far.',
+      sub:'This is it.',
+      tag:'bold',
+      effect:{sanity:-10,cash:0,score:30},
+      next:'the_call',
+      outcome:{type:'win',emoji:'✍️',title:'Signing complete.',text:"Your hand is a claw. Linda hands you a mint. \"Most people need one around page 180,\" she says. You eat it. You sign the last page. Linda says: \"Now we wait for funding confirmation.\""}
+    },
+    {
+      label:'Ask Linda to explain the prepayment penalty clause',
+      sub:'Be the person who actually reads what they sign.',
+      tag:'safe',
+      effect:{sanity:5,cash:500,score:10},
+      next:'the_call',
+      outcome:{type:'good',emoji:'🧐',title:'Good catch.',text:"Linda pauses. \"That clause is... unusual. Let me flag it for your loan officer.\" Twenty minutes later, a correction is made. The penalty was supposed to be removed. You saved yourself a potential $4,000 fee. Linda gives you two mints."}
+    },
+  ]
+},
+
+// ═══════════════════════════════════════════
+// ENDING
+// ═══════════════════════════════════════════
+{
+  id:'the_call',
+  chapter:'Act 9 · The Call',
+  bg:'linear-gradient(135deg,#060d06,#0a160a)',
+  image:'📞',
+  title:'3:47 PM. Your agent calls.',
+  text:`You're sitting in your car outside the title company eating the worst granola bar you've ever had.\n\nYour phone rings.\n\nIt's your agent.\n\nYou answer.\n\n<em>"..."</em>\n\nLong pause.\n\n<em>"It funded."</em>`,
+  choices:[
+    {
+      label:'You drive to the house. The key is under the mat.',
+      sub:'',
+      tag:'safe',
+      effect:{sanity:30,cash:0,score:50},
+      next:'__END__',
+      outcome:{type:'win',emoji:'🏠',title:'You\'re home.',text:"You sit on the floor of the empty living room. Hardwood floors. Afternoon light through the window. The smell of someone else's life slowly becoming yours.\n\nYour partner puts their head on your shoulder.\n\n\"We're really doing this.\"\n\n\"Yeah.\"\n\n\"The roof needs replacing.\"\n\n\"I know.\"\n\nYou sit there for a long time."}
+    },
+  ]
+},
+
+];
+
+// Build a map for quick lookup
+const NODES = {};
+STORY.forEach(n => NODES[n.id] = n);
+
+// ── RENDER ──────────────────────────────────────────────────────────
+let currentNode = null;
+let pendingNext = null;
+let showingOutcome = false;
+
+function fmt(n) {
+  return n >= 0
+    ? '+' + n.toLocaleString()
+    : n.toLocaleString();
+}
+
+function statColor(key) {
+  if (key === 'cash') return '#22c55e';
+  if (key === 'sanity') return '#3b82f6';
+  if (key === 'score') return '#f59e0b';
+  return '#a1a1aa';
+}
+
+function renderStats() {
+  const bar = document.getElementById('stat-bar');
+  const sanityColor = S.sanity > 60 ? '#22c55e' : S.sanity > 30 ? '#f59e0b' : '#ef4444';
+  bar.innerHTML = `
+    <div class="stat">
+      <span class="stat-icon">💰</span>
+      <span class="stat-val">$${Math.max(0,S.cash).toLocaleString()}</span>
+      <span class="stat-lbl">saved</span>
+    </div>
+    <div class="stat">
+      <span class="stat-icon">🧠</span>
+      <span class="stat-val" style="color:${sanityColor}">${Math.max(0,Math.min(100,S.sanity))}%</span>
+      <span class="stat-lbl">sanity</span>
+    </div>
+    <div class="stat">
+      <span class="stat-icon">🏆</span>
+      <span class="stat-val">${S.score}</span>
+      <span class="stat-lbl">deal score</span>
+    </div>
+    <div class="stat">
+      <span class="stat-icon">📅</span>
+      <span class="stat-val">Wk ${S.week}</span>
+      <span class="stat-lbl"></span>
+    </div>
+  `;
+}
+
+function renderProgress(nodeId) {
+  const ids = STORY.map(n => n.id);
+  const idx = ids.indexOf(nodeId);
+  const pct = Math.round((idx / (STORY.length - 1)) * 100);
+  document.getElementById('progress-fill').style.width = pct + '%';
+  const node = NODES[nodeId];
+  document.getElementById('progress-label').textContent = node ? node.chapter.split(' · ')[0] : '';
+}
+
+function bgGradient(node) {
+  return node.bg || 'linear-gradient(135deg,#111113,#18181b)';
+}
+
+function renderScene(nodeId) {
+  if (nodeId === '__END__') { renderEnd(); return; }
+  currentNode = NODES[nodeId];
+  if (!currentNode) { renderEnd(); return; }
+  showingOutcome = false;
+  pendingNext = null;
+
+  S.week = Math.min(S.week + 1, 20);
+  renderStats();
+  renderProgress(nodeId);
+
+  const alertHtml = currentNode.alert ? `
+    <div class="alert ${currentNode.alert.type}">
+      <span class="alert-icon">${currentNode.alert.icon}</span>
+      <span>${currentNode.alert.text}</span>
+    </div>` : '';
+
+  const choicesHtml = currentNode.choices.map((c, i) => {
+    const tagHtml = c.tag ? `<span class="choice-tag tag-${c.tag}">${
+      c.tag === 'risky' ? '⚠ Risky' :
+      c.tag === 'safe'  ? '✓ Safe'  :
+      c.tag === 'bold'  ? '★ Bold'  :
+      c.tag === 'expensive' ? '💸 Costly' : c.tag
+    }</span>` : '';
+    const subHtml = c.sub ? `<div class="choice-sub">${c.sub}</div>` : '';
+    return `
+      <button class="choice-btn" onclick="choose(${i})">
+        <div class="choice-key">${String.fromCharCode(65+i)}</div>
+        <div class="choice-text">
+          <div class="choice-label">${c.label}</div>
+          ${subHtml}
+        </div>
+        ${tagHtml}
+      </button>`;
+  }).join('');
+
+  const textFormatted = currentNode.text.replace(/\n/g, '<br>');
+
+  document.getElementById('scene').innerHTML = `
+    <div class="scene-card">
+      <div class="scene-image" style="background:${bgGradient(currentNode)}">
+        <span style="filter:drop-shadow(0 4px 24px rgba(0,0,0,.5))">${currentNode.image}</span>
+      </div>
+      <div class="scene-body">
+        <div class="scene-chapter">${currentNode.chapter}</div>
+        <div class="scene-title">${currentNode.title}</div>
+        <div class="scene-text">${textFormatted}</div>
+        ${alertHtml}
+        <div class="choices" id="choices-wrap">${choicesHtml}</div>
+        <div id="outcome-wrap"></div>
+      </div>
+    </div>
+    <p class="tip">Press A, B, C… or click a choice</p>
+  `;
+}
+
+function choose(idx) {
+  if (showingOutcome) return;
+  const choice = currentNode.choices[idx];
+  if (!choice) return;
+  showingOutcome = true;
+  pendingNext = choice.next;
+
+  // Apply effects
+  if (choice.effect) {
+    S.cash    += (choice.effect.cash    || 0);
+    S.sanity  += (choice.effect.sanity  || 0);
+    S.score   += (choice.effect.score   || 0);
+    S.sanity   = Math.max(0, Math.min(100, S.sanity));
+  }
+  if (choice.setFlag) S.flags[choice.setFlag] = true;
+
+  renderStats();
+
+  // Dim other choices
+  document.querySelectorAll('.choice-btn').forEach((btn, i) => {
+    if (i !== idx) btn.classList.add('disabled');
+    else btn.style.borderColor = 'rgba(245,158,11,0.5)';
+  });
+
+  // Build deltas
+  const e = choice.effect || {};
+  const deltaItems = [];
+  if (e.cash    && e.cash    !== 0) deltaItems.push(`<span class="delta ${e.cash>0?'pos':'neg'}">💰 ${fmt(e.cash)}</span>`);
+  if (e.sanity  && e.sanity  !== 0) deltaItems.push(`<span class="delta ${e.sanity>0?'pos':'neg'}">🧠 ${e.sanity>0?'+':''}${e.sanity}%</span>`);
+  if (e.score   && e.score   !== 0) deltaItems.push(`<span class="delta ${e.score>0?'pos':'neg'}">🏆 ${fmt(e.score)}</span>`);
+  const deltaHtml = deltaItems.length ? `<div class="deltas">${deltaItems.join('')}</div>` : '';
+
+  const o = choice.outcome;
+  const typeClass = {win:'win',lose:'lose',neutral:'neutral',chaos:'chaos',good:'win'}[o.type] || 'neutral';
+  const outcomeTextFormatted = o.text.replace(/\n/g, '<br>');
+
+  document.getElementById('outcome-wrap').innerHTML = `
+    <div class="outcome ${typeClass}">
+      <span class="outcome-emoji">${o.emoji}</span>
+      <div class="outcome-title">${o.title}</div>
+      <div class="outcome-text">${outcomeTextFormatted}</div>
+      ${deltaHtml}
+    </div>
+    <button class="next-btn" onclick="next()">
+      ${pendingNext === '__END__' ? '🏠 See Your Final Score' : 'Continue the story →'}
+    </button>
+  `;
+
+  // Scroll to outcome
+  setTimeout(() => {
+    document.getElementById('outcome-wrap').scrollIntoView({behavior:'smooth',block:'nearest'});
+  }, 100);
+}
+
+function next() {
+  if (!pendingNext) return;
+  renderScene(pendingNext);
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function renderEnd() {
+  const sanity = Math.max(0, Math.min(100, S.sanity));
+  const grade = S.score >= 80 ? {e:'🏆',t:'Master Negotiator',s:'You played it smart, took the right risks, and closed a deal you\'re proud of. Your OfferWise instincts are strong.'}
+              : S.score >= 40 ? {e:'🏠',t:'Proud Homeowner',s:'You made it through with some bumps and bruises. The house is yours. The repairs are manageable. You\'d do it again — maybe.'}
+              : S.score >= 0  ? {e:'😅',t:'Survived Escrow',s:'You have a house. It cost more than expected. It needs work. But it\'s yours. Probably. Check the inspection report again.'}
+              : {e:'📚',t:'Expensive Education',s:'You learned a lot. Possibly by losing money. The next time you buy a house, you\'ll be dangerous.'};
+
+  document.getElementById('stat-bar').innerHTML = '';
+  document.getElementById('progress-fill').style.width = '100%';
+  document.getElementById('progress-label').textContent = 'Complete!';
+
+  document.getElementById('scene').innerHTML = `
+    <div class="end-screen">
+      <span class="end-house">${grade.e}</span>
+      <div class="end-title">${grade.t}</div>
+      <div class="end-sub">${grade.s}</div>
+      <div class="end-stats">
+        <div class="end-stat">
+          <div class="end-stat-val" style="color:#22c55e">$${Math.max(0,S.cash).toLocaleString()}</div>
+          <div class="end-stat-lbl">Cash Left</div>
+        </div>
+        <div class="end-stat">
+          <div class="end-stat-val" style="color:${sanity>60?'#22c55e':sanity>30?'#f59e0b':'#ef4444'}">${sanity}%</div>
+          <div class="end-stat-lbl">Sanity</div>
+        </div>
+        <div class="end-stat">
+          <div class="end-stat-val" style="color:#f59e0b">${S.score}</div>
+          <div class="end-stat-lbl">Deal Score</div>
+        </div>
+      </div>
+      <div style="background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:1.25rem;max-width:420px;margin:0 auto 2rem;font-size:.875rem;color:var(--text2);line-height:1.65;text-align:left">
+        <div style="font-size:.6875rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--amber);margin-bottom:.625rem">💡 What OfferWise would have caught</div>
+        In the real deal, the crawl space moisture (pg. 23), the Federal Pacific panel, and the seller disclosure gap would all have been flagged automatically — with repair cost estimates and negotiation talking points ready in 60 seconds.
+      </div>
+      <button class="restart-btn" onclick="restart()">Play Again 🔄</button>
+    </div>
+  `;
+}
+
+function restart() {
+  S.cash = 80000; S.sanity = 100; S.score = 0; S.week = 1;
+  S.chapter = 0; S.choicesMade = []; S.flags = {};
+  renderScene('start');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ── KEYBOARD ───────────────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if (showingOutcome) {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); next(); }
+    return;
+  }
+  if (!currentNode) return;
+  const idx = e.key.toUpperCase().charCodeAt(0) - 65;
+  if (idx >= 0 && idx < currentNode.choices.length) {
+    e.preventDefault();
+    choose(idx);
+  }
+});
+
+// ── BOOT ──────────────────────────────────────────────────────────
+renderStats();
+renderScene('start');
+</script>
+</body>
+</html>

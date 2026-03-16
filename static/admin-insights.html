@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Deep Insights — OfferWise Admin</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0b0e14;
+            --surface: #131720;
+            --surface2: #1a1f2e;
+            --border: #232a3b;
+            --text: #c9d1d9;
+            --text-dim: #6b7b8d;
+            --text-bright: #e6edf3;
+            --accent: #58a6ff;
+            --green: #3fb950;
+            --red: #f85149;
+            --amber: #d29922;
+            --purple: #bc8cff;
+            --cyan: #39d2c0;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+        
+        .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+        
+        /* Nav bar */
+        .admin-nav { display:flex;gap:8px;margin-bottom:24px;padding:12px 16px;background:var(--surface);border-radius:10px;align-items:center;flex-wrap:wrap;border:1px solid var(--border); }
+        .admin-nav .brand { color:var(--accent);font-weight:800;margin-right:12px;font-size:14px; }
+        .admin-nav a { padding:6px 14px;background:rgba(255,255,255,0.05);color:var(--text);border-radius:6px;text-decoration:none;font-size:13px;font-weight:600;transition:all .15s; }
+        .admin-nav a:hover { background:rgba(255,255,255,0.1); }
+        .admin-nav a.active { background:rgba(139,92,246,0.2);color:var(--purple);border:1px solid rgba(139,92,246,0.3); }
+        
+        /* Header */
+        .page-header { margin-bottom: 28px; }
+        .page-header h1 { font-family: 'JetBrains Mono', monospace; font-size: 22px; color: var(--text-bright); font-weight: 700; }
+        .page-header p { color: var(--text-dim); font-size: 13px; margin-top: 4px; }
+        .page-header .refresh-btn { background: var(--surface2); border: 1px solid var(--border); color: var(--text); padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; }
+        .page-header .refresh-btn:hover { border-color: var(--accent); color: var(--accent); }
+        
+        /* Section grid */
+        .section-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }
+        .section-grid.triple { grid-template-columns: 1fr 1fr 1fr; }
+        .section-grid.full { grid-template-columns: 1fr; }
+        @media (max-width: 900px) { .section-grid, .section-grid.triple { grid-template-columns: 1fr; } }
+        
+        /* Cards */
+        .card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px; }
+        .card h2 { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+        .card h2 .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+        .dot-green { background: var(--green); }
+        .dot-amber { background: var(--amber); }
+        .dot-red { background: var(--red); }
+        .dot-blue { background: var(--accent); }
+        .dot-purple { background: var(--purple); }
+        .dot-cyan { background: var(--cyan); }
+        
+        /* Big metric */
+        .big-metric { text-align: center; padding: 8px 0; }
+        .big-metric .value { font-family: 'JetBrains Mono', monospace; font-size: 36px; font-weight: 700; color: var(--text-bright); line-height: 1; }
+        .big-metric .label { font-size: 12px; color: var(--text-dim); margin-top: 6px; }
+        .big-metric .sub { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--accent); margin-top: 4px; }
+        
+        /* Metric row */
+        .metric-row { display: flex; gap: 16px; flex-wrap: wrap; }
+        .metric-item { flex: 1; min-width: 80px; text-align: center; padding: 12px 8px; background: var(--surface2); border-radius: 8px; }
+        .metric-item .val { font-family: 'JetBrains Mono', monospace; font-size: 20px; font-weight: 700; color: var(--text-bright); }
+        .metric-item .lbl { font-size: 11px; color: var(--text-dim); margin-top: 4px; }
+        
+        /* Funnel */
+        .funnel { display: flex; flex-direction: column; gap: 4px; }
+        .funnel-step { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 6px; position: relative; }
+        .funnel-step .step-bar { height: 28px; border-radius: 4px; min-width: 4px; transition: width 0.6s ease; }
+        .funnel-step .step-label { font-size: 12px; color: var(--text-dim); min-width: 70px; text-align: right; }
+        .funnel-step .step-value { font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 600; color: var(--text-bright); min-width: 40px; }
+        .funnel-step .step-pct { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-dim); min-width: 50px; }
+        .funnel-step .step-drop { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--red); margin-left: auto; }
+        
+        /* Bar chart */
+        .bar-chart { display: flex; align-items: flex-end; gap: 2px; height: 120px; padding-top: 8px; }
+        .bar-col { display: flex; flex-direction: column; align-items: center; flex: 1; min-width: 0; height: 100%; justify-content: flex-end; }
+        .bar-col .bar { width: 100%; border-radius: 2px 2px 0 0; min-height: 1px; transition: height 0.4s ease; position: relative; cursor: default; }
+        .bar-col .bar:hover { opacity: 0.8; }
+        .bar-col .bar-label { font-size: 9px; color: var(--text-dim); margin-top: 4px; writing-mode: horizontal-tb; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; text-align: center; }
+        .bar-tooltip { display: none; position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%); background: #1a1f2e; border: 1px solid var(--border); padding: 4px 8px; border-radius: 4px; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-bright); white-space: nowrap; z-index: 10; pointer-events: none; }
+        .bar-col .bar:hover .bar-tooltip { display: block; }
+        
+        /* Stacked bars for cohorts */
+        .cohort-row { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px solid var(--border); }
+        .cohort-row:last-child { border-bottom: none; }
+        .cohort-row .week { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-dim); min-width: 44px; }
+        .cohort-row .bars { flex: 1; display: flex; height: 20px; border-radius: 3px; overflow: hidden; background: var(--surface2); }
+        .cohort-row .bars .seg { height: 100%; min-width: 1px; transition: width 0.4s ease; }
+        .cohort-row .nums { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text); min-width: 140px; text-align: right; display: flex; gap: 6px; justify-content: flex-end; }
+        .cohort-row .nums span { min-width: 30px; text-align: right; }
+        
+        /* Distribution pills */
+        .dist-row { display: flex; align-items: center; gap: 10px; padding: 6px 0; }
+        .dist-row .dist-label { font-size: 12px; color: var(--text); min-width: 90px; }
+        .dist-row .dist-bar-wrap { flex: 1; background: var(--surface2); height: 18px; border-radius: 3px; overflow: hidden; }
+        .dist-row .dist-bar { height: 100%; border-radius: 3px; transition: width 0.5s ease; }
+        .dist-row .dist-val { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text-dim); min-width: 36px; text-align: right; }
+        
+        /* System status */
+        .status-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); }
+        .status-item:last-child { border-bottom: none; }
+        .status-item .label { font-size: 13px; color: var(--text); }
+        .status-item .badge { font-family: 'JetBrains Mono', monospace; font-size: 12px; padding: 3px 10px; border-radius: 4px; font-weight: 600; }
+        .badge-green { background: rgba(63,185,80,0.15); color: var(--green); }
+        .badge-red { background: rgba(248,81,73,0.15); color: var(--red); }
+        .badge-amber { background: rgba(210,153,34,0.15); color: var(--amber); }
+        .badge-blue { background: rgba(88,166,255,0.15); color: var(--accent); }
+        
+        /* Legend */
+        .legend { display: flex; gap: 16px; margin-top: 12px; flex-wrap: wrap; }
+        .legend-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--text-dim); }
+        .legend-swatch { width: 10px; height: 10px; border-radius: 2px; }
+        
+        /* Loading */
+        .loading { text-align: center; padding: 40px; color: var(--text-dim); font-size: 13px; }
+        .loading::after { content: ''; display: inline-block; width: 14px; height: 14px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.6s linear infinite; margin-left: 8px; vertical-align: middle; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        /* Empty state */
+        .empty-state { text-align: center; padding: 30px; color: var(--text-dim); font-size: 13px; }
+    </style>
+</head>
+<body>
+  <div id="admin-nav" style="display:flex;gap:8px;padding:10px 28px;background:rgba(8,12,20,0.98);border-bottom:1px solid #1e2d45;flex-wrap:wrap;align-items:center;">
+    <span style="color:#60a5fa;font-weight:800;font-size:13px;margin-right:8px;">⚙️ Admin</span>
+  </div>
+  <script>
+  (function() {
+    const ak = new URLSearchParams(location.search).get('admin_key') || '';
+    const q = ak ? '?admin_key=' + ak : '';
+    const current = location.pathname;
+    const pages = [
+      ['📊 Dashboard',  '/admin'],
+      ['🔬 Insights',   '/admin/insights'],
+      ['🚀 GTM',        '/admin/gtm'],
+      ['💸 API Costs',  '/admin/api-costs'],
+      ['🏗️ Infra Costs','/admin/infra-costs'],
+      ['🆘 Support',    '/admin/support-shares'],
+      ['🔧 Debug',      '/debug'],
+      ['← App',         '/dashboard'],
+    ];
+    const nav = document.getElementById('admin-nav');
+    if (!nav) return;
+    const label = document.createElement('span');
+    label.style.cssText = 'color:#60a5fa;font-weight:800;font-size:13px;margin-right:8px;';
+    label.textContent = '⚙️ Admin';
+    nav.innerHTML = '';
+    nav.appendChild(label);
+    pages.forEach(([lbl, path]) => {
+      const active = current === path || (path !== '/admin' && current.startsWith(path));
+      const a = document.createElement('a');
+      a.href = path + q;
+      a.textContent = lbl;
+      a.style.cssText = 'padding:6px 14px;border-radius:6px;text-decoration:none;font-size:13px;font-weight:600;' +
+        (active ? 'background:#3b82f6;color:white;' : 'background:rgba(255,255,255,0.08);color:#e2e8f0;');
+      nav.appendChild(a);
+    });
+  })();
+  </script>
+<div class="container">
+    <!-- Nav -->
+    <div class="admin-nav">
+        <span class="brand">⚙️ Admin</span>
+        <a href="#" onclick="goAdmin('admin')">📊 Dashboard</a>
+        <a href="#" class="active">🔬 Insights</a>
+        <a href="#" onclick="goAdmin('admin/gtm')">🚀 GTM</a>
+        <a href="#" onclick="goAdmin('admin/shared-analyses')">🔍 Shared Analyses</a>
+        <a href="#" onclick="goAdmin('debug')">🔧 Debug</a>
+        <a href="/dashboard">← App</a>
+    </div>
+    
+    <!-- Header -->
+    <div class="page-header" style="display:flex;justify-content:space-between;align-items:center;">
+        <div>
+            <h1>🔬 Deep Insights</h1>
+            <p>Cohort analysis, conversion funnels, and usage patterns — all telemetry in one view</p>
+        </div>
+        <button class="refresh-btn" onclick="loadInsights()">↻ Refresh</button>
+    </div>
+    
+    <div id="content">
+        <div class="loading">Loading insights</div>
+    </div>
+</div>
+
+<script>
+const adminKey = new URLSearchParams(window.location.search).get('admin_key') || '';
+
+function goAdmin(page) {
+    window.location.href = '/' + page + '?admin_key=' + adminKey;
+}
+
+async function loadInsights() {
+    const el = document.getElementById('content');
+    el.innerHTML = '<div class="loading">Loading insights</div>';
+    
+    try {
+        const res = await fetch('/api/insights?admin_key=' + adminKey);
+        if (!res.ok) throw new Error('API returned ' + res.status);
+        const d = await res.json();
+        if (d.error) throw new Error(d.error);
+        render(d);
+    } catch (e) {
+        el.innerHTML = '<div class="empty-state">Error loading insights: ' + e.message + '</div>';
+    }
+}
+
+function render(d) {
+    const el = document.getElementById('content');
+    el.innerHTML = '';
+    
+    // ═══ Row 1: Core Funnel + Conversion Summary ═══
+    const row1 = mkGrid('', 2);
+    
+    // Funnel card
+    const funnelCard = mkCard('Conversion Funnel', 'green');
+    const f = d.funnel;
+    const maxF = Math.max(f.signup, 1);
+    const steps = [
+        { label: 'Signed Up', value: f.signup, pct: '100%', color: 'var(--accent)', drop: null },
+        { label: 'Uploaded', value: f.upload, pct: f.upload_pct + '%', color: 'var(--cyan)', drop: f.signup > 0 ? '-' + Math.round((1 - f.upload/f.signup)*100) + '%' : null },
+        { label: 'Analyzed', value: f.analyze, pct: f.analyze_pct + '%', color: 'var(--green)', drop: f.upload > 0 ? '-' + Math.round((1 - f.analyze/Math.max(f.upload,1))*100) + '%' : null },
+        { label: 'Paid', value: f.pay, pct: f.pay_pct + '%', color: 'var(--purple)', drop: f.analyze > 0 ? '-' + Math.round((1 - f.pay/Math.max(f.analyze,1))*100) + '%' : null },
+    ];
+    const funnelEl = document.createElement('div');
+    funnelEl.className = 'funnel';
+    steps.forEach(s => {
+        const width = Math.max(4, (s.value / maxF) * 100);
+        funnelEl.innerHTML += `
+            <div class="funnel-step">
+                <div class="step-label">${s.label}</div>
+                <div class="step-value">${s.value}</div>
+                <div class="step-bar" style="width:${width}%;background:${s.color};"></div>
+                <div class="step-pct">${s.pct}</div>
+                ${s.drop ? `<div class="step-drop">${s.drop}</div>` : ''}
+            </div>`;
+    });
+    funnelCard.appendChild(funnelEl);
+    row1.appendChild(funnelCard);
+    
+    // Metrics summary card
+    const summCard = mkCard('Key Rates', 'blue');
+    const ap = d.analysis_patterns;
+    summCard.innerHTML += `
+        <div class="metric-row">
+            <div class="metric-item"><div class="val">${f.upload_pct}%</div><div class="lbl">Activation</div></div>
+            <div class="metric-item"><div class="val">${f.analyze_pct}%</div><div class="lbl">Analysis</div></div>
+            <div class="metric-item"><div class="val">${f.pay_pct}%</div><div class="lbl">Paid</div></div>
+        </div>
+        <div class="metric-row" style="margin-top:12px;">
+            <div class="metric-item"><div class="val">${ap.success_rate}%</div><div class="lbl">AI Success</div></div>
+            <div class="metric-item"><div class="val">${ap.total}</div><div class="lbl">Total Analyses</div></div>
+            <div class="metric-item"><div class="val">${d.documents.total}</div><div class="lbl">Documents</div></div>
+        </div>
+        <div class="metric-row" style="margin-top:12px;">
+            <div class="metric-item"><div class="val">${d.referrals.users_referred}</div><div class="lbl">Referrals</div></div>
+            <div class="metric-item"><div class="val">${d.credits.total_outstanding}</div><div class="lbl">Credits Out</div></div>
+            <div class="metric-item"><div class="val">${d.system.open_bugs}</div><div class="lbl">Open Bugs</div></div>
+        </div>`;
+    row1.appendChild(summCard);
+    el.appendChild(row1);
+    
+    // ═══ Row 2: 30-Day Activity Chart ═══
+    const row2 = mkGrid('', 1);
+    const actCard = mkCard('30-Day Activity', 'cyan');
+    const daily = d.daily;
+    if (daily && daily.length > 0) {
+        const maxVal = Math.max(...daily.map(d => Math.max(d.signups, d.analyses, d.logins, 1)));
+        const chartEl = document.createElement('div');
+        chartEl.className = 'bar-chart';
+        chartEl.style.height = '130px';
+        daily.forEach(day => {
+            // Stacked: logins (dim) + analyses (bright) + signups (accent)
+            const total = day.logins + day.analyses + day.signups;
+            const h = Math.max(2, (total / maxVal) * 110);
+            const col = document.createElement('div');
+            col.className = 'bar-col';
+            col.innerHTML = `
+                <div class="bar" style="height:${h}px;background:linear-gradient(to top, var(--surface2) 0%, ${day.analyses > 0 ? 'var(--green)' : day.signups > 0 ? 'var(--accent)' : 'var(--surface2)'} 100%);position:relative;">
+                    <div class="bar-tooltip">${day.date}: ${day.signups}↑ ${day.analyses}⚡ ${day.logins}👤</div>
+                </div>
+                <div class="bar-label">${day.date}</div>`;
+            chartEl.appendChild(col);
+        });
+        actCard.appendChild(chartEl);
+        
+        const legend = document.createElement('div');
+        legend.className = 'legend';
+        legend.innerHTML = `
+            <div class="legend-item"><div class="legend-swatch" style="background:var(--accent)"></div>Signups ↑</div>
+            <div class="legend-item"><div class="legend-swatch" style="background:var(--green)"></div>Analyses ⚡</div>
+            <div class="legend-item"><div class="legend-swatch" style="background:var(--text-dim)"></div>Logins 👤</div>
+            <div class="legend-item" style="margin-left:auto;font-family:'JetBrains Mono',monospace;">Hover bars for details</div>`;
+        actCard.appendChild(legend);
+    } else {
+        actCard.innerHTML += '<div class="empty-state">No daily data yet</div>';
+    }
+    row2.appendChild(actCard);
+    el.appendChild(row2);
+    
+    // ═══ Row 3: Cohort Retention + Price Distribution ═══
+    const row3 = mkGrid('', 2);
+    
+    // Cohort card
+    const cohortCard = mkCard('Weekly Cohort Retention', 'purple');
+    const cohorts = d.cohorts;
+    if (cohorts && cohorts.length > 0) {
+        const maxCo = Math.max(...cohorts.map(c => c.signups), 1);
+        
+        // Header
+        const hdr = document.createElement('div');
+        hdr.className = 'cohort-row';
+        hdr.style.borderBottom = '2px solid var(--border)';
+        hdr.innerHTML = `
+            <div class="week" style="font-weight:600;color:var(--text);">Week</div>
+            <div class="bars" style="background:transparent;font-size:10px;color:var(--text-dim);display:flex;align-items:center;gap:4px;">
+                <span style="flex:1;">← signups → analyzed → returned → paid</span>
+            </div>
+            <div class="nums" style="font-weight:600;color:var(--text);">
+                <span>Sign</span><span>Act%</span><span>Ret%</span><span>Pay%</span>
+            </div>`;
+        cohortCard.appendChild(hdr);
+        
+        cohorts.forEach(c => {
+            const row = document.createElement('div');
+            row.className = 'cohort-row';
+            const sPct = (c.signups / maxCo) * 100;
+            const aPct = (c.analyzed / Math.max(c.signups, 1)) * sPct;
+            const rPct = (c.returned / Math.max(c.signups, 1)) * sPct;
+            const cPct = (c.converted / Math.max(c.signups, 1)) * sPct;
+            row.innerHTML = `
+                <div class="week">${c.week}</div>
+                <div class="bars">
+                    <div class="seg" style="width:${sPct}%;background:var(--accent);opacity:0.3;"></div>
+                    <div class="seg" style="width:${aPct}%;background:var(--green);margin-left:-${sPct}%;opacity:0.6;"></div>
+                </div>
+                <div class="nums">
+                    <span>${c.signups}</span>
+                    <span style="color:${c.activation_pct > 30 ? 'var(--green)' : c.activation_pct > 10 ? 'var(--amber)' : 'var(--red)'}">${c.activation_pct}%</span>
+                    <span style="color:${c.retention_pct > 20 ? 'var(--green)' : c.retention_pct > 5 ? 'var(--amber)' : 'var(--text-dim)'}">${c.retention_pct}%</span>
+                    <span style="color:${c.conversion_pct > 0 ? 'var(--purple)' : 'var(--text-dim)'}">${c.conversion_pct}%</span>
+                </div>`;
+            cohortCard.appendChild(row);
+        });
+    } else {
+        cohortCard.innerHTML += '<div class="empty-state">No cohort data yet</div>';
+    }
+    row3.appendChild(cohortCard);
+    
+    // Price distribution card
+    const priceCard = mkCard('Property Price Distribution', 'amber');
+    const priceDist = d.analysis_patterns.price_distribution;
+    const priceOrder = ['< $200K', '$200-400K', '$400-600K', '$600-800K', '$800K-1M', '$1M+'];
+    const priceColors = ['var(--green)', 'var(--cyan)', 'var(--accent)', 'var(--purple)', 'var(--amber)', 'var(--red)'];
+    const maxPrice = Math.max(...priceOrder.map(k => priceDist[k] || 0), 1);
+    
+    if (Object.keys(priceDist).length > 0) {
+        priceOrder.forEach((bucket, i) => {
+            const count = priceDist[bucket] || 0;
+            const pct = Math.max(2, (count / maxPrice) * 100);
+            const row = document.createElement('div');
+            row.className = 'dist-row';
+            row.innerHTML = `
+                <div class="dist-label">${bucket}</div>
+                <div class="dist-bar-wrap"><div class="dist-bar" style="width:${pct}%;background:${priceColors[i]};"></div></div>
+                <div class="dist-val">${count}</div>`;
+            priceCard.appendChild(row);
+        });
+    } else {
+        priceCard.innerHTML += '<div class="empty-state">No property data yet</div>';
+    }
+    row3.appendChild(priceCard);
+    el.appendChild(row3);
+    
+    // ═══ Row 4: Risk Tiers + Document Types + System Health ═══
+    const row4 = mkGrid('', 3);
+    
+    // Risk tiers
+    const riskCard = mkCard('Risk Tier Distribution', 'red');
+    const riskTiers = d.analysis_patterns.risk_tiers;
+    const riskColors = { 'low': 'var(--green)', 'medium': 'var(--amber)', 'high': 'var(--red)', 'critical': '#ff4060' };
+    if (Object.keys(riskTiers).length > 0) {
+        const maxRisk = Math.max(...Object.values(riskTiers), 1);
+        Object.entries(riskTiers).sort((a,b) => b[1] - a[1]).forEach(([tier, count]) => {
+            const row = document.createElement('div');
+            row.className = 'dist-row';
+            row.innerHTML = `
+                <div class="dist-label" style="text-transform:capitalize;">${tier}</div>
+                <div class="dist-bar-wrap"><div class="dist-bar" style="width:${Math.max(4, count/maxRisk*100)}%;background:${riskColors[tier.toLowerCase()] || 'var(--accent)'}"></div></div>
+                <div class="dist-val">${count}</div>`;
+            riskCard.appendChild(row);
+        });
+    } else {
+        riskCard.innerHTML += '<div class="empty-state">No risk data</div>';
+    }
+    row4.appendChild(riskCard);
+    
+    // Document types
+    const docCard = mkCard('Document Types', 'cyan');
+    const docTypes = d.documents.by_type;
+    if (Object.keys(docTypes).length > 0) {
+        const maxDoc = Math.max(...Object.values(docTypes), 1);
+        Object.entries(docTypes).sort((a,b) => b[1] - a[1]).forEach(([type, count]) => {
+            const label = type.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+            const row = document.createElement('div');
+            row.className = 'dist-row';
+            row.innerHTML = `
+                <div class="dist-label">${label}</div>
+                <div class="dist-bar-wrap"><div class="dist-bar" style="width:${Math.max(4, count/maxDoc*100)}%;background:var(--cyan);"></div></div>
+                <div class="dist-val">${count}</div>`;
+            docCard.appendChild(row);
+        });
+    } else {
+        docCard.innerHTML += '<div class="empty-state">No documents</div>';
+    }
+    row4.appendChild(docCard);
+    
+    // System health
+    const sysCard = mkCard('System Health', 'green');
+    const sys = d.system;
+    const items = [
+        { label: 'Open Bugs', value: sys.open_bugs, badge: sys.open_bugs === 0 ? 'badge-green' : sys.open_bugs < 5 ? 'badge-amber' : 'badge-red', text: sys.open_bugs === 0 ? 'Clean' : sys.open_bugs + ' open' },
+        { label: 'Integrity Tests', value: sys.integrity_tests, badge: sys.integrity_tests.includes('/') && sys.integrity_tests.split('/')[0] === sys.integrity_tests.split('/')[1] ? 'badge-green' : 'badge-amber', text: sys.integrity_tests },
+        { label: 'AI Success Rate', value: ap.success_rate, badge: ap.success_rate >= 95 ? 'badge-green' : ap.success_rate >= 80 ? 'badge-amber' : 'badge-red', text: ap.success_rate + '%' },
+        { label: 'Referral Network', value: d.referrals.users_referred, badge: 'badge-blue', text: d.referrals.users_referred + ' users' },
+        { label: 'Credits Outstanding', value: d.credits.total_outstanding, badge: 'badge-blue', text: d.credits.total_outstanding + ' credits' },
+    ];
+    items.forEach(item => {
+        const el = document.createElement('div');
+        el.className = 'status-item';
+        el.innerHTML = `<div class="label">${item.label}</div><div class="badge ${item.badge}">${item.text}</div>`;
+        sysCard.appendChild(el);
+    });
+    row4.appendChild(sysCard);
+    el.appendChild(row4);
+    
+    // ═══ Row 5: Credit Economy + Referral Stats ═══
+    const row5 = mkGrid('', 2);
+    
+    const creditCard = mkCard('Credit Economy', 'blue');
+    creditCard.innerHTML += `
+        <div class="metric-row">
+            <div class="metric-item"><div class="val">${d.credits.total_outstanding}</div><div class="lbl">Credits Outstanding</div></div>
+            <div class="metric-item"><div class="val">${d.credits.users_with_credits}</div><div class="lbl">Users with Credits</div></div>
+            <div class="metric-item"><div class="val">${d.credits.users_with_credits > 0 ? Math.round(d.credits.total_outstanding / d.credits.users_with_credits) : 0}</div><div class="lbl">Avg Credits/User</div></div>
+        </div>`;
+    row5.appendChild(creditCard);
+    
+    const refCard = mkCard('Referral Network', 'purple');
+    refCard.innerHTML += `
+        <div class="metric-row">
+            <div class="metric-item"><div class="val">${d.referrals.users_referred}</div><div class="lbl">Users Referred</div></div>
+            <div class="metric-item"><div class="val">${d.referrals.credits_earned}</div><div class="lbl">Credits Earned</div></div>
+            <div class="metric-item"><div class="val">${d.funnel.signup > 0 ? Math.round(d.referrals.users_referred / d.funnel.signup * 100) : 0}%</div><div class="lbl">Referral Rate</div></div>
+        </div>`;
+    row5.appendChild(refCard);
+    el.appendChild(row5);
+}
+
+// ── Helpers ──────────────────────────
+function mkGrid(cls, cols) {
+    const g = document.createElement('div');
+    g.className = 'section-grid' + (cols === 3 ? ' triple' : cols === 1 ? ' full' : '');
+    return g;
+}
+
+function mkCard(title, dotColor) {
+    const c = document.createElement('div');
+    c.className = 'card';
+    c.innerHTML = `<h2><span class="dot dot-${dotColor}"></span>${title}</h2>`;
+    return c;
+}
+
+// Auto-load
+loadInsights();
+</script>
+</body>
+</html>

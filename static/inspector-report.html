@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Property Analysis — OfferWise AI</title>
+  <link rel="icon" type="image/svg+xml" href="/logo-icon-only.svg">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #060d1a; --surface: #0f1e35; --border: rgba(255,255,255,0.08);
+      --text: #f1f5f9; --muted: #94a3b8; --dim: #64748b;
+      --fire1: #f97316; --fire2: #f59e0b;
+      --green: #22c55e; --blue: #60a5fa; --red: #ef4444;
+    }
+    body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; min-height: 100vh; }
+
+    /* PRINT STYLES */
+    @media print {
+      body { background: white; color: #1e293b; }
+      .no-print { display: none !important; }
+      .print-only { display: block !important; }
+      .card { border: 1px solid #e2e8f0 !important; background: white !important; }
+      .powered-bar { background: #f8fafc !important; border-top: 2px solid #f97316 !important; }
+    }
+    .print-only { display: none; }
+
+    .container { max-width: 740px; margin: 0 auto; padding: 32px 24px; }
+
+    /* PREPARED BY BANNER */
+    .prepared-by { background: linear-gradient(135deg, rgba(249,115,22,.08), rgba(245,158,11,.05)); border: 1px solid rgba(249,115,22,.2); border-radius: 14px; padding: 18px 22px; margin-bottom: 24px; display: flex; align-items: center; gap: 16px; }
+    .prep-icon { font-size: 1.8rem; flex-shrink: 0; }
+    .prep-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--fire1); margin-bottom: 4px; }
+    .prep-name { font-size: 15px; font-weight: 700; color: var(--text); }
+    .prep-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+    /* HERO SCORE */
+    .hero-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 28px; margin-bottom: 20px; }
+    .hero-top { display: flex; align-items: center; gap: 24px; margin-bottom: 20px; }
+    .score-ring { width: 88px; height: 88px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; position: relative; }
+    .score-inner { width: 68px; height: 68px; border-radius: 50%; background: var(--surface); display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .score-val { font-size: 24px; font-weight: 900; line-height: 1; }
+    .score-lbl { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--dim); }
+    .hero-info h1 { font-size: 18px; font-weight: 800; margin-bottom: 4px; }
+    .hero-info .address { font-size: 13px; color: var(--muted); }
+    .hero-info .prepared { font-size: 12px; color: var(--dim); margin-top: 6px; }
+    .metrics-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; }
+    @media (max-width: 520px) { .metrics-grid { grid-template-columns: 1fr 1fr; } }
+    .metric { padding: 12px; background: rgba(255,255,255,.03); border-radius: 10px; border: 1px solid var(--border); }
+    .metric-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--dim); margin-bottom: 4px; }
+    .metric-val { font-size: 16px; font-weight: 800; }
+
+    /* CARDS */
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 22px; margin-bottom: 16px; }
+    .card-title { font-size: 14px; font-weight: 700; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+    .finding { display: flex; gap: 10px; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,.04); align-items: flex-start; font-size: 13px; }
+    .finding:last-child { border-bottom: none; }
+    .finding-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
+
+    /* OFFER BANDS */
+    .offer-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+    @media (max-width: 480px) { .offer-grid { grid-template-columns: 1fr; } }
+    .offer-band { padding: 14px; border-radius: 10px; text-align: center; border: 1px solid; }
+    .offer-band .band-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 6px; }
+    .offer-band .band-price { font-size: 18px; font-weight: 800; }
+    .offer-band .band-save { font-size: 11px; margin-top: 4px; }
+
+    /* REPAIR TABLE */
+    .repair-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,.04); font-size: 13px; }
+    .repair-row:last-child { border-bottom: none; }
+    .repair-system { font-weight: 600; text-transform: capitalize; }
+    .repair-trade { font-size: 11px; color: var(--dim); }
+    .repair-cost { font-weight: 700; color: var(--fire2); }
+
+    /* CTA */
+    .cta-box { background: linear-gradient(135deg,rgba(249,115,22,.08),rgba(245,158,11,.05)); border: 1px solid rgba(249,115,22,.25); border-radius: 14px; padding: 24px; text-align: center; margin: 24px 0; }
+    .cta-box h3 { font-size: 16px; font-weight: 800; margin-bottom: 8px; }
+    .cta-box p { font-size: 13px; color: var(--muted); margin-bottom: 18px; }
+    .cta-btn { display: inline-block; padding: 12px 28px; background: linear-gradient(90deg,var(--fire1),var(--fire2)); color: white; border-radius: 10px; font-weight: 700; font-size: 14px; text-decoration: none; }
+
+    /* POWERED BY */
+    .powered-bar { border-top: 1px solid var(--border); margin-top: 32px; padding-top: 20px; text-align: center; font-size: 12px; color: var(--dim); }
+    .powered-bar strong { color: var(--fire1); }
+
+    /* LOADING */
+    .loading { text-align: center; padding: 80px 24px; }
+    .spin { width: 36px; height: 36px; border: 3px solid rgba(249,115,22,.2); border-top-color: var(--fire1); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 16px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+<div class="container" id="main-content">
+  <div class="loading">
+    <div class="spin"></div>
+    <div style="font-size:14px;color:var(--muted);">Loading your analysis...</div>
+  </div>
+</div>
+
+<!-- Print / Save PDF button -->
+<div class="no-print" id="print-fab" style="display:none;position:fixed;bottom:24px;right:24px;z-index:100;">
+  <button onclick="window.print()" style="padding:12px 20px;background:linear-gradient(90deg,#f97316,#f59e0b);border:none;border-radius:10px;color:white;font-weight:700;font-size:14px;cursor:pointer;box-shadow:0 4px 20px rgba(249,115,22,.4);">
+    📄 Save as PDF
+  </button>
+</div>
+
+<script>
+const token = window.location.pathname.split('/').pop().split('?')[0];
+
+async function loadReport() {
+  try {
+    const res = await fetch(`/api/inspector-report/${token}`);
+    if (!res.ok) throw new Error('Not found');
+    const data = await res.json();
+    renderReport(data);
+    document.getElementById('print-fab').style.display = 'block';
+  } catch(e) {
+    document.getElementById('main-content').innerHTML = `
+      <div style="text-align:center;padding:80px 24px;color:#64748b;">
+        <div style="font-size:3rem;margin-bottom:16px;">😕</div>
+        <div style="font-size:18px;font-weight:700;margin-bottom:8px;">Report not found</div>
+        <div style="font-size:14px;">This link may have expired or is incorrect. Contact your inspector for a new link.</div>
+      </div>`;
+  }
+}
+
+function fmt(n) { return n ? '$' + Math.round(n).toLocaleString() : '—'; }
+function fmtK(n) { return n ? '$' + Math.round(n/1000) + 'K' : '—'; }
+
+function renderReport(data) {
+  const result = data.result || {};
+  const riskDna = result.risk_dna || {};
+  const riskScore = result.risk_score || {};
+  const offerStrategy = result.offer_strategy || {};
+  const negStrategy = result.negotiation_strategy || {};
+  const repairEstimate = result.repair_estimate || {};
+
+  const composite = riskDna.composite_score || 0;
+  const offerScoreVal = Math.round(100 - composite);
+  const scoreColor = offerScoreVal >= 70 ? '#22c55e' : offerScoreVal >= 45 ? '#f59e0b' : '#ef4444';
+  const riskLabel = offerScoreVal >= 70 ? 'Low Risk' : offerScoreVal >= 45 ? 'Moderate Risk' : 'High Risk';
+
+  const askingPrice = data.property_price || 0;
+  const recOffer = offerStrategy.recommended_offer || 0;
+  const aggOffer = offerStrategy.aggressive_offer || 0;
+  const conOffer = offerStrategy.conservative_offer || 0;
+  const savings = recOffer > 0 && askingPrice > 0 ? askingPrice - recOffer : 0;
+
+  const repairLow = riskScore.total_repair_cost_low || repairEstimate.total_low || 0;
+  const repairHigh = riskScore.total_repair_cost_high || repairEstimate.total_high || 0;
+  const repairAvg = Math.round((repairLow + repairHigh) / 2);
+
+  const dealBreakers = riskScore.deal_breakers || [];
+  const leveragePoints = negStrategy.leverage_points || negStrategy.talking_points || [];
+  const breakdown = repairEstimate.breakdown || [];
+
+  const createdDate = new Date(data.created_at).toLocaleDateString('en-US', {year:'numeric',month:'long',day:'numeric'});
+
+  const contractorMap = {
+    roof:'Roofing Contractor', roofing:'Roofing Contractor', hvac:'HVAC Specialist',
+    heating:'HVAC Specialist', cooling:'HVAC Specialist', electrical:'Licensed Electrician',
+    plumbing:'Licensed Plumber', foundation:'Structural Engineer', structural:'Structural Engineer',
+    sewer:'Plumber / Sewer Specialist', mold:'Mold Remediation', pest:'Pest Control',
+    termite:'Pest Control', default:'General Contractor'
+  };
+  function getTrade(sys) {
+    const k = (sys||'').toLowerCase();
+    for (const [key,val] of Object.entries(contractorMap)) { if (k.includes(key)) return val; }
+    return contractorMap.default;
+  }
+
+  // Score ring via conic gradient
+  const pct = (offerScoreVal / 100) * 360;
+  const ringBg = `conic-gradient(${scoreColor} 0deg ${pct}deg, rgba(255,255,255,.06) ${pct}deg)`;
+
+  document.getElementById('main-content').innerHTML = `
+    <!-- Prepared by banner -->
+    <div class="prepared-by">
+      <div class="prep-icon">🔍</div>
+      <div>
+        <div class="prep-label">Analysis prepared by</div>
+        <div class="prep-name">${data.inspector_biz || data.inspector_name || 'Your Inspector'}</div>
+        <div class="prep-sub">Powered by OfferWise AI · ${createdDate}</div>
+      </div>
+    </div>
+
+    <!-- Hero -->
+    <div class="hero-card">
+      <div class="hero-top">
+        <div class="score-ring" style="background:${ringBg};">
+          <div class="score-inner">
+            <div class="score-val" style="color:${scoreColor};">${offerScoreVal}</div>
+            <div class="score-lbl">Score</div>
+          </div>
+        </div>
+        <div class="hero-info">
+          <h1>${data.property_address || 'Property Analysis'}</h1>
+          ${data.buyer_name ? `<div class="address">Prepared for: <strong>${data.buyer_name}</strong></div>` : ''}
+          <div class="prepared" style="margin-top:8px;">
+            <span style="padding:3px 8px;border-radius:4px;font-size:11px;font-weight:700;background:${offerScoreVal>=70?'rgba(34,197,94,.12)':offerScoreVal>=45?'rgba(245,158,11,.12)':'rgba(239,68,68,.12)'};color:${scoreColor};">${riskLabel}</span>
+          </div>
+        </div>
+      </div>
+      <div class="metrics-grid">
+        <div class="metric">
+          <div class="metric-label">Asking Price</div>
+          <div class="metric-val">${askingPrice > 0 ? fmt(askingPrice) : '—'}</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Recommended Offer</div>
+          <div class="metric-val" style="color:#22c55e;">${recOffer > 0 ? fmt(recOffer) : '—'}</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Est. Repairs</div>
+          <div class="metric-val" style="color:#f59e0b;">${repairLow > 0 ? fmtK(repairLow)+'–'+fmtK(repairHigh) : '—'}</div>
+        </div>
+        ${savings > 0 ? `<div class="metric"><div class="metric-label">Potential Savings</div><div class="metric-val" style="color:#22c55e;">${fmt(savings)}</div></div>` : ''}
+        <div class="metric">
+          <div class="metric-label">Deal Breakers</div>
+          <div class="metric-val" style="color:${dealBreakers.length > 0 ? '#ef4444':'#22c55e'};">${dealBreakers.length}</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Leverage Points</div>
+          <div class="metric-val" style="color:#60a5fa;">${leveragePoints.length}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Offer strategy -->
+    ${(aggOffer > 0 || conOffer > 0 || recOffer > 0) ? `
+    <div class="card">
+      <div class="card-title">🎯 Offer Strategy</div>
+      <div class="offer-grid">
+        ${aggOffer > 0 ? `<div class="offer-band" style="background:rgba(239,68,68,.06);border-color:rgba(239,68,68,.2);">
+          <div class="band-label" style="color:#ef4444;">Aggressive</div>
+          <div class="band-price" style="color:#ef4444;">${fmt(aggOffer)}</div>
+          ${askingPrice > 0 ? `<div class="band-save" style="color:#64748b;">Save ${fmt(askingPrice-aggOffer)}</div>` : ''}
+        </div>` : ''}
+        ${recOffer > 0 ? `<div class="offer-band" style="background:rgba(34,197,94,.06);border-color:rgba(34,197,94,.3);">
+          <div class="band-label" style="color:#22c55e;">Recommended ✓</div>
+          <div class="band-price" style="color:#22c55e;">${fmt(recOffer)}</div>
+          ${askingPrice > 0 ? `<div class="band-save" style="color:#22c55e;">Save ${fmt(savings)}</div>` : ''}
+        </div>` : ''}
+        ${conOffer > 0 ? `<div class="offer-band" style="background:rgba(96,165,250,.06);border-color:rgba(96,165,250,.2);">
+          <div class="band-label" style="color:#60a5fa;">Conservative</div>
+          <div class="band-price" style="color:#60a5fa;">${fmt(conOffer)}</div>
+          ${askingPrice > 0 ? `<div class="band-save" style="color:#64748b;">Save ${fmt(askingPrice-conOffer)}</div>` : ''}
+        </div>` : ''}
+      </div>
+    </div>` : ''}
+
+    <!-- Deal breakers -->
+    ${dealBreakers.length > 0 ? `
+    <div class="card">
+      <div class="card-title">⛔ Issues to Address</div>
+      ${dealBreakers.slice(0,6).map(db => {
+        const text = typeof db === 'string' ? db : (db.description || db.issue || db.title || '');
+        const cost = typeof db === 'object' ? (db.cost_estimate || '') : '';
+        return `<div class="finding">
+          <div class="finding-dot" style="background:#ef4444;margin-top:6px;"></div>
+          <div style="flex:1;">
+            <div style="color:#f1f5f9;">${text}</div>
+            ${cost ? `<div style="font-size:11px;color:#f59e0b;margin-top:2px;">Est: ${cost}</div>` : ''}
+          </div>
+        </div>`;
+      }).join('')}
+    </div>` : ''}
+
+    <!-- Repair breakdown -->
+    ${breakdown.length > 0 || repairLow > 0 ? `
+    <div class="card">
+      <div class="card-title">🔧 Repair Cost Breakdown</div>
+      ${breakdown.length > 0 ? breakdown.slice(0,8).map(item => `
+        <div class="repair-row">
+          <div>
+            <div class="repair-system">${item.system}</div>
+            <div class="repair-trade">${getTrade(item.system)}</div>
+          </div>
+          <div class="repair-cost">${item.low && item.high ? fmtK(item.low)+'–'+fmtK(item.high) : fmtK(item.avg||0)}</div>
+        </div>`).join('') : `
+        <div class="repair-row">
+          <div><div class="repair-system">Total estimated repairs</div></div>
+          <div class="repair-cost">${fmtK(repairLow)}–${fmtK(repairHigh)}</div>
+        </div>`}
+      <div style="margin-top:12px;padding:10px 14px;background:rgba(245,158,11,.08);border-radius:8px;display:flex;justify-content:space-between;">
+        <span style="font-size:13px;font-weight:700;">Total avg estimate</span>
+        <span style="font-size:14px;font-weight:800;color:#f59e0b;">${repairAvg > 0 ? fmt(repairAvg) : '—'}</span>
+      </div>
+    </div>` : ''}
+
+    <!-- Negotiation points -->
+    ${leveragePoints.length > 0 ? `
+    <div class="card">
+      <div class="card-title">🎯 Negotiation Checklist</div>
+      <div style="font-size:12px;color:#64748b;margin-bottom:12px;">Share this with your agent — each item is backed by the inspection report.</div>
+      ${leveragePoints.slice(0,6).map((lp,i) => {
+        const text = typeof lp === 'string' ? lp : (lp.description || lp.point || lp.text || '');
+        return `<div class="finding">
+          <div style="font-size:13px;font-weight:700;color:#64748b;flex-shrink:0;min-width:20px;">${i+1}.</div>
+          <div style="font-size:13px;color:#e2e8f0;">${text}</div>
+        </div>`;
+      }).join('')}
+    </div>` : ''}
+
+    <!-- CTA for non-registered users -->
+    <div class="cta-box no-print">
+      <h3>Want to run your own analysis on other properties?</h3>
+      <p>OfferWise AI analyzes any disclosure or inspection report — offer price, repair costs, negotiation strategy — in under 60 seconds. Your first analysis is free.</p>
+      <a href="/login?signup=1" class="cta-btn">Try OfferWise Free →</a>
+    </div>
+
+    <!-- Powered by -->
+    <div class="powered-bar">
+      <p>Analysis prepared by <strong>${data.inspector_biz || data.inspector_name || 'your inspector'}</strong></p>
+      <p style="margin-top:4px;">Powered by <strong>OfferWise AI</strong> · AI-powered property analysis · <a href="/" style="color:var(--dim);">getofferwise.ai</a></p>
+      <p style="margin-top:4px;font-size:11px;">This analysis is based on the inspection report provided and is not a substitute for professional advice. Always consult qualified professionals before making real estate decisions.</p>
+    </div>
+  `;
+}
+
+loadReport();
+</script>
+</body>
+</html>

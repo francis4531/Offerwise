@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inspector Dashboard — OfferWise AI</title>
+  <link rel="icon" type="image/svg+xml" href="/logo-icon-only.svg">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #060d1a; --surface: #0f1e35; --surface2: #162032;
+      --border: rgba(255,255,255,0.08); --border2: rgba(255,255,255,0.05);
+      --text: #f1f5f9; --muted: #94a3b8; --dim: #64748b;
+      --fire1: #f97316; --fire2: #f59e0b;
+      --green: #22c55e; --blue: #60a5fa; --red: #ef4444;
+    }
+    body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; min-height: 100vh; }
+
+    /* NAV */
+    nav { display: flex; align-items: center; justify-content: space-between; padding: 14px 32px; border-bottom: 1px solid var(--border); background: rgba(6,13,26,0.98); }
+    .nav-logo { font-size: 1.2rem; font-weight: 900; color: var(--text); text-decoration: none; }
+    .nav-logo .wise { background: linear-gradient(90deg,var(--fire1),var(--fire2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .nav-right { display: flex; align-items: center; gap: 16px; }
+    .nav-badge { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--fire1); background: rgba(249,115,22,.1); border: 1px solid rgba(249,115,22,.25); padding: 4px 10px; border-radius: 6px; }
+    .nav-link { font-size: 13px; color: var(--muted); text-decoration: none; }
+    .nav-link:hover { color: var(--text); }
+
+    /* LAYOUT */
+    .layout { display: grid; grid-template-columns: 240px 1fr; min-height: calc(100vh - 53px); }
+    @media (max-width: 768px) { .layout { grid-template-columns: 1fr; } .sidebar { display: none; } }
+
+    /* SIDEBAR */
+    .sidebar { border-right: 1px solid var(--border); padding: 24px 16px; }
+    .sidebar-section { margin-bottom: 32px; }
+    .sidebar-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--dim); margin-bottom: 8px; padding: 0 8px; }
+    .sidebar-item { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 8px; font-size: 13px; font-weight: 600; color: var(--muted); cursor: pointer; transition: all .15s; text-decoration: none; margin-bottom: 2px; }
+    .sidebar-item:hover { background: rgba(255,255,255,.04); color: var(--text); }
+    .sidebar-item.active { background: rgba(249,115,22,.1); color: var(--fire1); }
+    .quota-box { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px; margin-top: 8px; }
+    .quota-label { font-size: 11px; color: var(--dim); margin-bottom: 6px; }
+    .quota-bar { height: 6px; background: rgba(255,255,255,.06); border-radius: 3px; overflow: hidden; margin-bottom: 6px; }
+    .quota-fill { height: 100%; background: linear-gradient(90deg,var(--fire1),var(--fire2)); border-radius: 3px; transition: width .4s; }
+    .quota-text { font-size: 12px; font-weight: 700; color: var(--text); }
+
+    /* MAIN */
+    .main { padding: 32px; overflow-x: hidden; }
+    .page { display: none; }
+    .page.active { display: block; }
+
+    /* STATS ROW */
+    .stats-row { display: grid; grid-template-columns: repeat(auto-fit,minmax(160px,1fr)); gap: 12px; margin-bottom: 28px; }
+    .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
+    .stat-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--dim); margin-bottom: 6px; }
+    .stat-val { font-size: 1.8rem; font-weight: 800; letter-spacing: -.02em; }
+    .stat-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+    /* SECTION HEADER */
+    .section-hdr { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+    .section-hdr h2 { font-size: 16px; font-weight: 700; }
+    .btn-fire { background: linear-gradient(90deg,var(--fire1),var(--fire2)); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; font-family: inherit; }
+    .btn-ghost { background: transparent; color: var(--muted); border: 1px solid var(--border); padding: 8px 16px; border-radius: 8px; font-weight: 600; font-size: 13px; cursor: pointer; font-family: inherit; }
+    .btn-ghost:hover { border-color: rgba(255,255,255,.2); color: var(--text); }
+
+    /* REPORTS TABLE */
+    .reports-table { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+    .table-hdr { display: grid; grid-template-columns: 2fr 1fr 1fr 80px 100px; gap: 8px; padding: 10px 16px; background: var(--surface2); border-bottom: 1px solid var(--border); font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--dim); }
+    .table-row { display: grid; grid-template-columns: 2fr 1fr 1fr 80px 100px; gap: 8px; padding: 14px 16px; border-bottom: 1px solid var(--border2); align-items: center; transition: background .1s; }
+    .table-row:last-child { border-bottom: none; }
+    .table-row:hover { background: rgba(255,255,255,.02); }
+    .table-cell { font-size: 13px; }
+    .address-cell { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .address-sub { font-size: 11px; color: var(--dim); margin-top: 2px; }
+    .score-pill { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 50%; font-weight: 800; font-size: 13px; }
+    .copy-link-btn { font-size: 11px; font-weight: 700; padding: 5px 10px; border-radius: 6px; border: 1px solid var(--border); background: transparent; color: var(--muted); cursor: pointer; font-family: inherit; transition: all .15s; }
+    .copy-link-btn:hover { border-color: rgba(249,115,22,.4); color: var(--fire1); }
+    .empty-state { text-align: center; padding: 48px 24px; color: var(--dim); }
+    .empty-state .icon { font-size: 2.5rem; margin-bottom: 12px; }
+    .empty-state p { font-size: 14px; line-height: 1.6; }
+
+    /* ANALYZE FORM */
+    .analyze-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 28px; max-width: 680px; }
+    .form-group { margin-bottom: 18px; }
+    .form-group label { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--dim); margin-bottom: 7px; }
+    .form-group input, .form-group textarea, .form-group select { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; color: var(--text); font-size: 14px; font-family: inherit; outline: none; transition: border-color .15s; resize: vertical; }
+    .form-group input:focus, .form-group textarea:focus { border-color: rgba(249,115,22,.5); }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .form-hint { font-size: 11px; color: var(--dim); margin-top: 5px; }
+    .analyze-btn { width: 100%; padding: 14px; background: linear-gradient(90deg,var(--fire1),var(--fire2)); border: none; border-radius: 10px; color: white; font-size: 16px; font-weight: 700; cursor: pointer; font-family: inherit; transition: opacity .15s; margin-top: 8px; }
+    .analyze-btn:disabled { opacity: .6; cursor: not-allowed; }
+
+    /* RESULT CARD */
+    .result-card { background: rgba(34,197,94,.05); border: 1px solid rgba(34,197,94,.2); border-radius: 14px; padding: 24px; max-width: 680px; margin-top: 20px; display: none; }
+    .result-card h3 { font-size: 15px; font-weight: 700; margin-bottom: 16px; }
+    .share-url-box { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; font-family: monospace; font-size: 13px; color: var(--blue); word-break: break-all; margin-bottom: 12px; }
+    .result-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    .result-actions button { padding: 10px 18px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; font-family: inherit; border: none; }
+
+    /* MODAL OVERLAY */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.75); z-index: 9999; display: none; align-items: center; justify-content: center; padding: 16px; }
+    .modal-overlay.open { display: flex; }
+    .modal { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 28px; max-width: 480px; width: 100%; position: relative; }
+    .modal-close { position: absolute; top: 16px; right: 16px; background: none; border: none; color: var(--dim); font-size: 20px; cursor: pointer; }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo">Offer<span class="wise">Wise</span> AI</a>
+  <div class="nav-right">
+    <span class="nav-badge">Inspector Portal</span>
+    <a href="/dashboard" class="nav-link">My Dashboard</a>
+    <a href="/logout" class="nav-link">Log out</a>
+  </div>
+</nav>
+
+<div class="layout">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Menu</div>
+      <a class="sidebar-item active" onclick="showPage('overview')" href="#">📊 Overview</a>
+      <a class="sidebar-item" onclick="showPage('new-analysis')" href="#">✨ New Analysis</a>
+      <a class="sidebar-item" onclick="showPage('reports')" href="#">📋 All Reports</a>
+      <a class="sidebar-item" onclick="showPage('profile')" href="#">👤 My Profile</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Usage</div>
+      <div class="quota-box">
+        <div class="quota-label">Monthly analyses</div>
+        <div class="quota-bar"><div class="quota-fill" id="quota-fill" style="width:0%"></div></div>
+        <div class="quota-text" id="quota-text">Loading...</div>
+      </div>
+    </div>
+    <div class="sidebar-section">
+      <a class="sidebar-item" href="#" onclick="startInspectorProCheckout(); return false;">⭐ Upgrade to Pro — $49/mo</a>
+      <a class="sidebar-item" href="#" onclick="openInviteModal(); return false;">🤝 Invite a Colleague</a>
+      <a class="sidebar-item" href="/contact" target="_blank">💬 Get Help</a>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- OVERVIEW PAGE -->
+    <div id="page-overview" class="page active">
+      <div style="margin-bottom:24px;">
+        <h1 style="font-size:22px;font-weight:800;margin-bottom:4px;">Good to see you, <span id="inspector-name">Inspector</span>.</h1>
+        <p style="color:var(--muted);font-size:14px;">Here's how your reports are performing.</p>
+      </div>
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-label">Reports sent</div>
+          <div class="stat-val" id="stat-total">—</div>
+          <div class="stat-sub">all time</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Buyers viewed</div>
+          <div class="stat-val" id="stat-viewed">—</div>
+          <div class="stat-sub">opened the analysis</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Buyers registered</div>
+          <div class="stat-val" id="stat-registered">—</div>
+          <div class="stat-sub">created an account</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">This month</div>
+          <div class="stat-val" id="stat-month">—</div>
+          <div class="stat-sub">analyses used</div>
+        </div>
+      </div>
+
+      <!-- Recent reports -->
+      <div class="section-hdr">
+        <h2>Recent Reports</h2>
+        <button class="btn-fire" onclick="showPage('new-analysis')">+ New Analysis</button>
+      </div>
+      <div id="overview-reports-container">
+        <div class="empty-state"><div class="icon">📋</div><p>No reports yet. Run your first analysis to get started.</p></div>
+      </div>
+    </div>
+
+    <!-- NEW ANALYSIS PAGE -->
+    <div id="page-new-analysis" class="page">
+      <div style="margin-bottom:24px;">
+        <h1 style="font-size:22px;font-weight:800;margin-bottom:4px;">New Buyer Analysis</h1>
+        <p style="color:var(--muted);font-size:14px;">Paste the inspection report text below. OfferWise will generate a full buyer analysis in under 60 seconds.</p>
+      </div>
+
+      <div class="analyze-card">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Buyer name (optional)</label>
+            <input type="text" id="f-buyer-name" placeholder="Sarah Chen">
+          </div>
+          <div class="form-group">
+            <label>Buyer email (optional)</label>
+            <input type="email" id="f-buyer-email" placeholder="sarah@email.com">
+            <div class="form-hint">We'll never contact your buyer without your permission.</div>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Property address *</label>
+            <input type="text" id="f-address" placeholder="142 Oak Ave, Sunnyvale CA 94086">
+          </div>
+          <div class="form-group">
+            <label>Asking price (optional)</label>
+            <input type="text" id="f-price" placeholder="$1,150,000">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Inspection report text *</label>
+          <textarea id="f-inspection" rows="10" placeholder="Paste the full text of your inspection report here. You can copy-paste from your report software, or paste the text extracted from your PDF. The more detail, the better the analysis."></textarea>
+          <div class="form-hint">Minimum 100 characters. Tip: Select All in your report and paste here.</div>
+        </div>
+        <div class="form-group">
+          <label>Seller disclosure text (optional but recommended)</label>
+          <textarea id="f-disclosure" rows="4" placeholder="Paste seller disclosure text here if available. OfferWise will cross-reference it against your inspection findings."></textarea>
+        </div>
+        <button class="analyze-btn" id="analyze-btn" onclick="runInspectorAnalysis()">
+          ✨ Generate Buyer Analysis
+        </button>
+        <div id="analyze-progress" style="display:none;margin-top:16px;text-align:center;">
+          <div style="font-size:14px;color:var(--muted);margin-bottom:8px;" id="analyze-progress-msg">Analyzing...</div>
+          <div style="height:4px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden;">
+            <div id="analyze-progress-bar" style="height:100%;background:linear-gradient(90deg,var(--fire1),var(--fire2));border-radius:2px;width:0%;transition:width .4s;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Result -->
+      <div id="analyze-result" class="result-card">
+        <div style="font-size:1.5rem;margin-bottom:10px;">✅</div>
+        <h3>Analysis ready — share this link with your buyer</h3>
+        <div class="share-url-box" id="result-share-url"></div>
+        <div class="result-actions">
+          <button onclick="copyShareUrl()" style="background:rgba(249,115,22,.15);color:var(--fire1);border:1px solid rgba(249,115,22,.3);" id="copy-share-btn">📋 Copy Link</button>
+          <button onclick="openPdfPreview()" style="background:rgba(96,165,250,.15);color:var(--blue);border:1px solid rgba(96,165,250,.3);">📄 Download PDF</button>
+          <button onclick="showPage('new-analysis');resetForm();" style="background:rgba(255,255,255,.07);color:var(--muted);border:1px solid var(--border);">+ Another Analysis</button>
+        </div>
+        <div style="margin-top:14px;font-size:12px;color:var(--dim);">Share this link with your buyer via email, text, or attach the PDF to your inspection report.</div>
+      </div>
+    </div>
+
+    <!-- ALL REPORTS PAGE -->
+    <div id="page-reports" class="page">
+      <div style="margin-bottom:24px;">
+        <h1 style="font-size:22px;font-weight:800;margin-bottom:4px;">All Reports</h1>
+        <p style="color:var(--muted);font-size:14px;">Every analysis you've generated for buyers.</p>
+      </div>
+      <div id="reports-container">
+        <div class="empty-state"><div class="icon">📋</div><p>No reports yet.</p></div>
+      </div>
+    </div>
+
+    <!-- PROFILE PAGE -->
+    <div id="page-profile" class="page">
+      <div style="margin-bottom:24px;">
+        <h1 style="font-size:22px;font-weight:800;margin-bottom:4px;">My Inspector Profile</h1>
+        <p style="color:var(--muted);font-size:14px;">Your details appear on every buyer report you generate.</p>
+      </div>
+      <div class="analyze-card" style="max-width:500px;">
+        <div class="form-group">
+          <label>Business name</label>
+          <input type="text" id="p-biz" placeholder="Bay Area Home Inspections">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>License number</label>
+            <input type="text" id="p-license" placeholder="CA-12345">
+          </div>
+          <div class="form-group">
+            <label>State</label>
+            <select id="p-state">
+              <option value="CA">California</option><option value="TX">Texas</option>
+              <option value="FL">Florida</option><option value="NY">New York</option>
+              <option value="WA">Washington</option><option value="OR">Oregon</option>
+              <option value="AZ">Arizona</option><option value="NV">Nevada</option>
+              <option value="CO">Colorado</option><option value="other">Other</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Phone</label>
+          <input type="tel" id="p-phone" placeholder="(415) 555-0123">
+        </div>
+        <div class="form-group">
+          <label>Website</label>
+          <input type="url" id="p-website" placeholder="https://yourinspections.com">
+        </div>
+        <div class="form-group">
+          <label>Service areas</label>
+          <input type="text" id="p-areas" placeholder="San Jose, Santa Clara, Sunnyvale, Mountain View">
+          <div class="form-hint">City names or ZIP codes, comma-separated.</div>
+        </div>
+        <button class="analyze-btn" onclick="saveProfile()" id="save-profile-btn">Save Profile</button>
+        <div id="profile-saved" style="display:none;margin-top:10px;text-align:center;font-size:13px;color:var(--green);">✓ Profile saved</div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script src="https://js.stripe.com/v3/"></script>
+<script>
+async function startInspectorProCheckout() {
+  try {
+    const configRes = await fetch('/api/stripe-config', { credentials: 'include' });
+    const config = await configRes.json();
+    if (!config.publishableKey) throw new Error('Stripe not configured');
+    const stripe = Stripe(config.publishableKey);
+    const res = await fetch('/api/create-checkout-session', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ plan: 'inspector_pro' })
+    });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    await stripe.redirectToCheckout({ sessionId: data.sessionId });
+  } catch(e) {
+    alert('Could not start checkout. Please try again or contact support.');
+  }
+}
+
+let inspectorData = null;
+let allReports = [];
+let lastShareUrl = '';
+let lastReportId = null;
+
+// ── Navigation ──
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  document.querySelectorAll('.sidebar-item').forEach(i => {
+    if (i.getAttribute('onclick') && i.getAttribute('onclick').includes(name)) i.classList.add('active');
+  });
+  if (name === 'reports') renderReportsTable(allReports);
+  if (name === 'overview') renderOverview();
+}
+
+// ── Load data on init ──
+async function init() {
+  // Check inspector profile
+  const res = await fetch('/api/inspector/profile', { credentials: 'include' });
+  if (res.status === 401) { window.location.href = '/login?redirect=/inspector-portal'; return; }
+  const data = await res.json();
+
+  if (!data.registered) {
+    // Not registered yet — show registration modal
+    showRegistrationModal();
+    return;
+  }
+
+  inspectorData = data;
+  document.getElementById('inspector-name').textContent = data.business_name || 'Inspector';
+
+  // Quota bar
+  const used = data.monthly_used || 0;
+  const quota = data.monthly_quota || 5;
+  if (quota === -1) {
+    // Pro — unlimited
+    document.getElementById('quota-fill').style.width = '100%';
+    document.getElementById('quota-fill').style.background = 'linear-gradient(90deg,#22c55e,#16a34a)';
+    document.getElementById('quota-text').textContent = `${used} used · Unlimited ⭐`;
+    document.querySelector('.nav-badge').textContent = 'Inspector Pro ⭐';
+  } else {
+    const pct = Math.min(100, Math.round((used / quota) * 100));
+    document.getElementById('quota-fill').style.width = pct + '%';
+    document.getElementById('quota-text').textContent = `${used} / ${quota} used`;
+  }
+
+  // Load reports
+  const rRes = await fetch('/api/inspector/reports', { credentials: 'include' });
+  const rData = await rRes.json();
+  allReports = rData.reports || [];
+
+  // Stats
+  document.getElementById('stat-total').textContent = inspectorData.total_reports || 0;
+  const viewed = allReports.filter(r => r.buyer_viewed).length;
+  const registered = allReports.filter(r => r.buyer_registered).length;
+  document.getElementById('stat-viewed').textContent = viewed;
+  document.getElementById('stat-registered').textContent = registered;
+  document.getElementById('stat-month').textContent = used;
+
+  renderOverview();
+
+  // Pre-fill profile
+  document.getElementById('p-biz').value = data.business_name || '';
+  document.getElementById('p-license').value = data.license_number || '';
+  document.getElementById('p-phone').value = data.phone || '';
+  document.getElementById('p-website').value = data.website || '';
+  document.getElementById('p-areas').value = data.service_areas || '';
+}
+
+function renderOverview() {
+  const container = document.getElementById('overview-reports-container');
+  if (!allReports.length) {
+    container.innerHTML = '<div class="empty-state"><div class="icon">📋</div><p>No reports yet. Run your first analysis to get started.</p></div>';
+    return;
+  }
+  container.innerHTML = renderTableHTML(allReports.slice(0, 5));
+}
+
+function renderReportsTable(reports) {
+  const container = document.getElementById('reports-container');
+  if (!reports.length) {
+    container.innerHTML = '<div class="empty-state"><div class="icon">📋</div><p>No reports yet.</p></div>';
+    return;
+  }
+  container.innerHTML = renderTableHTML(reports);
+}
+
+function renderTableHTML(reports) {
+  const scoreColor = s => s >= 70 ? '#22c55e' : s >= 45 ? '#f59e0b' : '#ef4444';
+  const rows = reports.map(r => {
+    const date = new Date(r.created_at).toLocaleDateString('en-US', {month:'short',day:'numeric'});
+    const price = r.property_price ? '$' + Math.round(r.property_price/1000) + 'K' : '—';
+    const score = r.offer_score || 0;
+    const viewedIcon = r.buyer_viewed ? '👁️' : '—';
+    return `
+      <div class="table-row">
+        <div class="table-cell">
+          <div class="address-cell">${r.property_address || '—'}</div>
+          <div class="address-sub">${r.buyer_name || 'Buyer'} · ${date} · ${price}</div>
+        </div>
+        <div class="table-cell">
+          <div class="score-pill" style="background:${scoreColor(score)}22;color:${scoreColor(score)};border:1px solid ${scoreColor(score)}44;">${score}</div>
+        </div>
+        <div class="table-cell" style="font-size:13px;color:var(--muted);">${viewedIcon} ${r.view_count || 0} views</div>
+        <div class="table-cell">
+          <span style="font-size:11px;padding:3px 8px;border-radius:4px;background:${r.buyer_registered ? 'rgba(34,197,94,.12)' : 'rgba(255,255,255,.05)'};color:${r.buyer_registered ? '#22c55e' : 'var(--dim)'};">
+            ${r.buyer_registered ? 'Registered' : 'Pending'}
+          </span>
+        </div>
+        <div class="table-cell">
+          <button class="copy-link-btn" onclick="copyLink('${r.share_url}', this)">Copy link</button>
+        </div>
+      </div>`;
+  }).join('');
+
+  return `
+    <div class="reports-table">
+      <div class="table-hdr">
+        <div>Property / Buyer</div>
+        <div>Score</div>
+        <div>Views</div>
+        <div>Status</div>
+        <div>Link</div>
+      </div>
+      ${rows}
+    </div>`;
+}
+
+function copyLink(url, btn) {
+  navigator.clipboard.writeText(url).then(() => {
+    const orig = btn.textContent;
+    btn.textContent = '✓ Copied';
+    btn.style.color = '#22c55e';
+    setTimeout(() => { btn.textContent = orig; btn.style.color = ''; }, 2000);
+  });
+}
+
+// ── Run analysis ──
+async function runInspectorAnalysis() {
+  const address     = document.getElementById('f-address').value.trim();
+  const inspection  = document.getElementById('f-inspection').value.trim();
+  const disclosure  = document.getElementById('f-disclosure').value.trim();
+  const price       = document.getElementById('f-price').value.replace(/[^0-9]/g,'');
+  const buyerName   = document.getElementById('f-buyer-name').value.trim();
+  const buyerEmail  = document.getElementById('f-buyer-email').value.trim();
+
+  if (!address) { alert('Property address is required.'); return; }
+  if (inspection.length < 100) { alert('Please paste the full inspection report text (at least 100 characters).'); return; }
+
+  const btn = document.getElementById('analyze-btn');
+  btn.disabled = true;
+  btn.textContent = 'Analyzing...';
+  document.getElementById('analyze-progress').style.display = 'block';
+  document.getElementById('analyze-result').style.display = 'none';
+
+  // Fake progress animation
+  let pct = 0;
+  const msgs = ['Parsing inspection findings...','Estimating repair costs...','Calculating offer strategy...','Building negotiation points...','Finalizing analysis...'];
+  let msgIdx = 0;
+  const interval = setInterval(() => {
+    pct = Math.min(pct + Math.random() * 12, 90);
+    document.getElementById('analyze-progress-bar').style.width = pct + '%';
+    if (msgIdx < msgs.length - 1 && pct > (msgIdx + 1) * 18) {
+      msgIdx++;
+      document.getElementById('analyze-progress-msg').textContent = msgs[msgIdx];
+    }
+  }, 600);
+
+  try {
+    const res = await fetch('/api/inspector/analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({
+        property_address: address,
+        property_price: price || 0,
+        inspection_text: inspection,
+        disclosure_text: disclosure,
+        buyer_name: buyerName,
+        buyer_email: buyerEmail,
+      })
+    });
+    clearInterval(interval);
+    document.getElementById('analyze-progress-bar').style.width = '100%';
+
+    const data = await res.json();
+    if (!res.ok) {
+      alert(data.message || data.error || 'Analysis failed. Please try again.');
+      btn.disabled = false;
+      btn.textContent = '✨ Generate Buyer Analysis';
+      document.getElementById('analyze-progress').style.display = 'none';
+      return;
+    }
+
+    lastShareUrl = data.share_url;
+    lastReportId = data.report_id;
+
+    document.getElementById('analyze-progress').style.display = 'none';
+    document.getElementById('result-share-url').textContent = data.share_url;
+    document.getElementById('analyze-result').style.display = 'block';
+
+    btn.disabled = false;
+    btn.textContent = '✨ Generate Buyer Analysis';
+
+    // Refresh reports list
+    const rRes = await fetch('/api/inspector/reports', { credentials: 'include' });
+    const rData = await rRes.json();
+    allReports = rData.reports || [];
+    document.getElementById('stat-total').textContent = inspectorData ? (inspectorData.total_reports || 0) + 1 : '—';
+
+    // Update quota
+    if (inspectorData) {
+      inspectorData.monthly_used = (inspectorData.monthly_used || 0) + 1;
+      const pct2 = Math.min(100, Math.round((inspectorData.monthly_used / (inspectorData.monthly_quota || 5)) * 100));
+      document.getElementById('quota-fill').style.width = pct2 + '%';
+      document.getElementById('quota-text').textContent = `${inspectorData.monthly_used} / ${inspectorData.monthly_quota || 5} used`;
+    }
+
+  } catch(e) {
+    clearInterval(interval);
+    alert('Network error. Please check your connection and try again.');
+    btn.disabled = false;
+    btn.textContent = '✨ Generate Buyer Analysis';
+    document.getElementById('analyze-progress').style.display = 'none';
+  }
+}
+
+function copyShareUrl() {
+  navigator.clipboard.writeText(lastShareUrl).then(() => {
+    const btn = document.getElementById('copy-share-btn');
+    btn.textContent = '✓ Copied!';
+    setTimeout(() => { btn.textContent = '📋 Copy Link'; }, 2000);
+  });
+}
+
+function openPdfPreview() {
+  if (lastShareUrl) window.open(lastShareUrl + '?print=1', '_blank');
+}
+
+function resetForm() {
+  ['f-buyer-name','f-buyer-email','f-address','f-price','f-inspection','f-disclosure'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('analyze-result').style.display = 'none';
+}
+
+// ── Save profile ──
+async function saveProfile() {
+  const btn = document.getElementById('save-profile-btn');
+  btn.textContent = 'Saving...';
+  btn.disabled = true;
+  const res = await fetch('/api/inspector/profile', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify({
+      business_name:  document.getElementById('p-biz').value.trim(),
+      license_number: document.getElementById('p-license').value.trim(),
+      license_state:  document.getElementById('p-state').value,
+      phone:          document.getElementById('p-phone').value.trim(),
+      website:        document.getElementById('p-website').value.trim(),
+      service_areas:  document.getElementById('p-areas').value.trim(),
+    })
+  });
+  btn.textContent = 'Save Profile';
+  btn.disabled = false;
+  document.getElementById('profile-saved').style.display = 'block';
+  setTimeout(() => { document.getElementById('profile-saved').style.display = 'none'; }, 3000);
+}
+
+// ── Registration modal ──
+function showRegistrationModal() {
+  document.body.insertAdjacentHTML('beforeend', `
+    <div id="reg-modal" style="position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px;">
+      <div style="background:#0f1e35;border:1px solid rgba(249,115,22,.3);border-radius:16px;padding:32px;max-width:440px;width:100%;">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#f97316;margin-bottom:12px;">One-time setup</div>
+        <h2 style="font-size:20px;font-weight:800;margin-bottom:8px;">Set up your inspector profile</h2>
+        <p style="font-size:13px;color:#94a3b8;margin-bottom:20px;">Your name and business appear on every buyer report you generate.</p>
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <input id="reg-biz" type="text" placeholder="Business name" style="background:#060d1a;border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:10px 14px;color:#f1f5f9;font-size:14px;font-family:inherit;outline:none;width:100%;">
+          <input id="reg-license" type="text" placeholder="License number (e.g. CA-12345)" style="background:#060d1a;border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:10px 14px;color:#f1f5f9;font-size:14px;font-family:inherit;outline:none;width:100%;">
+          <input id="reg-phone" type="tel" placeholder="Phone (optional)" style="background:#060d1a;border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:10px 14px;color:#f1f5f9;font-size:14px;font-family:inherit;outline:none;width:100%;">
+        </div>
+        <button onclick="completeRegistration()" style="margin-top:20px;width:100%;padding:14px;background:linear-gradient(90deg,#f97316,#f59e0b);border:none;border-radius:10px;color:white;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;">
+          Set Up My Account →
+        </button>
+      </div>
+    </div>
+  `);
+}
+
+async function completeRegistration() {
+  const biz   = document.getElementById('reg-biz').value.trim();
+  const lic   = document.getElementById('reg-license').value.trim();
+  const phone = document.getElementById('reg-phone').value.trim();
+  const res = await fetch('/api/inspector/register', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify({ business_name: biz, license_number: lic, phone })
+  });
+  const data = await res.json();
+  if (data.success) {
+    document.getElementById('reg-modal').remove();
+    init();
+  } else {
+    alert('Registration failed. Please try again.');
+  }
+}
+
+init();
+
+// ── FEATURE 4: Inspector Invite ──────────────────────────────
+function openInviteModal() {
+  document.getElementById('invite-modal').style.display = 'flex';
+  document.getElementById('invite-email').value = '';
+  document.getElementById('invite-name').value = '';
+  document.getElementById('invite-result').textContent = '';
+}
+
+function closeInviteModal() {
+  document.getElementById('invite-modal').style.display = 'none';
+}
+
+async function submitInvite() {
+  const email = document.getElementById('invite-email').value.trim();
+  const name = document.getElementById('invite-name').value.trim();
+  const result = document.getElementById('invite-result');
+  const btn = document.getElementById('invite-submit-btn');
+  if (!email) { result.textContent = 'Email is required.'; result.style.color = '#ef4444'; return; }
+  btn.textContent = 'Sending...'; btn.disabled = true;
+  try {
+    const res = await fetch('/api/inspector/invite', {
+      method: 'POST', headers: {'Content-Type':'application/json'}, credentials: 'include',
+      body: JSON.stringify({ email, name })
+    });
+    const data = await res.json();
+    if (res.ok) {
+      result.textContent = `✅ Invite sent to ${email}!`;
+      result.style.color = '#22c55e';
+      document.getElementById('invite-email').value = '';
+      document.getElementById('invite-name').value = '';
+    } else {
+      result.textContent = data.error || 'Failed to send invite.';
+      result.style.color = '#ef4444';
+    }
+  } catch(e) {
+    result.textContent = 'Something went wrong. Please try again.';
+    result.style.color = '#ef4444';
+  }
+  btn.textContent = 'Send Invite'; btn.disabled = false;
+}
+</script>
+
+<!-- Invite Modal -->
+<div id="invite-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:9999;align-items:center;justify-content:center;padding:16px;">
+  <div style="background:#0f1e35;border:1px solid rgba(249,115,22,.3);border-radius:16px;padding:28px;max-width:420px;width:100%;position:relative;">
+    <button onclick="closeInviteModal()" style="position:absolute;top:14px;right:14px;background:none;border:none;color:#64748b;font-size:20px;cursor:pointer;">✕</button>
+    <div style="font-size:16px;font-weight:700;color:#f97316;margin-bottom:4px;">🤝 Invite a Colleague</div>
+    <div style="font-size:13px;color:#94a3b8;margin-bottom:20px;">They get 5 free analyses/month. You both get a bonus analysis when they run their first report.</div>
+    <label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#64748b;display:block;margin-bottom:6px;">Their email address</label>
+    <input id="invite-email" type="email" placeholder="colleague@inspections.com" style="width:100%;padding:10px 14px;background:#060d1a;border:1px solid rgba(255,255,255,.1);border-radius:8px;color:#f1f5f9;font-size:14px;font-family:inherit;margin-bottom:12px;outline:none;box-sizing:border-box;">
+    <label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#64748b;display:block;margin-bottom:6px;">Their name (optional)</label>
+    <input id="invite-name" type="text" placeholder="Jane Smith" style="width:100%;padding:10px 14px;background:#060d1a;border:1px solid rgba(255,255,255,.1);border-radius:8px;color:#f1f5f9;font-size:14px;font-family:inherit;margin-bottom:8px;outline:none;box-sizing:border-box;">
+    <div id="invite-result" style="font-size:13px;margin-bottom:14px;min-height:18px;"></div>
+    <button id="invite-submit-btn" onclick="submitInvite()" style="width:100%;padding:13px;background:linear-gradient(90deg,#f97316,#f59e0b);border:none;border-radius:10px;color:white;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;">Send Invite</button>
+  </div>
+</div>
+
+</body>
+</html>

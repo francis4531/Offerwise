@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OfferWise API — Developer Documentation</title>
+  <link rel="icon" type="image/svg+xml" href="/logo-icon-only.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #060d1a; --surface: #0f1e35; --border: rgba(255,255,255,.08);
+      --text: #f1f5f9; --muted: #94a3b8; --dim: #475569;
+      --fire1: #f97316; --fire2: #f59e0b;
+      --green: #22c55e; --blue: #60a5fa; --purple: #a78bfa;
+    }
+    body { background: var(--bg); color: var(--text); font-family: 'IBM Plex Sans', sans-serif; line-height: 1.6; }
+    a { color: var(--fire1); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* Nav */
+    nav { padding: 16px 40px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: rgba(6,13,26,.92); backdrop-filter: blur(12px); z-index: 100; }
+    .logo { font-size: 20px; font-weight: 800; background: linear-gradient(90deg,var(--fire1),var(--fire2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .nav-links { display: flex; gap: 24px; align-items: center; }
+    .nav-links a { color: var(--muted); font-size: 14px; font-weight: 600; }
+    .btn { padding: 8px 18px; background: linear-gradient(90deg,var(--fire1),var(--fire2)); border: none; border-radius: 8px; color: white; font-weight: 700; font-size: 13px; cursor: pointer; font-family: inherit; }
+
+    /* Layout */
+    .layout { display: grid; grid-template-columns: 220px 1fr; min-height: calc(100vh - 57px); }
+    .sidebar { padding: 32px 20px; border-right: 1px solid var(--border); position: sticky; top: 57px; height: calc(100vh - 57px); overflow-y: auto; }
+    .sidebar-section { margin-bottom: 24px; }
+    .sidebar-section h4 { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--dim); margin-bottom: 8px; padding-left: 8px; }
+    .sidebar-link { display: block; padding: 6px 8px; border-radius: 6px; font-size: 13px; color: var(--muted); font-weight: 500; }
+    .sidebar-link:hover { background: rgba(255,255,255,.04); color: var(--text); text-decoration: none; }
+    .sidebar-link.active { background: rgba(249,115,22,.1); color: var(--fire1); }
+
+    /* Main content */
+    .content { padding: 48px 56px; max-width: 860px; }
+    h1 { font-size: 36px; font-weight: 800; margin-bottom: 8px; }
+    h2 { font-size: 22px; font-weight: 700; margin: 48px 0 12px; padding-top: 48px; border-top: 1px solid var(--border); }
+    h2:first-of-type { border-top: none; margin-top: 0; padding-top: 0; }
+    h3 { font-size: 16px; font-weight: 700; margin: 28px 0 8px; color: var(--text); }
+    p { color: var(--muted); margin-bottom: 14px; font-size: 15px; }
+    p strong { color: var(--text); }
+
+    /* Code blocks */
+    pre { background: #060d1a; border: 1px solid var(--border); border-radius: 10px; padding: 20px 24px; overflow-x: auto; margin: 16px 0; font-family: 'IBM Plex Mono', monospace; font-size: 13px; line-height: 1.7; }
+    code { font-family: 'IBM Plex Mono', monospace; font-size: 13px; }
+    p code, li code { background: rgba(255,255,255,.06); padding: 2px 6px; border-radius: 4px; color: var(--blue); }
+    .kw { color: var(--purple); } .str { color: var(--green); } .cmt { color: var(--dim); }
+    .key { color: var(--blue); } .num { color: var(--fire2); }
+
+    /* Method badge */
+    .method { display: inline-block; padding: 3px 9px; border-radius: 5px; font-size: 11px; font-weight: 700; font-family: 'IBM Plex Mono', monospace; margin-right: 8px; }
+    .post { background: rgba(34,197,94,.15); color: var(--green); }
+    .get  { background: rgba(96,165,250,.15); color: var(--blue); }
+
+    .endpoint-box { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px 20px; margin: 12px 0; display: flex; align-items: center; gap: 12px; font-family: 'IBM Plex Mono', monospace; font-size: 14px; }
+
+    /* Table */
+    table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px; }
+    th { text-align: left; padding: 10px 14px; background: var(--surface); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--dim); border-bottom: 1px solid var(--border); }
+    td { padding: 10px 14px; border-bottom: 1px solid rgba(255,255,255,.04); color: var(--muted); }
+    td:first-child { color: var(--text); font-family: 'IBM Plex Mono', monospace; font-size: 13px; }
+    td em { color: var(--fire2); font-style: normal; font-size: 11px; }
+
+    /* Keys section */
+    .key-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px 24px; margin-top: 20px; }
+    .key-row { display: flex; gap: 10px; margin-bottom: 12px; }
+    .key-row input { flex: 1; padding: 10px 14px; background: #060d1a; border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-family: 'IBM Plex Mono', monospace; font-size: 13px; outline: none; }
+    .key-row button { padding: 10px 18px; background: linear-gradient(90deg,var(--fire1),var(--fire2)); border: none; border-radius: 8px; color: white; font-weight: 700; font-size: 13px; cursor: pointer; font-family: inherit; white-space: nowrap; }
+    #keys-list { margin-top: 16px; }
+    .key-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,.05); }
+    .key-item:last-child { border-bottom: none; }
+    .key-prefix { font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: var(--blue); }
+    .key-label { font-size: 13px; color: var(--muted); }
+    .key-calls { font-size: 12px; color: var(--dim); }
+    .revoke-btn { padding: 4px 10px; background: rgba(239,68,68,.1); border: 1px solid rgba(239,68,68,.2); border-radius: 5px; color: #ef4444; font-size: 11px; cursor: pointer; font-family: inherit; }
+    .new-key-display { background: rgba(34,197,94,.08); border: 1px solid rgba(34,197,94,.2); border-radius: 8px; padding: 14px 16px; margin-top: 12px; word-break: break-all; font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: var(--green); }
+    .copy-btn { padding: 4px 10px; background: rgba(96,165,250,.12); border: 1px solid rgba(96,165,250,.2); border-radius: 5px; color: var(--blue); font-size: 11px; cursor: pointer; margin-left: 8px; font-family: inherit; }
+    .login-prompt { text-align: center; padding: 32px; color: var(--muted); }
+
+    /* Badges */
+    .badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; margin-left: 6px; }
+    .required { background: rgba(239,68,68,.1); color: #ef4444; }
+    .optional { background: rgba(255,255,255,.06); color: var(--dim); }
+
+    @media (max-width: 768px) {
+      .layout { grid-template-columns: 1fr; }
+      .sidebar { display: none; }
+      .content { padding: 24px 20px; }
+      h1 { font-size: 26px; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="logo">OfferWise AI</a>
+  <div class="nav-links">
+    <a href="/app">Analyze a Property</a>
+    <a href="/for-inspectors">For Inspectors</a>
+    <a href="/contact">Contact</a>
+    <a href="/app" class="btn">Open App →</a>
+  </div>
+</nav>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <h4>Getting Started</h4>
+      <a class="sidebar-link active" href="#overview">Overview</a>
+      <a class="sidebar-link" href="#authentication">Authentication</a>
+      <a class="sidebar-link" href="#quickstart">Quickstart</a>
+    </div>
+    <div class="sidebar-section">
+      <h4>Endpoints</h4>
+      <a class="sidebar-link" href="#analyze">POST /api/v1/analyze</a>
+      <a class="sidebar-link" href="#keys">API Key Management</a>
+    </div>
+    <div class="sidebar-section">
+      <h4>Reference</h4>
+      <a class="sidebar-link" href="#request">Request Schema</a>
+      <a class="sidebar-link" href="#response">Response Schema</a>
+      <a class="sidebar-link" href="#errors">Error Codes</a>
+      <a class="sidebar-link" href="#limits">Rate Limits</a>
+    </div>
+    <div class="sidebar-section">
+      <h4>Integrations</h4>
+      <a class="sidebar-link" href="#spectora">Spectora</a>
+      <a class="sidebar-link" href="#isppi">ISN / ISPPI</a>
+    </div>
+  </aside>
+
+  <main class="content">
+
+    <h1>OfferWise API</h1>
+    <p>Integrate OfferWise property analysis into your inspection software, real estate platform, or buyer portal. One API call returns a complete risk assessment, repair cost breakdown, and offer strategy from seller disclosure and inspection documents.</p>
+
+    <h2 id="overview">Overview</h2>
+    <p>The OfferWise API is a REST API. All requests must use HTTPS. Responses are JSON. The base URL is <code>https://www.getofferwise.ai</code>.</p>
+    <p>The API accepts raw text extracted from seller disclosure forms and inspection reports. It returns a full <strong>PropertyAnalysis</strong> object including OfferScore™, Risk DNA™, repair cost estimates, deal breakers, and recommended offer price.</p>
+
+    <h2 id="authentication">Authentication</h2>
+    <p>Authenticate using your API key as a Bearer token in the <code>Authorization</code> header, or as an <code>X-API-Key</code> header.</p>
+<pre><span class="cmt"># Bearer token (preferred)</span>
+curl -X POST https://www.getofferwise.ai/api/v1/analyze \
+  -H <span class="str">"Authorization: Bearer ow_live_xxxxxxxxxxxx"</span> \
+  -H <span class="str">"Content-Type: application/json"</span> \
+  -d <span class="str">'{"disclosure_text": "...", "inspection_text": "...", "property_price": 950000}'</span>
+
+<span class="cmt"># X-API-Key header (alternative)</span>
+curl -X POST https://www.getofferwise.ai/api/v1/analyze \
+  -H <span class="str">"X-API-Key: ow_live_xxxxxxxxxxxx"</span> \
+  ...</pre>
+
+    <h2 id="quickstart">Quickstart</h2>
+<pre><span class="kw">import</span> requests
+
+response = requests.post(
+    <span class="str">"https://www.getofferwise.ai/api/v1/analyze"</span>,
+    headers={
+        <span class="str">"Authorization"</span>: <span class="str">"Bearer ow_live_xxxxxxxxxxxx"</span>,
+        <span class="str">"Content-Type"</span>: <span class="str">"application/json"</span>,
+    },
+    json={
+        <span class="str">"disclosure_text"</span>: disclosure_text,   <span class="cmt"># extracted from TDS / SPDS / etc.</span>
+        <span class="str">"inspection_text"</span>: inspection_text,   <span class="cmt"># extracted from inspection report</span>
+        <span class="str">"property_price"</span>: <span class="num">950000</span>,
+        <span class="str">"property_address"</span>: <span class="str">"123 Oak Ave, San Jose CA 95110"</span>,
+    }
+)
+
+result = response.json()
+print(<span class="str">f"OfferScore: {result['offer_score']}"</span>)
+print(<span class="str">f"Recommended offer: ${result['offer_strategy']['recommended_offer']:,.0f}"</span>)
+print(<span class="str">f"Total repair cost: ${result['repair_cost_estimate']:,.0f}"</span>)</pre>
+
+    <h2 id="analyze">POST /api/v1/analyze</h2>
+    <p>Run a full property analysis. Returns a complete PropertyAnalysis object. Analysis typically takes 15–60 seconds depending on document length.</p>
+
+    <div class="endpoint-box">
+      <span class="method post">POST</span>
+      <span>/api/v1/analyze</span>
+    </div>
+
+    <h3 id="request">Request Body</h3>
+    <table>
+      <tr><th>Field</th><th>Type</th><th>Description</th></tr>
+      <tr><td>disclosure_text <em class="required">required</em></td><td>string</td><td>Full text extracted from seller disclosure form (TDS, SPDS, PCDS, etc.)</td></tr>
+      <tr><td>inspection_text <em class="required">required</em></td><td>string</td><td>Full text extracted from home inspection report</td></tr>
+      <tr><td>property_price <em class="required">required</em></td><td>number</td><td>Asking price in USD (e.g. 950000)</td></tr>
+      <tr><td>property_address <em class="optional">optional</em></td><td>string</td><td>Full property address — used for public records lookups (FEMA flood, permits, etc.)</td></tr>
+      <tr><td>buyer_profile <em class="optional">optional</em></td><td>object</td><td>Buyer preferences — see Buyer Profile below</td></tr>
+    </table>
+
+    <h3>Buyer Profile Object</h3>
+    <table>
+      <tr><th>Field</th><th>Type</th><th>Values</th></tr>
+      <tr><td>max_budget</td><td>number</td><td>Max purchase price buyer will consider</td></tr>
+      <tr><td>repair_tolerance</td><td>string</td><td><code>low</code> · <code>moderate</code> · <code>high</code></td></tr>
+      <tr><td>biggest_regret</td><td>string</td><td><code>hidden_issues</code> · <code>overpaying</code> · <code>missing_out</code></td></tr>
+      <tr><td>ownership_duration</td><td>string</td><td><code>under_3</code> · <code>3-5</code> · <code>5-10</code> · <code>10+</code></td></tr>
+    </table>
+
+    <h3 id="response">Response</h3>
+<pre>{
+  <span class="key">"offer_score"</span>: <span class="num">62</span>,                         <span class="cmt">// 0–100. 70+ is strong, 40– is risky.</span>
+  <span class="key">"risk_grade"</span>: <span class="str">"C+"</span>,                        <span class="cmt">// Letter grade summary</span>
+  <span class="key">"overall_assessment"</span>: <span class="str">"..."</span>,               <span class="cmt">// Plain-English 2–3 sentence summary</span>
+  <span class="key">"repair_cost_estimate"</span>: <span class="num">47500</span>,             <span class="cmt">// Total estimated repair cost in USD</span>
+
+  <span class="key">"offer_strategy"</span>: {
+    <span class="key">"recommended_offer"</span>: <span class="num">902500</span>,            <span class="cmt">// Suggested offer price</span>
+    <span class="key">"aggressive_offer"</span>: <span class="num">880000</span>,             <span class="cmt">// Low-end aggressive offer</span>
+    <span class="key">"conservative_offer"</span>: <span class="num">925000</span>,           <span class="cmt">// Conservative offer</span>
+    <span class="key">"repair_credit_request"</span>: <span class="num">25000</span>,          <span class="cmt">// Suggested repair credit to ask for</span>
+    <span class="key">"rationale"</span>: <span class="str">"..."</span>
+  },
+
+  <span class="key">"deal_breakers"</span>: [                           <span class="cmt">// Issues that could kill the deal</span>
+    {
+      <span class="key">"title"</span>: <span class="str">"Foundation settlement cracks"</span>,
+      <span class="key">"description"</span>: <span class="str">"..."</span>,
+      <span class="key">"severity"</span>: <span class="str">"critical"</span>,              <span class="cmt">// critical | high | medium | low</span>
+      <span class="key">"cost_estimate"</span>: <span class="str">"$18K–$35K"</span>
+    }
+  ],
+
+  <span class="key">"repair_cost_breakdown"</span>: {               <span class="cmt">// Cost by system</span>
+    <span class="key">"roof"</span>: <span class="num">14000</span>,
+    <span class="key">"hvac"</span>: <span class="num">8500</span>,
+    <span class="key">"foundation"</span>: <span class="num">25000</span>
+  },
+
+  <span class="key">"risk_dna"</span>: {                             <span class="cmt">// 6-axis risk profile</span>
+    <span class="key">"structural"</span>: <span class="num">72</span>,
+    <span class="key">"systems"</span>: <span class="num">45</span>,
+    <span class="key">"environmental"</span>: <span class="num">30</span>,
+    <span class="key">"disclosure_quality"</span>: <span class="num">58</span>,
+    <span class="key">"market_risk"</span>: <span class="num">40</span>,
+    <span class="key">"buyer_fit"</span>: <span class="num">65</span>
+  },
+
+  <span class="key">"leverage_points"</span>: [<span class="str">"..."</span>],              <span class="cmt">// Negotiation items to request</span>
+  <span class="key">"red_flags"</span>: [<span class="str">"..."</span>],                    <span class="cmt">// High-risk items from cross-reference</span>
+  <span class="key">"api_version"</span>: <span class="str">"v1"</span>,
+  <span class="key">"calls_remaining"</span>: <span class="num">487</span>
+}</pre>
+
+    <h2 id="errors">Error Codes</h2>
+    <table>
+      <tr><th>Status</th><th>Code</th><th>Meaning</th></tr>
+      <tr><td>401</td><td>unauthorized</td><td>Missing or invalid API key</td></tr>
+      <tr><td>400</td><td>missing_fields</td><td><code>disclosure_text</code>, <code>inspection_text</code>, or <code>property_price</code> missing</td></tr>
+      <tr><td>429</td><td>rate_limited</td><td>Monthly call limit reached. Upgrade or wait for reset.</td></tr>
+      <tr><td>500</td><td>analysis_error</td><td>Analysis failed — retry or contact support</td></tr>
+    </table>
+
+    <h2 id="limits">Rate Limits</h2>
+    <p>Standard API keys are limited to <strong>500 calls/month</strong>. Enterprise keys have custom limits. Rate limit status is returned in every response as <code>calls_remaining</code>. Contact <a href="mailto:api@getofferwise.ai">api@getofferwise.ai</a> for enterprise access.</p>
+
+    <h2 id="spectora">Spectora Integration</h2>
+    <p>OfferWise integrates with Spectora via webhook. When an inspector marks a report as delivered, Spectora can POST the report text to your OfferWise API key and the buyer receives an instant OfferWise analysis link.</p>
+    <p>Contact <a href="mailto:api@getofferwise.ai">api@getofferwise.ai</a> to set up a Spectora webhook configuration.</p>
+
+    <h2 id="isppi">ISN / ISPPI Integration</h2>
+    <p>For ISN users, OfferWise supports direct report forwarding via ISN's third-party delivery integrations. Contact us for setup instructions specific to your ISN account.</p>
+
+    <h2 id="keys">Your API Keys</h2>
+    <div class="key-card">
+      <div id="keys-auth-check">
+        <div class="login-prompt">
+          <p>Checking authentication...</p>
+        </div>
+      </div>
+      <div id="keys-content" style="display:none;">
+        <div style="font-size:14px;font-weight:700;color:#f1f5f9;margin-bottom:4px;">Generate a new API key</div>
+        <div style="font-size:13px;color:#94a3b8;margin-bottom:14px;">Keys are shown once. Store them securely — we do not store the raw key.</div>
+        <div class="key-row">
+          <input id="new-key-label" type="text" placeholder="Label (e.g. Spectora Integration)" />
+          <button onclick="generateKey()">Generate Key</button>
+        </div>
+        <div id="new-key-display" style="display:none;" class="new-key-display"></div>
+        <div id="keys-list"></div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+async function loadKeys() {
+  try {
+    const res = await fetch('/api/keys', { credentials: 'include' });
+    if (res.status === 401) {
+      document.getElementById('keys-auth-check').innerHTML = '<div class="login-prompt"><p>You must be <a href="/login?redirect=/api/docs">logged in</a> to manage API keys.</p></div>';
+      return;
+    }
+    const data = await res.json();
+    document.getElementById('keys-auth-check').style.display = 'none';
+    document.getElementById('keys-content').style.display = 'block';
+    renderKeys(data.keys || []);
+  } catch(e) {
+    document.getElementById('keys-auth-check').innerHTML = '<div class="login-prompt"><p>Could not load keys. <a href="/login?redirect=/api/docs">Log in</a> to manage API keys.</p></div>';
+  }
+}
+
+function renderKeys(keys) {
+  const list = document.getElementById('keys-list');
+  if (!keys.length) {
+    list.innerHTML = '<div style="color:#64748b;font-size:13px;padding:12px 0;">No API keys yet. Generate one above.</div>';
+    return;
+  }
+  list.innerHTML = keys.map(k => `
+    <div class="key-item">
+      <div>
+        <div class="key-prefix">${k.key_prefix}••••••••••••</div>
+        <div class="key-label">${k.label || 'Unlabeled'} · ${k.calls_month || 0}/${k.monthly_limit || 500} calls this month</div>
+      </div>
+      <button class="revoke-btn" onclick="revokeKey(${k.id}, this)">Revoke</button>
+    </div>`).join('');
+}
+
+async function generateKey() {
+  const label = document.getElementById('new-key-label').value.trim() || 'API Key';
+  const btn = document.querySelector('.key-row button');
+  btn.textContent = 'Generating...'; btn.disabled = true;
+  try {
+    const res = await fetch('/api/keys', {
+      method: 'POST', headers: {'Content-Type':'application/json'}, credentials: 'include',
+      body: JSON.stringify({ label })
+    });
+    const data = await res.json();
+    if (data.key) {
+      const display = document.getElementById('new-key-display');
+      display.style.display = 'block';
+      display.innerHTML = `<div style="margin-bottom:6px;font-size:12px;color:#94a3b8;">Copy this key now — it will not be shown again.</div>${data.key}<button class="copy-btn" onclick="navigator.clipboard.writeText('${data.key}');this.textContent='Copied!'">Copy</button>`;
+      document.getElementById('new-key-label').value = '';
+      const keysRes = await fetch('/api/keys', { credentials: 'include' });
+      const keysData = await keysRes.json();
+      renderKeys(keysData.keys || []);
+    } else {
+      alert(data.error || 'Failed to generate key');
+    }
+  } catch(e) { alert('Error generating key.'); }
+  btn.textContent = 'Generate Key'; btn.disabled = false;
+}
+
+async function revokeKey(id, btn) {
+  if (!confirm('Revoke this API key? Any integrations using it will stop working immediately.')) return;
+  btn.textContent = 'Revoking...'; btn.disabled = true;
+  try {
+    await fetch(`/api/keys/${id}`, { method: 'DELETE', credentials: 'include' });
+    const res = await fetch('/api/keys', { credentials: 'include' });
+    const data = await res.json();
+    renderKeys(data.keys || []);
+  } catch(e) { alert('Error revoking key.'); btn.textContent = 'Revoke'; btn.disabled = false; }
+}
+
+// Smooth scroll for sidebar links
+document.querySelectorAll('.sidebar-link').forEach(link => {
+  link.addEventListener('click', e => {
+    document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+    link.classList.add('active');
+  });
+});
+
+loadKeys();
+</script>
+</body>
+</html>

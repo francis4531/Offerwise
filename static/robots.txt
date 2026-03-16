@@ -1,0 +1,27 @@
+# OfferWise robots.txt
+User-agent: *
+Allow: /
+Allow: /risk/
+Allow: /risk-check
+Allow: /truth-check
+Allow: /guides/
+Allow: /games/
+Allow: /pricing
+Allow: /app
+Allow: /sample-analysis.html
+
+# Sitemap location
+Sitemap: https://www.getofferwise.ai/sitemap.xml
+
+# Disallow admin, API, and internal pages
+Disallow: /admin
+Disallow: /debug
+Disallow: /api/
+Disallow: /settings
+Disallow: /onboarding
+Disallow: /dashboard
+Disallow: /profile
+Disallow: /compare
+Disallow: /opinion/
+Disallow: /login
+Disallow: /auth/
