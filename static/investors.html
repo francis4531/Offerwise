@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OfferWise — Investor Overview</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/svg+xml" href="/logo-icon-only.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --ink:      #0A0C10;
+  --ink2:     #141720;
+  --ink3:     #1C2030;
+  --wire:     #252A3A;
+  --muted:    #4A5268;
+  --sub:      #8892AA;
+  --ghost:    #B8C2D8;
+  --paper:    #F4F1EC;
+  --white:    #FDFCFA;
+  --orange:   #F47B20;
+  --orange2:  #E86B10;
+  --amber:    #F5A623;
+  --green:    #2ECC71;
+  --red:      #E74C3C;
+  --blue:     #4A90D9;
+
+  --serif:    'Instrument Serif', Georgia, serif;
+  --mono:     'DM Mono', 'Courier New', monospace;
+  --sans:     'DM Sans', system-ui, sans-serif;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--ink);
+  color: var(--white);
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Layout ─────────────────────────────── */
+.wrap  { max-width: 1100px; margin: 0 auto; padding: 0 2rem; }
+.wrap--narrow { max-width: 760px; margin: 0 auto; padding: 0 2rem; }
+
+/* ── Nav ─────────────────────────────────── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1.25rem 2.5rem;
+  background: rgba(10,12,16,.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--wire);
+}
+.nav-logo { font-family: var(--serif); font-size: 1.35rem; color: var(--white); text-decoration: none; letter-spacing: -.01em; }
+.nav-logo span { color: var(--orange); }
+.nav-tag {
+  font-family: var(--mono); font-size: 10px; letter-spacing: .12em;
+  color: var(--sub); text-transform: uppercase;
+  border: 1px solid var(--wire); border-radius: 4px; padding: 3px 10px;
+}
+
+/* ── Hero ────────────────────────────────── */
+.hero {
+  min-height: 100vh;
+  display: flex; flex-direction: column; justify-content: flex-end;
+  padding: 0 0 5rem;
+  position: relative; overflow: hidden;
+}
+.hero-bg {
+  position: absolute; inset: 0; pointer-events: none;
+  background:
+    radial-gradient(ellipse 900px 600px at 70% 30%, rgba(244,123,32,.07) 0%, transparent 70%),
+    radial-gradient(ellipse 600px 400px at 20% 80%, rgba(74,144,217,.05) 0%, transparent 60%),
+    repeating-linear-gradient(0deg, transparent, transparent 59px, rgba(255,255,255,.018) 60px),
+    repeating-linear-gradient(90deg, transparent, transparent 59px, rgba(255,255,255,.018) 60px);
+}
+.hero-rule {
+  width: 40px; height: 2px; background: var(--orange); margin-bottom: 2.5rem;
+}
+.hero-eyebrow {
+  font-family: var(--mono); font-size: 11px; letter-spacing: .15em;
+  color: var(--orange); text-transform: uppercase; margin-bottom: 1.5rem;
+}
+.hero h1 {
+  font-family: var(--serif); font-size: clamp(3.5rem, 7vw, 6.5rem);
+  font-weight: 400; line-height: 1.0; letter-spacing: -.02em;
+  color: var(--white); max-width: 860px; margin-bottom: 2rem;
+}
+.hero h1 em { color: var(--orange); font-style: italic; }
+.hero-sub {
+  font-size: 1.05rem; color: var(--sub); max-width: 560px;
+  line-height: 1.75; margin-bottom: 3rem;
+}
+.hero-stats {
+  display: flex; gap: 3rem; flex-wrap: wrap;
+  padding-top: 2.5rem; border-top: 1px solid var(--wire);
+}
+.stat-item { }
+.stat-val { font-family: var(--serif); font-size: 2.4rem; color: var(--white); line-height: 1; margin-bottom: .25rem; }
+.stat-val span { color: var(--orange); }
+.stat-label { font-family: var(--mono); font-size: 10px; letter-spacing: .1em; color: var(--sub); text-transform: uppercase; }
+
+/* ── Sections ────────────────────────────── */
+section { padding: 7rem 0; }
+section + section { border-top: 1px solid var(--wire); }
+
+.section-index {
+  font-family: var(--mono); font-size: 10px; letter-spacing: .15em;
+  color: var(--orange); text-transform: uppercase; margin-bottom: 1rem; display: block;
+}
+h2.section-title {
+  font-family: var(--serif); font-size: clamp(2.2rem, 4vw, 3.2rem);
+  font-weight: 400; line-height: 1.1; letter-spacing: -.02em;
+  color: var(--white); margin-bottom: 1.25rem; max-width: 640px;
+}
+h2.section-title em { color: var(--orange); font-style: italic; }
+.section-lead {
+  font-size: 1rem; color: var(--sub); line-height: 1.8;
+  max-width: 600px; margin-bottom: 4rem;
+}
+
+/* ── Problem ─────────────────────────────── */
+.problem-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 1px;
+  background: var(--wire); border: 1px solid var(--wire);
+  border-radius: 2px; overflow: hidden; margin-top: 3rem;
+}
+.problem-cell {
+  background: var(--ink2); padding: 2.5rem;
+}
+.problem-cell:hover { background: var(--ink3); }
+.problem-label {
+  font-family: var(--mono); font-size: 10px; letter-spacing: .12em;
+  color: var(--muted); text-transform: uppercase; margin-bottom: 1rem;
+}
+.problem-cell h3 {
+  font-family: var(--serif); font-size: 1.4rem; font-weight: 400;
+  color: var(--white); margin-bottom: .75rem; line-height: 1.2;
+}
+.problem-cell p { font-size: .9rem; color: var(--sub); line-height: 1.75; }
+.problem-figure {
+  font-family: var(--serif); font-size: 3rem; color: var(--orange);
+  line-height: 1; margin-bottom: .5rem;
+}
+
+/* ── Innovation ──────────────────────────── */
+.innovation-list { display: flex; flex-direction: column; gap: 0; margin-top: 3rem; }
+.innovation-item {
+  display: grid; grid-template-columns: 80px 1fr;
+  gap: 0; border-top: 1px solid var(--wire); padding: 2.5rem 0;
+  align-items: start;
+  transition: opacity .2s;
+}
+.innovation-item:last-child { border-bottom: 1px solid var(--wire); }
+.inno-num {
+  font-family: var(--mono); font-size: 11px; color: var(--orange);
+  letter-spacing: .1em; padding-top: .2rem;
+}
+.inno-body { }
+.inno-tag {
+  font-family: var(--mono); font-size: 10px; letter-spacing: .12em;
+  color: var(--muted); text-transform: uppercase; margin-bottom: .6rem;
+}
+.inno-title {
+  font-family: var(--serif); font-size: 1.5rem; font-weight: 400;
+  color: var(--white); margin-bottom: .75rem; line-height: 1.2;
+}
+.inno-body p { font-size: .9rem; color: var(--sub); line-height: 1.8; max-width: 640px; }
+.inno-body p + p { margin-top: .75rem; }
+.inno-callout {
+  margin-top: 1rem; padding: 1rem 1.25rem;
+  background: rgba(244,123,32,.06); border-left: 2px solid var(--orange);
+  font-family: var(--mono); font-size: .8rem; color: var(--ghost); line-height: 1.6;
+}
+
+/* ── Flywheel ────────────────────────────── */
+.flywheel-wrap { position: relative; margin-top: 4rem; }
+.flywheel-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px;
+  background: var(--wire); border: 1px solid var(--wire);
+  border-radius: 2px; overflow: hidden;
+}
+.fly-cell {
+  background: var(--ink2); padding: 2rem 1.75rem;
+  display: flex; flex-direction: column;
+  transition: background .2s;
+}
+.fly-cell:hover { background: var(--ink3); }
+.fly-persona {
+  font-family: var(--mono); font-size: 10px; letter-spacing: .12em;
+  color: var(--orange); text-transform: uppercase; margin-bottom: 1rem;
+}
+.fly-cell h3 {
+  font-family: var(--serif); font-size: 1.15rem; font-weight: 400;
+  color: var(--white); margin-bottom: .75rem; line-height: 1.25;
+}
+.fly-cell p { font-size: .85rem; color: var(--sub); line-height: 1.75; flex: 1; }
+.fly-arrow {
+  margin-top: 1.5rem; font-family: var(--mono); font-size: .75rem;
+  color: var(--orange);
+}
+.flywheel-connector {
+  text-align: center; margin-top: 2rem;
+  font-family: var(--mono); font-size: .8rem; color: var(--muted);
+  letter-spacing: .1em;
+}
+
+/* ── Market ──────────────────────────────── */
+.market-numbers {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px;
+  background: var(--wire); border: 1px solid var(--wire);
+  border-radius: 2px; overflow: hidden; margin-top: 3rem;
+}
+.market-cell { background: var(--ink2); padding: 3rem 2rem; }
+.market-num {
+  font-family: var(--serif); font-size: 3.5rem; color: var(--white);
+  line-height: 1; margin-bottom: .5rem;
+}
+.market-num span { color: var(--orange); }
+.market-desc { font-size: .85rem; color: var(--sub); line-height: 1.7; margin-top: .5rem; }
+.market-label {
+  font-family: var(--mono); font-size: 10px; letter-spacing: .12em;
+  color: var(--muted); text-transform: uppercase; margin-bottom: .75rem;
+}
+
+/* ── Revenue ─────────────────────────────── */
+.revenue-table { width: 100%; border-collapse: collapse; margin-top: 3rem; }
+.revenue-table th {
+  font-family: var(--mono); font-size: 10px; letter-spacing: .12em;
+  color: var(--muted); text-transform: uppercase;
+  padding: .75rem 1rem; text-align: left;
+  border-bottom: 1px solid var(--wire);
+}
+.revenue-table td {
+  padding: 1.25rem 1rem; border-bottom: 1px solid rgba(255,255,255,.04);
+  font-size: .9rem; color: var(--ghost); vertical-align: top;
+}
+.revenue-table tr:hover td { color: var(--white); }
+.revenue-table .persona-tag {
+  font-family: var(--mono); font-size: 10px; display: inline-block;
+  padding: 2px 8px; border-radius: 3px; letter-spacing: .08em;
+}
+.tag-buyer     { background: rgba(244,123,32,.12); color: var(--orange); }
+.tag-inspector { background: rgba(74,144,217,.12);  color: var(--blue); }
+.tag-agent     { background: rgba(46,204,113,.12);  color: var(--green); }
+.tag-contractor{ background: rgba(245,166,35,.12);  color: var(--amber); }
+.revenue-table .price { font-family: var(--mono); color: var(--white); }
+.revenue-table .note { font-size: .8rem; color: var(--muted); margin-top: .2rem; }
+
+/* ── Moat ────────────────────────────────── */
+.moat-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 3rem;
+}
+.moat-card {
+  padding: 2rem; border: 1px solid var(--wire); border-radius: 2px;
+  background: var(--ink2);
+}
+.moat-card:hover { border-color: var(--orange); }
+.moat-icon { font-size: 1.5rem; margin-bottom: 1rem; }
+.moat-card h3 {
+  font-family: var(--serif); font-size: 1.2rem; font-weight: 400;
+  color: var(--white); margin-bottom: .6rem;
+}
+.moat-card p { font-size: .875rem; color: var(--sub); line-height: 1.75; }
+
+/* ── Terminal ────────────────────────────── */
+.terminal {
+  background: #080B10; border: 1px solid var(--wire);
+  border-radius: 4px; overflow: hidden; margin-top: 2rem;
+}
+.terminal-bar {
+  display: flex; align-items: center; gap: .5rem;
+  padding: .75rem 1rem; background: var(--ink3);
+  border-bottom: 1px solid var(--wire);
+}
+.dot { width: 10px; height: 10px; border-radius: 50%; }
+.dot-r { background: #FF5F57; }
+.dot-y { background: #FFBD2E; }
+.dot-g { background: #28CA41; }
+.terminal-label { font-family: var(--mono); font-size: 10px; color: var(--muted); margin-left: .5rem; letter-spacing: .08em; }
+.terminal-body { padding: 1.5rem; font-family: var(--mono); font-size: .8rem; line-height: 2; }
+.t-time { color: var(--muted); }
+.t-agent { color: var(--blue); display: inline-block; width: 120px; }
+.t-ok  { color: var(--green); }
+.t-warn{ color: var(--orange); }
+.t-spin{ color: var(--orange); animation: spin 1.2s linear infinite; display: inline-block; }
+.t-val { color: var(--ghost); }
+.t-hi  { color: var(--white); font-weight: 500; }
+.t-result { color: var(--green); font-size: .85rem; margin-top: .5rem; padding-top: .5rem; border-top: 1px solid var(--wire); }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Readiness ───────────────────────────── */
+.readiness-wrap { margin-top: 3rem; }
+.readiness-item {
+  display: flex; align-items: baseline; gap: 1.5rem;
+  padding: 1.5rem 0; border-bottom: 1px solid var(--wire);
+}
+.readiness-item:first-child { border-top: 1px solid var(--wire); }
+.r-check { font-size: 1rem; flex-shrink: 0; width: 20px; }
+.r-label { font-family: var(--serif); font-size: 1.1rem; color: var(--white); width: 260px; flex-shrink: 0; }
+.r-detail { font-size: .875rem; color: var(--sub); line-height: 1.7; }
+.check-done { color: var(--green); }
+.check-prog { color: var(--orange); }
+
+/* ── Closing ─────────────────────────────── */
+.closing {
+  padding: 9rem 0;
+  background:
+    radial-gradient(ellipse 800px 500px at 50% 50%, rgba(244,123,32,.05) 0%, transparent 70%);
+  text-align: center; border-top: 1px solid var(--wire);
+}
+.closing-rule { width: 1px; height: 80px; background: var(--wire); margin: 0 auto 3rem; }
+.closing h2 {
+  font-family: var(--serif); font-size: clamp(2.5rem, 5vw, 4rem);
+  font-weight: 400; color: var(--white); line-height: 1.1; margin-bottom: 1.5rem;
+}
+.closing h2 em { color: var(--orange); font-style: italic; }
+.closing p { font-size: 1rem; color: var(--sub); line-height: 1.8; max-width: 520px; margin: 0 auto 2.5rem; }
+.cta-email {
+  display: inline-flex; align-items: center; gap: .75rem;
+  font-family: var(--mono); font-size: .85rem; letter-spacing: .05em;
+  color: var(--orange); border: 1px solid rgba(244,123,32,.35);
+  padding: .85rem 2rem; border-radius: 3px; text-decoration: none;
+  transition: background .2s, border-color .2s;
+}
+.cta-email:hover { background: rgba(244,123,32,.08); border-color: var(--orange); }
+.threshold-notice {
+  margin-top: 2rem;
+  font-family: var(--mono); font-size: .75rem; color: var(--muted);
+  letter-spacing: .08em;
+}
+
+/* ── Responsive ──────────────────────────── */
+@media (max-width: 768px) {
+  .problem-grid { grid-template-columns: 1fr; }
+  .flywheel-grid { grid-template-columns: 1fr 1fr; }
+  .market-numbers { grid-template-columns: 1fr; }
+  .moat-grid { grid-template-columns: 1fr; }
+  .innovation-item { grid-template-columns: 1fr; }
+  .inno-num { margin-bottom: .5rem; }
+  .r-label { width: auto; }
+  .readiness-item { flex-wrap: wrap; }
+  nav { padding: 1rem 1.25rem; }
+  .hero { padding: 0 0 4rem; }
+  .hero-stats { gap: 2rem; }
+}
+
+/* ── Animations ──────────────────────────── */
+.fade-in { opacity: 0; transform: translateY(20px); transition: opacity .7s ease, transform .7s ease; }
+.fade-in.visible { opacity: 1; transform: none; }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="/">Offer<span>Wise</span></a>
+  <span class="nav-tag">Investor Overview · Not Indexed</span>
+</nav>
+
+<!-- ── HERO ──────────────────────────────────────────────── -->
+<div class="hero">
+  <div class="hero-bg"></div>
+  <div class="wrap" style="position:relative;">
+    <div class="hero-rule"></div>
+    <div class="hero-eyebrow">OfferWise AI · Confidential Overview · April 2026</div>
+    <h1>The operating system<br>for the <em>$2.5 trillion</em><br>US residential<br>real estate transaction.</h1>
+    <p class="hero-sub">Every year, 5 million American families buy homes using incomplete, unverified information — spending the largest sum of their lives in 72 hours with no analytical infrastructure to guide them. OfferWise is the first platform to change that.</p>
+    <div class="hero-stats">
+      <div class="stat-item">
+        <div class="stat-val">5<span>M</span></div>
+        <div class="stat-label">US home sales annually</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-val">$38<span>K</span></div>
+        <div class="stat-label">Avg hidden repair costs per transaction</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-val">4</div>
+        <div class="stat-label">Monetizable personas per transaction</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-val">13</div>
+        <div class="stat-label">Autonomous AI agents per analysis</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-val">&lt;60<span>s</span></div>
+        <div class="stat-label">Full offer strategy, document to decision</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── THE PROBLEM ────────────────────────────────────────── -->
+<section>
+  <div class="wrap">
+    <span class="section-index fade-in">01 — The Problem</span>
+    <h2 class="section-title fade-in">A $2.5 trillion market<br>running on <em>gut instinct</em>.</h2>
+    <p class="section-lead fade-in">The US residential real estate transaction is the largest single financial event in most people's lives. It is also the only major financial transaction conducted almost entirely without analytical tooling — by any party.</p>
+
+    <div class="problem-grid">
+      <div class="problem-cell fade-in">
+        <div class="problem-figure">73%</div>
+        <div class="problem-label">The Buyer</div>
+        <h3>Decides in 72 hours. With documents they cannot read.</h3>
+        <p>73% of buyers report regret after closing — most commonly citing hidden repair costs and information they wish they had known before making an offer. The average repair burden undisclosed at close: $38,000. The tools available to buyers: a Zillow estimate and their agent's gut feeling.</p>
+      </div>
+      <div class="problem-cell fade-in">
+        <div class="problem-figure">80pg</div>
+        <div class="problem-label">The Inspector</div>
+        <h3>Writes the most important document in the transaction. Nobody reads it.</h3>
+        <p>The home inspection report is the most data-rich document in any property transaction. The average buyer spends 11 minutes reading an 80-page report before anxiety takes over. The inspector's expertise — the actual findings, the severity ratings, the repair notes — dies in the PDF. There is no tool that converts it into actionable buyer intelligence.</p>
+      </div>
+      <div class="problem-cell fade-in">
+        <div class="problem-figure">$7.5K</div>
+        <div class="problem-label">The Agent</div>
+        <h3>Earns commission on a deal held together by confidence they cannot quantify.</h3>
+        <p>The average buyer's agent commission on a $500K home is $7,500. The most common reason deals die: buyer cold feet driven by unresolved uncertainty about what the property actually costs to own. Agents have no data-backed tool to answer the only question that matters — "what should I offer, and why?"</p>
+      </div>
+      <div class="problem-cell fade-in">
+        <div class="problem-figure">30%</div>
+        <div class="problem-label">The Contractor</div>
+        <h3>Gets the wrong leads, at the wrong time, with no context.</h3>
+        <p>The home services market exceeds $600B annually. Contractors spend 30% of their revenue on customer acquisition — mostly through platforms that share leads with 5 competitors and deliver homeowners who have no idea what the work costs. Nobody has ever connected a contractor to a buyer at the exact moment an inspection just identified the specific trade they need.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── THE INNOVATIONS ────────────────────────────────────── -->
+<section>
+  <div class="wrap">
+    <span class="section-index fade-in">02 — The Innovation</span>
+    <h2 class="section-title fade-in">Six technical breakthroughs.<br><em>None existed</em> before this.</h2>
+    <p class="section-lead fade-in">OfferWise is not a search tool, a comps aggregator, or a disclosure viewer. It is a patent-pending agentic AI platform that does six things no product has done before — simultaneously, in under 60 seconds.</p>
+
+    <div class="innovation-list">
+
+      <div class="innovation-item fade-in">
+        <div class="inno-num">01</div>
+        <div class="inno-body">
+          <div class="inno-tag">Patent-Pending · OfferScore™</div>
+          <h3 class="inno-title">The first investability grade for residential real estate.</h3>
+          <p>Every stock has a price-to-earnings ratio. Every bond has a credit rating. Until OfferWise, no residential property had a single, defensible, data-backed investment grade. OfferScore™ synthesizes 50+ factors — structural integrity, disclosure transparency, market position, environmental risk, repair burden, and comparable sale trajectory — into a single score from 0 to 100. It is the first instrument-grade signal ever applied to a homebuying decision at the point of offer.</p>
+          <div class="inno-callout">Patent-pending · cross-document synthesis · 50+ weighted factors · property-specific, not algorithmic estimate</div>
+        </div>
+      </div>
+
+      <div class="innovation-item fade-in">
+        <div class="inno-num">02</div>
+        <div class="inno-body">
+          <div class="inno-tag">Patent-Pending · Seller Transparency Report™</div>
+          <h3 class="inno-title">The first systematic cross-reference of disclosure against inspection — at scale.</h3>
+          <p>Sellers are legally required to disclose known defects. They frequently do not. Until OfferWise, there was no automated way to detect the gap between what a seller claimed and what an inspector found. The Seller Transparency Report™ reads both documents, maps every claim in the disclosure against every finding in the inspection report, and surfaces contradictions, omissions, and buried red flags with specific page references. This is not a summarizer. It is a lie detector — patent-pending.</p>
+          <p>The legal and liability implications are profound: this tool creates documented evidence of disclosure gaps that buyers can use in post-close disputes. No platform has ever offered this.</p>
+          <div class="inno-callout">Patent-pending · disclosure-vs-inspection cross-reference · specific page citations · contradiction scoring</div>
+        </div>
+      </div>
+
+      <div class="innovation-item fade-in">
+        <div class="inno-num">03</div>
+        <div class="inno-body">
+          <div class="inno-tag">Patent-Pending · Property Risk DNA™</div>
+          <h3 class="inno-title">A unique risk fingerprint — 12 categories, one visual — for every property on earth.</h3>
+          <p>Risk DNA™ is a composite scoring system that maps a property across 12 simultaneous risk dimensions: structural, roofing, electrical, plumbing, HVAC, moisture, environmental, seismic, wildfire, flood, pest, and financial. No two properties have the same Risk DNA. Unlike a generic inspection checklist, Risk DNA is normalized, comparable across properties, and machine-readable — meaning it can power future portfolio analytics, insurance underwriting, and institutional due diligence tools at scale.</p>
+          <div class="inno-callout">Patent-pending · 12-dimensional composite · comparable across properties · foundation for B2B data licensing</div>
+        </div>
+      </div>
+
+      <div class="innovation-item fade-in">
+        <div class="inno-num">04</div>
+        <div class="inno-body">
+          <div class="inno-tag">Agentic AI Architecture · 13 Specialized Agents</div>
+          <h3 class="inno-title">The first multi-agent AI system purpose-built for real estate document intelligence.</h3>
+          <p>OfferWise does not call a single LLM with a long prompt. It deploys a coordinated team of 13 specialized AI agents — each with a defined scope, a specific data source, and a structured output — that run in parallel and synthesize into a single offer strategy. The architecture includes: a document parser agent (OCR + structure extraction), a disclosure cross-reference agent, a market intelligence agent (13 live data sources), a repair cost agent (ZIP-adjusted contractor pricing), a seismic and environmental risk agent (USGS + EPA + FEMA), and an offer architect agent that synthesizes all upstream outputs into three offer tiers plus a ready-to-send addendum.</p>
+          <p>This is not a chatbot. It is an orchestrated agentic pipeline that produces the same output a team of a buyer's agent, a real estate attorney, a cost estimator, and an environmental consultant would — in 60 seconds.</p>
+
+          <div class="terminal">
+            <div class="terminal-bar">
+              <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+              <span class="terminal-label">offerwise-agents · 742 Oak Street, Austin TX 78701</span>
+            </div>
+            <div class="terminal-body">
+              <div><span class="t-time">06:42:01 </span><span class="t-agent">doc-parser</span><span class="t-ok">✓</span><span class="t-val">  Parsed 38pg inspection · <span class="t-hi">19 findings</span> extracted</span></div>
+              <div><span class="t-time">06:42:02 </span><span class="t-agent">disclosure-ai</span><span class="t-warn">⚠</span><span class="t-val">  <span class="t-warn">3 contradictions</span> · "No water issues" vs active crawl moisture pg.23</span></div>
+              <div><span class="t-time">06:42:04 </span><span class="t-agent">market-intel</span><span class="t-ok">✓</span><span class="t-val">  AVM $1,241,000 · 15 comps · asking <span class="t-hi">3.5% above AVM</span></span></div>
+              <div><span class="t-time">06:42:05 </span><span class="t-agent">repair-cost</span><span class="t-ok">✓</span><span class="t-val">  Total burden <span class="t-warn">$38,500–$49,200</span> · HVAC + roof + moisture</span></div>
+              <div><span class="t-time">06:42:06 </span><span class="t-agent">seismic-env</span><span class="t-ok">✓</span><span class="t-val">  Flood Zone X · Wildfire Low · No Superfund within 2mi</span></div>
+              <div><span class="t-time">06:42:08 </span><span class="t-agent">offer-architect</span><span class="t-ok">✓</span><span class="t-val">  Seller grade: <span class="t-warn">C+</span> · Recommended offer: <span class="t-ok" style="font-weight:600;">$1,198,000</span> · Addendum ready</span></div>
+              <div class="t-result">Analysis complete · 7.2s · 13 agents · 0 human inputs required</div>
+            </div>
+          </div>
+          <div class="inno-callout" style="margin-top:1rem;">Agentic pipeline · 13 specialized agents · parallel execution · structured output synthesis · addendum generation</div>
+        </div>
+      </div>
+
+      <div class="innovation-item fade-in">
+        <div class="inno-num">05</div>
+        <div class="inno-body">
+          <div class="inno-tag">Autonomous Monitoring · OfferWatch™</div>
+          <h3 class="inno-title">The first autonomous property intelligence agent that acts without being asked.</h3>
+          <p>After an analysis is complete, OfferWatch™ deploys a persistent monitoring agent on that property. Every day, without user intervention, it checks: listing price against the original asking price (price drop → offer automatically recalculated and delivered), USGS seismic activity within 50km (earthquake → updated structural risk report), county permit records (new permit → undisclosed repair flag), and comparable sale activity (new comps → leverage position updated). It fires alerts to the buyer — and, uniquely, to linked professionals: the inspector, agent, and contractor — the moment anything changes.</p>
+          <p>This is the first product in residential real estate that is genuinely proactive. It does not wait for the user to return. It monitors the situation and tells everyone who needs to know when the situation changes.</p>
+          <div class="inno-callout">Autonomous · 4 daily monitoring jobs · multi-party notification · idempotent · fires to buyer + inspector + agent + contractor simultaneously</div>
+        </div>
+      </div>
+
+      <div class="innovation-item fade-in">
+        <div class="inno-num">06</div>
+        <div class="inno-body">
+          <div class="inno-tag">Network Architecture · The Four-Persona Flywheel</div>
+          <h3 class="inno-title">The first platform that monetizes all four parties to a single transaction — from the same data.</h3>
+          <p>Every residential transaction involves at minimum four economic actors: a buyer, a home inspector, a real estate agent, and at least one contractor. OfferWise is the first product ever designed to extract value from all four simultaneously, using the same underlying property data. The inspection report powers the buyer analysis. The buyer analysis generates a lead for the contractor. The agent sends the buyer to OfferWise and gets attribution on the outcome. The contractor closes the job and submits real pricing data that calibrates future estimates. Every engagement makes the product more valuable for the next one.</p>
+          <div class="inno-callout">Four monetizable personas · one data set · compounding network effects · every transaction strengthens the next</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── THE FLYWHEEL ────────────────────────────────────────── -->
+<section>
+  <div class="wrap">
+    <span class="section-index fade-in">03 — The Flywheel</span>
+    <h2 class="section-title fade-in">One transaction.<br>Four revenue streams.<br><em>Self-reinforcing.</em></h2>
+    <p class="section-lead fade-in">Most real estate platforms serve one persona. OfferWise serves four — and each persona's engagement makes the platform more valuable to the other three. This is not a feature. It is a structural moat that compounds with every transaction.</p>
+
+    <div class="flywheel-grid">
+      <div class="fly-cell fade-in">
+        <div class="fly-persona">Buyer</div>
+        <h3>Uploads inspection. Gets offer strategy. Shares with agent.</h3>
+        <p>The buyer's analysis generates the data that powers every other persona's value. They pay $9–$49/month. They refer friends. Their referral code creates new accounts. Their shared report gives the inspector and agent a new marketing touchpoint.</p>
+        <div class="fly-arrow">Shares report → triggers inspector + agent + contractor value →</div>
+      </div>
+      <div class="fly-cell fade-in">
+        <div class="fly-persona">Inspector</div>
+        <h3>Uploads report. Gets branded buyer analysis. Sends with every inspection.</h3>
+        <p>The inspector's report is the input to the buyer's analysis. By generating that analysis, the inspector differentiates their product, creates a measurable outcome for every report, and drives buyer registration back to their brand. They pay $0–$49/month.</p>
+        <div class="fly-arrow">Sends analysis → drives buyer signups → generates more transaction data →</div>
+      </div>
+      <div class="fly-cell fade-in">
+        <div class="fly-persona">Agent</div>
+        <h3>Sends branded link. Gets attribution. Closes confident buyers.</h3>
+        <p>The agent sends one link. Their buyer gets a complete offer strategy backed by the actual documents. The agent gets credit for the insight. The deal closes. The agent sends the next buyer. They pay $0–$29/month. The product sells itself to their clients.</p>
+        <div class="fly-arrow">Sends to buyers → buyers share → agent brand travels with every report →</div>
+      </div>
+      <div class="fly-cell fade-in">
+        <div class="fly-persona">Contractor</div>
+        <h3>Gets matched leads with pre-qualified repair context. Closes jobs.</h3>
+        <p>The contractor receives a lead that already has the inspection finding, the cost estimate, and the buyer's contact info attached. They close at 25–40%. When they complete the job, they submit actual pricing data that calibrates the cost estimation engine for future analyses. They pay $49–$199/month.</p>
+        <div class="fly-arrow">Submits pricing data → improves cost estimates → improves buyer analyses → attracts more buyers →</div>
+      </div>
+    </div>
+    <div class="flywheel-connector fade-in">↑ Every node feeds every other node. The flywheel accelerates with every transaction. ↑</div>
+  </div>
+</section>
+
+<!-- ── MARKET SIZE ─────────────────────────────────────────── -->
+<section>
+  <div class="wrap">
+    <span class="section-index fade-in">04 — Market Size</span>
+    <h2 class="section-title fade-in">The TAM is not a <em>stretch.</em><br>It is arithmetic.</h2>
+    <p class="section-lead fade-in">OfferWise does not need to capture a small percentage of a large addressable market. It needs to become the default analytical layer for a transaction that already happens 5 million times a year — at a price point of $9–$199 per month per participant.</p>
+
+    <div class="market-numbers">
+      <div class="market-cell fade-in">
+        <div class="market-label">Total Addressable · Buyers</div>
+        <div class="market-num">$1.8<span>B</span></div>
+        <div class="market-desc">5M US home sales/yr × 1.5 analyses avg per buyer × $19/mo Pro plan × 12 months. Even at 2% market penetration: $36M ARR from buyers alone.</div>
+      </div>
+      <div class="market-cell fade-in">
+        <div class="market-label">Total Addressable · Professionals</div>
+        <div class="market-num">$4.2<span>B</span></div>
+        <div class="market-desc">130K licensed inspectors + 2M agents + 500K home service contractors. At $49/mo blended ARPU and 3% penetration across professional personas: $84M ARR from professionals alone.</div>
+      </div>
+      <div class="market-cell fade-in">
+        <div class="market-label">Total Addressable · Data + B2B</div>
+        <div class="market-num">$12<span>B+</span></div>
+        <div class="market-desc">Risk DNA™ as a data product sold to insurers, lenders, and institutional buyers. Every analysis generates a structured property risk fingerprint. At scale, this is the most granular residential property risk dataset ever assembled.</div>
+      </div>
+    </div>
+
+    <div style="margin-top:3rem; padding:2rem; border:1px solid var(--wire); background:var(--ink2);">
+      <div class="market-label" style="margin-bottom:1rem;">Why this is a billion-dollar product</div>
+      <p style="font-size:.95rem;color:var(--sub);line-height:1.85;max-width:800px;">The residential real estate transaction market processes $2.5 trillion in volume annually. Every transaction touches four monetizable personas. OfferWise charges each one. The buyer pays for analysis. The inspector pays for report enhancement. The agent pays for client intelligence. The contractor pays for leads. At mature penetration rates comparable to other SaaS platforms that became essential infrastructure in their verticals — DocuSign for signatures, Blend for mortgage, Buildium for property management — the combined revenue across all four personas and the data licensing layer comfortably exceeds $1B ARR.</p>
+      <p style="font-size:.95rem;color:var(--sub);line-height:1.85;max-width:800px;margin-top:1rem;">The comparison to DocuSign is intentional: DocuSign became a billion-dollar company by inserting a software layer into a single moment in every real estate transaction. OfferWise inserts an analytical layer into the moment that precedes that — the offer — and monetizes everyone who touches it.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── REVENUE MODEL ───────────────────────────────────────── -->
+<section>
+  <div class="wrap">
+    <span class="section-index fade-in">05 — Revenue Architecture</span>
+    <h2 class="section-title fade-in">Four independent<br>revenue streams.<br><em>One platform.</em></h2>
+    <p class="section-lead fade-in">Each persona pays separately for distinct, differentiated value. There is no cross-subsidization. Each stream is independently profitable at scale.</p>
+
+    <table class="revenue-table">
+      <thead>
+        <tr>
+          <th>Persona</th>
+          <th>Product</th>
+          <th>Price</th>
+          <th>Value Delivered</th>
+          <th>Scale Mechanism</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="persona-tag tag-buyer">Buyer</span></td>
+          <td>Starter · Pro · Unlimited</td>
+          <td class="price">$9 / $19 / $49 /mo</td>
+          <td>Complete offer strategy: OfferScore™, Risk DNA™, Transparency Report™, repair costs, three offer tiers, addendum. <span class="note">ROI on a single deal: 100–10,000×</span></td>
+          <td>5M annual transactions. Referral flywheel. Each paid buyer refers an average of 1.4 friends in active search.</td>
+        </tr>
+        <tr>
+          <td><span class="persona-tag tag-inspector">Inspector</span></td>
+          <td>Free · Pro</td>
+          <td class="price">$0 / $49 /mo</td>
+          <td>Branded buyer analysis generated from inspection report. Attaches to every report delivered. Inspector's name on every buyer's offer strategy. <span class="note">Differentiates commoditized inspection product</span></td>
+          <td>130K licensed inspectors in the US. Average inspector performs 250 inspections/year. Each inspection touches one buyer — creating 250 potential buyer signups per inspector.</td>
+        </tr>
+        <tr>
+          <td><span class="persona-tag tag-agent">Agent</span></td>
+          <td>Free · Pro</td>
+          <td class="price">$0 / $29 /mo</td>
+          <td>Branded analysis sent to buyer. Agent attribution on every report. Conversion tracking. Deal intelligence. <span class="note">Closes the confidence gap that kills deals</span></td>
+          <td>2M licensed agents. Each agent has 5–15 active buyers. Free tier creates deep product dependence before paid conversion.</td>
+        </tr>
+        <tr>
+          <td><span class="persona-tag tag-contractor">Contractor</span></td>
+          <td>Starter · Pro · Enterprise</td>
+          <td class="price">$49 / $99 / $199 /mo</td>
+          <td>Pre-qualified leads matched by trade + ZIP, delivered at moment of maximum buyer intent, with inspection finding and cost estimate attached. <span class="note">Warm leads. No per-job fees. No commissions.</span></td>
+          <td>500K+ home service contractors. Avg job value $18K–$45K. One closed job pays for 6–18 months of subscription.</td>
+        </tr>
+        <tr style="background:rgba(244,123,32,.04);">
+          <td><span class="persona-tag" style="background:rgba(244,123,32,.15);color:var(--orange);">Data</span></td>
+          <td>Risk DNA™ Licensing</td>
+          <td class="price">Institutional · TBD</td>
+          <td>Structured property risk fingerprints — 12-dimensional composite scores — sold to insurers, lenders, iBuyers, and institutional portfolio managers. <span class="note">Every analysis generates a licensable data asset</span></td>
+          <td>At 500K analyses, OfferWise has the most granular residential property risk dataset ever assembled. Insurance and lending markets price risk. OfferWise has the risk data.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ── THE MOAT ────────────────────────────────────────────── -->
+<section>
+  <div class="wrap">
+    <span class="section-index fade-in">06 — Competitive Moat</span>
+    <h2 class="section-title fade-in">Why this cannot be<br><em>replicated</em> quickly.</h2>
+    <p class="section-lead fade-in">The OfferWise moat is not a single advantage. It is five compounding barriers that grow stronger as the platform scales — and that are essentially impossible for a new entrant to replicate without years of data accumulation.</p>
+
+    <div class="moat-grid">
+      <div class="moat-card fade-in">
+        <div class="moat-icon">⚖️</div>
+        <h3>Patent-Pending Methodology</h3>
+        <p>Three patent-pending innovations — OfferScore™, Risk DNA™, and the Seller Transparency Report™ — represent legally defensible IP that cannot be copied. The cross-document synthesis methodology in particular is novel: no prior art exists for systematically cross-referencing residential disclosures against inspection reports at scale.</p>
+      </div>
+      <div class="moat-card fade-in">
+        <div class="moat-icon">📊</div>
+        <h3>Proprietary Training Data</h3>
+        <p>Every analysis processed by OfferWise generates labeled training data: disclosure claims mapped to inspection findings, repair costs validated against real contractor quotes, offer prices correlated with eventual sale outcomes. This dataset does not exist anywhere else. At scale, it becomes the most valuable residential property intelligence dataset in existence — and the foundation for a generational moat in AI model performance for this domain.</p>
+      </div>
+      <div class="moat-card fade-in">
+        <div class="moat-icon">🔄</div>
+        <h3>Network Effects Across All Four Personas</h3>
+        <p>Each inspector who joins brings their buyers. Each agent who joins sends their clients. Each buyer who refers brings another buyer. The contractor network improves cost estimates for everyone. Unlike single-persona platforms, OfferWise gets stronger along four independent network axes simultaneously — any one of which, at scale, creates a dominant market position.</p>
+      </div>
+      <div class="moat-card fade-in">
+        <div class="moat-icon">🤖</div>
+        <h3>Agentic Architecture Complexity</h3>
+        <p>The 13-agent pipeline is not a prompt. It is a coordinated orchestration system with 13 specialized models, 13 external data sources, and a synthesis layer that produces structured, actionable output. Building a working version takes months. Building one that handles scanned PDFs, handwritten disclosures, multi-page inspection reports, and inconsistent county permit formats — while being accurate enough that buyers stake $500K decisions on it — takes years of iteration. The pipeline OfferWise has built cannot be replicated in a weekend hackathon.</p>
+      </div>
+      <div class="moat-card fade-in">
+        <div class="moat-icon">📍</div>
+        <h3>Transaction Timing Lock-In</h3>
+        <p>The buyer uses OfferWise at the single highest-stakes moment of their life. That is not a moment they repeat with a different product. Satisfaction at that moment creates a customer for every future transaction, plus referrals to everyone they know who is also buying. The purchase event is a natural loyalty lock that comparable SaaS categories — HR tools, accounting software — cannot claim.</p>
+      </div>
+      <div class="moat-card fade-in">
+        <div class="moat-icon">🌐</div>
+        <h3>50-State Regulatory Coverage</h3>
+        <p>Real estate disclosure requirements differ by state, county, and municipality. OfferWise handles all 50 states — not by maintaining a regulatory database, but through AI extraction that identifies what was disclosed and what was not, regardless of form format. Building this multi-jurisdictional capability is a meaningful barrier to entry that few competitors will invest in before the market is proven.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── READINESS ───────────────────────────────────────────── -->
+<section>
+  <div class="wrap">
+    <span class="section-index fade-in">07 — Where We Are</span>
+    <h2 class="section-title fade-in">Live. Revenue. <em>Accelerating.</em></h2>
+    <p class="section-lead fade-in">OfferWise is not a concept. Every capability described in this document is live, deployed, and generating revenue today.</p>
+
+    <div class="readiness-wrap">
+      <div class="readiness-item fade-in">
+        <span class="r-check check-done">✓</span>
+        <span class="r-label">Core analysis engine</span>
+        <span class="r-detail">13-agent agentic pipeline processing real buyer documents. Full OfferScore™, Risk DNA™, and Seller Transparency Report™ in production. OCR handles scanned, handwritten, and digital PDFs from all 50 states.</span>
+      </div>
+      <div class="readiness-item fade-in">
+        <span class="r-check check-done">✓</span>
+        <span class="r-label">Four-persona platform</span>
+        <span class="r-detail">Buyer portal, Inspector portal, Agent portal, and Contractor network all live. Each with independent auth, billing, and branded analysis delivery. The flywheel is operational.</span>
+      </div>
+      <div class="readiness-item fade-in">
+        <span class="r-check check-done">✓</span>
+        <span class="r-label">OfferWatch autonomous monitoring</span>
+        <span class="r-detail">Daily background jobs monitoring active properties for price changes, seismic events, permit filings, and comparable sales. Multi-party alert delivery to buyer, inspector, agent, and contractor simultaneously. Idempotent and running in production.</span>
+      </div>
+      <div class="readiness-item fade-in">
+        <span class="r-check check-done">✓</span>
+        <span class="r-label">Stripe billing + subscription management</span>
+        <span class="r-detail">Full Stripe integration across all four revenue streams. Monthly subscriptions, credit-based purchasing, billing portal, and webhook-driven account management all operational.</span>
+      </div>
+      <div class="readiness-item fade-in">
+        <span class="r-check check-done">✓</span>
+        <span class="r-label">Paid customer acquisition (Google + Reddit Ads)</span>
+        <span class="r-detail">Active paid acquisition channels targeting California homebuyers — the highest-value buyer market in the US. Reddit Ads launched February 2026. CAC:LTV tracking operational.</span>
+      </div>
+      <div class="readiness-item fade-in">
+        <span class="r-check check-done">✓</span>
+        <span class="r-label">InterNACHI inspector partnership</span>
+        <span class="r-detail">Live vendor listing with the International Association of Certified Home Inspectors — 30,000+ members. Free plan for verified InterNACHI members as a distribution channel into the professional inspector network.</span>
+      </div>
+      <div class="readiness-item fade-in">
+        <span class="r-check check-done">✓</span>
+        <span class="r-label">Patent applications filed</span>
+        <span class="r-detail">OfferScore™, Risk DNA™, and Seller Transparency Report™ methodologies are patent-pending. Applications on file.</span>
+      </div>
+      <div class="readiness-item fade-in">
+        <span class="r-check check-prog">◎</span>
+        <span class="r-label">Scaling to 1,000 paying customers</span>
+        <span class="r-detail">Current focus: reaching 1,000 paying customers across all personas before considering external capital. At that milestone, unit economics will be validated, the flywheel will be demonstrably turning, and the raise will be made from a position of strength — not necessity.</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── CLOSING ─────────────────────────────────────────────── -->
+<div class="closing">
+  <div class="wrap">
+    <div class="closing-rule"></div>
+    <h2>The biggest transaction<br>of most people's lives<br>deserves <em>better tools.</em></h2>
+    <p>OfferWise is building the analytical infrastructure that should have existed the first time someone bought a home. We are not looking for capital today — we are building the business to the point where we raise from strength, not from need. When we cross 1,000 paying customers and the flywheel is visibly turning, we will have a conversation worth having.</p>
+    <a class="cta-email" href="mailto:hello@getofferwise.ai?subject=OfferWise%20Investor%20Inquiry">
+      <span>→</span> hello@getofferwise.ai
+    </a>
+    <div class="threshold-notice">We are not seeking investment at this time · Threshold: 1,000 paying customers · getofferwise.ai</div>
+  </div>
+</div>
+
+<script>
+// Scroll-triggered fade-ins
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      observer.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+document.querySelectorAll('.fade-in').forEach((el, i) => {
+  el.style.transitionDelay = (i % 4) * 80 + 'ms';
+  observer.observe(el);
+});
+</script>
+
+</body>
+</html>

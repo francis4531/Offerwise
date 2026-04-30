@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Persona Combination Matrix — OfferWise AI</title>
+<link rel="icon" type="image/svg+xml" href="/logo-icon-only.svg">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #060d1a; --surface: #0f1e35; --surface2: #131f33;
+  --border: rgba(255,255,255,.07); --text: #f1f5f9;
+  --muted: #94a3b8; --dim: #475569;
+  --fire: #f97316; --amber: #f59e0b;
+  --green: #22c55e; --blue: #60a5fa; --purple: #a78bfa;
+  --red: #ef4444; --teal: #2dd4bf;
+}
+body {
+  background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  padding: 48px 32px 80px; max-width: 1000px; margin: 0 auto;
+}
+a { color: var(--fire); text-decoration: none; }
+h1 { font-size: 24px; font-weight: 900; letter-spacing: -.02em; margin-bottom: 6px; }
+h1 em { font-style: normal; background: linear-gradient(90deg,var(--fire),var(--amber)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.subtitle { font-size: 14px; color: var(--muted); line-height: 1.65; max-width: 600px; margin-bottom: 36px; }
+
+/* Legend */
+.legend { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 36px; }
+.li { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); }
+.ld { width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0; }
+
+/* Persona pills */
+.pill { display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px; border-radius: 20px; font-size: 11px; font-weight: 700; white-space: nowrap; }
+.pill-buyer    { background: rgba(245,158,11,.12); color: var(--amber); border: 1px solid rgba(245,158,11,.25); }
+.pill-inspector{ background: rgba(96,165,250,.12); color: var(--blue); border: 1px solid rgba(96,165,250,.25); }
+.pill-agent    { background: rgba(34,197,94,.10);  color: var(--green); border: 1px solid rgba(34,197,94,.22); }
+.pill-contractor{background: rgba(249,115,22,.10); color: var(--fire); border: 1px solid rgba(249,115,22,.22); }
+
+/* Section headers */
+.section-label {
+  font-size: 10px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .1em; color: var(--dim);
+  margin: 36px 0 14px; padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+/* Combo cards */
+.combo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 8px; }
+@media (max-width: 640px) { .combo-grid { grid-template-columns: 1fr; } }
+
+.combo-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 14px; padding: 18px 20px;
+  display: flex; flex-direction: column; gap: 10px;
+}
+.combo-card.legit    { border-left: 3px solid var(--green); }
+.combo-card.common   { border-left: 3px solid var(--blue); }
+.combo-card.possible { border-left: 3px solid var(--amber); }
+.combo-card.unlikely { border-left: 3px solid var(--dim); opacity: .75; }
+.combo-card.conflict { border-left: 3px solid var(--red); opacity: .65; }
+
+.combo-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+.combo-pills { display: flex; gap: 5px; flex-wrap: wrap; }
+.combo-badge {
+  font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 20px;
+  white-space: nowrap; flex-shrink: 0; align-self: flex-start;
+}
+.badge-legit    { background: rgba(34,197,94,.12);  color: var(--green);  border: 1px solid rgba(34,197,94,.25); }
+.badge-common   { background: rgba(96,165,250,.12); color: var(--blue);   border: 1px solid rgba(96,165,250,.25); }
+.badge-possible { background: rgba(245,158,11,.10); color: var(--amber);  border: 1px solid rgba(245,158,11,.22); }
+.badge-unlikely { background: rgba(100,116,139,.12);color: var(--dim);    border: 1px solid rgba(100,116,139,.2); }
+.badge-conflict { background: rgba(239,68,68,.10);  color: var(--red);    border: 1px solid rgba(239,68,68,.2); }
+
+.combo-desc { font-size: 12px; color: var(--muted); line-height: 1.6; }
+.combo-example { font-size: 11px; color: var(--dim); font-style: italic; line-height: 1.5; }
+.combo-example::before { content: 'e.g. '; font-style: normal; font-weight: 600; color: var(--fire); opacity: .7; }
+
+/* Single full-width card */
+.combo-card-full {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 14px; padding: 18px 20px;
+  display: flex; flex-direction: column; gap: 10px;
+}
+.combo-card-full.unlikely { border-left: 3px solid var(--dim); opacity: .7; }
+.combo-card-full.conflict { border-left: 3px solid var(--red); opacity: .65; }
+.combo-card-full.possible { border-left: 3px solid var(--amber); }
+
+/* Summary strip */
+.summary-strip {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 14px; padding: 20px 24px; margin-bottom: 36px;
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 16px;
+}
+.ss-item { text-align: center; }
+.ss-num { font-size: 2rem; font-weight: 900; line-height: 1; margin-bottom: 4px; }
+.ss-label { font-size: 11px; color: var(--muted); }
+
+/* Note box */
+.note {
+  background: rgba(249,115,22,.05); border: 1px solid rgba(249,115,22,.15);
+  border-radius: 12px; padding: 16px 20px; font-size: 13px;
+  color: var(--muted); line-height: 1.65; margin-top: 36px;
+}
+.note strong { color: var(--text); }
+</style>
+</head>
+<body>
+
+<h1>All <em>Persona Combinations</em> — OfferWise AI</h1>
+<p class="subtitle">Every authenticated user is always a Buyer. The 4 personas produce 11 meaningful multi-role combinations. This table assesses the real-world likelihood of each and explains who that person actually is.</p>
+
+<!-- Summary counts -->
+<div class="summary-strip">
+  <div class="ss-item"><div class="ss-num" style="color:var(--green);">4</div><div class="ss-label">Legitimate / expected</div></div>
+  <div class="ss-item"><div class="ss-num" style="color:var(--blue);">3</div><div class="ss-label">Possible, less common</div></div>
+  <div class="ss-item"><div class="ss-num" style="color:var(--amber);">2</div><div class="ss-label">Rare but supported</div></div>
+  <div class="ss-item"><div class="ss-num" style="color:var(--dim);">1</div><div class="ss-label">Very unlikely</div></div>
+  <div class="ss-item"><div class="ss-num" style="color:var(--red);">1</div><div class="ss-label">Conflict of interest</div></div>
+</div>
+
+<div class="legend">
+  <div class="li"><div class="ld" style="background:var(--green);"></div>Legitimate — expected in the real world</div>
+  <div class="li"><div class="ld" style="background:var(--blue);"></div>Possible — real but less common</div>
+  <div class="li"><div class="ld" style="background:var(--amber);"></div>Rare — supported but unusual</div>
+  <div class="li"><div class="ld" style="background:var(--dim);"></div>Very unlikely — theoretically possible</div>
+  <div class="li"><div class="ld" style="background:var(--red);"></div>Conflict of interest — watch for misuse</div>
+</div>
+
+<!-- ── PAIRS ─────────────────────────────────────────────────────── -->
+<div class="section-label">Two-persona combinations (6 pairs)</div>
+<div class="combo-grid">
+
+  <div class="combo-card legit">
+    <div class="combo-top">
+      <div class="combo-pills">
+        <span class="pill pill-buyer">🏠 Buyer</span>
+        <span class="pill pill-inspector">🔍 Inspector</span>
+      </div>
+      <span class="combo-badge badge-legit">Legitimate</span>
+    </div>
+    <div class="combo-desc">Inspectors buy homes too — often more frequently than average because they understand real estate deeply and spot value others miss. They use the buyer portal to analyze properties they wouldn't inspect themselves (conflict rules prevent self-inspection before purchase).</div>
+    <div class="combo-example">A San Antonio inspector buying a new construction home uses OfferWise to analyze the builder's disclosure — because even inspectors want independent AI verification.</div>
+  </div>
+
+  <div class="combo-card legit">
+    <div class="combo-top">
+      <div class="combo-pills">
+        <span class="pill pill-buyer">🏠 Buyer</span>
+        <span class="pill pill-agent">🏡 Agent</span>
+      </div>
+      <span class="combo-badge badge-legit">Legitimate</span>
+    </div>
+    <div class="combo-desc">The most natural combination. Agents buy investment properties, second homes, and primary residences constantly. Crucially, agents who experience OfferWise as buyers become its strongest advocates — they understand both sides and speak to clients from personal experience.</div>
+    <div class="combo-example">A Phoenix buyer's agent who personally used OfferWise on her own townhouse purchase now recommends it to every client. Her NPS score for the product is 10.</div>
+  </div>
+
+  <div class="combo-card legit">
+    <div class="combo-top">
+      <div class="combo-pills">
+        <span class="pill pill-buyer">🏠 Buyer</span>
+        <span class="pill pill-contractor">🔧 Contractor</span>
+      </div>
+      <span class="combo-badge badge-legit">Legitimate</span>
+    </div>
+    <div class="combo-desc">Contractors buy fixer-uppers, rental properties, and flip properties routinely. They're among the most sophisticated users of the repair cost estimates — they can compare OfferWise's AI numbers against their own cost knowledge and validate accuracy on the spot.</div>
+    <div class="combo-example">A Denver HVAC contractor buying a rental property uses OfferWise to check the disclosure, then grins when it flags the same 15-year-old furnace he'd already spotted.</div>
+  </div>
+
+  <div class="combo-card common">
+    <div class="combo-top">
+      <div class="combo-pills">
+        <span class="pill pill-inspector">🔍 Inspector</span>
+        <span class="pill pill-contractor">🔧 Contractor</span>
+      </div>
+      <span class="combo-badge badge-common">Possible</span>
+    </div>
+    <div class="combo-desc">Inspection and remediation overlap in several trades. Mold inspectors who also run remediation companies. HVAC technicians who certify systems and replace them. Electricians who inspect panels and rewire. They inspect in the morning and bid on the repair in the afternoon.</div>
+    <div class="combo-example">A certified mold inspector in Florida also operates a remediation company. She generates inspector reports for buyers AND claims remediation leads in the contractor marketplace.</div>
+  </div>
+
+  <div class="combo-card possible">
+    <div class="combo-top">
+      <div class="combo-pills">
+        <span class="pill pill-inspector">🔍 Inspector</span>
+        <span class="pill pill-agent">🏡 Agent</span>
+      </div>
+      <span class="combo-badge badge-possible">Rare</span>
+    </div>
+    <div class="combo-desc">Dual-licensed inspector-agents exist in some states. Many US states allow the same person to hold both a home inspection certification and a real estate license — though they cannot act in both capacities on the same transaction. Each portal serves a different set of clients.</div>
+    <div class="combo-example">A veteran Colorado inspector who later got his real estate license now uses the inspector portal for inspection clients and the agent portal for buyer clients he represents.</div>
+  </div>
+
+  <div class="combo-card conflict">
+    <div class="combo-top">
+      <div class="combo-pills">
+        <span class="pill pill-agent">🏡 Agent</span>
+        <span class="pill pill-contractor">🔧 Contractor</span>
+      </div>
+      <span class="combo-badge badge-conflict">Conflict Risk</span>
+    </div>
+    <div class="combo-desc">Agents represent buyers negotiating prices down. Contractors receive those same buyers' leads for repair quotes. A single person holding both roles could steer clients to their own contracting business — a direct conflict of interest that most state real estate boards explicitly prohibit. Platform should monitor for this pattern.</div>
+    <div class="combo-example">Watch for: an agent who claims contractor leads on properties where they represented the buyer. This is the primary misuse vector to monitor.</div>
+  </div>
+
+</div>
+
+<!-- ── TRIPLES ──────────────────────────────────────────────────── -->
+<div class="section-label">Three-persona combinations (4 triples — all include Buyer)</div>
+<div class="combo-grid">
+
+  <div class="combo-card legit">
+    <div class="combo-top">
+      <div class="combo-pills">
+        <span class="pill pill-buyer">🏠 Buyer</span>
+        <span class="pill pill-inspector">🔍 Inspector</span>
+        <span class="pill pill-agent">🏡 Agent</span>
+      </div>
+      <span class="combo-badge badge-legit">Legitimate</span>
+    </div>
+    <div class="combo-desc">The dual-licensed professional who also buys property. Inspector for their inspection clients, agent for their buyer clients, and buyer for their own acquisitions. Three completely separate workflows, each served by a different portal. Fully supported.</div>
+    <div class="combo-example">A Texas professional with both an inspector certification and a real estate license who also buys rental properties. All three portals serve different relationships.</div>
+  </div>
+
+  <div class="combo-card common">
+    <div class="combo-top">
+      <div class="combo-pills">
+        <span class="pill pill-buyer">🏠 Buyer</span>
+        <span class="pill pill-inspector">🔍 Inspector</span>
+        <span class="pill pill-contractor">🔧 Contractor</span>
+      </div>
+      <span class="combo-badge badge-common">Possible</span>
+    </div>
+    <div class="combo-desc">An inspector-contractor who also buys properties. The inspector-contractor pair is already plausible; add their own property purchases and this triple is realistic. Each role stays separate — they inspect for clients, bid on remediation leads, and buy their own properties through the buyer portal.</div>
+    <div class="combo-example">A mold inspector who runs a remediation company and also buys and flips houses. OfferWise serves all three activities — with entirely different data flows for each.</div>
+  </div>
+
+  <div class="combo-card possible">
+    <div class="combo-top">
+      <div class="combo-pills">
+        <span class="pill pill-buyer">🏠 Buyer</span>
+        <span class="pill pill-agent">🏡 Agent</span>
+        <span class="pill pill-contractor">🔧 Contractor</span>
+      </div>
+      <span class="combo-badge badge-conflict">Conflict Risk</span>
+    </div>
+    <div class="combo-desc">An agent-contractor who also buys property. The agent + contractor pairing already carries conflict-of-interest risk (see pairs above). Adding buyer status — where they personally benefit from lower purchase prices — compounds that risk. This triple warrants account review if detected.</div>
+    <div class="combo-example">Flag for review: an agent who claimed contractor leads on properties where they or their buyer clients submitted disclosures. Three-way conflict.</div>
+  </div>
+
+  <div class="combo-card unlikely">
+    <div class="combo-top">
+      <div class="combo-pills">
+        <span class="pill pill-inspector">🔍 Inspector</span>
+        <span class="pill pill-agent">🏡 Agent</span>
+        <span class="pill pill-contractor">🔧 Contractor</span>
+      </div>
+      <span class="combo-badge badge-unlikely">Very Unlikely</span>
+    </div>
+    <div class="combo-desc">Three professional licenses simultaneously — inspector, agent, and contractor — plus the inherent buyer role. Each requires separate licensing, different continuing education, and often different insurance. While technically possible, this combination is vanishingly rare in practice and the agent + contractor pairing already triggers conflict-of-interest flags.</div>
+    <div class="combo-example">Would require a separately licensed inspector, real estate agent, and contractor — three distinct professional credentials maintained simultaneously. Exists but is extremely uncommon.</div>
+  </div>
+
+</div>
+
+<!-- ── QUAD ────────────────────────────────────────────────────── -->
+<div class="section-label">Four-persona combination (the full stack)</div>
+<div class="combo-card-full unlikely">
+  <div class="combo-top">
+    <div class="combo-pills">
+      <span class="pill pill-buyer">🏠 Buyer</span>
+      <span class="pill pill-inspector">🔍 Inspector</span>
+      <span class="pill pill-agent">🏡 Agent</span>
+      <span class="pill pill-contractor">🔧 Contractor</span>
+    </div>
+    <span class="combo-badge badge-unlikely">Extremely Unlikely</span>
+  </div>
+  <div class="combo-desc">All four personas simultaneously. Requires a licensed home inspector, a licensed real estate agent, a licensed contractor (where required), and someone who also purchases property. The technical platform fully supports it — all four portals are accessible via the role switcher. In practice this is essentially impossible: the agent + contractor conflict-of-interest issue alone would prevent most legitimate professionals from holding both. If this combination appears in the database, treat it as an account worth reviewing.</div>
+  <div class="combo-example">Theoretical. If it exists, the account should be reviewed for the agent-contractor conflict pattern before contractor leads are visible.</div>
+</div>
+
+<div class="note">
+  <strong>Platform note:</strong> Every combination is technically supported by the role switcher. The only combination that should trigger automated monitoring is any account holding both <strong>Agent</strong> and <strong>Contractor</strong> roles — specifically if contractor leads being claimed overlap with properties where the same user acted as a buyer's agent. A future admin alert for this pattern would be worth building once contractor lead volume is meaningful.
+</div>
+
+</body>
+</html>

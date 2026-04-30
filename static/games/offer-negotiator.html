@@ -1,0 +1,1522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Offer Negotiator — OfferWise</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,600&family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;overflow:hidden;background:#0B1420;color:#EEE9E0;font-family:'DM Sans',sans-serif;user-select:none;}
+
+:root{
+  --bg:#0B1420;--s1:#111d2e;--s2:#172235;--s3:#1e2f45;
+  --border:rgba(255,255,255,0.08);
+  --amber:#F5A42A;--amber2:#FFD27F;
+  --teal:#2DD4BF;--green:#3DCA85;--red:#F05252;--blue:#4B9EF8;--purple:#9B7FEA;
+  --text:#EEE9E0;--muted:rgba(238,233,224,0.42);
+  --shadow:0 16px 48px rgba(0,0,0,0.55);
+}
+
+/* ── ANIMATED BG ── */
+#bg{position:fixed;inset:0;z-index:0;pointer-events:none;}
+
+/* ── SCREENS ── */
+.scr{position:fixed;inset:0;z-index:10;opacity:0;pointer-events:none;transition:opacity 0.4s;
+  display:flex;flex-direction:column;align-items:center;overflow-y:auto;}
+.scr.on{opacity:1;pointer-events:all;}
+
+/* ════════════════════════════
+   INTRO
+════════════════════════════ */
+#s-intro{justify-content:center;background:rgba(11,20,32,0.6);}
+.intro-wrap{max-width:420px;width:100%;padding:24px 22px 32px;
+  display:flex;flex-direction:column;align-items:center;}
+
+/* SVG city hero */
+.city-hero{width:100%;margin-bottom:-8px;}
+
+.tag-ow{display:inline-flex;align-items:center;gap:6px;
+  background:rgba(245,164,42,0.1);border:1px solid rgba(245,164,42,0.28);
+  border-radius:100px;padding:4px 13px;font-size:10px;font-weight:700;
+  letter-spacing:0.18em;text-transform:uppercase;color:var(--amber);margin-bottom:14px;}
+.tag-dot{width:5px;height:5px;border-radius:50%;background:var(--amber);
+  animation:blink 2s ease infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0.25;}}
+
+.i-title{font-family:'Cormorant Garamond',serif;
+  font-size:clamp(44px,12vw,68px);font-weight:700;line-height:0.93;
+  text-align:center;letter-spacing:-0.02em;margin-bottom:10px;}
+.i-title em{font-style:italic;color:var(--amber);
+  text-shadow:0 0 32px rgba(245,164,42,0.35);}
+.i-sub{font-size:13px;color:var(--muted);text-align:center;line-height:1.65;
+  max-width:290px;margin-bottom:20px;}
+
+.how-grid{display:flex;flex-direction:column;gap:7px;width:100%;margin-bottom:22px;}
+.how-row{display:flex;align-items:flex-start;gap:11px;
+  background:var(--s2);border:1px solid var(--border);
+  border-radius:12px;padding:10px 13px;}
+.how-num{width:22px;height:22px;border-radius:50%;
+  background:var(--amber);color:#000;font-size:11px;font-weight:800;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+.how-text{font-size:13px;color:var(--muted);line-height:1.45;}
+.how-text b{color:var(--text);}
+
+.btn-go{width:100%;background:linear-gradient(135deg,#F5A42A,#FF7500);
+  color:#000;border:none;border-radius:14px;padding:17px;
+  font-size:17px;font-weight:800;font-family:'DM Sans',sans-serif;
+  cursor:pointer;position:relative;overflow:hidden;
+  box-shadow:0 6px 28px rgba(245,164,42,0.4);
+  animation:pulseGlow 2.5s ease-in-out infinite;transition:transform 0.12s;}
+.btn-go::before{content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(255,255,255,0.18),transparent);}
+@keyframes pulseGlow{
+  0%,100%{box-shadow:0 6px 28px rgba(245,164,42,0.4),0 0 0 0 rgba(245,164,42,0.25);}
+  50%{box-shadow:0 6px 28px rgba(245,164,42,0.5),0 0 0 14px rgba(245,164,42,0);}}
+.btn-go:active{transform:scale(0.98);}
+.i-note{margin-top:11px;font-size:12px;color:var(--muted);text-align:center;}
+
+/* ════════════════════════════
+   GAME SCREEN — CSS GRID
+════════════════════════════ */
+#s-game{
+  position:fixed;inset:0;
+  max-width:520px;left:50%;transform:translateX(-50%);
+  display:grid;
+  grid-template-rows:auto auto 1fr auto;
+  overflow:hidden;
+  align-items:stretch;
+}
+
+/* ── ROW 1: top bar ── */
+.topbar{
+  display:flex;align-items:center;gap:10px;
+  padding:12px 16px 8px;
+  background:rgba(11,20,32,0.95);
+  flex-shrink:0;
+}
+.prop-counter{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.15em;
+  text-transform:uppercase;color:var(--muted);}
+.prop-counter b{color:var(--amber);}
+.info-strip{flex:1;display:flex;flex-direction:column;align-items:flex-end;}
+.info-address{font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:600;
+  color:var(--text);line-height:1;}
+.info-meta{font-size:11px;color:var(--muted);margin-top:1px;}
+.competing-badge{display:flex;align-items:center;gap:5px;
+  background:rgba(240,82,82,0.12);border:1px solid rgba(240,82,82,0.25);
+  border-radius:100px;padding:4px 10px;
+  font-size:11px;font-weight:700;color:var(--red);}
+.cb-dot{width:5px;height:5px;border-radius:50%;background:var(--red);
+  animation:blink 1s ease infinite;}
+
+/* ── ROW 2: findings strip ── */
+.findings-strip{
+  display:flex;gap:8px;
+  padding:8px 16px;
+  overflow-x:auto;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:none;
+  flex-shrink:0;
+  border-bottom:1px solid var(--border);
+  background:var(--s1);
+}
+.findings-strip::-webkit-scrollbar{display:none;}
+.finding-chip{
+  flex-shrink:0;
+  display:flex;align-items:center;gap:6px;
+  background:var(--s2);border:1px solid var(--border);
+  border-radius:100px;padding:5px 12px 5px 8px;
+  font-size:12px;font-weight:600;color:var(--muted);
+  cursor:pointer;transition:all 0.2s;white-space:nowrap;
+  position:relative;
+}
+.finding-chip.locked{opacity:0.35;cursor:default;}
+.finding-chip.unlocked{color:var(--text);}
+.finding-chip.unlocked.critical{border-color:rgba(240,82,82,0.35);
+  background:rgba(240,82,82,0.07);color:var(--red);}
+.finding-chip.unlocked.warn{border-color:rgba(245,164,42,0.35);
+  background:rgba(245,164,42,0.07);color:var(--amber);}
+.finding-chip.unlocked.ok{border-color:rgba(61,202,133,0.35);
+  background:rgba(61,202,133,0.07);color:var(--green);}
+.chip-icon{font-size:14px;}
+.chip-lock{font-size:10px;margin-left:2px;}
+.chip-cost{font-size:10px;font-family:'DM Mono',monospace;margin-left:2px;}
+
+/* ── ROW 3: main stage (fills space) ── */
+.stage{
+  display:grid;
+  grid-template-rows:1fr auto;
+  min-height:0;
+  overflow:hidden;
+}
+
+/* Question panel */
+.q-panel{
+  padding:14px 16px 10px;
+  display:flex;flex-direction:column;
+  overflow:hidden;
+  min-height:0;
+  position:relative;
+}
+/* Question card */
+.q-card{
+  flex:1;min-height:0;
+  background:var(--s2);
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:16px;
+  display:flex;flex-direction:column;
+  overflow:hidden;
+  position:relative;
+}
+.q-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  border-radius:16px 16px 0 0;background:var(--amber);}
+.q-card.disc::before{background:var(--teal);}
+.q-card.result-win{border-color:rgba(61,202,133,0.4);background:rgba(61,202,133,0.06);}
+.q-card.result-win::before{background:var(--green);}
+.q-card.result-lose{border-color:rgba(240,82,82,0.35);background:rgba(240,82,82,0.05);}
+.q-card.result-lose::before{background:var(--red);}
+
+.q-meta{display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:10px;flex-shrink:0;}
+.q-cat{font-size:10px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;
+  color:var(--muted);display:flex;align-items:center;gap:6px;}
+.q-cat-icon{font-size:15px;}
+.q-unlock-tag{font-size:10px;font-weight:700;
+  background:rgba(245,164,42,0.12);border:1px solid rgba(245,164,42,0.2);
+  border-radius:4px;padding:2px 7px;color:var(--amber);}
+.q-unlock-tag.teal{background:rgba(45,212,191,0.1);border-color:rgba(45,212,191,0.2);color:var(--teal);}
+
+.q-text{font-size:15px;line-height:1.6;color:var(--text);
+  flex:1;overflow-y:auto;margin-bottom:10px;min-height:0;}
+.q-text strong{color:var(--amber2);}
+
+.q-result-row{display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-shrink:0;}
+.q-result-icon{font-size:18px;}
+.q-result-title{font-size:14px;font-weight:700;}
+.q-result-title.win{color:var(--green);}
+.q-result-title.lose{color:var(--red);}
+.q-result-explain{font-size:12px;color:var(--muted);line-height:1.5;flex-shrink:0;}
+.q-unlock-reveal{font-size:12px;font-weight:700;color:var(--amber);
+  margin-top:6px;flex-shrink:0;display:none;}
+.q-unlock-reveal.show{display:block;}
+
+/* Answer options */
+.ans-panel{padding:0 16px 10px;flex-shrink:0;}
+.ans-opts{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.ans-opt{background:var(--s3);border:1px solid var(--border);
+  border-radius:12px;padding:12px 10px;cursor:pointer;
+  text-align:center;transition:all 0.15s;font-family:'DM Sans',sans-serif;
+  position:relative;overflow:hidden;}
+.ans-opt::before{content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(255,255,255,0.04),transparent);}
+.ans-opt:active{transform:scale(0.97);}
+.ao-icon{font-size:22px;display:block;margin-bottom:4px;}
+.ao-label{font-size:13px;font-weight:700;display:block;color:var(--text);}
+.ao-sub{font-size:11px;color:var(--muted);display:block;margin-top:1px;}
+.ao-reward{position:absolute;top:7px;right:7px;
+  font-size:10px;font-weight:700;color:var(--amber);
+  background:rgba(245,164,42,0.1);border-radius:4px;padding:1px 5px;
+  font-family:'DM Mono',monospace;}
+.ans-opt.cosm:hover{border-color:var(--green);background:rgba(61,202,133,0.08);}
+.ans-opt.cosm:hover .ao-label{color:var(--green);}
+.ans-opt.deal:hover{border-color:var(--red);background:rgba(240,82,82,0.08);}
+.ans-opt.deal:hover .ao-label{color:var(--red);}
+.disc-opts-list{display:flex;flex-direction:column;gap:7px;}
+.disc-opt{background:var(--s3);border:1px solid var(--border);
+  border-radius:10px;padding:10px 13px;cursor:pointer;
+  font-size:13px;line-height:1.4;color:var(--text);font-weight:600;
+  text-align:left;font-family:'DM Sans',sans-serif;transition:all 0.15s;}
+.disc-opt:hover{border-color:var(--teal);}
+.disc-opt.right{border-color:var(--green);background:rgba(61,202,133,0.08);color:var(--green);}
+.disc-opt.wrong{border-color:var(--red);background:rgba(240,82,82,0.08);color:var(--red);}
+.disc-opt.reveal{border-color:rgba(61,202,133,0.4);color:var(--green);}
+.disc-opt.dis{pointer-events:none;}
+
+/* Timer bar */
+.timer-bar{height:3px;background:rgba(255,255,255,0.06);
+  margin:0 16px 6px;border-radius:2px;overflow:hidden;flex-shrink:0;}
+.timer-fill{height:100%;background:linear-gradient(90deg,var(--teal),var(--amber));
+  transition:width 0.85s linear,background 0.4s;}
+.timer-fill.hot{background:linear-gradient(90deg,var(--red),#FF8C00);}
+
+/* ── ROW 4: offer slider ── */
+.offer-dock{
+  background:var(--s1);
+  border-top:1px solid var(--border);
+  padding:12px 16px 16px;
+  flex-shrink:0;
+}
+.od-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+.od-label{font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);}
+.od-price{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:700;
+  color:var(--amber);text-shadow:0 0 20px rgba(245,164,42,0.3);}
+.od-asking{font-size:11px;color:var(--muted);text-align:right;margin-top:-2px;}
+.od-asking b{color:var(--text);}
+.od-info-row{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.od-info-pill{display:flex;align-items:center;gap:4px;font-size:11px;
+  background:var(--s2);border:1px solid var(--border);border-radius:6px;
+  padding:3px 8px;color:var(--muted);}
+.od-info-pill.known{color:var(--teal);border-color:rgba(45,212,191,0.2);}
+.od-info-pill .pico{font-size:12px;}
+
+/* Custom slider */
+.slider-wrap{position:relative;padding:8px 0;}
+.offer-slider{
+  -webkit-appearance:none;appearance:none;
+  width:100%;height:6px;border-radius:3px;
+  background:var(--s3);outline:none;cursor:pointer;
+  position:relative;z-index:1;
+}
+.offer-slider::-webkit-slider-thumb{
+  -webkit-appearance:none;appearance:none;
+  width:28px;height:28px;border-radius:50%;
+  background:linear-gradient(135deg,#F5A42A,#FF7500);
+  cursor:grab;border:3px solid rgba(255,255,255,0.15);
+  box-shadow:0 2px 12px rgba(245,164,42,0.5);
+  transition:transform 0.15s,box-shadow 0.15s;
+}
+.offer-slider::-webkit-slider-thumb:active{
+  transform:scale(1.15);cursor:grabbing;
+  box-shadow:0 4px 20px rgba(245,164,42,0.65);}
+.offer-slider::-moz-range-thumb{
+  width:28px;height:28px;border-radius:50%;
+  background:linear-gradient(135deg,#F5A42A,#FF7500);
+  cursor:grab;border:3px solid rgba(255,255,255,0.15);
+  box-shadow:0 2px 12px rgba(245,164,42,0.5);}
+.slider-track-fill{
+  position:absolute;left:0;top:50%;transform:translateY(-50%);
+  height:6px;border-radius:3px;
+  background:linear-gradient(90deg,#F5A42A,#FF9500);
+  pointer-events:none;transition:width 0.1s;}
+.slider-labels{display:flex;justify-content:space-between;
+  font-size:10px;font-family:'DM Mono',monospace;color:var(--muted);margin-top:4px;}
+
+.btn-submit{width:100%;margin-top:10px;
+  background:linear-gradient(135deg,#F5A42A,#FF7500);
+  color:#000;border:none;border-radius:12px;padding:14px;
+  font-size:15px;font-weight:800;font-family:'DM Sans',sans-serif;
+  cursor:pointer;position:relative;overflow:hidden;
+  box-shadow:0 4px 20px rgba(245,164,42,0.35);transition:all 0.15s;}
+.btn-submit::before{content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(255,255,255,0.15),transparent);}
+.btn-submit:active{transform:scale(0.98);}
+.btn-submit:disabled{opacity:0.4;cursor:not-allowed;}
+
+/* ════════════════════════════
+   RESULT SCREEN
+════════════════════════════ */
+#s-result{
+  position:fixed;inset:0;
+  max-width:520px;left:50%;transform:translateX(-50%);
+  padding:20px 16px 24px;
+  overflow-y:auto;gap:12px;
+  justify-content:flex-start;
+}
+
+.verdict-card{
+  width:100%;border-radius:18px;overflow:hidden;
+  box-shadow:var(--shadow);
+  animation:slideUp 0.4s cubic-bezier(0.34,1.1,0.64,1);
+}
+@keyframes slideUp{from{transform:translateY(24px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+.vc-top{padding:20px 20px 16px;position:relative;overflow:hidden;}
+.vc-top::before{content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at 50% -20%,rgba(245,164,42,0.2),transparent 65%);}
+.vc-address{font-family:'Cormorant Garamond',serif;font-size:14px;
+  color:rgba(255,255,255,0.5);margin-bottom:4px;}
+.vc-title{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:700;
+  color:#fff;margin-bottom:12px;line-height:1.1;}
+/* Offer comparison bars */
+.offer-compare{display:flex;flex-direction:column;gap:8px;margin-bottom:14px;}
+.oc-row{display:flex;align-items:center;gap:10px;}
+.oc-label{font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;
+  color:rgba(255,255,255,0.5);width:62px;flex-shrink:0;text-align:right;}
+.oc-bar-wrap{flex:1;height:8px;background:rgba(255,255,255,0.08);border-radius:4px;overflow:hidden;}
+.oc-bar{height:100%;border-radius:4px;transition:width 0.9s cubic-bezier(0.4,0,0.2,1);}
+.oc-bar.yours{background:linear-gradient(90deg,#F5A42A,#FF9500);}
+.oc-bar.smart{background:linear-gradient(90deg,var(--teal),#6EE7B7);}
+.oc-bar.asking{background:rgba(255,255,255,0.2);}
+.oc-val{font-family:'DM Mono',monospace;font-size:12px;font-weight:500;
+  width:60px;flex-shrink:0;}
+.oc-val.yours{color:var(--amber);}
+.oc-val.smart{color:var(--teal);}
+.oc-val.asking{color:var(--muted);}
+/* Delta pill */
+.delta-pill{display:inline-flex;align-items:center;gap:6px;
+  border-radius:100px;padding:6px 14px;font-size:13px;font-weight:700;}
+.delta-pill.over{background:rgba(240,82,82,0.12);border:1px solid rgba(240,82,82,0.25);color:var(--red);}
+.delta-pill.under{background:rgba(61,202,133,0.1);border:1px solid rgba(61,202,133,0.25);color:var(--green);}
+.delta-pill.exact{background:rgba(245,164,42,0.12);border:1px solid rgba(245,164,42,0.25);color:var(--amber);}
+.vc-verdict{font-size:14px;color:rgba(255,255,255,0.6);line-height:1.55;margin-top:10px;}
+.vc-stats{display:grid;grid-template-columns:repeat(3,1fr);
+  border-top:1px solid rgba(255,255,255,0.08);}
+.vc-stat{padding:11px 10px;text-align:center;border-right:1px solid rgba(255,255,255,0.08);}
+.vc-stat:last-child{border-right:none;}
+.vc-stat .vsv{font-family:'DM Mono',monospace;font-size:17px;font-weight:500;}
+.vc-stat .vsl{font-size:10px;color:rgba(255,255,255,0.4);text-transform:uppercase;
+  letter-spacing:0.08em;margin-top:1px;}
+
+/* Findings breakdown */
+.findings-breakdown{width:100%;}
+.fb-title{font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;
+  color:var(--muted);margin-bottom:8px;}
+.fb-row{display:flex;align-items:flex-start;gap:10px;
+  background:var(--s2);border:1px solid var(--border);
+  border-radius:10px;padding:10px 12px;margin-bottom:6px;}
+.fb-icon{font-size:16px;flex-shrink:0;margin-top:1px;}
+.fb-body{flex:1;}
+.fb-label{font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px;}
+.fb-detail{font-size:11px;color:var(--muted);line-height:1.45;}
+.fb-tag{font-size:10px;font-weight:700;border-radius:4px;padding:2px 7px;margin-left:auto;flex-shrink:0;
+  align-self:flex-start;}
+.fb-tag.unlocked{background:rgba(61,202,133,0.1);color:var(--green);}
+.fb-tag.missed{background:rgba(240,82,82,0.1);color:var(--red);}
+
+/* City bar — portfolio progress */
+.city-bar{width:100%;background:var(--s2);border:1px solid var(--border);
+  border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:12px;}
+.cb-props{display:flex;gap:5px;flex:1;}
+.cb-prop{font-size:18px;transition:all 0.4s;opacity:0.25;filter:grayscale(1);}
+.cb-prop.won{opacity:1;filter:none;animation:popIn 0.4s cubic-bezier(0.34,1.56,0.64,1);}
+@keyframes popIn{from{transform:scale(0.4);opacity:0;}to{transform:scale(1);opacity:1;}}
+.cb-score{text-align:right;}
+.cb-score-val{font-family:'DM Mono',monospace;font-size:16px;font-weight:500;color:var(--amber);}
+.cb-score-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;}
+
+.btn-next-prop{width:100%;background:linear-gradient(135deg,#F5A42A,#FF7500);
+  color:#000;border:none;border-radius:13px;padding:16px;
+  font-size:16px;font-weight:800;font-family:'DM Sans',sans-serif;
+  cursor:pointer;position:relative;overflow:hidden;
+  box-shadow:0 4px 20px rgba(245,164,42,0.38);transition:transform 0.12s;}
+.btn-next-prop::before{content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(255,255,255,0.15),transparent);}
+.btn-next-prop:active{transform:scale(0.98);}
+
+/* ════════════════════════════
+   FINAL SCREEN
+════════════════════════════ */
+#s-final{
+  position:fixed;inset:0;
+  max-width:520px;left:50%;transform:translateX(-50%);
+  padding:20px 16px 28px;overflow-y:auto;gap:12px;
+  justify-content:flex-start;
+}
+.final-hero{width:100%;border-radius:18px;padding:28px 20px 20px;text-align:center;
+  position:relative;overflow:hidden;box-shadow:var(--shadow);}
+.fh-glow{position:absolute;inset:0;
+  background:radial-gradient(ellipse at 50% -10%,rgba(245,164,42,0.25),transparent 65%);}
+.fh-trophy{font-size:58px;display:block;margin-bottom:10px;
+  animation:trophy-float 3s ease-in-out infinite;}
+@keyframes trophy-float{0%,100%{transform:translateY(0);}50%{transform:translateY(-8px);}}
+.fh-rank{font-family:'Cormorant Garamond',serif;font-size:34px;font-weight:700;
+  color:var(--amber);line-height:1;margin-bottom:6px;
+  text-shadow:0 0 32px rgba(245,164,42,0.4);}
+.fh-sub{font-size:13px;color:var(--muted);line-height:1.55;max-width:260px;margin:0 auto;}
+
+/* Portfolio cityscape */
+.cityscape{width:100%;background:var(--s2);border:1px solid var(--border);
+  border-radius:14px;overflow:hidden;}
+.cs-buildings{display:flex;align-items:flex-end;justify-content:center;
+  gap:6px;padding:16px 16px 8px;min-height:80px;}
+.cs-building{display:flex;flex-direction:column;align-items:center;gap:3px;
+  animation:buildRise 0.6s cubic-bezier(0.34,1.3,0.64,1) both;}
+@keyframes buildRise{from{transform:scaleY(0);transform-origin:bottom;}to{transform:scaleY(1);}}
+.cs-b-tower{border-radius:4px 4px 0 0;width:36px;display:flex;align-items:flex-end;
+  justify-content:center;padding-bottom:3px;font-size:8px;color:rgba(255,255,255,0.4);}
+.cs-b-label{font-size:9px;color:var(--muted);font-weight:700;text-align:center;max-width:40px;}
+.cs-b-val{font-size:9px;color:var(--amber);font-family:'DM Mono',monospace;}
+.cs-footer{padding:10px 16px;border-top:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;}
+.cs-total-lbl{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;}
+.cs-total-val{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:700;color:var(--green);}
+
+.score-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;}
+.sg-cell{background:var(--s2);border:1px solid var(--border);border-radius:12px;padding:12px 14px;}
+.sg-val{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:700;line-height:1;margin-bottom:3px;}
+.sg-val.amber{color:var(--amber);}
+.sg-val.teal{color:var(--teal);}
+.sg-val.green{color:var(--green);}
+.sg-val.red{color:var(--red);}
+.sg-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;font-weight:700;}
+
+.share-box{width:100%;background:var(--s2);border:1px solid var(--border);
+  border-radius:14px;padding:14px 16px;}
+.sb-hdr{font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;
+  color:var(--muted);margin-bottom:9px;}
+.sb-preview{background:rgba(0,0,0,0.25);border-radius:8px;padding:9px 11px;
+  font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);
+  line-height:1.7;margin-bottom:9px;white-space:pre-wrap;}
+.btn-copy{width:100%;background:transparent;border:1px solid var(--border);
+  color:var(--text);border-radius:9px;padding:10px;font-size:13px;font-weight:700;
+  font-family:'DM Sans',sans-serif;cursor:pointer;transition:all 0.15s;}
+.btn-copy:hover{border-color:var(--teal);color:var(--teal);}
+.btn-copy.ok{border-color:var(--green);color:var(--green);}
+.cta-box{width:100%;background:rgba(245,164,42,0.07);
+  border:1px solid rgba(245,164,42,0.18);border-radius:14px;padding:14px 17px;text-align:center;}
+.cta-box p{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:11px;}
+.cta-box a{display:inline-block;background:linear-gradient(135deg,#F5A42A,#FF7500);
+  color:#000;border-radius:9px;padding:10px 22px;font-size:13px;font-weight:800;
+  text-decoration:none;font-family:'DM Sans',sans-serif;}
+.btn-again{width:100%;background:transparent;border:1px solid var(--border);
+  color:var(--muted);border-radius:11px;padding:11px;font-size:13px;font-weight:700;
+  font-family:'DM Sans',sans-serif;cursor:pointer;transition:all 0.15s;}
+.btn-again:hover{border-color:var(--text);color:var(--text);}
+
+/* ════════════════════════════
+   FX
+════════════════════════════ */
+.fx-coin{position:fixed;pointer-events:none;z-index:999;
+  font-size:14px;font-weight:800;color:var(--amber);
+  font-family:'DM Sans',sans-serif;
+  animation:fxFloat 1s ease-out forwards;}
+@keyframes fxFloat{0%{opacity:1;transform:translateY(0) scale(1);}
+  100%{opacity:0;transform:translateY(-55px) scale(1.2);}}
+.flash{position:fixed;inset:0;pointer-events:none;z-index:800;
+  opacity:0;transition:opacity 0.12s;}
+.flash.g{background:rgba(61,202,133,0.06);}
+.flash.r{background:rgba(240,82,82,0.09);}
+.flash.on{opacity:1;}
+.confetti{position:fixed;top:-10px;pointer-events:none;z-index:900;
+  animation:cfAll linear forwards;}
+@keyframes cfAll{0%{opacity:1;transform:translateY(0) rotate(0);}
+  100%{opacity:0;transform:translateY(110vh) rotate(720deg);}}
+@keyframes shakeAnim{
+  0%,100%{transform:translateX(-50%);}
+  20%{transform:translateX(calc(-50% - 7px));}
+  40%{transform:translateX(calc(-50% + 7px));}
+  60%{transform:translateX(calc(-50% - 4px));}
+  80%{transform:translateX(calc(-50% + 4px));}}
+.shake{animation:shakeAnim 0.35s ease!important;}
+</style>
+</head>
+<body>
+<canvas id="bg"></canvas>
+<div class="flash" id="flash"></div>
+
+<!-- ══════════ INTRO ══════════ -->
+<div class="scr on" id="s-intro">
+<div class="intro-wrap">
+
+<svg class="city-hero" viewBox="0 0 420 160" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="sun" cx="50%" cy="100%" r="55%">
+      <stop offset="0%" stop-color="#F5A42A" stop-opacity="0.32"/>
+      <stop offset="100%" stop-color="#F5A42A" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0B1420"/>
+      <stop offset="100%" stop-color="#0D1E32"/>
+    </linearGradient>
+  </defs>
+  <rect width="420" height="160" fill="url(#sky)"/>
+  <ellipse cx="210" cy="148" rx="180" ry="70" fill="url(#sun)"/>
+  <!-- Buildings -->
+  <rect x="8" y="95" width="20" height="65" fill="#122236"/>
+  <rect x="11" y="99" width="4" height="4" fill="#F5A42A" opacity=".6"/>
+  <rect x="11" y="108" width="4" height="4" fill="#2DD4BF" opacity=".4"/>
+  <rect x="32" y="70" width="28" height="90" fill="#1A3050"/>
+  <rect x="35" y="74" width="5" height="5" fill="#F5A42A" opacity=".7"/>
+  <rect x="44" y="74" width="5" height="5" fill="#F5A42A" opacity=".4"/>
+  <rect x="35" y="84" width="5" height="5" fill="#2DD4BF" opacity=".45"/>
+  <rect x="64" y="38" width="36" height="122" fill="#1E3F5E"/>
+  <rect x="67" y="42" width="6" height="6" fill="#F5A42A" opacity=".8"/>
+  <rect x="77" y="42" width="6" height="6" fill="#fff" opacity=".15"/>
+  <rect x="87" y="42" width="6" height="6" fill="#F5A42A" opacity=".55"/>
+  <rect x="67" y="53" width="6" height="6" fill="#2DD4BF" opacity=".5"/>
+  <rect x="77" y="53" width="6" height="6" fill="#F5A42A" opacity=".4"/>
+  <line x1="82" y1="38" x2="82" y2="20" stroke="#F5A42A" stroke-width="1.5" opacity=".45"/>
+  <circle cx="82" cy="19" r="2.5" fill="#F5A42A" opacity=".9">
+    <animate attributeName="opacity" values="0.9;0.2;0.9" dur="2s" repeatCount="indefinite"/>
+  </circle>
+  <rect x="104" y="55" width="26" height="105" fill="#122236"/>
+  <rect x="107" y="59" width="5" height="5" fill="#F5A42A" opacity=".5"/>
+  <rect x="116" y="59" width="5" height="5" fill="#F5A42A" opacity=".7"/>
+  <rect x="134" y="44" width="42" height="116" fill="#1A3050"/>
+  <rect x="137" y="48" width="7" height="7" fill="#F5A42A" opacity=".65"/>
+  <rect x="148" y="48" width="7" height="7" fill="#fff" opacity=".12"/>
+  <rect x="159" y="48" width="7" height="7" fill="#F5A42A" opacity=".8"/>
+  <rect x="137" y="60" width="7" height="7" fill="#2DD4BF" opacity=".45"/>
+  <rect x="148" y="60" width="7" height="7" fill="#F5A42A" opacity=".35"/>
+  <!-- Houses -->
+  <rect x="182" y="108" width="30" height="52" fill="#1E3F5E"/>
+  <polygon points="182,108 197,90 212,108" fill="#F5A42A" opacity=".38"/>
+  <rect x="191" y="124" width="12" height="36" fill="#0B1420"/>
+  <rect x="196" y="99" width="7" height="7" fill="#F5A42A" opacity=".55"/>
+  <rect x="216" y="116" width="26" height="44" fill="#122236"/>
+  <polygon points="216,116 229,102 242,116" fill="#F5A42A" opacity=".28"/>
+  <rect x="224" y="128" width="10" height="32" fill="#0B1420"/>
+  <rect x="246" y="88" width="36" height="72" fill="#1A3050"/>
+  <rect x="249" y="92" width="6" height="6" fill="#F5A42A" opacity=".6"/>
+  <rect x="259" y="92" width="6" height="6" fill="#2DD4BF" opacity=".45"/>
+  <rect x="269" y="92" width="6" height="6" fill="#F5A42A" opacity=".7"/>
+  <rect x="249" y="103" width="6" height="6" fill="#F5A42A" opacity=".35"/>
+  <rect x="286" y="65" width="30" height="95" fill="#1E3F5E"/>
+  <rect x="289" y="69" width="5" height="5" fill="#F5A42A" opacity=".6"/>
+  <rect x="298" y="69" width="5" height="5" fill="#fff" opacity=".12"/>
+  <rect x="307" y="69" width="5" height="5" fill="#F5A42A" opacity=".45"/>
+  <rect x="320" y="80" width="22" height="80" fill="#122236"/>
+  <rect x="346" y="95" width="26" height="65" fill="#1A3050"/>
+  <rect x="376" y="108" width="20" height="52" fill="#122236"/>
+  <rect x="398" y="100" width="18" height="60" fill="#1E3F5E"/>
+  <!-- Ground -->
+  <rect y="155" width="420" height="5" fill="#0B1420"/>
+  <line x1="0" y1="155" x2="420" y2="155" stroke="rgba(245,164,42,0.15)" stroke-width="1"/>
+</svg>
+
+<div class="tag-ow"><span class="tag-dot"></span>OfferWise AI</div>
+<h1 class="i-title">Offer<br><em>Negotiator</em></h1>
+<p class="i-sub">You're buying a house. Uncover inspection findings, read disclosures — then set your offer. How close can you get to the smart price?</p>
+
+<div class="how-grid">
+  <div class="how-row">
+    <div class="how-num">1</div>
+    <div class="how-text"><b>Answer questions to unlock findings.</b> Each correct answer reveals a real inspection issue — and adjusts your information.</div>
+  </div>
+  <div class="how-row">
+    <div class="how-num">2</div>
+    <div class="how-text"><b>Drag the slider to set your offer.</b> Use what you know. The more you uncovered, the smarter your bid.</div>
+  </div>
+  <div class="how-row">
+    <div class="how-num">3</div>
+    <div class="how-text"><b>See how close you got.</b> Your offer vs. the OfferWise smart price — and what you missed.</div>
+  </div>
+</div>
+
+<button class="btn-go" onclick="startGame()">🏠 Start Negotiating</button>
+<p class="i-note">Free · No sign-up · 4 properties to analyze</p>
+</div>
+</div>
+
+<!-- ══════════ GAME ══════════ -->
+<div class="scr" id="s-game">
+  <!-- Row 1: top bar -->
+  <div class="topbar">
+    <div>
+      <div class="prop-counter">Property <b id="propNum">1</b> of <b>4</b></div>
+    </div>
+    <div class="info-strip">
+      <div class="info-address" id="propAddress">42 Sunridge Lane</div>
+      <div class="info-meta">Asking <span id="propAsking">$780k</span> · <span id="propBed">3bd/2ba</span></div>
+    </div>
+    <div class="competing-badge"><span class="cb-dot"></span>Buyer competing</div>
+  </div>
+
+  <!-- Row 2: findings strip -->
+  <div class="findings-strip" id="findingsStrip"></div>
+
+  <!-- Row 3: stage -->
+  <div class="stage">
+    <div class="q-panel">
+      <div class="q-card" id="qCard">
+        <div class="q-meta">
+          <div class="q-cat"><span class="q-cat-icon" id="qIcon">🔧</span><span id="qCatLabel">Loading</span></div>
+          <div class="q-unlock-tag" id="qUnlockTag">Unlocks finding</div>
+        </div>
+        <div class="q-text" id="qText">Loading question...</div>
+        <!-- Result state -->
+        <div class="q-result-row" id="qResultRow" style="display:none">
+          <span class="q-result-icon" id="qResultIcon">✓</span>
+          <span class="q-result-title" id="qResultTitle">Correct!</span>
+        </div>
+        <div class="q-result-explain" id="qResultExplain" style="display:none"></div>
+        <div class="q-unlock-reveal" id="qUnlockReveal"></div>
+      </div>
+    </div>
+    <!-- Timer -->
+    <div class="timer-bar" id="timerBar" style="display:none">
+      <div class="timer-fill" id="timerFill"></div>
+    </div>
+    <!-- Answers -->
+    <div class="ans-panel" id="ansPanel">
+      <div class="ans-opts" id="ansOpts"></div>
+    </div>
+  </div>
+
+  <!-- Row 4: offer dock -->
+  <div class="offer-dock">
+    <div class="od-top">
+      <div>
+        <div class="od-label">Your Offer</div>
+        <div class="od-price" id="offerDisplay">$750,000</div>
+      </div>
+      <div>
+        <div class="od-asking" id="odAsking">Asking: <b>$780k</b></div>
+        <div class="od-info-row" id="odInfoRow" style="margin-top:4px;gap:5px;display:flex;flex-wrap:wrap;"></div>
+      </div>
+    </div>
+    <div class="slider-wrap">
+      <div class="slider-track-fill" id="sliderTrack"></div>
+      <input type="range" class="offer-slider" id="offerSlider" min="0" max="100" value="50">
+    </div>
+    <div class="slider-labels">
+      <span id="sliderMin">$650k</span>
+      <span style="color:var(--amber)">← drag to set offer →</span>
+      <span id="sliderMax">$950k</span>
+    </div>
+    <button class="btn-submit" id="btnSubmit" onclick="submitOffer()">Submit Offer →</button>
+  </div>
+</div>
+
+<!-- ══════════ RESULT ══════════ -->
+<div class="scr" id="s-result">
+  <div class="verdict-card" id="verdictCard">
+    <div class="vc-top" id="vcTop">
+      <div class="vc-address" id="vcAddress">42 Sunridge Lane</div>
+      <div class="vc-title" id="vcTitle">You offered $780k</div>
+      <div class="offer-compare" id="offerCompare"></div>
+      <div id="deltaPill"></div>
+      <div class="vc-verdict" id="vcVerdict"></div>
+    </div>
+    <div class="vc-stats" id="vcStats"></div>
+  </div>
+
+  <div class="findings-breakdown" id="findingsBreakdown">
+    <div class="fb-title">What the inspection found</div>
+  </div>
+
+  <div class="city-bar">
+    <div class="cb-props" id="cbProps"></div>
+    <div class="cb-score">
+      <div class="cb-score-val" id="cbScoreVal">0 pts</div>
+      <div class="cb-score-lbl">Total Score</div>
+    </div>
+  </div>
+
+  <button class="btn-next-prop" id="btnNextProp" onclick="nextProperty()">Next Property →</button>
+</div>
+
+<!-- ══════════ FINAL ══════════ -->
+<div class="scr" id="s-final">
+  <div class="final-hero" id="finalHero" style="background:var(--s2)">
+    <div class="fh-glow"></div>
+    <span class="fh-trophy" id="fhTrophy">🏆</span>
+    <div class="fh-rank" id="fhRank">Property Mogul</div>
+    <div class="fh-sub" id="fhSub">You've mastered the homebuying game.</div>
+  </div>
+
+  <div class="cityscape" id="cityscape">
+    <div class="cs-buildings" id="csBuildings"></div>
+    <div class="cs-footer">
+      <div class="cs-total-lbl">Portfolio Value</div>
+      <div class="cs-total-val" id="csTotalVal">$0</div>
+    </div>
+  </div>
+
+  <div class="score-grid">
+    <div class="sg-cell"><div class="sg-val amber" id="fgAvg">—</div><div class="sg-lbl">Avg Accuracy</div></div>
+    <div class="sg-cell"><div class="sg-val teal" id="fgFindings">0/8</div><div class="sg-lbl">Findings Unlocked</div></div>
+    <div class="sg-cell"><div class="sg-val green" id="fgBest">—</div><div class="sg-lbl">Best Offer</div></div>
+    <div class="sg-cell"><div class="sg-val red" id="fgWorst">—</div><div class="sg-lbl">Biggest Miss</div></div>
+  </div>
+
+  <div class="share-box">
+    <div class="sb-hdr">📤 Share your result</div>
+    <div class="sb-preview" id="sharePreview"></div>
+    <button class="btn-copy" id="btnCopy" onclick="doShare()">📋 Copy to clipboard</button>
+  </div>
+
+  <div class="cta-box">
+    <p>OfferWise does this on your <em>actual</em> property. Upload your inspection &amp; disclosure — get your OfferScore™ and recommended offer price in 60 seconds.</p>
+    <a href="https://www.getofferwise.ai" target="_blank">Try OfferWise Free →</a>
+  </div>
+  <button class="btn-again" onclick="resetGame()">↺ Play Again</button>
+</div>
+
+<script>
+/* ═══════════════════════════════════════
+   ANIMATED BACKGROUND
+═══════════════════════════════════════ */
+(()=>{
+  const cv=document.getElementById('bg');
+  const ctx=cv.getContext('2d');
+  let W,H,blobs;
+  const resize=()=>{
+    W=cv.width=window.innerWidth;H=cv.height=window.innerHeight;
+    blobs=[
+      {x:W*.15,y:H*.2,r:Math.min(W,H)*.5,c:'#0D2A4A',vx:.1,vy:.07,t:0},
+      {x:W*.85,y:H*.65,r:Math.min(W,H)*.45,c:'#0D2216',vx:-.08,vy:.1,t:1},
+      {x:W*.5,y:H*.9,r:Math.min(W,H)*.4,c:'#1A150A',vx:.06,vy:-.09,t:2},
+    ];
+  };
+  resize();window.addEventListener('resize',resize);
+  const draw=t=>{
+    ctx.fillStyle='#0B1420';ctx.fillRect(0,0,W,H);
+    blobs.forEach(b=>{
+      b.x+=b.vx*(0.5+Math.sin(t*.0003+b.t)*.5);
+      b.y+=b.vy*(0.5+Math.cos(t*.00025+b.t)*.5);
+      if(b.x<-b.r||b.x>W+b.r)b.vx*=-1;
+      if(b.y<-b.r||b.y>H+b.r)b.vy*=-1;
+      const g=ctx.createRadialGradient(b.x,b.y,0,b.x,b.y,b.r);
+      g.addColorStop(0,b.c+'bb');g.addColorStop(1,'transparent');
+      ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+    });
+    requestAnimationFrame(draw);
+  };
+  requestAnimationFrame(draw);
+})();
+
+/* ═══════════════════════════════════════
+   PROPERTY DATA
+═══════════════════════════════════════ */
+const PROPS = [
+  {
+    addr:'42 Sunridge Lane', bed:'3bd / 2ba',
+    asking:780000, smartOffer:741000,
+    gradient:'linear-gradient(135deg,#1A3020,#0D1E14)',
+    emoji:'🏡', color:'#3DCA85',
+    findings:[
+      {id:'f1',icon:'🔧',label:'Drain leak, master bath',cat:'Plumbing',
+       severity:'warn',cost:350,costLabel:'$150–$400',
+       detail:'Active drain fitting failure under master bath vanity. Minor water staining. No mold.'},
+      {id:'f2',icon:'🎨',label:'Hairline drywall cracks',cat:'Interior',
+       severity:'ok',cost:400,costLabel:'$200–$600',
+       detail:'Hairline cracks above doorframes in 3 rooms. Seasonal movement, no structural cause.'},
+    ],
+    questions:[
+      {phase:1,type:'p1',cat:'🔧',catLabel:'Plumbing',
+       unlockTag:'Unlocks Finding 1',unlockIdx:0,
+       text:'Inspector found <strong>water staining under the master bath vanity</strong>. The drain fitting has failed. No mold detected. What does this mean for your offer?',
+       opts:[
+         {label:'Cosmetic',icon:'🎨',sub:'Small fix — negotiate credit',reward:'+$3k info',val:'cosmetic'},
+         {label:'Deal Breaker',icon:'🚨',sub:'Walk or major renegotiate',reward:'',val:'dealbreaker'},
+       ],
+       answer:'cosmetic',
+       snark:{y:['Correct — drain fitting is a $300 fix, not a dealbreaker.','Good. Ask for a $400 credit and move on.','Sharp. Worth negotiating, not running.'],
+              n:['That\'s a drain fitting. Gary thanks your generosity.','$300 on Yelp. Not a dealbreaker.','The seller is relieved.']}},
+      {phase:2,type:'disc',cat:'📋',catLabel:'Disclosure',
+       unlockTag:'Unlocks Finding 2',unlockIdx:1,
+       timerSecs:18,
+       disc:'"Seller not aware of any plumbing issues or water damage to the property."',
+       text:'The inspector found an active leak. How do you read this disclosure?',
+       opts:[
+         {t:'Likely honest — cabinet leaks genuinely go unnoticed.',c:true},
+         {t:'Clear fraud — sellers always know about leaks.',c:false},
+         {t:'Fine since there\'s no mold.',c:false},
+       ],
+       explain:'Under-cabinet leaks genuinely go unnoticed. Flag it, get a credit, verify no secondary damage.'},
+    ],
+    offerContext:{
+      smartReason:'The drain leak ($350) and cosmetic cracks ($400) together justify ~$5k off asking. Motivated seller, clean title.',
+      verdicts:{
+        great:'You read this property perfectly. The smart price accounts for the cosmetic issues without overreacting.',
+        over:'You paid too close to asking — the cosmetic issues warranted a bigger discount.',
+        under:'You went too low on a low-risk property. The issues here are minor and fixable.',
+      }
+    }
+  },
+  {
+    addr:'17 Oak Haven Dr', bed:'4bd / 3ba',
+    asking:1100000, smartOffer:985000,
+    gradient:'linear-gradient(135deg,#2A1010,#1A0808)',
+    emoji:'🏘️', color:'#F05252',
+    findings:[
+      {id:'f3',icon:'🏗️',label:'Stair-step foundation cracks',cat:'Foundation',
+       severity:'critical',cost:16000,costLabel:'$8k–$25k',
+       detail:'Diagonal stair-step cracks, 3/8" wide on north wall. Sill plate separation. Active settlement likely.'},
+      {id:'f4',icon:'⚡',label:'Federal Pacific panel',cat:'Electrical',
+       severity:'critical',cost:3500,costLabel:'$2.5k–$4.5k',
+       detail:'FPE Stab-Lok panel, 1970s, double-tapped breakers. Documented fire risk. Many insurers refuse coverage.'},
+    ],
+    questions:[
+      {phase:1,type:'p1',cat:'🏗️',catLabel:'Foundation',
+       unlockTag:'Unlocks Finding 1',unlockIdx:0,
+       text:'Inspector found <strong>diagonal stair-step cracks 3/8" wide</strong> on the north foundation wall, with sill plate separation in the northeast corner. Your call?',
+       opts:[
+         {label:'Cosmetic',icon:'🎨',sub:'Minor — negotiate credit',reward:'',val:'cosmetic'},
+         {label:'Deal Breaker',icon:'🚨',sub:'Structural — renegotiate hard',reward:'+$16k info',val:'dealbreaker'},
+       ],
+       answer:'dealbreaker',
+       snark:{y:['Correct. Walk or demand structural engineer + major reduction.','Gary is sweating.','Stair-step + sill plate = serious. Good read.'],
+              n:['3/8" diagonal cracks = active settlement. Very big deal.','Gary is printing the contract.','The inspector just screamed internally.']}},
+      {phase:2,type:'disc',cat:'📋',catLabel:'Disclosure',
+       unlockTag:'Unlocks Finding 2',unlockIdx:1,
+       timerSecs:18,
+       disc:'"Seller states no known foundation defects. No repairs ever made."',
+       text:'You found 3/8" cracks and sill plate separation. What does "no known defects" tell you here?',
+       opts:[
+         {t:'Whether ignorance or concealment — the inspector\'s report is your leverage.',c:true},
+         {t:'No repairs made = nothing was wrong.',c:false},
+         {t:'Foundation cracks don\'t require disclosure.',c:false},
+       ],
+       explain:'You don\'t need to prove fraud. You have the report. Demand a structural engineer and major price reduction.'},
+    ],
+    offerContext:{
+      smartReason:'Foundation repair ($16k est.) + electrical panel ($3.5k) + risk premium = $115k off asking. This is a high-risk property.',
+      verdicts:{
+        great:'Nailed it. You priced in the foundation risk and electrical issues correctly.',
+        over:'Too close to asking on a high-risk property. Foundation work alone could hit $25k.',
+        under:'A bit aggressive but defensible given the risks. The seller may not accept though.',
+      }
+    }
+  },
+  {
+    addr:'55 Willowbrook Ct', bed:'3bd / 2ba',
+    asking:845000, smartOffer:822000,
+    gradient:'linear-gradient(135deg,#0D2A1A,#091A10)',
+    emoji:'🏠', color:'#3DCA85',
+    findings:[
+      {id:'f5',icon:'🏠',label:'Missing roof shingles',cat:'Roof',
+       severity:'warn',cost:550,costLabel:'$300–$800',
+       detail:'3–4 missing shingles on rear slope from wind damage. No active leaks. Roof is 6 years old, ~14 years remaining.'},
+      {id:'f6',icon:'🎨',label:'Minor interior wear',cat:'Interior',
+       severity:'ok',cost:1200,costLabel:'$800–$1,600',
+       detail:'Scuffed hardwood in hallway, 2 cracked tiles in guest bath. Normal wear for age.'},
+    ],
+    questions:[
+      {phase:1,type:'p1',cat:'🏠',catLabel:'Roof',
+       unlockTag:'Unlocks Finding 1',unlockIdx:0,
+       text:'Inspector found <strong>3–4 missing shingles on the rear slope</strong> after wind damage. No active leaks in attic. Roof is 6 years old with approximately 14 years of useful life remaining.',
+       opts:[
+         {label:'Cosmetic',icon:'🎨',sub:'Young roof, just get a credit',reward:'+$550 info',val:'cosmetic'},
+         {label:'Deal Breaker',icon:'🚨',sub:'Roof damage = walk',reward:'',val:'dealbreaker'},
+       ],
+       answer:'cosmetic',
+       snark:{y:['Correct. Young roof, isolated damage, no leaks. Credit request.','Gary\'s "guy" costs $400. Get your own.','Exactly right.'],
+              n:['6-year roof with 3 missing shingles is not a dealbreaker.','Inspector literally said 14 years remaining.','You just handed Gary a perfect buyer.']}},
+      {phase:2,type:'disc',cat:'📋',catLabel:'Disclosure',
+       unlockTag:'Unlocks Finding 2',unlockIdx:1,
+       timerSecs:18,
+       disc:'"Roof replaced 6 years ago. No known leaks or roof defects."',
+       text:'Missing shingles found post-listing. Does the disclosure hold up?',
+       opts:[
+         {t:'Yes — wind damage after listing isn\'t a known defect at time of sale.',c:true},
+         {t:'Missing shingles contradict "no defects" — seller lied.',c:false},
+         {t:'Any shingle damage warrants full replacement.',c:false},
+       ],
+       explain:'Post-listing wind damage doesn\'t invalidate the disclosure. Ask for a repair credit and move forward.'},
+    ],
+    offerContext:{
+      smartReason:'Roof credit ($550) + interior wear ($1,200) = ~$2k of real costs. Clean low-risk property in good location.',
+      verdicts:{
+        great:'Spot on. This is a low-risk property and you priced it correctly.',
+        over:'A little high — the cosmetic issues justified a modest discount from asking.',
+        under:'Too low for a clean property. You may lose this one to a competing buyer.',
+      }
+    }
+  },
+  {
+    addr:'9 Coppergate Blvd', bed:'4bd / 3.5ba',
+    asking:1350000, smartOffer:1187000,
+    gradient:'linear-gradient(135deg,#1A1030,#0D0820)',
+    emoji:'🏰', color:'#9B7FEA',
+    findings:[
+      {id:'f7',icon:'🌡️',label:'Cracked heat exchanger',cat:'HVAC',
+       severity:'critical',cost:4800,costLabel:'$3.5k–$6k',
+       detail:'CO detector triggered during inspection. Cracked heat exchanger in primary furnace. IMMEDIATE shutdown recommended. Unit is 18 years old.'},
+      {id:'f8',icon:'💧',label:'Basement moisture intrusion',cat:'Waterproofing',
+       severity:'warn',cost:8500,costLabel:'$6k–$12k',
+       detail:'Active moisture seeping through north basement wall. Efflorescence and minor mold present. Prior "repair" failed.'},
+    ],
+    questions:[
+      {phase:1,type:'p1',cat:'🌡️',catLabel:'HVAC',
+       unlockTag:'Unlocks Finding 1',unlockIdx:0,
+       text:'Inspector found a <strong>cracked heat exchanger in the primary furnace</strong>. The carbon monoxide detector triggered during the test. Immediate shutdown was recommended.',
+       opts:[
+         {label:'Cosmetic',icon:'🎨',sub:'Old furnace, just replace it',reward:'',val:'cosmetic'},
+         {label:'Deal Breaker',icon:'🚨',sub:'CO hazard — full replacement required',reward:'+$4.8k info',val:'dealbreaker'},
+       ],
+       answer:'dealbreaker',
+       snark:{y:['Correct. CO is a safety issue, not a negotiating footnote.','Full replacement in writing before close.','Gary just went very quiet.'],
+              n:['Carbon monoxide. SHUTDOWN RECOMMENDED. This is not cosmetic.','Gary appreciates your flexibility. The ER does not.','That one\'s on the urgent-call list for a reason.']}},
+      {phase:2,type:'disc',cat:'📋',catLabel:'Disclosure',
+       unlockTag:'Unlocks Finding 2',unlockIdx:1,
+       timerSecs:18,
+       disc:'"HVAC regularly maintained. No known defects in heating or cooling systems."',
+       text:'"No known defects" — but a CO-triggering crack was found. What does this disclosure tell you?',
+       opts:[
+         {t:'A CO-triggering crack shows up in combustion analysis — this disclosure is likely false.',c:true},
+         {t:'Heat exchangers crack invisibly, tech may have missed it.',c:false},
+         {t:'Regular maintenance proves the seller acted in good faith.',c:false},
+       ],
+       explain:'"No known defects" almost certainly doesn\'t hold up here. Use the report as leverage for full replacement.'},
+    ],
+    offerContext:{
+      smartReason:'HVAC ($4.8k) + basement moisture ($8.5k) + safety risk premium = $163k off asking. High-value property with serious deferred maintenance.',
+      verdicts:{
+        great:'Perfect read. You priced in both the safety issue and the water intrusion correctly.',
+        over:'Too close to asking on a property with a CO hazard and active moisture intrusion.',
+        under:'Aggressive, but the safety issues here do justify a large discount. Defensible offer.',
+      }
+    }
+  }
+];
+
+/* ═══════════════════════════════════════
+   STATE
+═══════════════════════════════════════ */
+let pIdx=0, qIdx=0, locked=false;
+let unlockedFindings=[];
+let currentOffer=0;
+let results=[];
+let p2Timer=null;
+let totalFindingsUnlocked=0;
+let totalPoints=0;
+
+const fmt=(n)=>{
+  if(n>=1000000)return '$'+(n/1000000).toFixed(2)+'M';
+  if(n>=1000)return '$'+(n/1000).toFixed(0)+'k';
+  return '$'+n;
+};
+const fmtFull=(n)=>'$'+n.toLocaleString();
+
+/* ═══════════════════════════════════════
+   SCREEN
+═══════════════════════════════════════ */
+const show=(id)=>{
+  document.querySelectorAll('.scr').forEach(s=>s.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+};
+
+/* ═══════════════════════════════════════
+   START
+═══════════════════════════════════════ */
+function startGame(){
+  pIdx=0;qIdx=0;locked=false;
+  unlockedFindings=[];results=[];
+  totalFindingsUnlocked=0;totalPoints=0;
+  loadProperty();
+  show('s-game');
+}
+
+/* ═══════════════════════════════════════
+   LOAD PROPERTY
+═══════════════════════════════════════ */
+function loadProperty(){
+  const p=PROPS[pIdx];
+  qIdx=0;locked=false;unlockedFindings=[];
+  clearInterval(p2Timer);
+
+  document.getElementById('propNum').textContent=pIdx+1;
+  document.getElementById('propAddress').textContent=p.addr;
+  document.getElementById('propAsking').textContent=fmt(p.asking);
+  document.getElementById('propBed').textContent=p.bed;
+
+  // Offer slider setup
+  const lo=Math.round(p.asking*.82/1000)*1000;
+  const hi=Math.round(p.asking*1.05/1000)*1000;
+  const slider=document.getElementById('offerSlider');
+  slider.min=lo;slider.max=hi;
+  const mid=Math.round((lo+hi)/2/1000)*1000;
+  slider.value=mid;
+  currentOffer=mid;
+  document.getElementById('offerDisplay').textContent=fmtFull(mid);
+  document.getElementById('sliderMin').textContent=fmt(lo);
+  document.getElementById('sliderMax').textContent=fmt(hi);
+  document.getElementById('odAsking').innerHTML=`Asking: <b>${fmt(p.asking)}</b>`;
+  updateSliderTrack();
+
+  // Findings strip — all locked
+  renderFindingsStrip();
+  // Info pills
+  renderInfoPills();
+  // Load first question
+  loadQuestion();
+}
+
+/* ═══════════════════════════════════════
+   FINDINGS STRIP
+═══════════════════════════════════════ */
+function renderFindingsStrip(){
+  const p=PROPS[pIdx];
+  const el=document.getElementById('findingsStrip');
+  el.innerHTML='';
+  p.findings.forEach((f,i)=>{
+    const unlocked=unlockedFindings.includes(i);
+    const chip=document.createElement('div');
+    chip.className=`finding-chip ${unlocked?'unlocked '+f.severity:'locked'}`;
+    chip.innerHTML=`<span class="chip-icon">${f.icon}</span>${f.label}${unlocked?`<span class="chip-cost">(${f.costLabel})</span>`:'<span class="chip-lock">🔒</span>'}`;
+    el.appendChild(chip);
+  });
+}
+
+function renderInfoPills(){
+  const el=document.getElementById('odInfoRow');
+  el.innerHTML='';
+  const p=PROPS[pIdx];
+  p.findings.forEach((f,i)=>{
+    const pill=document.createElement('div');
+    pill.className=`od-info-pill${unlockedFindings.includes(i)?' known':''}`;
+    pill.innerHTML=`<span class="pico">${f.icon}</span>${unlockedFindings.includes(i)?f.costLabel:'???'}`;
+    el.appendChild(pill);
+  });
+}
+
+/* ═══════════════════════════════════════
+   LOAD QUESTION
+═══════════════════════════════════════ */
+function loadQuestion(){
+  const p=PROPS[pIdx];
+  if(qIdx>=p.questions.length){
+    // All questions done — enable submit
+    document.getElementById('btnSubmit').disabled=false;
+    showFinalQuestionDone();
+    return;
+  }
+  locked=false;
+  const q=p.questions[qIdx];
+  const card=document.getElementById('qCard');
+  card.className='q-card'+(q.type==='disc'?' disc':'');
+
+  document.getElementById('qIcon').textContent=q.cat;
+  document.getElementById('qCatLabel').textContent=q.catLabel;
+  const ut=document.getElementById('qUnlockTag');
+  ut.textContent=q.unlockTag;
+  ut.className='q-unlock-tag'+(q.type==='disc'?' teal':'');
+
+  document.getElementById('qText').innerHTML=q.type==='disc'
+    ?`<div style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:13px;color:rgba(255,160,120,0.8);padding:8px 10px;background:rgba(255,87,87,0.06);border-left:3px solid rgba(255,87,87,0.3);border-radius:0 6px 6px 0;margin-bottom:10px;">${q.disc}</div>${q.text}`
+    :q.text;
+
+  // Hide result state
+  document.getElementById('qResultRow').style.display='none';
+  document.getElementById('qResultExplain').style.display='none';
+  document.getElementById('qUnlockReveal').className='q-unlock-reveal';
+
+  // Build answer UI
+  const panel=document.getElementById('ansPanel');
+  panel.innerHTML='';
+
+  if(q.type==='p1'){
+    document.getElementById('timerBar').style.display='none';
+    const row=document.createElement('div');
+    row.className='ans-opts';
+    q.opts.forEach(o=>{
+      const btn=document.createElement('button');
+      btn.className=`ans-opt ${o.val==='cosmetic'?'cosm':'deal'}`;
+      btn.innerHTML=`<span class="ao-icon">${o.icon}</span><span class="ao-label">${o.label}</span><span class="ao-sub">${o.sub}</span>${o.reward?`<span class="ao-reward">${o.reward}</span>`:''}`;
+      btn.onclick=()=>answerP1(o.val);
+      row.appendChild(btn);
+    });
+    panel.appendChild(row);
+  } else {
+    // Disclosure — timer + multiple choice
+    document.getElementById('timerBar').style.display='block';
+    startTimer(q.timerSecs||18);
+    const list=document.createElement('div');
+    list.className='disc-opts-list';
+    const sh=[...q.opts].sort(()=>Math.random()-.5);
+    sh.forEach(o=>{
+      const btn=document.createElement('button');
+      btn.className='disc-opt';btn.textContent=o.t;
+      btn.onclick=()=>answerDisc(btn,o.c,q,sh);
+      list.appendChild(btn);
+    });
+    panel.appendChild(list);
+  }
+
+  document.getElementById('btnSubmit').disabled=true;
+}
+
+function showFinalQuestionDone(){
+  const p=PROPS[pIdx];
+  const card=document.getElementById('qCard');
+  card.className='q-card';
+  document.getElementById('qIcon').textContent='💡';
+  document.getElementById('qCatLabel').textContent='Ready to Bid';
+  document.getElementById('qUnlockTag').textContent='';
+  document.getElementById('timerBar').style.display='none';
+  const count=unlockedFindings.length;
+  const total=p.findings.length;
+  document.getElementById('qText').innerHTML=`You've unlocked <strong>${count} of ${total} findings</strong>. Use what you know — drag the slider and submit your offer.<br><br>Total estimated repair costs from findings: <strong style="color:var(--amber)">${count>0?'$'+unlockedFindings.reduce((a,i)=>a+p.findings[i].cost,0).toLocaleString():'unknown'}</strong>`;
+  document.getElementById('qResultRow').style.display='none';
+  document.getElementById('qResultExplain').style.display='none';
+  document.getElementById('ansPanel').innerHTML='';
+}
+
+/* ═══════════════════════════════════════
+   ANSWER P1
+═══════════════════════════════════════ */
+function answerP1(val){
+  if(locked)return;locked=true;
+  clearInterval(p2Timer);
+  const p=PROPS[pIdx];
+  const q=p.questions[qIdx];
+  const correct=val===q.answer;
+  const snarks=correct?q.snark.y:q.snark.n;
+  const snark=snarks[Math.floor(Math.random()*snarks.length)];
+
+  // Show result in card
+  const card=document.getElementById('qCard');
+  card.className='q-card '+(correct?'result-win':'result-lose');
+  const rr=document.getElementById('qResultRow');
+  rr.style.display='flex';
+  document.getElementById('qResultIcon').textContent=correct?'✓':'✗';
+  const rt=document.getElementById('qResultTitle');
+  rt.className='q-result-title '+(correct?'win':'lose');
+  rt.textContent=snark;
+  const re=document.getElementById('qResultExplain');
+  re.style.display='block';
+  re.textContent='';
+
+  doFlash(correct);
+  if(!correct)doShake();
+
+  // Unlock finding if correct
+  if(correct&&!unlockedFindings.includes(q.unlockIdx)){
+    unlockedFindings.push(q.unlockIdx);
+    totalFindingsUnlocked++;
+    const f=p.findings[q.unlockIdx];
+    const ur=document.getElementById('qUnlockReveal');
+    ur.textContent=`🔓 Unlocked: ${f.label} (${f.costLabel})`;
+    ur.className='q-unlock-reveal show';
+    spawnCoin(`🔓 +${f.costLabel}`);
+    // Adjust offer slider to reflect new info
+    nudgeOffer(f.severity,f.cost);
+  }
+
+  setTimeout(()=>{
+    renderFindingsStrip();
+    renderInfoPills();
+    qIdx++;
+    loadQuestion();
+  },2800);
+}
+
+/* ═══════════════════════════════════════
+   ANSWER DISCLOSURE
+═══════════════════════════════════════ */
+function answerDisc(btn,correct,q,sh){
+  if(locked)return;locked=true;
+  clearInterval(p2Timer);
+  document.getElementById('timerBar').style.display='none';
+  document.querySelectorAll('.disc-opt').forEach((b,i)=>{
+    b.classList.add('dis');
+    if(sh[i]&&sh[i].c)b.classList.add('reveal');
+  });
+  btn.classList.remove('reveal');
+  btn.classList.add(correct?'right':'wrong');
+
+  const p=PROPS[pIdx];
+  const q2=p.questions[qIdx];
+  const card=document.getElementById('qCard');
+  card.className='q-card disc '+(correct?'result-win':'result-lose');
+  const rr=document.getElementById('qResultRow');
+  rr.style.display='flex';
+  document.getElementById('qResultIcon').textContent=correct?'✓':'✗';
+  const rt=document.getElementById('qResultTitle');
+  rt.className='q-result-title '+(correct?'win':'lose');
+  rt.textContent=correct?'Correct read.':'Missed that one.';
+  const re=document.getElementById('qResultExplain');
+  re.style.display='block';
+  re.textContent=q.explain;
+
+  doFlash(correct);
+  if(!correct)doShake();
+
+  // Unlock finding if correct
+  if(correct&&!unlockedFindings.includes(q2.unlockIdx)){
+    unlockedFindings.push(q2.unlockIdx);
+    totalFindingsUnlocked++;
+    const f=p.findings[q2.unlockIdx];
+    const ur=document.getElementById('qUnlockReveal');
+    ur.textContent=`🔓 Unlocked: ${f.label} (${f.costLabel})`;
+    ur.className='q-unlock-reveal show';
+    spawnCoin(`🔓 +${f.costLabel}`);
+    nudgeOffer(f.severity,f.cost);
+  }
+
+  setTimeout(()=>{
+    renderFindingsStrip();
+    renderInfoPills();
+    qIdx++;
+    loadQuestion();
+  },2800);
+}
+
+function timeoutDisc(){
+  if(locked)return;locked=true;
+  document.querySelectorAll('.disc-opt').forEach((b,i)=>{
+    b.classList.add('dis');
+  });
+  const card=document.getElementById('qCard');
+  card.className='q-card disc result-lose';
+  const rr=document.getElementById('qResultRow');
+  rr.style.display='flex';
+  document.getElementById('qResultIcon').textContent='⏱';
+  const rt=document.getElementById('qResultTitle');
+  rt.className='q-result-title lose';
+  rt.textContent="Time's up.";
+  doShake();
+  const p=PROPS[pIdx];
+  const q=p.questions[qIdx];
+  const re=document.getElementById('qResultExplain');
+  re.style.display='block';
+  re.textContent=q.explain;
+  setTimeout(()=>{
+    renderFindingsStrip();
+    renderInfoPills();
+    qIdx++;
+    loadQuestion();
+  },2600);
+}
+
+/* ═══════════════════════════════════════
+   TIMER
+═══════════════════════════════════════ */
+function startTimer(secs){
+  clearInterval(p2Timer);
+  let left=secs;
+  const fill=document.getElementById('timerFill');
+  fill.style.transition='none';fill.style.width='100%';fill.className='timer-fill';
+  setTimeout(()=>{fill.style.transition=`width ${secs*.95}s linear,background 0.4s`;fill.style.width='0%';},60);
+  p2Timer=setInterval(()=>{
+    left--;
+    if(left<=4)fill.className='timer-fill hot';
+    if(left<=0){clearInterval(p2Timer);timeoutDisc();}
+  },1000);
+}
+
+/* ═══════════════════════════════════════
+   SLIDER
+═══════════════════════════════════════ */
+document.getElementById('offerSlider').addEventListener('input',function(){
+  currentOffer=parseInt(this.value);
+  document.getElementById('offerDisplay').textContent=fmtFull(currentOffer);
+  updateSliderTrack();
+});
+
+function updateSliderTrack(){
+  const sl=document.getElementById('offerSlider');
+  const pct=(sl.value-sl.min)/(sl.max-sl.min)*100;
+  document.getElementById('sliderTrack').style.width=pct+'%';
+}
+
+function nudgeOffer(severity,cost){
+  // Automatically nudge offer down when a critical finding is unlocked
+  if(severity==='critical')currentOffer=Math.max(parseInt(document.getElementById('offerSlider').min),currentOffer-Math.round(cost*2.5/1000)*1000);
+  else if(severity==='warn')currentOffer=Math.max(parseInt(document.getElementById('offerSlider').min),currentOffer-Math.round(cost/1000)*1000);
+  const sl=document.getElementById('offerSlider');
+  sl.value=currentOffer;
+  document.getElementById('offerDisplay').textContent=fmtFull(currentOffer);
+  updateSliderTrack();
+}
+
+/* ═══════════════════════════════════════
+   SUBMIT OFFER
+═══════════════════════════════════════ */
+function submitOffer(){
+  clearInterval(p2Timer);
+  const p=PROPS[pIdx];
+  const smart=p.smartOffer;
+  const diff=currentOffer-smart;
+  const absDiff=Math.abs(diff);
+  const pctOff=absDiff/smart*100;
+
+  // Score: 100pts for exact, scales down
+  const pts=Math.max(0,Math.round(100-pctOff*3));
+  totalPoints+=pts;
+
+  results.push({addr:p.addr,emoji:p.emoji,color:p.color,
+    yourOffer:currentOffer,smartOffer:smart,asking:p.asking,
+    diff,absDiff,pctOff,pts,
+    unlocked:unlockedFindings.length,total:p.findings.length,
+    findings:p.findings,unlockedIdxs:[...unlockedFindings]});
+
+  showResult();
+}
+
+/* ═══════════════════════════════════════
+   RESULT SCREEN
+═══════════════════════════════════════ */
+function showResult(){
+  const p=PROPS[pIdx];
+  const r=results[results.length-1];
+
+  // Verdict card
+  document.getElementById('vcAddress').textContent=p.addr;
+  document.getElementById('vcTop').style.background=p.gradient;
+  document.getElementById('vcTitle').textContent=`You offered ${fmtFull(r.yourOffer)}`;
+
+  // Offer compare bars
+  const maxVal=Math.max(r.asking,r.yourOffer,r.smartOffer);
+  const compare=document.getElementById('offerCompare');
+  compare.innerHTML='';
+  [{label:'Yours',val:r.yourOffer,cls:'yours'},{label:'Smart',val:r.smartOffer,cls:'smart'},{label:'Asking',val:r.asking,cls:'asking'}].forEach(row=>{
+    const pct=Math.round(row.val/maxVal*100);
+    compare.innerHTML+=`<div class="oc-row">
+      <div class="oc-label">${row.label}</div>
+      <div class="oc-bar-wrap"><div class="oc-bar ${row.cls}" style="width:0%" data-pct="${pct}"></div></div>
+      <div class="oc-val ${row.cls}">${fmtFull(row.val)}</div>
+    </div>`;
+  });
+
+  // Delta pill
+  const dp=document.getElementById('deltaPill');
+  const over=r.diff>0;
+  const exact=r.absDiff<5000;
+  dp.innerHTML=`<div class="delta-pill ${exact?'exact':over?'over':'under'}">
+    ${exact?'🎯 On target':over?`📈 Overpaid by ${fmtFull(r.absDiff)}`:`📉 Underbid by ${fmtFull(r.absDiff)}`}
+    &nbsp;(${r.pctOff.toFixed(1)}% off smart price)
+  </div>`;
+
+  // Verdict text
+  const ctx=p.offerContext;
+  const vkey=exact||r.pctOff<3?'great':over?'over':'under';
+  document.getElementById('vcVerdict').innerHTML=
+    `${ctx.verdicts[vkey]}<br><br><span style="font-size:12px;color:var(--muted)">${ctx.smartReason}</span>`;
+
+  // Stats
+  document.getElementById('vcStats').innerHTML=`
+    <div class="vc-stat"><div class="vsv" style="color:var(--amber)">${r.pts}</div><div class="vsl">Score</div></div>
+    <div class="vc-stat"><div class="vsv" style="color:var(--teal)">${r.unlocked}/${r.total}</div><div class="vsl">Found</div></div>
+    <div class="vc-stat"><div class="vsv" style="color:${exact?'var(--green)':over?'var(--red)':'var(--amber)'}">${r.pctOff.toFixed(1)}%</div><div class="vsl">Off target</div></div>`;
+
+  // Findings breakdown
+  const fb=document.getElementById('findingsBreakdown');
+  fb.innerHTML='<div class="fb-title">What the inspection found</div>';
+  p.findings.forEach((f,i)=>{
+    const wasUnlocked=r.unlockedIdxs.includes(i);
+    fb.innerHTML+=`<div class="fb-row">
+      <div class="fb-icon">${f.icon}</div>
+      <div class="fb-body">
+        <div class="fb-label">${f.label}</div>
+        <div class="fb-detail">${wasUnlocked?f.detail:'You didn\'t unlock this finding.'}</div>
+      </div>
+      <div class="fb-tag ${wasUnlocked?'unlocked':'missed'}">${wasUnlocked?'✓ Found':'✗ Missed'}</div>
+    </div>`;
+  });
+
+  // City bar progress
+  const cb=document.getElementById('cbProps');
+  cb.innerHTML='';
+  PROPS.forEach((prop,i)=>{
+    const won=i<results.length;
+    const d=document.createElement('div');
+    d.className='cb-prop'+(won?' won':'');
+    d.textContent=prop.emoji;
+    if(won)d.style.animationDelay=(i*0.1)+'s';
+    cb.appendChild(d);
+  });
+  document.getElementById('cbScoreVal').textContent=totalPoints+' pts';
+
+  // Next button
+  const btn=document.getElementById('btnNextProp');
+  btn.textContent=pIdx>=PROPS.length-1?'See Final Results 🏆':'Next Property →';
+
+  show('s-result');
+
+  // Animate bars after render
+  setTimeout(()=>{
+    document.querySelectorAll('.oc-bar').forEach(b=>{
+      b.style.transition='width 0.8s cubic-bezier(0.4,0,0.2,1)';
+      b.style.width=b.dataset.pct+'%';
+    });
+  },100);
+
+  if(r.pctOff<5)launchConfetti();
+}
+
+/* ═══════════════════════════════════════
+   NEXT PROPERTY
+═══════════════════════════════════════ */
+function nextProperty(){
+  pIdx++;
+  if(pIdx>=PROPS.length){showFinal();return;}
+  loadProperty();
+  show('s-game');
+}
+
+/* ═══════════════════════════════════════
+   FINAL
+═══════════════════════════════════════ */
+function showFinal(){
+  const avgPct=results.reduce((a,r)=>a+r.pctOff,0)/results.length;
+  const avgScore=Math.round(totalPoints/results.length);
+  const ranks=[
+    {min:80,icon:'🏆',name:'Property Mogul',sub:'You read every property like a seasoned investor.'},
+    {min:60,icon:'🦈',name:'Property Shark',sub:'Strong instincts. Gary did not enjoy negotiating with you.'},
+    {min:40,icon:'🔍',name:'Deal Hunter',sub:'Solid reads. A few misses but you know what matters.'},
+    {min:0,icon:'🏠',name:'Learning the Market',sub:'Real estate is a skill. OfferWise can fill the gaps.'},
+  ];
+  const rank=ranks.find(r=>avgScore>=r.min)||ranks[ranks.length-1];
+
+  document.getElementById('fhTrophy').textContent=rank.icon;
+  document.getElementById('fhRank').textContent=rank.name;
+  document.getElementById('fhSub').textContent=rank.sub;
+  document.getElementById('finalHero').style.background=
+    avgScore>=80?'linear-gradient(135deg,#1A2A10,#0D1A08)':
+    avgScore>=60?'linear-gradient(135deg,#1A1030,#0D0820)':'linear-gradient(135deg,#2A1010,#1A0808)';
+
+  // Portfolio cityscape
+  const bldgs=document.getElementById('csBuildings');
+  bldgs.innerHTML='';
+  const heights=[55,80,45,70];
+  results.forEach((r,i)=>{
+    const score=r.pts;
+    const h=Math.max(20,Math.round(score*.8));
+    const d=document.createElement('div');
+    d.className='cs-building';
+    d.style.animationDelay=(i*0.15)+'s';
+    d.innerHTML=`<div class="cs-b-tower" style="height:${h}px;background:${r.color};opacity:${0.7+score*.003}">${r.emoji}</div>
+      <div class="cs-b-label">${r.addr.split(' ').slice(0,2).join(' ')}</div>
+      <div class="cs-b-val">${r.pts}pts</div>`;
+    bldgs.appendChild(d);
+  });
+
+  const totalPortfolio=results.reduce((a,r)=>a+r.smartOffer,0);
+  document.getElementById('csTotalVal').textContent=fmtFull(totalPortfolio);
+
+  // Score grid
+  const best=results.reduce((a,r)=>r.pctOff<a.pctOff?r:a);
+  const worst=results.reduce((a,r)=>r.pctOff>a.pctOff?r:a);
+  document.getElementById('fgAvg').textContent=avgPct.toFixed(1)+'%';
+  document.getElementById('fgFindings').textContent=totalFindingsUnlocked+'/8';
+  document.getElementById('fgBest').textContent=best.pctOff.toFixed(1)+'%';
+  document.getElementById('fgWorst').textContent=worst.pctOff.toFixed(1)+'%';
+
+  // Share text
+  const shareStr=`🏠 Offer Negotiator — OfferWise\n\n${rank.icon} Rank: ${rank.name}\n📊 Avg accuracy: ${avgPct.toFixed(1)}% off smart price\n🔍 Findings: ${totalFindingsUnlocked}/8 unlocked\n⭐ Score: ${totalPoints} pts\n\nCan you beat me? → getofferwise.ai`;
+  document.getElementById('sharePreview').textContent=shareStr;
+
+  show('s-final');
+  launchConfetti();
+}
+
+/* ═══════════════════════════════════════
+   FX
+═══════════════════════════════════════ */
+function doFlash(good){
+  const f=document.getElementById('flash');
+  f.className=`flash ${good?'g':'r'} on`;
+  setTimeout(()=>f.className='flash',200);
+}
+function doShake(){
+  const g=document.getElementById('s-game');
+  g.classList.add('shake');
+  setTimeout(()=>g.classList.remove('shake'),380);
+}
+function spawnCoin(text){
+  const el=document.createElement('div');
+  el.className='fx-coin';el.textContent=text;
+  el.style.left=(20+Math.random()*60)+'%';
+  el.style.top='120px';
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(),1100);
+}
+function launchConfetti(){
+  const cols=['#F5A42A','#2DD4BF','#3DCA85','#F05252','#9B7FEA','#F472B6','#4B9EF8'];
+  for(let i=0;i<55;i++) setTimeout(()=>{
+    const el=document.createElement('div');
+    el.className='confetti';
+    el.style.left=Math.random()*100+'vw';
+    el.style.background=cols[Math.floor(Math.random()*cols.length)];
+    el.style.animationDuration=(1.4+Math.random()*2.4)+'s';
+    el.style.width=el.style.height=(4+Math.random()*8)+'px';
+    el.style.borderRadius=Math.random()>.4?'50%':'2px';
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(),4200);
+  },i*42);
+}
+function doShare(){
+  const text=document.getElementById('sharePreview').textContent;
+  navigator.clipboard.writeText(text).then(()=>{
+    const b=document.getElementById('btnCopy');
+    b.textContent='✓ Copied!';b.className='btn-copy ok';
+    setTimeout(()=>{b.textContent='📋 Copy to clipboard';b.className='btn-copy';},2500);
+  }).catch(()=>alert(text));
+}
+function resetGame(){startGame();}
+</script>
+</body>
+</html>

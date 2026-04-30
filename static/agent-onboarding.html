@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent Setup — OfferWise AI</title>
+<link rel="icon" type="image/svg+xml" href="/logo-icon-only.svg">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root { --bg:#060d1a; --surface:#0f1e35; --border:rgba(255,255,255,.08); --text:#f1f5f9; --muted:#94a3b8; --dim:#64748b; --fire1:#f97316; --fire2:#f59e0b; --green:#22c55e; }
+body { background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px; }
+.wizard { width:100%; max-width:520px; }
+.logo { text-align:center; margin-bottom:32px; font-size:1.3rem; font-weight:900; letter-spacing:-.02em; text-decoration:none; color:var(--text); display:block; }
+.logo .wise { background:linear-gradient(90deg,var(--fire1),var(--fire2)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.progress-wrap { display:flex; align-items:center; gap:8px; margin-bottom:32px; }
+.progress-step { flex:1; height:4px; border-radius:2px; background:rgba(255,255,255,.08); transition:background .3s; }
+.progress-step.done { background:var(--green); }
+.progress-step.active { background:linear-gradient(90deg,var(--fire1),var(--fire2)); }
+.progress-label { font-size:11px; color:var(--dim); white-space:nowrap; }
+.card { background:var(--surface); border:1px solid var(--border); border-radius:20px; padding:36px; }
+.step { display:none; } .step.active { display:block; }
+.step-tag { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:var(--fire1); margin-bottom:12px; }
+.step-icon { font-size:2.4rem; margin-bottom:16px; }
+h2 { font-size:22px; font-weight:800; letter-spacing:-.02em; margin-bottom:8px; }
+.step-desc { font-size:14px; color:var(--muted); line-height:1.6; margin-bottom:28px; }
+.form-group { margin-bottom:16px; }
+.form-group label { display:block; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--dim); margin-bottom:6px; }
+.form-group input, .form-group select, .form-group textarea { width:100%; background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:10px 14px; color:var(--text); font-size:14px; font-family:inherit; outline:none; transition:border-color .15s; resize:none; }
+.form-group input:focus, .form-group select:focus { border-color:rgba(249,115,22,.5); }
+.form-group select option { background:var(--surface); }
+.form-hint { font-size:11px; color:var(--dim); margin-top:5px; }
+.form-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.specialty-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:8px; }
+.chip { background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:9px 12px; cursor:pointer; font-size:13px; font-weight:600; color:var(--muted); text-align:center; transition:all .15s; user-select:none; }
+.chip.selected { background:rgba(249,115,22,.1); border-color:rgba(249,115,22,.4); color:var(--fire1); }
+.checkbox-group { display:flex; flex-direction:column; gap:12px; margin-bottom:24px; }
+.checkbox-item { background:var(--bg); border:1px solid var(--border); border-radius:10px; padding:14px 16px; transition:border-color .15s; }
+.checkbox-item:has(input:checked) { border-color:rgba(249,115,22,.4); background:rgba(249,115,22,.04); }
+.checkbox-item label { display:flex; gap:12px; align-items:flex-start; cursor:pointer; }
+.checkbox-item input[type=checkbox] { margin-top:2px; accent-color:var(--fire1); flex-shrink:0; width:16px; height:16px; }
+.checkbox-title { font-size:14px; font-weight:700; margin-bottom:3px; }
+.checkbox-desc { font-size:12px; color:var(--muted); line-height:1.5; }
+.checkbox-desc a { color:var(--fire1); text-decoration:none; }
+.value-preview { background:rgba(249,115,22,.05); border:1px solid rgba(249,115,22,.15); border-radius:12px; padding:16px 18px; margin-bottom:24px; }
+.value-preview h3 { font-size:13px; font-weight:700; color:var(--fire1); margin-bottom:10px; }
+.value-row { display:flex; gap:10px; font-size:13px; color:var(--muted); margin-bottom:7px; }
+.value-row:last-child { margin-bottom:0; }
+.value-row .vi { flex-shrink:0; }
+.btn-row { display:flex; gap:10px; margin-top:28px; }
+.btn-back { flex:0 0 auto; padding:12px 20px; background:transparent; border:1px solid var(--border); border-radius:10px; color:var(--muted); font-size:14px; font-weight:600; cursor:pointer; font-family:inherit; }
+.btn-back:hover { border-color:rgba(255,255,255,.2); color:var(--text); }
+.btn-next { flex:1; padding:13px; background:linear-gradient(90deg,var(--fire1),var(--fire2)); border:none; border-radius:10px; color:white; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit; }
+.btn-next:disabled { opacity:.5; cursor:not-allowed; }
+.success-icon { font-size:3rem; margin-bottom:16px; }
+.success-items { display:flex; flex-direction:column; gap:10px; margin:24px 0; }
+.success-item { display:flex; gap:12px; align-items:flex-start; font-size:13px; color:var(--muted); }
+.success-item .si-icon { font-size:1.1rem; flex-shrink:0; }
+.success-item strong { color:var(--text); display:block; margin-bottom:2px; }
+
+@media (max-width: 600px) {
+  body { padding: 16px 12px; align-items: flex-start; }
+  .wizard { max-width: 100%; }
+  .card { padding: 24px 20px; border-radius: 14px; }
+  .form-row { grid-template-columns: 1fr; gap: 0; }
+  .trades-grid, .specialty-grid { grid-template-columns: 1fr 1fr; }
+  input, select, textarea { font-size: 16px !important; min-height: 48px; }
+  button[type="submit"], .btn-primary, button.next-btn { min-height: 48px; font-size: 16px; width: 100%; }
+  .step-header { flex-direction: column; gap: 8px; }
+}
+@media (max-width: 380px) {
+  .card { padding: 20px 16px; }
+  .trades-grid, .specialty-grid { grid-template-columns: 1fr; }
+}
+
+/* ── MOBILE RESPONSIVE PATCH ── */
+
+@media (max-width: 560px) {
+  .card { max-width: 100% !important; margin: 0 1rem !important; }
+  body { padding: 1rem !important; }
+  input, select, textarea { font-size: 16px !important; min-height: 48px; }
+  button, .btn { min-height: 48px; font-size: 16px; width: 100%; }
+  .grid-2col,
+  .two-col { grid-template-columns: 1fr !important; }
+}
+
+</style>
+    <!-- Reddit Pixel Base Code -->
+    <script>
+    !function(w,d){if(!w.rdt){var p=w.rdt=function(){p.sendEvent?p.sendEvent.apply(p,arguments):p.queue.push(arguments)};p.queue=[];var t=d.createElement('script');t.src='https://www.redditstatic.com/ads/pixel.js';t.async=!0;var s=d.getElementsByTagName('script')[0];s.parentNode.insertBefore(t,s)}}(window,document);
+    rdt('init','a2_ihx65g62d5n6',{optOut:false,useDecimalCurrencyValues:true,signalsMode:'all'});
+    rdt('track','PageVisit');
+    </script>
+    <!-- End Reddit Pixel -->
+</head>
+<body>
+<div class="wizard">
+  <a href="/" class="logo">Offer<span class="wise">Wise</span> AI</a>
+  <div class="progress-wrap">
+    <div class="progress-step active" id="ps1"></div>
+    <div class="progress-step" id="ps2"></div>
+    <div class="progress-step" id="ps3"></div>
+    <div class="progress-step" id="ps4"></div>
+    <span class="progress-label" id="prog-label">Step 1 of 4</span>
+  </div>
+  <div class="card">
+
+    <!-- Step 1: Profile -->
+    <div class="step active" id="step-1">
+      <div class="step-tag">Step 1 of 4 — Your Profile</div>
+      <div class="step-icon">🏡</div>
+      <h2>Set up your agent profile</h2>
+      <p class="step-desc">Your name and brokerage appear on every analysis you send to clients. This is your brand in front of every buyer you work with.</p>
+      <div class="form-group"><label>Your Full Name *</label><input type="text" id="s1-name" placeholder="Jane Smith"></div>
+      <div class="form-group"><label>Brokerage / Team Name *</label><input type="text" id="s1-biz" placeholder="Keller Williams Realty — Austin Metro"></div>
+      <div class="form-row">
+        <div class="form-group"><label>State License # *</label><input type="text" id="s1-lic" placeholder="e.g. TX 12345678"></div>
+        <div class="form-group"><label>License State *</label>
+          <select id="s1-state">
+            <option value="">State</option>
+            <option>AL</option><option>AK</option><option>AZ</option><option>AR</option><option>CA</option>
+            <option>CO</option><option>CT</option><option>DE</option><option>FL</option><option>GA</option>
+            <option>HI</option><option>ID</option><option>IL</option><option>IN</option><option>IA</option>
+            <option>KS</option><option>KY</option><option>LA</option><option>ME</option><option>MD</option>
+            <option>MA</option><option>MI</option><option>MN</option><option>MS</option><option>MO</option>
+            <option>MT</option><option>NE</option><option>NV</option><option>NH</option><option>NJ</option>
+            <option>NM</option><option>NY</option><option>NC</option><option>ND</option><option>OH</option>
+            <option>OK</option><option>OR</option><option>PA</option><option>RI</option><option>SC</option>
+            <option>SD</option><option>TN</option><option>TX</option><option>UT</option><option>VT</option>
+            <option>VA</option><option>WA</option><option>WV</option><option>WI</option><option>WY</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Phone</label><input type="tel" id="s1-phone" placeholder="(555) 123-4567"></div>
+        <div class="form-group"><label>Website</label><input type="url" id="s1-website" placeholder="https://"></div>
+      </div>
+      <div class="form-group"><label>Primary Markets *</label>
+        <input type="text" id="s1-areas" placeholder="e.g. Austin TX, Cedar Park TX, Georgetown TX">
+        <div class="form-hint">Cities or metro areas where you work. This is nationwide — enter any US markets.</div>
+      </div>
+      <div class="btn-row"><button class="btn-next" onclick="toStep(2)">Continue →</button></div>
+    </div>
+
+    <!-- Step 2: Practice & Specialties -->
+    <div class="step" id="step-2">
+      <div class="step-tag">Step 2 of 4 — Your Practice</div>
+      <div class="step-icon">🎯</div>
+      <h2>How do you work with buyers?</h2>
+      <p class="step-desc">This helps us tailor the buyer experience when they open your OfferWise links.</p>
+      <div class="form-group"><label>Buyer specialties (select all that apply)</label>
+        <div class="specialty-grid" id="spec-chips">
+          <div class="chip" onclick="toggleChip(this,'First-time buyers')">First-time buyers</div>
+          <div class="chip" onclick="toggleChip(this,'Move-up buyers')">Move-up buyers</div>
+          <div class="chip" onclick="toggleChip(this,'Investors')">Investors</div>
+          <div class="chip" onclick="toggleChip(this,'Relocation')">Relocation</div>
+          <div class="chip" onclick="toggleChip(this,'Luxury')">Luxury</div>
+          <div class="chip" onclick="toggleChip(this,'New construction')">New construction</div>
+          <div class="chip" onclick="toggleChip(this,'Condos / HOA')">Condos / HOA</div>
+          <div class="chip" onclick="toggleChip(this,'VA / FHA loans')">VA / FHA loans</div>
+        </div>
+      </div>
+      <div class="form-group"><label>How many buyer clients do you work with per month?</label>
+        <select id="s2-volume">
+          <option value="">Select...</option>
+          <option value="1-3">1–3</option><option value="4-8">4–8</option>
+          <option value="9-15">9–15</option><option value="15+">15+</option>
+        </select>
+      </div>
+      <div class="form-group"><label>How did you hear about OfferWise?</label>
+        <select id="s2-source">
+          <option value="">Select...</option>
+          <option value="inspector_referral">An inspector told me</option>
+          <option value="colleague">A colleague or team member</option>
+          <option value="social">Social media / Reddit</option>
+          <option value="search">Google search</option>
+          <option value="buyer">A buyer client showed me</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <div class="value-preview">
+        <h3>What your buyers see when you send them a link</h3>
+        <div class="value-row"><span class="vi">💰</span><span>Repair cost estimates for every issue in the disclosure or inspection report</span></div>
+        <div class="value-row"><span class="vi">🎯</span><span>Specific offer price guidance — aggressive, recommended, and conservative</span></div>
+        <div class="value-row"><span class="vi">🤝</span><span>Negotiation talking points — exactly what to ask the seller for</span></div>
+        <div class="value-row"><span class="vi">🏷️</span><span>Your name and brokerage on every page</span></div>
+      </div>
+      <div class="btn-row">
+        <button class="btn-back" onclick="toStep(1)">← Back</button>
+        <button class="btn-next" onclick="toStep(3)">Continue →</button>
+      </div>
+    </div>
+
+    <!-- Step 3: Legal -->
+    <div class="step" id="step-3">
+      <div class="step-tag">Step 3 of 4 — Professional Use Agreement</div>
+      <div class="step-icon">⚖️</div>
+      <h2>Scope of use</h2>
+      <p class="step-desc">OfferWise is a powerful buyer tool. As a licensed agent, please acknowledge how it fits into your professional practice.</p>
+      <div class="checkbox-group">
+        <div class="checkbox-item">
+          <label><input type="checkbox" id="c1" onchange="checkConsents()">
+            <div><div class="checkbox-title">📊 AI Analysis is Informational</div>
+            <div class="checkbox-desc">OfferWise analyses are AI-generated informational reports. They are not appraisals, professional inspections, or legal advice. I will not represent OfferWise output as a substitute for professional due diligence. <a href="/disclaimer" target="_blank">Read Disclaimer →</a></div></div>
+          </label>
+        </div>
+        <div class="checkbox-item">
+          <label><input type="checkbox" id="c2" onchange="checkConsents()">
+            <div><div class="checkbox-title">🔒 Buyer Data Consent</div>
+            <div class="checkbox-desc">When I enter a buyer's name and email, I have their permission to share their contact information with OfferWise for the purpose of delivering their property analysis report. I will not enter contact information for individuals who have not consented.</div></div>
+          </label>
+        </div>
+        <div class="checkbox-item">
+          <label><input type="checkbox" id="c3" onchange="checkConsents()">
+            <div><div class="checkbox-title">📋 Terms of Service</div>
+            <div class="checkbox-desc">I agree to OfferWise's Terms of Service. I understand this is a supplementary buyer tool and does not replace my professional obligations as a licensed real estate agent. <a href="/terms" target="_blank">Read Terms →</a></div></div>
+          </label>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn-back" onclick="toStep(2)">← Back</button>
+        <button class="btn-next" id="btn-agree" disabled onclick="completeOnboarding()">I Agree — Finish Setup →</button>
+      </div>
+    </div>
+
+    <!-- Step 4: Welcome -->
+    <div class="step" id="step-4">
+      <div class="success-icon">🏡</div>
+      <h2>You're set up. Let's start sending.</h2>
+      <p class="step-desc">Your agent profile is live. Here's the 60-second workflow for your first client:</p>
+      <div class="success-items">
+        <div class="success-item"><div class="si-icon">1️⃣</div><div><strong>Click "Share Analysis"</strong>Enter the property address and your buyer's email. Add your notes about the property — seller motivation, known issues, timeline.</div></div>
+        <div class="success-item"><div class="si-icon">2️⃣</div><div><strong>OfferWise sends them a branded link</strong>Your buyer gets an email from OfferWise saying you've prepared an analysis for them — with your name on it.</div></div>
+        <div class="success-item"><div class="si-icon">3️⃣</div><div><strong>They upload the disclosure or inspection report</strong>Takes them 2 minutes. They get repair costs, risk flags, and an offer recommendation instantly — all attributed to you.</div></div>
+        <div class="success-item"><div class="si-icon">📊</div><div><strong>Track engagement in your dashboard</strong>See who opened it, who registered, and which analyses led to subscriptions. Real data on your client impact.</div></div>
+      </div>
+      <button class="btn-next" onclick="window.location.href='/agent-portal'">Go to My Portal →</button>
+    </div>
+
+  </div>
+</div>
+<script>
+var selectedChips = {};
+
+function toStep(n) {
+  if (n === 2) {
+    var name  = document.getElementById('s1-name').value.trim();
+    var biz   = document.getElementById('s1-biz').value.trim();
+    var lic   = document.getElementById('s1-lic').value.trim();
+    var state = document.getElementById('s1-state').value;
+    var areas = document.getElementById('s1-areas').value.trim();
+    if (!name || !biz || !lic || !state || !areas) {
+      alert('Please fill in your name, brokerage, license number, state, and service areas.'); return;
+    }
+  }
+  document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+  document.getElementById('step-' + n).classList.add('active');
+  ['ps1','ps2','ps3','ps4'].forEach(function(id, i) {
+    var el = document.getElementById(id);
+    el.classList.remove('active','done');
+    if (i + 1 < n) el.classList.add('done');
+    else if (i + 1 === n) el.classList.add('active');
+  });
+  document.getElementById('prog-label').textContent = 'Step ' + n + ' of 4';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function toggleChip(el, val) {
+  el.classList.toggle('selected');
+  if (el.classList.contains('selected')) selectedChips[val] = true;
+  else delete selectedChips[val];
+}
+
+function checkConsents() {
+  var all = ['c1','c2','c3'].every(id => document.getElementById(id).checked);
+  document.getElementById('btn-agree').disabled = !all;
+}
+
+async function completeOnboarding() {
+  var btn = document.getElementById('btn-agree');
+  btn.disabled = true; btn.textContent = 'Setting up...';
+  try {
+    var res = await fetch('/api/agent/register', {
+      method: 'POST', headers: {'Content-Type': 'application/json'}, credentials: 'include',
+      body: JSON.stringify({
+        agent_name:    document.getElementById('s1-name').value.trim(),
+        business_name: document.getElementById('s1-biz').value.trim(),
+        license_number:document.getElementById('s1-lic').value.trim(),
+        license_state: document.getElementById('s1-state').value,
+        phone:         document.getElementById('s1-phone').value.trim(),
+        website:       document.getElementById('s1-website').value.trim(),
+        service_areas: document.getElementById('s1-areas').value.trim(),
+        specialties:   Object.keys(selectedChips).join(', '),
+        volume:        document.getElementById('s2-volume').value,
+        source:        document.getElementById('s2-source').value,
+        agreed_to_terms: true,
+      })
+    });
+    if (res.status === 401) { window.location.href = '/login?redirect=/agent-onboarding'; return; }
+    var data = await res.json();
+    if (data.success) {
+      try { sessionStorage.removeItem('pending_agent_signup'); } catch(e) {}
+      toStep(4);
+    }
+    else { alert(data.error || 'Setup failed. Please try again.'); btn.disabled = false; btn.textContent = 'I Agree — Finish Setup →'; }
+  } catch(e) {
+    alert('Something went wrong. Please try again.');
+    btn.disabled = false; btn.textContent = 'I Agree — Finish Setup →';
+  }
+}
+
+// Pre-fill from sessionStorage if user came from /for-agents signup form
+try {
+  var pending = sessionStorage.getItem('pending_agent_signup');
+  if (pending) {
+    var p = JSON.parse(pending);
+    if (p.agent_name)    document.getElementById('s1-name').value  = p.agent_name;
+    if (p.business_name) document.getElementById('s1-biz').value   = p.business_name;
+    if (p.license_number)document.getElementById('s1-lic').value   = p.license_number;
+    if (p.license_state) document.getElementById('s1-state').value = p.license_state;
+    if (p.phone)         document.getElementById('s1-phone').value = p.phone;
+    if (p.service_areas) document.getElementById('s1-areas').value = p.service_areas;
+  }
+} catch(e) {}
+</script>
+</body>
+</html>

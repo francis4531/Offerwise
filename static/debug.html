@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Debug — OfferWise Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:#0b0f1a; --surface:#111827; --surface2:#152033;
+      --border:rgba(255,255,255,.07); --border2:rgba(255,255,255,.13);
+      --text:#e2e8f0; --muted:#94a3b8;
+      --green:#22c55e; --blue:#3b82f6; --amber:#f59e0b; --red:#ef4444;
+      --mono:'IBM Plex Mono',monospace; --sans:'IBM Plex Sans',sans-serif;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:var(--sans);background:var(--bg);color:var(--text);font-size:14px;line-height:1.55;padding:24px}
+    .section-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:10px;margin-top:24px}
+    .section-label:first-of-type{margin-top:0}
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:16px 18px;margin-bottom:10px}
+    .card-title{font-size:13px;font-weight:600;margin-bottom:12px;display:flex;align-items:center;gap:7px}
+    .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    .btn{display:inline-flex;align-items:center;gap:5px;padding:5px 14px;border-radius:5px;font-size:12px;font-weight:600;cursor:pointer;border:none;font-family:var(--sans);transition:all .15s}
+    .btn-primary{background:var(--blue);color:#fff}.btn-primary:hover{background:#2563eb}
+    .btn-danger{background:rgba(239,68,68,.15);color:var(--red);border:1px solid rgba(239,68,68,.3)}.btn-danger:hover{background:rgba(239,68,68,.25)}
+    input[type="number"]{padding:5px 10px;border-radius:5px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-family:var(--mono);font-size:12px;width:160px;outline:none}
+    input[type="number"]:focus{border-color:var(--blue)}
+    pre{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:12px 14px;overflow-x:auto;font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:10px;line-height:1.6;white-space:pre-wrap;word-break:break-all}
+    .warn{font-size:12px;color:var(--amber);margin-bottom:10px}
+    .ok{color:var(--green)}.err{color:var(--red)}
+  </style>
+</head>
+<body>
+
+<div class="section-label">Database</div>
+
+<div class="card">
+  <div class="card-title">🗄 Check Database State</div>
+  <div class="row">
+    <button class="btn btn-primary" onclick="checkDatabase()">Check Database</button>
+  </div>
+  <pre id="dbResult">Click to inspect your database state…</pre>
+</div>
+
+<div class="card">
+  <div class="card-title">🗑 Delete Specific Property</div>
+  <div class="row">
+    <input type="number" id="propertyId" placeholder="Property ID">
+    <button class="btn btn-danger" onclick="deleteProperty()">Delete Property</button>
+  </div>
+  <pre id="deleteResult">Enter a property ID and click delete…</pre>
+</div>
+
+<div class="section-label">Danger Zone</div>
+
+<div class="card" style="border-color:rgba(239,68,68,.25)">
+  <div class="card-title" style="color:var(--red)">☢️ Nuclear Option</div>
+  <p class="warn">⚠️ Deletes ALL properties and analyses for your account — cannot be undone.</p>
+  <button class="btn btn-danger" onclick="confirmNuclear()">Delete Everything</button>
+  <pre id="nuclearResult">Click to wipe all data…</pre>
+</div>
+
+<script>
+  const _p = new URLSearchParams(window.location.search);
+  const _k = _p.get('admin_key') || '';
+  const api = p => p + (p.includes('?') ? '&' : '?') + 'admin_key=' + _k;
+
+  async function checkDatabase() {
+    const el = document.getElementById('dbResult');
+    el.textContent = 'Loading…'; el.className = '';
+    try {
+      const d = await (await fetch(api('/api/debug/my-data'), {credentials:'include'})).json();
+      el.textContent = JSON.stringify(d, null, 2); el.className = 'ok';
+    } catch(e) { el.textContent = 'ERROR: ' + e.message; el.className = 'err'; }
+  }
+
+  async function deleteProperty() {
+    const id = document.getElementById('propertyId').value;
+    const el = document.getElementById('deleteResult');
+    if (!id) { el.textContent = 'Enter a property ID first.'; el.className = 'err'; return; }
+    el.textContent = 'Deleting…'; el.className = '';
+    try {
+      const d = await (await fetch(api('/api/properties/' + id), {method:'DELETE',credentials:'include',headers:{'Content-Type':'application/json'}})).json();
+      el.textContent = JSON.stringify(d, null, 2); el.className = 'ok';
+      setTimeout(checkDatabase, 500);
+    } catch(e) { el.textContent = 'ERROR: ' + e.message; el.className = 'err'; }
+  }
+
+  function confirmNuclear() {
+    if (confirm('⚠️ DELETE EVERYTHING? This cannot be undone!'))
+      if (confirm('Are you ABSOLUTELY SURE?')) executeNuclear();
+  }
+
+  async function executeNuclear() {
+    const el = document.getElementById('nuclearResult');
+    el.textContent = 'DELETING EVERYTHING…'; el.className = '';
+    try {
+      const d = await (await fetch(api('/api/debug/delete-all-my-data'), {method:'POST',credentials:'include',headers:{'Content-Type':'application/json'}})).json();
+      el.textContent = JSON.stringify(d, null, 2); el.className = 'ok';
+      setTimeout(checkDatabase, 500);
+    } catch(e) { el.textContent = 'ERROR: ' + e.message; el.className = 'err'; }
+  }
+</script>
+</body>
+</html>

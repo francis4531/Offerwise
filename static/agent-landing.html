@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{AGENT_NAME}} — Free Property Analysis | OfferWise AI</title>
+  <meta name="description" content="{{AGENT_NAME}} from {{AGENT_BIZ}} is giving you a free AI-powered property analysis. Upload your inspection report and disclosure — get your offer number in 60 seconds.">
+  <link rel="icon" type="image/svg+xml" href="/logo-icon-only.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Reddit Pixel -->
+  <script>
+  !function(w,d){if(!w.rdt){var p=w.rdt=function(){p.sendEvent?p.sendEvent.apply(p,arguments):p.queue.push(arguments)};p.queue=[];var t=d.createElement('script');t.src='https://www.redditstatic.com/ads/pixel.js';t.async=!0;var s=d.getElementsByTagName('script')[0];s.parentNode.insertBefore(t,s)}}(window,document);
+  rdt('init','a2_ihx65g62d5n6',{optOut:false,useDecimalCurrencyValues:true,signalsMode:'all'});
+  rdt('track','PageVisit');
+  </script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0a0f1a;
+      --surface: #111827;
+      --surface2: #1a2232;
+      --border: rgba(255,255,255,0.07);
+      --text: #f0f4ff;
+      --muted: #8899bb;
+      --dim: #3d4f6e;
+      --fire: #f97316;
+      --fire2: #f59e0b;
+      --green: #22c55e;
+      --blue: #60a5fa;
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+
+    /* Subtle dot grid */
+    body::before {
+      content: '';
+      position: fixed; inset: 0; pointer-events: none; z-index: 0;
+      background-image: radial-gradient(circle, rgba(255,255,255,0.04) 1px, transparent 1px);
+      background-size: 28px 28px;
+    }
+
+    /* Agent stripe at top */
+    .agent-bar {
+      position: relative; z-index: 10;
+      background: var(--surface2);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 24px;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 12px;
+    }
+    .agent-identity { display: flex; align-items: center; gap: 14px; }
+    .agent-avatar {
+      width: 44px; height: 44px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--fire), var(--fire2));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; font-weight: 800; color: white; flex-shrink: 0;
+      overflow: hidden;
+    }
+    .agent-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .agent-info { line-height: 1.3; }
+    .agent-name { font-size: 14px; font-weight: 700; color: var(--text); }
+    .agent-biz { font-size: 12px; color: var(--muted); }
+    .powered-by {
+      font-size: 11px; color: var(--dim);
+      display: flex; align-items: center; gap: 6px;
+    }
+    .powered-by strong { color: var(--fire); font-weight: 700; }
+
+    /* Hero */
+    .hero {
+      position: relative; z-index: 1;
+      max-width: 640px; margin: 0 auto;
+      padding: 72px 24px 48px;
+      text-align: center;
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 7px;
+      background: rgba(249,115,22,0.1); border: 1px solid rgba(249,115,22,0.25);
+      border-radius: 20px; padding: 5px 14px;
+      font-size: 12px; font-weight: 600; color: var(--fire);
+      margin-bottom: 24px;
+    }
+    .hero-badge::before { content: '🎁'; font-size: 14px; }
+    .hero h1 {
+      font-size: clamp(30px, 5vw, 46px);
+      font-weight: 800; line-height: 1.1;
+      letter-spacing: -.02em;
+      margin-bottom: 16px;
+    }
+    .hero h1 em {
+      font-style: normal;
+      background: linear-gradient(90deg, var(--fire), var(--fire2));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .hero p {
+      font-size: 17px; color: var(--muted); max-width: 480px; margin: 0 auto 36px;
+      line-height: 1.65;
+    }
+
+    /* CTA card */
+    .cta-card {
+      position: relative; z-index: 1;
+      max-width: 540px; margin: 0 auto;
+      padding: 0 24px 72px;
+    }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px; overflow: hidden;
+    }
+    .card-top {
+      padding: 28px 28px 24px;
+      border-bottom: 1px solid var(--border);
+    }
+    .card-top h2 { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+    .card-top p { font-size: 13px; color: var(--muted); }
+    .card-body { padding: 24px 28px; }
+
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+    .form-group { display: flex; flex-direction: column; gap: 5px; }
+    .form-group.full { grid-column: 1 / -1; }
+    label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); }
+    input[type="text"], input[type="email"] {
+      padding: 11px 13px;
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 9px; color: var(--text); font-family: inherit; font-size: 14px;
+      outline: none; transition: border-color .15s;
+    }
+    input:focus { border-color: rgba(249,115,22,.4); }
+
+    .cta-btn {
+      width: 100%; padding: 15px;
+      background: linear-gradient(90deg, var(--fire), var(--fire2));
+      border: none; border-radius: 10px;
+      font-size: 16px; font-weight: 700; color: white;
+      cursor: pointer; font-family: inherit;
+      margin-top: 16px; transition: opacity .15s;
+    }
+    .cta-btn:hover { opacity: .88; }
+    .cta-btn:disabled { opacity: .5; cursor: not-allowed; }
+
+    .fine-print {
+      text-align: center; font-size: 11px; color: var(--dim);
+      margin-top: 10px; line-height: 1.5;
+    }
+
+    /* What you get */
+    .what-you-get {
+      position: relative; z-index: 1;
+      max-width: 640px; margin: 0 auto 72px;
+      padding: 0 24px;
+    }
+    .section-label {
+      font-size: 11px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .1em; color: var(--muted); text-align: center;
+      margin-bottom: 24px;
+    }
+    .feature-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .feature-item {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; padding: 18px;
+    }
+    .feature-icon { font-size: 22px; margin-bottom: 8px; }
+    .feature-title { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+    .feature-desc { font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+    /* Agent note */
+    .agent-note {
+      position: relative; z-index: 1;
+      max-width: 540px; margin: 0 auto 72px;
+      padding: 0 24px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--fire);
+      border-radius: 12px;
+      padding: 20px 24px;
+    }
+    .agent-note-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--fire); margin-bottom: 8px; }
+    .agent-note-text { font-size: 14px; color: var(--muted); line-height: 1.6; }
+    .agent-note-sig { margin-top: 12px; font-size: 13px; font-weight: 700; color: var(--text); }
+
+    /* Footer */
+    footer {
+      position: relative; z-index: 1;
+      text-align: center; padding: 24px;
+      font-size: 12px; color: var(--dim);
+      border-top: 1px solid var(--border);
+    }
+    footer a { color: var(--fire); text-decoration: none; }
+
+    @media (max-width: 520px) {
+      .form-row { grid-template-columns: 1fr; }
+      .feature-grid { grid-template-columns: 1fr; }
+      .agent-bar { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Agent identity bar -->
+<div class="agent-bar">
+  <div class="agent-identity">
+    <div class="agent-avatar" id="agentAvatar">
+      {{AGENT_INITIAL}}
+    </div>
+    <div class="agent-info">
+      <div class="agent-name">{{AGENT_NAME}}</div>
+      <div class="agent-biz">{{AGENT_BIZ}}</div>
+    </div>
+  </div>
+  <div class="powered-by">Powered by <strong>OfferWise AI</strong></div>
+</div>
+
+<!-- Hero -->
+<div class="hero">
+  <div class="hero-badge">Free analysis — compliments of your agent</div>
+  <h1>Know your number<br>before you <em>make the offer.</em></h1>
+  <p>Your agent wants you to walk in with data, not hope. Upload your inspection report and seller disclosure — get your OfferScore™, repair costs, and recommended offer price in 60 seconds.</p>
+</div>
+
+<!-- CTA card -->
+<div class="cta-card">
+  <div class="card">
+    <div class="card-top">
+      <h2>Start your free analysis</h2>
+      <p>No credit card required. One free analysis, courtesy of {{AGENT_NAME}}.</p>
+    </div>
+    <div class="card-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Your first name</label>
+          <input type="text" id="buyer-name" placeholder="Sarah">
+        </div>
+        <div class="form-group">
+          <label>Your email</label>
+          <input type="email" id="buyer-email" placeholder="sarah@email.com">
+        </div>
+      </div>
+      <button class="cta-btn" id="start-btn" onclick="startAnalysis()">
+        Analyze My Property →
+      </button>
+      <p class="fine-print">
+        Your results will be sent to your email. We never share your info.<br>
+        By continuing you agree to our <a href="/terms" style="color:var(--muted)">Terms</a>.
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- Agent personal note -->
+<div class="agent-note" style="max-width:540px;margin:0 auto 40px;padding:20px 24px">
+  <div class="agent-note-label">A note from your agent</div>
+  <div class="agent-note-text">I use OfferWise with every buyer I work with. It reads the full inspection report and disclosure so you know exactly what you're getting into — the repair costs, the red flags, and what to offer. Knowledge is your best negotiating tool.</div>
+  <div class="agent-note-sig">— {{AGENT_NAME}}{{AGENT_BIZ_SUFFIX}}</div>
+</div>
+
+<!-- What you get -->
+<div class="what-you-get">
+  <div class="section-label">What's included — free</div>
+  <div class="feature-grid">
+    <div class="feature-item">
+      <div class="feature-icon">🎯</div>
+      <div class="feature-title">OfferScore™</div>
+      <div class="feature-desc">A 0–100 score that tells you how much this property is worth the asking price.</div>
+    </div>
+    <div class="feature-item">
+      <div class="feature-icon">🔧</div>
+      <div class="feature-title">Repair cost breakdown</div>
+      <div class="feature-desc">Every flagged system with a cost range. Know what you're inheriting before you close.</div>
+    </div>
+    <div class="feature-item">
+      <div class="feature-icon">💰</div>
+      <div class="feature-title">Recommended offer</div>
+      <div class="feature-desc">Aggressive, recommended, and conservative prices — backed by repair data and market comps.</div>
+    </div>
+    <div class="feature-item">
+      <div class="feature-icon">🚨</div>
+      <div class="feature-title">Deal breaker alerts</div>
+      <div class="feature-desc">Foundation cracks, mold, unpermitted work — flagged clearly before you're in too deep.</div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <a href="/">OfferWise AI</a> · AI-powered property analysis for homebuyers ·
+  <a href="/privacy">Privacy</a> · <a href="/terms">Terms</a>
+</footer>
+
+<script>
+  // Handle photo
+  const photo = '{{AGENT_PHOTO}}';
+  const agentName = '{{AGENT_NAME}}';
+  const agentSlug = '{{AGENT_SLUG}}';
+  const agentId = '{{AGENT_ID}}';
+  const agentBiz = '{{AGENT_BIZ}}';
+
+  if (photo && photo !== '{{AGENT_PHOTO}}') {
+    const av = document.getElementById('agentAvatar');
+    av.innerHTML = `<img src="${photo}" alt="${agentName}">`;
+  }
+
+  // Agent biz suffix injected server-side
+
+  async function startAnalysis() {
+    const name = document.getElementById('buyer-name').value.trim();
+    const email = document.getElementById('buyer-email').value.trim();
+    const btn = document.getElementById('start-btn');
+
+    if (!name) { alert('Please enter your first name.'); return; }
+    if (!email || !email.includes('@')) { alert('Please enter a valid email address.'); return; }
+
+    btn.disabled = true;
+    btn.textContent = 'Setting up your analysis...';
+
+    // Store agent context for after login/signup
+    try {
+      sessionStorage.setItem('agent_referral', JSON.stringify({
+        agent_slug: agentSlug,
+        agent_id: agentId,
+        agent_name: agentName,
+        agent_biz: agentBiz,
+        buyer_name: name,
+        buyer_email: email,
+        free_credit: true,
+      }));
+    } catch(e) {}
+
+    // Fire Reddit pixel
+    if (window.rdt) { window.rdt('track', 'Lead'); }
+
+    // Redirect to signup with prefill
+    const params = new URLSearchParams({
+      name: name,
+      email: email,
+      ref: 'agent_' + agentSlug,
+      free: '1',
+      next: '/app',
+    });
+    window.location.href = '/login?' + params.toString();
+  }
+</script>
+</body>
+</html>

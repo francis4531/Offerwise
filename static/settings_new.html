@@ -1,0 +1,2077 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Account — OfferWise AI</title>
+<link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+<link rel="stylesheet" href="/static/typography.css">
+<script src="/static/referral-functions.js"></script>
+<script src="/static/analytics-loader.js" defer></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #060d1a;
+  --surface: #0f1e35;
+  --surface2: #162032;
+  --border: rgba(255,255,255,0.08);
+  --border2: rgba(255,255,255,0.05);
+  --text: #f1f5f9;
+  --muted: #94a3b8;
+  --dim: #64748b;
+  --fire1: #f97316;
+  --fire2: #f59e0b;
+  --green: #22c55e;
+  --blue: #60a5fa;
+  --red: #ef4444;
+}
+html, body { height: 100%; }
+body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 14px; line-height: 1.5; }
+
+/* ── NAV ── */
+.top-nav {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 32px; height: 56px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(6,13,26,0.98);
+  position: sticky; top: 0; z-index: 200;
+}
+.nav-logo { font-size: 1.2rem; font-weight: 900; color: var(--text); text-decoration: none; }
+.nav-logo .wise { background: linear-gradient(90deg,#f97316,#f59e0b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.nav-right { display: flex; align-items: center; gap: 12px; }
+.nav-badge { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; padding: 4px 10px; border-radius: 6px; color: #60a5fa; background: rgba(96,165,250,.1); border: 1px solid rgba(96,165,250,.25); }
+.nav-link { font-size: 13px; color: var(--muted); text-decoration: none; font-weight: 600; }
+.nav-link:hover { color: var(--text); }
+
+/* ── ROLE SWITCHER ── */
+.role-switcher { position: relative; }
+.role-switcher-btn {
+  display: flex; align-items: center; gap: 6px;
+  padding: 6px 12px;
+  background: rgba(255,255,255,.05); border: 1px solid var(--border);
+  border-radius: 8px; font-size: 12px; font-weight: 600; color: var(--muted);
+  cursor: pointer; white-space: nowrap; font-family: inherit;
+  transition: all .15s;
+}
+.role-switcher-btn:hover { border-color: rgba(249,115,22,.4); color: var(--fire1); }
+.role-menu {
+  position: absolute; top: calc(100% + 8px); right: 0;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; min-width: 240px;
+  box-shadow: 0 10px 40px rgba(0,0,0,.5); z-index: 999; padding: 6px;
+  display: none;
+}
+.role-menu.open { display: block; }
+.role-menu-item {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 10px 12px; border-radius: 8px;
+  text-decoration: none; transition: background .12s; cursor: pointer;
+}
+.role-menu-item:hover { background: rgba(255,255,255,.04); }
+.role-menu-item.current { background: rgba(249,115,22,.08); border: 1px solid rgba(249,115,22,.15); }
+.rmi-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 1px; }
+.rmi-label { font-size: 13px; font-weight: 700; color: var(--text); }
+.rmi-badge { font-size: 11px; color: var(--dim); margin-top: 2px; }
+.here-tag { font-size: 10px; color: var(--fire1); font-weight: 600; margin-left: 6px; }
+
+/* ── USER DROPDOWN (carry over from old nav) ── */
+.user-profile-dropdown { position: relative; }
+.user-profile-button { display:flex;align-items:center;gap:8px;background:transparent;border:none;cursor:pointer;padding:4px;border-radius:8px;color:var(--text); }
+.user-profile-button:hover { background:rgba(255,255,255,.05); }
+.user-avatar { width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#f97316,#f59e0b);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:white;flex-shrink:0; }
+.oauth-badge { position:absolute;bottom:-2px;right:16px;width:14px;height:14px;border-radius:50%;background:#4285f4;border:2px solid var(--bg);font-size:8px;display:none;align-items:center;justify-content:center; }
+.user-dropdown-menu { position:absolute;top:calc(100% + 8px);right:0;background:var(--surface);border:1px solid var(--border);border-radius:12px;min-width:200px;box-shadow:0 10px 40px rgba(0,0,0,.4);z-index:9999;display:none;padding:6px; }
+.user-dropdown-menu.open { display:block; }
+.user-dropdown-header { padding:10px 12px 8px; }
+.user-dropdown-email { font-size:13px;font-weight:600;color:var(--text); }
+.user-dropdown-tier { font-size:11px;color:var(--dim);margin-top:2px; }
+.user-dropdown-divider { height:1px;background:var(--border);margin:4px 0; }
+.user-dropdown-item { display:flex;align-items:center;gap:8px;padding:9px 12px;border-radius:8px;font-size:13px;font-weight:600;color:var(--muted);text-decoration:none;transition:background .12s; }
+.user-dropdown-item:hover { background:rgba(255,255,255,.04);color:var(--text); }
+.user-dropdown-logout { color:#ef4444; }
+.user-dropdown-logout:hover { background:rgba(239,68,68,.08); }
+
+/* ── PAGE LAYOUT ── */
+.page-layout {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  min-height: calc(100vh - 56px);
+}
+
+/* ── SIDEBAR ── */
+.sidebar {
+  border-right: 1px solid var(--border);
+  padding: 24px 12px;
+  display: flex; flex-direction: column; gap: 8px;
+}
+.sidebar-section { margin-bottom: 20px; }
+.sidebar-label {
+  font-size: 10px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .1em; color: var(--dim);
+  padding: 0 10px; margin-bottom: 6px;
+}
+.sidebar-item {
+  display: flex; align-items: center; gap: 9px;
+  padding: 8px 10px; border-radius: 8px;
+  font-size: 13px; font-weight: 600; color: var(--muted);
+  cursor: pointer; transition: all .12s;
+  text-decoration: none; border: none; background: none;
+  width: 100%; text-align: left;
+}
+.sidebar-item:hover { background: rgba(255,255,255,.04); color: var(--text); }
+.sidebar-item.active { background: rgba(249,115,22,.1); color: var(--fire1); }
+.sidebar-item.portal-link { color: var(--fire1); background: rgba(249,115,22,.05); }
+.sidebar-item.portal-link:hover { background: rgba(249,115,22,.1); }
+.sidebar-divider { height: 1px; background: var(--border); margin: 8px 4px; }
+
+.sidebar-credits {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 10px; padding: 12px 14px; margin: 0 2px;
+}
+.sidebar-credits-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--dim); margin-bottom: 4px; }
+.sidebar-credits-val { font-size: 1.6rem; font-weight: 800; letter-spacing: -.02em; }
+.sidebar-credits-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+/* ── MAIN CONTENT ── */
+.main-content { padding: 32px 36px; overflow-y: auto; }
+.page-header { margin-bottom: 28px; }
+.page-header h1 { font-size: 1.5rem; font-weight: 800; letter-spacing: -.02em; margin-bottom: 4px; }
+.page-header p { color: var(--muted); font-size: 14px; }
+
+/* ── STATS ROW ── */
+.stats-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin-bottom: 28px; }
+.stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; }
+.stat-card-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--dim); margin-bottom: 6px; }
+.stat-card-val { font-size: 1.7rem; font-weight: 800; letter-spacing: -.02em; }
+.stat-card-sub { font-size: 11px; color: var(--muted); margin-top: 3px; }
+
+/* ── SECTION HEADER ── */
+.section-hdr { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.section-hdr h2 { font-size: 15px; font-weight: 700; }
+.btn-fire { background: linear-gradient(90deg,var(--fire1),var(--fire2)); color: white; border: none; padding: 9px 18px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; font-family: inherit; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+.btn-fire:hover { opacity: .9; }
+.btn-outline { background: transparent; color: var(--muted); border: 1px solid var(--border); padding: 7px 14px; border-radius: 8px; font-weight: 600; font-size: 12px; cursor: pointer; font-family: inherit; transition: all .12s; }
+.btn-outline:hover { border-color: rgba(255,255,255,.2); color: var(--text); }
+
+/* ── CONTENT PANELS ── */
+.panel { display: none; }
+.panel.active { display: block; }
+
+/* ── Carry over legacy card styles for tab content ── */
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; margin-bottom: 20px; overflow: hidden; }
+.card-header { display:flex;align-items:center;gap:12px;padding:18px 20px;border-bottom:1px solid var(--border); }
+.card-icon { font-size:1.4rem; }
+.card-body { padding:20px; }
+
+/* Legacy tab-content compatibility — all content renders inside .panel now */
+.tab-content { display: block !important; } /* override old hide/show */
+
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+  .page-layout { grid-template-columns: 1fr; }
+  .sidebar { display: none; }
+  .stats-row { grid-template-columns: 1fr 1fr; }
+  .main-content { padding: 20px 16px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── TOP NAV ── -->
+<header class="top-nav">
+  <a href="/dashboard" class="nav-logo">Offer<span class="wise">Wise</span> AI</a>
+  <div class="nav-right">
+    <span class="nav-badge" id="nav-plan-badge">🏠 Buyer</span>
+
+    <!-- Role Switcher — hidden until JS confirms multi-role -->
+    <div id="role-switcher" style="display:none;" class="role-switcher">
+      <button class="role-switcher-btn" onclick="toggleRoleSwitcher()" id="role-switcher-btn">
+        <span id="role-switcher-icon">🏠</span>
+        <span id="role-switcher-label">Buyer Dashboard</span>
+        <span style="font-size:10px;opacity:.6;">▾</span>
+      </button>
+      <div class="role-menu" id="role-menu"></div>
+    </div>
+
+    <!-- User Profile Dropdown -->
+    <div class="user-profile-dropdown" id="user-profile-dropdown">
+      <button class="user-profile-button" id="user-profile-button">
+        <div class="user-avatar" id="user-avatar"><span id="user-initial">?</span></div>
+        <div class="oauth-badge" id="oauth-badge" title="Login method"></div>
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" style="margin-left:2px;opacity:.5;"><path d="M4 6l4 4 4-4"/></svg>
+      </button>
+      <div class="user-dropdown-menu" id="user-dropdown-menu">
+        <div class="user-dropdown-header">
+          <div class="user-dropdown-email" id="user-dropdown-email">Loading...</div>
+          <div class="user-dropdown-tier" id="user-dropdown-tier">Free Plan</div>
+        </div>
+        <div class="user-dropdown-divider"></div>
+        <a href="/settings" class="user-dropdown-item">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v6m0 6v6M1 12h6m6 0h6"/></svg>
+          My Account
+        </a>
+        <a href="/logout" class="user-dropdown-item user-dropdown-logout">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4m7 14l5-5-5-5m5 5H9"/></svg>
+          Logout
+        </a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ── PAGE LAYOUT ── -->
+<div class="page-layout">
+
+  <!-- ── SIDEBAR ── -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Buyer</div>
+      <button class="sidebar-item active" id="sb-analyses" onclick="showPanel('analyses')">🏘️ My Properties</button>
+      <button class="sidebar-item" id="sb-account" onclick="showPanel('account')">👤 Account</button>
+      <button class="sidebar-item" id="sb-preferences" onclick="showPanel('preferences')">⚙️ Preferences</button>
+      <button class="sidebar-item" id="sb-referrals" onclick="showPanel('referrals')">🎁 Referrals</button>
+      <button class="sidebar-item" id="sb-legal" onclick="showPanel('legal')">📜 Legal</button>
+    </div>
+
+    <div class="sidebar-divider"></div>
+
+    <div class="sidebar-section" id="sidebar-credits-section">
+      <div class="sidebar-label">Credits</div>
+      <div class="sidebar-credits">
+        <div class="sidebar-credits-label">Analysis credits</div>
+        <div class="sidebar-credits-val" id="sidebar-credits-val" style="color:var(--green);">—</div>
+        <div class="sidebar-credits-sub" id="sidebar-credits-sub">Loading...</div>
+      </div>
+    </div>
+
+    <!-- Other Portals — shown only for multi-role users -->
+    <div class="sidebar-section" id="sidebar-portals" style="display:none;">
+      <div class="sidebar-label">Other Portals</div>
+      <div id="sidebar-portal-links"></div>
+    </div>
+
+    <div class="sidebar-divider"></div>
+
+    <div class="sidebar-section">
+      <button class="sidebar-item" onclick="location.href='/app'">✨ New Analysis</button>
+      <button class="sidebar-item" onclick="location.href='/pricing'">💳 Buy Credits</button>
+    </div>
+  </aside>
+
+  <!-- ── MAIN ── -->
+  <main class="main-content">
+
+    <!-- PROPERTIES PANEL -->
+    <div class="panel active" id="panel-analyses">
+      <div class="page-header">
+        <h1 id="greeting">My Properties</h1>
+        <p>Your analyzed properties and account overview.</p>
+      </div>
+      <!-- Stats row -->
+      <div class="stats-row" id="stats-row" style="display:none;">
+        <div class="stat-card"><div class="stat-card-label">Credits</div><div class="stat-card-val" id="stat-credits" style="color:var(--green);">—</div></div>
+        <div class="stat-card"><div class="stat-card-label">Analyzed</div><div class="stat-card-val" id="stat-analyzed">—</div></div>
+        <div class="stat-card"><div class="stat-card-label">Potential Savings</div><div class="stat-card-val" id="stat-savings" style="color:var(--green);">—</div></div>
+        <div class="stat-card"><div class="stat-card-label">Avg Discount</div><div class="stat-card-val" id="stat-discount" style="color:var(--blue);">—</div></div>
+      </div>
+      <!-- Legacy analyses tab content renders here -->
+      <div id="analyses-tab" class="tab-content"></div>
+    </div>
+
+    <!-- ACCOUNT PANEL -->
+    <div class="panel" id="panel-account">
+      <div class="page-header"><h1>Account</h1><p>Manage your profile and subscription.</p></div>
+      <div id="account-tab" class="tab-content"></div>
+    </div>
+
+    <!-- PREFERENCES PANEL -->
+    <div class="panel" id="panel-preferences">
+      <div class="page-header"><h1>Preferences</h1><p>Customize your OfferWise experience.</p></div>
+      <div id="preferences-tab" class="tab-content"></div>
+    </div>
+
+    <!-- REFERRALS PANEL -->
+    <div class="panel" id="panel-referrals">
+      <div class="page-header"><h1>Referrals</h1><p>Earn free credits by referring friends.</p></div>
+      <div id="referrals-tab" class="tab-content"></div>
+    </div>
+
+    <!-- INSPECTOR PANEL -->
+    <div class="panel" id="panel-inspector">
+      <div class="page-header"><h1>Inspector Portal</h1><p>Manage your inspection reports and account.</p></div>
+      <div id="inspector-tab" class="tab-content">
+        <div class="card">
+          <div class="card-header"><span class="card-icon">🔍</span><div><strong>Inspector Account</strong></div></div>
+          <div class="card-body">
+            <div id="inspector-tab-content">Loading...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONTRACTOR PANEL -->
+    <div class="panel" id="panel-contractor">
+      <div class="page-header"><h1>Contractor Portal</h1><p>Manage your leads and subscription.</p></div>
+      <div id="contractor-tab" class="tab-content">
+        <div class="card">
+          <div class="card-header"><span class="card-icon">🔧</span><div><strong>Contractor Account</strong></div></div>
+          <div class="card-body">
+            <div id="contractor-tab-content">Loading...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LEGAL PANEL -->
+    <div class="panel" id="panel-legal">
+      <div class="page-header"><h1>Legal</h1><p>Terms, privacy policy, and consent management.</p></div>
+      <div id="legal-tab" class="tab-content"></div>
+    </div>
+
+  </main>
+</div>
+
+
+<script src="/static/js/compliance.js"></script>
+<script>
+  // ── Panel navigation (replaces showTab) ─────────────────────────────────
+  const PANEL_MAP = {
+    analyses: 'panel-analyses', account: 'panel-account',
+    preferences: 'panel-preferences', referrals: 'panel-referrals',
+    inspector: 'panel-inspector', contractor: 'panel-contractor',
+    legal: 'panel-legal'
+  };
+  const SB_MAP = {
+    analyses: 'sb-analyses', account: 'sb-account',
+    preferences: 'sb-preferences', referrals: 'sb-referrals',
+    inspector: 'sb-inspector', contractor: 'sb-contractor',
+    legal: 'sb-legal'
+  };
+
+  function showPanel(name) {
+    Object.values(PANEL_MAP).forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.classList.remove('active');
+    });
+    Object.values(SB_MAP).forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.classList.remove('active');
+    });
+    const panel = document.getElementById(PANEL_MAP[name]);
+    if (panel) panel.classList.add('active');
+    const sb = document.getElementById(SB_MAP[name]);
+    if (sb) sb.classList.add('active');
+
+    // Lazy-load content
+    if (name === 'analyses') loadAnalysisHistory();
+    if (name === 'referrals') loadReferralData();
+    if (name === 'inspector') loadInspectorTab();
+    if (name === 'contractor') loadContractorTab();
+
+    // Update URL
+    const url = new URL(window.location);
+    url.searchParams.set('tab', name);
+    history.replaceState({}, '', url);
+  }
+
+  // Legacy showTab alias
+  function showTab(name) { showPanel(name); }
+  // Legacy openTab alias
+  function openTab(name) { showPanel(name); }
+
+  // ── Role Switcher ─────────────────────────────────────────────────────────
+  async function initRoleSwitcher() {
+    try {
+      var inspRes = await fetch('/api/inspector/profile', { credentials: 'include' });
+      var ctorRes  = await fetch('/api/contractor/me',      { credentials: 'include' });
+      var inspData = inspRes.ok  ? await inspRes.json() : {};
+      var ctorData  = ctorRes.ok ? await ctorRes.json()  : {};
+
+      var roles = [];
+      // always buyer
+      var credits = parseInt(document.getElementById('sidebar-credits-val')?.textContent) || 0;
+      roles.push({ role:'buyer', icon:'🏠', label:'Buyer Dashboard', url:'/settings', badge: credits + ' credits', current: true });
+
+      if (inspData.registered) {
+        var pl = inspData.plan === 'inspector_pro' ? 'Pro ⭐' : 'Free';
+        var qs = inspData.monthly_quota === -1 ? 'Unlimited' : (inspData.monthly_used + '/' + inspData.monthly_quota + ' used');
+        roles.push({ role:'inspector', icon:'🔍', label:'Inspector Portal', url:'/inspector-portal', badge: pl + ' · ' + qs });
+
+        // Show inspector in sidebar
+        var sb = document.getElementById('sb-inspector');
+        if (sb) { sb.style.display = ''; }
+      }
+      if (ctorData.registered) {
+        var planMap = { contractor_starter:'Starter', contractor_pro:'Pro', contractor_enterprise:'Enterprise' };
+        roles.push({ role:'contractor', icon:'🔧', label:'Contractor Portal', url:'/contractor-portal',
+                     badge: (planMap[ctorData.plan]||'Free') + ' · ' + (ctorData.status||'pending') });
+
+        var sb2 = document.getElementById('sb-contractor');
+        if (sb2) { sb2.style.display = ''; }
+      }
+
+      if (roles.length > 1) {
+        // Show role switcher pill
+        var sw = document.getElementById('role-switcher');
+        if (sw) sw.style.display = 'block';
+
+        // Build dropdown
+        var menu = document.getElementById('role-menu');
+        menu.innerHTML = roles.map(function(r) {
+          return '<a href="' + r.url + '" class="role-menu-item' + (r.current ? ' current' : '') + '">' +
+            '<div class="rmi-icon">' + r.icon + '</div>' +
+            '<div><div class="rmi-label">' + r.label +
+              (r.current ? '<span class="here-tag">← here</span>' : '') +
+            '</div><div class="rmi-badge">' + r.badge + '</div></div></a>';
+        }).join('');
+
+        // Show "Other Portals" in sidebar
+        var portalsSection = document.getElementById('sidebar-portals');
+        var portalLinks    = document.getElementById('sidebar-portal-links');
+        if (portalsSection && portalLinks) {
+          var otherRoles = roles.filter(function(r){ return !r.current; });
+          portalLinks.innerHTML = otherRoles.map(function(r) {
+            return '<a href="' + r.url + '" class="sidebar-item portal-link">' + r.icon + ' ' + r.label + ' →</a>';
+          }).join('');
+          portalsSection.style.display = 'block';
+        }
+      }
+    } catch(e) { /* non-blocking */ }
+  }
+
+  window.toggleRoleSwitcher = function() {
+    document.getElementById('role-menu')?.classList.toggle('open');
+  };
+  document.addEventListener('click', function(e) {
+    var sw = document.getElementById('role-switcher');
+    if (sw && !sw.contains(e.target)) {
+      document.getElementById('role-menu')?.classList.remove('open');
+    }
+  });
+
+  // User dropdown toggle
+  document.getElementById('user-profile-button')?.addEventListener('click', function(e) {
+    e.stopPropagation();
+    document.getElementById('user-dropdown-menu')?.classList.toggle('open');
+  });
+  document.addEventListener('click', function(e) {
+    var dd = document.getElementById('user-profile-dropdown');
+    if (dd && !dd.contains(e.target)) {
+      document.getElementById('user-dropdown-menu')?.classList.remove('open');
+    }
+  });
+</script>
+    <script>
+        let currentUser = null;
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', async () => {
+            console.log('🚀 Loading settings page...');
+            const startTime = performance.now();
+            
+            // Load all data in PARALLEL - maximum speed!
+            try {
+                await Promise.all([
+                    loadUserData(),
+                    loadUserCredits(),      // Load credits in parallel too!
+                    loadPreferences(),
+                    loadConsents(),
+                    detectUserRoles(),      // Show inspector/contractor tabs if applicable
+                ]);
+                
+                // Update next steps after data loads
+                await updateNextSteps();
+                
+                // Load referral code (non-blocking)
+                loadReferralCode();
+                
+                const loadTime = (performance.now() - startTime).toFixed(0);
+                console.log(`✅ Settings page loaded in ${loadTime}ms`);
+                
+                // Force browser repaint — fixes issue where content loads
+                // but browser doesn't repaint until user scrolls
+                document.body.style.display = 'none';
+                document.body.offsetHeight; // Force reflow
+                document.body.style.display = '';
+            } catch (error) {
+                console.error('❌ Error loading settings:', error);
+            }
+            
+            // Use the initial tab set by inline script (prevents flash)
+            const initialTab = window._initialTab || 'analyses';
+            console.log(`📌 Opening initial tab: ${initialTab}`);
+            openTab(initialTab);
+        });
+        
+        // Tab switching
+        // openTab: handled by showPanel above
+        
+        // showTab: handled by showPanel above
+        
+        async function loadUserData() {
+            try {
+                console.log('🔍 Loading user data...');
+                const response = await fetch('/api/user', { credentials: 'include' });
+                console.log('📡 User API response status:', response.status);
+                
+                if (!response.ok) {
+                    throw new Error(`API error: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                console.log('✅ User data received:', data);
+                currentUser = data;
+                
+                document.getElementById('user-email').textContent = data.email;
+                
+                // Login method badge
+                const loginMethodEl = document.getElementById('user-login-method');
+                if (data.email.includes('google')) {
+                    loginMethodEl.innerHTML = '<span class="badge badge-google">🔷 Google</span>';
+                } else {
+                    loginMethodEl.textContent = 'Email / Password';
+                }
+                
+                // Plan badge
+                const planEl = document.getElementById('user-plan');
+                planEl.innerHTML = `<span class="badge badge-success">${data.tier.toUpperCase()}</span>`;
+                
+                // Credits will be loaded separately in parallel
+                
+                console.log('✅ User data displayed successfully');
+            } catch (error) {
+                console.error('❌ Failed to load user data:', error);
+                // Show error in UI
+                document.getElementById('user-email').textContent = 'Error loading';
+                document.getElementById('user-login-method').textContent = 'Error loading';
+                document.getElementById('user-plan').textContent = 'Error loading';
+                document.getElementById('user-credits-display').textContent = 'Error loading';
+            }
+        }
+        
+        async function loadUserCredits() {
+            try {
+                console.log('💳 Loading user credits...');
+                // Use /api/user/credits endpoint instead of /api/usage
+                const response = await fetch('/api/user/credits', { credentials: 'include' });
+                
+                if (!response.ok) {
+                    throw new Error(`Credits API error: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                console.log('📊 Credits data:', data);
+                
+                // Get actual credits from database (not calculated from monthly limits)
+                const credits = data.credits || 0;
+                const totalPurchased = data.total_credits_purchased || 0;
+                
+                // Total is the greater of: credits remaining, total ever purchased, or 1 (to avoid 0/0)
+                // For free users with 1 credit, this shows "1 of 1"
+                const total = Math.max(credits, totalPurchased, 1);
+                const percentage = (credits / total) * 100;
+                
+                // Update credits display
+                const creditsDisplayEl = document.getElementById('user-credits-display');
+                if (credits === 0) {
+                    creditsDisplayEl.innerHTML = `<span style="color: #ef4444; font-weight: 600;">0 remaining</span>`;
+                } else if (credits === 1) {
+                    creditsDisplayEl.innerHTML = `<span style="color: #f59e0b; font-weight: 600;">${credits} remaining</span>`;
+                } else {
+                    creditsDisplayEl.innerHTML = `<span style="color: #10b981; font-weight: 600;">${credits} remaining</span>`;
+                }
+                
+                // Update counts text
+                const countsText = document.getElementById('credits-count-text');
+                countsText.textContent = `${credits} of ${total} remaining`;
+                // ── Sidebar + stats row ──
+                const sbVal = document.getElementById('sidebar-credits-val');
+                const sbSub = document.getElementById('sidebar-credits-sub');
+                const statC = document.getElementById('stat-credits');
+                if (sbVal) { sbVal.textContent = credits; sbVal.style.color = credits > 0 ? 'var(--green)' : 'var(--red)'; }
+                if (sbSub) sbSub.textContent = `${credits} analys${credits === 1 ? 'is' : 'es'} available`;
+                if (statC) statC.textContent = credits;
+                const sr = document.getElementById('stats-row');
+                if (sr) sr.style.display = 'grid';
+                
+                // Update progress bar
+                const progressBar = document.getElementById('credits-progress-bar');
+                progressBar.style.width = `${percentage}%`;
+                
+                // Color code progress bar
+                if (credits === 0) {
+                    progressBar.style.background = 'linear-gradient(90deg, #ef4444, #dc2626)';
+                } else if (credits <= 1) {
+                    progressBar.style.background = 'linear-gradient(90deg, #f59e0b, #d97706)';
+                } else {
+                    progressBar.style.background = 'linear-gradient(90deg, #3b82f6, #2563eb)';
+                }
+                
+                // Show upgrade CTA if out of credits
+                const upgradeCTA = document.getElementById('upgrade-cta');
+                if (credits === 0) {
+                    upgradeCTA.style.display = 'block';
+                } else {
+                    upgradeCTA.style.display = 'none';
+                }
+                
+                console.log('✅ Credits loaded and displayed');
+            } catch (error) {
+                console.error('❌ Failed to load credits:', error);
+                document.getElementById('user-credits-display').innerHTML = '<span style="color: #ef4444;">Error</span>';
+                document.getElementById('credits-count-text').textContent = 'Error loading';
+            }
+        }
+        
+        async function loadPreferences() {
+            try {
+                console.log('Loading preferences...');
+                const response = await fetch('/api/user/preferences', { credentials: 'include' });
+                console.log('Preferences response status:', response.status);
+                
+                if (!response.ok) {
+                    throw new Error(`API error: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                console.log('Preferences data:', data);
+                
+                // Set values only if they exist - otherwise leave empty
+                if (data.max_budget) {
+                    document.getElementById('max-budget').value = data.max_budget;
+                }
+                if (data.repair_tolerance) {
+                    document.getElementById('repair-tolerance').value = data.repair_tolerance;
+                }
+                if (data.biggest_regret) {
+                    document.getElementById('biggest-regret').value = data.biggest_regret;
+                }
+            } catch (error) {
+                console.error('Failed to load preferences:', error);
+                // Leave fields empty on error - let user fill them in
+            }
+        }
+        
+        // Save preferences
+        document.getElementById('preferences-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const submitButton = e.target.querySelector('button[type="submit"]');
+            const originalText = submitButton.innerHTML;
+            
+            // Show loading state
+            submitButton.disabled = true;
+            submitButton.innerHTML = '⏳ Saving...';
+            submitButton.style.opacity = '0.6';
+            
+            const preferences = {
+                max_budget: parseInt(document.getElementById('max-budget').value) || null,
+                repair_tolerance: document.getElementById('repair-tolerance').value || null,
+                biggest_regret: document.getElementById('biggest-regret').value || null
+            };
+            
+            console.log('💾 Saving preferences:', preferences);
+            
+            try {
+                const response = await fetch('/api/user/preferences', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify(preferences)
+                });
+                
+                const data = await response.json();
+                console.log('Save response:', data);
+                
+                if (response.ok) {
+                    console.log('✅ Preferences saved successfully!');
+                    
+                    // Show success state
+                    submitButton.innerHTML = '✅ Saved!';
+                    submitButton.style.opacity = '1';
+                    submitButton.style.background = 'linear-gradient(135deg, #22c55e, #16a34a)';
+                    
+                    // Check consent status to determine next step
+                    const consentResponse = await fetch('/api/consent/status', { 
+                        credentials: 'include' 
+                    });
+                    const consentData = await consentResponse.json();
+                    
+                    const consents = consentData.consents || consentData.statuses || [];
+                    const allConsentsAccepted = consents.every(c => c.has_consent);
+                    
+                    if (!allConsentsAccepted) {
+                        // First-time onboarding: preferences done, now legal
+                        console.log('🎯 Preferences saved, redirecting to Legal (STEP 2)');
+                        alert('✅ Preferences saved! Now let\'s handle the legal stuff...');
+                        window.location.href = '/settings?tab=legal';
+                    } else {
+                        // Returning user updating preferences
+                        console.log('✅ Preferences updated');
+                        await loadPreferences();
+                        
+                        // Reset button after 2 seconds
+                        setTimeout(() => {
+                            submitButton.innerHTML = originalText;
+                            submitButton.style.background = '';
+                            submitButton.disabled = false;
+                        }, 2000);
+                    }
+                } else {
+                    console.error('Failed to save:', data);
+                    alert(`❌ Failed to save preferences: ${data.error || data.message || 'Unknown error'}`);
+                    
+                    // Reset button
+                    submitButton.innerHTML = originalText;
+                    submitButton.style.opacity = '1';
+                    submitButton.disabled = false;
+                }
+            } catch (error) {
+                console.error('Error saving preferences:', error);
+                alert(`❌ Error saving preferences: ${error.message}`);
+                
+                // Reset button
+                submitButton.innerHTML = originalText;
+                submitButton.style.opacity = '1';
+                submitButton.disabled = false;
+            }
+        });
+        
+        // Load consents
+        async function loadConsents() {
+            try {
+                console.log('🎯 [CONSENT] loadConsents() called');
+                console.log('🎯 [CONSENT] Fetching /api/consent/status...');
+                
+                const response = await fetch('/api/consent/status', { credentials: 'include' });
+                console.log('🎯 [CONSENT] Response status:', response.status, response.statusText);
+                
+                const data = await response.json();
+                console.log('🎯 [CONSENT] Response data:', data);
+                
+                const consents = data.consents || data.statuses || [];
+                console.log('🎯 [CONSENT] Parsed consents:', consents);
+                
+                // IMPORTANT: Only check actual consent status, not analyses
+                // User must explicitly accept legal documents
+                const allAccepted = consents.every(c => c.has_consent);
+                
+                console.log('🎯 [CONSENT] Consent check results:');
+                consents.forEach(c => {
+                    console.log(`  - ${c.consent_type}: ${c.has_consent ? '✅ Accepted' : '❌ Not accepted'}`);
+                });
+                console.log(`🎯 [CONSENT] All accepted: ${allAccepted}`);
+                
+                if (allAccepted) {
+                    console.log('✅ [CONSENT] All consents accepted - showing accepted view');
+                    // Show accepted view (status list)
+                    document.getElementById('consents-accepted-view').style.display = 'block';
+                    document.getElementById('consents-required-view').style.display = 'none';
+                    
+                    // Render consent status list
+                    const container = document.getElementById('consents-list');
+                    const icons = {
+                        'analysis_disclaimer': '⚖️',
+                        'terms': '📋',  // FIXED: was 'terms_of_service'
+                        'privacy': '🔒'  // FIXED: was 'privacy_policy'
+                    };
+                    const names = {
+                        'analysis_disclaimer': 'Analysis Disclaimer',
+                        'terms': 'Terms of Service',  // FIXED
+                        'privacy': 'Privacy Policy'  // FIXED
+                    };
+                    const urls = {
+                        'analysis_disclaimer': '/api/consent/text?consent_type=analysis_disclaimer',
+                        'terms': '/terms',
+                        'privacy': '/privacy'
+                    };
+                    
+                    let html = '';
+                    consents.forEach(consent => {
+                        html += `
+                            <div class="consent-item">
+                                <div class="consent-info">
+                                    <span class="consent-icon">${icons[consent.consent_type] || '📄'}</span>
+                                    <div class="consent-details">
+                                        <h4>${names[consent.consent_type] || consent.consent_type}</h4>
+                                        <p>Version ${consent.required_version} • ✓ Accepted</p>
+                                    </div>
+                                </div>
+                                <div style="display: flex; gap: 12px; align-items: center;">
+                                    <button onclick="viewConsentDocument('${consent.consent_type}', '${names[consent.consent_type] || consent.consent_type}')" 
+                                            style="padding: 8px 16px; background: rgba(96, 165, 250, 0.1); color: #60a5fa; border: 1px solid #60a5fa; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: var(--text-body-sm); transition: all 0.2s;"
+                                            onmouseover="this.style.background='rgba(96, 165, 250, 0.2)'"
+                                            onmouseout="this.style.background='rgba(96, 165, 250, 0.1)'">
+                                        📄 View Document
+                                    </button>
+                                    <span class="badge badge-success">✓ Accepted</span>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    container.innerHTML = html;
+                } else {
+                    // Show consent acceptance view (full screen)
+                    console.log('❌ [CONSENT] Not all consents accepted - showing acceptance screen');
+                    document.getElementById('consents-accepted-view').style.display = 'none';
+                    document.getElementById('consents-required-view').style.display = 'block';
+                    
+                    // Load consent texts in background (non-blocking)
+                    loadConsentTexts().catch(err => console.error('Failed to load consent texts:', err));
+                    
+                    // Setup checkbox listeners
+                    setupConsentCheckboxes();
+                }
+            } catch (error) {
+                console.error('❌ [CONSENT] Failed to load consents:', error);
+                const list = document.getElementById('consents-list');
+                if (list) {
+                    list.innerHTML = '<p style="color: #ef4444;">Failed to load consents</p>';
+                }
+            }
+        }
+        
+        // Load all consent texts
+        async function loadConsentTexts() {
+            console.log('🎯 [CONSENT] loadConsentTexts() called');
+            const types = ['analysis_disclaimer', 'terms', 'privacy'];
+            console.log('🎯 [CONSENT] Loading texts for types:', types);
+            
+            // Load all consent texts in PARALLEL instead of sequential - MUCH faster!
+            await Promise.all(types.map(async (type) => {
+                try {
+                    console.log(`🎯 [CONSENT] Fetching text for ${type}...`);
+                    const response = await fetch(`/api/consent/text?consent_type=${type}`);
+                    const data = await response.json();
+                    console.log(`🎯 [CONSENT] Received text for ${type}:`, data ? 'OK' : 'Empty');
+                    
+                    let elementId;
+                    if (type === 'analysis_disclaimer') elementId = 'disclaimer-full-text';
+                    else if (type === 'terms') elementId = 'terms-full-text';
+                    else if (type === 'privacy') elementId = 'privacy-full-text';
+                    
+                    const element = document.getElementById(elementId);
+                    if (element) {
+                        // Replace \n with actual line breaks
+                        let formattedText = data.text.replace(/\\n/g, '\n').replace(/\n/g, '<br>');
+                        element.innerHTML = formattedText;
+                    }
+                } catch (error) {
+                    console.error(`Failed to load ${type}:`, error);
+                }
+            }));
+        }
+        
+        // Update next steps status based on user progress
+        async function updateNextSteps() {
+            try {
+                // Check if user completed onboarding
+                let onboardingCompleted = false;
+                
+                try {
+                    const response = await fetch('/api/user', { credentials: 'include' });
+                    if (response.ok) {
+                        const userData = await response.json();
+                        onboardingCompleted = userData.onboarding_completed || false;
+                        console.log(`📋 Onboarding status: ${onboardingCompleted ? 'Complete ✓' : 'Incomplete'}`);
+                    }
+                } catch (error) {
+                    console.warn('⚠️ Could not check onboarding status:', error);
+                }
+                
+                const getStartedCard = document.getElementById('get-started-card');
+                
+                // SIMPLE RULE: Once onboarding is complete, hide "Get Started" card
+                // User has completed the onboarding wizard - no need to show progress
+                if (onboardingCompleted) {
+                    if (getStartedCard) {
+                        getStartedCard.style.display = 'none';
+                        console.log('✅ Get Started card hidden (onboarding complete)');
+                    }
+                    return; // Exit - nothing else to update
+                }
+                
+                // User hasn't completed onboarding - card may not exist anyway
+                // (since they should be in onboarding wizard, not Settings)
+                if (getStartedCard) {
+                    getStartedCard.style.display = 'block';
+                    console.log('📋 Get Started card visible (onboarding incomplete)');
+                }
+                
+            } catch (error) {
+                console.error('❌ Error in updateNextSteps:', error);
+            }
+        }
+        
+        // Toggle consent section expansion
+        function toggleConsent(type) {
+            const content = document.getElementById(`${type}-content`);
+            const status = document.getElementById(`${type}-status`);
+            const section = document.getElementById(`${type}-section`);
+            
+            if (content.style.display === 'none') {
+                // Expand
+                content.style.display = 'block';
+                status.textContent = '🔽';
+                section.style.borderColor = '#60a5fa';
+                section.style.boxShadow = '0 0 0 2px rgba(96, 165, 250, 0.2)';
+            } else {
+                // Collapse
+                content.style.display = 'none';
+                status.textContent = '▶️';
+                section.style.borderColor = '#334155';
+                section.style.boxShadow = 'none';
+            }
+        }
+        
+        // Toggle full legal text visibility
+        function toggleFullText(type) {
+            const fullText = document.getElementById(`${type}-full-text`);
+            const button = event.target;
+            
+            if (fullText.style.display === 'none') {
+                fullText.style.display = 'block';
+                button.textContent = '🔼 Hide Full Legal Text';
+                button.style.background = 'rgba(96, 165, 250, 0.3)';
+            } else {
+                fullText.style.display = 'none';
+                button.textContent = '📄 Read Full Legal Text';
+                button.style.background = 'rgba(96, 165, 250, 0.2)';
+            }
+        }
+        
+        // Update consent progress
+        function updateConsentProgress() {
+            const checkboxes = ['accept-disclaimer', 'accept-terms', 'accept-privacy'];
+            const checked = checkboxes.filter(id => {
+                const cb = document.getElementById(id);
+                return cb && cb.checked;
+            }).length;
+            
+            const total = checkboxes.length;
+            const percentage = (checked / total) * 100;
+            
+            // Update progress bar
+            const progressBar = document.getElementById('consent-progress-bar');
+            const progressText = document.getElementById('consent-progress');
+            
+            if (progressBar) {
+                progressBar.style.width = `${percentage}%`;
+            }
+            
+            if (progressText) {
+                progressText.textContent = `${checked} of ${total} complete`;
+            }
+            
+            // Update checkmarks
+            checkboxes.forEach((id, index) => {
+                const type = ['disclaimer', 'terms', 'privacy'][index];
+                const checkbox = document.getElementById(id);
+                const checkmark = document.getElementById(`${type}-check`);
+                const status = document.getElementById(`${type}-status`);
+                
+                if (checkbox && checkbox.checked) {
+                    if (checkmark) {
+                        checkmark.style.display = 'inline';
+                    }
+                    if (status) {
+                        status.style.display = 'none';
+                    }
+                } else {
+                    if (checkmark) {
+                        checkmark.style.display = 'none';
+                    }
+                    if (status) {
+                        status.style.display = 'inline';
+                    }
+                }
+            });
+            
+            // Enable/disable accept all button
+            const button = document.getElementById('accept-all-consents-btn');
+            if (button) {
+                button.disabled = checked !== total;
+                
+                if (checked === total) {
+                    button.style.opacity = '1';
+                    button.style.cursor = 'pointer';
+                    button.style.transform = 'scale(1.02)';
+                } else {
+                    button.style.opacity = '0.5';
+                    button.style.cursor = 'not-allowed';
+                    button.style.transform = 'scale(1)';
+                }
+            }
+        }
+        
+        // View consent document in modal (for already-accepted consents)
+        async function viewConsentDocument(consentType, documentName) {
+            // Create modal
+            const modal = document.createElement('div');
+            modal.id = 'consent-view-modal';
+            modal.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.9); display: flex; align-items: center; justify-content: center; z-index: 10000; padding: 20px;';
+            
+            modal.innerHTML = `
+                <div style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border-radius: 16px; max-width: 900px; width: 100%; max-height: 90vh; display: flex; flex-direction: column; border: 1px solid rgba(96, 165, 250, 0.3);">
+                    <!-- Header -->
+                    <div style="padding: 24px; border-bottom: 1px solid #334155; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <h2 style="margin: 0; color: #f1f5f9; font-size: var(--text-h2); font-weight: 700;">${documentName}</h2>
+                            <p style="margin: 8px 0 0 0; color: #94a3b8; font-size: var(--text-body-sm);">Read-only view of accepted document</p>
+                        </div>
+                        <button onclick="document.getElementById('consent-view-modal').remove()" 
+                                style="background: rgba(239, 68, 68, 0.2); color: #fca5a5; border: 1px solid #ef4444; border-radius: 8px; width: 40px; height: 40px; cursor: pointer; font-size: var(--text-h3); font-weight: 700; transition: all 0.2s;"
+                                onmouseover="this.style.background='rgba(239, 68, 68, 0.3)'"
+                                onmouseout="this.style.background='rgba(239, 68, 68, 0.2)'">
+                            ×
+                        </button>
+                    </div>
+                    
+                    <!-- Content -->
+                    <div id="consent-modal-content" style="padding: 32px; overflow-y: auto; flex: 1; color: #e2e8f0; line-height: 1.8;">
+                        <div style="text-align: center; padding: 40px;">
+                            <div style="width: 40px; height: 40px; border: 3px solid rgba(96, 165, 250, 0.2); border-top-color: #60a5fa; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto;"></div>
+                            <p style="margin-top: 16px; color: #94a3b8;">Loading document...</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Footer -->
+                    <div style="padding: 20px 24px; border-top: 1px solid #334155; background: rgba(15, 23, 42, 0.6); border-radius: 0 0 16px 16px;">
+                        <button onclick="document.getElementById('consent-view-modal').remove()" 
+                                style="width: 100%; padding: 12px; background: rgba(96, 165, 250, 0.1); color: #60a5fa; border: 1px solid #60a5fa; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: var(--text-body); transition: all 0.2s;"
+                                onmouseover="this.style.background='rgba(96, 165, 250, 0.2)'"
+                                onmouseout="this.style.background='rgba(96, 165, 250, 0.1)'">
+                            Close
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            // Close on backdrop click
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.remove();
+                }
+            });
+            
+            // Fetch and display content
+            try {
+                let content = '';
+                
+                if (consentType === 'terms' || consentType === 'privacy') {
+                    // For Terms and Privacy, fetch the HTML page
+                    const url = consentType === 'terms' ? '/terms' : '/privacy';
+                    const response = await fetch(url);
+                    const html = await response.text();
+                    
+                    // Extract just the content (remove header/footer)
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    const container = doc.querySelector('.container');
+                    content = container ? container.innerHTML : html;
+                } else {
+                    // For Analysis Disclaimer, fetch from API
+                    const response = await fetch(`/api/consent/text?consent_type=${consentType}`);
+                    const data = await response.json();
+                    content = data.text.replace(/\\n/g, '\n').replace(/\n/g, '<br>');
+                }
+                
+                document.getElementById('consent-modal-content').innerHTML = content;
+            } catch (error) {
+                console.error('Failed to load document:', error);
+                document.getElementById('consent-modal-content').innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: #ef4444;">
+                        <p style="font-size: 48px; margin-bottom: 16px;">⚠️</p>
+                        <p style="font-size: var(--text-body-lg); font-weight: 600; margin-bottom: 8px;">Failed to Load Document</p>
+                        <p style="color: #94a3b8;">Please try again or contact support if the issue persists.</p>
+                    </div>
+                `;
+            }
+        }
+        
+        // Setup checkbox listeners
+        function setupConsentCheckboxes() {
+            const checkboxes = ['accept-disclaimer', 'accept-terms', 'accept-privacy'];
+            
+            checkboxes.forEach(id => {
+                const checkbox = document.getElementById(id);
+                if (checkbox) {
+                    // Remove old listeners if any
+                    checkbox.removeEventListener('change', updateConsentProgress);
+                    // Add new listener
+                    checkbox.addEventListener('change', updateConsentProgress);
+                }
+            });
+            
+            // Initial progress update
+            updateConsentProgress();
+        }
+        
+        // Accept all consents
+        async function acceptAllConsents() {
+            try {
+                console.log('🎯 [CONSENT] Starting acceptAllConsents()...');
+                const button = document.getElementById('accept-all-consents-btn');
+                button.textContent = '⏳ Processing...';
+                button.disabled = true;
+                
+                // CRITICAL FIX: Use correct consent type names (v4.74 fix)
+                // Backend expects: 'analysis_disclaimer', 'terms', 'privacy'
+                // NOT: 'terms_of_service', 'privacy_policy'
+                const types = ['analysis_disclaimer', 'terms', 'privacy'];
+                console.log('🎯 [CONSENT] Consent types to accept:', types);
+                
+                // Accept each consent
+                for (const type of types) {
+                    console.log(`🎯 [CONSENT] Accepting ${type}...`);
+                    
+                    const response = await fetch('/api/consent/accept', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        credentials: 'include',
+                        body: JSON.stringify({ consent_type: type })
+                    });
+                    
+                    console.log(`🎯 [CONSENT] Response for ${type}:`, response.status, response.statusText);
+                    
+                    if (!response.ok) {
+                        const errorData = await response.json().catch(() => ({}));
+                        console.error(`❌ [CONSENT] Failed to accept ${type}:`, errorData);
+                        throw new Error(`Failed to accept ${type}: ${response.status}`);
+                    }
+                    
+                    const data = await response.json();
+                    console.log(`✅ [CONSENT] ${type} accepted successfully:`, data);
+                }
+                
+                // Success celebration!
+                console.log('🎉 [CONSENT] All consents accepted successfully!');
+                console.log('🎯 [CONSENT] Reloading consent status to verify...');
+                
+                // Reload consent status to confirm
+                await loadConsents();
+                
+                // Show celebration message
+                const card = document.querySelector('#consents-required-view .card');
+                card.innerHTML = `
+                    <div style="padding: 60px 40px; text-align: center;">
+                        <div style="font-size: 80px; margin-bottom: 24px; animation: bounce 0.6s ease;">🎉</div>
+                        <h2 style="font-size: var(--text-h1); font-weight: 700; color: #22c55e; margin-bottom: 12px;">You're All Set!</h2>
+                        <p style="font-size: var(--text-body-lg); color: #cbd5e1; margin-bottom: 32px; max-width: 500px; margin-left: auto; margin-right: auto;">
+                            All legal agreements accepted. You're ready to analyze your first property!
+                        </p>
+                        <div style="display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;">
+                            <a href="/app" style="display: inline-block; padding: 16px 32px; background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%); color: white; text-decoration: none; border-radius: 12px; font-weight: 600; font-size: var(--text-body); transition: transform 0.2s; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);">
+                                🏡 Analyze Your First Property
+                            </a>
+                            <button onclick="location.reload()" style="padding: 16px 32px; background: rgba(96, 165, 250, 0.2); color: #60a5fa; border: 2px solid #60a5fa; border-radius: 12px; font-weight: 600; font-size: var(--text-body); cursor: pointer; transition: all 0.2s;">
+                                ✅ View Accepted Agreements
+                            </button>
+                        </div>
+                    </div>
+                    <style>
+                        @keyframes bounce {
+                            0%, 100% { transform: translateY(0); }
+                            50% { transform: translateY(-20px); }
+                        }
+                    </style>
+                `;
+                
+                // Update next steps to reflect completed consents
+                await updateNextSteps();
+                
+            } catch (error) {
+                console.error('❌ [CONSENT] Error accepting consents:', error);
+                const errorDiv = document.getElementById('consent-error');
+                if (errorDiv) {
+                    errorDiv.textContent = `Error accepting agreements: ${error.message}. Please try again.`;
+                    errorDiv.style.display = 'block';
+                }
+                
+                const button = document.getElementById('accept-all-consents-btn');
+                if (button) {
+                    button.textContent = '🎉 Complete Setup & Get Started';
+                    button.disabled = false;
+                }
+            }
+        }
+        
+        
+        // ============================================
+        // REFERRAL SYSTEM FUNCTIONS
+        // ============================================
+        
+        // Load referral data from backend
+        async function loadReferralData() {
+            try {
+                console.log('📊 Loading referral data...');
+                
+                // Load referral code (handled by referral-functions.js)
+                loadReferralCode();
+                
+                // Note: Referral stats display is now handled by referral-functions.js
+                // which uses the correct element IDs from the new UI
+                
+            } catch (error) {
+                console.error('❌ Error loading referral data:', error);
+            }
+        }
+        
+        // Generate and load referral code
+        // loadReferralCode is now in referral-functions.js
+        
+        // Copy referral link to clipboard
+        // Copy functions are now in referral-functions.js
+        
+        // Share functions are now in referral-functions.js
+
+        // ── INSPECTOR & CONTRACTOR TAB FUNCTIONS ─────────────────────────
+
+        async function detectUserRoles() {
+            // Check both in parallel — show tabs only for matching roles
+            try {
+                const [inspRes, ctorRes] = await Promise.all([
+                    fetch('/api/inspector/profile', { credentials: 'include' }),
+                    fetch('/api/contractor/me', { credentials: 'include' }),
+                ]);
+                const inspData = inspRes.ok ? await inspRes.json() : {};
+                const ctorData = ctorRes.ok ? await ctorRes.json() : {};
+
+                if (inspData.registered) {
+                    const btn = document.getElementById('nav-inspector');
+                    if (btn) {
+                        btn.style.display = '';
+                        const planLabel = inspData.plan === 'inspector_pro' ? ' ⭐' : '';
+                        btn.textContent = '🔍 Inspector' + planLabel;
+                    }
+                }
+                if (ctorData.registered) {
+                    const btn = document.getElementById('nav-contractor');
+                    if (btn) {
+                        btn.style.display = '';
+                        const planMap = { contractor_starter:'★', contractor_pro:'★★', contractor_enterprise:'★★★' };
+                        const stars = planMap[ctorData.plan] || '';
+                        btn.textContent = '🔧 Contractor' + (stars ? ' ' + stars : '');
+                    }
+                }
+            } catch(e) { /* non-blocking */ }
+        }
+
+        let _inspectorDataCache = null;
+        async function loadInspectorTab() {
+            const el = document.getElementById('inspector-tab-content');
+            if (!el) return;
+            if (_inspectorDataCache) { renderInspectorTab(_inspectorDataCache); return; }
+            el.innerHTML = '<div style="padding:24px;text-align:center;color:#64748b;">Loading...</div>';
+            try {
+                const [profRes, repsRes] = await Promise.all([
+                    fetch('/api/inspector/profile', { credentials: 'include' }),
+                    fetch('/api/inspector/reports', { credentials: 'include' }),
+                ]);
+                const prof = profRes.ok ? await profRes.json() : {};
+                const reps = repsRes.ok ? await repsRes.json() : { reports: [] };
+                _inspectorDataCache = { ...prof, reports: reps.reports || [] };
+                renderInspectorTab(_inspectorDataCache);
+            } catch(e) {
+                el.innerHTML = '<div style="padding:24px;color:#ef4444;">Failed to load inspector data.</div>';
+            }
+        }
+
+        function renderInspectorTab(d) {
+            const el = document.getElementById('inspector-tab-content');
+            if (!el) return;
+            const quota = d.monthly_quota === -1 ? '∞' : d.monthly_quota || 5;
+            const used  = d.monthly_used || 0;
+            const pct   = d.monthly_quota === -1 ? 100 : Math.min(100, Math.round(used / (d.monthly_quota||5) * 100));
+            const planBadge = d.plan === 'inspector_pro'
+                ? '<span style="padding:2px 10px;background:rgba(249,115,22,.15);color:#f97316;border-radius:20px;font-size:12px;font-weight:700;">PRO ⭐</span>'
+                : '<span style="padding:2px 10px;background:rgba(255,255,255,.08);color:#94a3b8;border-radius:20px;font-size:12px;">Free</span>';
+            const barColor = d.monthly_quota === -1 ? '#22c55e' : pct > 80 ? '#ef4444' : '#f97316';
+            const upgradeBtn = d.plan !== 'inspector_pro'
+                ? `<button onclick="window.location.href='/for-inspectors#pricing'" style="padding:8px 18px;background:linear-gradient(90deg,#f97316,#f59e0b);border:none;border-radius:8px;color:white;font-weight:700;font-size:13px;cursor:pointer;margin-top:12px;">Upgrade to Pro — $49/mo →</button>`
+                : '';
+
+            const reportsHtml = d.reports.length
+                ? d.reports.slice(0,5).map(r => `
+                    <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.06);">
+                        <div>
+                            <div style="font-size:13px;font-weight:600;color:#f1f5f9;">${r.property_address || '—'}</div>
+                            <div style="font-size:11px;color:#64748b;margin-top:2px;">${r.buyer_name || 'Buyer'} · Score: ${r.offer_score || '—'} · ${r.view_count||0} views</div>
+                        </div>
+                        <a href="/inspector-report/${r.share_token}" target="_blank" style="font-size:11px;color:#f97316;text-decoration:none;font-weight:600;">View →</a>
+                    </div>`).join('')
+                : '<div style="color:#64748b;font-size:13px;padding:12px 0;">No reports sent yet. <a href="/inspector-portal" style="color:#f97316;">Go to portal →</a></div>';
+
+            el.innerHTML = `
+                <div style="padding:20px 0 4px;display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;">
+                    <div style="background:rgba(249,115,22,.06);border:1px solid rgba(249,115,22,.15);border-radius:10px;padding:14px;text-align:center;">
+                        <div style="font-size:24px;font-weight:800;color:#f97316;">${d.total_reports||0}</div>
+                        <div style="font-size:11px;color:#64748b;margin-top:2px;">Reports Sent</div>
+                    </div>
+                    <div style="background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.15);border-radius:10px;padding:14px;text-align:center;">
+                        <div style="font-size:24px;font-weight:800;color:#22c55e;">${d.total_buyers_converted||0}</div>
+                        <div style="font-size:11px;color:#64748b;margin-top:2px;">Buyers Converted</div>
+                    </div>
+                    <div style="background:rgba(96,165,250,.06);border:1px solid rgba(96,165,250,.15);border-radius:10px;padding:14px;text-align:center;">
+                        <div style="font-size:24px;font-weight:800;color:#60a5fa;">${used} / ${quota}</div>
+                        <div style="font-size:11px;color:#64748b;margin-top:2px;">Analyses Used</div>
+                    </div>
+                    <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:14px;text-align:center;">
+                        <div style="font-size:14px;font-weight:700;margin-bottom:4px;">${planBadge}</div>
+                        <div style="font-size:11px;color:#64748b;">Current Plan</div>
+                    </div>
+                </div>
+                <div style="margin-bottom:16px;">
+                    <div style="font-size:12px;color:#64748b;margin-bottom:6px;">Monthly quota: ${used} of ${quota} used</div>
+                    <div style="height:6px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden;">
+                        <div style="height:100%;width:${pct}%;background:${barColor};border-radius:3px;transition:width .4s;"></div>
+                    </div>
+                    ${upgradeBtn}
+                </div>
+                <div>
+                    <div style="font-size:12px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;">Recent Reports</div>
+                    ${reportsHtml}
+                    ${d.reports.length > 5 ? `<a href="/inspector-portal" style="display:block;text-align:center;margin-top:12px;font-size:13px;color:#f97316;font-weight:600;">View all ${d.total_reports} reports →</a>` : ''}
+                </div>`;
+        }
+
+        let _contractorDataCache = null;
+        async function loadContractorTab() {
+            const el = document.getElementById('contractor-tab-content');
+            if (!el) return;
+            if (_contractorDataCache) { renderContractorTab(_contractorDataCache); return; }
+            el.innerHTML = '<div style="padding:24px;text-align:center;color:#64748b;">Loading...</div>';
+            try {
+                const res = await fetch('/api/contractor/me', { credentials: 'include' });
+                _contractorDataCache = res.ok ? await res.json() : {};
+                renderContractorTab(_contractorDataCache);
+            } catch(e) {
+                el.innerHTML = '<div style="padding:24px;color:#ef4444;">Failed to load contractor data.</div>';
+            }
+        }
+
+        function renderContractorTab(d) {
+            const el = document.getElementById('contractor-tab-content');
+            if (!el) return;
+            if (!d.registered) {
+                el.innerHTML = `<div style="padding:24px;text-align:center;">
+                    <div style="font-size:14px;color:#94a3b8;margin-bottom:16px;">You don't have a contractor account yet.</div>
+                    <a href="/for-contractors" style="padding:10px 24px;background:linear-gradient(90deg,#f97316,#f59e0b);color:white;border-radius:8px;font-weight:700;font-size:14px;text-decoration:none;">Join the Contractor Network →</a>
+                </div>`;
+                return;
+            }
+            const planColors = { contractor_starter:'#f97316', contractor_pro:'#22c55e', contractor_enterprise:'#a78bfa', free:'#64748b' };
+            const col = planColors[d.plan] || '#64748b';
+            const statusColors = { active:'#22c55e', pending:'#f59e0b', paused:'#94a3b8', inactive:'#ef4444' };
+            const sc = statusColors[d.status] || '#64748b';
+
+            const timingLabels = { asap:'🔴 ASAP', this_week:'This week', just_exploring:'Exploring' };
+            const leadsHtml = (d.recent_leads||[]).length
+                ? (d.recent_leads||[]).map(l => `
+                    <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.06);">
+                        <div>
+                            <div style="font-size:13px;font-weight:600;color:#f1f5f9;text-transform:capitalize;">${l.repair_system||'Repair'}</div>
+                            <div style="font-size:11px;color:#64748b;margin-top:2px;">${(l.property_address||'').slice(0,45)} · ${timingLabels[l.contact_timing]||l.contact_timing||'—'}</div>
+                        </div>
+                        <div style="text-align:right;">
+                            <div style="font-size:12px;color:#f59e0b;font-weight:600;">${l.cost_estimate||'—'}</div>
+                            <div style="font-size:10px;color:#475569;">${l.sent_at ? new Date(l.sent_at).toLocaleDateString('en-US',{month:'short',day:'numeric'}) : '—'}</div>
+                        </div>
+                    </div>`).join('')
+                : '<div style="color:#64748b;font-size:13px;padding:12px 0;">No leads received yet. Leads are sent once your account is activated.</div>';
+
+            el.innerHTML = `
+                <div style="padding:20px 0 4px;display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;">
+                    <div style="background:rgba(249,115,22,.06);border:1px solid rgba(249,115,22,.15);border-radius:10px;padding:14px;text-align:center;">
+                        <div style="font-size:24px;font-weight:800;color:#f97316;">${d.leads_this_month||0}</div>
+                        <div style="font-size:11px;color:#64748b;margin-top:2px;">Leads This Month</div>
+                    </div>
+                    <div style="background:rgba(96,165,250,.06);border:1px solid rgba(96,165,250,.15);border-radius:10px;padding:14px;text-align:center;">
+                        <div style="font-size:24px;font-weight:800;color:#60a5fa;">${d.leads_all_time||0}</div>
+                        <div style="font-size:11px;color:#64748b;margin-top:2px;">Total Leads</div>
+                    </div>
+                    <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:14px;text-align:center;">
+                        <div style="font-size:13px;font-weight:700;color:${col};margin-bottom:4px;">${d.plan_label||'—'}</div>
+                        <div style="font-size:11px;color:#64748b;">${d.plan_lead_limit||'—'} leads</div>
+                    </div>
+                    <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:14px;text-align:center;">
+                        <div style="font-size:13px;font-weight:700;color:${sc};margin-bottom:4px;text-transform:uppercase;">${d.status||'—'}</div>
+                        <div style="font-size:11px;color:#64748b;">Account status</div>
+                    </div>
+                </div>
+                <div style="margin-bottom:20px;padding:14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:10px;">
+                    <div style="font-size:12px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;">Service Profile</div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:13px;">
+                        <div><span style="color:#64748b;">Business: </span><span style="color:#f1f5f9;font-weight:600;">${d.business_name||d.name||'—'}</span></div>
+                        <div><span style="color:#64748b;">Phone: </span><span style="color:#f1f5f9;">${d.phone||'—'}</span></div>
+                        <div><span style="color:#64748b;">Trades: </span><span style="color:#f59e0b;">${(d.trades||[]).join(', ')||'—'}</span></div>
+                        <div><span style="color:#64748b;">License: </span><span style="color:#f1f5f9;">${d.license_number||'—'} ${d.license_state||''}</span></div>
+                        <div style="grid-column:1/-1;"><span style="color:#64748b;">Service area: </span><span style="color:#f1f5f9;">${d.service_cities||d.service_zips||'—'}</span></div>
+                    </div>
+                </div>
+                <div>
+                    <div style="font-size:12px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;">Recent Leads</div>
+                    ${leadsHtml}
+                </div>
+                ${d.plan === 'free' || d.plan === 'contractor_starter' ? `
+                <div style="margin-top:20px;padding:14px 16px;background:rgba(249,115,22,.06);border:1px solid rgba(249,115,22,.2);border-radius:10px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+                    <div style="font-size:13px;color:#f1f5f9;font-weight:600;">Upgrade for more leads and ZIPs →</div>
+                    <a href="/for-contractors#pricing" style="padding:8px 18px;background:linear-gradient(90deg,#f97316,#f59e0b);color:white;border-radius:8px;font-weight:700;font-size:13px;text-decoration:none;white-space:nowrap;">View Plans</a>
+                </div>` : ''}`;
+        }
+        
+        
+        // Delete account
+        function confirmDeleteAccount() {
+            const confirmed = confirm(
+                '⚠️  DELETE ACCOUNT - FINAL WARNING\n\n' +
+                'This will PERMANENTLY delete:\n' +
+                '• All your property analyses\n' +
+                '• All analysis records and account data\n' +
+                '• All usage records\n' +
+                '• Your account settings\n' +
+                '• All consent records\n\n' +
+                '⚠️  This action CANNOT be undone!\n\n' +
+                'Are you absolutely sure?'
+            );
+            
+            if (confirmed) {
+                const doubleConfirm = confirm(
+                    '⚠️  LAST CHANCE\n\n' +
+                    'Note: If you signed up with Google/Apple and\n' +
+                    'log in again later, a NEW account will be created.\n\n' +
+                    'Your current data will be gone forever.\n\n' +
+                    'Click OK to continue with deletion.'
+                );
+                
+                if (doubleConfirm) {
+                    // Ask them to type DELETE
+                    const typeConfirm = prompt(
+                        'Type DELETE (in capital letters) to confirm account deletion:'
+                    );
+                    
+                    if (typeConfirm === 'DELETE') {
+                        deleteAccount();
+                    } else {
+                        alert('Account deletion cancelled.\nYou must type DELETE exactly.');
+                    }
+                }
+            }
+        }
+        
+        async function deleteAccount() {
+            try {
+                console.log('🗑️ Initiating account deletion...');
+                
+                const response = await fetch('/api/user/delete', {
+                    method: 'POST',
+                    credentials: 'include'
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    console.log('✅ Account deleted successfully');
+                    console.log('Deletion details:', data.deleted);
+                    
+                    let message = '✅ Account and all data deleted successfully!\n\n';
+                    message += 'Deleted:\n';
+                    message += `• ${data.deleted.properties || 0} properties\n`;
+                    message += `• ${data.deleted.documents || 0} document records\n`;
+                    message += `• ${data.deleted.analyses || 0} analyses\n`;
+                    message += `• ${data.deleted.usage_records || 0} usage records\n`;
+                    message += `• ${data.deleted.consent_records || 0} consent records\n\n`;
+                    message += 'You will now be logged out.';
+                    
+                    alert(message);
+                    
+                    // Give user time to read the alert before redirecting
+                    setTimeout(() => {
+                        window.location.href = '/';
+                    }, 1000);
+                } else {
+                    console.error('❌ Failed to delete account:', data.message);
+                    alert(`❌ Failed to delete account:  ${data.message || 'Unknown error'}  Check browser console and Render logs for details.`);
+                }
+            } catch (error) {
+                console.error('❌ Error deleting account:', error);
+                alert('❌ Error deleting account.  Check browser console for details. Then check Render logs.');
+            }
+        }
+        
+        // Header Dropdown Logic
+        function populateHeaderDropdown(userData) {
+            const initial = userData.email ? userData.email.charAt(0).toUpperCase() : '?';
+            // Support both old (-header) and new (no suffix) IDs
+            ['user-initial', 'user-initial-header'].forEach(id => {
+                const el = document.getElementById(id); if (el) el.textContent = initial;
+            });
+            ['user-dropdown-email', 'user-dropdown-email-header'].forEach(id => {
+                const el = document.getElementById(id); if (el) el.textContent = userData.email || 'No email';
+            });
+            const tierText = (userData.tier || 'free').charAt(0).toUpperCase() + (userData.tier || 'free').slice(1) + ' Plan';
+            ['user-dropdown-tier', 'user-dropdown-tier-header'].forEach(id => {
+                const el = document.getElementById(id); if (el) el.textContent = tierText;
+            });
+            // Greeting
+            const greet = document.getElementById('greeting');
+            if (greet && userData.name) {
+                const hour = new Date().getHours();
+                const tod = hour < 12 ? 'morning' : hour < 17 ? 'afternoon' : 'evening';
+                greet.textContent = `Good ${tod}, ${userData.name.split(' ')[0]}.`;
+            }
+            // nav-plan-badge
+            const badge = document.getElementById('nav-plan-badge');
+            if (badge) badge.textContent = '🏠 ' + tierText;
+        }
+        
+        // Toggle dropdown
+        document.getElementById('user-profile-button').addEventListener('click', function(e) {
+            e.stopPropagation();
+            const menu = document.getElementById('user-dropdown-menu');
+            menu.classList.toggle('show');
+        });
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            const dropdown = document.getElementById('user-profile-dropdown');
+            const menu = document.getElementById('user-dropdown-menu');
+            if (dropdown && !dropdown.contains(e.target)) {
+                menu.classList.remove('show');
+            }
+        });
+        
+        // Update loadUserData to also populate header
+        const originalLoadUserData = loadUserData;
+        loadUserData = async function() {
+            await originalLoadUserData();
+            if (currentUser) {
+                populateHeaderDropdown(currentUser);
+            }
+        };
+        
+        // ============================================
+        // DASHBOARD FUNCTIONS
+        // ============================================
+        
+        let currentFilter = 'all';
+        
+        function setHistoryFilter(filter) {
+            currentFilter = filter;
+            
+            // Update button styles
+            const allBtn = document.getElementById('filter-all');
+            const favBtn = document.getElementById('filter-favorites');
+            
+            if (filter === 'all') {
+                allBtn.style.background = 'linear-gradient(135deg, #3b82f6, #2563eb)';
+                allBtn.style.color = 'white';
+                allBtn.style.border = 'none';
+                
+                favBtn.style.background = 'rgba(96, 165, 250, 0.2)';
+                favBtn.style.color = '#60a5fa';
+                favBtn.style.border = '2px solid #60a5fa';
+            } else {
+                allBtn.style.background = 'rgba(96, 165, 250, 0.2)';
+                allBtn.style.color = '#60a5fa';
+                allBtn.style.border = '2px solid #60a5fa';
+                
+                favBtn.style.background = 'linear-gradient(135deg, #fbbf24, #f59e0b)';
+                favBtn.style.color = 'white';
+                favBtn.style.border = 'none';
+            }
+            
+            loadAnalysisHistory();
+        }
+        
+        async function loadAnalysisHistory() {
+            // CRITICAL FIX: Backend is the source of truth
+            // localStorage is used only for offline access, not as authoritative data
+            
+            // STEP 1: Try to load from backend first (authoritative source)
+            let backendAnalyses = [];
+            let backendSuccess = false;
+            
+            try {
+                console.log('🔄 Loading analyses from backend (source of truth)...');
+                const response = await fetch('/api/user/analyses', { 
+                    credentials: 'include',
+                    headers: { 'Accept': 'application/json' }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    backendAnalyses = data.analyses || [];
+                    backendSuccess = true;
+                    console.log(`✅ Loaded ${backendAnalyses.length} analyses from backend`);
+                } else {
+                    console.log('⚠️ Backend request failed, falling back to localStorage');
+                }
+            } catch (error) {
+                console.warn('⚠️ Could not connect to backend:', error);
+            }
+            
+            // STEP 2: Determine which data to use
+            let analyses;
+            
+            if (backendSuccess) {
+                // Backend is available - use it as source of truth
+                analyses = backendAnalyses;
+                
+                // CRITICAL: Update localStorage to match backend (remove deleted items)
+                localStorage.setItem('analysis_history', JSON.stringify(backendAnalyses));
+                console.log('✅ localStorage synced with backend (source of truth)');
+            } else {
+                // Backend unavailable - use localStorage as fallback
+                console.log('📱 Using localStorage as fallback (offline mode)');
+                analyses = JSON.parse(localStorage.getItem('analysis_history') || '[]');
+            }
+            
+            // STEP 3: Sort by date (newest first)
+            analyses.sort((a, b) => {
+                const dateA = new Date(a.analyzed_at || 0);
+                const dateB = new Date(b.analyzed_at || 0);
+                return dateB - dateA;
+            });
+            
+            // STEP 4: Render the UI
+            const container = document.getElementById('history-container');
+            
+            // Filter out old analyses without full_result
+            let validAnalyses = analyses.filter(a => a.full_result);
+            
+            // Cache for viewAnalysis function
+            window.cachedAnalyses = validAnalyses;
+            
+            // Apply favorites filter if active
+            if (currentFilter === 'favorites') {
+                const favorites = getFavorites();
+                // CRITICAL FIX v5.49.0: Handle mixed types in favorites (old string IDs vs new integer IDs)
+                validAnalyses = validAnalyses.filter(a => 
+                    favorites.includes(a.id) || favorites.includes(String(a.id))
+                );
+                
+                if (validAnalyses.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div style="font-size: var(--text-display-xl); margin-bottom: 20px;">⭐</div>
+                            <h3 style="font-size: var(--text-h2); font-weight: 700; color: #f1f5f9; margin-bottom: 12px;">
+                                No Favorites Yet
+                            </h3>
+                            <p style="font-size: var(--text-body); color: #94a3b8; margin-bottom: 24px;">
+                                Click the star icon on any property to add it to your favorites!
+                            </p>
+                            <button onclick="setHistoryFilter('all')" class="btn btn-primary">
+                                View All Properties
+                            </button>
+                        </div>
+                    `;
+                    return;
+                }
+            }
+            
+            if (validAnalyses.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div style="font-size: var(--text-display-xl); margin-bottom: 20px;">🏠</div>
+                        <h3 style="font-size: var(--text-h2); font-weight: 700; color: #f1f5f9; margin-bottom: 12px;">
+                            No Analyses Yet
+                        </h3>
+                        <p style="font-size: var(--text-body); color: #94a3b8; margin-bottom: 24px;">
+                            Start analyzing properties to see your history here
+                        </p>
+                        <a href="/app" class="btn btn-primary">
+                            Analyze Your First Property
+                        </a>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Render analysis cards
+            const favorites = getFavorites();
+            container.innerHTML = validAnalyses.map(analysis => {
+                const isFavorite = favorites.includes(analysis.id);
+                const riskLevel = analysis.risk_level || 'UNKNOWN';
+                const riskScore = analysis.risk_score || 0;  // Now a number, not an object
+                const askingPrice = analysis.asking_price || 0;
+                
+                // CRITICAL FIX v5.49.0: Robust recommended_offer extraction
+                // Try multiple sources: top-level, then offer_strategy in full_result
+                let recommendedOffer = analysis.recommended_offer;
+                let offerSource = 'top-level';
+                
+                // Debug logging
+                console.log(`📊 Analysis ${analysis.id} (${analysis.property_address}):`);
+                console.log(`   asking_price: ${askingPrice}`);
+                console.log(`   recommended_offer (top-level): ${analysis.recommended_offer}`);
+                console.log(`   full_result.offer_strategy:`, analysis.full_result?.offer_strategy);
+                
+                if (!recommendedOffer || recommendedOffer === askingPrice) {
+                    // Fallback: extract from full_result.offer_strategy
+                    const offerStrategy = analysis.full_result?.offer_strategy || {};
+                    recommendedOffer = offerStrategy.recommended_offer || askingPrice;
+                    offerSource = 'offer_strategy';
+                    console.log(`   Using fallback from offer_strategy: ${recommendedOffer}`);
+                }
+                // Final fallback to asking price
+                if (!recommendedOffer) {
+                    recommendedOffer = askingPrice;
+                    offerSource = 'fallback-to-asking';
+                }
+                
+                const savings = Math.max(0, askingPrice - recommendedOffer);
+                console.log(`   FINAL recommendedOffer: ${recommendedOffer} (source: ${offerSource})`);
+                console.log(`   SAVINGS: ${savings}`);
+                
+                let riskClass = 'risk-low';
+                if (riskScore >= 80) riskClass = 'risk-critical';
+                else if (riskScore >= 60) riskClass = 'risk-high';
+                else if (riskScore >= 40) riskClass = 'risk-moderate';
+                else if (riskScore >= 20) riskClass = 'risk-low';
+                
+                return `
+                    <div class="analysis-card">
+                        <div class="analysis-card-header">
+                            <div style="flex: 1;">
+                                <div class="analysis-card-title">${analysis.property_address || 'Property Analysis'}</div>
+                                <div class="analysis-card-date">${formatDate(analysis.analyzed_at)}</div>
+                            </div>
+                            <button onclick="toggleFavorite('${analysis.id}')" style="background: none; border: none; font-size: var(--text-h2); cursor: pointer; transition: transform 0.2s; color: ${isFavorite ? '#fbbf24' : '#ffffff'}; text-shadow: ${isFavorite ? '0 0 8px rgba(251, 191, 36, 0.5)' : '0 0 4px rgba(0,0,0,0.8), 0 0 8px rgba(0,0,0,0.5)'}; -webkit-text-stroke: ${isFavorite ? '0' : '1.5px rgba(255,255,255,0.9)'};" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">
+                                ${isFavorite ? '⭐' : '☆'}
+                            </button>
+                        </div>
+                        
+                        <div class="analysis-card-stats">
+                            <div class="stat-item">
+                                <div class="stat-label">Asking Price</div>
+                                <div class="stat-value" style="color: #60a5fa;">$${(askingPrice/1000).toFixed(0)}K</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-label">Recommended Offer</div>
+                                <div class="stat-value" style="color: #22c55e;">$${(recommendedOffer/1000).toFixed(0)}K</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-label">Potential Savings</div>
+                                <div class="stat-value" style="color: #22c55e;">${savings > 0 ? `$${(savings/1000).toFixed(0)}K` : '—'}</div>
+                            </div>
+                        </div>
+                        
+                        <div style="display: flex; gap: 12px; align-items: center; margin-top: 16px; flex-wrap: wrap;">
+                            <span class="risk-badge ${riskClass}">${riskLevel}</span>
+                            <button onclick="viewAnalysis('${analysis.id}')" class="btn btn-primary" style="padding: 10px 20px; font-size: var(--text-body-sm);">
+                                View Full Analysis →
+                            </button>
+                            <button onclick="showShareModal('${analysis.id}', '${analysis.property_address}', ${savings})" class="btn" style="padding: 10px 20px; font-size: var(--text-body-sm); background: rgba(96, 165, 250, 0.1); color: #60a5fa; border: 1px solid #60a5fa;">
+                                📣 Share
+                            </button>
+                            <button onclick="deleteAnalysis('${analysis.id}', '${analysis.property_address}')" class="btn" style="padding: 10px 20px; font-size: var(--text-body-sm); background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid #ef4444;">
+                                🗑️ Delete
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function formatDate(dateString) {
+            if (!dateString) return 'Unknown date';
+            const date = new Date(dateString);
+            const now = new Date();
+            const diffMs = now - date;
+            const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+            const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+            
+            // Handle future dates (timezone issues)
+            if (diffDays < 0) {
+                return 'Today at ' + date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+            }
+            
+            // Show time for recent analyses (within 24 hours)
+            if (diffDays === 0) {
+                if (diffHours < 1) {
+                    const diffMins = Math.floor(diffMs / (1000 * 60));
+                    if (diffMins < 1) return 'Just now';
+                    if (diffMins === 1) return '1 minute ago';
+                    return `${diffMins} minutes ago`;
+                }
+                if (diffHours === 1) return '1 hour ago';
+                if (diffHours < 12) return `${diffHours} hours ago`;
+                return 'Today at ' + date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+            }
+            
+            if (diffDays === 1) {
+                return 'Yesterday at ' + date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+            }
+            
+            if (diffDays < 7) return `${diffDays} days ago`;
+            
+            if (diffDays < 30) {
+                const weeks = Math.floor(diffDays / 7);
+                return weeks === 1 ? '1 week ago' : `${weeks} weeks ago`;
+            }
+            
+            return date.toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric' 
+            });
+        }
+        
+        function viewAnalysis(analysisId) {
+            // CRITICAL FIX v5.49.0: Normalize ID type for comparison
+            const normalizedId = typeof analysisId === 'string' ? parseInt(analysisId, 10) : analysisId;
+            
+            // Find the analysis data (use loose equality for type safety)
+            const analysis = window.cachedAnalyses?.find(a => a.id == normalizedId);
+            
+            if (!analysis || !analysis.full_result) {
+                console.error('Analysis not found or missing data');
+                alert('Analysis data not found. Please try again.');
+                return;
+            }
+            
+            console.log('📊 Loading full analysis:', normalizedId);
+            console.log('Analysis data:', analysis);
+            
+            // Prepare complete analysis data with property info
+            const analysisToLoad = {
+                ...analysis.full_result,
+                property_address: analysis.property_address,
+                property_price: analysis.asking_price,
+                analyzed_at: analysis.analyzed_at
+            };
+            
+            // Store the full analysis in sessionStorage so app.html can load it
+            sessionStorage.setItem('loaded_analysis', JSON.stringify(analysisToLoad));
+            
+            // Redirect to app.html which will display the full analysis
+            window.location.href = '/app';
+        }
+        
+        async function deleteAnalysis(analysisId, propertyAddress) {
+            // Confirm deletion with clear, detailed message
+            const confirmed = confirm(
+                `⚠️  DELETE ANALYSIS\n\n` +
+                `Property: ${propertyAddress}\n\n` +
+                `This will:\n` +
+                `• Remove the analysis from your history\n` +
+                `• Delete all saved insights and recommendations\n` +
+                `• Remove it from favorites (if starred)\n` +
+                `• Clear it from browser storage\n\n` +
+                `⚠️  This action CANNOT be undone.\n\n` +
+                `Are you sure you want to delete?`
+            );
+            
+            if (!confirmed) {
+                return;
+            }
+            
+            try {
+                console.log('🗑️ Deleting analysis:', analysisId);
+                
+                // CRITICAL FIX v5.49.0: Normalize ID type for comparison
+                // Backend now returns integer IDs, but onclick passes strings
+                const normalizedId = typeof analysisId === 'string' ? parseInt(analysisId, 10) : analysisId;
+                
+                // Get the property_id from the analysis before deleting
+                // Use loose equality (==) to match both string and integer IDs
+                const analysis = window.cachedAnalyses?.find(a => a.id == normalizedId);
+                const propertyId = analysis?.property_id;
+                
+                // Call delete API (Flask will convert string to int anyway)
+                const response = await fetch(`/api/analyses/${normalizedId}`, {
+                    method: 'DELETE',
+                    credentials: 'include'
+                });
+                
+                // FIX: Handle 404 as "already deleted" - still clean up UI
+                if (!response.ok && response.status !== 404) {
+                    // Only throw error for non-404 errors
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(errorData.error || `Failed to delete: ${response.status}`);
+                }
+                
+                if (response.status === 404) {
+                    console.log('⚠️  Analysis not found in database (may be already deleted), cleaning up UI...');
+                } else {
+                    const result = await response.json();
+                    console.log('✅ Analysis deleted:', result);
+                }
+                
+                // CRITICAL: Remove from localStorage (do this even for 404!)
+                // Use loose equality to handle both string and int IDs
+                let localAnalyses = JSON.parse(localStorage.getItem('analysis_history') || '[]');
+                localAnalyses = localAnalyses.filter(a => a.id != normalizedId);
+                localStorage.setItem('analysis_history', JSON.stringify(localAnalyses));
+                console.log('✅ Removed from localStorage');
+                
+                // Remove from favorites if present
+                // Favorites may contain old string IDs, check both formats
+                const favorites = getFavorites();
+                let favIndex = favorites.indexOf(normalizedId);
+                if (favIndex === -1) favIndex = favorites.indexOf(String(normalizedId));
+                if (favIndex > -1) {
+                    favorites.splice(favIndex, 1);
+                    localStorage.setItem('favorites', JSON.stringify(favorites));
+                }
+                
+                // Reload the analysis list
+                await loadAnalysisHistory();
+                
+                // Show success message
+                if (response.status === 404) {
+                    alert('✅ Analysis removed from your history (was already deleted from database)');
+                } else {
+                    alert('✅ Analysis deleted successfully');
+                }
+                
+            } catch (error) {
+                console.error('❌ Failed to delete analysis:', error);
+                alert(`Failed to delete analysis: ${error.message}`);
+            }
+        }
+        
+        // Sharing modal and functions
+        function showShareModal(analysisId, propertyAddress, savings) {
+            // Create modal
+            const modal = document.createElement('div');
+            modal.id = 'share-modal';
+            modal.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.8); display: flex; align-items: center; justify-content: center; z-index: 10000; backdrop-filter: blur(4px);';
+            
+            // Format savings
+            const savingsFormatted = savings > 0 ? Math.round(savings / 1000) * 1000 : 0;
+            const savingsText = savingsFormatted.toLocaleString();
+            
+            modal.innerHTML = `
+                <div style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border-radius: 24px; padding: 0; max-width: 500px; width: 90%; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5); border: 1px solid rgba(96, 165, 250, 0.3); overflow: hidden;">
+                    <!-- Header -->
+                    <div style="background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%); padding: 32px; text-align: center; position: relative;">
+                        <div style="font-size: 48px; margin-bottom: 12px;">🎉</div>
+                        <h2 style="font-size: var(--text-h2); font-weight: 700; color: white; margin: 0 0 8px 0;">Share Your Win!</h2>
+                        <p style="color: rgba(255, 255, 255, 0.9); font-size: var(--text-body-sm); margin: 0;">
+                            ${savingsFormatted > 0 ? `You saved $${savingsText} on this property!` : 'Share this property analysis!'}
+                        </p>
+                        <button onclick="document.getElementById('share-modal').remove()" style="position: absolute; top: 16px; right: 16px; background: rgba(255, 255, 255, 0.2); border: none; color: white; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: var(--text-body-lg); display: flex; align-items: center; justify-content: center;">×</button>
+                    </div>
+                    
+                    <!-- Body -->
+                    <div style="padding: 32px;">
+                        <p style="font-size: var(--text-body-sm); color: #cbd5e1; margin-bottom: 24px; line-height: 1.6; text-align: center;">
+                            Help your friends save money too. Share on social media!
+                        </p>
+                        
+                        <!-- Share Buttons -->
+                        <div style="display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap;">
+                            <button onclick="shareAnalysisTwitter('${savingsText}'); document.getElementById('share-modal').remove();" style="flex: 1; min-width: 140px; padding: 14px 20px; background: rgba(0, 0, 0, 0.2); color: #e7e9ea; border: 2px solid #000000; border-radius: 10px; font-weight: 600; cursor: pointer; transition: all 0.2s; font-size: var(--text-body-sm); display: flex; align-items: center; justify-content: center; gap: 8px;" onmouseover="this.style.background='rgba(0, 0, 0, 0.3)'" onmouseout="this.style.background='rgba(0, 0, 0, 0.2)'">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                                Twitter
+                            </button>
+                            <button onclick="shareAnalysisFacebook(); document.getElementById('share-modal').remove();" style="flex: 1; min-width: 140px; padding: 14px 20px; background: rgba(24, 119, 242, 0.2); color: #1877f2; border: 2px solid #1877f2; border-radius: 10px; font-weight: 600; cursor: pointer; transition: all 0.2s; font-size: var(--text-body-sm); display: flex; align-items: center; justify-content: center; gap: 8px;" onmouseover="this.style.background='rgba(24, 119, 242, 0.3)'" onmouseout="this.style.background='rgba(24, 119, 242, 0.2)'">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                                Facebook
+                            </button>
+                            <button onclick="shareAnalysisLinkedIn('${savingsText}'); document.getElementById('share-modal').remove();" style="flex: 1; min-width: 140px; padding: 14px 20px; background: rgba(10, 102, 194, 0.2); color: #0a66c2; border: 2px solid #0a66c2; border-radius: 10px; font-weight: 600; cursor: pointer; transition: all 0.2s; font-size: var(--text-body-sm); display: flex; align-items: center; justify-content: center; gap: 8px;" onmouseover="this.style.background='rgba(10, 102, 194, 0.3)'" onmouseout="this.style.background='rgba(10, 102, 194, 0.2)'">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+                                LinkedIn
+                            </button>
+                        </div>
+                        
+                        <!-- Tip -->
+                        <div style="padding: 12px; background: rgba(139, 92, 246, 0.1); border-radius: 8px; border: 1px solid rgba(139, 92, 246, 0.3);">
+                            <div style="font-size: var(--text-caption); color: #cbd5e1; line-height: 1.5;">
+                                💡 <strong>Tip:</strong> Tag the property address or real estate agent for maximum impact!
+                            </div>
+                        </div>
+                        
+                        <!-- Close Button -->
+                        <button onclick="document.getElementById('share-modal').remove()" style="width: 100%; margin-top: 20px; padding: 12px; background: rgba(100, 116, 139, 0.2); color: #94a3b8; border: 1px solid #475569; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.2s;" onmouseover="this.style.background='rgba(100, 116, 139, 0.3)'" onmouseout="this.style.background='rgba(100, 116, 139, 0.2)'">
+                            Maybe Later
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            // Close on backdrop click
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.remove();
+                }
+            });
+        }
+        
+        // Social sharing functions
+        function shareAnalysisTwitter(savings) {
+            const text = encodeURIComponent(
+                `Just saved $${savings} on a home purchase using @OfferWiseAI! Their AI-powered analysis caught issues before I made an offer. 🏡💰`
+            );
+            const url = encodeURIComponent('https://www.getofferwise.ai');
+            window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank', 'width=600,height=400');
+        }
+        
+        function shareAnalysisFacebook() {
+            const url = encodeURIComponent('https://www.getofferwise.ai');
+            window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank', 'width=600,height=400');
+        }
+        
+        function shareAnalysisLinkedIn(savings) {
+            const url = encodeURIComponent('https://www.getofferwise.ai');
+            window.open(
+                `https://www.linkedin.com/sharing/share-offsite/?url=${url}`,
+                '_blank',
+                'width=600,height=400'
+            );
+        }
+        
+        function getFavorites() {
+            return JSON.parse(localStorage.getItem('favorites') || '[]');
+        }
+        
+        function toggleFavorite(analysisId) {
+            // CRITICAL FIX v5.49.0: Normalize ID type
+            const normalizedId = typeof analysisId === 'string' ? parseInt(analysisId, 10) : analysisId;
+            
+            const favorites = getFavorites();
+            // Check for both number and string versions (backward compat)
+            let index = favorites.indexOf(normalizedId);
+            if (index === -1) index = favorites.indexOf(String(normalizedId));
+            
+            if (index > -1) {
+                favorites.splice(index, 1);
+            } else {
+                favorites.push(normalizedId);  // Store as number going forward
+            }
+            
+            localStorage.setItem('favorites', JSON.stringify(favorites));
+            loadAnalysisHistory();
+        }
+        
+        // Load analyses when page loads
+        if (document.getElementById('analyses-tab')) {
+            loadAnalysisHistory();
+        }
+    </script>
+
+<script>
+  // ── Init ─────────────────────────────────────────────────────────────────
+  // Read ?tab= from URL on load
+  document.addEventListener('DOMContentLoaded', function() {
+    var params = new URLSearchParams(window.location.search);
+    var tab = params.get('tab') || 'analyses';
+    showPanel(tab);
+    // Populate greeting
+    var greet = document.getElementById('greeting');
+    var hour = new Date().getHours();
+    var tod = hour < 12 ? 'morning' : hour < 17 ? 'afternoon' : 'evening';
+    if (greet) greet.textContent = 'Good ' + tod + '.';
+  });
+  // Run role switcher after credits load (slight delay so credits are populated)
+  setTimeout(initRoleSwitcher, 800);
+</script>
+</body>
+</html>

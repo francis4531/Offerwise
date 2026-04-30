@@ -1,0 +1,83 @@
+services:
+  - type: web
+    name: offerwise
+    runtime: docker
+    # Standard (2GB RAM, 1 CPU): needed for ML training. The sentence-transformer
+    # embedder is ~250MB; two gunicorn workers each hold their own copy plus the
+    # training subprocess needs its own embedder + XGBoost working memory. Starter
+    # (512MB) is insufficient — training OOM-killed silently on Starter pre-v5.86.45.
+    plan: standard
+    dockerfilePath: ./Dockerfile
+    
+    # Persistent disk for document repository (test corpus)
+    # Documents uploaded once via admin, survive all deploys
+    disk:
+      name: docrepo
+      mountPath: /var/data/docrepo
+      sizeGB: 1
+    
+    envVars:
+      # Database — Use Render's managed PostgreSQL (CRITICAL: SQLite loses data on deploys!)
+      # Create a PostgreSQL database in Render dashboard, then reference it:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: offerwise-db
+          property: connectionString
+      
+      # OCR Configuration
+      # On Standard plan (2GB), PaddleOCR is viable — flip DISABLE_PADDLEOCR to
+      # "false" if you want better OCR quality. Currently kept off so ML training
+      # has maximum memory headroom.
+      - key: OCR_DPI
+        value: "100"
+      
+      - key: OCR_PARALLEL_WORKERS
+        value: "1"
+      
+      - key: GUNICORN_TIMEOUT
+        value: "600"
+      
+      # PaddleOCR disabled for now — enable when ML training memory profile stabilizes
+      - key: DISABLE_PADDLEOCR
+        value: "true"
+      
+      # Secret Key - auto-generate a new one for new service
+      - key: SECRET_KEY
+        generateValue: true
+      
+      # Facebook OAuth - mark as required, will copy from old service
+      - key: FACEBOOK_CLIENT_ID
+        sync: false
+      
+      - key: FACEBOOK_CLIENT_SECRET
+        sync: false
+      
+      # Google OAuth - mark as required, will copy from old service
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+      
+      # Stripe Payment Keys - mark as required, will copy from old service
+      - key: STRIPE_PUBLISHABLE_KEY
+        sync: false
+      
+      - key: STRIPE_SECRET_KEY
+        sync: false
+
+databases:
+  - name: offerwise-db
+    plan: free
+    databaseName: offerwise
+    user: offerwise
+
+# Cron Jobs
+# Note: Cron jobs on Render require a paid plan or can be configured
+# manually in the Render dashboard. Add these via Dashboard > New > Cron Job:
+#
+# GTM Reddit Scout (daily scan):
+#   Name: gtm-reddit-scout
+#   Command: python cron_gtm_scout.py
+#   Schedule: 0 8 * * *   (daily at 8am UTC = midnight PST)
+#   Environment: Same env vars as web service

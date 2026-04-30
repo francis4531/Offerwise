@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Property Analysis — OfferWise AI</title>
+  <link rel="icon" type="image/svg+xml" href="/logo-icon-only.svg">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #060d1a; --surface: #0f1e35; --surface2: #162032;
+      --border: rgba(255,255,255,0.08); --border2: rgba(255,255,255,0.05);
+      --text: #f1f5f9; --muted: #94a3b8; --dim: #64748b;
+      --fire1: #f97316; --fire2: #f59e0b;
+      --green: #22c55e; --blue: #60a5fa; --red: #ef4444; --purple: #a78bfa;
+    }
+    body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; min-height: 100vh; }
+
+    @media print {
+      body { background: white; color: #1e293b; }
+      .no-print { display: none !important; }
+      .card { border: 1px solid #e2e8f0 !important; background: white !important; }
+    }
+
+    .container { max-width: 760px; margin: 0 auto; padding: 32px 24px; }
+
+    /* PREPARED BY BANNER */
+    .prepared-by { background: linear-gradient(135deg,rgba(249,115,22,.08),rgba(245,158,11,.05)); border: 1px solid rgba(249,115,22,.2); border-radius: 14px; padding: 18px 22px; margin-bottom: 24px; display: flex; align-items: center; gap: 16px; }
+    .prep-icon { font-size: 1.8rem; flex-shrink: 0; }
+    .prep-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--fire1); margin-bottom: 4px; }
+    .prep-name { font-size: 15px; font-weight: 700; color: var(--text); }
+    .prep-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+    /* HERO */
+    .hero-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 28px; margin-bottom: 20px; }
+    .hero-top { display: flex; align-items: center; gap: 24px; margin-bottom: 20px; }
+    .score-ring { width: 88px; height: 88px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .score-inner { width: 68px; height: 68px; border-radius: 50%; background: var(--surface); display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .score-val { font-size: 24px; font-weight: 900; line-height: 1; }
+    .score-lbl { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--dim); }
+    .hero-info h1 { font-size: 18px; font-weight: 800; margin-bottom: 6px; }
+    .metrics-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
+    @media (max-width: 520px) { .metrics-grid { grid-template-columns: 1fr 1fr; } }
+    .metric { padding: 12px; background: rgba(255,255,255,.03); border-radius: 10px; border: 1px solid var(--border); }
+    .metric-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--dim); margin-bottom: 4px; }
+    .metric-val { font-size: 16px; font-weight: 800; }
+
+    /* CARDS */
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 22px; margin-bottom: 16px; }
+    .card-title { font-size: 14px; font-weight: 700; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+
+    /* DNA BARS */
+    .dna-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+    .dna-label { font-size: 12px; font-weight: 600; color: var(--muted); width: 100px; flex-shrink: 0; }
+    .dna-bar-bg { flex: 1; height: 8px; background: rgba(255,255,255,.06); border-radius: 4px; overflow: hidden; }
+    .dna-bar-fill { height: 100%; border-radius: 4px; transition: width .6s ease; }
+    .dna-score { font-size: 12px; font-weight: 700; width: 36px; text-align: right; flex-shrink: 0; }
+
+    /* REPAIR TABLE */
+    .repair-row { display: grid; grid-template-columns: 1fr auto; gap: 12px; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,.04); align-items: start; }
+    .repair-row:last-child { border-bottom: none; }
+    .repair-system { font-size: 13px; font-weight: 700; text-transform: capitalize; margin-bottom: 2px; }
+    .repair-meta { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px; }
+    .repair-tag { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 4px; }
+    .repair-trade { font-size: 11px; color: var(--dim); margin-top: 2px; }
+    .repair-cost { font-weight: 800; color: var(--fire2); font-size: 14px; text-align: right; white-space: nowrap; padding-top: 2px; }
+    .repair-issues { font-size: 11px; color: var(--muted); margin-top: 4px; line-height: 1.5; }
+
+    /* PREDICTED ISSUES */
+    .prediction-item { padding: 14px; background: rgba(167,139,250,.05); border: 1px solid rgba(167,139,250,.15); border-radius: 10px; margin-bottom: 10px; }
+    .prediction-item:last-child { margin-bottom: 0; }
+    .prediction-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 8px; }
+    .prediction-title { font-size: 13px; font-weight: 700; }
+    .prediction-prob { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 4px; white-space: nowrap; }
+    .prediction-detail { font-size: 12px; color: var(--muted); line-height: 1.6; }
+    .prediction-timeline { display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 4px; background: rgba(96,165,250,.1); color: var(--blue); margin-top: 6px; }
+
+    /* CTA */
+    .cta-box { background: linear-gradient(135deg,rgba(249,115,22,.08),rgba(245,158,11,.05)); border: 1px solid rgba(249,115,22,.25); border-radius: 14px; padding: 24px; text-align: center; margin: 24px 0; }
+    .cta-box h3 { font-size: 16px; font-weight: 800; margin-bottom: 8px; }
+    .cta-box p { font-size: 13px; color: var(--muted); margin-bottom: 18px; line-height: 1.6; }
+    .cta-btn { display: inline-block; padding: 12px 28px; background: linear-gradient(90deg,var(--fire1),var(--fire2)); color: white; border-radius: 10px; font-weight: 700; font-size: 14px; text-decoration: none; }
+
+    /* POWERED BY */
+    .powered-bar { border-top: 1px solid var(--border); margin-top: 32px; padding-top: 20px; text-align: center; font-size: 12px; color: var(--dim); }
+    .powered-bar strong { color: var(--fire1); }
+
+    /* LOADING */
+    .loading { text-align: center; padding: 80px 24px; }
+    .spin { width: 36px; height: 36px; border: 3px solid rgba(249,115,22,.2); border-top-color: var(--fire1); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 16px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+<div class="container" id="main-content">
+  <div class="loading">
+    <div class="spin"></div>
+    <div style="font-size:14px;color:var(--muted);">Loading your analysis...</div>
+  </div>
+</div>
+
+<div class="no-print" id="print-fab" style="display:none;position:fixed;bottom:24px;right:24px;z-index:100;">
+  <button onclick="window.print()" style="padding:12px 20px;background:linear-gradient(90deg,#f97316,#f59e0b);border:none;border-radius:10px;color:white;font-weight:700;font-size:14px;cursor:pointer;box-shadow:0 4px 20px rgba(249,115,22,.4);">
+    📄 Save as PDF
+  </button>
+</div>
+
+<script>
+const token = window.location.pathname.split('/').pop().split('?')[0];
+
+async function loadReport() {
+  try {
+    const res = await fetch(`/api/inspector-report/${token}`);
+    if (!res.ok) throw new Error('Not found');
+    const data = await res.json();
+    renderReport(data);
+    document.getElementById('print-fab').style.display = 'block';
+  } catch(e) {
+    document.getElementById('main-content').innerHTML = `
+      <div style="text-align:center;padding:80px 24px;color:#64748b;">
+        <div style="font-size:3rem;margin-bottom:16px;">😕</div>
+        <div style="font-size:18px;font-weight:700;margin-bottom:8px;">Report not found</div>
+        <div style="font-size:14px;">This link may have expired or is incorrect. Contact your inspector for a new link.</div>
+      </div>`;
+  }
+}
+
+function fmt(n) { return n ? '$' + Math.round(n).toLocaleString() : '—'; }
+function fmtK(n) { return n >= 1000 ? '$' + Math.round(n/1000) + 'K' : (n > 0 ? '$' + Math.round(n) : '—'); }
+function cap(s) { return s ? String(s).replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase()) : ''; }
+
+function renderReport(data) {
+  const result = data.result || {};
+  const riskScore = result.risk_score || {};
+  const riskDna = result.risk_dna || {};
+
+  // ── Score ──────────────────────────────────────────────────
+  const composite = riskDna.composite_score || riskScore.overall_risk_score || 0;
+  const displayScore = Math.round(100 - composite);
+  const scoreColor = displayScore >= 70 ? '#22c55e' : displayScore >= 45 ? '#f59e0b' : '#ef4444';
+  const riskLabel = displayScore >= 70 ? 'Low Risk' : displayScore >= 45 ? 'Moderate Risk' : 'High Risk';
+  const riskTier = riskScore.risk_tier || riskLabel.toUpperCase().replace(' ','_');
+
+  // ── Repairs ────────────────────────────────────────────────
+  const repairLow  = riskScore.total_repair_cost_low  || 0;
+  const repairHigh = riskScore.total_repair_cost_high || 0;
+  const repairAvg  = Math.round((repairLow + repairHigh) / 2);
+
+  const categoryScores = riskScore.category_scores || [];
+  const breakdown = categoryScores
+    .filter(cs => (cs.estimated_cost_low||0) > 0 || (cs.estimated_cost_high||0) > 0)
+    .map(cs => ({
+      system:             typeof cs.category === 'object' ? (cs.category.value||cs.category) : cs.category,
+      low:                cs.estimated_cost_low  || 0,
+      high:               cs.estimated_cost_high || 0,
+      avg:                Math.round(((cs.estimated_cost_low||0)+(cs.estimated_cost_high||0))/2),
+      score:              cs.score || 0,
+      key_issues:         cs.key_issues || [],
+      safety:             cs.safety_concern || false,
+      insurability:       cs.affects_insurability || false,
+      specialist:         cs.requires_specialist || false,
+      severity:           cs.severity_breakdown || {},
+    }))
+    .sort((a,b) => b.avg - a.avg);
+
+  // ── Risk DNA vector scores ─────────────────────────────────
+  const vectorScores = (riskDna.vector_scores) || {};
+  const dnaRows = [
+    { label:'Structural',    score: vectorScores.structural   || 0, color:'#ef4444' },
+    { label:'Systems',       score: vectorScores.systems      || 0, color:'#f97316' },
+    { label:'Financial',     score: vectorScores.financial    || 0, color:'#f59e0b' },
+    { label:'Transparency',  score: vectorScores.transparency || 0, color:'#60a5fa' },
+    { label:'Temporal',      score: vectorScores.temporal     || 0, color:'#a78bfa' },
+  ];
+  const hasVectors = dnaRows.some(r => r.score > 0);
+
+  // ── Predicted issues ───────────────────────────────────────
+  const predicted = (result.predicted_issues || [])
+    .filter(p => (p.probability||0) >= 0.3)
+    .sort((a,b) => (b.probability||0) - (a.probability||0))
+    .slice(0,4);
+
+  // ── Contractor map ─────────────────────────────────────────
+  const contractorMap = {
+    roof:'Roofing Contractor', roofing:'Roofing Contractor',
+    hvac:'HVAC Specialist', heating:'HVAC Specialist', cooling:'HVAC Specialist',
+    electrical:'Licensed Electrician', plumbing:'Licensed Plumber',
+    foundation:'Structural Engineer', structural:'Structural Engineer',
+    sewer:'Plumber / Sewer Specialist', mold:'Mold Remediation',
+    pest:'Pest Control', termite:'Pest Control', default:'General Contractor'
+  };
+  function getTrade(sys) {
+    const k = (sys||'').toLowerCase();
+    for (const [key,val] of Object.entries(contractorMap)) { if (k.includes(key)) return val; }
+    return contractorMap.default;
+  }
+
+  const createdDate = new Date(data.created_at).toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+  const pct = (displayScore/100)*360;
+  const ringBg = `conic-gradient(${scoreColor} 0deg ${pct}deg, rgba(255,255,255,.06) ${pct}deg)`;
+
+  // ── Build severity tag HTML ────────────────────────────────
+  function severityTags(sev) {
+    const tags = [];
+    if (sev.critical > 0) tags.push(`<span class="repair-tag" style="background:rgba(239,68,68,.12);color:#ef4444;">${sev.critical} critical</span>`);
+    if (sev.major    > 0) tags.push(`<span class="repair-tag" style="background:rgba(245,158,11,.12);color:#f59e0b;">${sev.major} major</span>`);
+    if (sev.minor    > 0) tags.push(`<span class="repair-tag" style="background:rgba(148,163,184,.1);color:#94a3b8;">${sev.minor} minor</span>`);
+    return tags.join('');
+  }
+
+  // ── Build flag badges ──────────────────────────────────────
+  function flagBadges(item) {
+    const badges = [];
+    if (item.safety)       badges.push(`<span class="repair-tag" style="background:rgba(239,68,68,.1);color:#ef4444;">⚠️ Safety</span>`);
+    if (item.insurability) badges.push(`<span class="repair-tag" style="background:rgba(96,165,250,.1);color:#60a5fa;">🏦 Insurability</span>`);
+    if (item.specialist)   badges.push(`<span class="repair-tag" style="background:rgba(167,139,250,.1);color:#a78bfa;">👷 Specialist</span>`);
+    return badges.join('');
+  }
+
+  document.getElementById('main-content').innerHTML = `
+
+    <!-- Prepared by -->
+    <div class="prepared-by">
+      <div class="prep-icon">🔍</div>
+      <div>
+        <div class="prep-label">Analysis prepared by</div>
+        <div class="prep-name">${data.inspector_biz || data.inspector_name || 'Your Inspector'}</div>
+        <div class="prep-sub">Powered by OfferWise AI · ${createdDate}</div>
+      </div>
+    </div>
+
+    <!-- Hero score card -->
+    <div class="hero-card">
+      <div class="hero-top">
+        <div class="score-ring" style="background:${ringBg};">
+          <div class="score-inner">
+            <div class="score-val" style="color:${scoreColor};">${displayScore}</div>
+            <div class="score-lbl">Score</div>
+          </div>
+        </div>
+        <div class="hero-info">
+          <h1>${data.property_address || 'Property Analysis'}</h1>
+          ${data.buyer_name ? `<div style="font-size:13px;color:var(--muted);margin-bottom:6px;">Prepared for: <strong style="color:var(--text);">${data.buyer_name}</strong></div>` : ''}
+          <span style="padding:3px 10px;border-radius:5px;font-size:11px;font-weight:700;background:${displayScore>=70?'rgba(34,197,94,.12)':displayScore>=45?'rgba(245,158,11,.12)':'rgba(239,68,68,.12)'};color:${scoreColor};">${riskLabel}</span>
+        </div>
+      </div>
+      <div class="metrics-grid">
+        <div class="metric">
+          <div class="metric-label">Asking Price</div>
+          <div class="metric-val">${(data.property_price||0) > 0 ? fmt(data.property_price) : '—'}</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Est. Repairs</div>
+          <div class="metric-val" style="color:#f59e0b;">${repairLow > 0 ? fmtK(repairLow)+'–'+fmtK(repairHigh) : '—'}</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Risk Tier</div>
+          <div class="metric-val" style="color:${scoreColor};font-size:13px;">${riskTier}</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Issues Found</div>
+          <div class="metric-val" style="color:${breakdown.length>0?'#f59e0b':'#22c55e'};">${breakdown.length}</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Systems Reviewed</div>
+          <div class="metric-val" style="color:#60a5fa;">${categoryScores.length}</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Avg Repair Cost</div>
+          <div class="metric-val" style="color:#f59e0b;">${repairAvg > 0 ? fmt(repairAvg) : '—'}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Risk DNA breakdown (only if vectors present) -->
+    ${hasVectors ? `
+    <div class="card">
+      <div class="card-title">🧬 Risk DNA Breakdown</div>
+      <div style="font-size:12px;color:var(--dim);margin-bottom:14px;">Five-dimension risk profile — higher score = higher risk in that dimension.</div>
+      ${dnaRows.map(r => `
+        <div class="dna-row">
+          <div class="dna-label">${r.label}</div>
+          <div class="dna-bar-bg">
+            <div class="dna-bar-fill" style="width:${Math.min(100,r.score)}%;background:${r.color};opacity:${0.5 + r.score/200};"></div>
+          </div>
+          <div class="dna-score" style="color:${r.score>=70?'#ef4444':r.score>=40?'#f59e0b':'#22c55e'};">${Math.round(r.score)}</div>
+        </div>`).join('')}
+    </div>` : ''}
+
+    <!-- Offer price CTA (scope of practice boundary) -->
+    <div class="card" style="background:rgba(96,165,250,.04);border-color:rgba(96,165,250,.15);">
+      <div class="card-title" style="color:#60a5fa;">💡 Want an offer price recommendation?</div>
+      <p style="font-size:13px;color:#94a3b8;line-height:1.7;margin-bottom:16px;">Your inspector's role is to report on the property's condition — not to advise on price. That's your agent's job, and yours to decide.<br><br>If you'd like an AI-generated offer range based on these exact findings, you can run your own free analysis on OfferWise. It takes 60 seconds and uses this same inspection data.</p>
+      <a href="https://www.getofferwise.ai" target="_blank"
+         style="display:inline-block;padding:10px 22px;background:linear-gradient(90deg,#f97316,#f59e0b);color:white;border-radius:8px;font-weight:700;font-size:13px;text-decoration:none;">
+        Get My Offer Analysis Free →
+      </a>
+    </div>
+
+    <!-- Repair cost breakdown -->
+    ${breakdown.length > 0 || repairLow > 0 ? `
+    <div class="card">
+      <div class="card-title">🔧 Repair Cost Breakdown</div>
+      ${breakdown.length > 0 ? breakdown.slice(0,8).map(item => `
+        <div class="repair-row">
+          <div>
+            <div class="repair-system">${cap(item.system)}</div>
+            <div class="repair-trade">${getTrade(item.system)}</div>
+            <div class="repair-meta">
+              ${severityTags(item.severity)}
+              ${flagBadges(item)}
+            </div>
+            ${item.key_issues.length ? `<div class="repair-issues">${item.key_issues.slice(0,2).map(s=>s.length>70?s.slice(0,67)+'...':s).join(' · ')}</div>` : ''}
+          </div>
+          <div class="repair-cost">${item.low&&item.high ? fmtK(item.low)+'–'+fmtK(item.high) : fmtK(item.avg||0)}</div>
+        </div>`).join('') : `
+        <div class="repair-row">
+          <div><div class="repair-system">Total estimated repairs</div></div>
+          <div class="repair-cost">${fmtK(repairLow)}–${fmtK(repairHigh)}</div>
+        </div>`}
+      <div style="margin-top:12px;padding:10px 14px;background:rgba(245,158,11,.08);border-radius:8px;display:flex;justify-content:space-between;">
+        <span style="font-size:13px;font-weight:700;">Total avg estimate</span>
+        <span style="font-size:14px;font-weight:800;color:#f59e0b;">${repairAvg > 0 ? fmt(repairAvg) : '—'}</span>
+      </div>
+    </div>` : ''}
+
+    <!-- Predicted hidden / future issues -->
+    ${predicted.length > 0 ? `
+    <div class="card" style="border-color:rgba(167,139,250,.2);">
+      <div class="card-title" style="color:#a78bfa;">🔮 Predicted Hidden & Future Issues</div>
+      <div style="font-size:12px;color:var(--dim);margin-bottom:14px;">Based on patterns in the inspection findings, OfferWise AI flagged the following issues as likely present or emerging. These are not confirmed defects — they are risk-weighted predictions for your awareness.</div>
+      ${predicted.map(p => {
+        const prob = Math.round((p.probability||0)*100);
+        const probColor = prob>=70?'#ef4444':prob>=50?'#f59e0b':'#94a3b8';
+        const urgencyColor = p.urgency==='critical'?'#ef4444':p.urgency==='high'?'#f97316':p.urgency==='medium'?'#f59e0b':'#94a3b8';
+        const costStr = (p.estimated_cost_low&&p.estimated_cost_high) ? fmt(p.estimated_cost_low)+'–'+fmt(p.estimated_cost_high) : '';
+        const indicators = (p.observable_indicators||[]).slice(0,2).join('; ');
+        return `
+        <div class="prediction-item">
+          <div class="prediction-header">
+            <div class="prediction-title">${p.predicted_issue||'Unknown issue'}</div>
+            <div class="prediction-prob" style="background:${probColor}22;color:${probColor};">${prob}% likely</div>
+          </div>
+          <div class="prediction-detail">
+            ${indicators ? `<div style="margin-bottom:4px;"><strong style="color:var(--muted);">Evidence:</strong> ${indicators}</div>` : ''}
+            ${costStr ? `<div style="margin-bottom:4px;"><strong style="color:var(--muted);">Est. cost if confirmed:</strong> ${costStr}</div>` : ''}
+            ${p.specialist_needed ? `<div style="margin-bottom:4px;"><strong style="color:var(--muted);">Specialist:</strong> ${p.specialist_needed}</div>` : ''}
+          </div>
+          ${p.likely_timeline ? `<span class="prediction-timeline">⏱ ${cap(p.likely_timeline)}</span>` : ''}
+          ${p.urgency ? `<span class="prediction-timeline" style="background:${urgencyColor}18;color:${urgencyColor};margin-left:6px;">${cap(p.urgency)} urgency</span>` : ''}
+        </div>`;
+      }).join('')}
+      <div style="margin-top:10px;font-size:11px;color:var(--dim);padding-top:10px;border-top:1px solid rgba(255,255,255,.04);">
+        Predictions are based on statistical correlations across thousands of inspection reports. They are not guarantees. A licensed specialist should evaluate any suspected issue before purchase.
+      </div>
+    </div>` : ''}
+
+    <!-- Original inspection report (collapsible) -->
+    ${data.inspection_text ? `
+    <div class="card">
+      <div class="card-title" style="justify-content:space-between;cursor:pointer;user-select:none;" onclick="toggleInspectionText()">
+        <span>📋 Original Inspection Report</span>
+        <span id="inspection-toggle-icon" style="font-size:12px;font-weight:400;color:var(--dim);margin-left:auto;">▲ Hide</span>
+      </div>
+      <div id="inspection-text-body">
+        <div style="font-size:12px;color:var(--dim);margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,.06);">
+          Source document provided by <strong style="color:var(--muted);">${data.inspector_biz || data.inspector_name || 'your inspector'}</strong>.
+          This is the inspection report text OfferWise analyzed to generate the findings above.
+        </div>
+        <div style="font-size:13px;color:#cbd5e1;line-height:1.8;white-space:pre-wrap;max-height:420px;overflow-y:auto;padding:16px;background:rgba(0,0,0,.25);border-radius:8px;border:1px solid rgba(255,255,255,.05);">${(data.inspection_text||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>
+      </div>
+    </div>` : ''}
+
+    <!-- CTA -->
+    <div class="cta-box no-print">
+      <h3>Want to run your own analysis on other properties?</h3>
+      <p>OfferWise AI analyzes any disclosure or inspection report — offer price, repair costs, negotiation strategy — in under 60 seconds. Your first analysis is free.</p>
+      <a href="/login?signup=1" class="cta-btn">Try OfferWise Free →</a>
+    </div>
+
+    <!-- Footer -->
+    <div class="powered-bar">
+      <p>Analysis prepared by <strong>${data.inspector_biz || data.inspector_name || 'your inspector'}</strong></p>
+      <p style="margin-top:4px;">Powered by <strong>OfferWise AI</strong> · AI-powered property analysis · <a href="/" style="color:var(--dim);">getofferwise.ai</a></p>
+      <p style="margin-top:4px;font-size:11px;">This analysis is based on the inspection report provided and is not a substitute for professional advice. Always consult qualified professionals before making real estate decisions.</p>
+    </div>
+  `;
+}
+
+function toggleInspectionText() {
+  const body = document.getElementById('inspection-text-body');
+  const icon = document.getElementById('inspection-toggle-icon');
+  if (!body) return;
+  const isHidden = body.style.display === 'none';
+  body.style.display = isHidden ? 'block' : 'none';
+  icon.textContent = isHidden ? '▲ Hide' : '▼ Show';
+}
+
+loadReport();
+</script>
+</body>
+</html>

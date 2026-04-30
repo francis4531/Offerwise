@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OfferWise — The AI Agent for Your Home Offer</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0a0a;--text:#f5f5f0;--accent:#ff4500;--accent2:#00d4ff;--border:#1e1e1e;--muted:#666;--surface:#111}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-serif;overflow-x:hidden;cursor:crosshair}
+a{cursor:crosshair}
+
+/* NAV */
+nav{padding:1.5rem 2rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);position:fixed;top:0;left:0;right:0;background:var(--bg);z-index:100}
+.logo{font-family:'Space Mono',monospace;font-size:1.1rem;font-weight:700;letter-spacing:0.05em}
+.logo span{color:var(--accent)}
+.nav-links{display:flex;gap:2rem;align-items:center}
+.nav-links a{text-decoration:none;color:var(--muted);font-size:0.82rem;font-weight:500;letter-spacing:0.05em;text-transform:uppercase;transition:color .15s}
+.nav-links a:hover{color:var(--text)}
+.nav-cta{border:1px solid var(--accent)!important;color:var(--accent)!important;padding:0.5rem 1.1rem;font-size:0.78rem!important}
+.nav-cta:hover{background:var(--accent)!important;color:var(--bg)!important}
+
+/* HERO */
+.hero{min-height:100vh;padding:8rem 2rem 4rem;display:flex;flex-direction:column;justify-content:center;position:relative;overflow:hidden}
+.hero-grid{display:grid;grid-template-columns:1fr 480px;gap:4rem;align-items:start;max-width:1200px;margin:0 auto;width:100%}
+
+/* SCAN LINE ANIMATION */
+@keyframes scan{0%{top:0}100%{top:100%}}
+.scan-line{position:absolute;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(0,212,255,0.3),transparent);animation:scan 6s linear infinite;pointer-events:none}
+
+/* BIG TYPE */
+.hero-eyebrow{font-family:'Space Mono',monospace;font-size:0.7rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--accent2);margin-bottom:2rem;display:flex;align-items:center;gap:0.75rem}
+.hero-eyebrow::before{content:'>';color:var(--accent)}
+h1{font-size:clamp(3.5rem,7vw,7rem);font-weight:700;line-height:0.95;letter-spacing:-0.03em;margin-bottom:2rem}
+h1 .accent{color:var(--accent);display:block}
+h1 .small{font-size:0.45em;font-weight:300;color:var(--muted);letter-spacing:0.02em;line-height:2}
+
+.hero-desc{font-size:1.05rem;color:var(--muted);line-height:1.75;max-width:520px;margin-bottom:3rem}
+.hero-desc strong{color:var(--text)}
+
+.hero-actions{display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:3rem}
+.btn-primary{background:var(--accent);color:var(--bg);padding:1rem 2rem;text-decoration:none;font-weight:700;font-size:0.9rem;letter-spacing:0.06em;text-transform:uppercase;transition:all .15s;display:inline-flex;align-items:center;gap:0.5rem;clip-path:polygon(0 0,calc(100% - 12px) 0,100% 12px,100% 100%,12px 100%,0 calc(100% - 12px))}
+.btn-primary:hover{background:#ff5500;transform:translateY(-2px)}
+.btn-secondary{border:1px solid var(--border);color:var(--muted);padding:1rem 2rem;text-decoration:none;font-weight:500;font-size:0.9rem;letter-spacing:0.04em;transition:all .15s}
+.btn-secondary:hover{border-color:var(--muted);color:var(--text)}
+
+/* TERMINAL */
+.terminal{background:#0d0d0d;border:1px solid var(--border);border-top:2px solid var(--accent2);font-family:'Space Mono',monospace;font-size:0.75rem;overflow:hidden}
+.term-header{padding:0.6rem 1rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:0.5rem;background:#111}
+.term-dot{width:8px;height:8px;border-radius:50%}
+.term-title{color:var(--muted);font-size:0.65rem;letter-spacing:0.08em;margin-left:0.5rem}
+.term-body{padding:1.25rem}
+.term-line{margin-bottom:0.5rem;line-height:1.5}
+.term-line.cmd{color:var(--accent2)}
+.term-line.cmd::before{content:'$ ';color:var(--accent)}
+.term-line.out{color:#888}
+.term-line.ok{color:#00c853}
+.term-line.ok::before{content:'✓ ';color:#00c853}
+.term-line.warn{color:#ff9800}
+.term-line.warn::before{content:'⚠ ';color:#ff9800}
+.term-line.err{color:var(--accent)}
+.term-line.err::before{content:'! ';color:var(--accent)}
+.term-line.result{color:var(--text);font-weight:700}
+.term-line.dim{color:#444}
+.cursor{display:inline-block;width:8px;height:12px;background:var(--accent2);animation:blink 1s step-end infinite;vertical-align:middle}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+
+/* TICKER */
+.ticker{border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:0.75rem 0;overflow:hidden;position:relative;background:var(--surface)}
+.ticker-track{display:flex;gap:3rem;white-space:nowrap;animation:ticker 25s linear infinite}
+@keyframes ticker{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+.ticker-item{font-family:'Space Mono',monospace;font-size:0.72rem;letter-spacing:0.06em;color:var(--muted);display:flex;align-items:center;gap:0.5rem;text-transform:uppercase}
+.ticker-item span{color:var(--accent2)}
+.ticker-item.ok span{color:#00c853}
+.ticker-item.warn span{color:#ff9800}
+
+/* AGENTS */
+.agents-section{padding:5rem 2rem;border-top:1px solid var(--border);max-width:1200px;margin:0 auto}
+.section-header{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:3rem;gap:2rem;flex-wrap:wrap}
+.section-num{font-family:'Space Mono',monospace;font-size:0.65rem;color:var(--accent);letter-spacing:0.1em}
+.section-title{font-size:clamp(1.75rem,3vw,2.5rem);font-weight:700;letter-spacing:-0.02em}
+.section-desc{font-size:0.9rem;color:var(--muted);max-width:400px;line-height:1.6}
+
+.agents-table{width:100%;border-collapse:collapse}
+.agents-table thead tr{border-bottom:1px solid var(--border)}
+.agents-table th{font-family:'Space Mono',monospace;font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);padding:0.75rem 1rem;text-align:left;font-weight:400}
+.agents-table tbody tr{border-bottom:1px solid var(--border);transition:background .15s}
+.agents-table tbody tr:hover{background:rgba(255,255,255,0.02)}
+.agents-table td{padding:1.25rem 1rem;vertical-align:middle}
+.agent-num{font-family:'Space Mono',monospace;font-size:0.65rem;color:var(--accent);width:40px}
+.agent-name-cell .name{font-weight:600;font-size:0.95rem;margin-bottom:0.2rem}
+.agent-name-cell .role{font-size:0.72rem;font-family:'Space Mono',monospace;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em}
+.agent-desc-cell{font-size:0.82rem;color:var(--muted);line-height:1.5;max-width:350px}
+.agent-sources-cell{display:flex;gap:0.4rem;flex-wrap:wrap}
+.src{font-family:'Space Mono',monospace;font-size:0.62rem;padding:0.15rem 0.4rem;border:1px solid var(--border);color:var(--muted)}
+.status-pill{font-family:'Space Mono',monospace;font-size:0.62rem;padding:0.2rem 0.5rem;border-radius:2px;letter-spacing:0.05em;text-transform:uppercase}
+.status-pill.active{background:rgba(0,200,83,0.1);border:1px solid rgba(0,200,83,0.3);color:#00c853}
+
+/* OFFERWATCH */
+.ow-section{padding:5rem 2rem;border-top:1px solid var(--border);background:var(--surface)}
+.ow-inner{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:start}
+.ow-label{font-family:'Space Mono',monospace;font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--accent2);margin-bottom:1.25rem}
+.ow-h2{font-size:clamp(2rem,3.5vw,3rem);font-weight:700;letter-spacing:-0.02em;line-height:1.1;margin-bottom:1.25rem}
+.ow-p{font-size:0.92rem;color:var(--muted);line-height:1.75;margin-bottom:2rem}
+.ow-list{list-style:none;display:flex;flex-direction:column;gap:0.6rem}
+.ow-list li{font-size:0.88rem;color:var(--muted);display:flex;align-items:flex-start;gap:0.75rem;line-height:1.5}
+.ow-list li::before{content:'→';color:var(--accent2);flex-shrink:0;margin-top:0.05rem}
+.ow-list li strong{color:var(--text)}
+
+.ow-monitor{background:var(--bg);border:1px solid var(--border);padding:1.5rem}
+.ow-mon-header{font-family:'Space Mono',monospace;font-size:0.62rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border);padding-bottom:0.75rem;margin-bottom:1.25rem;display:flex;justify-content:space-between}
+.ow-mon-live{color:#00c853;display:flex;align-items:center;gap:0.4rem}
+.ow-mon-live::before{content:'●';animation:blink 1.5s step-end infinite}
+.ow-event{padding:0.75rem 0;border-bottom:1px solid var(--border);display:grid;grid-template-columns:auto 1fr auto;gap:0.75rem;align-items:start}
+.ow-event:last-child{border-bottom:none;padding-bottom:0}
+.ow-ev-icon{font-family:'Space Mono',monospace;font-size:0.65rem;color:var(--muted)}
+.ow-ev-body{font-size:0.8rem}
+.ow-ev-title{font-weight:600;margin-bottom:0.15rem;color:var(--text)}
+.ow-ev-detail{color:var(--muted);font-size:0.72rem;line-height:1.4}
+.ow-ev-badge{font-family:'Space Mono',monospace;font-size:0.6rem;padding:0.15rem 0.4rem;border-radius:2px;white-space:nowrap;align-self:start;text-transform:uppercase;letter-spacing:0.04em}
+.ow-ev-badge.alert{background:rgba(255,69,0,0.1);border:1px solid rgba(255,69,0,0.3);color:var(--accent)}
+.ow-ev-badge.info{background:rgba(0,212,255,0.08);border:1px solid rgba(0,212,255,0.2);color:var(--accent2)}
+.ow-ev-badge.ok{background:rgba(0,200,83,0.08);border:1px solid rgba(0,200,83,0.2);color:#00c853}
+
+/* PRICING */
+.pricing-section{padding:5rem 2rem;border-top:1px solid var(--border);max-width:1200px;margin:0 auto}
+.pricing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin-top:3rem;border:1px solid var(--border)}
+.plan{padding:2rem;border-right:1px solid var(--border)}
+.plan:last-child{border-right:none}
+.plan.featured{background:rgba(255,255,255,0.02)}
+.plan-label{font-family:'Space Mono',monospace;font-size:0.62rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:1rem}
+.plan-price{font-size:3rem;font-weight:700;line-height:1;margin-bottom:0.25rem}
+.plan-price span{font-size:1rem;font-weight:300;color:var(--muted)}
+.plan-tagline{font-size:0.8rem;color:var(--muted);margin-bottom:1.5rem;padding-bottom:1.5rem;border-bottom:1px solid var(--border)}
+.plan-features{list-style:none;margin-bottom:2rem}
+.plan-features li{font-size:0.82rem;color:var(--muted);padding:0.5rem 0;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:0.5rem;font-family:'Space Mono',monospace}
+.plan-features li:last-child{border-bottom:none}
+.plan-features li::before{content:'+';color:var(--accent2);font-weight:700;flex-shrink:0}
+.plan-btn{display:block;text-align:center;padding:0.75rem;text-decoration:none;font-weight:600;font-size:0.82rem;letter-spacing:0.06em;text-transform:uppercase;transition:all .15s;font-family:'Space Mono',monospace}
+.plan-btn.primary{background:var(--accent);color:var(--bg)}
+.plan-btn.primary:hover{background:#ff5500}
+.plan-btn.outline{border:1px solid var(--border);color:var(--muted)}
+.plan-btn.outline:hover{border-color:var(--muted);color:var(--text)}
+
+/* CTA BANNER */
+.cta-banner{padding:5rem 2rem;border-top:1px solid var(--border);text-align:center}
+.cta-inner{max-width:700px;margin:0 auto}
+.cta-inner h2{font-size:clamp(2.5rem,5vw,4.5rem);font-weight:700;letter-spacing:-0.03em;line-height:1;margin-bottom:1.5rem}
+.cta-inner h2 span{color:var(--accent)}
+.cta-inner p{color:var(--muted);font-size:1rem;margin-bottom:2.5rem}
+
+footer{padding:2rem;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem}
+.footer-logo{font-family:'Space Mono',monospace;font-size:0.9rem;font-weight:700}
+.footer-logo span{color:var(--accent)}
+.footer-links{display:flex;gap:1.5rem;flex-wrap:wrap}
+.footer-links a{text-decoration:none;color:var(--muted);font-size:0.75rem;font-family:'Space Mono',monospace;letter-spacing:0.04em;text-transform:uppercase;transition:color .15s}
+.footer-links a:hover{color:var(--text)}
+.footer-copy{width:100%;text-align:center;font-family:'Space Mono',monospace;font-size:0.62rem;color:#333;padding-top:1.5rem;border-top:1px solid var(--border);letter-spacing:0.08em;text-transform:uppercase}
+
+@media(max-width:900px){
+.hero-grid{grid-template-columns:1fr}
+.terminal{display:none}
+.ow-inner{grid-template-columns:1fr}
+.pricing-grid{grid-template-columns:1fr}
+.plan{border-right:none;border-bottom:1px solid var(--border)}
+.plan:last-child{border-bottom:none}
+.nav-links{display:none}
+.agents-table thead{display:none}
+.agents-table td{display:block;padding:0.5rem 0}
+.agents-table tr{display:block;padding:1.25rem 0;border-bottom:1px solid var(--border)}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">OFFER<span>WISE</span></div>
+  <div class="nav-links">
+    <a href="#agents">Agents</a>
+    <a href="#offerwatch">OfferWatch</a>
+    <a href="#pricing">Pricing</a>
+    <a href="/for-inspectors">Inspectors</a>
+    <a href="/login" class="nav-cta">Analyze →</a>
+  </div>
+</nav>
+
+<div class="scan-line"></div>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-grid">
+    <div>
+      <div class="hero-eyebrow">Agentic AI · Homebuyer Intelligence</div>
+      <h1>
+        Six agents.<br>
+        <span class="accent">One verdict.</span>
+        <span class="small">Your optimal offer price. In 60 seconds.</span>
+      </h1>
+      <p class="hero-desc">Upload your inspection report and seller disclosure. <strong>Six specialized AI agents</strong> run in parallel — parsing documents, catching what the seller hid, pricing repairs, reading the market, and writing your offer playbook.</p>
+      <div class="hero-actions">
+        <a href="/login?signup" class="btn-primary">Run Free Analysis →</a>
+        <a href="/sample-analysis.html" class="btn-secondary">See Example Report</a>
+      </div>
+      <div style="font-family:'Space Mono',monospace;font-size:0.65rem;color:var(--muted);letter-spacing:0.06em;text-transform:uppercase">No card · Free first analysis · Results in 60s</div>
+    </div>
+
+    <div class="terminal">
+      <div class="term-header">
+        <div class="term-dot" style="background:#ff5f57"></div>
+        <div class="term-dot" style="background:#febc2e"></div>
+        <div class="term-dot" style="background:#28c840"></div>
+        <div class="term-title">offerwise-agent · 22580 San Vicente Ave</div>
+      </div>
+      <div class="term-body">
+        <div class="term-line cmd">offerwise analyze --address "22580 San Vicente Ave, San Jose, CA"</div>
+        <div class="term-line dim">─────────────────────────────────────────</div>
+        <div class="term-line out">Initializing 6 agents...</div>
+        <div class="term-line ok">Document Intelligence Agent · READY</div>
+        <div class="term-line ok">Disclosure Integrity Agent · READY</div>
+        <div class="term-line ok">Repair Cost Agent · READY</div>
+        <div class="term-line ok">Risk DNA Agent · READY</div>
+        <div class="term-line ok">Market Intelligence Agent · READY</div>
+        <div class="term-line ok">Offer Strategy Agent · READY</div>
+        <div class="term-line dim">─────────────────────────────────────────</div>
+        <div class="term-line ok">47 inspection findings extracted</div>
+        <div class="term-line err">3 material discrepancies vs seller disclosure</div>
+        <div class="term-line warn">Seismic Zone D · liquefaction risk flagged</div>
+        <div class="term-line ok">AVM: $1,908,000 · 15 comps analyzed</div>
+        <div class="term-line ok">Repair costs: $34,200 (ZIP-adjusted)</div>
+        <div class="term-line dim">─────────────────────────────────────────</div>
+        <div class="term-line result">→ RECOMMENDED OFFER: $1,847,000</div>
+        <div class="term-line out">Aggressive: $1,823,000 · Conservative: $1,874,000</div>
+        <div class="term-line ok">Addendum generated · OfferWatch activated</div>
+        <div class="term-line dim">Complete in 58s<span class="cursor"></span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TICKER -->
+<div class="ticker">
+  <div class="ticker-track">
+    <div class="ticker-item ok">Agent Status <span>ALL 6 ACTIVE</span></div>
+    <div class="ticker-item">Data Sources <span>13 CHECKED</span></div>
+    <div class="ticker-item ok">Avg Analysis Time <span>58 SECONDS</span></div>
+    <div class="ticker-item">First Analysis <span>FREE</span></div>
+    <div class="ticker-item warn">OfferWatch <span>MONITORING</span></div>
+    <div class="ticker-item">Seller Transparency <span>GRADED A–F</span></div>
+    <div class="ticker-item ok">Repair Costs <span>ZIP-ADJUSTED</span></div>
+    <div class="ticker-item">Offer Strategies <span>3 OPTIONS</span></div>
+    <!-- duplicate for seamless loop -->
+    <div class="ticker-item ok">Agent Status <span>ALL 6 ACTIVE</span></div>
+    <div class="ticker-item">Data Sources <span>13 CHECKED</span></div>
+    <div class="ticker-item ok">Avg Analysis Time <span>58 SECONDS</span></div>
+    <div class="ticker-item">First Analysis <span>FREE</span></div>
+    <div class="ticker-item warn">OfferWatch <span>MONITORING</span></div>
+    <div class="ticker-item">Seller Transparency <span>GRADED A–F</span></div>
+    <div class="ticker-item ok">Repair Costs <span>ZIP-ADJUSTED</span></div>
+    <div class="ticker-item">Offer Strategies <span>3 OPTIONS</span></div>
+  </div>
+</div>
+
+<!-- AGENTS -->
+<section class="agents-section" id="agents">
+  <div class="section-header">
+    <div>
+      <div class="section-num">// 01 — The Agent System</div>
+      <div class="section-title">Six specialists.<br>Running in parallel.</div>
+    </div>
+    <div class="section-desc">Traditional analysis is sequential. One person reads one thing at a time. OfferWise runs six agents simultaneously — each a domain expert, each relentless.</div>
+  </div>
+
+  <table class="agents-table">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Agent</th>
+        <th>What It Does</th>
+        <th>Data Sources</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="agent-num">01</td>
+        <td class="agent-name-cell"><div class="name">Document Intelligence</div><div class="role">Parser · Extractor</div></td>
+        <td class="agent-desc-cell">Reads your inspection report and seller disclosure using OCR. Extracts every finding, deficiency, and disclosure item — structured and searchable.</td>
+        <td class="agent-sources-cell"><span class="src">Inspection PDF</span><span class="src">TDS / AVID</span><span class="src">CLUE</span></td>
+        <td><span class="status-pill active">Active</span></td>
+      </tr>
+      <tr>
+        <td class="agent-num">02</td>
+        <td class="agent-name-cell"><div class="name">Disclosure Integrity</div><div class="role">Fact-checker · Grader</div></td>
+        <td class="agent-desc-cell">Cross-references every seller claim against inspector findings. Flags discrepancies. Issues seller transparency grade A through F.</td>
+        <td class="agent-sources-cell"><span class="src">County Records</span><span class="src">Permits</span><span class="src">HOA</span></td>
+        <td><span class="status-pill active">Active</span></td>
+      </tr>
+      <tr>
+        <td class="agent-num">03</td>
+        <td class="agent-name-cell"><div class="name">Repair Cost</div><div class="role">Estimator · Pricer</div></td>
+        <td class="agent-desc-cell">Calculates ZIP-adjusted repair costs for every issue found. Uses local contractor rates, not national averages that mislead buyers.</td>
+        <td class="agent-sources-cell"><span class="src">Labor Rates DB</span><span class="src">Material Costs</span></td>
+        <td><span class="status-pill active">Active</span></td>
+      </tr>
+      <tr>
+        <td class="agent-num">04</td>
+        <td class="agent-name-cell"><div class="name">Risk DNA</div><div class="role">Risk Analyst</div></td>
+        <td class="agent-desc-cell">Checks 8 environmental and geological risk factors sellers don't have to disclose: seismic zones, flood risk, fire hazard, soil conditions.</td>
+        <td class="agent-sources-cell"><span class="src">USGS</span><span class="src">FEMA</span><span class="src">Cal Fire</span><span class="src">EPA</span></td>
+        <td><span class="status-pill active">Active</span></td>
+      </tr>
+      <tr>
+        <td class="agent-num">05</td>
+        <td class="agent-name-cell"><div class="name">Market Intelligence</div><div class="role">Analyst · Pricer</div></td>
+        <td class="agent-desc-cell">Pulls AVM, 15 comparable sales, days on market, inventory levels, and price trend data for your ZIP — then adjusts your offer accordingly.</td>
+        <td class="agent-sources-cell"><span class="src">RentCast AVM</span><span class="src">15 Comps</span><span class="src">Market Trends</span></td>
+        <td><span class="status-pill active">Active</span></td>
+      </tr>
+      <tr>
+        <td class="agent-num">06</td>
+        <td class="agent-name-cell"><div class="name">Offer Strategy</div><div class="role">Synthesizer · Writer</div></td>
+        <td class="agent-desc-cell">Synthesizes all findings into 3 calibrated offer prices, a negotiation playbook, and a ready-to-send Request for Repair addendum.</td>
+        <td class="agent-sources-cell"><span class="src">All 5 Agents</span><span class="src">Market Data</span></td>
+        <td><span class="status-pill active">Active</span></td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- OFFERWATCH -->
+<section class="ow-section" id="offerwatch">
+  <div class="ow-inner">
+    <div>
+      <div class="ow-label">// 02 — Continuous Monitoring</div>
+      <h2 class="ow-h2">OfferWatch.<br>The agent that never sleeps.</h2>
+      <p class="ow-p">After your analysis completes, OfferWatch activates automatically — monitoring price changes, new comps, permit activity, and seismic events 24/7. You get an alert the moment anything affects your offer strategy.</p>
+      <ul class="ow-list">
+        <li><strong>Price cut detected</strong> → New offer recalculated and delivered within minutes</li>
+        <li><strong>New comps close</strong> → Negotiation leverage updated with fresh data</li>
+        <li><strong>Seismic event nearby</strong> → Foundation risk reassessed automatically</li>
+        <li><strong>Permit filed</strong> → Unpermitted work flagged before you close</li>
+        <li><strong>Offer deadline approaching</strong> → Reminder with updated market context</li>
+      </ul>
+    </div>
+    <div class="ow-monitor">
+      <div class="ow-mon-header">
+        <span>OFFERWATCH MONITOR · 22580 SAN VICENTE AVE</span>
+        <span class="ow-mon-live">LIVE</span>
+      </div>
+      <div class="ow-event">
+        <div class="ow-ev-icon">[PRICE]</div>
+        <div class="ow-ev-body">
+          <div class="ow-ev-title">Price cut: −$45,000 detected</div>
+          <div class="ow-ev-detail">New ask: $1,905,000. Recalculated offer: $1,847,000 → $1,831,000. Email sent.</div>
+        </div>
+        <div class="ow-ev-badge alert">Alert</div>
+      </div>
+      <div class="ow-event">
+        <div class="ow-ev-icon">[COMPS]</div>
+        <div class="ow-ev-body">
+          <div class="ow-ev-title">3 new comparable sales in ZIP 95120</div>
+          <div class="ow-ev-detail">Median −$28K. Avg DOM now 47 days. Buyer leverage increasing.</div>
+        </div>
+        <div class="ow-ev-badge info">Update</div>
+      </div>
+      <div class="ow-event">
+        <div class="ow-ev-icon">[QUAKE]</div>
+        <div class="ow-ev-body">
+          <div class="ow-ev-title">M3.2 seismic event · 4.1 miles</div>
+          <div class="ow-ev-detail">Risk score unchanged. Foundation reassessment: no new concerns.</div>
+        </div>
+        <div class="ow-ev-badge ok">Clear</div>
+      </div>
+      <div class="ow-event">
+        <div class="ow-ev-icon">[INIT]</div>
+        <div class="ow-ev-body">
+          <div class="ow-ev-title">OfferWatch activated</div>
+          <div class="ow-ev-detail">Monitoring: price, comps, seismic, permits, deadlines. Active for 14 days.</div>
+        </div>
+        <div class="ow-ev-badge ok">Active</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="pricing-section" id="pricing">
+  <div class="section-num">// 03 — Pricing</div>
+  <div class="section-title" style="font-size:clamp(1.75rem,3vw,2.5rem);font-weight:700;letter-spacing:-0.02em;margin-bottom:0.5rem">Cheaper than bad advice.</div>
+  <div style="color:var(--muted);font-size:0.9rem">One hour with a real estate attorney costs more than a year of Pro. And we're faster.</div>
+  <div class="pricing-grid">
+    <div class="plan">
+      <div class="plan-label">Starter</div>
+      <div class="plan-price">$9<span>/mo</span></div>
+      <div class="plan-tagline">3 analyses per month. All 6 agents.</div>
+      <ul class="plan-features">
+        <li>3 full analyses / month</li>
+        <li>All 6 AI agents</li>
+        <li>OfferWatch monitoring</li>
+        <li>Repair cost breakdown</li>
+        <li>3 offer strategies</li>
+      </ul>
+      <a href="/login?signup" class="plan-btn outline">Get Started</a>
+    </div>
+    <div class="plan featured">
+      <div class="plan-label" style="color:var(--accent)">Pro · Most Popular</div>
+      <div class="plan-price">$19<span>/mo</span></div>
+      <div class="plan-tagline">10 analyses. For active buyers.</div>
+      <ul class="plan-features">
+        <li>10 full analyses / month</li>
+        <li>All 6 AI agents</li>
+        <li>OfferWatch on all</li>
+        <li>Priority processing</li>
+        <li>PDF export + addendum</li>
+        <li>Sharing with agent / inspector</li>
+      </ul>
+      <a href="/login?signup" class="plan-btn primary">Start Free →</a>
+    </div>
+    <div class="plan">
+      <div class="plan-label">Unlimited</div>
+      <div class="plan-price">$49<span>/mo</span></div>
+      <div class="plan-tagline">Unlimited. For power users.</div>
+      <ul class="plan-features">
+        <li>Unlimited analyses</li>
+        <li>All 6 AI agents</li>
+        <li>Unlimited OfferWatch</li>
+        <li>API access</li>
+        <li>White-label reports</li>
+        <li>Contractor network</li>
+      </ul>
+      <a href="/login?signup" class="plan-btn outline">Get Started</a>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-banner">
+  <div class="cta-inner">
+    <h2>Stop guessing.<br><span>Know your number.</span></h2>
+    <p>Your first analysis is completely free. Six agents, 13 data sources, 60 seconds. No credit card.</p>
+    <a href="/login?signup" class="btn-primary" style="font-size:1rem">Run Your Free Analysis →</a>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-logo">OFFER<span>WISE</span></div>
+  <div class="footer-links">
+    <a href="/for-inspectors">Inspectors</a>
+    <a href="/for-agents">Agents</a>
+    <a href="/for-contractors">Contractors</a>
+    <a href="/api/docs">API</a>
+    <a href="/privacy">Privacy</a>
+    <a href="/terms">Terms</a>
+  </div>
+  <div class="footer-copy">© 2026 OfferWise AI · Patent Pending · Not financial or legal advice · getofferwise.ai</div>
+</footer>
+
+</body>
+</html>

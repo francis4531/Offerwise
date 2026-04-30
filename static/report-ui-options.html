@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OfferWise Report — UI Options</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #060d1a; color: #f1f5f9; }
+
+  .page-header {
+    padding: 40px 48px 32px;
+    border-bottom: 1px solid rgba(51,65,85,0.5);
+    margin-bottom: 0;
+  }
+  .page-header h1 { font-size: 28px; font-weight: 800; color: #f1f5f9; margin-bottom: 8px; }
+  .page-header p  { font-size: 14px; color: #64748b; max-width: 600px; line-height: 1.6; }
+
+  .option-block {
+    border-bottom: 2px solid rgba(51,65,85,0.4);
+    padding: 0 0 60px;
+  }
+  .option-label {
+    padding: 36px 48px 24px;
+    display: flex; align-items: flex-start; gap: 20px;
+  }
+  .option-number {
+    width: 36px; height: 36px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 800; flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .option-text h2 { font-size: 20px; font-weight: 700; margin-bottom: 6px; }
+  .option-text p  { font-size: 13px; color: #64748b; line-height: 1.6; max-width: 560px; }
+  .option-text .tags { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+  .tag { font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px; }
+
+  .mockup { margin: 0 48px; border-radius: 16px; overflow: hidden; border: 1px solid rgba(51,65,85,0.5); }
+
+  /* ─── OPTION A: Command Center ─── */
+  .optA-hero {
+    background: linear-gradient(135deg, #0f172a 0%, #1a0a2e 100%);
+    padding: 32px 36px 28px;
+    border-bottom: 1px solid rgba(124,58,237,0.2);
+  }
+  .optA-address { font-size: 11px; color: #6366f1; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 6px; }
+  .optA-price { font-size: 52px; font-weight: 900; color: #fff; line-height: 1; letter-spacing: -2px; }
+  .optA-sub { font-size: 15px; color: #22c55e; font-weight: 600; margin-top: 6px; }
+
+  .optA-metrics {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    background: #0f172a; border-bottom: 1px solid rgba(51,65,85,0.4);
+  }
+  .optA-metric {
+    padding: 18px 20px; border-right: 1px solid rgba(51,65,85,0.4);
+    position: relative;
+  }
+  .optA-metric:last-child { border-right: none; }
+  .optA-metric-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #475569; margin-bottom: 6px; }
+  .optA-metric-val   { font-size: 24px; font-weight: 800; }
+  .optA-metric-sub   { font-size: 11px; color: #64748b; margin-top: 3px; }
+  .optA-metric-bar   { position: absolute; bottom: 0; left: 0; right: 0; height: 3px; }
+
+  .optA-body { display: grid; grid-template-columns: 1fr 320px; background: #0c1525; }
+  .optA-left { padding: 24px; border-right: 1px solid rgba(51,65,85,0.3); }
+  .optA-right { padding: 24px; }
+
+  .optA-section-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: #475569; margin-bottom: 12px; }
+
+  .optA-issue {
+    display: flex; gap: 12px; align-items: flex-start;
+    padding: 12px 14px; border-radius: 10px; margin-bottom: 8px;
+    border: 1px solid rgba(239,68,68,0.15); background: rgba(239,68,68,0.05);
+  }
+  .optA-issue-icon { width: 32px; height: 32px; border-radius: 8px; background: rgba(239,68,68,0.15); display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+  .optA-issue-title { font-size: 13px; font-weight: 600; color: #f1f5f9; }
+  .optA-issue-cost  { font-size: 12px; color: #f59e0b; font-weight: 600; margin-top: 2px; }
+
+  .optA-offer-cards { display: flex; flex-direction: column; gap: 8px; }
+  .optA-offer-card {
+    padding: 14px 16px; border-radius: 10px; cursor: pointer;
+    border: 1px solid rgba(51,65,85,0.5); background: rgba(30,41,59,0.5);
+  }
+  .optA-offer-card.rec {
+    border-color: rgba(96,165,250,0.35); background: rgba(96,165,250,0.06);
+  }
+  .optA-offer-card-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #475569; margin-bottom: 4px; }
+  .optA-offer-card.rec .optA-offer-card-label { color: #60a5fa; }
+  .optA-offer-card-price { font-size: 22px; font-weight: 800; color: #f1f5f9; }
+  .optA-offer-card-save  { font-size: 12px; color: #22c55e; font-weight: 600; margin-top: 2px; }
+
+  /* ─── OPTION B: Narrative Scroll ─── */
+  .optB-hero {
+    background: #0f172a;
+    padding: 40px 44px 36px;
+    border-bottom: 1px solid rgba(51,65,85,0.3);
+  }
+  .optB-eyebrow { font-size: 11px; font-weight: 700; color: #f59e0b; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 12px; }
+  .optB-verdict { font-size: 32px; font-weight: 800; color: #f1f5f9; line-height: 1.2; max-width: 540px; margin-bottom: 16px; }
+  .optB-verdict span { color: #60a5fa; }
+  .optB-narrative {
+    font-size: 15px; color: #94a3b8; line-height: 1.75; max-width: 560px;
+    margin-bottom: 24px; font-style: italic;
+    padding-left: 16px; border-left: 3px solid rgba(96,165,250,0.3);
+  }
+  .optB-chips { display: flex; gap: 8px; flex-wrap: wrap; }
+  .optB-chip {
+    padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600;
+    border: 1px solid rgba(51,65,85,0.6); color: #94a3b8;
+  }
+
+  .optB-score-row {
+    display: flex; align-items: center; gap: 0;
+    background: #1e293b; border-bottom: 1px solid rgba(51,65,85,0.3);
+  }
+  .optB-score-block {
+    flex: 1; padding: 20px 24px; border-right: 1px solid rgba(51,65,85,0.3); text-align: center;
+  }
+  .optB-score-block:last-child { border-right: none; }
+  .optB-score-num  { font-size: 32px; font-weight: 900; }
+  .optB-score-lbl  { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #475569; margin-top: 4px; }
+
+  .optB-timeline { padding: 28px 44px; background: #0c1525; }
+  .optB-tl-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: #475569; margin-bottom: 20px; }
+  .optB-tl-item  { display: flex; gap: 16px; margin-bottom: 20px; align-items: flex-start; }
+  .optB-tl-dot   { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
+  .optB-tl-line  { display: flex; flex-direction: column; }
+  .optB-tl-title { font-size: 14px; font-weight: 600; color: #e2e8f0; margin-bottom: 3px; }
+  .optB-tl-body  { font-size: 12px; color: #64748b; line-height: 1.6; }
+  .optB-tl-cost  { font-size: 13px; color: #f59e0b; font-weight: 700; margin-top: 4px; }
+
+  /* ─── OPTION C: Split-Screen ─── */
+  .optC-wrap { display: grid; grid-template-columns: 1fr 1fr; min-height: 400px; }
+  .optC-left {
+    padding: 36px 32px;
+    background: linear-gradient(160deg, #0f172a 0%, #1e0a3c 100%);
+    border-right: 1px solid rgba(124,58,237,0.2);
+  }
+  .optC-right { padding: 36px 32px; background: #0c1525; }
+
+  .optC-score-ring {
+    width: 120px; height: 120px; border-radius: 50%;
+    border: 8px solid rgba(96,165,250,0.2);
+    display: flex; align-items: center; justify-content: center;
+    flex-direction: column;
+    box-shadow: 0 0 40px rgba(96,165,250,0.1);
+    margin-bottom: 24px;
+    position: relative;
+  }
+  .optC-score-ring::after {
+    content: ''; position: absolute; inset: -8px; border-radius: 50%;
+    border: 8px solid transparent;
+    border-top-color: #60a5fa; border-right-color: #60a5fa; border-bottom-color: #60a5fa;
+  }
+  .optC-score-val { font-size: 36px; font-weight: 900; color: #60a5fa; line-height: 1; }
+  .optC-score-lbl { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #475569; margin-top: 2px; }
+  .optC-address   { font-size: 18px; font-weight: 700; color: #f1f5f9; margin-bottom: 6px; line-height: 1.3; }
+  .optC-offer     { font-size: 40px; font-weight: 900; color: #60a5fa; letter-spacing: -1px; margin: 16px 0 4px; }
+  .optC-save      { font-size: 14px; color: #22c55e; font-weight: 600; }
+  .optC-verdict   { margin-top: 20px; padding: 14px 16px; border-radius: 10px; background: rgba(96,165,250,0.07); border: 1px solid rgba(96,165,250,0.2); font-size: 13px; color: #94a3b8; line-height: 1.65; }
+
+  .optC-tab-bar  { display: flex; gap: 0; margin-bottom: 20px; border-bottom: 1px solid rgba(51,65,85,0.4); }
+  .optC-tab      { padding: 10px 16px; font-size: 12px; font-weight: 600; color: #475569; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+  .optC-tab.active { color: #60a5fa; border-bottom-color: #60a5fa; }
+
+  .optC-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid rgba(51,65,85,0.3); }
+  .optC-row:last-child { border-bottom: none; }
+  .optC-row-label { font-size: 13px; color: #94a3b8; }
+  .optC-row-val   { font-size: 13px; font-weight: 700; }
+  .optC-row-bar   { height: 4px; border-radius: 2px; margin-top: 6px; }
+
+  /* ─── OPTION D: Document-first ─── */
+  .optD-top {
+    background: #fff; color: #1e293b; padding: 36px 44px 28px;
+    border-bottom: 3px solid #1e293b;
+  }
+  .optD-brand  { font-size: 11px; font-weight: 800; letter-spacing: 0.15em; text-transform: uppercase; color: #6366f1; margin-bottom: 20px; }
+  .optD-two    { display: grid; grid-template-columns: 1fr 260px; gap: 32px; align-items: start; }
+  .optD-address { font-size: 26px; font-weight: 800; color: #0f172a; line-height: 1.2; margin-bottom: 8px; }
+  .optD-meta    { font-size: 13px; color: #64748b; margin-bottom: 20px; }
+  .optD-para    { font-size: 14px; color: #334155; line-height: 1.75; font-family: Georgia, serif; }
+  .optD-score-box { background: #0f172a; border-radius: 12px; padding: 20px; color: #f1f5f9; text-align: center; }
+  .optD-score-big { font-size: 52px; font-weight: 900; color: #60a5fa; line-height: 1; }
+  .optD-score-lbl { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #475569; margin: 6px 0 14px; }
+  .optD-offer-row { display: flex; justify-content: space-between; padding: 8px 0; border-top: 1px solid rgba(255,255,255,0.08); font-size: 12px; }
+
+  .optD-bottom { background: #f8fafc; padding: 24px 44px; }
+  .optD-grid   { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .optD-card   { background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px; }
+  .optD-card-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #94a3b8; margin-bottom: 8px; }
+  .optD-card-title { font-size: 14px; font-weight: 700; color: #1e293b; margin-bottom: 4px; }
+  .optD-card-body  { font-size: 12px; color: #64748b; line-height: 1.6; }
+  .optD-card-cost  { font-size: 13px; color: #f59e0b; font-weight: 700; margin-top: 8px; }
+
+  .nav { display: flex; gap: 0; background: #0a0e1a; padding: 0 48px; border-bottom: 1px solid rgba(51,65,85,0.3); }
+  .nav a { padding: 14px 20px; font-size: 13px; font-weight: 600; color: #64748b; text-decoration: none; cursor: pointer; border-bottom: 2px solid transparent; }
+  .nav a.active { color: #60a5fa; border-bottom-color: #60a5fa; }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>OfferWise Report — UI Direction Options</h1>
+  <p>Four distinct directions for the analysis report. Each keeps the same data; what changes is the information hierarchy, visual language, and emotional tone. Current layout is closest to Option A.</p>
+</div>
+
+<nav class="nav">
+  <a class="active" onclick="scrollTo(0, document.getElementById('a').offsetTop - 20)">A — Command Center</a>
+  <a onclick="scrollTo(0, document.getElementById('b').offsetTop - 20)">B — Narrative Scroll</a>
+  <a onclick="scrollTo(0, document.getElementById('c').offsetTop - 20)">C — Split Screen</a>
+  <a onclick="scrollTo(0, document.getElementById('d').offsetTop - 20)">D — Document First</a>
+</nav>
+
+<!-- ══════════════════════ OPTION A ══════════════════════ -->
+<div id="a" class="option-block">
+  <div class="option-label">
+    <div class="option-number" style="background:rgba(99,102,241,0.15);color:#6366f1;">A</div>
+    <div class="option-text">
+      <h2>Command Center <span style="font-size:13px;font-weight:400;color:#64748b;">— Evolution of current</span></h2>
+      <p>Refinement of what you have. Tighter metric bar across the top, two-column body (issues left, offer cards right), cleaner section labels. The buyer feels like they're in a dashboard built for them. Least risky, highest polish for smallest effort.</p>
+      <div class="tags">
+        <span class="tag" style="background:rgba(34,197,94,0.1);color:#22c55e;border:1px solid rgba(34,197,94,0.2);">Lowest effort</span>
+        <span class="tag" style="background:rgba(99,102,241,0.1);color:#818cf8;border:1px solid rgba(99,102,241,0.2);">Familiar to users</span>
+        <span class="tag" style="background:rgba(245,158,11,0.1);color:#f59e0b;border:1px solid rgba(245,158,11,0.2);">Best for power users</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="mockup">
+    <!-- Sticky bar -->
+    <div style="background:rgba(15,23,42,0.98);padding:10px 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(51,65,85,0.4);">
+      <div style="display:flex;align-items:center;gap:20px;">
+        <span style="font-size:14px;font-weight:700;">Offer<span style="color:#7c3aed;">Wise</span></span>
+        <div style="width:1px;height:20px;background:#334155;"></div>
+        <span style="font-size:11px;color:#94a3b8;">OfferScore™ <strong style="color:#60a5fa;font-size:16px;">72</strong></span>
+        <div style="width:1px;height:20px;background:#334155;"></div>
+        <span style="font-size:11px;color:#94a3b8;">Offer <strong style="color:#60a5fa;">$788,500</strong></span>
+        <div style="width:1px;height:20px;background:#334155;"></div>
+        <span style="font-size:11px;color:#94a3b8;">Repairs <strong style="color:#f59e0b;">$65K</strong></span>
+        <div style="width:1px;height:20px;background:#334155;"></div>
+        <span style="font-size:11px;color:#94a3b8;">Save <strong style="color:#22c55e;">$110K</strong></span>
+      </div>
+      <button style="padding:6px 14px;background:linear-gradient(135deg,#3b82f6,#2563eb);border:none;border-radius:6px;color:white;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;">📄 PDF</button>
+    </div>
+
+    <!-- Hero -->
+    <div class="optA-hero">
+      <div class="optA-address">123 Maple Street, San Jose, CA 95112 &nbsp;·&nbsp; Listed $898,000</div>
+      <div class="optA-price">$788,500</div>
+      <div class="optA-sub">↓ You'd save $109,500 (12.2% below asking)</div>
+    </div>
+
+    <!-- Metric bar -->
+    <div class="optA-metrics">
+      <div class="optA-metric">
+        <div class="optA-metric-bar" style="background:linear-gradient(90deg,#60a5fa,#3b82f6);width:72%;"></div>
+        <div class="optA-metric-label">OfferScore™</div>
+        <div class="optA-metric-val" style="color:#60a5fa;">72</div>
+        <div class="optA-metric-sub">Buy — moderate risk</div>
+      </div>
+      <div class="optA-metric">
+        <div class="optA-metric-bar" style="background:linear-gradient(90deg,#ef4444,#dc2626);width:45%;"></div>
+        <div class="optA-metric-label">Repair Exposure</div>
+        <div class="optA-metric-val" style="color:#f59e0b;">$65K</div>
+        <div class="optA-metric-sub">3 systems flagged</div>
+      </div>
+      <div class="optA-metric">
+        <div class="optA-metric-bar" style="background:linear-gradient(90deg,#22c55e,#16a34a);width:85%;"></div>
+        <div class="optA-metric-label">Disclosure Quality</div>
+        <div class="optA-metric-val" style="color:#22c55e;">Good</div>
+        <div class="optA-metric-sub">2 contradictions</div>
+      </div>
+      <div class="optA-metric">
+        <div class="optA-metric-bar" style="background:linear-gradient(90deg,#a78bfa,#7c3aed);width:60%;"></div>
+        <div class="optA-metric-label">Market Position</div>
+        <div class="optA-metric-val" style="color:#a78bfa;">Warm</div>
+        <div class="optA-metric-sub">31 DOM · balanced</div>
+      </div>
+    </div>
+
+    <!-- Two col body -->
+    <div class="optA-body">
+      <div class="optA-left">
+        <div class="optA-section-label">Key Issues</div>
+        <div class="optA-issue">
+          <div class="optA-issue-icon">🏗️</div>
+          <div>
+            <div class="optA-issue-title">Foundation — significant cracks observed</div>
+            <div class="optA-issue-cost">$25,000–$60,000 · CRITICAL · Requires structural engineer</div>
+          </div>
+        </div>
+        <div class="optA-issue" style="border-color:rgba(245,158,11,0.15);background:rgba(245,158,11,0.05);">
+          <div class="optA-issue-icon" style="background:rgba(245,158,11,0.15);">🌡️</div>
+          <div>
+            <div class="optA-issue-title">HVAC — end of serviceable life</div>
+            <div class="optA-issue-cost">$8,000–$14,000 · MAJOR</div>
+          </div>
+        </div>
+        <div class="optA-issue" style="border-color:rgba(245,158,11,0.15);background:rgba(245,158,11,0.05);">
+          <div class="optA-issue-icon" style="background:rgba(245,158,11,0.15);">🔄</div>
+          <div>
+            <div class="optA-issue-title">Disclosure: roof age not disclosed, inspector found wear</div>
+            <div class="optA-issue-cost">Leverage point · Use at table</div>
+          </div>
+        </div>
+      </div>
+      <div class="optA-right">
+        <div class="optA-section-label">Your Offer Options</div>
+        <div class="optA-offer-cards">
+          <div class="optA-offer-card">
+            <div class="optA-offer-card-label">🔥 Aggressive</div>
+            <div class="optA-offer-card-price">$762,300</div>
+            <div class="optA-offer-card-save">Save $135,700</div>
+          </div>
+          <div class="optA-offer-card rec">
+            <div class="optA-offer-card-label">★ Recommended</div>
+            <div class="optA-offer-card-price" style="color:#60a5fa;">$788,500</div>
+            <div class="optA-offer-card-save">Save $109,500</div>
+          </div>
+          <div class="optA-offer-card">
+            <div class="optA-offer-card-label">🤝 Conservative</div>
+            <div class="optA-offer-card-price">$850,000</div>
+            <div class="optA-offer-card-save">Save $48,000</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════ OPTION B ══════════════════════ -->
+<div id="b" class="option-block">
+  <div class="option-label">
+    <div class="option-number" style="background:rgba(245,158,11,0.15);color:#f59e0b;">B</div>
+    <div class="option-text">
+      <h2>Narrative Scroll <span style="font-size:13px;font-weight:400;color:#64748b;">— Story-driven</span></h2>
+      <p>The report reads like a briefing from a trusted advisor. The verdict is a sentence, not a number. Issues flow as a timeline from most to least critical. Buyers who are anxious respond better to human language than dashboards. Higher empathy, lower cognitive load.</p>
+      <div class="tags">
+        <span class="tag" style="background:rgba(245,158,11,0.1);color:#f59e0b;border:1px solid rgba(245,158,11,0.2);">Best for first-time buyers</span>
+        <span class="tag" style="background:rgba(96,165,250,0.1);color:#60a5fa;border:1px solid rgba(96,165,250,0.2);">High emotional resonance</span>
+        <span class="tag" style="background:rgba(167,139,250,0.1);color:#a78bfa;border:1px solid rgba(167,139,250,0.2);">Great for sharing</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="mockup">
+    <div class="optB-hero">
+      <div class="optB-eyebrow">OfferWise Analysis · 123 Maple St, San Jose</div>
+      <div class="optB-verdict">This is a buyable house — at <span>$788,500</span>, not $898,000.</div>
+      <div class="optB-narrative">
+        "The foundation issues are real and expensive, but they're already priced into our recommendation. At $788,500 you're buying a house that reflects what it actually costs to own — not what the seller hoped to get for it."
+      </div>
+      <div class="optB-chips">
+        <div class="optB-chip" style="background:rgba(239,68,68,0.08);border-color:rgba(239,68,68,0.2);color:#ef4444;">1 deal breaker</div>
+        <div class="optB-chip" style="background:rgba(245,158,11,0.08);border-color:rgba(245,158,11,0.2);color:#f59e0b;">$65K repairs</div>
+        <div class="optB-chip" style="background:rgba(34,197,94,0.08);border-color:rgba(34,197,94,0.2);color:#22c55e;">Save $110K</div>
+        <div class="optB-chip">2 disclosure contradictions</div>
+      </div>
+    </div>
+
+    <!-- Score row -->
+    <div class="optB-score-row">
+      <div class="optB-score-block">
+        <div class="optB-score-num" style="color:#60a5fa;">72</div>
+        <div class="optB-score-lbl">OfferScore™</div>
+      </div>
+      <div class="optB-score-block">
+        <div class="optB-score-num" style="color:#f59e0b;">$65K</div>
+        <div class="optB-score-lbl">Repair exposure</div>
+      </div>
+      <div class="optB-score-block">
+        <div class="optB-score-num" style="color:#22c55e;">12%</div>
+        <div class="optB-score-lbl">Below asking</div>
+      </div>
+      <div class="optB-score-block">
+        <div class="optB-score-num" style="color:#a78bfa;">31</div>
+        <div class="optB-score-lbl">Days on market</div>
+      </div>
+    </div>
+
+    <!-- Timeline -->
+    <div class="optB-timeline">
+      <div class="optB-tl-label">What we found, in order of importance</div>
+      <div class="optB-tl-item">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:0;">
+          <div class="optB-tl-dot" style="background:#ef4444;"></div>
+          <div style="width:1px;flex:1;background:rgba(239,68,68,0.2);margin-top:4px;min-height:40px;"></div>
+        </div>
+        <div class="optB-tl-line">
+          <div class="optB-tl-title">Foundation showing significant structural movement</div>
+          <div class="optB-tl-body">Inspector observed diagonal cracking at corners and one visible separation at the sill plate. A structural engineer evaluation is required before removing your inspection contingency.</div>
+          <div class="optB-tl-cost">$25,000–$60,000 · Already factored into our offer recommendation</div>
+        </div>
+      </div>
+      <div class="optB-tl-item">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:0;">
+          <div class="optB-tl-dot" style="background:#f59e0b;"></div>
+          <div style="width:1px;flex:1;background:rgba(245,158,11,0.2);margin-top:4px;min-height:40px;"></div>
+        </div>
+        <div class="optB-tl-line">
+          <div class="optB-tl-title">HVAC system is at end of serviceable life</div>
+          <div class="optB-tl-body">Both units are original to the 1998 construction. Budget for replacement within 2–3 years. Not a deal-breaker, but a negotiating point.</div>
+          <div class="optB-tl-cost">$8,000–$14,000</div>
+        </div>
+      </div>
+      <div class="optB-tl-item">
+        <div style="display:flex;flex-direction:column;align-items:center;">
+          <div class="optB-tl-dot" style="background:#f97316;"></div>
+        </div>
+        <div class="optB-tl-line">
+          <div class="optB-tl-title">Disclosure omits roof age — inspector found wear</div>
+          <div class="optB-tl-body">The TDS does not mention the roof condition. Inspector noted granule loss consistent with a 15+ year roof. Use this contradiction at the table.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════ OPTION C ══════════════════════ -->
+<div id="c" class="option-block">
+  <div class="option-label">
+    <div class="option-number" style="background:rgba(96,165,250,0.15);color:#60a5fa;">C</div>
+    <div class="option-text">
+      <h2>Split Screen <span style="font-size:13px;font-weight:400;color:#64748b;">— Score + Detail side by side</span></h2>
+      <p>Left panel: the verdict, the offer, the score — everything that answers "what do I do?" Right panel: tabbed detail — Issues, Repairs, Market. The buyer gets the answer without scrolling, then drills in. Works exceptionally well on desktop. Clean and premium-feeling.</p>
+      <div class="tags">
+        <span class="tag" style="background:rgba(96,165,250,0.1);color:#60a5fa;border:1px solid rgba(96,165,250,0.2);">Best desktop experience</span>
+        <span class="tag" style="background:rgba(34,197,94,0.1);color:#22c55e;border:1px solid rgba(34,197,94,0.2);">Instant clarity</span>
+        <span class="tag" style="background:rgba(167,139,250,0.1);color:#a78bfa;border:1px solid rgba(167,139,250,0.2);">Premium / SaaS feel</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="mockup">
+    <div class="optC-wrap">
+      <!-- Left -->
+      <div class="optC-left">
+        <div style="font-size:11px;color:#6366f1;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:16px;">OfferWise™ Analysis</div>
+        <div class="optC-score-ring">
+          <div class="optC-score-val">72</div>
+          <div class="optC-score-lbl">OfferScore</div>
+        </div>
+        <div class="optC-address">123 Maple Street<br>San Jose, CA 95112</div>
+        <div style="font-size:12px;color:#64748b;margin:4px 0 16px;">Listed $898,000 · 31 days on market</div>
+
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#475569;margin-bottom:6px;">We recommend you offer</div>
+        <div class="optC-offer">$788,500</div>
+        <div class="optC-save">Save $109,500 · 12.2% below asking</div>
+
+        <div class="optC-verdict">
+          "At $788,500, you're buying this house at a price that reflects what it actually costs to own — foundation work and all."
+        </div>
+
+        <div style="display:flex;gap:8px;margin-top:20px;">
+          <button style="flex:1;padding:11px;background:linear-gradient(135deg,#3b82f6,#2563eb);border:none;border-radius:9px;color:white;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">Draft Addendum</button>
+          <button style="padding:11px 14px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:9px;color:#94a3b8;font-size:13px;cursor:pointer;font-family:inherit;">📄 PDF</button>
+        </div>
+      </div>
+
+      <!-- Right -->
+      <div class="optC-right">
+        <div class="optC-tab-bar">
+          <div class="optC-tab active">Issues (3)</div>
+          <div class="optC-tab">Repairs</div>
+          <div class="optC-tab">Market</div>
+          <div class="optC-tab">Leverage</div>
+        </div>
+
+        <div class="optC-row">
+          <div>
+            <div class="optC-row-label" style="display:flex;align-items:center;gap:8px;"><span style="width:8px;height:8px;border-radius:50%;background:#ef4444;display:inline-block;"></span> Foundation — structural movement</div>
+            <div class="optC-row-bar" style="background:rgba(239,68,68,0.15);width:90%;"><div style="width:90%;height:100%;background:#ef4444;border-radius:2px;"></div></div>
+          </div>
+          <div class="optC-row-val" style="color:#f59e0b;">$25–60K</div>
+        </div>
+        <div class="optC-row">
+          <div>
+            <div class="optC-row-label" style="display:flex;align-items:center;gap:8px;"><span style="width:8px;height:8px;border-radius:50%;background:#f59e0b;display:inline-block;"></span> HVAC — end of life</div>
+            <div class="optC-row-bar" style="background:rgba(245,158,11,0.15);width:55%;margin-top:6px;"><div style="width:55%;height:100%;background:#f59e0b;border-radius:2px;"></div></div>
+          </div>
+          <div class="optC-row-val" style="color:#f59e0b;">$8–14K</div>
+        </div>
+        <div class="optC-row">
+          <div>
+            <div class="optC-row-label" style="display:flex;align-items:center;gap:8px;"><span style="width:8px;height:8px;border-radius:50%;background:#f97316;display:inline-block;"></span> Disclosure: roof age omitted</div>
+            <div class="optC-row-bar" style="background:rgba(249,115,22,0.15);width:70%;margin-top:6px;"><div style="width:70%;height:100%;background:#f97316;border-radius:2px;"></div></div>
+          </div>
+          <div class="optC-row-val" style="color:#94a3b8;">Leverage</div>
+        </div>
+
+        <div style="margin-top:20px;padding:14px 16px;background:rgba(34,197,94,0.06);border:1px solid rgba(34,197,94,0.15);border-radius:10px;">
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#475569;margin-bottom:8px;">Property strengths</div>
+          <div style="font-size:13px;color:#22c55e;line-height:1.6;">✓ New roof (2022) &nbsp;·&nbsp; ✓ Updated electrical &nbsp;·&nbsp; ✓ Good neighborhood comps</div>
+        </div>
+
+        <div style="margin-top:12px;padding:14px 16px;background:rgba(96,165,250,0.05);border:1px solid rgba(96,165,250,0.15);border-radius:10px;">
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#475569;margin-bottom:8px;">Market context</div>
+          <div style="font-size:13px;color:#94a3b8;line-height:1.6;">Asking price is 4.2% above AVM · Inventory up 8.3% MoM · Balanced market conditions</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════ OPTION D ══════════════════════ -->
+<div id="d" class="option-block" style="border-bottom:none;">
+  <div class="option-label">
+    <div class="option-number" style="background:rgba(16,185,129,0.15);color:#10b981;">D</div>
+    <div class="option-text">
+      <h2>Document-First <span style="font-size:13px;font-weight:400;color:#64748b;">— White-background, professional grade</span></h2>
+      <p>The top of the report looks like a real estate document — white background, serif body copy, professional layout. The score and offer are in a sidebar box. Below the fold it shifts back to dark cards. Signals credibility to agents and attorneys. Best if you want the analysis to travel — when a buyer screenshots or prints this to show their agent.</p>
+      <div class="tags">
+        <span class="tag" style="background:rgba(16,185,129,0.1);color:#10b981;border:1px solid rgba(16,185,129,0.2);">Most credible to agents</span>
+        <span class="tag" style="background:rgba(96,165,250,0.1);color:#60a5fa;border:1px solid rgba(96,165,250,0.2);">Best for printing / sharing</span>
+        <span class="tag" style="background:rgba(245,158,11,0.1);color:#f59e0b;border:1px solid rgba(245,158,11,0.2);">Differentiator vs competitors</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="mockup">
+    <!-- White top -->
+    <div class="optD-top">
+      <div class="optD-brand">OfferWise™ &nbsp;·&nbsp; Property Analysis Report &nbsp;·&nbsp; Patent Pending</div>
+      <div class="optD-two">
+        <div>
+          <div class="optD-address">123 Maple Street, San Jose, CA 95112</div>
+          <div class="optD-meta">Listed $898,000 &nbsp;·&nbsp; Santa Clara County &nbsp;·&nbsp; Analysis date: March 31, 2026</div>
+          <div class="optD-para">
+            Based on the inspection report and seller disclosures provided, OfferWise has identified one critical structural deficiency and two major mechanical systems requiring near-term attention. Total estimated repair exposure is $65,000–$88,000. The recommended offer of $788,500 incorporates these costs and reflects current market conditions in this ZIP code.
+          </div>
+          <div style="margin-top:16px;display:flex;gap:10px;">
+            <div style="padding:10px 16px;background:#f1f5f9;border-radius:8px;border:1px solid #e2e8f0;">
+              <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#94a3b8;margin-bottom:4px;">Recommendation</div>
+              <div style="font-size:16px;font-weight:800;color:#0f172a;">Buy at $788,500</div>
+            </div>
+            <div style="padding:10px 16px;background:#fef9ec;border-radius:8px;border:1px solid #fde68a;">
+              <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#92400e;margin-bottom:4px;">Repair exposure</div>
+              <div style="font-size:16px;font-weight:800;color:#b45309;">$65K–$88K</div>
+            </div>
+          </div>
+        </div>
+        <div class="optD-score-box">
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#475569;margin-bottom:6px;">OfferScore™</div>
+          <div class="optD-score-big">72</div>
+          <div class="optD-score-lbl">Buy — Moderate Risk</div>
+          <div class="optD-offer-row"><span style="color:#64748b;">Aggressive</span><span style="color:#f1f5f9;font-weight:600;">$762K</span></div>
+          <div class="optD-offer-row"><span style="color:#60a5fa;">★ Recommended</span><span style="color:#60a5fa;font-weight:700;">$788K</span></div>
+          <div class="optD-offer-row"><span style="color:#64748b;">Conservative</span><span style="color:#f1f5f9;font-weight:600;">$850K</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dark cards -->
+    <div class="optD-bottom">
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;color:#94a3b8;margin-bottom:14px;">Documented findings</div>
+      <div class="optD-grid">
+        <div class="optD-card" style="border-top:3px solid #ef4444;">
+          <div class="optD-card-label" style="color:#ef4444;">Critical</div>
+          <div class="optD-card-title">Foundation Movement</div>
+          <div class="optD-card-body">Diagonal cracking at corners. Structural engineer evaluation required before contingency removal.</div>
+          <div class="optD-card-cost">$25,000–$60,000</div>
+        </div>
+        <div class="optD-card" style="border-top:3px solid #f59e0b;">
+          <div class="optD-card-label" style="color:#f59e0b;">Major</div>
+          <div class="optD-card-title">HVAC Replacement</div>
+          <div class="optD-card-body">Original 1998 units. Both near end of expected service life. Budget for replacement.</div>
+          <div class="optD-card-cost">$8,000–$14,000</div>
+        </div>
+        <div class="optD-card" style="border-top:3px solid #f97316;">
+          <div class="optD-card-label" style="color:#f97316;">Contradiction</div>
+          <div class="optD-card-title">Roof Age Omitted</div>
+          <div class="optD-card-body">TDS does not disclose roof condition. Inspector found granule loss. Use as leverage at the table.</div>
+          <div class="optD-card-cost" style="color:#60a5fa;">Negotiation point</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="padding:40px 48px;border-top:1px solid rgba(51,65,85,0.3);display:flex;gap:20px;flex-wrap:wrap;">
+  <div style="flex:1;min-width:280px;">
+    <div style="font-size:12px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:10px;">My recommendation</div>
+    <p style="font-size:14px;color:#94a3b8;line-height:1.7;">
+      <strong style="color:#f1f5f9;">Option B + elements of A.</strong> The narrative hero from B (the verdict sentence + italicised paragraph) is more emotionally compelling than the raw number. But keep A's sticky bar, metric row, and offer cards. You get a report that reads like a trusted advisor wrote it, with dashboard-level detail underneath. Option D's white header is worth A/B testing — it makes the report feel like a real document agents take seriously.
+    </p>
+  </div>
+</div>
+
+</body>
+</html>

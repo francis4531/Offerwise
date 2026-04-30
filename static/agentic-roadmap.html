@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OfferWise — Agentic AI Roadmap</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #060d1a; --surface: #0f1e35; --surface2: #131f33;
+  --border: rgba(255,255,255,.08); --text: #f1f5f9;
+  --muted: #94a3b8; --dim: #475569;
+  --fire: #f97316; --amber: #f59e0b;
+  --green: #22c55e; --blue: #60a5fa; --purple: #a78bfa; --red: #ef4444;
+}
+body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; padding: 48px 40px 80px; max-width: 1100px; margin: 0 auto; }
+h1 { font-size: 22px; font-weight: 800; letter-spacing: -.02em; margin-bottom: 6px; }
+h1 em { font-style: normal; background: linear-gradient(90deg,var(--fire),var(--amber)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.subtitle { font-size: 13px; color: var(--muted); line-height: 1.65; max-width: 680px; margin-bottom: 10px; }
+.filter-note { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--amber); border-radius: 10px; padding: 12px 16px; font-size: 12px; color: var(--muted); line-height: 1.7; margin-bottom: 32px; }
+.filter-note strong { color: var(--text); }
+
+table { width: 100%; border-collapse: collapse; font-size: 12px; }
+thead th { text-align: left; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--dim); padding: 8px 12px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+th:nth-child(1) { width: 36px; }
+th:nth-child(2) { width: 260px; }
+th:nth-child(3) { width: 110px; }
+th:nth-child(4) { width: 80px; }
+th:nth-child(5) { width: 80px; }
+th:nth-child(6) { width: 80px; }
+th:nth-child(7) { width: 58px; }
+th:nth-child(8) { width: 82px; }
+
+tbody td { padding: 11px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+tbody tr:last-child td { border-bottom: none; }
+tbody tr.inc:hover td { background: rgba(255,255,255,.02); }
+tbody tr.exc td { opacity: .35; }
+
+.rk { font-size: 14px; font-weight: 700; text-align: center; color: var(--muted); }
+.rk.hi { color: var(--text); }
+.fn { font-weight: 700; font-size: 12px; line-height: 1.4; color: var(--text); margin-bottom: 3px; }
+.fy { font-size: 11px; color: var(--muted); line-height: 1.5; }
+
+.badge { display: inline-flex; align-items: center; padding: 3px 9px; border-radius: 20px; font-size: 10px; font-weight: 700; white-space: nowrap; }
+.b-loop   { background: rgba(96,165,250,.12);  color: var(--blue);   border: 1px solid rgba(96,165,250,.25); }
+.b-mcp    { background: rgba(34,197,94,.10);   color: var(--green);  border: 1px solid rgba(34,197,94,.22); }
+.b-mon    { background: rgba(167,139,250,.10); color: var(--purple); border: 1px solid rgba(167,139,250,.25); }
+.b-no     { background: rgba(255,255,255,.05); color: var(--dim);    border: 1px solid var(--border); }
+
+.bar-w { background: rgba(255,255,255,.07); border-radius: 3px; height: 5px; width: 100%; overflow: hidden; margin-bottom: 3px; }
+.bar   { height: 5px; border-radius: 3px; }
+.bv    { font-size: 10px; color: var(--dim); }
+
+.sc { text-align: center; }
+.sc-big { font-size: 16px; font-weight: 800; color: var(--text); }
+.sc-sub { font-size: 10px; color: var(--dim); }
+
+.vbadge { display: inline-flex; align-items: center; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; white-space: nowrap; }
+.v1 { background: rgba(239,68,68,.12);  color: #f87171; border: 1px solid rgba(239,68,68,.25); }
+.v2 { background: rgba(245,158,11,.10); color: var(--amber); border: 1px solid rgba(245,158,11,.25); }
+.v3 { background: rgba(255,255,255,.05); color: var(--dim); border: 1px solid var(--border); }
+
+.divrow td { background: var(--surface2); padding: 6px 12px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--dim); border-bottom: 1px solid var(--border); }
+.divrow.t1 td { color: #f87171; }
+.divrow.t2 td { color: var(--amber); }
+.excnote { font-size: 11px; color: var(--dim); font-style: italic; }
+</style>
+</head>
+<body>
+<h1>OfferWise <em>Agentic AI Roadmap</em></h1>
+<p class="subtitle">Re-ranked for innovation and revenue. Only features where the AI autonomously acts across multiple steps, tools, or data sources without human initiation. Scored on novelty in real estate, revenue ceiling, and autonomy depth.</p>
+<div class="filter-note">
+  <strong>Filter applied:</strong> Notifications, single API calls, and routing rules are dropped — those are UX features, not agentic AI. A true agentic feature must (1) run without being triggered by the user, (2) make at least one independent reasoning decision, and (3) produce an output that changes what happens in the real world. Three features dropped below.
+</div>
+
+<table>
+<thead>
+  <tr>
+    <th>#</th>
+    <th>Feature</th>
+    <th>Agent type</th>
+    <th>Novelty<br>in RE</th>
+    <th>Revenue<br>ceiling</th>
+    <th>Autonomy<br>depth</th>
+    <th>Score</th>
+    <th>Verdict</th>
+  </tr>
+</thead>
+<tbody id="tb"></tbody>
+</table>
+
+<script>
+var F = [
+  {
+    r:1, inc:true,
+    name: "Comparable sales agent — daily re-run during contingency period",
+    why: "Wakes daily, pulls fresh comps via RentCast, decides if the delta is material to that buyer's offer, regenerates the offer price recommendation, emails the buyer with a diff. Nobody triggers it. Fully autonomous reasoning loop with a real-world financial decision at the end.",
+    bt:"b-mon", bl:"Autonomous monitor",
+    nov:10, rev:9, aut:10, vl:"Build first", vc:"v1"
+  },
+  {
+    r:2, inc:true,
+    name: "Counter-offer addendum — AI drafts signable legal document",
+    why: "Reads the full analysis output, selects correct contingency removal clauses for the state and issue type, drafts the addendum in legal language, routes to DocuSign MCP for signatures. Agent makes legal clause selection decisions — no human writes a word.",
+    bt:"b-loop", bl:"Multi-step agent",
+    nov:10, rev:10, aut:9, vl:"Build first", vc:"v1"
+  },
+  {
+    r:3, inc:true,
+    name: "Gmail MCP — objection letter composed and sent to buyer's realtor",
+    why: "Formats the negotiation strategy into a professional email, selects tone based on the leverage score (firm vs balanced), writes the opening and closing, sends via Gmail MCP. Buyer never opens an email client. True end-to-end agentic action with an MCP integration.",
+    bt:"b-mcp", bl:"MCP action agent",
+    nov:8, rev:8, aut:8, vl:"Build first", vc:"v1"
+  },
+  {
+    r:4, inc:true,
+    name: "Permit monitor — detects seller activity post-analysis",
+    why: "Polls county open data APIs on a schedule, detects new permits filed on that address, classifies their relevance to the specific findings in that buyer's analysis (e.g. new electrical permit when the panel was flagged), decides independently whether to trigger a partial re-analysis.",
+    bt:"b-mon", bl:"Autonomous monitor",
+    nov:9, rev:7, aut:8, vl:"Build second", vc:"v2"
+  },
+  {
+    r:5, inc:true,
+    name: "Price cut monitor — re-runs analysis when listing drops",
+    why: "Watches Zillow/Redfin listing feeds, detects price changes on saved properties, determines whether the drop materially changes the offer recommendation or leverage posture, regenerates only the affected sections and delivers a concise update.",
+    bt:"b-mon", bl:"Autonomous monitor",
+    nov:7, rev:7, aut:7, vl:"Build second", vc:"v2"
+  },
+  {
+    r:6, inc:true,
+    name: "Natural disaster check — USGS event triggers escrow re-analysis",
+    why: "Subscribes to USGS real-time earthquake feed, detects events above threshold within configurable radius of saved properties, cross-references with that property's structural risk tier, decides whether to re-run the hazard section and alert the buyer.",
+    bt:"b-mon", bl:"Autonomous monitor",
+    nov:8, rev:5, aut:7, vl:"Later", vc:"v3"
+  },
+  {
+    r:7, inc:true,
+    name: "Google Calendar MCP — auto-schedule deadlines from escrow timeline",
+    why: "Triggered by analysis completion, reads the inspection period and response deadline, creates calendar events via Google Calendar MCP. Useful but shallow — the agent makes no real decisions. Single triggered action, not a reasoning loop.",
+    bt:"b-mcp", bl:"MCP action agent",
+    nov:4, rev:4, aut:3, vl:"Later", vc:"v3"
+  },
+  // Dropped
+  {
+    r:null, inc:false,
+    name: "Buyer concern signal → realtor notification",
+    why: "A webhook plus a Resend email call. No agent reasoning, no multi-step autonomy, no decisions made. A UX feature.",
+    bt:"b-no", bl:"Not agentic", nov:2, rev:5, aut:1, vl:"Drop", vc:"v3"
+  },
+  {
+    r:null, inc:false,
+    name: "Inspector upload → realtor one-click send",
+    why: "A notification trigger. No autonomous decision-making whatsoever. Ship it as a UX improvement, not as an agentic AI feature.",
+    bt:"b-no", bl:"Not agentic", nov:2, rev:4, aut:1, vl:"Drop", vc:"v3"
+  },
+  {
+    r:null, inc:false,
+    name: "Realtor preferred contractors — first right of refusal",
+    why: "A marketplace routing rule. Pure conditional business logic, zero agent reasoning, no multi-step autonomy.",
+    bt:"b-no", bl:"Not agentic", nov:1, rev:5, aut:1, vl:"Drop", vc:"v3"
+  },
+];
+
+function bbar(v, col) {
+  return '<div class="bar-w"><div class="bar" style="width:'+v*10+'%;background:'+col+'"></div></div><div class="bv">'+v+'/10</div>';
+}
+
+var tiers = [
+  { cls:"t1", label:"Tier 1 — highest agentic novelty and revenue ceiling", vl:"Build first" },
+  { cls:"t2", label:"Tier 2 — strong agentic value, build after Tier 1",   vl:"Build second" },
+  { cls:"",   label:"Tier 3 — genuinely agentic but narrower impact",       vl:"Later" },
+  { cls:"",   label:"Dropped — valuable UX features but not truly agentic", vl:"Drop" },
+];
+
+var html = "";
+tiers.forEach(function(tier) {
+  var rows = F.filter(function(f){ return f.vl === tier.vl; });
+  if (!rows.length) return;
+  html += '<tr class="divrow '+tier.cls+'"><td colspan="8">'+tier.label+'</td></tr>';
+  rows.forEach(function(f) {
+    var total = f.nov + f.rev + f.aut;
+    var isInc = f.inc;
+    html += '<tr class="'+(isInc?"inc":"exc")+'">';
+    html += '<td class="rk '+(isInc?"hi":"")+'">'+( isInc ? f.r : "—" )+'</td>';
+    html += '<td><div class="fn">'+f.name+'</div><div class="fy">'+f.why+'</div></td>';
+    html += '<td><span class="badge '+f.bt+'">'+f.bl+'</span></td>';
+    if (!isInc) {
+      html += '<td colspan="4" class="excnote">Single trigger / no reasoning decisions made by the agent</td>';
+    } else {
+      html += '<td>'+bbar(f.nov,'var(--blue)')+'</td>';
+      html += '<td>'+bbar(f.rev,'var(--amber)')+'</td>';
+      html += '<td>'+bbar(f.aut,'var(--green)')+'</td>';
+      html += '<td class="sc"><div class="sc-big">'+total+'</div><div class="sc-sub">/ 30</div></td>';
+    }
+    html += '<td><span class="vbadge '+f.vc+'">'+f.vl+'</span></td>';
+    html += '</tr>';
+  });
+});
+document.getElementById("tb").innerHTML = html;
+</script>
+</body>
+</html>

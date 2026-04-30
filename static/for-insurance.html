@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OfferWise for Insurance — Property Risk Profiles for Smarter Underwriting</title>
+<meta name="description" content="Instant property risk profiles for homeowners insurance underwriting. Roof age, electrical panel type, plumbing material, flood zone, seismic risk — via API.">
+<link rel="icon" type="image/svg+xml" href="/logo-icon-only.svg">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#060d1a;--surface:#0f1e35;--border:rgba(255,255,255,0.08);--text:#f1f5f9;--muted:#94a3b8;--dim:#64748b;--fire1:#f97316;--fire2:#f59e0b;--green:#22c55e;--blue:#60a5fa;--red:#ef4444}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;line-height:1.6}
+nav{display:flex;align-items:center;justify-content:space-between;padding:18px 40px;border-bottom:1px solid var(--border);position:sticky;top:0;background:rgba(6,13,26,0.95);backdrop-filter:blur(12px);z-index:100}
+.nav-logo{font-size:1.3rem;font-weight:900;color:var(--text);text-decoration:none}.nav-logo .wise{background:linear-gradient(90deg,var(--fire1),var(--fire2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.nav-cta{background:linear-gradient(90deg,var(--fire1),var(--fire2));color:white;border:none;padding:10px 22px;border-radius:8px;font-weight:700;font-size:14px;text-decoration:none}
+.hero{text-align:center;padding:80px 24px 64px;max-width:760px;margin:0 auto}
+.hero-tag{display:inline-block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--red);border:1px solid rgba(239,68,68,.3);background:rgba(239,68,68,.08);padding:5px 14px;border-radius:20px;margin-bottom:24px}
+.hero h1{font-size:clamp(2rem,5vw,3.2rem);font-weight:900;letter-spacing:-.03em;line-height:1.1;margin-bottom:20px}
+.hero h1 em{font-style:normal;background:linear-gradient(90deg,var(--fire1),var(--fire2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero p{font-size:1.1rem;color:var(--muted);max-width:560px;margin:0 auto 36px;line-height:1.7}
+.hero-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.btn-primary{background:linear-gradient(90deg,var(--fire1),var(--fire2));color:white;border:none;padding:14px 32px;border-radius:10px;font-weight:700;font-size:16px;text-decoration:none}
+.btn-secondary{background:transparent;color:var(--muted);border:1px solid var(--border);padding:14px 28px;border-radius:10px;font-weight:600;font-size:15px;text-decoration:none}
+.section{padding:72px 24px;max-width:900px;margin:0 auto}
+.section-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--fire1);margin-bottom:12px}
+.section h2{font-size:clamp(1.6rem,3vw,2.2rem);font-weight:800;margin-bottom:16px;letter-spacing:-.02em}
+.section>p{color:var(--muted);max-width:580px;margin-bottom:48px}
+.value-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+.value-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px}
+.value-icon{font-size:1.8rem;margin-bottom:12px}.value-card h3{font-size:15px;font-weight:700;margin-bottom:8px}.value-card p{font-size:13px;color:var(--muted);line-height:1.55}
+.data-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin:32px 0}
+.data-item{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;text-align:center}
+.data-item .label{font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+.data-item .val{font-size:18px;font-weight:800}
+.cta-section{background:linear-gradient(135deg,rgba(239,68,68,.04),rgba(249,115,22,.04));border-top:1px solid rgba(239,68,68,.15);padding:72px 24px;text-align:center}
+.cta-section h2{font-size:2rem;font-weight:800;margin-bottom:12px}
+.cta-section p{color:var(--muted);margin-bottom:32px;max-width:500px;margin-left:auto;margin-right:auto}
+footer{text-align:center;padding:32px;font-size:12px;color:var(--dim);border-top:1px solid var(--border)}
+footer a{color:var(--dim);text-decoration:none;margin:0 8px}
+@media(max-width:640px){nav{padding:14px 16px}.hero{padding:48px 16px 40px}.section{padding:48px 16px}}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo">Offer<span class="wise">Wise</span></a>
+  <div style="display:flex;gap:16px;align-items:center">
+    <a href="/api/docs" style="color:var(--muted);text-decoration:none;font-size:14px;font-weight:500">API Docs</a>
+    <a href="mailto:support@getofferwise.ai?subject=Insurance underwriting inquiry" class="nav-cta">Talk to Us →</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="hero-tag">For Insurance Underwriters</div>
+  <h1>Know the property's real condition<br><em>before you write the policy.</em></h1>
+  <p>Homeowner self-reports miss critical details. OfferWise returns a verified property risk profile — roof age, electrical panel type, plumbing material, flood zone, seismic exposure, and permit history — from public data and document analysis.</p>
+  <div class="hero-btns">
+    <a href="/api/docs" class="btn-primary">View API Documentation →</a>
+    <a href="mailto:support@getofferwise.ai?subject=Insurance partnership inquiry" class="btn-secondary">Contact Sales</a>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-label">What You Get Per Property</div>
+  <h2>The data points that matter for underwriting.</h2>
+  <p>One API call returns everything you need to assess property condition risk. No inspector visit required.</p>
+
+  <div class="data-grid">
+    <div class="data-item"><div class="label">Roof</div><div class="val" style="color:var(--fire1)">Age &amp; Material</div></div>
+    <div class="data-item"><div class="label">Electrical</div><div class="val" style="color:var(--fire1)">Panel Type</div></div>
+    <div class="data-item"><div class="label">Plumbing</div><div class="val" style="color:var(--blue)">Pipe Material</div></div>
+    <div class="data-item"><div class="label">Foundation</div><div class="val" style="color:var(--blue)">Condition</div></div>
+    <div class="data-item"><div class="label">Flood</div><div class="val" style="color:var(--green)">FEMA Zone</div></div>
+    <div class="data-item"><div class="label">Seismic</div><div class="val" style="color:var(--green)">Risk Level</div></div>
+    <div class="data-item"><div class="label">Wildfire</div><div class="val" style="color:var(--red)">Exposure</div></div>
+    <div class="data-item"><div class="label">Permits</div><div class="val" style="color:var(--red)">History</div></div>
+  </div>
+
+  <div class="value-grid" style="margin-top:48px">
+    <div class="value-card">
+      <div class="value-icon">🎯</div>
+      <h3>More Accurate Pricing</h3>
+      <p>Price policies based on actual property condition, not homeowner self-reports. FPE panels, galvanized pipes, and aging roofs are flagged automatically.</p>
+    </div>
+    <div class="value-card">
+      <div class="value-icon">🚫</div>
+      <h3>Adverse Selection Prevention</h3>
+      <p>Identify high-risk properties before binding coverage. Unpermitted additions, deferred maintenance, and environmental exposure are surfaced instantly.</p>
+    </div>
+    <div class="value-card">
+      <div class="value-icon">📊</div>
+      <h3>Claims Prediction</h3>
+      <p>Properties with known deferred maintenance are more likely to file claims. OfferWise's risk flags correlate directly with first-year claim probability.</p>
+    </div>
+    <div class="value-card">
+      <div class="value-icon">⚡</div>
+      <h3>Instant Decisioning</h3>
+      <p>The research endpoint returns in under 3 seconds. No waiting for inspections. Integrate into your quote flow for real-time underwriting decisions.</p>
+    </div>
+  </div>
+</div>
+
+<div class="cta-section">
+  <h2>Better data. Better underwriting.</h2>
+  <p>Contact us for volume pricing and integration support. We work with carriers, MGAs, and InsurTech platforms.</p>
+  <div class="hero-btns">
+    <a href="mailto:support@getofferwise.ai?subject=Insurance API inquiry" class="btn-primary">Contact Sales →</a>
+    <a href="/api/docs" class="btn-secondary">API Documentation</a>
+  </div>
+</div>
+
+<footer>
+  <p>&copy; 2026 OfferWise. All rights reserved.</p>
+  <p><a href="/terms">Terms</a><a href="/privacy">Privacy</a><a href="/api/docs">API Docs</a><a href="/">Home</a></p>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap');
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#050810; display:flex; align-items:center; justify-content:center; min-height:100vh; font-family:'DM Sans',sans-serif; }
+  .ad { width:828px; height:372px; background:#0b1120; position:relative; overflow:hidden; display:flex; align-items:center; border-radius:4px; }
+  .ad::before { content:''; position:absolute; inset:0; background-image:linear-gradient(rgba(99,179,237,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(99,179,237,.03) 1px,transparent 1px); background-size:40px 40px; }
+  .glow { position:absolute; width:500px; height:500px; border-radius:50%; background:radial-gradient(circle,rgba(16,185,129,.13) 0%,transparent 70%); top:-120px; right:-60px; }
+  .glow2 { position:absolute; width:280px; height:280px; border-radius:50%; background:radial-gradient(circle,rgba(59,130,246,.07) 0%,transparent 70%); bottom:-80px; left:240px; }
+  .divider { position:absolute; left:420px; top:36px; bottom:36px; width:1px; background:linear-gradient(to bottom,transparent,rgba(99,179,237,.14),transparent); z-index:2; }
+  .left { flex:0 0 420px; padding:42px 48px; position:relative; z-index:2; }
+  .eyebrow { font-size:10px; font-weight:600; letter-spacing:.18em; text-transform:uppercase; color:#10b981; margin-bottom:14px; display:flex; align-items:center; gap:8px; }
+  .eyebrow::before { content:''; display:inline-block; width:18px; height:1.5px; background:#10b981; }
+  .headline { font-family:'DM Serif Display',serif; font-size:34px; line-height:1.1; color:#f0f4ff; margin-bottom:14px; letter-spacing:-.01em; }
+  .headline em { font-style:italic; color:#10b981; }
+  .sub { font-size:12.5px; line-height:1.65; color:#7a90b8; max-width:290px; margin-bottom:26px; }
+  .cta { display:inline-flex; align-items:center; gap:8px; background:#10b981; color:#021a10; font-size:12.5px; font-weight:600; letter-spacing:.02em; padding:11px 22px; border-radius:4px; text-decoration:none; }
+  .right { flex:1; position:relative; height:100%; display:flex; align-items:center; justify-content:center; z-index:2; }
+  .card-stack { position:relative; width:310px; height:250px; }
+  .score-card { position:absolute; top:18px; left:18px; width:230px; background:rgba(13,20,40,.92); border:1px solid rgba(99,179,237,.14); border-radius:10px; padding:18px 20px; }
+  .score-label { font-size:9px; font-weight:600; letter-spacing:.15em; text-transform:uppercase; color:#3a5070; margin-bottom:5px; }
+  .score-value { font-family:'DM Serif Display',serif; font-size:46px; color:#f0f4ff; line-height:1; margin-bottom:4px; }
+  .score-sub { font-size:10px; color:#10b981; font-weight:500; margin-bottom:14px; }
+  .bar-item { display:flex; align-items:center; gap:7px; font-size:9px; color:#3a5070; margin-bottom:5px; }
+  .bar-track { flex:1; height:3px; background:rgba(99,179,237,.07); border-radius:2px; overflow:hidden; }
+  .bar-fill { height:100%; border-radius:2px; }
+  .savings-chip { position:absolute; bottom:10px; right:4px; background:linear-gradient(135deg,#10b981,#059669); border-radius:8px; padding:13px 17px; box-shadow:0 8px 28px rgba(16,185,129,.28); }
+  .savings-amount { font-family:'DM Serif Display',serif; font-size:21px; color:#fff; line-height:1; margin-bottom:2px; }
+  .savings-label { font-size:9px; color:rgba(255,255,255,.72); font-weight:500; }
+  .logo-badge { position:absolute; top:18px; right:8px; background:rgba(13,20,40,.95); border:1px solid rgba(99,179,237,.18); border-radius:5px; padding:5px 9px; font-size:10px; font-weight:700; color:#f0f4ff; letter-spacing:.02em; }
+  .logo-badge span { color:#10b981; }
+</style>
+</head>
+<body>
+<div class="ad">
+  <div class="glow"></div><div class="glow2"></div><div class="divider"></div>
+  <div class="left">
+    <div class="eyebrow">AI-Powered Offer Analysis</div>
+    <h1 class="headline">Know what to<br>offer before you<br><em>negotiate.</em></h1>
+    <p class="sub">OfferWise reads your inspection report and tells you exactly how much to take off the asking price.</p>
+    <a class="cta" href="https://getofferwise.ai?utm_source=zillow&utm_medium=display&utm_campaign=native_zillowgroup">
+      Analyze my inspection →
+    </a>
+  </div>
+  <div class="right">
+    <div class="card-stack">
+      <div class="score-card">
+        <div class="score-label">Offer Score</div>
+        <div class="score-value">72</div>
+        <div class="score-sub">↓ Negotiate $23,400 off asking</div>
+        <div class="bar-item">Roof condition<div class="bar-track"><div class="bar-fill" style="width:82%;background:#10b981"></div></div></div>
+        <div class="bar-item">Foundation<div class="bar-track"><div class="bar-fill" style="width:65%;background:#f59e0b"></div></div></div>
+        <div class="bar-item">HVAC system<div class="bar-track"><div class="bar-fill" style="width:40%;background:#ef4444"></div></div></div>
+      </div>
+      <div class="savings-chip">
+        <div class="savings-amount">$23,400</div>
+        <div class="savings-label">negotiated off asking</div>
+      </div>
+      <div class="logo-badge">Offer<span>Wise</span> AI</div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

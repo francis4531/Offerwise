@@ -1,0 +1,16 @@
+{
+  "name": "offerwise-bot",
+  "version": "0.0.1",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "build": "devvit build"
+  },
+  "dependencies": {
+    "@devvit/public-api": "0.12.17"
+  },
+  "devDependencies": {
+    "@devvit/tsconfig": "0.12.17",
+    "typescript": "5.x"
+  }
+}

@@ -1,0 +1,1753 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GTM Dashboard | OfferWise Admin</title>
+<link rel="icon" type="image/svg+xml" href="/logo-icon-only.svg">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0f172a;--card:#1e293b;--card2:#334155;--border:#475569;--text:#f1f5f9;--gray:#94a3b8;--blue:#3b82f6;--green:#22c55e;--red:#ef4444;--yellow:#f59e0b;--purple:#8b5cf6;--orange:#f97316}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+.container{max-width:1100px;margin:0 auto;padding:0 24px 48px}
+
+/* Nav */
+nav{padding:16px 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,.06);margin-bottom:24px}
+nav a.logo{color:var(--blue);font-weight:800;font-size:1.2rem;text-decoration:none}
+nav .links{display:flex;gap:12px;align-items:center}
+nav .links a{color:var(--gray);text-decoration:none;font-size:.85rem;padding:4px 10px;border-radius:4px}
+nav .links a:hover{color:var(--text);background:rgba(255,255,255,.05)}
+nav .links a.active{color:var(--blue);background:rgba(59,130,246,.1)}
+
+/* Header */
+.page-header{margin-bottom:24px;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px}
+.page-header h1{font-size:1.5rem;color:var(--text)}
+.page-header .sub{color:var(--gray);font-size:.9rem}
+
+/* Tabs */
+.tabs{display:flex;gap:4px;margin-bottom:24px;border-bottom:1px solid rgba(255,255,255,.08);padding-bottom:-1px}
+.tab{padding:10px 18px;background:none;border:none;color:var(--gray);font-size:.9rem;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;transition:all .15s}
+.tab:hover{color:var(--text)}
+.tab.active{color:var(--blue);border-bottom-color:var(--blue)}
+.tab-panel{display:none}.tab-panel.active{display:block}
+
+/* Mobile responsive */
+@media(max-width:768px){
+  .container{padding:0 12px 32px}
+  .page-header{flex-direction:column;gap:8px}
+  .page-header .sub{font-size:.8rem}
+  .tabs{overflow-x:auto;flex-wrap:nowrap;-webkit-overflow-scrolling:touch}
+  .tab{white-space:nowrap;font-size:.8rem;padding:8px 12px}
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .card{padding:16px}
+  nav{flex-direction:column;gap:8px}
+  nav .links{flex-wrap:wrap;justify-content:center}
+}
+
+/* Cards */
+.card{background:var(--card);border-radius:12px;padding:24px;margin-bottom:20px}
+.card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.card-title{font-size:1rem;font-weight:700}
+
+/* Stats grid */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-bottom:20px}
+.stat{background:var(--card2);padding:16px;border-radius:10px;text-align:center}
+.stat-val{font-size:1.8rem;font-weight:800;color:var(--blue)}
+.stat-val.green{color:var(--green)}.stat-val.red{color:var(--red)}.stat-val.yellow{color:var(--yellow)}.stat-val.purple{color:var(--purple)}.stat-val.orange{color:var(--orange)}
+.stat-lbl{font-size:.7rem;color:var(--gray);text-transform:uppercase;letter-spacing:.5px;margin-top:4px}
+
+/* Buttons */
+.btn{padding:8px 18px;border:none;border-radius:6px;cursor:pointer;font-weight:600;font-size:.85rem;transition:all .15s;display:inline-flex;align-items:center;gap:6px}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn-primary{background:var(--blue);color:white}.btn-primary:hover:not(:disabled){background:#2563eb}
+.btn-green{background:var(--green);color:#0a0f1a}.btn-green:hover:not(:disabled){background:#16a34a}
+.btn-red{background:rgba(239,68,68,.15);color:var(--red);border:1px solid rgba(239,68,68,.3)}.btn-red:hover:not(:disabled){background:rgba(239,68,68,.25)}
+.btn-ghost{background:rgba(255,255,255,.06);color:var(--gray);border:1px solid rgba(255,255,255,.1)}.btn-ghost:hover{color:var(--text);border-color:var(--gray)}
+.btn-sm{padding:5px 12px;font-size:.78rem}
+
+/* Draft cards */
+.draft-card{background:var(--card);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:20px;margin-bottom:16px;transition:border-color .2s}
+.draft-card:hover{border-color:rgba(59,130,246,.3)}
+.draft-meta{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:10px;font-size:.78rem;color:var(--gray)}
+.draft-meta .tag{padding:2px 8px;border-radius:4px;font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+.draft-meta .tag.high{background:rgba(239,68,68,.15);color:var(--red)}
+.draft-meta .tag.med{background:rgba(249,115,22,.15);color:var(--orange)}
+.draft-meta .tag.low{background:rgba(34,197,94,.15);color:var(--green)}
+.draft-meta .tag.strategy{background:rgba(139,92,246,.15);color:var(--purple)}
+.draft-title{font-weight:700;margin-bottom:6px;font-size:.95rem}
+.draft-title a{color:var(--blue);text-decoration:none}.draft-title a:hover{text-decoration:underline}
+.draft-body{background:var(--bg);border:1px solid rgba(255,255,255,.06);border-radius:8px;padding:14px;font-size:.85rem;line-height:1.7;color:var(--gray);white-space:pre-wrap;max-height:200px;overflow-y:auto;margin-bottom:12px}
+.draft-body.editing{background:var(--card2);color:var(--text);border-color:var(--blue)}
+.draft-actions{display:flex;gap:8px;flex-wrap:wrap}
+
+/* Funnel visual */
+.funnel{display:flex;gap:4px;align-items:flex-end;height:180px;margin:20px 0}
+.funnel-stage{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
+.funnel-bar{width:100%;border-radius:6px 6px 0 0;min-height:8px;transition:height .5s ease}
+.funnel-count{font-size:.85rem;font-weight:700;color:var(--text)}
+.funnel-name{font-size:.65rem;color:var(--gray);text-transform:uppercase;letter-spacing:.5px;text-align:center}
+.funnel-rate{font-size:.7rem;color:var(--yellow);font-weight:600}
+
+/* Ad table */
+.ad-table{width:100%;border-collapse:collapse;font-size:.85rem}
+.ad-table th{text-align:left;padding:10px 12px;border-bottom:1px solid var(--card2);color:var(--gray);font-size:.7rem;text-transform:uppercase;letter-spacing:.5px}
+.ad-table td{padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.04)}
+.ad-table tr:hover td{background:rgba(255,255,255,.02)}
+.ad-table .num{text-align:right;font-variant-numeric:tabular-nums}
+.ad-table .green{color:var(--green)}.ad-table .red{color:var(--red)}.ad-table .blue{color:var(--blue)}
+
+/* Subreddit bars */
+.sub-bar{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.sub-bar .name{width:140px;font-size:.8rem;color:var(--gray);text-align:right;flex-shrink:0}
+.sub-bar .bar{height:20px;border-radius:4px;background:var(--blue);min-width:4px;transition:width .5s ease}
+.sub-bar .count{font-size:.8rem;font-weight:600;color:var(--text);min-width:30px}
+
+/* Loading */
+.spinner{width:20px;height:20px;border:2px solid var(--card2);border-top-color:var(--blue);border-radius:50%;animation:spin .6s linear infinite;display:inline-block}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-overlay{display:flex;align-items:center;justify-content:center;padding:40px;color:var(--gray);gap:10px}
+
+/* Empty state */
+.empty{text-align:center;padding:40px 20px;color:var(--gray)}
+.empty .icon{font-size:2rem;margin-bottom:8px}
+
+/* Toast */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--card);border:1px solid var(--green);color:var(--text);padding:12px 20px;border-radius:8px;font-size:.85rem;font-weight:600;z-index:1000;animation:slideInUp .3s ease-out;box-shadow:0 8px 24px rgba(0,0,0,.3)}
+@keyframes slideInUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+  <div id="admin-nav" style="display:flex;gap:8px;padding:10px 28px;background:rgba(8,12,20,0.98);border-bottom:1px solid #1e2d45;flex-wrap:wrap;align-items:center;">
+    <span style="color:#60a5fa;font-weight:800;font-size:13px;margin-right:8px;">⚙️ Admin</span>
+  </div>
+  <script>
+  (function() {
+    const ak = new URLSearchParams(location.search).get('admin_key') || '';
+    const q = ak ? '?admin_key=' + ak : '';
+    const current = location.pathname;
+    const pages = [
+      ['📊 Dashboard',  '/admin'],
+      ['🔬 Insights',   '/admin/insights'],
+      ['🚀 GTM',        '/admin/gtm'],
+      ['💸 API Costs',  '/admin/api-costs'],
+      ['🏗️ Infra Costs','/admin/infra-costs'],
+      ['🆘 Support',    '/admin/support-shares'],
+      ['🔧 Debug',      '/debug'],
+      ['← App',         '/dashboard'],
+    ];
+    const nav = document.getElementById('admin-nav');
+    if (!nav) return;
+    const label = document.createElement('span');
+    label.style.cssText = 'color:#60a5fa;font-weight:800;font-size:13px;margin-right:8px;';
+    label.textContent = '⚙️ Admin';
+    nav.innerHTML = '';
+    nav.appendChild(label);
+    pages.forEach(([lbl, path]) => {
+      const active = current === path || (path !== '/admin' && current.startsWith(path));
+      const a = document.createElement('a');
+      a.href = path + q;
+      a.textContent = lbl;
+      a.style.cssText = 'padding:6px 14px;border-radius:6px;text-decoration:none;font-size:13px;font-weight:600;' +
+        (active ? 'background:#3b82f6;color:white;' : 'background:rgba(255,255,255,0.08);color:#e2e8f0;');
+      nav.appendChild(a);
+    });
+  })();
+  </script>
+
+
+<div class="container">
+  <div class="page-header">
+    <div>
+      <h1>🚀 Go-To-Market Command Center</h1>
+      <p class="sub">Content Engine · Conversion Intel · Ad Performance</p>
+    </div>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-ghost" onclick="refreshAll()">↻ Refresh</button>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('reddit')">📊 Reddit &amp; BP</button>
+    <button class="tab" onclick="switchTab('facebook')">👥 Facebook</button>
+    <button class="tab" onclick="switchTab('nextdoor')">🏘 Nextdoor</button>
+    <button class="tab" onclick="switchTab('content')">📝 r/OfferWise</button>
+    <button class="tab" onclick="switchTab('funnel')">📊 Funnel</button>
+    <button class="tab" onclick="switchTab('ads')">💰 Ads</button>
+  </div>
+
+  <!-- ============ CONTENT & MARKETING TAB ============ -->
+  <div id="redditTab" class="tab-panel active">
+    <!-- Scan Actions -->
+    <div style="display:flex;gap:8px;margin-bottom:16px;">
+      <button class="btn btn-primary" onclick="triggerScan('reddit')" id="scanBtn">🔍 Scan Reddit</button>
+      <button class="btn btn-ghost" onclick="loadScanStats();loadDrafts('approved')">↻ Refresh</button>
+    </div>
+
+    <!-- Scan Stats -->
+    <div class="stats" id="scanStats">
+      <div class="stat"><div class="stat-val" id="statScanned">—</div><div class="stat-lbl">Scanned</div></div>
+      <div class="stat"><div class="stat-val green" id="statQualified">—</div><div class="stat-lbl">Qualified</div></div>
+      <div class="stat"><div class="stat-val green" id="statApproved">—</div><div class="stat-lbl">Ready</div></div>
+      <div class="stat"><div class="stat-val blue" id="statPosted">—</div><div class="stat-lbl">Posted</div></div>
+      <div class="stat"><div class="stat-val red" id="statSkipped">—</div><div class="stat-lbl">Skipped</div></div>
+    </div>
+    <div id="lastRunInfo" style="font-size:.8rem;color:var(--gray);margin-bottom:16px;"></div>
+
+    <!-- Scan Debug Log (shown after scan) -->
+    <div id="scanDebugLog" style="display:none;margin-bottom:16px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+        <div style="font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--yellow);">Scan Debug Log</div>
+        <button class="btn btn-ghost btn-sm" onclick="document.getElementById('scanDebugLog').style.display='none'" style="font-size:10px;padding:2px 8px;">Hide</button>
+      </div>
+      <pre style="background:#0d1117;border:1px solid var(--border);border-radius:8px;padding:14px;font-size:11px;color:#94a3b8;max-height:500px;overflow:auto;white-space:pre-wrap;line-height:1.6;font-family:'IBM Plex Mono',monospace;"></pre>
+    </div>
+
+    <!-- Reply Drafts -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">📝 Reply Drafts</div>
+        <div style="display:flex;gap:6px;">
+          <button class="btn btn-sm" style="background:var(--green);color:#000" onclick="loadDrafts('approved')">Ready</button>
+          <button class="btn btn-sm" style="background:var(--blue);color:#fff" onclick="loadDrafts('posted')">Posted</button>
+          <button class="btn btn-sm btn-ghost" onclick="loadDrafts('skipped')">Skipped</button>
+        </div>
+      </div>
+      <div id="draftsContainer" style="margin-top:12px;">
+        <div class="empty"><div class="icon">📭</div>Click Scan Reddit to find threads and generate reply drafts.</div>
+      </div>
+    </div>
+
+    <!-- Target Communities -->
+    <div class="card" style="margin-top:16px;">
+      <div class="card-header">
+        <div class="card-title">📡 Target Communities</div>
+        <button class="btn btn-sm btn-primary" onclick="showAddSub()">+ Add Community</button>
+      </div>
+      <div id="addSubForm" style="display:none;margin-bottom:16px;padding:12px;background:var(--bg);border-radius:8px;border:1px solid rgba(59,130,246,.2);">
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:end;">
+          <div style="width:120px;">
+            <label style="font-size:.75rem;color:var(--gray);display:block;margin-bottom:4px;">Platform</label>
+            <select id="newSubPlatform" style="width:100%;padding:8px;background:var(--card2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:.85rem">
+              <option value="reddit">Reddit</option>
+              <option value="biggerpockets">BiggerPockets</option>
+            </select>
+          </div>
+          <div style="flex:1;min-width:160px;">
+            <label style="font-size:.75rem;color:var(--gray);display:block;margin-bottom:4px;">Community name</label>
+            <input id="newSubName" placeholder="e.g. HomeImprovement or First-Time Home Buyer" style="width:100%;padding:8px 12px;background:var(--card2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:.85rem;">
+          </div>
+          <div style="width:80px;">
+            <label style="font-size:.75rem;color:var(--gray);display:block;margin-bottom:4px;">Priority</label>
+            <select id="newSubPriority" style="width:100%;padding:8px;background:var(--card2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:.85rem;">
+              <option value="1">1 (Top)</option><option value="2">2</option><option value="3">3</option>
+              <option value="4">4</option><option value="5" selected>5 (Normal)</option>
+              <option value="6">6</option><option value="7">7</option><option value="8">8 (Low)</option>
+            </select>
+          </div>
+          <div style="flex:1;min-width:120px;">
+            <label style="font-size:.75rem;color:var(--gray);display:block;margin-bottom:4px;">Notes (optional)</label>
+            <input id="newSubNotes" placeholder="e.g. High intent buyers" style="width:100%;padding:8px 12px;background:var(--card2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:.85rem;">
+          </div>
+          <div style="flex:1;min-width:120px;" id="newSubUrlWrap" style="display:none">
+            <label style="font-size:.75rem;color:var(--gray);display:block;margin-bottom:4px;">Forum URL (BP only)</label>
+            <input id="newSubUrl" placeholder="https://biggerpockets.com/forums/..." style="width:100%;padding:8px 12px;background:var(--card2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:.85rem;">
+          </div>
+          <button class="btn btn-sm btn-green" onclick="addSubreddit()">Add</button>
+          <button class="btn btn-sm btn-ghost" onclick="hideAddSub()">Cancel</button>
+        </div>
+      </div>
+      <div id="subsContainer"><div class="loading-overlay"><div class="spinner"></div> Loading...</div></div>
+    </div>
+  </div>
+
+  <!-- ============ SUBREDDIT CONTENT TAB ============ -->
+
+  <!-- ── FACEBOOK TAB ─────────────────────────────────────────── -->
+  <div id="facebookTab" class="tab-panel">
+    <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
+      <button class="btn btn-primary" onclick="generateFacebookPost()">✨ Generate Facebook Post</button>
+      <button class="btn" style="background:#1877f2;color:#fff" onclick="triggerScanFacebook()" id="fbScanBtn">🔍 Scan FB Groups</button>
+      <button class="btn btn-ghost" onclick="loadFBPosts()">↻ Refresh</button>
+    </div>
+    <div style="background:rgba(24,119,242,.08);border:1px solid rgba(24,119,242,.2);border-radius:8px;padding:12px 16px;margin-bottom:16px;font-size:.8rem;color:#93c5fd;">
+      ℹ️ Facebook public groups can be scraped without login. Authenticated scanning requires setting <code>FB_GROUP_COOKIE</code> in Render env vars.
+      Posts are generated in plain text (no markdown) optimised for Facebook's format.
+    </div>
+
+    <!-- Target Groups -->
+    <div class="card" style="margin-bottom:16px;">
+      <div class="card-header">
+        <div class="card-title">👥 Target Facebook Groups</div>
+        <button class="btn btn-sm btn-primary" onclick="showAddFBGroup()">+ Add Group</button>
+      </div>
+      <div id="addFBGroupForm" style="display:none;margin-bottom:12px;padding:12px;background:var(--bg);border-radius:8px;border:1px solid rgba(59,130,246,.2);">
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:end;">
+          <div style="flex:1;min-width:200px;">
+            <label style="font-size:.75rem;color:var(--gray);display:block;margin-bottom:4px;">Group name</label>
+            <input id="fbGroupName" placeholder="First Time Home Buyers - CA" style="width:100%;padding:8px;background:var(--card2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:.85rem">
+          </div>
+          <div style="flex:1;min-width:220px;">
+            <label style="font-size:.75rem;color:var(--gray);display:block;margin-bottom:4px;">Group URL</label>
+            <input id="fbGroupUrl" placeholder="https://facebook.com/groups/..." style="width:100%;padding:8px;background:var(--card2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:.85rem">
+          </div>
+          <button class="btn btn-sm btn-primary" onclick="addFBGroup()">Add</button>
+          <button class="btn btn-sm btn-ghost" onclick="document.getElementById('addFBGroupForm').style.display='none'">Cancel</button>
+        </div>
+      </div>
+      <div id="fbGroupsList"><div class="loading-overlay"><div class="spinner"></div> Loading...</div></div>
+    </div>
+
+    <!-- Reply Drafts from FB Scan -->
+    <div class="card" style="margin-bottom:16px;">
+      <div class="card-header">
+        <div class="card-title">💬 Reply Drafts (Facebook)</div>
+        <div style="display:flex;gap:6px;">
+          <button class="btn btn-sm" style="background:var(--yellow);color:#000" onclick="loadFBDrafts('pending')">Pending</button>
+          <button class="btn btn-sm btn-green" onclick="loadFBDrafts('approved')">Approved</button>
+          <button class="btn btn-sm" style="background:var(--blue);color:#fff" onclick="loadFBDrafts('posted')">Posted</button>
+        </div>
+      </div>
+      <div id="fbDraftsContainer" style="margin-top:12px;">
+        <div class="empty"><div class="icon">📭</div>Click "Scan FB Groups" to find threads to reply to.</div>
+      </div>
+    </div>
+
+    <!-- FB Post Drafts -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">📝 Facebook Post Drafts</div>
+        <div style="display:flex;gap:6px;">
+          <button class="btn btn-sm" style="background:var(--yellow);color:#000" onclick="loadFBPosts('draft')">Drafts</button>
+          <button class="btn btn-sm btn-green" onclick="loadFBPosts('approved')">Approved</button>
+          <button class="btn btn-sm" style="background:var(--blue);color:#fff" onclick="loadFBPosts('posted')">Posted</button>
+        </div>
+      </div>
+      <div id="fbPostsContainer" style="margin-top:12px;">
+        <div class="empty"><div class="icon">📝</div>Click "Generate Facebook Post" to create today's post.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── NEXTDOOR TAB ────────────────────────────────────────── -->
+  <div id="nextdoorTab" class="tab-panel">
+    <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
+      <button class="btn btn-primary" onclick="generateNextdoorPost()">✨ Generate Nextdoor Post</button>
+      <button class="btn" style="background:#00B259;color:#fff" onclick="triggerScanNextdoor()" id="ndScanBtn">🔍 Scan Nextdoor</button>
+      <button class="btn btn-ghost" onclick="loadNDPosts()">↻ Refresh</button>
+    </div>
+    <div style="background:rgba(0,178,89,.08);border:1px solid rgba(0,178,89,.2);border-radius:8px;padding:12px 16px;margin-bottom:16px;font-size:.8rem;color:#86efac;">
+      ℹ️ Nextdoor requires login for full content. Set <code>NEXTDOOR_SESSION_COOKIE</code> in Render env vars for authenticated scanning.
+      Posts are short and hyper-local — neighbour-to-neighbour tone. No links in body (Nextdoor strips them).
+    </div>
+
+    <!-- Target Neighborhoods -->
+    <div class="card" style="margin-bottom:16px;">
+      <div class="card-header">
+        <div class="card-title">🏘 Target Neighborhoods</div>
+        <button class="btn btn-sm btn-primary" onclick="showAddNDNeighborhood()">+ Add Neighborhood</button>
+      </div>
+      <div id="addNDForm" style="display:none;margin-bottom:12px;padding:12px;background:var(--bg);border-radius:8px;border:1px solid rgba(0,178,89,.2);">
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:end;">
+          <div style="flex:1;min-width:200px;">
+            <label style="font-size:.75rem;color:var(--gray);display:block;margin-bottom:4px;">Neighborhood name</label>
+            <input id="ndName" placeholder="Nextdoor San Jose" style="width:100%;padding:8px;background:var(--card2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:.85rem">
+          </div>
+          <div style="flex:1;min-width:220px;">
+            <label style="font-size:.75rem;color:var(--gray);display:block;margin-bottom:4px;">URL</label>
+            <input id="ndUrl" placeholder="https://nextdoor.com/city/..." style="width:100%;padding:8px;background:var(--card2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:.85rem">
+          </div>
+          <button class="btn btn-sm btn-primary" onclick="addNDNeighborhood()">Add</button>
+          <button class="btn btn-sm btn-ghost" onclick="document.getElementById('addNDForm').style.display='none'">Cancel</button>
+        </div>
+      </div>
+      <div id="ndNeighborhoodsList"><div class="loading-overlay"><div class="spinner"></div> Loading...</div></div>
+    </div>
+
+    <!-- Nextdoor Post Drafts -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">📝 Nextdoor Post Drafts</div>
+        <div style="display:flex;gap:6px;">
+          <button class="btn btn-sm" style="background:var(--yellow);color:#000" onclick="loadNDPosts('draft')">Drafts</button>
+          <button class="btn btn-sm btn-green" onclick="loadNDPosts('approved')">Approved</button>
+          <button class="btn btn-sm" style="background:var(--blue);color:#fff" onclick="loadNDPosts('posted')">Posted</button>
+        </div>
+      </div>
+      <div id="ndPostsContainer" style="margin-top:12px;">
+        <div class="empty"><div class="icon">📝</div>Click "Generate Nextdoor Post" to create today's post.</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="contentTab" class="tab-panel">
+    
+    <!-- Action Buttons -->
+    <div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;">
+      <button class="btn btn-primary" onclick="generateToday()" id="genTodayBtn">✨ Generate Today's Post</button>
+      <button class="btn btn-green" onclick="generateWeek()">📅 Generate Next 7 Days</button>
+      <button class="btn" style="background:#22c55e;color:#fff" onclick="generateBPBlog()" id="bpBlogBtn">🏠 Generate BP Blog Post</button>
+      <button class="btn btn-ghost" onclick="loadContentCalendar();loadContentPosts()">↻ Refresh</button>
+    </div>
+    
+    <!-- BP Blog Drafts -->
+    <div class="card" style="margin-bottom:16px;">
+      <div class="card-header">
+        <div class="card-title">🏠 BiggerPockets Blog Posts</div>
+        <span style="font-size:.75rem;color:var(--gray);">Direct marketing for our BP company page</span>
+      </div>
+      <div id="bpBlogContainer">
+        <div class="empty" style="padding:24px;"><div class="icon">📝</div>Click "Generate BP Blog Post" to create a marketing-focused article for BiggerPockets.</div>
+      </div>
+    </div>
+
+    <!-- Content Calendar -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">📅 Content Calendar (Next 7 Days)</div>
+      </div>
+      <div id="contentCalendar"><div class="loading-overlay"><div class="spinner"></div> Loading...</div></div>
+    </div>
+    
+    <!-- Content Stats -->
+    <div class="stats" id="contentStats">
+      <div class="stat"><div class="stat-val" id="statDrafts">—</div><div class="stat-lbl">Drafts</div></div>
+      <div class="stat"><div class="stat-val green" id="statApprovedContent">—</div><div class="stat-lbl">Approved</div></div>
+      <div class="stat"><div class="stat-val blue" id="statPostedContent">—</div><div class="stat-lbl">Posted</div></div>
+      <div class="stat"><div class="stat-val red" id="statSkippedContent">—</div><div class="stat-lbl">Skipped</div></div>
+    </div>
+
+    <!-- Post Drafts -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">📝 Post Drafts</div>
+        <div style="display:flex;gap:6px;">
+          <button class="btn btn-sm" style="background:var(--yellow);color:#000" onclick="loadContentPosts('draft')">Drafts</button>
+          <button class="btn btn-sm btn-green" onclick="loadContentPosts('approved')">Approved</button>
+          <button class="btn btn-sm" style="background:var(--blue);color:#fff" onclick="loadContentPosts('posted')">Posted</button>
+          <button class="btn btn-sm btn-ghost" onclick="loadContentPosts()">All</button>
+        </div>
+      </div>
+      <div id="contentPosts"><div class="loading-overlay"><div class="spinner"></div> Loading...</div></div>
+    </div>
+    
+    <!-- Post Editor Modal -->
+    <div id="postEditorModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.7);z-index:1000;overflow-y:auto;padding:40px 20px;">
+      <div style="max-width:700px;margin:0 auto;background:var(--card);border-radius:16px;padding:32px;border:1px solid rgba(59,130,246,.2);">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+          <h3 style="color:var(--blue);">Edit Post</h3>
+          <button class="btn btn-sm btn-ghost" onclick="closePostEditor()">✕ Close</button>
+        </div>
+        <div style="margin-bottom:12px;">
+          <label style="font-size:.75rem;color:var(--gray);display:block;margin-bottom:4px;">Title</label>
+          <input id="editorTitle" style="width:100%;padding:10px 14px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:.9rem;">
+        </div>
+        <div style="margin-bottom:12px;">
+          <label style="font-size:.75rem;color:var(--gray);display:block;margin-bottom:4px;">Body (Reddit Markdown)</label>
+          <textarea id="editorBody" rows="18" style="width:100%;padding:12px 14px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:.85rem;font-family:monospace;line-height:1.6;resize:vertical;"></textarea>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="btn btn-primary" onclick="savePostEdit()">💾 Save Changes</button>
+          <button class="btn btn-green" onclick="approvePost()">✅ Approve</button>
+          <button class="btn" style="background:var(--blue);color:#fff" onclick="markPostPosted()">📤 Mark as Posted</button>
+          <button class="btn btn-ghost" onclick="skipPost()">⏭ Skip</button>
+          <button class="btn" style="background:var(--red);color:#fff;margin-left:auto;" onclick="deletePost()">🗑 Delete</button>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,.08);">
+          <button class="btn btn-sm" style="background:var(--purple);color:#fff" onclick="copyEditorTitle()">📋 Copy Title</button>
+          <button class="btn btn-sm" style="background:var(--purple);color:#fff" onclick="copyEditorBody()">📋 Copy Body</button>
+          <button class="btn btn-sm" style="background:var(--purple);color:#fff" onclick="copyEditorFull()">📋 Copy All</button>
+          <button id="editorRedditLink" onclick="copyAndOpenRedditSubmit()" class="btn btn-sm" style="background:var(--orange);color:#fff;cursor:pointer;font-family:inherit;">🚀 Copy &amp; Open Reddit</button>
+        </div>
+        <input type="hidden" id="editorPostId">
+      </div>
+    </div>
+    
+    <!-- Pillar Legend -->
+    <div class="card" style="font-size:.8rem;color:var(--gray);">
+      <div class="card-title" style="margin-bottom:12px;">📖 Content Pillar Schedule</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px;">
+        <div>📊 <strong>Monday</strong> — What We're Seeing (data trends)</div>
+        <div>🏠 <strong>Tuesday</strong> — First-Timer Tuesday (guides)</div>
+        <div>🔍 <strong>Wednesday</strong> — Did You Know (disclosures)</div>
+        <div>💰 <strong>Thursday</strong> — Real Numbers (repair costs)</div>
+        <div>🚩 <strong>Friday</strong> — Red Flag Friday (red flags)</div>
+        <div>💬 <strong>Saturday</strong> — Community Q&A (engagement)</div>
+        <div>📋 <strong>Sunday</strong> — Weekly Digest (roundup)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ CONVERSION FUNNEL TAB ============ -->
+  <div id="funnelTab" class="tab-panel">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">📊 Conversion Funnel (Last 30 Days)</div>
+        <select id="funnelDays" onchange="loadFunnel()" style="background:var(--card2);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:6px;font-size:.85rem;">
+          <option value="7">7 days</option>
+          <option value="30" selected>30 days</option>
+          <option value="90">90 days</option>
+        </select>
+      </div>
+      <div id="funnelViz" class="funnel" style="overflow-x:auto"></div>
+      <div id="funnelRates" style="display:flex;gap:16px;flex-wrap:wrap;margin-top:12px;"></div>
+      
+      <!-- Auto-generated insights -->
+      <div id="funnelInsights" style="margin-top:20px;padding:20px;background:var(--bg);border-radius:8px;border:1px solid rgba(255,255,255,.06);"></div>
+      
+      <!-- Detailed funnel table -->
+      <div id="funnelTable" style="margin-top:20px;"></div>
+    </div>
+  </div>
+
+  <!-- ============ AD PERFORMANCE TAB ============ -->
+  <div id="adsTab" class="tab-panel">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">💰 Ad Performance Summary</div>
+        <select id="adDays" onchange="loadAds()" style="background:var(--card2);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:6px;font-size:.85rem;">
+          <option value="7">7 days</option>
+          <option value="30" selected>30 days</option>
+          <option value="90">90 days</option>
+        </select>
+      </div>
+      <div id="adTableContainer">
+        <div class="loading-overlay"><div class="spinner"></div> Loading...</div>
+      </div>
+    </div>
+
+    <!-- Google Ads Auto-Sync -->
+    <div class="card" style="margin-top:16px">
+      <div class="card-header">
+        <div class="card-title">🔄 Google Ads Auto-Sync</div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-sm" style="background:var(--blue);color:#fff;" onclick="syncGoogleAds()">Sync Now</button>
+          <button class="btn btn-sm btn-ghost" onclick="syncGoogleAds(7)">Backfill 7d</button>
+        </div>
+      </div>
+      <div id="gadsStatus" style="font-size:.85rem;color:var(--gray);padding:8px 0;">Checking status...</div>
+      <div id="gadsSyncResult" style="margin-top:8px;display:none;padding:10px 14px;border-radius:8px;font-size:13px;"></div>
+    </div>
+
+    <!-- Manual Spend Entry (Reddit Ads + overrides) -->
+    <div class="card" style="margin-top:16px">
+      <div class="card-header"><div class="card-title">📝 Manual Ad Spend Entry</div></div>
+      <div style="font-size:.8rem;color:var(--gray);margin-bottom:12px">Google Ads syncs automatically. Use this for Reddit Ads or manual corrections.</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;padding:4px 0 12px">
+        <div>
+          <label style="font-size:.75rem;color:var(--gray);display:block;margin-bottom:4px">Channel</label>
+          <select id="entryChannel" style="width:100%;background:var(--card2);border:1px solid var(--border);color:var(--text);padding:8px;border-radius:6px;font-size:.85rem">
+            <option value="google_ads">Google Ads</option>
+            <option value="reddit_ads">Reddit Ads</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size:.75rem;color:var(--gray);display:block;margin-bottom:4px">Date</label>
+          <input type="date" id="entryDate" style="width:100%;background:var(--card2);border:1px solid var(--border);color:var(--text);padding:8px;border-radius:6px;font-size:.85rem">
+        </div>
+        <div>
+          <label style="font-size:.75rem;color:var(--gray);display:block;margin-bottom:4px">Impressions</label>
+          <input type="number" id="entryImpressions" value="0" min="0" style="width:100%;background:var(--card2);border:1px solid var(--border);color:var(--text);padding:8px;border-radius:6px;font-size:.85rem">
+        </div>
+        <div>
+          <label style="font-size:.75rem;color:var(--gray);display:block;margin-bottom:4px">Clicks</label>
+          <input type="number" id="entryClicks" value="0" min="0" style="width:100%;background:var(--card2);border:1px solid var(--border);color:var(--text);padding:8px;border-radius:6px;font-size:.85rem">
+        </div>
+        <div>
+          <label style="font-size:.75rem;color:var(--gray);display:block;margin-bottom:4px">Spend ($)</label>
+          <input type="number" id="entrySpend" value="0" min="0" step="0.01" style="width:100%;background:var(--card2);border:1px solid var(--border);color:var(--text);padding:8px;border-radius:6px;font-size:.85rem">
+        </div>
+        <div>
+          <label style="font-size:.75rem;color:var(--gray);display:block;margin-bottom:4px">Conversions</label>
+          <input type="number" id="entryConversions" value="0" min="0" style="width:100%;background:var(--card2);border:1px solid var(--border);color:var(--text);padding:8px;border-radius:6px;font-size:.85rem">
+        </div>
+        <div>
+          <label style="font-size:.75rem;color:var(--gray);display:block;margin-bottom:4px">Revenue ($)</label>
+          <input type="number" id="entryRevenue" value="0" min="0" step="0.01" style="width:100%;background:var(--card2);border:1px solid var(--border);color:var(--text);padding:8px;border-radius:6px;font-size:.85rem">
+        </div>
+      </div>
+      <button onclick="submitAdEntry()" class="btn" style="background:var(--blue);color:#fff;padding:8px 20px;border:none;border-radius:6px;font-size:.85rem;cursor:pointer">Save Entry</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const AK=(new URLSearchParams(location.search)).get('admin_key')||'';
+// SECURITY: Send admin key via X-Admin-Key header, not URL params
+function apiUrl(path){return path}
+// Secure fetch wrapper — injects X-Admin-Key header into every request
+const _origFetch=window.fetch;
+window.fetch=function(url,...args){
+  const opts=args[0]||{};
+  if(typeof url==='string' && (url.startsWith('/api/')||url.startsWith('/admin/'))){
+    opts.headers=opts.headers||{};
+    if(opts.headers instanceof Headers){opts.headers.set('X-Admin-Key',AK);}
+    else{opts.headers['X-Admin-Key']=AK;}
+    // Always send session cookie for admin auth fallback
+    if(!opts.credentials) opts.credentials='include';
+    args[0]=opts;
+  }
+  return _origFetch.call(this,url,...args);
+};
+
+// Fix nav links
+
+// ========== SUBREDDIT MANAGEMENT ==========
+function showAddSub(){document.getElementById('addSubForm').style.display='block'}
+function hideAddSub(){document.getElementById('addSubForm').style.display='none'}
+
+async function loadSubreddits(){
+  const container=document.getElementById('subsContainer');
+  try{
+    const r=await fetch(apiUrl('/api/gtm/subreddits'));
+    if(!r.ok) throw new Error('API error');
+    const subs=await r.json();
+    if(!subs.length){
+      container.innerHTML='<div class="empty"><div class="icon">📡</div>No communities configured. Click + Add Community.</div>';
+      return;
+    }
+    const reddit=subs.filter(s=>(s.platform||'reddit')==='reddit');
+    const bp=subs.filter(s=>s.platform==='biggerpockets');
+    
+    let html='';
+    if(reddit.length){
+      html+='<div style="font-size:.8rem;color:var(--orange);font-weight:700;margin-bottom:8px;margin-top:4px">REDDIT</div>';
+      html+='<table class="ad-table"><thead><tr><th>Subreddit</th><th>Priority</th><th>Notes</th><th>Status</th><th></th></tr></thead><tbody>';
+      html+=reddit.map(s=>'<tr id="sub-'+s.id+'"><td><strong>r/'+s.name+'</strong></td><td class="num">'+s.priority+'</td><td style="color:var(--gray);font-size:.8rem;">'+(s.notes||'—')+'</td><td>'+(s.enabled?'<span style="color:var(--green);">● Active</span>':'<span style="color:var(--gray);">○ Disabled</span>')+'</td><td style="text-align:right;"><button class="btn btn-sm btn-ghost" onclick="toggleSub('+s.id+','+(!s.enabled)+')">'+(s.enabled?'Disable':'Enable')+'</button> <button class="btn btn-sm btn-red" onclick="deleteSub('+s.id+',\''+s.name+'\')">✗</button></td></tr>').join('');
+      html+='</tbody></table>';
+    }
+    if(bp.length){
+      html+='<div style="font-size:.8rem;color:var(--green);font-weight:700;margin:16px 0 8px">BIGGERPOCKETS</div>';
+      html+='<table class="ad-table"><thead><tr><th>Forum</th><th>Priority</th><th>Notes</th><th>Status</th><th></th></tr></thead><tbody>';
+      html+=bp.map(s=>'<tr id="sub-'+s.id+'"><td><strong>'+(s.url?'<a href="'+s.url+'" target="_blank" style="color:var(--green);text-decoration:none">':'')+'BP: '+s.name+(s.url?'</a>':'')+'</strong></td><td class="num">'+s.priority+'</td><td style="color:var(--gray);font-size:.8rem;">'+(s.notes||'—')+'</td><td>'+(s.enabled?'<span style="color:var(--green);">● Active</span>':'<span style="color:var(--gray);">○ Disabled</span>')+'</td><td style="text-align:right;"><button class="btn btn-sm btn-ghost" onclick="toggleSub('+s.id+','+(!s.enabled)+')">'+(s.enabled?'Disable':'Enable')+'</button> <button class="btn btn-sm btn-red" onclick="deleteSub('+s.id+',\''+s.name+'\')">✗</button></td></tr>').join('');
+      html+='</tbody></table>';
+    }
+    container.innerHTML=html;
+  }catch(e){container.innerHTML='<div class="empty">Failed to load communities</div>';console.error(e)}
+}
+
+async function addSubreddit(){
+  const name=document.getElementById('newSubName').value.trim();
+  const platform=document.getElementById('newSubPlatform').value;
+  if(!name){showToast('⚠️ Enter a community name');return}
+  try{
+    const payload={name,platform,priority:parseInt(document.getElementById('newSubPriority').value),notes:document.getElementById('newSubNotes').value.trim()};
+    if(platform==='biggerpockets'){payload.url=document.getElementById('newSubUrl').value.trim();}
+    const r=await fetch(apiUrl('/api/gtm/subreddits'),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    if(!r.ok) throw new Error('API error');
+    const d=await r.json();
+    const prefix=platform==='reddit'?'r/':'BP: ';
+    showToast('✅ '+prefix+name+' '+d.status);
+    document.getElementById('newSubName').value='';document.getElementById('newSubNotes').value='';document.getElementById('newSubUrl').value='';
+    hideAddSub();loadSubreddits();
+  }catch(e){showToast('❌ Failed to add community')}
+}
+
+async function toggleSub(id,enabled){
+  try{
+    await fetch(apiUrl('/api/gtm/subreddits/'+id),{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({enabled})});
+    loadSubreddits();showToast(enabled?'✅ Enabled':'⏸ Disabled');
+  }catch(e){showToast('❌ Failed')}
+}
+
+async function deleteSub(id,name){
+  if(!confirm('Remove '+name+' from target list?')) return;
+  try{
+    await fetch(apiUrl('/api/gtm/subreddits/'+id),{method:'DELETE'});
+    loadSubreddits();showToast('🗑 '+name+' removed');
+  }catch(e){showToast('❌ Failed')}
+}
+
+// ========== TAB SWITCHING ==========
+function switchTab(tab){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById(tab+'Tab').classList.add('active');
+  if(tab==='reddit'){loadScanStats();loadSubreddits();}
+  if(tab==='facebook'){loadFBGroups();loadFBPosts('draft');}
+  if(tab==='nextdoor'){loadNDNeighborhoods();loadNDPosts('draft');}
+  if(tab==='facebook'){loadFBGroups();loadFBPosts();loadFBDrafts('pending');}
+  if(tab==='nextdoor'){loadNDNeighborhoods();loadNDPosts();}
+  if(tab==='funnel') loadFunnel();
+  if(tab==='ads') {loadAds();loadGadsStatus();}
+  if(tab==='content'){loadContentCalendar();loadContentPosts();}
+}
+
+
+// ========== FORUM SCANNING & DRAFTS ==========
+async function loadScanStats(){
+  try{
+    const r=await fetch(apiUrl('/api/gtm/stats'));
+    if(!r.ok) return;
+    const d=await r.json();
+    document.getElementById('statScanned').textContent=d.total_scanned||0;
+    document.getElementById('statQualified').textContent=d.total_qualified||0;
+    var pendingEl=document.getElementById('statPending'); if(pendingEl) pendingEl.textContent=d.pending_drafts||0;
+    document.getElementById('statApproved').textContent=(d.approved_drafts||0)+(d.pending_drafts||0);
+    document.getElementById('statPosted').textContent=d.posted_drafts||0;
+    document.getElementById('statSkipped').textContent=d.skipped_drafts||0;
+    if(d.last_run){
+      const when=d.last_run.started_at?new Date(d.last_run.started_at).toLocaleString('en-US',{timeZone:'America/Los_Angeles'}):'Never';
+      document.getElementById('lastRunInfo').innerHTML='Last scan: <strong>'+when+'</strong> · Scanned: '+d.last_run.posts_scanned+' · Drafted: '+d.last_run.drafts_created;
+    }
+  }catch(e){console.error('Scan stats error:',e)}
+}
+
+async function triggerScan(platform){
+  const isReddit=platform==='reddit';
+  const btn=document.getElementById(isReddit?'scanBtn':'bpScanBtn');
+  const origText=btn.innerHTML;
+  btn.disabled=true;btn.innerHTML='<div class="spinner"></div> Scanning...';
+  try{
+    const endpoint=isReddit?'/api/gtm/scan':'/api/gtm/scan/bp';
+    const controller=new AbortController();
+    const timeout=setTimeout(()=>controller.abort(),300000);
+    const body=isReddit?{}:{reset:true};
+    const r=await fetch(apiUrl(endpoint),{method:'POST',headers:{'X-Requested-With':'XMLHttpRequest','Content-Type':'application/json'},body:JSON.stringify(body),signal:controller.signal});
+    clearTimeout(timeout);
+    if(!r.ok) { const errData = await r.json().catch(()=>({})); throw new Error('API error '+r.status+': '+(errData.error||'')+(errData.traceback_line?' — '+errData.traceback_line:'')); }
+    const d=await r.json();
+    if(d.error){showToast('❌ '+d.error);return;}
+    const s=d.stats||{};
+    if(s.note) showToast('⚠️ '+s.note);
+    else {
+      let msg='✅ Scanned '+s.posts_scanned+' posts → '+s.posts_filtered+' qualified → '+(s.posts_scored||0)+' AI scored → '+s.drafts_created+' drafts' + (s.errors ? ' ('+s.errors+' errors)' : '');
+      showToast(msg);
+    }
+    // Dump full debug log into the UI
+    if(s.debug_log && s.debug_log.length > 0){
+      const logEl = document.getElementById('scanDebugLog');
+      if(logEl){
+        logEl.style.display='block';
+        logEl.querySelector('pre').textContent = s.debug_log.join('\n');
+      }
+    }
+    console.log('Scan stats:', JSON.stringify(s, null, 2));
+    console.log('Scan debug_log:', s.debug_log);
+    console.log('Scan _debug:', s._debug);
+    console.log('Scan ai_results:', s.ai_results);
+    loadScanStats();loadDrafts('approved');
+  }catch(e){
+    showToast(e.name==='AbortError'?'⏳ Scan timed out (>5 min) — drafts may still be generating in background. Refresh in a minute.':'❌ Scan failed: '+e.message);
+  }finally{btn.disabled=false;btn.innerHTML=origText}
+}
+
+async function loadDrafts(status='approved'){
+  const container=document.getElementById('draftsContainer');
+  container.innerHTML='<div class="loading-overlay"><div class="spinner"></div> Loading...</div>';
+  try{
+    const r=await fetch(apiUrl('/api/gtm/drafts?status='+status+'&limit=20'));
+    if(!r.ok) throw new Error('API '+r.status);
+    const drafts=await r.json();
+    if(!Array.isArray(drafts)||!drafts.length){
+      container.innerHTML='<div class="empty"><div class="icon">📭</div>No '+status+' drafts</div>';
+      return;
+    }
+    container.innerHTML=drafts.map(d=>renderDraft(d,status)).join('');
+  }catch(e){
+    container.innerHTML='<div class="empty"><div class="icon">⚠️</div>'+escHtml(e.message)+'</div>';
+  }
+}
+
+function renderDraft(d,currentStatus){
+  const t=d.thread||{};
+  const text=d.edited_text||d.draft_text||'';
+  const platform=t.platform||'reddit';
+  const badge=platform==='biggerpockets'?'<span style="background:rgba(34,197,94,.15);color:var(--green);padding:2px 8px;border-radius:4px;font-size:.7rem;font-weight:600">BP</span>':'<span style="background:rgba(251,130,0,.15);color:#fb8200;padding:2px 8px;border-radius:4px;font-size:.7rem;font-weight:600">Reddit</span>';
+  const sub=platform==='biggerpockets'?t.subreddit:'r/'+t.subreddit;
+  const scoreColor=t.ai_score>=8?'var(--green)':t.ai_score>=6?'var(--yellow)':'var(--gray)';
+
+  let actions='';
+  if(currentStatus==='approved'){
+    actions='<button class="btn btn-sm" style="background:var(--orange);color:#fff" onclick="copyAndOpenThread('+d.id+',\''+escHtml(t.url||'')+'\')" title="Copies reply to clipboard then opens thread">📋 Copy &amp; Open →</button>'+
+            '<button class="btn btn-sm" style="background:var(--green);color:#fff" onclick="markAsPosted('+d.id+')">✓ Posted</button>'+
+            '<button class="btn btn-sm btn-ghost" onclick="updateDraft('+d.id+',\'skipped\')" title="Skip this thread">✕ Skip</button>';
+  }else if(currentStatus==='posted'){
+    actions='<span style="font-size:.7rem;color:var(--green);font-weight:600">✓ Posted</span>';
+  }else if(currentStatus==='skipped'){
+    actions='<button class="btn btn-sm btn-ghost" onclick="updateDraft('+d.id+',\'approved\')">↩ Restore</button>';
+  }
+
+  return '<div style="background:var(--card2);border-radius:10px;padding:16px;margin-bottom:10px;border-left:4px solid '+scoreColor+'">'+
+    '<div style="display:flex;justify-content:space-between;align-items:start;gap:12px;margin-bottom:8px">'+
+      '<div style="flex:1">'+
+        '<div style="font-weight:700;font-size:.9rem;margin-bottom:4px">'+escHtml(t.title||'Unknown thread')+'</div>'+
+        '<div style="font-size:.75rem;color:var(--gray)">'+badge+' '+escHtml(sub)+' · AI Score: <span style="color:'+scoreColor+';font-weight:700">'+t.ai_score+'</span>/10 · '+(t.ai_reasoning||'')+'</div>'+
+      '</div>'+
+      '<div style="display:flex;gap:6px;flex-shrink:0">'+actions+'</div>'+
+    '</div>'+
+    '<div id="draftBody-'+d.id+'" style="font-size:.85rem;color:var(--text);line-height:1.6;background:var(--bg);padding:12px;border-radius:8px;white-space:pre-wrap">'+escHtml(text)+'</div>'+
+    '<div style="font-size:.7rem;color:var(--gray);margin-top:6px">Strategy: '+escHtml(d.strategy||'')+' · Tone: '+escHtml(d.tone||'')+'</div>'+
+  '</div>';
+}
+
+async function updateDraft(id,status){
+  try{
+    const action=status==='approved'?'approve':'skip';
+    const r=await fetch(apiUrl('/api/gtm/drafts/'+id+'/'+action),{method:'POST',headers:{'X-Requested-With':'XMLHttpRequest'}});
+    if(!r.ok) throw new Error('API '+r.status);
+    showToast(status==='approved'?'✅ Draft approved':'⏭️ Draft skipped');
+    loadDrafts('approved');loadScanStats();
+  }catch(e){showToast('❌ '+e.message)}
+}
+
+function copyDraftText(id){
+  const el=document.getElementById('draftBody-'+id);
+  if(el) navigator.clipboard.writeText(el.innerText).then(()=>showToast('📋 Copied to clipboard'));
+}
+
+function copyAndOpenThread(id, threadUrl){
+  const el=document.getElementById('draftBody-'+id);
+  if(!el) return;
+  navigator.clipboard.writeText(el.innerText).then(()=>{
+    showToast('📋 Reply copied — opening thread…');
+    if(threadUrl && threadUrl!=='#') window.open(threadUrl,'_blank');
+    else showToast('⚠️ No thread URL available');
+  }).catch(()=>{
+    showToast('⚠️ Clipboard failed — copying manually');
+    if(threadUrl && threadUrl!=='#') window.open(threadUrl,'_blank');
+  });
+}
+
+async function markAsPosted(id){
+  try{
+    const r=await fetch(apiUrl('/api/gtm/drafts/'+id+'/posted'),{method:'POST',headers:{'X-Requested-With':'XMLHttpRequest'}});
+    if(!r.ok) throw new Error('API '+r.status);
+    showToast('✅ Marked as posted');
+    loadDrafts('approved');loadScanStats();
+  }catch(e){showToast('❌ '+e.message)}
+}
+
+// ========== CONVERSION FUNNEL ==========
+const STAGES=['visit','risk_check_start','risk_check_complete','truth_check_start','truth_check_complete','email_capture','signup','app_page_view','address_entered','upload_started','upload_complete','analysis_started','analysis_complete','pricing_view','purchase'];
+const STAGE_LABELS=['Visit','Risk Start','Risk Done','Truth Start','Truth Done','Email','Signup','App View','Address','Upload Start','Upload Done','Analyze','Results','Pricing','Purchase'];
+const STAGE_COLORS=['var(--blue)','var(--purple)','var(--purple)','var(--purple)','var(--purple)','var(--yellow)','var(--green)','var(--blue)','var(--blue)','var(--orange)','var(--orange)','var(--green)','var(--green)','var(--yellow)','var(--green)'];
+
+async function loadFunnel(){
+  const days=document.getElementById('funnelDays').value;
+  try{
+    const r=await fetch(apiUrl('/api/gtm/funnel?days='+days));
+    if(!r.ok) throw new Error('API error');
+    const d=await r.json();
+    
+    const maxVal=Math.max(...STAGES.map(s=>d.stages[s]||0),1);
+    const viz=document.getElementById('funnelViz');
+    viz.innerHTML=STAGES.map((s,i)=>{
+      const cnt=d.stages[s]||0;
+      const h=Math.max(8,cnt/maxVal*160);
+      return '<div class="funnel-stage">'+
+        '<div class="funnel-count">'+cnt+'</div>'+
+        '<div class="funnel-bar" style="height:'+h+'px;background:'+STAGE_COLORS[i]+'"></div>'+
+        '<div class="funnel-name">'+STAGE_LABELS[i]+'</div>'+
+      '</div>';
+    }).join('');
+    
+    // Conversion rates
+    const rates=d.conversion_rates||{};
+    document.getElementById('funnelRates').innerHTML=Object.entries(rates).filter(([k,v])=>v>0).map(([k,v])=>{
+      const parts=k.split('_to_');
+      return '<div style="font-size:.78rem;color:var(--gray)">'+parts[0]+' → '+parts[1]+': <strong style="color:var(--yellow)">'+v+'%</strong></div>';
+    }).join('');
+    
+    // Detailed table grouped by funnel section
+    const sections=[
+      {title:'🔍 Free Tools (Top of Funnel)',stages:['visit','risk_check_start','risk_check_complete','truth_check_start','truth_check_complete']},
+      {title:'📧 Capture & Signup',stages:['email_capture','signup']},
+      {title:'📊 Core Analysis',stages:['app_page_view','address_entered','upload_started','upload_complete','analysis_started','analysis_complete']},
+      {title:'💰 Monetization',stages:['pricing_view','purchase']},
+    ];
+    let tbl='<table style="width:100%;border-collapse:collapse;font-size:.85rem;">';
+    tbl+='<tr style="border-bottom:1px solid var(--border);"><th style="text-align:left;padding:8px;color:var(--gray)">Stage</th><th style="text-align:right;padding:8px;color:var(--gray)">Count</th><th style="text-align:right;padding:8px;color:var(--gray)">Drop-off</th></tr>';
+    let prevCount=null;
+    for(const sec of sections){
+      tbl+='<tr><td colspan="3" style="padding:12px 8px 4px;font-weight:700;color:var(--text);font-size:.9rem">'+sec.title+'</td></tr>';
+      for(const s of sec.stages){
+        const cnt=d.stages[s]||0;
+        const lbl=STAGE_LABELS[STAGES.indexOf(s)]||s;
+        let dropoff='';
+        if(prevCount!==null&&prevCount>0){
+          const pct=Math.round((1-cnt/prevCount)*100);
+          if(pct>0) dropoff='<span style="color:'+(pct>50?'var(--red)':pct>30?'var(--yellow)':'var(--green)')+'">-'+pct+'%</span>';
+        }
+        tbl+='<tr style="border-bottom:1px solid rgba(255,255,255,.04)"><td style="padding:6px 8px;color:var(--text)">'+lbl+'</td><td style="text-align:right;padding:6px 8px;font-weight:700;color:var(--text)">'+cnt+'</td><td style="text-align:right;padding:6px 8px">'+dropoff+'</td></tr>';
+        if(cnt>0) prevCount=cnt;
+      }
+    }
+    tbl+='</table>';
+    document.getElementById('funnelTable').innerHTML=tbl;
+    
+    // Auto-generated insights
+    const insights=[];
+    const stages=d.stages||{};
+    const visits=stages.visit||0;
+    const appViews=stages.app_page_view||0;
+    const addressEntered=stages.address_entered||0;
+    const uploadStart=stages.upload_started||0;
+    const uploadDone=stages.upload_complete||0;
+    const analyzeStart=stages.analysis_started||0;
+    const analyzeComplete=stages.analysis_complete||0;
+    const pricingViews=stages.pricing_view||0;
+    const purchases=stages.purchase||0;
+    const signups=stages.signup||0;
+    const riskStarts=stages.risk_check_start||0;
+    
+    // Biggest drop-off
+    const funnelPairs=[
+      {from:'Visit',to:'Risk Check',a:visits,b:riskStarts},
+      {from:'App View',to:'Address Entered',a:appViews,b:addressEntered},
+      {from:'Address',to:'Upload Start',a:addressEntered,b:uploadStart},
+      {from:'Upload Start',to:'Upload Done',a:uploadStart,b:uploadDone},
+      {from:'Upload Done',to:'Analysis',a:uploadDone,b:analyzeStart},
+      {from:'Results',to:'Pricing',a:analyzeComplete,b:pricingViews},
+    ].filter(p=>p.a>0);
+    
+    if(funnelPairs.length>0){
+      const validPairs = funnelPairs.filter(p => p.b <= p.a); // Skip inflated downstream numbers
+      if(validPairs.length > 0) {
+        const worst=validPairs.reduce((w,p)=>{const drop=1-p.b/p.a;return drop>w.drop?{...p,drop}:w;},{drop:0});
+        if(worst.drop>0.3){
+          insights.push({icon:'🚨',color:'var(--red)',text:`Biggest drop-off: <strong>${worst.from} → ${worst.to}</strong> (${Math.round(worst.drop*100)}% lost). This is where most users abandon the flow.`});
+        }
+      }
+    }
+    
+    // App view to address (onboarding friction)
+    if(appViews>2&&addressEntered>0){
+      const rate=Math.round(addressEntered/appViews*100);
+      if(rate<30) insights.push({icon:'⚠️',color:'var(--yellow)',text:`Only <strong>${rate}%</strong> of users who open the app enter an address. The onboarding form may have too much friction.`});
+      else if(rate>=60) insights.push({icon:'✅',color:'var(--green)',text:`<strong>${rate}%</strong> of app viewers enter an address — solid engagement with the analysis tool.`});
+    }
+    
+    // Upload completion rate
+    if(uploadStart>0){
+      const rate=Math.round(uploadDone/uploadStart*100);
+      if(rate>=90) insights.push({icon:'✅',color:'var(--green)',text:`Upload success rate: <strong>${rate}%</strong> — document processing is reliable.`});
+      else if(rate<70) insights.push({icon:'⚠️',color:'var(--yellow)',text:`Upload completion: only <strong>${rate}%</strong>. Users may be struggling with document uploads or PDF parsing.`});
+    }
+    
+    // Pricing views vs completions
+    if(analyzeComplete>0&&pricingViews>0){
+      const ratio=Math.min(100, Math.round(pricingViews/Math.max(analyzeComplete,pricingViews)*100));
+      if(pricingViews > analyzeComplete * 3){
+        insights.push({icon:'⚠️',color:'var(--yellow)',text:`Pricing page has <strong>${pricingViews} views</strong> vs ${analyzeComplete} analysis completions — likely inflated by repeat views or bots. Consider adding session dedup.`});
+      } else {
+        insights.push({icon:'💰',color:'var(--yellow)',text:`<strong>${ratio}%</strong> of users who see results view pricing. ${purchases>0?purchases+' converted to purchase.':'No purchases yet — pricing page may need optimization.'}`});
+      }
+    }
+    
+    // Overall funnel health
+    if(visits>5&&analyzeComplete>0){
+      const overallRate=Math.round(analyzeComplete/visits*100);
+      insights.push({icon:'📊',color:'var(--blue)',text:`Overall conversion: <strong>${overallRate}%</strong> of visitors complete an analysis (${visits} visits → ${analyzeComplete} analyses).`});
+    }
+    
+    // Free tool engagement
+    if(visits>5&&riskStarts===0){
+      insights.push({icon:'🔍',color:'var(--yellow)',text:'No Risk Check usage despite '+visits+' visitors. Consider making the free tools more prominent on the homepage.'});
+    } else if(riskStarts>0 && (stages.risk_check_complete||0)>0) {
+      const riskComplRate = Math.round((stages.risk_check_complete||0)/riskStarts*100);
+      if(riskComplRate>=80) insights.push({icon:'✅',color:'var(--green)',text:`Risk Check completion: <strong>${riskComplRate}%</strong> — users who start it finish it.`});
+    }
+    
+    // Signup funnel
+    if(signups>0 && appViews>0) {
+      const signupToApp = Math.round(appViews/signups*100);
+      if(signupToApp > 200) insights.push({icon:'📱',color:'var(--blue)',text:'Users open the app <strong>'+Math.round(appViews/signups)+'x</strong> per signup — good repeat engagement.'});
+    }
+    
+    // Analysis completion rate
+    if(analyzeStart > 0) {
+      const complRate = Math.round((analyzeComplete||0)/analyzeStart*100);
+      if(complRate >= 90) insights.push({icon:'✅',color:'var(--green)',text:`Analysis completion: <strong>${complRate}%</strong> — the AI engine is reliable.`});
+      else if(complRate < 70) insights.push({icon:'🚨',color:'var(--red)',text:`Analysis completion: only <strong>${complRate}%</strong> — ${analyzeStart - (analyzeComplete||0)} analyses failed or timed out. Check error logs.`});
+    }
+    
+    if(insights.length===0){
+      insights.push({icon:'📊',color:'var(--gray)',text:'Not enough data yet for insights. Keep driving traffic — insights will appear as the funnel fills up.'});
+    }
+    
+    document.getElementById('funnelInsights').innerHTML=
+      '<div style="font-size:.85rem;font-weight:600;color:var(--text);margin-bottom:12px;">💡 Funnel Insights</div>'+
+      insights.map(i=>'<div style="display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:.85rem;line-height:1.6;"><span style="font-size:16px;flex-shrink:0;">'+i.icon+'</span><span style="color:var(--text);">'+i.text+'</span></div>').join('');
+    
+  }catch(e){
+    document.getElementById('funnelViz').innerHTML='<div class="empty"><div class="icon">📊</div>No funnel data yet. Events will populate as users interact with the site.</div>';
+  }
+}
+
+// ========== AD PERFORMANCE ==========
+function _adSourceBadge(src){
+  const badges={
+    'ga4':      ['rgba(34,197,94,.15)','var(--green)','GA4'],
+    'ga4+sync': ['rgba(34,197,94,.15)','var(--green)','GA4 + Sync'],
+    'manual':   ['rgba(251,191,36,.15)','var(--yellow)','Manual'],
+    'none':     ['rgba(100,116,139,.15)','var(--gray)','No data'],
+  };
+  const [bg,color,label]=badges[src]||badges['none'];
+  return `<span style="background:${bg};color:${color};padding:2px 8px;border-radius:4px;font-size:.7rem">${label}</span>`;
+}
+
+async function loadAds(){
+  const days=document.getElementById('adDays').value;
+  const container=document.getElementById('adTableContainer');
+  try{
+    const r=await fetch(apiUrl('/api/gtm/ads?days='+days));
+    if(!r.ok) throw new Error('API error');
+    const d=await r.json();
+
+    const channels=d.channels||{};
+    const ga4Status=d.ga4_status||{};
+    const ga4Connected=d.ga4_connected||false;
+
+    // ── GA4 diagnostic banner ──────────────────────────────────────────────
+    let ga4Banner='';
+    if(!ga4Connected){
+      const err=ga4Status.error||'';
+      const saEmail=ga4Status.service_account_email||null;
+      let detail='';
+      if(!ga4Status.has_property_id)
+        detail='Set <code>GA4_PROPERTY_ID</code> in Render env vars.';
+      else if(!ga4Status.has_key_json)
+        detail='Set <code>GOOGLE_ANALYTICS_KEY_JSON</code> in Render env vars.';
+      else if(!ga4Status.package_installed)
+        detail='Run <code>pip install google-analytics-data</code> and redeploy.';
+      else if(err)
+        detail=err+(saEmail&&err.includes('Permission')
+          ? `<br><strong>Service account to grant:</strong> <code style="user-select:all;">${saEmail}</code>`
+            +`<br>Go to: <a href="https://analytics.google.com/analytics/web/#/a/p${ga4Status.property_id}/admin/suiteUserManagement" target="_blank" style="color:#60a5fa;">GA4 Admin → Property Access Management →</a> add that email as <strong>Viewer</strong>.`
+          : '');
+      ga4Banner=`<div style="margin-bottom:14px;padding:10px 14px;border-radius:8px;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.25);font-size:.82rem;color:var(--red);">
+        ⚠️ <strong>GA4 not connected</strong> — sessions column will be empty.
+        ${detail?'<br><span style="color:var(--gray)">'+detail+'</span>':''}
+      </div>`;
+    } else {
+      ga4Banner=`<div style="margin-bottom:14px;padding:8px 14px;border-radius:8px;background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.15);font-size:.82rem;color:var(--green);">
+        ✅ GA4 connected (property ${ga4Status.property_id}) — sessions auto-populated.
+      </div>`;
+    }
+
+    // ── Table ──────────────────────────────────────────────────────────────
+    let html=ga4Banner;
+    html+='<table class="ad-table"><thead><tr><th>Channel</th><th class="num">Sessions</th><th class="num">Impressions</th><th class="num">Clicks</th><th class="num">CTR</th><th class="num">Spend</th><th class="num">Conv.</th><th class="num">CPA</th><th class="num">Revenue</th><th class="num">ROAS</th><th>Source</th></tr></thead><tbody>';
+
+    const hasAnyData=Object.values(channels).some(ch=>ch.sessions||ch.impressions||ch.clicks||ch.spend);
+
+    for(const[ch,data]of Object.entries(channels)){
+      const src=data.source||'none';
+      const sess=data.sessions||0;
+      const imp=data.impressions||0;
+      const clicks=data.clicks||0;
+      const spend=data.spend||0;
+      const conv=data.conversions||0;
+      const rev=data.revenue||0;
+      const cpaDisplay=(spend>0&&conv>0)?'$'+(data.cpa||0).toFixed(2):'—';
+      const roasDisplay=spend>0?(data.roas||0).toFixed(1)+'x':'—';
+      const dim=src==='none'?';opacity:.45':'';
+      html+=`<tr style="${dim}"><td><strong>${ch.replace(/_/g,' ')}</strong></td>
+        <td class="num blue">${sess.toLocaleString()}</td>
+        <td class="num">${imp.toLocaleString()}</td>
+        <td class="num">${clicks.toLocaleString()}</td>
+        <td class="num">${imp?data.ctr+'%':'—'}</td>
+        <td class="num">$${spend.toFixed(2)}</td>
+        <td class="num green">${conv}</td>
+        <td class="num ${data.cpa>50?'red':'green'}">${cpaDisplay}</td>
+        <td class="num green">$${rev.toFixed(2)}</td>
+        <td class="num ${data.roas>=2?'green':'red'}">${roasDisplay}</td>
+        <td>${_adSourceBadge(src)}</td></tr>`;
+    }
+    html+='</tbody></table>';
+
+    if(!hasAnyData){
+      html+=`<div style="margin-top:12px;font-size:.8rem;color:var(--gray);">
+        No spend data yet for this period. Click <strong>Sync Now</strong> to pull Google Ads data,
+        or use the Manual Spend Entry form below for Reddit Ads.
+      </div>`;
+    }
+
+    container.innerHTML=html;
+  }catch(e){
+    container.innerHTML='<div class="empty"><div class="icon">⚠️</div>Failed to load ad data. Check console for details.</div>';
+    console.error('loadAds error:',e);
+  }
+}
+
+async function submitAdEntry(){
+  const data={
+    channel:document.getElementById('entryChannel').value,
+    date:document.getElementById('entryDate').value||undefined,
+    impressions:parseInt(document.getElementById('entryImpressions').value)||0,
+    clicks:parseInt(document.getElementById('entryClicks').value)||0,
+    spend:parseFloat(document.getElementById('entrySpend').value)||0,
+    conversions:parseInt(document.getElementById('entryConversions').value)||0,
+    revenue:parseFloat(document.getElementById('entryRevenue').value)||0,
+  };
+  try{
+    const r=await fetch(apiUrl('/api/gtm/ads/entry'),{method:'POST',headers:{'Content-Type':'application/json','X-Requested-With':'XMLHttpRequest'},body:JSON.stringify(data)});
+    if(!r.ok){const e=await r.json();throw new Error(e.error||'Failed');}
+    showToast('Ad entry saved');
+    loadAds();
+    // Reset numeric fields
+    ['entryImpressions','entryClicks','entrySpend','entryConversions','entryRevenue'].forEach(id=>{document.getElementById(id).value='0'});
+  }catch(e){showToast('Error: '+e.message);}
+}
+
+// ========== SUBREDDIT CONTENT ==========
+
+const pillarColors={what_were_seeing:'var(--blue)',first_timer_tuesday:'var(--green)',did_you_know:'var(--purple)',real_numbers:'var(--yellow)',red_flag_friday:'var(--red)',community_qa:'var(--orange)',weekly_digest:'var(--gray)'};
+
+async function loadContentCalendar(){
+  const container=document.getElementById('contentCalendar');
+  try{
+    const r=await fetch(apiUrl('/api/gtm/content/calendar'));
+    if(!r.ok) throw new Error('API error');
+    const days=await r.json();
+    
+    let html='<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;">';
+    days.forEach((d,i)=>{
+      const isToday=d.date===new Date().toISOString().slice(0,10);
+      const statusIcon=d.has_post?(d.post.status==='posted'?'✅':d.post.status==='approved'?'🟢':d.post.status==='skipped'?'⏭':'📝'):'—';
+      const borderColor=isToday?'var(--blue)':'transparent';
+      const bg=d.has_post?'var(--card2)':'var(--bg)';
+      html+='<div style="background:'+bg+';border:2px solid '+borderColor+';border-radius:8px;padding:10px;text-align:center;cursor:'+(d.has_post?'pointer':'default')+';transition:all .15s;" '+(d.has_post?'onclick="openPostEditor('+d.post.id+')" onmouseover="this.style.borderColor=\'var(--blue)\'" onmouseout="this.style.borderColor=\''+(isToday?'var(--blue)':'transparent')+'\'"':'')+'>'+
+        '<div style="font-size:.65rem;color:var(--gray);text-transform:uppercase;">'+d.day_name.slice(0,3)+'</div>'+
+        '<div style="font-size:1.1rem;font-weight:700;margin:2px 0;color:'+(isToday?'var(--blue)':'var(--text)')+';">'+d.date.slice(8)+'</div>'+
+        '<div style="font-size:1rem;">'+statusIcon+'</div>'+
+        '<div style="font-size:.6rem;color:'+(pillarColors[d.pillar]||'var(--gray)')+';margin-top:2px;font-weight:600;">'+d.pillar_label.split(' ').slice(1).join(' ')+'</div>'+
+      '</div>';
+    });
+    html+='</div>';
+    container.innerHTML=html;
+    
+    // Update stats
+    let drafts=0,approved=0,posted=0,skipped=0;
+    days.forEach(d=>{if(!d.has_post)return;if(d.post.status==='draft')drafts++;if(d.post.status==='approved')approved++;if(d.post.status==='posted')posted++;if(d.post.status==='skipped')skipped++;});
+    document.getElementById('statDrafts').textContent=drafts;
+    document.getElementById('statApprovedContent').textContent=approved;
+    document.getElementById('statPostedContent').textContent=posted;
+    document.getElementById('statSkippedContent').textContent=skipped;
+    
+  }catch(e){container.innerHTML='<div class="empty"><div class="icon">⚠️</div>Failed to load calendar<div style="font-size:.75rem;color:var(--gray);margin-top:8px">'+escHtml(e.message)+'</div></div>';}
+}
+
+let _contentPostsCache=[];
+
+async function loadContentPosts(status){
+  const container=document.getElementById('contentPosts');
+  try{
+    let url='/api/gtm/content?limit=30';
+    if(status) url+='&status='+status;
+    const r=await fetch(apiUrl(url));
+    if(!r.ok) throw new Error('API error '+r.status);
+    const posts=await r.json();
+    _contentPostsCache=Array.isArray(posts)?posts:[];
+    
+    if(!_contentPostsCache.length){
+      container.innerHTML='<div class="empty"><div class="icon">📝</div>No posts yet. Click "Generate Today\'s Post" to get started.</div>';
+      return;
+    }
+    
+    const statusBadge=(s)=>{
+      const map={draft:['var(--yellow)','#000','Draft'],approved:['var(--green)','#000','Approved'],posted:['var(--blue)','#fff','Posted'],skipped:['var(--card2)','var(--gray)','Skipped']};
+      const[bg,fg,label]=map[s]||['var(--card2)','var(--gray)',s];
+      return '<span style="background:'+bg+';color:'+fg+';padding:2px 8px;border-radius:4px;font-size:.7rem;font-weight:700;">'+label+'</span>';
+    };
+    
+    container.innerHTML=_contentPostsCache.map(p=>{
+      const color=pillarColors[p.pillar]||'var(--gray)';
+      const body=(p.edited_body||p.body||'').slice(0,180).replace(/</g,'&lt;');
+      return '<div style="background:var(--card2);border-radius:10px;padding:16px;margin-bottom:10px;border-left:4px solid '+color+';transition:all .15s;" onmouseover="this.style.background=\'var(--border)\'" onmouseout="this.style.background=\'var(--card2)\'">'+
+        '<div style="display:flex;justify-content:space-between;align-items:start;gap:12px;margin-bottom:6px;">'+
+          '<div style="font-weight:700;font-size:.9rem;flex:1;cursor:pointer;" onclick="openPostEditor('+p.id+')">'+escHtml(p.title)+'</div>'+
+          '<div style="display:flex;gap:6px;align-items:center;flex-shrink:0;">'+
+            '<button class="btn btn-sm" style="background:var(--orange);color:#fff;" onclick="event.stopPropagation();copyAndOpenFromList('+p.id+')" title="Copy post and open Reddit pre-filled">📋 Copy &amp; Open →</button>'+
+            statusBadge(p.status)+
+            '<span style="font-size:.7rem;color:var(--gray);">'+p.scheduled_date+'</span>'+
+          '</div>'+
+        '</div>'+
+        '<div style="font-size:.8rem;color:var(--gray);line-height:1.5;cursor:pointer;" onclick="openPostEditor('+p.id+')">'+body+'…</div>'+
+        '<div style="font-size:.7rem;color:'+color+';margin-top:6px;font-weight:600;">'+escHtml(p.pillar_label)+' · '+escHtml(p.flair||'')+'</div>'+
+        (p.posted_url?'<div style="font-size:.7rem;margin-top:4px;"><a href="'+escHtml(p.posted_url)+'" target="_blank" style="color:var(--blue);">View on Reddit →</a></div>':'')+
+      '</div>';
+    }).join('');
+    
+  }catch(e){container.innerHTML='<div class="empty"><div class="icon">⚠️</div>Failed to load posts<div style="font-size:.75rem;color:var(--gray);margin-top:8px">'+escHtml(e.message)+'</div></div>';}
+}
+
+function copyAndOpenFromList(postId){
+  const post = _contentPostsCache.find(p=>p.id===postId);
+  if(!post) return;
+  const title = post.title || '';
+  const body  = post.edited_body || post.body || '';
+  const full  = title + '\n\n' + body;
+  const sub   = _inferSubreddit(post);
+  const url   = 'https://www.reddit.com/r/'+sub+'/submit?title='+encodeURIComponent(title)+'&text='+encodeURIComponent(body);
+  navigator.clipboard.writeText(full).then(()=>{
+    showToast('📋 Post copied — opening Reddit…');
+    window.open(url,'_blank');
+  }).catch(()=>{
+    window.open(url,'_blank');
+  });
+}
+
+function escHtml(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+async function generateToday(){
+  const btn=document.getElementById('genTodayBtn');
+  btn.disabled=true;btn.textContent='⏳ Generating...';
+  try{
+    const r=await fetch(apiUrl('/api/gtm/content/generate'),{method:'POST',headers:{'Content-Type':'application/json','X-Requested-With':'XMLHttpRequest'},body:JSON.stringify({})});
+    const d=await r.json();
+    if(d.status==='exists'){showToast('Post already exists for today — opening editor');openPostEditor(d.post.id);}
+    else if(d.status==='generated'){showToast('Today\'s post generated!');openPostEditor(d.post.id);}
+    else{showToast('❌ '+(d.error||'Unknown error')+(d.traceback?' — '+d.traceback:''));}
+    loadContentCalendar();loadContentPosts();
+  }catch(e){showToast('Error: '+e.message);}
+  btn.disabled=false;btn.textContent='✨ Generate Today\'s Post';
+}
+
+async function generateWeek(){
+  try{
+    const r=await fetch(apiUrl('/api/gtm/content/batch'),{method:'POST',headers:{'Content-Type':'application/json','X-Requested-With':'XMLHttpRequest'},body:JSON.stringify({days:7})});
+    const d=await r.json();
+    showToast('Generated '+(d.generated?d.generated.length:0)+' posts, skipped '+(d.skipped?d.skipped.length:0)+' existing');
+    loadContentCalendar();loadContentPosts();
+  }catch(e){showToast('Error: '+e.message);}
+}
+
+async function generateBPBlog(){
+  const btn=document.getElementById('bpBlogBtn');
+  btn.disabled=true;btn.textContent='⏳ Generating...';
+  try{
+    const r=await fetch(apiUrl('/api/gtm/bp-blog/generate'),{method:'POST',headers:{'Content-Type':'application/json','X-Requested-With':'XMLHttpRequest'},body:JSON.stringify({})});
+    if(!r.ok){const err=await r.json().catch(()=>({}));throw new Error(err.error||'API error '+r.status);}
+    const d=await r.json();
+    const container=document.getElementById('bpBlogContainer');
+    container.innerHTML=`
+      <div style="padding:20px;">
+        <h3 style="color:var(--blue);margin-bottom:8px;">${escHtml(d.title)}</h3>
+        <div style="font-size:.75rem;color:var(--gray);margin-bottom:16px;">${escHtml(d.topic)} · ${d.word_count} words · HTML format for BP</div>
+        <div id="bpBlogPreview" style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:20px;font-size:.9rem;color:var(--text);line-height:1.7;max-height:500px;overflow-y:auto;">${d.body}</div>
+        <textarea id="bpBlogRaw" style="display:none;">${escHtml(d.body)}</textarea>
+        <div style="display:flex;gap:8px;margin-top:16px;flex-wrap:wrap;">
+          <button class="btn btn-sm btn-primary" onclick="navigator.clipboard.writeText(document.getElementById('bpBlogRaw').value);showToast('HTML copied! Paste into BP editor source view.')">📋 Copy HTML</button>
+          <button class="btn btn-sm btn-ghost" onclick="document.getElementById('bpBlogPreview').style.display='none';document.getElementById('bpBlogSource').style.display='block';" >🔧 View Source</button>
+          <button class="btn btn-sm btn-ghost" onclick="document.getElementById('bpBlogPreview').style.display='block';document.getElementById('bpBlogSource').style.display='none';">👁 Preview</button>
+          <button class="btn btn-sm btn-green" onclick="generateBPBlog()">🔄 Generate Another</button>
+        </div>
+        <pre id="bpBlogSource" style="display:none;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:16px;font-size:.75rem;color:#94a3b8;line-height:1.5;max-height:400px;overflow-y:auto;white-space:pre-wrap;word-break:break-word;margin-top:12px;">${escHtml(d.body)}</pre>
+      </div>`;
+    showToast('✅ BP blog post generated — '+d.word_count+' words');
+  }catch(e){showToast('❌ '+e.message);}
+  btn.disabled=false;btn.textContent='🏠 Generate BP Blog Post';
+}
+
+function copyAndOpenRedditSubmit(){
+  const title = document.getElementById('editorTitle').value.trim();
+  const body  = document.getElementById('editorBody').value.trim();
+  // Copy full text to clipboard first
+  const full  = title + '\n\n' + body;
+  navigator.clipboard.writeText(full).then(()=>{
+    showToast('📋 Post copied — opening Reddit…');
+    // Build pre-filled submit URL (title + text)
+    const sub = window._editorTargetSub || 'OfferWiseAI';
+    const url = 'https://www.reddit.com/r/'+sub+'/submit?title='+encodeURIComponent(title)+'&text='+encodeURIComponent(body);
+    window.open(url,'_blank');
+  }).catch(()=>{
+    const sub = window._editorTargetSub || 'OfferWiseAI';
+    const url = 'https://www.reddit.com/r/'+sub+'/submit?title='+encodeURIComponent(title)+'&text='+encodeURIComponent(body);
+    window.open(url,'_blank');
+    showToast('Opened Reddit (clipboard unavailable)');
+  });
+}
+
+function openPostEditor(postId){
+  // Find post in cache or fetch
+  const post=_contentPostsCache.find(p=>p.id===postId);
+  if(post){
+    document.getElementById('editorPostId').value=post.id;
+    document.getElementById('editorTitle').value=post.title;
+    document.getElementById('editorBody').value=post.edited_body||post.body;
+    document.getElementById('postEditorModal').style.display='block';
+    // Store target subreddit for the Reddit submit button
+    // Use flair to infer subreddit, or fall back to homebuyers
+    window._editorTargetSub = _inferSubreddit(post);
+  }else{
+    // Fetch it
+    fetch(apiUrl('/api/gtm/content?limit=50')).then(r=>r.json()).then(posts=>{
+      _contentPostsCache=posts;
+      const p=posts.find(x=>x.id===postId);
+      if(p){
+        document.getElementById('editorPostId').value=p.id;
+        document.getElementById('editorTitle').value=p.title;
+        document.getElementById('editorBody').value=p.edited_body||p.body;
+        document.getElementById('postEditorModal').style.display='block';
+        window._editorTargetSub = _inferSubreddit(p);
+      }
+    });
+  }
+}
+
+function _inferSubreddit(post){
+  // Original posts ONLY go to our own r/OfferWiseAI — no product posts in other subs
+  return 'OfferWiseAI';
+}
+
+function closePostEditor(){document.getElementById('postEditorModal').style.display='none';}
+
+async function _updatePost(data){
+  const id=document.getElementById('editorPostId').value;
+  try{
+    const r=await fetch(apiUrl('/api/gtm/content/'+id),{method:'PUT',headers:{'Content-Type':'application/json','X-Requested-With':'XMLHttpRequest'},body:JSON.stringify(data)});
+    if(!r.ok) throw new Error('Failed');
+    const d=await r.json();
+    showToast('Post updated');
+    closePostEditor();loadContentCalendar();loadContentPosts();
+    return d;
+  }catch(e){showToast('Error: '+e.message);return null;}
+}
+
+async function savePostEdit(){
+  await _updatePost({title:document.getElementById('editorTitle').value,edited_body:document.getElementById('editorBody').value});
+}
+
+async function approvePost(){await _updatePost({status:'approved'});}
+
+async function markPostPosted(){
+  const url=prompt('Paste the Reddit post URL (or leave blank):');
+  await _updatePost({status:'posted',posted_url:url||''});
+}
+
+async function skipPost(){
+  const reason=prompt('Skip reason (optional):');
+  await _updatePost({status:'skipped',skip_reason:reason||''});
+}
+
+async function deletePost(){
+  if(!confirm('Delete this post draft?'))return;
+  const id=document.getElementById('editorPostId').value;
+  try{
+    await fetch(apiUrl('/api/gtm/content/'+id),{method:'DELETE',headers:{'X-Requested-With':'XMLHttpRequest'}});
+    showToast('Post deleted');
+    closePostEditor();loadContentCalendar();loadContentPosts();
+  }catch(e){showToast('Error: '+e.message);}
+}
+
+// ── Copy functions for post cards ──
+function _getPostById(id){return _contentPostsCache.find(p=>p.id===id);}
+
+function copyPostTitle(id){
+  const p=_getPostById(id);
+  if(!p)return;
+  navigator.clipboard.writeText(p.title).then(()=>showToast('📋 Title copied'));
+}
+
+function copyPostBody(id){
+  const p=_getPostById(id);
+  if(!p)return;
+  navigator.clipboard.writeText(p.edited_body||p.body).then(()=>showToast('📋 Body copied'));
+}
+
+function copyPostFull(id){
+  const p=_getPostById(id);
+  if(!p)return;
+  const text=p.title+'\n\n'+(p.edited_body||p.body);
+  navigator.clipboard.writeText(text).then(()=>showToast('📋 Title + body copied'));
+}
+
+// ── Copy functions for editor modal ──
+function copyEditorTitle(){
+  navigator.clipboard.writeText(document.getElementById('editorTitle').value).then(()=>showToast('📋 Title copied'));
+}
+
+function copyEditorBody(){
+  navigator.clipboard.writeText(document.getElementById('editorBody').value).then(()=>showToast('📋 Body copied'));
+}
+
+function copyEditorFull(){
+  const title=document.getElementById('editorTitle').value;
+  const body=document.getElementById('editorBody').value;
+  navigator.clipboard.writeText(title+'\n\n'+body).then(()=>showToast('📋 Title + body copied'));
+}
+
+// ========== GOOGLE ADS SYNC ==========
+async function loadGadsStatus(){
+  try{
+    const r=await fetch(apiUrl('/api/admin/google-ads-status'));
+    if(!r.ok) return;
+    const d=await r.json();
+    const el=document.getElementById('gadsStatus');
+    if(!d.configured){
+      const vars=d.env_vars||{};
+      const missing=Object.entries(vars).filter(([k,v])=>!v).map(([k])=>k).join(', ');
+      el.innerHTML='<span style="color:var(--yellow)">⚠️ Not fully configured.</span> Missing: <code>'+(missing||'unknown')+'</code>';
+    } else if(d.last_sync_date){
+      el.innerHTML='<span style="color:var(--green)">✅ Connected</span> · Customer ID: '+d.customer_id+' · Last sync: <strong>'+d.last_sync_date+'</strong> · '+d.last_sync_impressions+' imp · $'+(d.last_sync_spend||0).toFixed(2)+' spend · '+d.total_rows+' total rows';
+    } else {
+      el.innerHTML='<span style="color:var(--blue)">🔗 Connected</span> · Customer ID: '+d.customer_id+' · No data synced yet ('+d.total_rows+' rows). Click <strong>Sync Now</strong>.';
+    }
+  }catch(e){console.error('gads status error:',e)}
+}
+
+async function syncGoogleAds(days){
+  const result=document.getElementById('gadsSyncResult');
+  result.style.display='none';
+  try{
+    let url='/api/admin/google-ads-sync';
+    if(days) url+='?days='+days;
+    const r=await fetch(apiUrl(url),{method:'POST',headers:{'Content-Type':'application/json','X-Requested-With':'XMLHttpRequest'}});
+    const d=await r.json();
+    result.style.display='block';
+    if(d.error){
+      result.style.background='rgba(239,68,68,0.1)';result.style.color='#ef4444';
+      result.textContent='Error: '+d.error;
+    } else if(d.status==='backfill_complete'){
+      const synced=d.results.filter(r=>r.status==='synced').length;
+      const noData=d.results.filter(r=>r.status==='no_data').length;
+      result.style.background='rgba(34,197,94,0.1)';result.style.color='#22c55e';
+      result.textContent='Backfill complete: '+synced+'/'+d.days+' days had data'+(noData?' ('+noData+' days returned no impressions — campaigns may not have run those days)':'');
+    } else if(d.status==='no_data'){
+      result.style.background='rgba(251,191,36,0.1)';result.style.color='var(--yellow)';
+      result.textContent='Sync: no campaign data for '+d.date+'. Your Google Ads campaigns may not have run yet, or data is still processing (can lag up to 24h). Try Backfill 7d to check recent days.';
+    } else if(d.status==='already_synced'){
+      result.style.background='rgba(100,116,139,0.1)';result.style.color='var(--gray)';
+      result.textContent='Already synced for '+d.date+'. Use Backfill 7d to re-check earlier days.';
+    } else {
+      result.style.background='rgba(34,197,94,0.1)';result.style.color='#22c55e';
+      result.textContent='Sync: '+d.status+' — '+(d.impressions||0)+' imp, '+(d.clicks||0)+' clicks, $'+(d.spend||0).toFixed(2)+' spend ('+d.campaigns+' campaigns)';
+    }
+    loadGadsStatus();loadAds();
+  }catch(e){
+    result.style.display='block';result.style.background='rgba(239,68,68,0.1)';result.style.color='#ef4444';
+    result.textContent='Network error syncing Google Ads';
+  }
+}
+
+// ========== UTILITY ==========
+function showToast(msg){
+  const t=document.createElement('div');t.className='toast';t.textContent=msg;
+  document.body.appendChild(t);setTimeout(()=>t.remove(),3000);
+}
+
+function refreshAll(){loadScanStats();loadDrafts('approved');loadSubreddits()}
+
+// ========== INIT ==========
+document.getElementById('entryDate').valueAsDate=new Date();
+loadSubreddits();
+loadScanStats();
+
+
+// ═══════════════════════════════════════════════════════════
+// FACEBOOK FUNCTIONS
+// ═══════════════════════════════════════════════════════════
+
+async function loadFBGroups() {
+  const el = document.getElementById('fbGroupsList');
+  if (!el) return;
+  try {
+    const r = await fetch(apiUrl('/api/gtm/facebook/groups'));
+    const groups = await r.json();
+    if (!groups.length) {
+      el.innerHTML = '<div class="empty"><div class="icon">👥</div>No target groups yet. Add one above.</div>';
+      return;
+    }
+    el.innerHTML = '<table class="ad-table"><thead><tr><th>Group</th><th>Priority</th><th>Notes</th><th>Status</th><th></th></tr></thead><tbody>' +
+      groups.map(g => `<tr>
+        <td><strong>${escHtml(g.name)}</strong>${g.url ? ' <a href="'+escHtml(g.url)+'" target="_blank" style="color:var(--blue);font-size:.75rem;">↗</a>' : ''}</td>
+        <td>${g.priority}</td>
+        <td style="font-size:.8rem;color:var(--gray)">${escHtml(g.notes||'')}</td>
+        <td><span style="color:${g.enabled?'var(--green)':'var(--red)'};">${g.enabled?'Active':'Paused'}</span></td>
+        <td><button class="btn btn-sm btn-ghost" onclick="deleteFBGroup(${g.id},'${escHtml(g.name)}')">✕</button></td>
+      </tr>`).join('') +
+      '</tbody></table>';
+  } catch(e) {
+    el.innerHTML = '<div class="empty">Error loading groups</div>';
+  }
+}
+
+function showAddFBGroup() {
+  const f = document.getElementById('addFBGroupForm');
+  if (f) f.style.display = f.style.display === 'none' ? 'block' : 'none';
+}
+
+async function addFBGroup() {
+  const name = document.getElementById('fbGroupName')?.value?.trim();
+  const url  = document.getElementById('fbGroupUrl')?.value?.trim();
+  if (!name) return;
+  try {
+    const r = await fetch(apiUrl('/api/gtm/facebook/groups'), {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({name, url, priority: 5})
+    });
+    const d = await r.json();
+    if (d.error) { showToast('❌ ' + d.error); return; }
+    showToast('✅ Group added');
+    document.getElementById('addFBGroupForm').style.display = 'none';
+    document.getElementById('fbGroupName').value = '';
+    document.getElementById('fbGroupUrl').value  = '';
+    loadFBGroups();
+  } catch(e) { showToast('❌ Error adding group'); }
+}
+
+async function deleteFBGroup(id, name) {
+  if (!confirm(`Remove "${name}"?`)) return;
+  await fetch(apiUrl('/api/gtm/facebook/groups/' + id), {method: 'DELETE'});
+  showToast('🗑 Removed');
+  loadFBGroups();
+}
+
+async function generateFacebookPost() {
+  const btn = document.getElementById('fbGenBtn') || document.querySelector('[onclick="generateFacebookPost()"]');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Generating...'; }
+  // Pick first active group as target
+  let group = 'First Time Home Buyers - Bay Area CA';
+  try {
+    const r = await fetch(apiUrl('/api/gtm/facebook/groups'));
+    const groups = await r.json();
+    const active = groups.find(g => g.enabled);
+    if (active) group = active.name;
+  } catch(e) {}
+  try {
+    const r = await fetch(apiUrl('/api/gtm/facebook/generate'), {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({target_group: group})
+    });
+    const d = await r.json();
+    if (d.error) { showToast('❌ ' + d.error); return; }
+    showToast('✅ Post generated');
+    loadFBPosts('draft');
+  } catch(e) { showToast('❌ Generation failed'); }
+  finally { if (btn) { btn.disabled = false; btn.textContent = '✨ Generate Facebook Post'; } }
+}
+
+async function loadFBPosts(status = 'draft') {
+  const el = document.getElementById('fbPostsContainer');
+  if (!el) return;
+  el.innerHTML = '<div class="loading-overlay"><div class="spinner"></div> Loading...</div>';
+  try {
+    const r = await fetch(apiUrl('/api/gtm/facebook/posts?status=' + status + '&limit=10'));
+    const posts = await r.json();
+    if (!posts.length) {
+      el.innerHTML = '<div class="empty"><div class="icon">📝</div>No ' + status + ' posts. Click "Generate Facebook Post" to create one.</div>';
+      return;
+    }
+    el.innerHTML = posts.map(p => renderSocialPost(p, 'fb')).join('');
+  } catch(e) { el.innerHTML = '<div class="empty">Error loading posts</div>'; }
+}
+
+async function loadFBDrafts(status = 'pending') {
+  const el = document.getElementById('fbDraftsContainer');
+  if (!el) return;
+  el.innerHTML = '<div class="loading-overlay"><div class="spinner"></div> Loading...</div>';
+  // FB reply drafts reuse the GTM drafts table filtered by platform
+  try {
+    const r = await fetch(apiUrl('/api/gtm/drafts?status=' + status + '&limit=20'));
+    const drafts = await r.json();
+    const fbDrafts = drafts.filter(d => d.platform === 'facebook' || !d.platform);
+    if (!fbDrafts.length) {
+      el.innerHTML = '<div class="empty"><div class="icon">📭</div>No ' + status + ' drafts.</div>';
+      return;
+    }
+    el.innerHTML = fbDrafts.map(d => renderDraft(d)).join('');
+  } catch(e) { el.innerHTML = '<div class="empty">Error loading drafts</div>'; }
+}
+
+function triggerScanFacebook() {
+  showToast('ℹ️ Facebook scanning requires setting FB_GROUP_COOKIE in Render env vars. Manual posting available now.');
+}
+
+// ═══════════════════════════════════════════════════════════
+// NEXTDOOR FUNCTIONS
+// ═══════════════════════════════════════════════════════════
+
+async function loadNDNeighborhoods() {
+  const el = document.getElementById('ndNeighborhoodsList');
+  if (!el) return;
+  try {
+    const r = await fetch(apiUrl('/api/gtm/nextdoor/neighborhoods'));
+    const hoods = await r.json();
+    if (!hoods.length) {
+      el.innerHTML = '<div class="empty"><div class="icon">🏘</div>No neighborhoods yet. Add one above.</div>';
+      return;
+    }
+    el.innerHTML = '<table class="ad-table"><thead><tr><th>Neighborhood</th><th>Priority</th><th>Notes</th><th>Status</th><th></th></tr></thead><tbody>' +
+      hoods.map(h => `<tr>
+        <td><strong>${escHtml(h.name)}</strong>${h.url ? ' <a href="'+escHtml(h.url)+'" target="_blank" style="color:var(--blue);font-size:.75rem;">↗</a>' : ''}</td>
+        <td>${h.priority}</td>
+        <td style="font-size:.8rem;color:var(--gray)">${escHtml(h.notes||'')}</td>
+        <td><span style="color:${h.enabled?'var(--green)':'var(--red)'};">${h.enabled?'Active':'Paused'}</span></td>
+        <td><button class="btn btn-sm btn-ghost" onclick="deleteNDNeighborhood(${h.id},'${escHtml(h.name)}')">✕</button></td>
+      </tr>`).join('') +
+      '</tbody></table>';
+  } catch(e) {
+    el.innerHTML = '<div class="empty">Error loading neighborhoods</div>';
+  }
+}
+
+function showAddNDNeighborhood() {
+  const f = document.getElementById('addNDForm');
+  if (f) f.style.display = f.style.display === 'none' ? 'block' : 'none';
+}
+
+async function addNDNeighborhood() {
+  const name = document.getElementById('ndName')?.value?.trim();
+  const url  = document.getElementById('ndUrl')?.value?.trim();
+  if (!name) return;
+  try {
+    const r = await fetch(apiUrl('/api/gtm/nextdoor/neighborhoods'), {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({name, url, priority: 5})
+    });
+    const d = await r.json();
+    if (d.error) { showToast('❌ ' + d.error); return; }
+    showToast('✅ Neighborhood added');
+    document.getElementById('addNDForm').style.display = 'none';
+    document.getElementById('ndName').value = '';
+    document.getElementById('ndUrl').value  = '';
+    loadNDNeighborhoods();
+  } catch(e) { showToast('❌ Error'); }
+}
+
+async function deleteNDNeighborhood(id, name) {
+  if (!confirm(`Remove "${name}"?`)) return;
+  await fetch(apiUrl('/api/gtm/nextdoor/neighborhoods/' + id), {method: 'DELETE'});
+  showToast('🗑 Removed');
+  loadNDNeighborhoods();
+}
+
+async function generateNextdoorPost() {
+  const btn = document.querySelector('[onclick="generateNextdoorPost()"]');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Generating...'; }
+  let neighborhood = 'San Jose, CA';
+  try {
+    const r = await fetch(apiUrl('/api/gtm/nextdoor/neighborhoods'));
+    const hoods = await r.json();
+    const active = hoods.find(h => h.enabled);
+    if (active) neighborhood = active.name;
+  } catch(e) {}
+  try {
+    const r = await fetch(apiUrl('/api/gtm/nextdoor/generate'), {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({target_neighborhood: neighborhood})
+    });
+    const d = await r.json();
+    if (d.error) { showToast('❌ ' + d.error); return; }
+    showToast('✅ Post generated');
+    loadNDPosts('draft');
+  } catch(e) { showToast('❌ Generation failed'); }
+  finally { if (btn) { btn.disabled = false; btn.textContent = '✨ Generate Nextdoor Post'; } }
+}
+
+async function loadNDPosts(status = 'draft') {
+  const el = document.getElementById('ndPostsContainer');
+  if (!el) return;
+  el.innerHTML = '<div class="loading-overlay"><div class="spinner"></div> Loading...</div>';
+  try {
+    const r = await fetch(apiUrl('/api/gtm/nextdoor/posts?status=' + status + '&limit=10'));
+    const posts = await r.json();
+    if (!posts.length) {
+      el.innerHTML = '<div class="empty"><div class="icon">📝</div>No ' + status + ' posts. Click "Generate Nextdoor Post" to create one.</div>';
+      return;
+    }
+    el.innerHTML = posts.map(p => renderSocialPost(p, 'nd')).join('');
+  } catch(e) { el.innerHTML = '<div class="empty">Error loading posts</div>'; }
+}
+
+function triggerScanNextdoor() {
+  showToast('ℹ️ Nextdoor scanning requires NEXTDOOR_SESSION_COOKIE in Render env vars. Manual posting available now.');
+}
+
+// ── Shared renderer for FB + ND post drafts ──────────────────────
+function renderSocialPost(p, prefix) {
+  const body = escHtml((p.edited_body || p.body || '').substring(0, 300));
+  const isPosted = p.status === 'posted';
+  const isApproved = p.status === 'approved';
+  const statusColor = isPosted ? 'var(--green)' : isApproved ? 'var(--blue)' : 'var(--yellow)';
+  const postLabel = p.platform === 'facebook' ? '📘 Post to Facebook group' : '🏘 Post to Nextdoor';
+  const updateFn = p.platform === 'facebook' ? `/api/gtm/facebook/posts/${p.id}` : `/api/gtm/nextdoor/posts/${p.id}`;
+  const deleteFn = p.platform === 'facebook' ? `/api/gtm/facebook/posts/${p.id}` : `/api/gtm/nextdoor/posts/${p.id}`;
+
+  return `<div style="background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:16px;margin-bottom:10px;">
+    <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:8px;gap:8px;flex-wrap:wrap;">
+      <div>
+        <div style="font-weight:700;font-size:.9rem;">${escHtml(p.title||'Untitled')}</div>
+        <div style="font-size:.75rem;color:var(--gray);margin-top:2px;">
+          ${p.pillar_label||''} · ${p.target_group||''} · ${p.scheduled_date||''}
+        </div>
+      </div>
+      <span style="font-size:.75rem;font-weight:700;color:${statusColor};text-transform:uppercase;">${p.status}</span>
+    </div>
+    <div style="font-size:.82rem;color:var(--text-secondary);background:var(--bg);border-radius:6px;padding:10px;margin-bottom:10px;white-space:pre-wrap;line-height:1.5;">${body}${(p.edited_body||p.body||'').length > 300 ? '…' : ''}</div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;">
+      <button class="btn btn-sm btn-primary" onclick="copySocialPost('${prefix}', ${p.id})"
+        title="Copy text to clipboard">📋 Copy text</button>
+      ${!isPosted ? `<button class="btn btn-sm btn-green" onclick="markSocialPosted('${prefix}', ${p.id})" title="${postLabel}">✅ Mark as posted</button>` : ''}
+      <button class="btn btn-sm btn-ghost" onclick="editSocialPost('${prefix}', ${p.id}, this.closest('div[style]'))"
+        title="Edit before copying">✏️ Edit</button>
+      <button class="btn btn-sm" style="background:var(--red-bg,rgba(239,68,68,.1));color:var(--red);"
+        onclick="deleteSocialPost('${prefix}', ${p.id})">✕</button>
+    </div>
+  </div>`;
+}
+
+async function copySocialPost(prefix, id) {
+  const api = prefix === 'fb' ? `/api/gtm/facebook/posts/${id}` : `/api/gtm/nextdoor/posts/${id}`;
+  try {
+    const r = await fetch(apiUrl('/api/gtm/' + (prefix==='fb'?'facebook':'nextdoor') + '/posts?limit=50'));
+    const posts = await r.json();
+    const post = posts.find(p => p.id === id);
+    if (!post) { showToast('❌ Post not found'); return; }
+    const text = post.edited_body || post.body || '';
+    await navigator.clipboard.writeText(text);
+    showToast('📋 Copied to clipboard — paste directly into ' + (prefix==='fb'?'Facebook':'Nextdoor'));
+  } catch(e) { showToast('❌ Copy failed — try manually selecting the text'); }
+}
+
+async function markSocialPosted(prefix, id) {
+  const url = prompt('Paste the URL of the post after posting (optional):');
+  const api = '/api/gtm/' + (prefix==='fb'?'facebook':'nextdoor') + '/posts/' + id;
+  try {
+    await fetch(apiUrl(api), {
+      method: 'PUT', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({status: 'posted', posted_url: url || ''})
+    });
+    showToast('✅ Marked as posted');
+    if (prefix === 'fb') loadFBPosts('draft'); else loadNDPosts('draft');
+  } catch(e) { showToast('❌ Error'); }
+}
+
+function editSocialPost(prefix, id, container) {
+  // Inline edit — replace preview with textarea
+  const api = '/api/gtm/' + (prefix==='fb'?'facebook':'nextdoor') + '/posts/' + id;
+  const preview = container.querySelector('div[style*="pre-wrap"]');
+  if (!preview) return;
+  const current = preview.textContent;
+  const ta = document.createElement('textarea');
+  ta.value = current;
+  ta.style.cssText = 'width:100%;min-height:120px;background:var(--bg);border:1px solid var(--blue);border-radius:6px;padding:8px;color:var(--text);font-size:.82rem;font-family:inherit;resize:vertical;margin-bottom:8px;';
+  preview.replaceWith(ta);
+  const saveBtn = document.createElement('button');
+  saveBtn.className = 'btn btn-sm btn-primary';
+  saveBtn.textContent = '💾 Save';
+  saveBtn.onclick = async () => {
+    await fetch(apiUrl(api), {
+      method: 'PUT', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({edited_body: ta.value})
+    });
+    showToast('✅ Saved');
+    if (prefix === 'fb') loadFBPosts(); else loadNDPosts();
+  };
+  ta.parentNode.insertBefore(saveBtn, ta.nextSibling);
+}
+
+async function deleteSocialPost(prefix, id) {
+  if (!confirm('Delete this draft?')) return;
+  const api = '/api/gtm/' + (prefix==='fb'?'facebook':'nextdoor') + '/posts/' + id;
+  await fetch(apiUrl(api), {method: 'DELETE'});
+  showToast('🗑 Deleted');
+  if (prefix === 'fb') loadFBPosts(); else loadNDPosts();
+}
+
+</script>
+</body>
+</html>

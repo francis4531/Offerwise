@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OfferWise AI — Concept B</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #F8F9FA;
+    --surface: #FFFFFF;
+    --surface-2: #F3F4F6;
+    --border: #E5E7EB;
+    --border-strong: #D1D5DB;
+    --text: #111827;
+    --text-mid: #4B5563;
+    --text-muted: #9CA3AF;
+    --accent: #EA580C;
+    --accent-soft: #FFF7ED;
+    --accent-border: #FED7AA;
+    --green: #16A34A;
+    --green-soft: #F0FDF4;
+    --green-border: #BBF7D0;
+    --radius: 10px;
+    --radius-lg: 16px;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-md: 0 4px 16px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
+    --shadow-lg: 0 8px 32px rgba(0,0,0,0.1), 0 4px 8px rgba(0,0,0,0.04);
+  }
+
+  body {
+    font-family: 'Geist', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* NAV */
+  nav {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-inner {
+    max-width: 1120px; margin: 0 auto;
+    padding: 0 32px; height: 56px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .nav-brand {
+    font-family: 'Instrument Serif', serif;
+    font-size: 19px; color: var(--text);
+    text-decoration: none; display: flex; align-items: center; gap: 6px;
+  }
+  .nav-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
+  .nav-links { display: flex; align-items: center; gap: 4px; }
+  .nav-link {
+    padding: 6px 12px; border-radius: 6px;
+    font-size: 14px; color: var(--text-mid); font-weight: 500;
+    text-decoration: none; transition: all 0.15s;
+  }
+  .nav-link:hover { background: var(--surface-2); color: var(--text); }
+  .nav-btn {
+    padding: 7px 16px; background: var(--text); color: white;
+    border-radius: 7px; font-size: 13px; font-weight: 600;
+    text-decoration: none; transition: all 0.15s;
+    border: 1px solid var(--text);
+  }
+  .nav-btn:hover { background: var(--accent); border-color: var(--accent); }
+
+  /* HERO */
+  .hero-wrap {
+    max-width: 1120px; margin: 0 auto; padding: 80px 32px 60px;
+    display: grid; grid-template-columns: 1fr 480px; gap: 80px; align-items: center;
+  }
+  .badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--accent-soft); border: 1px solid var(--accent-border);
+    color: var(--accent); padding: 5px 12px; border-radius: 20px;
+    font-size: 12px; font-weight: 600; margin-bottom: 24px;
+  }
+  .badge-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.4; } }
+
+  h1 {
+    font-family: 'Instrument Serif', serif;
+    font-size: clamp(40px, 4.5vw, 62px);
+    font-weight: 400; line-height: 1.1;
+    letter-spacing: -0.5px; color: var(--text);
+    margin-bottom: 20px;
+  }
+  h1 .italic { font-style: italic; color: var(--accent); }
+
+  .hero-desc {
+    font-size: 17px; color: var(--text-mid); line-height: 1.7;
+    font-weight: 300; margin-bottom: 36px; max-width: 460px;
+  }
+  .hero-ctas { display: flex; gap: 10px; align-items: center; margin-bottom: 48px; }
+  .cta-primary {
+    background: var(--accent); color: white;
+    padding: 12px 24px; border-radius: var(--radius);
+    font-size: 14px; font-weight: 600; text-decoration: none;
+    display: flex; align-items: center; gap: 6px;
+    transition: all 0.15s; box-shadow: 0 2px 8px rgba(234,88,12,0.25);
+  }
+  .cta-primary:hover { background: #C2410C; transform: translateY(-1px); box-shadow: 0 4px 16px rgba(234,88,12,0.3); }
+  .cta-ghost {
+    padding: 12px 20px; border-radius: var(--radius);
+    border: 1px solid var(--border-strong); font-size: 14px; font-weight: 500;
+    color: var(--text-mid); text-decoration: none; transition: all 0.15s;
+  }
+  .cta-ghost:hover { border-color: var(--text-mid); color: var(--text); }
+
+  .hero-social-proof {
+    display: flex; align-items: center; gap: 16px;
+    padding-top: 32px; border-top: 1px solid var(--border);
+  }
+  .avatars { display: flex; }
+  .avatar {
+    width: 28px; height: 28px; border-radius: 50%;
+    border: 2px solid white; margin-left: -8px;
+    font-size: 11px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    color: white;
+  }
+  .avatar:first-child { margin-left: 0; }
+  .sp-text { font-size: 13px; color: var(--text-mid); }
+  .sp-text strong { color: var(--text); }
+
+  /* REPORT PREVIEW */
+  .report-preview {
+    background: white; border: 1px solid var(--border);
+    border-radius: var(--radius-lg); overflow: hidden;
+    box-shadow: var(--shadow-lg);
+  }
+  .rp-header {
+    padding: 16px 20px; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .rp-dots { display: flex; gap: 6px; }
+  .rp-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .rp-title { font-size: 12px; font-weight: 600; color: var(--text-mid); }
+  .rp-body { padding: 20px; }
+
+  .rp-score-row {
+    display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 16px;
+  }
+  .rp-metric {
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 8px; padding: 12px 14px;
+  }
+  .rp-metric-label { font-size: 10px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
+  .rp-metric-val { font-size: 20px; font-weight: 700; color: var(--text); line-height: 1; }
+  .rp-metric-val.green { color: var(--green); }
+  .rp-metric-val.orange { color: var(--accent); }
+
+  .rp-offer {
+    background: var(--green-soft); border: 1px solid var(--green-border);
+    border-radius: 8px; padding: 14px 16px;
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 14px;
+  }
+  .rp-offer-label { font-size: 11px; font-weight: 600; color: var(--green); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 2px; }
+  .rp-offer-price { font-size: 22px; font-weight: 700; color: var(--green); }
+  .rp-offer-save { font-size: 12px; font-weight: 600; color: var(--green); background: white; padding: 4px 10px; border-radius: 20px; border: 1px solid var(--green-border); }
+
+  .rp-issues { display: flex; flex-direction: column; gap: 6px; }
+  .rp-issue {
+    display: flex; align-items: flex-start; gap: 8px;
+    padding: 10px 12px; border-radius: 7px; border: 1px solid;
+    font-size: 12px; font-weight: 500; line-height: 1.4;
+  }
+  .rp-issue.critical { background: #FEF2F2; border-color: #FECACA; color: #DC2626; }
+  .rp-issue.warning { background: #FFFBEB; border-color: #FDE68A; color: #B45309; }
+  .rp-issue.ok { background: var(--green-soft); border-color: var(--green-border); color: #166534; }
+
+  .rp-footer {
+    padding: 12px 20px; border-top: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .rp-footer-txt { font-size: 11px; color: var(--text-muted); }
+  .rp-footer-btn {
+    font-size: 12px; font-weight: 600; color: var(--accent);
+    background: var(--accent-soft); border: 1px solid var(--accent-border);
+    padding: 5px 12px; border-radius: 6px; cursor: pointer; text-decoration: none;
+  }
+
+  /* LOGOS */
+  .logos-strip {
+    border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+    background: white; padding: 24px 0;
+  }
+  .logos-inner {
+    max-width: 1120px; margin: 0 auto; padding: 0 32px;
+    display: flex; align-items: center; gap: 40px; justify-content: center;
+  }
+  .logos-label { font-size: 12px; color: var(--text-muted); font-weight: 500; white-space: nowrap; }
+  .logo-item { font-size: 13px; font-weight: 600; color: #9CA3AF; letter-spacing: 0.05em; }
+
+  /* STEPS */
+  .steps-wrap { max-width: 1120px; margin: 0 auto; padding: 96px 32px; }
+  .section-label { font-size: 12px; font-weight: 600; color: var(--accent); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 12px; }
+  .section-heading {
+    font-family: 'Instrument Serif', serif;
+    font-size: clamp(28px, 3vw, 40px); font-weight: 400;
+    line-height: 1.2; margin-bottom: 12px;
+  }
+  .section-heading .italic { font-style: italic; }
+  .section-body { font-size: 16px; color: var(--text-mid); font-weight: 300; max-width: 480px; line-height: 1.7; margin-bottom: 56px; }
+
+  .steps-list { display: grid; grid-template-columns: repeat(3,1fr); gap: 2px; background: var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+  .step-item { background: white; padding: 36px 32px; }
+  .step-num-badge {
+    width: 32px; height: 32px; border-radius: 8px;
+    background: var(--accent-soft); border: 1px solid var(--accent-border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700; color: var(--accent);
+    margin-bottom: 20px;
+  }
+  .step-title { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
+  .step-body { font-size: 14px; color: var(--text-mid); line-height: 1.65; font-weight: 300; }
+
+  /* FEATURES LIST */
+  .features-wrap {
+    background: white; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+  }
+  .features-inner { max-width: 1120px; margin: 0 auto; padding: 96px 32px; }
+  .features-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; margin-top: 56px; }
+  .feat { background: white; padding: 32px 28px; display: flex; gap: 20px; transition: background 0.15s; }
+  .feat:hover { background: var(--bg); }
+  .feat-icon-wrap {
+    width: 36px; height: 36px; flex-shrink: 0;
+    border: 1px solid var(--border); border-radius: 8px;
+    display: flex; align-items: center; justify-content: center; font-size: 16px;
+  }
+  .feat-title { font-size: 15px; font-weight: 600; margin-bottom: 6px; }
+  .feat-body { font-size: 13px; color: var(--text-mid); line-height: 1.6; font-weight: 300; }
+
+  /* CTA BAND */
+  .cta-band {
+    max-width: 1120px; margin: 0 auto; padding: 80px 32px;
+    display: flex; align-items: center; justify-content: space-between; gap: 48px;
+    flex-wrap: wrap;
+  }
+  .cta-band-left h2 {
+    font-family: 'Instrument Serif', serif;
+    font-size: clamp(28px, 3vw, 40px); font-weight: 400; line-height: 1.2; margin-bottom: 10px;
+  }
+  .cta-band-left h2 .italic { font-style: italic; }
+  .cta-band-left p { font-size: 16px; color: var(--text-mid); font-weight: 300; max-width: 420px; }
+  .cta-band-right { display: flex; gap: 10px; }
+
+  /* PRICING */
+  .pricing-wrap { background: white; border-top: 1px solid var(--border); }
+  .pricing-inner { max-width: 1120px; margin: 0 auto; padding: 96px 32px; }
+  .plans { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 56px; }
+  .plan {
+    border: 1px solid var(--border); border-radius: var(--radius-lg);
+    padding: 32px 28px; background: var(--bg);
+    display: flex; flex-direction: column;
+    transition: all 0.2s;
+  }
+  .plan:hover { border-color: var(--border-strong); box-shadow: var(--shadow-md); }
+  .plan.popular {
+    border-color: var(--accent); background: white;
+    box-shadow: 0 0 0 1px var(--accent), var(--shadow-md);
+  }
+  .plan-badge { font-size: 10px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 16px; }
+  .plan-name { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+  .plan-price-row { display: flex; align-items: baseline; gap: 4px; margin-bottom: 4px; }
+  .plan-amount { font-family: 'Instrument Serif', serif; font-size: 36px; font-weight: 400; color: var(--text); }
+  .plan-cycle { font-size: 14px; color: var(--text-muted); }
+  .plan-desc { font-size: 13px; color: var(--text-muted); margin-bottom: 24px; padding-bottom: 24px; border-bottom: 1px solid var(--border); }
+  .plan-features { list-style: none; display: flex; flex-direction: column; gap: 10px; flex: 1; margin-bottom: 28px; }
+  .plan-features li { font-size: 13px; color: var(--text-mid); display: flex; align-items: flex-start; gap: 8px; }
+  .plan-features li::before { content: '✓'; color: var(--green); font-weight: 700; font-size: 12px; flex-shrink: 0; margin-top: 1px; }
+  .plan-action {
+    padding: 11px 20px; border-radius: 8px; font-size: 14px; font-weight: 600;
+    border: 1px solid var(--border); background: white; color: var(--text);
+    cursor: pointer; text-align: center; text-decoration: none; display: block;
+    transition: all 0.15s;
+  }
+  .plan.popular .plan-action { background: var(--accent); border-color: var(--accent); color: white; }
+  .plan-action:hover { border-color: var(--accent); color: var(--accent); }
+  .plan.popular .plan-action:hover { background: #C2410C; border-color: #C2410C; color: white; }
+
+  /* FOOTER */
+  footer {
+    border-top: 1px solid var(--border); padding: 40px 32px;
+  }
+  .footer-inner {
+    max-width: 1120px; margin: 0 auto;
+    display: flex; justify-content: space-between; align-items: center;
+    flex-wrap: wrap; gap: 20px;
+  }
+  .footer-brand-txt { font-family: 'Instrument Serif', serif; font-size: 17px; }
+  .footer-links { display: flex; gap: 24px; }
+  .footer-links a { font-size: 13px; color: var(--text-muted); text-decoration: none; transition: color 0.15s; }
+  .footer-links a:hover { color: var(--text); }
+  .footer-copy { font-size: 12px; color: var(--text-muted); }
+
+  /* ANIMATIONS */
+  @keyframes slideUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+  .hero-wrap > * { animation: slideUp 0.5s ease-out both; }
+  .hero-wrap > *:first-child { animation-delay: 0s; }
+  .hero-wrap > *:last-child { animation-delay: 0.15s; }
+
+  @media (max-width: 900px) {
+    .hero-wrap { grid-template-columns: 1fr; gap: 48px; }
+    .steps-list { grid-template-columns: 1fr; }
+    .features-grid { grid-template-columns: 1fr; }
+    .plans { grid-template-columns: 1fr; }
+    .cta-band { flex-direction: column; }
+    .logos-inner { flex-wrap: wrap; gap: 24px; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a class="nav-brand" href="#">
+      <div class="nav-dot"></div>
+      OfferWise AI
+    </a>
+    <div class="nav-links">
+      <a href="#" class="nav-link">How it works</a>
+      <a href="#" class="nav-link">Pricing</a>
+      <a href="#" class="nav-link">For Agents</a>
+      <a href="#" class="nav-btn">Get started</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero-wrap">
+  <div>
+    <div class="badge">
+      <div class="badge-dot"></div>
+      AI-powered offer analysis
+    </div>
+    <h1>Stop guessing.<br>Start <span class="italic">knowing</span> your number.</h1>
+    <p class="hero-desc">Upload your inspection report and seller disclosure. OfferWise cross-references 13 data sources and tells you exactly what to offer — in 90 seconds.</p>
+    <div class="hero-ctas">
+      <a href="#" class="cta-primary">Analyze a property →</a>
+      <a href="#" class="cta-ghost">See a sample report</a>
+    </div>
+    <div class="hero-social-proof">
+      <div class="avatars">
+        <div class="avatar" style="background:#6366F1">J</div>
+        <div class="avatar" style="background:#EC4899">M</div>
+        <div class="avatar" style="background:#14B8A6">R</div>
+        <div class="avatar" style="background:#F59E0B">S</div>
+      </div>
+      <div class="sp-text"><strong>2,400+ buyers</strong> saved an avg. of $47K on their offer</div>
+    </div>
+  </div>
+
+  <!-- REPORT PREVIEW -->
+  <div class="report-preview">
+    <div class="rp-header">
+      <div class="rp-dots">
+        <div class="rp-dot" style="background:#F87171"></div>
+        <div class="rp-dot" style="background:#FCD34D"></div>
+        <div class="rp-dot" style="background:#6EE7B7"></div>
+      </div>
+      <div class="rp-title">OfferWise Analysis — 2839 Pendleton Dr</div>
+      <div></div>
+    </div>
+    <div class="rp-body">
+      <div class="rp-score-row">
+        <div class="rp-metric">
+          <div class="rp-metric-label">OfferScore™</div>
+          <div class="rp-metric-val orange">74</div>
+        </div>
+        <div class="rp-metric">
+          <div class="rp-metric-label">Repairs Est.</div>
+          <div class="rp-metric-val">$65K</div>
+        </div>
+        <div class="rp-metric">
+          <div class="rp-metric-label">Transparency</div>
+          <div class="rp-metric-val green">B+</div>
+        </div>
+      </div>
+      <div class="rp-offer">
+        <div>
+          <div class="rp-offer-label">Recommended Offer</div>
+          <div class="rp-offer-price">$847,000</div>
+        </div>
+        <div class="rp-offer-save">↓ Save $53K</div>
+      </div>
+      <div class="rp-issues">
+        <div class="rp-issue critical">⛔ Foundation shows evidence of differential settlement</div>
+        <div class="rp-issue warning">⚠ HVAC system 17 yrs old — near end of useful life</div>
+        <div class="rp-issue ok">✓ Roof replaced 2021 — no immediate action needed</div>
+      </div>
+    </div>
+    <div class="rp-footer">
+      <div class="rp-footer-txt">3 leverage points · 4-step negotiation playbook</div>
+      <a href="#" class="rp-footer-btn">View full report →</a>
+    </div>
+  </div>
+</div>
+
+<!-- LOGOS STRIP -->
+<div class="logos-strip">
+  <div class="logos-inner">
+    <div class="logos-label">DATA SOURCES QUERIED:</div>
+    <div class="logo-item">FEMA</div>
+    <div class="logo-item">USGS</div>
+    <div class="logo-item">RENTCAST</div>
+    <div class="logo-item">CENSUS</div>
+    <div class="logo-item">EPA</div>
+    <div class="logo-item">ZILLOW</div>
+    <div class="logo-item">+ 7 MORE</div>
+  </div>
+</div>
+
+<!-- HOW IT WORKS -->
+<div class="steps-wrap">
+  <div class="section-label">How it works</div>
+  <h2 class="section-heading">Three steps.<br><span class="italic">One confident offer.</span></h2>
+  <p class="section-body">No real estate degree required. Just upload, wait 90 seconds, and walk into your negotiation armed with data.</p>
+  <div class="steps-list">
+    <div class="step-item">
+      <div class="step-num-badge">1</div>
+      <div class="step-title">Upload documents</div>
+      <div class="step-body">Drop in your seller disclosure and inspection report. PDFs are parsed locally in your browser — we never see the file, only the extracted text.</div>
+    </div>
+    <div class="step-item">
+      <div class="step-num-badge">2</div>
+      <div class="step-title">AI analyzes everything</div>
+      <div class="step-body">We cross-check 13 public data sources, find contradictions, calculate ZIP-adjusted repair costs, and score the seller's transparency.</div>
+    </div>
+    <div class="step-item">
+      <div class="step-num-badge">3</div>
+      <div class="step-title">Get your offer number</div>
+      <div class="step-body">See your recommended offer, repair breakdown, negotiation playbook, and a one-click addendum ready to send to your agent.</div>
+    </div>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<div class="features-wrap">
+  <div class="features-inner">
+    <div class="section-label">Everything included</div>
+    <h2 class="section-heading">Every tool your agent <span class="italic">doesn't</span> have.</h2>
+    <div class="features-grid">
+      <div class="feat">
+        <div class="feat-icon-wrap">💰</div>
+        <div>
+          <div class="feat-title">3-Option Offer Strategy</div>
+          <div class="feat-body">Aggressive, recommended, and conservative prices — each justified by repair costs and market comps.</div>
+        </div>
+      </div>
+      <div class="feat">
+        <div class="feat-icon-wrap">🔍</div>
+        <div>
+          <div class="feat-title">Seller Transparency Report™</div>
+          <div class="feat-body">Grade A–F on how honestly the seller disclosed. Flags omissions, minimizations, and outright contradictions.</div>
+        </div>
+      </div>
+      <div class="feat">
+        <div class="feat-icon-wrap">⛔</div>
+        <div>
+          <div class="feat-title">Deal Breaker Detection</div>
+          <div class="feat-body">Foundation issues, structural failures, and safety hazards — flagged before you're under contract.</div>
+        </div>
+      </div>
+      <div class="feat">
+        <div class="feat-icon-wrap">📊</div>
+        <div>
+          <div class="feat-title">Live Market Context</div>
+          <div class="feat-body">AVM valuation, comparable sales, days on market, and buyer leverage from RentCast — live data, not stale estimates.</div>
+        </div>
+      </div>
+      <div class="feat">
+        <div class="feat-icon-wrap">🎯</div>
+        <div>
+          <div class="feat-title">Negotiation Playbook</div>
+          <div class="feat-body">Exact talking points, counter-objection scripts, and a ranked list of repair asks to make in order.</div>
+        </div>
+      </div>
+      <div class="feat">
+        <div class="feat-icon-wrap">📄</div>
+        <div>
+          <div class="feat-title">Request for Repair Addendum</div>
+          <div class="feat-body">State-aware draft generated from your inspection findings. Review with your agent and submit same day.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CTA BAND -->
+<div class="cta-band">
+  <div class="cta-band-left">
+    <h2>Ready to know your <span class="italic">real</span> number?</h2>
+    <p>Your first analysis is free. No credit card. Results in 90 seconds.</p>
+  </div>
+  <div class="cta-band-right">
+    <a href="#" class="cta-primary">Start free analysis →</a>
+    <a href="#" class="cta-ghost">View sample report</a>
+  </div>
+</div>
+
+<!-- PRICING -->
+<div class="pricing-wrap">
+  <div class="pricing-inner">
+    <div class="section-label">Pricing</div>
+    <h2 class="section-heading">Simple, <span class="italic">honest</span> pricing.</h2>
+    <div class="plans">
+      <div class="plan">
+        <div class="plan-badge">&nbsp;</div>
+        <div class="plan-name">Starter</div>
+        <div class="plan-price-row">
+          <div class="plan-amount">$9</div>
+          <div class="plan-cycle">/month</div>
+        </div>
+        <div class="plan-desc">For buyers analyzing a few properties</div>
+        <ul class="plan-features">
+          <li>5 full analyses per month</li>
+          <li>Offer strategy + repair costs</li>
+          <li>Negotiation playbook</li>
+          <li>PDF report download</li>
+        </ul>
+        <a href="#" class="plan-action">Get started</a>
+      </div>
+      <div class="plan popular">
+        <div class="plan-badge">Most popular</div>
+        <div class="plan-name">Pro</div>
+        <div class="plan-price-row">
+          <div class="plan-amount">$19</div>
+          <div class="plan-cycle">/month</div>
+        </div>
+        <div class="plan-desc">For serious buyers in competitive markets</div>
+        <ul class="plan-features">
+          <li>15 full analyses per month</li>
+          <li>Everything in Starter</li>
+          <li>OfferWatch™ daily alerts</li>
+          <li>Request for Repair addendum</li>
+          <li>Market intelligence reports</li>
+        </ul>
+        <a href="#" class="plan-action">Get started</a>
+      </div>
+      <div class="plan">
+        <div class="plan-badge">&nbsp;</div>
+        <div class="plan-name">Unlimited</div>
+        <div class="plan-price-row">
+          <div class="plan-amount">$49</div>
+          <div class="plan-cycle">/month</div>
+        </div>
+        <div class="plan-desc">For agents and power buyers</div>
+        <ul class="plan-features">
+          <li>Unlimited analyses</li>
+          <li>Everything in Pro</li>
+          <li>Agent referral portal</li>
+          <li>Priority support</li>
+        </ul>
+        <a href="#" class="plan-action">Get started</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand-txt">OfferWise AI</div>
+    <div class="footer-links">
+      <a href="#">Privacy</a>
+      <a href="#">Terms</a>
+      <a href="#">Disclaimer</a>
+      <a href="#">Contact</a>
+    </div>
+    <div class="footer-copy">© 2026 OfferWise AI · Patent Pending</div>
+  </div>
+</footer>
+
+</body>
+</html>

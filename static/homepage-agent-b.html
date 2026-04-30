@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OfferWise AI — Agentic Property Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#06080e;
+  --surface:#0d1117;
+  --surface2:#131920;
+  --orange:#ff5f1f;
+  --orange-dim:rgba(255,95,31,.15);
+  --orange-glow:rgba(255,95,31,.4);
+  --cyan:#00d4ff;
+  --cyan-dim:rgba(0,212,255,.1);
+  --green:#00ff87;
+  --text:#e8eaf0;
+  --muted:#5a6478;
+  --border:rgba(255,255,255,.06);
+  --border-hot:rgba(255,95,31,.3);
+}
+html{scroll-behavior:smooth}
+body{font-family:'Syne',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;cursor:none}
+
+/* custom cursor */
+.cursor{position:fixed;width:16px;height:16px;border:2px solid var(--orange);border-radius:50%;pointer-events:none;z-index:9999;transition:transform .1s,opacity .2s;mix-blend-mode:difference}
+.cursor-dot{position:fixed;width:4px;height:4px;background:var(--orange);border-radius:50%;pointer-events:none;z-index:9999}
+
+/* ── GRID BG ── */
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(255,95,31,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,95,31,.04) 1px,transparent 1px);background-size:48px 48px;pointer-events:none;z-index:0}
+
+/* ── NAV ── */
+nav{display:flex;align-items:center;justify-content:space-between;padding:20px 60px;position:sticky;top:0;z-index:100;background:rgba(6,8,14,.85);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
+.logo{font-family:'Space Mono',monospace;font-size:18px;color:var(--text)}.logo span{color:var(--orange)}
+.nav-links{display:flex;gap:36px;list-style:none}
+.nav-links a{font-size:13px;color:var(--muted);text-decoration:none;font-weight:600;letter-spacing:.04em;text-transform:uppercase;transition:color .2s}.nav-links a:hover{color:var(--orange)}
+.nav-cta{border:1px solid var(--orange);color:var(--orange);padding:10px 24px;font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;text-decoration:none;transition:all .2s;font-family:'Space Mono',monospace}.nav-cta:hover{background:var(--orange);color:#000}
+
+/* ── HERO ── */
+.hero{position:relative;min-height:100vh;display:flex;align-items:center;padding:0 60px;overflow:hidden}
+.hero-bg{position:absolute;inset:0;background:radial-gradient(ellipse 60% 60% at 70% 50%,rgba(255,95,31,.08) 0%,transparent 70%);pointer-events:none}
+.hero-left{max-width:640px;position:relative;z-index:1}
+.hero-badge{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--orange);border:1px solid var(--border-hot);display:inline-block;padding:8px 20px;margin-bottom:40px;position:relative}
+.hero-badge::before,.hero-badge::after{content:'';position:absolute;width:8px;height:8px;border-color:var(--orange)}
+.hero-badge::before{top:-1px;left:-1px;border-top:1px solid;border-left:1px solid}
+.hero-badge::after{bottom:-1px;right:-1px;border-bottom:1px solid;border-right:1px solid}
+.hero h1{font-size:clamp(52px,6vw,88px);line-height:.95;font-weight:800;margin-bottom:32px;letter-spacing:-.02em}
+.hero h1 .line1{display:block;color:var(--text)}
+.hero h1 .line2{display:block;color:var(--orange)}
+.hero h1 .line3{display:block;color:var(--muted)}
+.hero-sub{font-size:17px;color:var(--muted);line-height:1.7;margin-bottom:48px;font-weight:400;max-width:500px;font-family:'Syne',sans-serif}
+.hero-actions{display:flex;gap:20px;align-items:center}
+.btn-hot{background:var(--orange);color:#000;padding:18px 40px;font-size:14px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;text-decoration:none;transition:all .2s;font-family:'Space Mono',monospace;position:relative;overflow:hidden}
+.btn-hot::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.2),transparent);opacity:0;transition:opacity .2s}
+.btn-hot:hover::after{opacity:1}
+.btn-outline{border:1px solid var(--border);color:var(--muted);padding:18px 32px;font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;text-decoration:none;font-family:'Space Mono',monospace;transition:all .2s}.btn-outline:hover{border-color:var(--muted);color:var(--text)}
+
+/* ── TERMINAL VISUAL ── */
+.hero-right{position:absolute;right:60px;top:50%;transform:translateY(-50%);width:480px}
+.terminal{background:var(--surface);border:1px solid var(--border);padding:0;font-family:'Space Mono',monospace;font-size:12px;box-shadow:0 0 60px rgba(255,95,31,.1),0 0 120px rgba(0,0,0,.5)}
+.term-header{background:var(--surface2);padding:12px 16px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border)}
+.term-dot{width:10px;height:10px;border-radius:50%}
+.term-body{padding:20px;line-height:1.8}
+.term-line{display:flex;gap:8px;margin-bottom:2px}
+.t-prompt{color:var(--orange)}
+.t-cmd{color:var(--text)}
+.t-comment{color:var(--muted)}
+.t-success{color:var(--green)}
+.t-warn{color:#fbbf24}
+.t-data{color:var(--cyan)}
+.t-cursor{display:inline-block;width:8px;height:14px;background:var(--orange);animation:blink .8s infinite;vertical-align:middle}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+
+/* ── AGENTS SECTION ── */
+.agents-section{position:relative;padding:120px 60px;z-index:1}
+.sec-header{margin-bottom:64px}
+.sec-eyebrow{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--orange);margin-bottom:16px}
+.sec-title{font-size:clamp(36px,4vw,56px);font-weight:800;line-height:1;letter-spacing:-.02em}
+.sec-title .dim{color:var(--muted)}
+
+.agents-list{display:grid;gap:1px;background:var(--border)}
+.agent-row{background:var(--bg);display:grid;grid-template-columns:56px 1fr auto;align-items:center;gap:32px;padding:28px 32px;transition:background .2s;cursor:default}
+.agent-row:hover{background:var(--surface)}
+.ag-num{font-family:'Space Mono',monospace;font-size:12px;color:var(--muted)}
+.ag-info{display:flex;align-items:center;gap:24px}
+.ag-icon-wrap{width:44px;height:44px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;transition:border-color .2s}
+.agent-row:hover .ag-icon-wrap{border-color:var(--orange)}
+.ag-title{font-size:16px;font-weight:700;margin-bottom:4px}
+.ag-desc{font-size:13px;color:var(--muted);line-height:1.5}
+.ag-tag{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--orange);padding:4px 12px;border:1px solid var(--border-hot);white-space:nowrap}
+
+/* ── METRICS ── */
+.metrics-section{padding:100px 60px;border-top:1px solid var(--border)}
+.metrics-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--border)}
+.metric{padding:40px 32px;border-right:1px solid var(--border);transition:background .2s}
+.metric:last-child{border-right:none}
+.metric:hover{background:var(--orange-dim)}
+.metric-num{font-size:56px;font-weight:800;color:var(--orange);letter-spacing:-.03em;line-height:1}
+.metric-unit{font-family:'Space Mono',monospace;font-size:14px;color:var(--muted);margin-top:8px}
+
+/* ── CTA ── */
+.cta-band{padding:120px 60px;border-top:1px solid var(--border);text-align:center;position:relative;overflow:hidden}
+.cta-band::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 50% 80% at 50% 100%,var(--orange-dim),transparent);pointer-events:none}
+.cta-band h2{font-size:clamp(48px,6vw,80px);font-weight:800;letter-spacing:-.03em;line-height:.95;margin-bottom:32px}
+.cta-band h2 span{color:var(--orange)}
+.cta-band p{color:var(--muted);font-size:17px;margin-bottom:48px;line-height:1.6;max-width:500px;margin-left:auto;margin-right:auto}
+
+/* ── FOOTER ── */
+footer{border-top:1px solid var(--border);padding:32px 60px;display:flex;justify-content:space-between;align-items:center;font-family:'Space Mono',monospace;font-size:11px;color:var(--muted)}
+footer a{color:var(--muted);text-decoration:none}.footer a:hover{color:var(--orange)}
+
+@media(max-width:900px){
+  .hero{min-height:auto;padding:100px 24px 60px;flex-direction:column}
+  .hero-right{position:relative;right:auto;top:auto;transform:none;width:100%;margin-top:48px}
+  nav{padding:16px 24px}
+  .agents-section,.metrics-section{padding:80px 24px}
+  .metrics-grid{grid-template-columns:1fr 1fr}
+  .metric{border-right:none;border-bottom:1px solid var(--border)}
+  .cta-band{padding:80px 24px}
+  footer{flex-direction:column;gap:16px;padding:24px}
+}
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-dot" id="cursorDot"></div>
+
+<nav>
+  <div class="logo">Offer<span>Wise</span>.AI</div>
+  <ul class="nav-links">
+    <li><a href="#agents">Agents</a></li>
+    <li><a href="#metrics">Data</a></li>
+    <li><a href="/pricing.html">Pricing</a></li>
+    <li><a href="/for-inspectors.html">Inspectors</a></li>
+  </ul>
+  <a href="/analyze.html" class="nav-cta">Launch →</a>
+</nav>
+
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-left">
+    <div class="hero-badge">Agentic AI · Real Estate Intelligence</div>
+    <h1>
+      <span class="line1">Don't guess</span>
+      <span class="line2">your offer.</span>
+      <span class="line3">Know it.</span>
+    </h1>
+    <p class="hero-sub">Six autonomous AI agents read your inspection and disclosure in parallel — surfacing hidden risks, calculating repair costs, and building your exact offer strategy. In 60 seconds.</p>
+    <div class="hero-actions">
+      <a href="/analyze.html" class="btn-hot">Start free analysis</a>
+      <a href="#agents" class="btn-outline">See the agents →</a>
+    </div>
+  </div>
+
+  <div class="hero-right">
+    <div class="terminal">
+      <div class="term-header">
+        <div class="term-dot" style="background:#ff5f57"></div>
+        <div class="term-dot" style="background:#febc2e"></div>
+        <div class="term-dot" style="background:#28c840"></div>
+        <span style="margin-left:8px;font-size:11px;color:#5a6478">offerwise-agent-v2 — running</span>
+      </div>
+      <div class="term-body">
+        <div class="term-line"><span class="t-prompt">$</span><span class="t-cmd"> analyze --property "123 Oak St, Palo Alto CA"</span></div>
+        <div class="term-line"><span class="t-comment">// Initializing 6 parallel agents...</span></div>
+        <div class="term-line" style="height:8px"></div>
+        <div class="term-line"><span class="t-success">✓</span><span class="t-cmd"> [parser] 38-page inspection extracted (847 findings)</span></div>
+        <div class="term-line"><span class="t-success">✓</span><span class="t-cmd"> [parser] 22-page disclosure structured</span></div>
+        <div class="term-line"><span class="t-success">✓</span><span class="t-cmd"> [xref] 4 disclosure omissions detected</span></div>
+        <div class="term-line"><span class="t-success">✓</span><span class="t-cmd"> [market] AVM $1,208,000 · 15 comps · 34 DOM</span></div>
+        <div class="term-line"><span class="t-warn">⟳</span><span class="t-cmd"> [repair] modeling 47 deficiency items...</span></div>
+        <div class="term-line" style="height:8px"></div>
+        <div class="term-line"><span class="t-comment">// Preliminary output:</span></div>
+        <div class="term-line"><span class="t-data">seller_transparency_grade: "C+"</span></div>
+        <div class="term-line"><span class="t-data">repair_range: [$28400, $34200]</span></div>
+        <div class="term-line"><span class="t-data">offer_score: 72</span></div>
+        <div class="term-line"><span class="t-data">recommended_offer: $1,162,000</span></div>
+        <div class="term-line" style="height:8px"></div>
+        <div class="term-line"><span class="t-prompt">$</span><span class="t-cursor"></span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- AGENTS -->
+<section class="agents-section" id="agents">
+  <div class="sec-header">
+    <div class="sec-eyebrow">Autonomous AI agents</div>
+    <div class="sec-title">Six specialists.<br><span class="dim">One answer.</span></div>
+  </div>
+
+  <div class="agents-list">
+    <div class="agent-row">
+      <div class="ag-num">01</div>
+      <div class="ag-info">
+        <div class="ag-icon-wrap">📋</div>
+        <div>
+          <div class="ag-title">Document Parser Agent</div>
+          <div class="ag-desc">Extracts and structures every finding from inspection reports and seller disclosures. Handles scanned PDFs, handwriting, embedded photos.</div>
+        </div>
+      </div>
+      <div class="ag-tag">OCR + NLP</div>
+    </div>
+    <div class="agent-row">
+      <div class="ag-num">02</div>
+      <div class="ag-info">
+        <div class="ag-icon-wrap">🔍</div>
+        <div>
+          <div class="ag-title">Cross-Reference Agent</div>
+          <div class="ag-desc">Compares disclosure claims line by line against inspection findings. Flags every omission, minimization, and discrepancy with severity scoring.</div>
+        </div>
+      </div>
+      <div class="ag-tag">Disclosure intel</div>
+    </div>
+    <div class="agent-row">
+      <div class="ag-num">03</div>
+      <div class="ag-info">
+        <div class="ag-icon-wrap">🏠</div>
+        <div>
+          <div class="ag-title">Market Intelligence Agent</div>
+          <div class="ag-desc">Pulls live comps, AVM, and inventory data. Calculates your ZIP-level market leverage score and adjusts your offer accordingly.</div>
+        </div>
+      </div>
+      <div class="ag-tag">Live market data</div>
+    </div>
+    <div class="agent-row">
+      <div class="ag-num">04</div>
+      <div class="ag-info">
+        <div class="ag-icon-wrap">🔨</div>
+        <div>
+          <div class="ag-title">Repair Cost Agent</div>
+          <div class="ag-desc">Prices every deficiency across 47 system categories using contractor cost data calibrated to your local market.</div>
+        </div>
+      </div>
+      <div class="ag-tag">Cost modeling</div>
+    </div>
+    <div class="agent-row">
+      <div class="ag-num">05</div>
+      <div class="ag-info">
+        <div class="ag-icon-wrap">📊</div>
+        <div>
+          <div class="ag-title">Offer Strategy Agent</div>
+          <div class="ag-desc">Synthesizes all findings into three offer paths — aggressive, recommended, conservative — with a full negotiation playbook and one-click addendum.</div>
+        </div>
+      </div>
+      <div class="ag-tag">Negotiation AI</div>
+    </div>
+    <div class="agent-row">
+      <div class="ag-num">06</div>
+      <div class="ag-info">
+        <div class="ag-icon-wrap">📡</div>
+        <div>
+          <div class="ag-title">OfferWatch Monitor Agent</div>
+          <div class="ag-desc">Runs continuously after your offer. Monitors for price cuts, new comps, permits, seismic events — and alerts you to renegotiate when leverage shifts.</div>
+        </div>
+      </div>
+      <div class="ag-tag">24/7 monitoring</div>
+    </div>
+  </div>
+</section>
+
+<!-- METRICS -->
+<section class="metrics-section" id="metrics">
+  <div class="metrics-grid">
+    <div class="metric">
+      <div class="metric-num">13</div>
+      <div class="metric-unit">Live data sources</div>
+    </div>
+    <div class="metric">
+      <div class="metric-num">60s</div>
+      <div class="metric-unit">Agent runtime</div>
+    </div>
+    <div class="metric">
+      <div class="metric-num">$28K</div>
+      <div class="metric-unit">Avg. repair costs found</div>
+    </div>
+    <div class="metric">
+      <div class="metric-num">A–F</div>
+      <div class="metric-unit">Seller transparency grade</div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-band">
+  <h2>Your offer.<br><span>Agent-built.</span></h2>
+  <p>Upload your documents. Get your full agentic analysis in 60 seconds. Free to start, no credit card.</p>
+  <a href="/analyze.html" class="btn-hot">Run your first analysis →</a>
+</section>
+
+<footer>
+  <span>© 2026 OfferWise AI — Agentic property intelligence</span>
+  <span><a href="/privacy.html">Privacy</a> · <a href="/terms.html">Terms</a> · <a href="mailto:support@getofferwise.ai">support@getofferwise.ai</a></span>
+</footer>
+
+<script>
+const cursor = document.getElementById('cursor');
+const dot = document.getElementById('cursorDot');
+document.addEventListener('mousemove', e => {
+  cursor.style.left = e.clientX - 8 + 'px';
+  cursor.style.top = e.clientY - 8 + 'px';
+  dot.style.left = e.clientX - 2 + 'px';
+  dot.style.top = e.clientY - 2 + 'px';
+});
+document.querySelectorAll('a,.agent-row').forEach(el => {
+  el.addEventListener('mouseenter', () => cursor.style.transform = 'scale(2)');
+  el.addEventListener('mouseleave', () => cursor.style.transform = 'scale(1)');
+});
+</script>
+</body>
+</html>

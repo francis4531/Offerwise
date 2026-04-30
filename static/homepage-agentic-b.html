@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OfferWise — AI That Fights for Homebuyers</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fafaf8;--text:#0f0f0e;--accent:#e84322;--accent2:#1a56db;--border:#e5e3de;--muted:#737066;--surface:#f0efe9}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Instrument Sans',sans-serif;overflow-x:hidden}
+
+nav{padding:1.25rem 3rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);position:sticky;top:0;background:rgba(250,250,248,0.95);backdrop-filter:blur(8px);z-index:100}
+.logo{font-family:'Playfair Display',serif;font-weight:700;font-size:1.4rem;color:var(--text)}
+.logo span{color:var(--accent)}
+.nav-links{display:flex;gap:2rem;align-items:center}
+.nav-links a{text-decoration:none;color:var(--muted);font-size:0.9rem;font-weight:500;transition:color .2s}
+.nav-links a:hover{color:var(--text)}
+.nav-cta{background:var(--text);color:var(--bg)!important;padding:0.55rem 1.25rem;border-radius:6px;font-weight:600!important}
+
+/* HERO — editorial split */
+.hero{display:grid;grid-template-columns:1fr 1fr;min-height:92vh;border-bottom:1px solid var(--border)}
+.hero-left{padding:5rem 3rem 4rem;display:flex;flex-direction:column;justify-content:center;border-right:1px solid var(--border)}
+.hero-eyebrow{font-size:0.72rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--accent);font-weight:600;margin-bottom:1.5rem;display:flex;align-items:center;gap:0.5rem}
+.hero-eyebrow::before{content:'';width:24px;height:1px;background:var(--accent)}
+h1{font-family:'Playfair Display',serif;font-size:clamp(3rem,5vw,5rem);font-weight:900;line-height:1.05;letter-spacing:-0.02em;margin-bottom:1.5rem}
+h1 em{font-style:italic;color:var(--accent)}
+.hero-body{font-size:1.05rem;color:var(--muted);line-height:1.75;max-width:480px;margin-bottom:2.5rem}
+.hero-body strong{color:var(--text)}
+.hero-cta-group{display:flex;gap:1rem;align-items:center;flex-wrap:wrap}
+.btn-dark{background:var(--text);color:var(--bg);padding:0.85rem 1.75rem;border-radius:6px;text-decoration:none;font-weight:600;font-size:0.95rem;transition:all .2s;display:inline-flex;align-items:center;gap:0.5rem}
+.btn-dark:hover{background:#1a1a18}
+.btn-outline{border:1px solid var(--border);color:var(--muted);padding:0.85rem 1.75rem;border-radius:6px;text-decoration:none;font-weight:500;font-size:0.95rem;transition:all .2s}
+.btn-outline:hover{border-color:var(--text);color:var(--text)}
+.hero-note{margin-top:1.5rem;font-size:0.78rem;color:var(--muted)}
+
+.hero-right{padding:4rem 3rem;background:var(--surface);display:flex;flex-direction:column;justify-content:center;gap:0}
+
+/* AGENT FEED */
+.feed-label{font-size:0.68rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);font-weight:600;padding-bottom:1rem;border-bottom:1px solid var(--border);margin-bottom:0}
+.feed-item{border-bottom:1px solid var(--border);padding:1rem 0;display:flex;gap:1rem;align-items:flex-start}
+.feed-item:last-child{border-bottom:none}
+.feed-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;margin-top:0.1rem}
+.feed-icon.parse{background:#fff3e0}
+.feed-icon.check{background:#e8f0fe}
+.feed-icon.price{background:#e8f5e9}
+.feed-icon.risk{background:#fce4ec}
+.feed-icon.market{background:#e8eaf6}
+.feed-icon.offer{background:#f3e5f5}
+.feed-meta{flex:1}
+.feed-agent{font-size:0.7rem;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);margin-bottom:0.2rem}
+.feed-finding{font-size:0.88rem;font-weight:500;color:var(--text);margin-bottom:0.2rem;line-height:1.4}
+.feed-detail{font-size:0.78rem;color:var(--muted);line-height:1.4}
+.feed-status{display:flex;align-items:center;gap:0.35rem;font-size:0.68rem;font-weight:600;margin-top:0.35rem}
+.status-dot{width:5px;height:5px;border-radius:50%}
+.done{color:#16a34a}.done .status-dot{background:#16a34a}
+.warn{color:var(--accent)}.warn .status-dot{background:var(--accent)}
+
+/* NUMBERS BAR */
+.numbers-bar{background:var(--text);color:var(--bg);padding:2.5rem 3rem;display:grid;grid-template-columns:repeat(4,1fr);gap:2rem;text-align:center}
+.nb-num{font-family:'Playfair Display',serif;font-size:2.8rem;font-weight:900;line-height:1;margin-bottom:0.25rem}
+.nb-num span{color:var(--accent)}
+.nb-label{font-size:0.78rem;color:rgba(250,250,248,0.55);font-weight:500;letter-spacing:0.02em}
+
+/* HOW SECTION */
+.how{padding:6rem 3rem;max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1fr 2fr;gap:5rem;align-items:start}
+.how-left h2{font-family:'Playfair Display',serif;font-size:clamp(2rem,3.5vw,3rem);font-weight:700;line-height:1.1;margin-bottom:1rem}
+.how-left p{font-size:1rem;color:var(--muted);line-height:1.7}
+.how-right{display:flex;flex-direction:column;gap:0}
+.how-step{display:grid;grid-template-columns:40px 1fr;gap:1.5rem;padding:2rem 0;border-bottom:1px solid var(--border);align-items:start}
+.how-step:last-child{border-bottom:none}
+.how-num{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;color:var(--border);line-height:1}
+.how-title{font-weight:600;margin-bottom:0.35rem;font-size:1rem}
+.how-desc{font-size:0.88rem;color:var(--muted);line-height:1.65}
+.how-agents{display:flex;flex-wrap:wrap;gap:0.35rem;margin-top:0.75rem}
+.how-agent-tag{font-size:0.68rem;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;padding:0.2rem 0.5rem;border-radius:4px;border:1px solid var(--border);color:var(--muted)}
+
+/* OFFERWATCH */
+.ow-section{background:var(--text);color:var(--bg);padding:6rem 3rem}
+.ow-inner{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:5rem;align-items:center}
+.ow-eyebrow{font-size:0.72rem;letter-spacing:0.15em;text-transform:uppercase;color:rgba(250,250,248,0.45);font-weight:600;margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem}
+.ow-eyebrow::before{content:'';width:24px;height:1px;background:rgba(250,250,248,0.45)}
+.ow-h2{font-family:'Playfair Display',serif;font-size:clamp(2rem,3.5vw,3.2rem);font-weight:700;line-height:1.1;margin-bottom:1rem}
+.ow-h2 em{font-style:italic;color:#f97316}
+.ow-p{color:rgba(250,250,248,0.6);line-height:1.75;font-size:1rem;margin-bottom:2rem}
+.ow-features{display:flex;flex-direction:column;gap:0.75rem}
+.ow-feat{display:flex;gap:0.75rem;align-items:flex-start;font-size:0.9rem;color:rgba(250,250,248,0.75)}
+.ow-feat strong{color:var(--bg);display:block;margin-bottom:0.1rem;font-size:0.88rem}
+.ow-feat-icon{font-size:1.1rem;flex-shrink:0;margin-top:0.05rem}
+
+.ow-card{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:1.75rem}
+.ow-card-header{font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(250,250,248,0.4);margin-bottom:1.25rem;display:flex;justify-content:space-between;align-items:center}
+.ow-live{display:flex;align-items:center;gap:0.4rem;color:#22c55e;font-size:0.68rem}
+.ow-live::before{content:'';width:6px;height:6px;background:#22c55e;border-radius:50%;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+.ow-event{padding:0.85rem 0;border-bottom:1px solid rgba(255,255,255,0.07);display:flex;gap:0.75rem;align-items:flex-start}
+.ow-event:last-child{border-bottom:none;padding-bottom:0}
+.ow-event-dot{width:8px;height:8px;border-radius:50%;margin-top:0.3rem;flex-shrink:0}
+.ow-event-body{flex:1}
+.ow-event-title{font-size:0.85rem;font-weight:500;color:var(--bg);margin-bottom:0.15rem}
+.ow-event-time{font-size:0.7rem;color:rgba(250,250,248,0.4)}
+
+/* PERSONA SECTION */
+.personas{padding:6rem 3rem;max-width:1200px;margin:0 auto}
+.personas h2{font-family:'Playfair Display',serif;font-size:clamp(2rem,3.5vw,3rem);font-weight:700;text-align:center;margin-bottom:0.75rem}
+.personas-sub{text-align:center;color:var(--muted);font-size:1rem;margin-bottom:3.5rem}
+.persona-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1.5rem}
+.persona-card{border:1px solid var(--border);border-radius:12px;padding:1.75rem}
+.persona-icon{font-size:2rem;margin-bottom:1rem}
+.persona-role{font-size:0.7rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:0.35rem}
+.persona-title{font-weight:600;margin-bottom:0.5rem;font-size:0.95rem}
+.persona-desc{font-size:0.82rem;color:var(--muted);line-height:1.6}
+.persona-cta{display:inline-block;margin-top:1rem;font-size:0.78rem;font-weight:600;color:var(--accent2);text-decoration:none}
+
+/* PRICING */
+.pricing{padding:6rem 3rem;background:var(--surface);border-top:1px solid var(--border)}
+.pricing-inner{max-width:1000px;margin:0 auto}
+.pricing h2{font-family:'Playfair Display',serif;font-size:clamp(2rem,3vw,2.8rem);font-weight:700;text-align:center;margin-bottom:0.5rem}
+.pricing-sub{text-align:center;color:var(--muted);font-size:1rem;margin-bottom:3.5rem}
+.plans{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem}
+.plan{background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:2rem;position:relative}
+.plan.featured{border-color:var(--text);border-width:2px}
+.plan-badge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--text);color:var(--bg);padding:0.2rem 0.75rem;border-radius:100px;font-size:0.68rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;white-space:nowrap}
+.plan-name{font-weight:600;margin-bottom:0.5rem;font-size:0.9rem;color:var(--muted)}
+.plan-price{font-family:'Playfair Display',serif;font-size:2.8rem;font-weight:700;margin-bottom:0.25rem;line-height:1}
+.plan-price span{font-size:1rem;font-weight:400;color:var(--muted);font-family:'Instrument Sans',sans-serif}
+.plan-desc{font-size:0.82rem;color:var(--muted);margin-bottom:1.5rem;line-height:1.5;padding-bottom:1.5rem;border-bottom:1px solid var(--border)}
+.plan-features{list-style:none;margin-bottom:1.75rem}
+.plan-features li{font-size:0.85rem;color:var(--muted);padding:0.4rem 0;display:flex;align-items:center;gap:0.5rem;border-bottom:1px solid var(--border)}
+.plan-features li:last-child{border-bottom:none}
+.plan-features li::before{content:'→';color:var(--text);font-weight:600;flex-shrink:0}
+.plan-cta{display:block;text-align:center;padding:0.8rem;border-radius:6px;text-decoration:none;font-weight:600;font-size:0.9rem;transition:all .2s}
+.plan-cta.dark{background:var(--text);color:var(--bg)}
+.plan-cta.dark:hover{background:#1a1a18}
+.plan-cta.border{border:1px solid var(--border);color:var(--muted)}
+.plan-cta.border:hover{border-color:var(--text);color:var(--text)}
+
+footer{padding:3rem;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;max-width:1200px;margin:0 auto}
+.footer-logo{font-family:'Playfair Display',serif;font-weight:700;font-size:1.1rem}
+.footer-logo span{color:var(--accent)}
+.footer-links{display:flex;gap:1.5rem;flex-wrap:wrap}
+.footer-links a{text-decoration:none;color:var(--muted);font-size:0.82rem;transition:color .2s}
+.footer-links a:hover{color:var(--text)}
+.footer-legal{font-size:0.75rem;color:var(--muted);width:100%;text-align:center;padding-top:1.5rem;border-top:1px solid var(--border)}
+
+@media(max-width:900px){
+.hero{grid-template-columns:1fr}
+.hero-right{display:none}
+.numbers-bar{grid-template-columns:repeat(2,1fr)}
+.how{grid-template-columns:1fr;gap:2.5rem}
+.ow-inner{grid-template-columns:1fr;gap:3rem}
+.persona-grid{grid-template-columns:repeat(2,1fr)}
+.plans{grid-template-columns:1fr}
+.nav-links{display:none}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">Offer<span>Wise</span></div>
+  <div class="nav-links">
+    <a href="#how">How It Works</a>
+    <a href="#offerwatch">OfferWatch</a>
+    <a href="#pricing">Pricing</a>
+    <a href="/for-inspectors">Inspectors</a>
+    <a href="/for-agents">Agents</a>
+    <a href="/login" class="nav-cta">Analyze Free →</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-left">
+    <div class="hero-eyebrow">Agentic AI for Homebuyers</div>
+    <h1>Six AI agents.<br>One <em>unfair</em><br>advantage.</h1>
+    <p class="hero-body">Upload your inspection report and seller disclosure. <strong>Six specialized agents run in parallel</strong> — reading documents, catching discrepancies, pricing repairs, and delivering your optimal offer. In 60 seconds.</p>
+    <div class="hero-cta-group">
+      <a href="/login?signup" class="btn-dark">Run Your Free Analysis →</a>
+      <a href="/sample-analysis.html" class="btn-outline">See a real report</a>
+    </div>
+    <p class="hero-note">No credit card required · First analysis completely free</p>
+  </div>
+
+  <div class="hero-right">
+    <div class="feed-label">Agent Activity — Live Analysis</div>
+    <div class="feed-item">
+      <div class="feed-icon parse">📄</div>
+      <div class="feed-meta">
+        <div class="feed-agent">Document Intelligence Agent</div>
+        <div class="feed-finding">47 inspection findings extracted</div>
+        <div class="feed-detail">Roof, HVAC, electrical, plumbing — all systems parsed and categorized</div>
+        <div class="feed-status done"><span class="status-dot"></span>Complete · 3.2s</div>
+      </div>
+    </div>
+    <div class="feed-item">
+      <div class="feed-icon check">⚖️</div>
+      <div class="feed-meta">
+        <div class="feed-agent">Disclosure Integrity Agent</div>
+        <div class="feed-finding">3 material discrepancies flagged</div>
+        <div class="feed-detail">Seller disclosed "normal wear" — inspector found active roof leak and failed GFCI</div>
+        <div class="feed-status warn"><span class="status-dot"></span>Seller grade: C−</div>
+      </div>
+    </div>
+    <div class="feed-item">
+      <div class="feed-icon price">💰</div>
+      <div class="feed-meta">
+        <div class="feed-agent">Repair Cost Agent</div>
+        <div class="feed-finding">$34,200 in estimated repairs</div>
+        <div class="feed-detail">Roof replacement $18,400 · Panel upgrade $6,800 · HVAC service $4,200 · misc $4,800</div>
+        <div class="feed-status done"><span class="status-dot"></span>ZIP-adjusted rates</div>
+      </div>
+    </div>
+    <div class="feed-item">
+      <div class="feed-icon risk">🌋</div>
+      <div class="feed-meta">
+        <div class="feed-agent">Risk DNA Agent</div>
+        <div class="feed-finding">Seismic Zone D · Minimal flood risk</div>
+        <div class="feed-detail">Property sits on liquefaction zone. Foundation check recommended before close.</div>
+        <div class="feed-status warn"><span class="status-dot"></span>1 hidden risk flagged</div>
+      </div>
+    </div>
+    <div class="feed-item">
+      <div class="feed-icon market">🏘️</div>
+      <div class="feed-meta">
+        <div class="feed-agent">Market Intelligence Agent</div>
+        <div class="feed-finding">AVM: $1,908,000 · 15 comps</div>
+        <div class="feed-detail">Median DOM 38 days. 2 price cuts in ZIP last 30 days. Slight buyer leverage.</div>
+        <div class="feed-status done"><span class="status-dot"></span>RentCast data</div>
+      </div>
+    </div>
+    <div class="feed-item">
+      <div class="feed-icon offer">📋</div>
+      <div class="feed-meta">
+        <div class="feed-agent">Offer Strategy Agent</div>
+        <div class="feed-finding">Recommended offer: $1,847,000</div>
+        <div class="feed-detail">Aggressive: $1,823K · Recommended: $1,847K · Conservative: $1,874K · Addendum ready</div>
+        <div class="feed-status done"><span class="status-dot"></span>Complete · 58s total</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- NUMBERS -->
+<div class="numbers-bar">
+  <div><div class="nb-num">13<span>+</span></div><div class="nb-label">Data sources per analysis</div></div>
+  <div><div class="nb-num">6</div><div class="nb-label">Specialized AI agents</div></div>
+  <div><div class="nb-num">60<span>s</span></div><div class="nb-label">Average time to full report</div></div>
+  <div><div class="nb-num">$0</div><div class="nb-label">First analysis, always</div></div>
+</div>
+
+<!-- HOW IT WORKS -->
+<section class="how" id="how">
+  <div class="how-left">
+    <h2>How the agent system works.</h2>
+    <p>Traditional home analysis takes days and costs thousands. OfferWise's agents do it in 60 seconds — for the price of lunch.</p>
+  </div>
+  <div class="how-right">
+    <div class="how-step">
+      <div class="how-num">01</div>
+      <div>
+        <div class="how-title">Upload your documents</div>
+        <div class="how-desc">Drop in your inspection report and seller disclosure — any format works. Our OCR engine reads even handwritten notes and photo scans.</div>
+        <div class="how-agents"><span class="how-agent-tag">Document Intelligence</span></div>
+      </div>
+    </div>
+    <div class="how-step">
+      <div class="how-num">02</div>
+      <div>
+        <div class="how-title">Six agents run in parallel</div>
+        <div class="how-desc">Unlike sequential analysis, all six agents start simultaneously. While one prices repairs, another is cross-referencing the disclosure, and another is pulling market data.</div>
+        <div class="how-agents"><span class="how-agent-tag">Disclosure Integrity</span><span class="how-agent-tag">Repair Cost</span><span class="how-agent-tag">Risk DNA</span><span class="how-agent-tag">Market Intel</span></div>
+      </div>
+    </div>
+    <div class="how-step">
+      <div class="how-num">03</div>
+      <div>
+        <div class="how-title">Get your offer playbook</div>
+        <div class="how-desc">Three calibrated offer prices, a repair negotiation strategy, a seller transparency grade, and a ready-to-send Request for Repair addendum — all in 60 seconds.</div>
+        <div class="how-agents"><span class="how-agent-tag">Offer Strategy</span></div>
+      </div>
+    </div>
+    <div class="how-step">
+      <div class="how-num">04</div>
+      <div>
+        <div class="how-title">OfferWatch keeps monitoring</div>
+        <div class="how-desc">After analysis, our monitor watches for price cuts, new comps, permit filings, and seismic events — alerting you the moment anything affects your offer strategy.</div>
+        <div class="how-agents"><span class="how-agent-tag">OfferWatch Monitor</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- OFFERWATCH -->
+<section class="ow-section" id="offerwatch">
+  <div class="ow-inner">
+    <div>
+      <div class="ow-eyebrow">Always-On Intelligence</div>
+      <h2 class="ow-h2">Your agent never <em>stops</em> watching.</h2>
+      <p class="ow-p">Most buyers analyze a property once and walk away with stale data. OfferWatch monitors every property you've analyzed — 24/7 — and sends you an alert the moment anything changes.</p>
+      <div class="ow-features">
+        <div class="ow-feat"><div class="ow-feat-icon">📉</div><div><strong>Price cuts</strong>Seller drops price → your offer is instantly recalculated and delivered.</div></div>
+        <div class="ow-feat"><div class="ow-feat-icon">🏘️</div><div><strong>New comparables</strong>Fresh comps close → your negotiation leverage is updated.</div></div>
+        <div class="ow-feat"><div class="ow-feat-icon">🌋</div><div><strong>Seismic events</strong>Earthquake near the property → foundation risk is reassessed.</div></div>
+        <div class="ow-feat"><div class="ow-feat-icon">🔨</div><div><strong>Permit activity</strong>Unpermitted work surfaces → you're notified before closing.</div></div>
+      </div>
+    </div>
+    <div class="ow-card">
+      <div class="ow-card-header">
+        <span>OfferWatch — 22580 San Vicente Ave</span>
+        <span class="ow-live">Live</span>
+      </div>
+      <div class="ow-event">
+        <div class="ow-event-dot" style="background:#ef4444"></div>
+        <div class="ow-event-body">
+          <div class="ow-event-title">💰 Price cut: −$45,000 → New offer sent</div>
+          <div class="ow-event-time">2 hours ago · Email delivered</div>
+        </div>
+      </div>
+      <div class="ow-event">
+        <div class="ow-event-dot" style="background:#3b82f6"></div>
+        <div class="ow-event-body">
+          <div class="ow-event-title">🏘️ 3 new comps · Median −$28K</div>
+          <div class="ow-event-time">Yesterday · Email delivered</div>
+        </div>
+      </div>
+      <div class="ow-event">
+        <div class="ow-event-dot" style="background:#f59e0b"></div>
+        <div class="ow-event-body">
+          <div class="ow-event-title">🌋 M3.2 seismic · 4.1mi · Risk unchanged</div>
+          <div class="ow-event-time">3 days ago · Email delivered</div>
+        </div>
+      </div>
+      <div class="ow-event">
+        <div class="ow-event-dot" style="background:#22c55e"></div>
+        <div class="ow-event-body">
+          <div class="ow-event-title">✓ Analysis complete — watch activated</div>
+          <div class="ow-event-time">14 days ago · Active</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PERSONAS -->
+<section class="personas" id="personas">
+  <h2>Built for everyone in the deal.</h2>
+  <p class="personas-sub">OfferWise connects buyers, inspectors, agents, and contractors in one intelligent loop.</p>
+  <div class="persona-grid">
+    <div class="persona-card">
+      <div class="persona-icon">🏠</div>
+      <div class="persona-role">Homebuyer</div>
+      <div class="persona-title">Know your number before you negotiate</div>
+      <div class="persona-desc">Get an offer price backed by AI analysis of 13 data sources. Stop guessing. Stop overpaying.</div>
+      <a href="/login?signup" class="persona-cta">Start free →</a>
+    </div>
+    <div class="persona-card">
+      <div class="persona-icon">🔍</div>
+      <div class="persona-role">Home Inspector</div>
+      <div class="persona-title">Your report becomes an offer recommendation</div>
+      <div class="persona-desc">Send buyers a magic link. Your inspection instantly becomes an AI-powered offer strategy — automatically.</div>
+      <a href="/for-inspectors" class="persona-cta">Inspector program →</a>
+    </div>
+    <div class="persona-card">
+      <div class="persona-icon">🤝</div>
+      <div class="persona-role">Real Estate Agent</div>
+      <div class="persona-title">Win more offers with data, not gut feel</div>
+      <div class="persona-desc">Walk into every negotiation with repair estimates, comp analysis, and a defensible offer number — in 60 seconds.</div>
+      <a href="/for-agents" class="persona-cta">Agent tools →</a>
+    </div>
+    <div class="persona-card">
+      <div class="persona-icon">🔧</div>
+      <div class="persona-role">Contractor</div>
+      <div class="persona-title">Get warm leads from inspection reports</div>
+      <div class="persona-desc">When buyers get repair cost estimates, they need contractors. OfferWise connects the two automatically.</div>
+      <a href="/for-contractors" class="persona-cta">Get leads →</a>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="pricing" id="pricing">
+  <div class="pricing-inner">
+    <h2>Straightforward pricing.</h2>
+    <p class="pricing-sub">Cheaper than one hour with a real estate attorney. More thorough too.</p>
+    <div class="plans">
+      <div class="plan">
+        <div class="plan-name">Starter</div>
+        <div class="plan-price">$9<span>/mo</span></div>
+        <div class="plan-desc">3 analyses per month. All 6 agents. OfferWatch included.</div>
+        <ul class="plan-features">
+          <li>3 full analyses / month</li>
+          <li>All 6 AI agents</li>
+          <li>OfferWatch monitoring</li>
+          <li>Repair cost breakdown</li>
+          <li>3 offer strategies + addendum</li>
+        </ul>
+        <a href="/login?signup" class="plan-cta border">Get started</a>
+      </div>
+      <div class="plan featured">
+        <div class="plan-badge">Most Popular</div>
+        <div class="plan-name">Pro</div>
+        <div class="plan-price">$19<span>/mo</span></div>
+        <div class="plan-desc">10 analyses per month. For active buyers comparing multiple properties.</div>
+        <ul class="plan-features">
+          <li>10 full analyses / month</li>
+          <li>All 6 AI agents</li>
+          <li>OfferWatch on all properties</li>
+          <li>Agent & inspector sharing</li>
+          <li>Priority processing</li>
+          <li>PDF export</li>
+        </ul>
+        <a href="/login?signup" class="plan-cta dark">Start free →</a>
+      </div>
+      <div class="plan">
+        <div class="plan-name">Unlimited</div>
+        <div class="plan-price">$49<span>/mo</span></div>
+        <div class="plan-desc">Unlimited analyses. For power buyers, agents, and investors.</div>
+        <ul class="plan-features">
+          <li>Unlimited analyses</li>
+          <li>All 6 AI agents</li>
+          <li>Unlimited OfferWatch</li>
+          <li>API access</li>
+          <li>White-label reports</li>
+          <li>Contractor network</li>
+        </ul>
+        <a href="/login?signup" class="plan-cta border">Get started</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-logo">Offer<span>Wise</span></div>
+  <div class="footer-links">
+    <a href="/for-inspectors">Inspectors</a>
+    <a href="/for-agents">Agents</a>
+    <a href="/for-contractors">Contractors</a>
+    <a href="/api/docs">API</a>
+    <a href="/privacy">Privacy</a>
+    <a href="/terms">Terms</a>
+    <a href="/contact">Contact</a>
+  </div>
+  <div class="footer-legal">© 2026 OfferWise AI · Patent Pending · Not financial or legal advice · getofferwise.ai</div>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Property Analysis — OfferWise AI</title>
+<link rel="icon" type="image/svg+xml" href="/logo-icon-only.svg">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root { --bg:#060d1a; --surface:#0f1e35; --border:rgba(255,255,255,.08); --text:#f1f5f9; --muted:#94a3b8; --dim:#64748b; --fire:#f97316; --amber:#f59e0b; --green:#22c55e; --blue:#60a5fa; }
+body { background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; min-height:100vh; }
+nav { display:flex; align-items:center; justify-content:space-between; padding:14px 32px; border-bottom:1px solid var(--border); background:rgba(6,13,26,.98); }
+.nav-logo { font-size:1.2rem; font-weight:900; color:var(--text); text-decoration:none; }
+.nav-logo .wise { background:linear-gradient(90deg,#f97316,#f59e0b); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.container { max-width:680px; margin:0 auto; padding:40px 24px 60px; }
+.agent-badge { display:inline-flex; align-items:center; gap:8px; background:rgba(249,115,22,.08); border:1px solid rgba(249,115,22,.2); border-radius:8px; padding:8px 16px; margin-bottom:24px; font-size:13px; color:var(--muted); }
+.agent-badge strong { color:var(--text); }
+.property-card { background:var(--surface); border:1px solid rgba(249,115,22,.2); border-radius:16px; padding:28px; margin-bottom:24px; }
+.property-address { font-size:20px; font-weight:800; margin-bottom:8px; letter-spacing:-.02em; }
+.property-price { font-size:14px; color:var(--muted); margin-bottom:20px; }
+.agent-notes { background:rgba(96,165,250,.05); border:1px solid rgba(96,165,250,.15); border-radius:10px; padding:14px 16px; font-size:13px; color:var(--muted); line-height:1.6; margin-bottom:20px; }
+.agent-notes strong { color:var(--blue); }
+.cta-section { background:linear-gradient(135deg,rgba(249,115,22,.08),rgba(245,158,11,.04)); border:1px solid rgba(249,115,22,.25); border-radius:16px; padding:28px; text-align:center; margin-bottom:24px; }
+.cta-section h2 { font-size:20px; font-weight:800; margin-bottom:8px; }
+.cta-section p { font-size:14px; color:var(--muted); margin-bottom:20px; line-height:1.6; }
+.cta-btn { display:inline-block; padding:14px 32px; background:linear-gradient(90deg,#f97316,#f59e0b); color:white; border-radius:10px; font-weight:700; font-size:16px; text-decoration:none; }
+.what-you-get { background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:20px 24px; margin-bottom:24px; }
+.what-you-get h3 { font-size:14px; font-weight:700; margin-bottom:14px; color:var(--muted); text-transform:uppercase; letter-spacing:.07em; }
+.item { display:flex; align-items:flex-start; gap:10px; margin-bottom:12px; font-size:13px; color:var(--muted); }
+.item:last-child { margin-bottom:0; }
+.item-icon { font-size:1.1rem; flex-shrink:0; margin-top:1px; }
+.item strong { color:var(--text); display:block; margin-bottom:2px; }
+.attribution { text-align:center; font-size:11px; color:var(--dim); padding-top:8px; }
+</style>
+</head>
+<body>
+<nav>
+  <a href="/" class="nav-logo">Offer<span class="wise">Wise</span> AI</a>
+</nav>
+<div class="container">
+  <div id="loading" style="text-align:center;padding:60px;color:var(--muted);">Loading your analysis...</div>
+  <div id="content" style="display:none;">
+    <div class="agent-badge">Prepared by <strong id="agent-display">your agent</strong></div>
+    <div class="property-card">
+      <div class="property-address" id="prop-address">—</div>
+      <div class="property-price" id="prop-price"></div>
+      <div class="agent-notes" id="agent-notes" style="display:none;"></div>
+    </div>
+    <div class="cta-section">
+      <h2>Your full property analysis is one step away.</h2>
+      <p>Upload the disclosure or inspection report and OfferWise will show you exact repair costs, hidden risks, and a specific offer price — in under 90 seconds. It's free.</p>
+      <a id="analysis-link" href="/login" class="cta-btn">Run Your Free Analysis →</a>
+    </div>
+    <div class="what-you-get">
+      <h3>What you'll see</h3>
+      <div class="item"><div class="item-icon">💰</div><div><strong>Repair cost estimates</strong>Every issue in the disclosure converted to a dollar range based on national contractor pricing.</div></div>
+      <div class="item"><div class="item-icon">🎯</div><div><strong>Offer price recommendation</strong>Specific offer guidance — aggressive, conservative, and recommended — backed by the actual issues.</div></div>
+      <div class="item"><div class="item-icon">⚠️</div><div><strong>Risk flags</strong>Deal-breakers, deferred maintenance, and items the seller disclosure may have underplayed.</div></div>
+      <div class="item"><div class="item-icon">🤝</div><div><strong>Negotiation checklist</strong>Exactly what to ask for — by item, by dollar amount, by priority.</div></div>
+    </div>
+    <div class="attribution" id="attribution"></div>
+  </div>
+</div>
+<script>
+(async function() {
+  var token = window.location.pathname.split('/').pop();
+  try {
+    var res = await fetch('/api/agent/report/' + token);
+    if (!res.ok) { document.getElementById('loading').textContent = 'Report not found.'; return; }
+    var d = await res.json();
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('content').style.display = 'block';
+    document.getElementById('prop-address').textContent = d.property_address || 'Property Analysis';
+    if (d.property_price) document.getElementById('prop-price').textContent = 'Listed at $' + Number(d.property_price).toLocaleString();
+    var agentLine = d.agent_name || 'Your Agent';
+    if (d.agent_biz) agentLine += ' · ' + d.agent_biz;
+    document.getElementById('agent-display').textContent = agentLine;
+    if (d.agent_notes) {
+      var notesEl = document.getElementById('agent-notes');
+      notesEl.innerHTML = '<strong>Note from your agent:</strong> ' + d.agent_notes;
+      notesEl.style.display = 'block';
+    }
+    if (d.buyer_name) {
+      var h2 = document.querySelector('.cta-section h2');
+      h2.textContent = d.buyer_name.split(' ')[0] + ', your full property analysis is one step away.';
+    }
+    var addr = encodeURIComponent(d.property_address || '');
+    document.getElementById('analysis-link').href = '/login?next=/settings%3Ftab%3Danalyses%26address%3D' + addr;
+    document.getElementById('attribution').textContent = 'Analysis prepared by ' + agentLine + ' \u00b7 Powered by OfferWise AI';
+    document.title = (d.property_address || 'Property Analysis') + ' \u2014 OfferWise AI';
+  } catch(e) {
+    document.getElementById('loading').textContent = 'Unable to load report. Please try again.';
+  }
+})();
+</script>
+</body>
+</html>

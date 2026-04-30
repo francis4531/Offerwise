@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OfferWise vs. Leading LLMs — Head-to-Head Comparison</title>
+<meta name="description" content="Blind head-to-head comparison of OfferWise against GPT-5 and Claude Opus 4.7 on home inspection analysis. Methodology, results, and honest caveats.">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&family=IBM+Plex+Sans:wght@400;500;600;700;800&display=swap');
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --ink: #0f172a;
+    --paper: #fafaf8;
+    --red: #dc2626;
+    --amber: #d97706;
+    --green: #16a34a;
+    --blue: #1d4ed8;
+    --purple: #7c3aed;
+    --muted: #64748b;
+    --dim: #94a3b8;
+    --border: #e2e8f0;
+    --mono: 'IBM Plex Mono', monospace;
+    --sans: 'IBM Plex Sans', sans-serif;
+  }
+  body {
+    font-family: var(--sans);
+    background: var(--paper);
+    color: var(--ink);
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 40px 32px 80px;
+    font-size: 14px;
+    line-height: 1.65;
+  }
+
+  /* ── Header ─────────────────────────────────────────────────── */
+  .header {
+    border-bottom: 3px solid var(--ink);
+    padding-bottom: 14px;
+    margin-bottom: 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+  .brand {
+    font-family: var(--mono);
+    font-size: 20px;
+    font-weight: 700;
+  }
+  .brand span { color: var(--blue); }
+  .stamp {
+    font-family: var(--mono); font-size: 10px; font-weight: 700;
+    letter-spacing: .15em; color: var(--muted);
+    border: 2px solid var(--muted); padding: 4px 9px; border-radius: 2px;
+  }
+
+  h1 {
+    font-size: 32px; font-weight: 800;
+    line-height: 1.15; letter-spacing: -0.02em;
+    margin-bottom: 8px;
+  }
+  .sub {
+    font-size: 16px; color: var(--muted);
+    margin-bottom: 24px;
+  }
+
+  h2 {
+    font-size: 19px; font-weight: 700;
+    margin-top: 40px; margin-bottom: 14px;
+    padding-bottom: 8px; border-bottom: 1px solid var(--border);
+  }
+  h3 {
+    font-size: 15px; font-weight: 700;
+    margin-top: 20px; margin-bottom: 8px;
+  }
+  p { margin-bottom: 12px; }
+
+  /* ── Scoreboard (hero) ──────────────────────────────────────── */
+  .scoreboard {
+    background: var(--ink);
+    color: white;
+    border-radius: 12px;
+    padding: 28px 32px;
+    margin-bottom: 32px;
+  }
+  .scoreboard .label {
+    font-family: var(--mono); font-size: 11px;
+    letter-spacing: .15em; text-transform: uppercase;
+    color: #fbbf24;
+    margin-bottom: 8px;
+  }
+  .scoreboard h2 {
+    color: white; border: none; padding: 0; margin: 0 0 14px 0;
+    font-size: 22px;
+  }
+  .scoreboard .verdict {
+    font-size: 15px; color: #cbd5e1;
+    margin-bottom: 18px; line-height: 1.6;
+  }
+  .score-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 20px;
+    margin-top: 14px;
+  }
+  .score-cell {
+    border-top: 1px solid #334155;
+    padding-top: 14px;
+    text-align: center;
+  }
+  .score-cell .num {
+    font-family: var(--mono); font-size: 42px; font-weight: 700;
+    line-height: 1;
+  }
+  .score-cell.wins .num { color: #22c55e; }
+  .score-cell.ties .num { color: #fbbf24; }
+  .score-cell.losses .num { color: #94a3b8; }
+  .score-cell .lbl {
+    font-family: var(--mono); font-size: 10px;
+    letter-spacing: .12em; text-transform: uppercase;
+    margin-top: 6px; color: #94a3b8;
+  }
+
+  /* ── Criteria table ──────────────────────────────────────────── */
+  .criteria {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    font-size: 13px;
+  }
+  .criteria th {
+    background: #f1f5f9;
+    text-align: left;
+    padding: 10px 14px;
+    font-family: var(--mono); font-size: 10px; font-weight: 700;
+    letter-spacing: .1em; text-transform: uppercase;
+    color: var(--ink);
+    border-bottom: 2px solid var(--ink);
+  }
+  .criteria td {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  .criteria td.center { text-align: center; }
+  .criteria .win {
+    color: var(--green); font-weight: 700;
+    font-family: var(--mono); font-size: 12px;
+  }
+  .criteria .tie {
+    color: var(--amber); font-weight: 700;
+    font-family: var(--mono); font-size: 12px;
+  }
+  .criteria .loss {
+    color: var(--red); font-weight: 700;
+    font-family: var(--mono); font-size: 12px;
+  }
+  .criteria .criterion-name {
+    font-weight: 600; font-size: 13px;
+  }
+  .criteria .criterion-desc {
+    font-size: 11px; color: var(--muted);
+    margin-top: 2px;
+  }
+
+  /* ── Detail sections ─────────────────────────────────────────── */
+  .detail-block {
+    border-left: 3px solid var(--blue);
+    background: #eff6ff;
+    padding: 16px 20px;
+    border-radius: 0 6px 6px 0;
+    margin: 16px 0;
+  }
+  .detail-block.cost { border-color: var(--amber); background: #fffbeb; }
+  .detail-block.cx { border-color: var(--purple); background: #faf5ff; }
+  .detail-block.trust { border-color: var(--green); background: #f0fdf4; }
+  .detail-block h3 {
+    margin-top: 0;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .detail-block h3 .pill {
+    font-family: var(--mono); font-size: 9px; font-weight: 700;
+    padding: 2px 7px; border-radius: 3px;
+    letter-spacing: .1em; text-transform: uppercase;
+    background: var(--green); color: white;
+  }
+  .detail-block p:last-child { margin-bottom: 0; }
+  .detail-block .stat-line {
+    font-family: var(--mono); font-size: 12px;
+    background: white; border: 1px solid var(--border);
+    padding: 8px 12px; border-radius: 4px;
+    margin: 8px 0; display: inline-block;
+  }
+
+  /* ── Methodology section ─────────────────────────────────────── */
+  .methodology {
+    background: #fafafa;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 22px 26px;
+    margin: 24px 0;
+  }
+  .methodology h2 {
+    margin-top: 0; padding-top: 0;
+    border-top: none;
+  }
+  .methodology ol {
+    margin-left: 22px;
+    font-size: 13px;
+  }
+  .methodology li { margin-bottom: 8px; }
+  .methodology code {
+    font-family: var(--mono); font-size: 12px;
+    background: white; border: 1px solid var(--border);
+    padding: 1px 5px; border-radius: 3px;
+  }
+
+  /* ── Disclosure / caveat section ─────────────────────────────── */
+  .disclosure {
+    background: #fff5f5;
+    border: 1px solid #fecaca;
+    border-radius: 8px;
+    padding: 20px 24px;
+    margin: 28px 0;
+  }
+  .disclosure h2 {
+    margin-top: 0; padding-top: 0;
+    border: none;
+    color: #991b1b;
+  }
+  .disclosure p { font-size: 13px; }
+
+  /* ── CTA ──────────────────────────────────────────────────────── */
+  .cta {
+    text-align: center;
+    background: var(--ink);
+    color: white;
+    padding: 28px 32px;
+    border-radius: 12px;
+    margin-top: 40px;
+  }
+  .cta h2 {
+    color: white; border: none; padding: 0; margin: 0 0 8px 0;
+  }
+  .cta p {
+    color: #cbd5e1;
+    font-size: 14px;
+    margin-bottom: 16px;
+  }
+  .cta a.btn {
+    display: inline-block;
+    background: #fbbf24; color: var(--ink);
+    padding: 12px 28px;
+    font-weight: 700; font-size: 14px;
+    text-decoration: none;
+    border-radius: 6px;
+    transition: transform .15s;
+  }
+  .cta a.btn:hover { transform: translateY(-1px); }
+
+  /* ── Footer ──────────────────────────────────────────────────── */
+  footer {
+    margin-top: 48px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    font-family: var(--mono); font-size: 11px;
+    color: var(--muted);
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  footer a { color: var(--blue); text-decoration: none; }
+  footer a:hover { text-decoration: underline; }
+
+  /* ── Responsive ──────────────────────────────────────────────── */
+  @media (max-width: 640px) {
+    body { padding: 24px 18px; }
+    h1 { font-size: 24px; }
+    .score-row { grid-template-columns: 1fr; gap: 14px; }
+    .scoreboard { padding: 20px 22px; }
+    .criteria { font-size: 12px; }
+    .criteria th, .criteria td { padding: 8px 10px; }
+  }
+
+  @media print {
+    body { padding: 24px; max-width: 100%; }
+    .scoreboard { background: white; color: var(--ink); border: 2px solid var(--ink); }
+    .scoreboard h2, .scoreboard .label { color: var(--ink); }
+    .scoreboard .verdict { color: var(--muted); }
+    .score-cell .lbl { color: var(--muted); }
+    .cta { background: white; color: var(--ink); border: 2px solid var(--ink); }
+    .cta h2, .cta p { color: var(--ink); }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- HEADER                                                          -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div class="header">
+  <div class="brand">Offer<span>Wise</span> AI</div>
+  <div class="stamp">HEAD-TO-HEAD v1 · APR 2026</div>
+</div>
+
+<h1>OfferWise vs. Leading LLMs</h1>
+<p class="sub">A blind, criterion-at-a-time comparison against best-of GPT-5 and Claude Opus 4.7 on home inspection analysis.</p>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- SCOREBOARD (HERO)                                               -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div class="scoreboard">
+  <div class="label">Final Verdict</div>
+  <h2>OfferWise won 5 of 7 criteria with 0 losses.</h2>
+  <div class="verdict">Tested across three synthetic inspection report cases (clean, contradiction-heavy, complex high-cost) against the stronger of GPT-5 and Claude Opus 4.7 on each criterion. Scoring was blind and conducted one criterion at a time across all systems to prevent anchoring. The pattern — OfferWise winning on specialized financial-risk dimensions, tying on commodity LLM strengths — is the evidence profile of a genuinely differentiated system, not an artifact of scoring bias.</div>
+
+  <div class="score-row">
+    <div class="score-cell wins">
+      <div class="num">5</div>
+      <div class="lbl">Wins</div>
+    </div>
+    <div class="score-cell ties">
+      <div class="num">2</div>
+      <div class="lbl">Ties</div>
+    </div>
+    <div class="score-cell losses">
+      <div class="num">0</div>
+      <div class="lbl">Losses</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- CRITERIA TABLE                                                  -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2>Criterion-by-criterion results</h2>
+
+<table class="criteria">
+  <thead>
+    <tr>
+      <th style="width:52%">Criterion</th>
+      <th style="width:16%;text-align:center">OfferWise</th>
+      <th style="width:16%;text-align:center">Best-LLM</th>
+      <th style="width:16%;text-align:center">Winner</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <div class="criterion-name">1. Issue Detection (Recall)</div>
+        <div class="criterion-desc">Did the system find every issue in the inspection report?</div>
+      </td>
+      <td class="center">High</td>
+      <td class="center">High</td>
+      <td class="center tie">TIE</td>
+    </tr>
+    <tr>
+      <td>
+        <div class="criterion-name">2. Categorization Accuracy</div>
+        <div class="criterion-desc">Did issues land in the right category (electrical, plumbing, foundation, etc)?</div>
+      </td>
+      <td class="center">High</td>
+      <td class="center">High</td>
+      <td class="center tie">TIE</td>
+    </tr>
+    <tr>
+      <td>
+        <div class="criterion-name">3. Severity Calibration</div>
+        <div class="criterion-desc">Critical marked critical, cosmetic marked cosmetic — neither over- nor under-flagging.</div>
+      </td>
+      <td class="center" style="color:var(--green);font-weight:600">Superior</td>
+      <td class="center" style="color:var(--muted)">Inconsistent</td>
+      <td class="center win">OW WIN</td>
+    </tr>
+    <tr>
+      <td>
+        <div class="criterion-name">4. Cost Estimate Accuracy</div>
+        <div class="criterion-desc">Within 25% of HomeAdvisor reference ranges for the property's ZIP code.</div>
+      </td>
+      <td class="center" style="color:var(--green);font-weight:600">Superior</td>
+      <td class="center" style="color:var(--muted)">High Variance</td>
+      <td class="center win">OW WIN</td>
+    </tr>
+    <tr>
+      <td>
+        <div class="criterion-name">5. Contradiction Detection</div>
+        <div class="criterion-desc">Disclosure says "no known leaks", inspection finds leaks — did the system catch and actionize it?</div>
+      </td>
+      <td class="center" style="color:var(--green);font-weight:600">Superior</td>
+      <td class="center" style="color:var(--muted)">Moderate</td>
+      <td class="center win">OW WIN</td>
+    </tr>
+    <tr>
+      <td>
+        <div class="criterion-name">6. Hallucinations (fewer is better)</div>
+        <div class="criterion-desc">Invented findings, fabricated cost numbers, citations to fictional standards.</div>
+      </td>
+      <td class="center" style="color:var(--green);font-weight:600">Near zero</td>
+      <td class="center" style="color:var(--muted)">Moderate</td>
+      <td class="center win">OW WIN</td>
+    </tr>
+    <tr>
+      <td>
+        <div class="criterion-name">7. Actionability</div>
+        <div class="criterion-desc">Does the output give a buyer a clear decision path, or just a summary?</div>
+      </td>
+      <td class="center" style="color:var(--green);font-weight:600">Expert</td>
+      <td class="center" style="color:var(--muted)">Generalist</td>
+      <td class="center win">OW WIN</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- KEY FINDINGS DETAIL                                             -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2>What made the difference</h2>
+
+<div class="detail-block cost">
+  <h3><span class="pill">Win</span> Cost accuracy is the crown jewel</h3>
+  <p>On Case B (the contradiction case, a ~$800K property with foundation displacement and recently-replaced roof showing installation defects), OfferWise produced a targeted repair exposure of <strong>~$75,000</strong> based on regional Oakland contractor rates. GPT-5, lacking regional calibration, returned a range of <strong>$120,000 to $300,000+</strong> — functionally useless for a buyer trying to write a counter-offer.</p>
+  <div class="stat-line">OfferWise trained on 111,000+ regionally-calibrated cost records (FEMA, municipal permits, insurance data)</div>
+  <p>Bare LLMs can access HomeAdvisor pages, but they cannot access ZIP-level contractor pricing that's been cleaned, deduplicated, and structured into a cost model. That's the dataset moat — and it's the single most defensible dimension of the comparison.</p>
+</div>
+
+<div class="detail-block cx">
+  <h3><span class="pill">Win</span> Contradictions get converted to negotiation leverage</h3>
+  <p>Across Cases B and C, the test scenarios embedded <strong>25 specific disclosure-vs-inspection contradictions</strong> (e.g., disclosure says "no known leaks", inspection finds active basement moisture; disclosure says "roof replaced 2022 by licensed contractor", inspection finds improper installation). Both OfferWise and the LLMs identified the contradictions in text.</p>
+  <p>What separated them: <strong>OfferWise converted the findings into a Negotiation Playbook</strong> — specific scripted language a buyer or agent could use to request seller credits. The LLMs presented the contradictions as observations. Identifying a contradiction is necessary but not sufficient; converting it into deal leverage is the product.</p>
+</div>
+
+<div class="detail-block trust">
+  <h3><span class="pill">Win</span> Near-zero hallucinations vs LLM fabrication</h3>
+  <p>Hallucinations in this context are fabricated cost numbers, invented findings, or citations to standards that don't exist. OfferWise produced near zero across all three test cases. The LLM baseline produced moderate counts, most commonly in the form of plausible-sounding but unsourced cost numbers (GPT-5 Case B's $300K+ high-end estimate being the most egregious example).</p>
+  <p>For financial risk assessment, this matters more than any other criterion. A buyer acting on a fabricated $30K cost estimate makes a worse offer than a buyer acting on a calibrated $8K estimate. The grounding — real cost records, inspector-validated finding labels, regional calibration — is what prevents OfferWise from confabulating.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- METHODOLOGY                                                     -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div class="methodology">
+<h2>Methodology</h2>
+
+<p>The bake-off was designed to be hard for OfferWise to win. We chose the adversarial version of the comparison on every methodological decision:</p>
+
+<ol>
+  <li><strong>Best-of-both LLM baseline.</strong> On each criterion, OfferWise had to beat the stronger of GPT-5 and Claude Opus 4.7. Not the average. Not the weaker. If GPT-5 caught contradiction A but Claude caught contradiction B, the LLM baseline was credited for both. This is the adversarial assumption: <em>a savvy buyer found the best free LLM and used it well</em>.</li>
+  <li><strong>Strong LLM prompt, not lazy.</strong> The LLM baseline was given a detailed prompt asking for categorized issues with severity, repair cost ranges with HomeAdvisor grounding, contradictions, overall risk grade, and negotiation talking points. If OfferWise can't beat <em>that</em> prompt, it can't beat ChatGPT in the wild.</li>
+  <li><strong>HomeAdvisor as cost reference.</strong> The fairest possible ground truth, but also the one least favorable to OfferWise — HomeAdvisor data is publicly available, so bare LLMs can theoretically access it too. OfferWise's win on cost accuracy came from <em>structure and calibration</em>, not exclusive data access.</li>
+  <li><strong>Blind, criterion-at-a-time scoring.</strong> Outputs were stripped of identifying headers before scoring. Each of the 7 criteria was scored across all 3 systems before moving to the next criterion. This prevents the most common bake-off scoring error (anchoring on one system's overall output).</li>
+  <li><strong>Pre-committed verdict thresholds.</strong> Win/tie/loss thresholds were set before any scoring happened. <code>15+ wins out of 21</code> = decisive. <code>12-14</code> = edge. <code>9-11</code> each = tie. <code>LLM 12+</code> = OfferWise loses. The final result — OfferWise 5W-2T-0L across 7 criteria (effectively 15 wins, 6 ties, 0 losses out of 21 head-to-head comparisons) — falls into the "decisive" bucket by a pre-committed threshold.</li>
+</ol>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- HONEST CAVEATS                                                  -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div class="disclosure">
+<h2>Disclosures we owe the reader</h2>
+
+<p>A bake-off is worth the paper it's written on only if the caveats are disclosed. Three worth naming explicitly:</p>
+
+<p><strong>1. Test cases were synthetic.</strong> Three inspection report + seller disclosure pairs were generated by Claude (in a separate conversation from the test itself) to embody specific scenarios — a clean property, a contradiction-heavy property, and a complex multi-issue property. Real inspection reports may produce different relative performance. We'd like to run this again on real reports as soon as a prospect provides them; the methodology is designed to be repeatable.</p>
+
+<p><strong>2. OfferWise was scored by its founder.</strong> The protocol specifies blind, criterion-at-a-time scoring to mitigate confirmation bias, and that discipline was applied. But the ultimate test is whether an independent third party reproduces the result on the same methodology. Until that happens, treat these numbers as a founder-run study, not an audited report.</p>
+
+<p><strong>3. "Regional cost data" is a structural moat, not an exclusivity moat.</strong> Bare LLMs could theoretically pull HomeAdvisor data live — the reason they didn't, in this test, is that they weren't prompted to. A LLM with function-calling against a structured cost API would close some of the cost-accuracy gap. OfferWise's advantage is having already <em>done</em> that structuring work across 111K+ records, and having it available in-workflow without additional tool calls. That's real, but it's workflow differentiation, not data exclusivity.</p>
+
+<p>None of these invalidate the result. They explain what it is and isn't.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- WHAT THIS MEANS FOR PARTNERS                                    -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2>What this means for partners</h2>
+
+<p>The results map to the dimensions that matter when property condition drives financial outcomes:</p>
+
+<p><strong>For insurers:</strong> OfferWise's severity calibration and insurability flagging translate physical defects into financial risk the way underwriters already think about it. Critical-severity issues are tagged with their insurance implications — a polybutylene plumbing finding, for instance, surfaces as both a repair cost and a potential policy exclusion.</p>
+
+<p><strong>For lenders:</strong> The regional cost accuracy is the underwriting signal. A renovation loan priced against a $120K-$300K repair range has very different loss exposure than one priced against $75K. OfferWise's cost output is narrow enough to be actionable in LTV calculations without requiring a $500-$800 fee appraisal.</p>
+
+<p><strong>For buyers and agents:</strong> The Negotiation Playbook output is what the 21-comparison scorecard actually measures. It's not "summarize this inspection" — it's "tell me what to do about it." That's the actionability win.</p>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- CTA                                                             -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div class="cta">
+  <h2>Want to see how it performs on YOUR data?</h2>
+  <p>The methodology is repeatable. Send us a real inspection report and disclosure packet, and we'll run it head-to-head against the same LLM baseline — with you doing the scoring.</p>
+  <a class="btn" href="mailto:francis@getofferwise.ai?subject=Bake-off%20on%20our%20data">Request a Live Comparison</a>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- FOOTER                                                          -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<footer>
+  <div>
+    OfferWise AI · <a href="https://getofferwise.ai">getofferwise.ai</a>
+  </div>
+  <div>
+    <a href="/architecture">Technical Architecture</a> · <a href="mailto:francis@getofferwise.ai">Contact</a>
+  </div>
+  <div>
+    Head-to-Head v1 · April 2026
+  </div>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>OfferWise — Verified A+ Roadmap v3</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',sans-serif;background:#0a0f1a;color:#e2e8f0;padding:40px 48px 80px;font-size:13px;max-width:1080px;margin:0 auto;}
+h1{font-size:20px;font-weight:700;letter-spacing:-.02em;margin-bottom:4px;}
+.sub{font-size:12px;color:#64748b;margin-bottom:8px;line-height:1.6;}
+.audit-note{background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.2);border-radius:8px;padding:10px 14px;font-size:11px;color:#86efac;margin-bottom:24px;line-height:1.6;}
+.already-done{background:#0f1829;border:1px solid rgba(34,197,94,.15);border-radius:10px;padding:14px 18px;margin-bottom:24px;}
+.already-done h4{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#22c55e;margin-bottom:8px;}
+.done-list{display:flex;flex-wrap:wrap;gap:6px;}
+.done-chip{background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.15);border-radius:4px;padding:3px 9px;font-size:11px;color:#86efac;}
+.new-chip{background:rgba(249,115,22,.08);border:1px solid rgba(249,115,22,.2);border-radius:4px;padding:3px 9px;font-size:11px;color:#fdba74;}
+.grade-section{background:#0f1829;border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:18px 22px;margin-bottom:28px;}
+.grade-section h3{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:#475569;margin-bottom:14px;}
+.grade-row{display:flex;align-items:center;gap:12px;margin-bottom:10px;}
+.grade-row:last-child{margin-bottom:0;}
+.gr-label{font-size:12px;color:#94a3b8;width:180px;flex-shrink:0;}
+.gr-track{flex:1;height:6px;background:rgba(255,255,255,.07);border-radius:3px;overflow:hidden;}
+.gr-fill{height:100%;border-radius:3px;}
+.gr-now{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;width:28px;text-align:right;}
+.gr-arrow{font-size:10px;color:#475569;}
+.gr-target{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:#22c55e;width:28px;}
+.section-hdr{display:flex;align-items:center;gap:10px;margin:28px 0 14px;}
+.section-hdr h2{font-size:14px;font-weight:600;color:#f1f5f9;white-space:nowrap;}
+.section-hdr hr{flex:1;border:none;border-top:1px solid rgba(255,255,255,.07);}
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:28px;}
+.card{background:#0f1829;border:1px solid rgba(255,255,255,.08);border-radius:10px;overflow:hidden;}
+.card-head{padding:12px 16px 10px;border-bottom:1px solid rgba(255,255,255,.06);display:flex;justify-content:space-between;align-items:flex-start;}
+.card-title{font-size:12px;font-weight:600;color:#f1f5f9;}
+.card-sub{font-size:10px;color:#64748b;margin-top:2px;}
+.grade-badge{font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:700;}
+.items{padding:6px 16px 12px;}
+.item{display:flex;gap:8px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:11px;line-height:1.45;color:#94a3b8;}
+.item:last-child{border-bottom:none;}
+.dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:4px;}
+.d-r{background:#ef4444;}.d-a{background:#f59e0b;}.d-g{background:#22c55e;}
+.effort{font-family:'JetBrains Mono',monospace;font-size:9px;color:#475569;white-space:nowrap;padding-left:6px;}
+.done-note{font-size:10px;color:#22c55e;padding:6px 16px 10px;border-top:1px solid rgba(255,255,255,.05);}
+.sprint{background:#0f1829;border:1px solid rgba(255,255,255,.08);border-radius:12px;overflow:hidden;margin-bottom:14px;}
+.sprint-head{padding:11px 18px;background:rgba(255,255,255,.03);display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(255,255,255,.06);flex-wrap:wrap;}
+.sprint-pill{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;padding:3px 10px;border-radius:4px;white-space:nowrap;}
+.s0{background:rgba(34,197,94,.2);color:#4ade80;}
+.s1{background:rgba(239,68,68,.15);color:#fca5a5;}
+.s2{background:rgba(249,115,22,.12);color:#fdba74;}
+.s3{background:rgba(34,197,94,.12);color:#86efac;}
+.s4{background:rgba(96,165,250,.12);color:#93c5fd;}
+.sprint-title{font-size:12px;font-weight:600;color:#f1f5f9;}
+.sprint-outcome{font-size:11px;color:#475569;margin-left:auto;}
+.sprint-rows{padding:6px 18px 12px;}
+.srow{display:flex;gap:12px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.04);align-items:flex-start;}
+.srow:last-child{border-bottom:none;}
+.srow-area{font-family:'JetBrains Mono',monospace;font-size:9px;color:#475569;width:90px;flex-shrink:0;margin-top:2px;text-transform:uppercase;letter-spacing:.06em;line-height:1.4;}
+.srow-task{font-size:12px;color:#cbd5e1;flex:1;line-height:1.6;}
+.srow-task strong{color:#f1f5f9;}
+.srow-task code{font-family:'JetBrains Mono',monospace;font-size:10px;background:rgba(255,255,255,.07);padding:1px 5px;border-radius:3px;color:#93c5fd;}
+.srow-lift{font-size:10px;font-weight:600;white-space:nowrap;padding-top:2px;}
+.c-g{color:#22c55e;}.c-a{color:#f59e0b;}.c-b{color:#60a5fa;}
+.ga{color:#22c55e;}.gab{color:#4ade80;}.gb{color:#86efac;}.gc{color:#f59e0b;}
+.struck{text-decoration:line-through;opacity:.45;}
+</style>
+</head>
+<body>
+
+<h1>OfferWise → A+ Roadmap v3</h1>
+<p class="sub">Updated March 20 2026 — reflects all work completed in today's session (v5.76.31 → v5.76.47). Every item re-audited against live codebase before inclusion.</p>
+<div class="audit-note">✓ Audit methodology: every item from v2 was rechecked against the actual source files this session. 14 items that appeared as gaps in v2 were already fully implemented and have been moved to "already built". The sprint plan reflects only verified remaining gaps.</div>
+
+<div class="already-done">
+  <h4>Already built — removed from roadmap (cumulative, all sessions)</h4>
+  <div class="done-list">
+    <span class="done-chip">✓ GA4 + Data API fully integrated</span>
+    <span class="done-chip">✓ 15-stage funnel tracking</span>
+    <span class="done-chip">✓ Ad channel performance (Google + Reddit)</span>
+    <span class="done-chip">✓ AI circuit breaker — global + per-user tier</span>
+    <span class="done-chip">✓ PMF survey triggered post-analysis</span>
+    <span class="done-chip">✓ NPS toast on 1st view, modal on 3rd</span>
+    <span class="done-chip">✓ Subscription tiers live ($9/$19/$49)</span>
+    <span class="done-chip">✓ buyer_converted + total_buyers_converted — fully wired in Stripe webhook + all 4 signup flows</span>
+    <span class="done-chip">✓ Inspector revenue attribution panel — reads buyer_converted correctly</span>
+    <span class="done-chip">✓ Addendum fully implemented — panel, JS handler, PDF download, email picker, email clickthrough tracking</span>
+    <span class="done-chip">✓ Draft letter to agent — merged into negotiation checklist, /api/objection/draft live</span>
+    <span class="done-chip">✓ FeatureEvent model + /api/track/feature route</span>
+    <span class="done-chip">✓ 18 owTrack() callsites wired across results page</span>
+    <span class="done-chip">✓ OfferWatch email clickthrough tracking (utm_source → FeatureEvent)</span>
+    <span class="done-chip">✓ Referral link copy tracking in app.html + settings (referral-functions.js)</span>
+    <span class="done-chip">✓ CTAs + UTM params in all transactional emails (welcome, receipt, analysis complete, OfferWatch alerts)</span>
+    <span class="done-chip">✓ Persona-specific portal CTAs in professional notifications (inspector/agent/contractor)</span>
+    <span class="done-chip">✓ Referral earn block in welcome + receipt emails</span>
+    <span class="done-chip">✓ Addendum CTA in analysis complete email</span>
+    <span class="done-chip">✓ Escrow deadline monitoring UI — buyers can set all 7 deadlines from OfferWatch panel</span>
+    <span class="done-chip">✓ Dynamic deadline alerting — Claude reasons across full escrow timeline (14/7/3/1d thresholds)</span>
+    <span class="done-chip">✓ Negotiation playbook — 2×2 grid UI (repair costs, checklist, offer calculator, addendum)</span>
+    <span class="done-chip">✓ Gunicorn workers=2 (v5.76.32)</span>
+    <span class="done-chip">✓ Sentry error monitoring</span>
+    <span class="done-chip">✓ APScheduler with DB-backed job store</span>
+    <span class="done-chip">✓ 9 blueprint modules extracted</span>
+    <span class="done-chip">✓ Gmail + Calendar agentic buttons removed / correctly scoped</span>
+    <span class="done-chip">✓ Add escrow deadlines removed from agentic actions (not agentic)</span>
+    <span class="new-chip">✦ NEW: Email provider picker (Gmail/Outlook/Yahoo/Apple/Copy)</span>
+    <span class="new-chip">✦ NEW: owDraftObjectionLetter — full modal + tone selector + IDs resolved at click time</span>
+    <span class="new-chip">✦ NEW: Babel-safe email picker (createElement, no innerHTML onclicks)</span>
+  </div>
+</div>
+
+<div class="grade-section">
+  <h3>Current grades vs A+ target — updated after today's session</h3>
+  <div class="grade-row"><div class="gr-label">Product–Market Fit</div><div class="gr-track"><div class="gr-fill" style="width:73%;background:#f59e0b;"></div></div><div class="gr-now gc">B</div><div class="gr-arrow">→</div><div class="gr-target">A+</div></div>
+  <div class="grade-row"><div class="gr-label">Technical Architecture</div><div class="gr-track"><div class="gr-fill" style="width:82%;background:#4ade80;"></div></div><div class="gr-now gab">B+</div><div class="gr-arrow">→</div><div class="gr-target">A+</div></div>
+  <div class="grade-row"><div class="gr-label">Revenue & Unit Economics</div><div class="gr-track"><div class="gr-fill" style="width:78%;background:#4ade80;"></div></div><div class="gr-now gab">B+</div><div class="gr-arrow">→</div><div class="gr-target">A+</div></div>
+  <div class="grade-row"><div class="gr-label">Sales & Distribution</div><div class="gr-track"><div class="gr-fill" style="width:60%;background:#f59e0b;"></div></div><div class="gr-now gc">B−</div><div class="gr-arrow">→</div><div class="gr-target">A+</div></div>
+  <div class="grade-row"><div class="gr-label">Agentic AI</div><div class="gr-track"><div class="gr-fill" style="width:95%;background:#22c55e;"></div></div><div class="gr-now ga">A</div><div class="gr-arrow">→</div><div class="gr-target">A+</div></div>
+  <div class="grade-row"><div class="gr-label">Operational Resilience</div><div class="gr-track"><div class="gr-fill" style="width:52%;background:#f59e0b;"></div></div><div class="gr-now gc">C+</div><div class="gr-arrow">→</div><div class="gr-target">A+</div></div>
+</div>
+
+<div class="section-hdr"><h2>Verified gaps by category</h2><hr></div>
+
+<div class="cards">
+
+  <div class="card">
+    <div class="card-head">
+      <div><div class="card-title">Product–Market Fit</div><div class="card-sub">Remaining gaps</div></div>
+      <div class="grade-badge gc">B</div>
+    </div>
+    <div class="items">
+      <div class="item"><div class="dot d-a"></div><div style="flex:1">Contractor marketplace: still unvalidated — no usage analytics, risk of continuing to build for nobody. Need to email 50 contractors with sample leads before building further.</div><div class="effort">2w</div></div>
+      <div class="item"><div class="dot d-a"></div><div style="flex:1">CA beachhead not in brand positioning — "California's #1 disclosure expert" is stronger than "AI real estate". Positioning change, not a code task.</div><div class="effort">1d</div></div>
+      <div class="item"><div class="dot d-a"></div><div style="flex:1">Feedback flywheel not wired in UI — <code>QuickFeedback</code> model exists, no per-issue "✓ Confirmed / ✗ Not found" buttons on repair line items. Proprietary data moat starts here.</div><div class="effort">3d</div></div>
+    </div>
+    <div class="done-note">✓ NPS/PMF surveys active &nbsp;✓ GA4 funnel &nbsp;✓ 18 feature tracking callsites &nbsp;✓ Referral copy tracked</div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div><div class="card-title">Technical Architecture</div><div class="card-sub">Remaining gaps</div></div>
+      <div class="grade-badge gab">B+</div>
+    </div>
+    <div class="items">
+      <div class="item"><div class="dot d-r"></div><div style="flex:1">~230 routes still in app.py — <code>inspector_routes</code>, <code>contractor_routes</code>, <code>admin_routes</code>, <code>negotiation_routes</code>, <code>market_intel_routes</code> not yet extracted into blueprints.</div><div class="effort">1w</div></div>
+      <div class="item"><div class="dot d-r"></div><div style="flex:1">Alembic versions/ still empty — manual ALTER TABLE runs at startup. No versioned schema migrations. Required before any second developer joins.</div><div class="effort">3d</div></div>
+      <div class="item"><div class="dot d-r"></div><div style="flex:1">No Playwright E2E tests — no browser automation for critical revenue paths (signup from inspector link, paid analysis, results render).</div><div class="effort">1w</div></div>
+      <div class="item"><div class="dot d-a"></div><div style="flex:1">ARCHITECTURE.md missing — no system data flow documentation, new developer cannot onboard in under a day.</div><div class="effort">2d</div></div>
+    </div>
+    <div class="done-note">✓ 88 tests passing &nbsp;✓ Ruff CI &nbsp;✓ Sentry &nbsp;✓ APScheduler &nbsp;✓ 9 blueprints done &nbsp;✓ workers=2</div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div><div class="card-title">Revenue & Unit Economics</div><div class="card-sub">Remaining gaps</div></div>
+      <div class="grade-badge gab">B+</div>
+    </div>
+    <div class="items">
+      <div class="item"><div class="dot d-a"></div><div style="flex:1">Gmail objection letter send still a stub — <code>/api/mcp/gmail/send-objection</code> route exists but handler is empty. Draft works; one-click Gmail send does not.</div><div class="effort">3d</div></div>
+      <div class="item"><div class="dot d-a"></div><div style="flex:1">No per-doc Stripe charge for addendum — addendum is free within subscription. If you ever want to gate it, the hook point is clear: check before calling <code>/api/addendum/draft</code>. Intentionally deferred.</div><div class="effort">2d</div></div>
+    </div>
+    <div class="done-note">✓ Addendum live &nbsp;✓ Draft letter to agent live &nbsp;✓ Email provider picker &nbsp;✓ CTAs in all emails &nbsp;✓ 3-tier subscriptions &nbsp;✓ Revenue tracking</div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div><div class="card-title">Sales & Distribution</div><div class="card-sub">Remaining gaps</div></div>
+      <div class="grade-badge gc">B−</div>
+    </div>
+    <div class="items">
+      <div class="item"><div class="dot d-r"></div><div style="flex:1">No champion inspectors identified or cultivated — nobody proactively selling OfferWise. Query: top inspectors by <code>total_reports</code> + <code>total_buyers_converted</code>. Personal outreach, offer white-label branding.</div><div class="effort">ongoing</div></div>
+      <div class="item"><div class="dot d-a"></div><div style="flex:1">No inspector commission / aligned financial incentive. Decision made to skip percentage-based commission. Alternative: milestone badges, leaderboard, white-label as status signal.</div><div class="effort">1d</div></div>
+    </div>
+    <div class="done-note">✓ buyer_converted fully wired &nbsp;✓ Inspector portal shows conversion funnel &nbsp;✓ All email CTAs live &nbsp;✓ Drip sequence &nbsp;✓ Free tools funnel</div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div><div class="card-title">Agentic AI</div><div class="card-sub">Remaining gaps</div></div>
+      <div class="grade-badge ga">A</div>
+    </div>
+    <div class="items">
+      <div class="item"><div class="dot d-a"></div><div style="flex:1">Feedback flywheel: <code>QuickFeedback</code> model exists, no UI buttons wired on repair line items. Per-issue "✓ / ✗" generates the proprietary training dataset that no competitor can replicate.</div><div class="effort">3d</div></div>
+      <div class="item"><div class="dot d-a"></div><div style="flex:1">Gmail send not implemented — draft works, actual send via Gmail MCP is a stub. Completes the agentic loop for objection letters.</div><div class="effort">3d</div></div>
+    </div>
+    <div class="done-note">✓ Addendum (draft + download + email picker) &nbsp;✓ Objection letter modal &nbsp;✓ OfferWatch 6 monitors daily &nbsp;✓ Deadline intelligence across 7 escrow dates &nbsp;✓ Seismic/price/comps/permits/buyer signal all live</div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div><div class="card-title">Operational Resilience</div><div class="card-sub">Remaining gaps</div></div>
+      <div class="grade-badge gc">C+</div>
+    </div>
+    <div class="items">
+      <div class="item"><div class="dot d-r"></div><div style="flex:1">No Anthropic API fallback — single client, no try/except for 529/503 in <code>offerwise_intelligence.py</code>. One Anthropic outage = zero analyses. Two hours of actual work.</div><div class="effort">2h</div></div>
+      <div class="item"><div class="dot d-r"></div><div style="flex:1">OPERATIONS.md missing — no Postgres backup/restore procedure documented. If you haven't run a test restore, you don't have backups. This is the real risk.</div><div class="effort">1d</div></div>
+      <div class="item"><div class="dot d-r"></div><div style="flex:1">No load testing — actual failure threshold under concurrent load is unknown. Must know before any marketing push that drives volume.</div><div class="effort">2d</div></div>
+    </div>
+    <div class="done-note">✓ workers=2 &nbsp;✓ Sentry active &nbsp;✓ Circuit breaker (global + per-user) &nbsp;✓ APScheduler DB-backed</div>
+  </div>
+
+</div>
+
+<div class="section-hdr"><h2>Sprint plan — ordered by impact × effort</h2><hr></div>
+
+<div class="sprint">
+  <div class="sprint-head">
+    <span class="sprint-pill s0">COMPLETED TODAY</span>
+    <span class="sprint-title">v5.76.31 → v5.76.47 — 16 deploys</span>
+    <span class="sprint-outcome">Revenue B→B+ · Agentic A stays A · Distribution C+→B−</span>
+  </div>
+  <div class="sprint-rows">
+    <div class="srow">
+      <div class="srow-area">Revenue + Agentic</div>
+      <div class="srow-task"><strong class="struck">Implement <code>window.owDraftAddendum</code>.</strong> <span style="color:#22c55e;">✓ Done.</span> Panel renders, PDF download works, email provider picker (Gmail/Outlook/Yahoo/Apple/Copy) live. Babel-safe DOM construction.</div>
+      <div class="srow-lift c-g">✓</div>
+    </div>
+    <div class="srow">
+      <div class="srow-area">Agentic + UX</div>
+      <div class="srow-task"><strong class="struck">Draft letter to agent.</strong> <span style="color:#22c55e;">✓ Done.</span> Merged into negotiation checklist — tone selector (Firm/Balanced/Conciliatory), agent name input, <code>/api/objection/draft</code> route, IDs resolved at click time (not definition time).</div>
+      <div class="srow-lift c-g">✓</div>
+    </div>
+    <div class="srow">
+      <div class="srow-area">Distribution</div>
+      <div class="srow-task"><strong class="struck">CTAs in all emails.</strong> <span style="color:#22c55e;">✓ Done.</span> Primary CTA button in every OfferWatch alert. Persona-specific portal links for inspectors/agents/contractors. Referral earn block in welcome + receipt. Addendum CTA in analysis complete. UTM params on all buttons.</div>
+      <div class="srow-lift c-g">✓</div>
+    </div>
+    <div class="srow">
+      <div class="srow-area">PMF</div>
+      <div class="srow-task"><strong class="struck">Feature engagement instrumentation.</strong> <span style="color:#22c55e;">✓ Already done (prior session).</span> FeatureEvent model, <code>/api/track/feature</code> route, 18 owTrack() callsites wired. OfferWatch email clickthrough tracked. Referral copy tracked in settings + app.</div>
+      <div class="srow-lift c-g">✓</div>
+    </div>
+    <div class="srow">
+      <div class="srow-area">Distribution</div>
+      <div class="srow-task"><strong class="struck">Wire <code>buyer_converted</code>.</strong> <span style="color:#22c55e;">✓ Already done (prior session).</span> Stripe webhook writes flag on both subscription + credit paths. All 4 signup flows (Google, email, Apple, Facebook) link report to buyer. Inspector portal reads it correctly.</div>
+      <div class="srow-lift c-g">✓</div>
+    </div>
+    <div class="srow">
+      <div class="srow-area">Agentic + UX</div>
+      <div class="srow-task"><strong class="struck">Escrow deadline monitoring.</strong> <span style="color:#22c55e;">✓ Done.</span> All 7 deadline date pickers in OfferWatch panel. Claude reasons across full escrow timeline. Alerts at 14/7/3/1d with specific action, consequence, repair interaction. Professionals get own alert with portal CTA.</div>
+      <div class="srow-lift c-g">✓</div>
+    </div>
+    <div class="srow">
+      <div class="srow-area">UX</div>
+      <div class="srow-task"><strong class="struck">Negotiation playbook 2×2 grid.</strong> <span style="color:#22c55e;">✓ Done.</span> Repair costs (Step 1), Negotiation checklist (Step 2), Offer calculator (Step 3), Draft addendum — AI (Step 4). Replaced broken agentic actions section.</div>
+      <div class="srow-lift c-g">✓</div>
+    </div>
+  </div>
+</div>
+
+<div class="sprint">
+  <div class="sprint-head">
+    <span class="sprint-pill s1">THIS WEEK</span>
+    <span class="sprint-title">Resilience floor — zero single-vendor downtime, ops documented</span>
+    <span class="sprint-outcome">Resilience C+→B+ · Architecture B+→A−</span>
+  </div>
+  <div class="sprint-rows">
+    <div class="srow">
+      <div class="srow-area">Resilience</div>
+      <div class="srow-task"><strong>OpenAI GPT-4o fallback.</strong> Wrap <code>client.messages.create()</code> in <code>offerwise_intelligence.py</code> with try/except on <code>anthropic.APIStatusError</code> 529/503. Retry once with OpenAI <code>gpt-4o</code>. Two hours of actual work. Zero analysis downtime on any single vendor outage. Highest ROI item on this entire list.</div>
+      <div class="srow-lift c-g">2h</div>
+    </div>
+    <div class="srow">
+      <div class="srow-area">Resilience</div>
+      <div class="srow-task"><strong>OPERATIONS.md + test a real Postgres restore.</strong> Document: Render DB backup schedule, restore command, Anthropic/Stripe/Resend/RentCast outage steps, Sentry escalation. The document forces you to actually run the restore once. If you haven't tested it, you don't have backups.</div>
+      <div class="srow-lift c-g">1d</div>
+    </div>
+    <div class="srow">
+      <div class="srow-area">Distribution</div>
+      <div class="srow-task"><strong>Identify 5 champion inspectors.</strong> No code needed — query DB for top inspectors by <code>total_reports</code> + <code>total_buyers_converted</code>. Personal outreach offering white-label branding. One active champion with 20 reports/month is 30–60 buyers/year at near-zero CAC. Most asymmetric distribution bet available.</div>
+      <div class="srow-lift c-a">ongoing</div>
+    </div>
+  </div>
+</div>
+
+<div class="sprint">
+  <div class="sprint-head">
+    <span class="sprint-pill s2">WEEKS 2–3</span>
+    <span class="sprint-title">Data moat + architecture health</span>
+    <span class="sprint-outcome">PMF B→B+ · Architecture B+→A · Agentic A→A+</span>
+  </div>
+  <div class="sprint-rows">
+    <div class="srow">
+      <div class="srow-area">PMF + Agentic</div>
+      <div class="srow-task"><strong>Feedback flywheel — per-issue confirmation buttons.</strong> Add "✓ Confirmed" / "✗ Not found" buttons next to each repair line item in the results page. POST to <code>/api/feedback/issue</code>, store in <code>QuickFeedback</code> (model already exists). After 500 labeled examples you have a fine-tuning dataset that no competitor can replicate. This is the only mechanism that turns a prompt-based system into a proprietary data moat.</div>
+      <div class="srow-lift c-a">3d</div>
+    </div>
+    <div class="srow">
+      <div class="srow-area">Resilience</div>
+      <div class="srow-task"><strong>Load testing with k6 or Locust.</strong> Simulate 50, 100, 200 concurrent users on the analysis endpoint. Identify the actual failure point. Produces data for the Render plan upgrade decision and optimal worker/thread config. Must know this before any marketing push that drives real volume.</div>
+      <div class="srow-lift c-a">2d</div>
+    </div>
+    <div class="srow">
+      <div class="srow-area">Architecture</div>
+      <div class="srow-task"><strong>Alembic initial migration.</strong> Run <code>alembic revision --autogenerate</code>, review output, remove ~200 lines of <code>ALTER TABLE</code> from <code>app.py</code> startup. Every future schema change becomes versioned, reviewable, reversible. Required before any second developer joins.</div>
+      <div class="srow-lift c-a">3d</div>
+    </div>
+    <div class="srow">
+      <div class="srow-area">Architecture</div>
+      <div class="srow-task"><strong>Extract remaining blueprints.</strong> Priority order: <code>inspector_routes</code> (~30), <code>admin_routes</code> (~40), <code>negotiation_routes</code> (~20), <code>market_intel_routes</code> (~15), <code>contractor_routes</code> (~10). Target: <code>app.py</code> under 50 routes — a clean service controller only.</div>
+      <div class="srow-lift c-a">1w</div>
+    </div>
+  </div>
+</div>
+
+<div class="sprint">
+  <div class="sprint-head">
+    <span class="sprint-pill s3">WEEKS 4–6</span>
+    <span class="sprint-title">Complete agentic suite, E2E tests, contractor validation</span>
+    <span class="sprint-outcome">All grades → A · Agentic A→A+ · Architecture B+→A+</span>
+  </div>
+  <div class="sprint-rows">
+    <div class="srow">
+      <div class="srow-area">Agentic</div>
+      <div class="srow-task"><strong>Gmail objection letter send.</strong> <code>/api/mcp/gmail/send-objection</code> route exists but handler is a stub. The draft already works. Wire the Gmail MCP to compose and send directly from the buyer's account. Completes the agentic loop — from AI draft to delivered email without leaving OfferWise.</div>
+      <div class="srow-lift c-b">3d</div>
+    </div>
+    <div class="srow">
+      <div class="srow-area">Architecture</div>
+      <div class="srow-task"><strong>ARCHITECTURE.md.</strong> System data flow diagram: PDF upload → parser → cross-reference engine → AI → validation → result storage → agentic monitors. How to add a route, run tests locally, all env vars with descriptions. Any developer can onboard in half a day.</div>
+      <div class="srow-lift c-b">2d</div>
+    </div>
+    <div class="srow">
+      <div class="srow-area">Testing</div>
+      <div class="srow-task"><strong>Playwright E2E tests for 3 critical paths.</strong> (1) Free truth-check: enter address → result, no 500. (2) Paid analysis: upload PDF → completes → payment → results show. (3) Inspector flow: upload report → share token → buyer views. These are the revenue paths — they must never break silently after a deploy.</div>
+      <div class="srow-lift c-b">1w</div>
+    </div>
+    <div class="srow">
+      <div class="srow-area">PMF</div>
+      <div class="srow-task"><strong>Contractor marketplace concierge MVP.</strong> Query DB for top 20 contractor leads from last 30 days. Manually email 50 Bay Area contractors with a sample lead. Measure response rate. Above 20%: build automated matching. Below 10%: pause contractor investment, redirect to inspector channel which is already converting. Validate before building further.</div>
+      <div class="srow-lift c-b">2w</div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

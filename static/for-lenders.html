@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OfferWise for Lenders — Property Condition Intelligence for Smarter Underwriting</title>
+<meta name="description" content="Add property condition intelligence to your loan pipeline. OfferWise screens properties for hidden risks that affect collateral value — foundation, roof, environmental, and more.">
+<link rel="icon" type="image/svg+xml" href="/logo-icon-only.svg">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root { --bg:#060d1a;--surface:#0f1e35;--border:rgba(255,255,255,0.08);--text:#f1f5f9;--muted:#94a3b8;--dim:#64748b;--fire1:#f97316;--fire2:#f59e0b;--green:#22c55e;--blue:#60a5fa; }
+body { background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; line-height:1.6; }
+nav { display:flex;align-items:center;justify-content:space-between;padding:18px 40px;border-bottom:1px solid var(--border);position:sticky;top:0;background:rgba(6,13,26,0.95);backdrop-filter:blur(12px);z-index:100; }
+.nav-logo { font-size:1.3rem;font-weight:900;color:var(--text);text-decoration:none; }
+.nav-logo .wise { background:linear-gradient(90deg,var(--fire1),var(--fire2));-webkit-background-clip:text;-webkit-text-fill-color:transparent; }
+.nav-cta { background:linear-gradient(90deg,var(--fire1),var(--fire2));color:white;border:none;padding:10px 22px;border-radius:8px;font-weight:700;font-size:14px;cursor:pointer;text-decoration:none; }
+.hero { text-align:center;padding:80px 24px 64px;max-width:760px;margin:0 auto; }
+.hero-tag { display:inline-block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--blue);border:1px solid rgba(96,165,250,.3);background:rgba(96,165,250,.08);padding:5px 14px;border-radius:20px;margin-bottom:24px; }
+.hero h1 { font-size:clamp(2rem,5vw,3.2rem);font-weight:900;letter-spacing:-.03em;line-height:1.1;margin-bottom:20px; }
+.hero h1 em { font-style:normal;background:linear-gradient(90deg,var(--fire1),var(--fire2));-webkit-background-clip:text;-webkit-text-fill-color:transparent; }
+.hero p { font-size:1.1rem;color:var(--muted);max-width:560px;margin:0 auto 36px;line-height:1.7; }
+.hero-btns { display:flex;gap:12px;justify-content:center;flex-wrap:wrap; }
+.btn-primary { background:linear-gradient(90deg,var(--fire1),var(--fire2));color:white;border:none;padding:14px 32px;border-radius:10px;font-weight:700;font-size:16px;cursor:pointer;text-decoration:none; }
+.btn-secondary { background:transparent;color:var(--muted);border:1px solid var(--border);padding:14px 28px;border-radius:10px;font-weight:600;font-size:15px;text-decoration:none; }
+.section { padding:72px 24px;max-width:900px;margin:0 auto; }
+.section-label { font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--fire1);margin-bottom:12px; }
+.section h2 { font-size:clamp(1.6rem,3vw,2.2rem);font-weight:800;margin-bottom:16px;letter-spacing:-.02em; }
+.section > p { color:var(--muted);max-width:580px;margin-bottom:48px; }
+.value-grid { display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px; }
+.value-card { background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px; }
+.value-icon { font-size:1.8rem;margin-bottom:12px; }
+.value-card h3 { font-size:15px;font-weight:700;margin-bottom:8px; }
+.value-card p { font-size:13px;color:var(--muted);line-height:1.55; }
+.stat-row { display:flex;gap:24px;flex-wrap:wrap;margin-bottom:48px; }
+.stat-box { background:var(--surface);border:1px solid rgba(96,165,250,.2);border-radius:12px;padding:20px 24px;flex:1;min-width:140px; }
+.stat-box .num { font-size:2rem;font-weight:900;background:linear-gradient(90deg,var(--fire1),var(--fire2));-webkit-background-clip:text;-webkit-text-fill-color:transparent; }
+.stat-box .lbl { font-size:12px;color:var(--muted);margin-top:4px; }
+.api-box { background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px;font-family:monospace;font-size:13px;color:var(--muted);overflow-x:auto;margin:24px 0; }
+.api-box .kw { color:var(--blue); } .api-box .str { color:var(--green); } .api-box .cmt { color:var(--dim); }
+.cta-section { background:linear-gradient(135deg,rgba(96,165,250,.06),rgba(249,115,22,.04));border-top:1px solid rgba(96,165,250,.15);padding:72px 24px;text-align:center; }
+.cta-section h2 { font-size:2rem;font-weight:800;margin-bottom:12px; }
+.cta-section p { color:var(--muted);margin-bottom:32px;max-width:500px;margin-left:auto;margin-right:auto; }
+footer { text-align:center;padding:32px;font-size:12px;color:var(--dim);border-top:1px solid var(--border); }
+footer a { color:var(--dim);text-decoration:none;margin:0 8px; }
+@media(max-width:640px) { nav{padding:14px 16px} .hero{padding:48px 16px 40px} .section{padding:48px 16px} }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo">Offer<span class="wise">Wise</span></a>
+  <div style="display:flex;gap:16px;align-items:center">
+    <a href="/api/docs" style="color:var(--muted);text-decoration:none;font-size:14px;font-weight:500">API Docs</a>
+    <a href="/api/docs#pricing" class="nav-cta">Get API Access →</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="hero-tag">For Mortgage Lenders &amp; Loan Officers</div>
+  <h1>Property condition intelligence<br>for <em>smarter underwriting.</em></h1>
+  <p>Appraisals tell you what a property is worth. OfferWise tells you what it will cost to maintain. Screen every loan application for hidden structural, environmental, and deferred maintenance risks — via API or dashboard.</p>
+  <div class="hero-btns">
+    <a href="/api/docs" class="btn-primary">View API Documentation →</a>
+    <a href="mailto:support@getofferwise.ai?subject=Lender API inquiry" class="btn-secondary">Talk to Us</a>
+  </div>
+</div>
+
+<div class="section">
+  <div class="stat-row">
+    <div class="stat-box"><div class="num">13</div><div class="lbl">Live data sources per property</div></div>
+    <div class="stat-box"><div class="num">&lt;3s</div><div class="lbl">Screening response time</div></div>
+    <div class="stat-box"><div class="num">4</div><div class="lbl">API endpoints</div></div>
+  </div>
+
+  <div class="section-label">The Problem</div>
+  <h2>Appraisals miss what inspections find.</h2>
+  <p>Your collateral could have $40K in foundation issues, an unpermitted addition, or a roof with 2 years of remaining life. Appraisals don't catch these. OfferWise does.</p>
+
+  <div class="value-grid">
+    <div class="value-card">
+      <div class="value-icon">🏗</div>
+      <h3>Pre-Approval Screening</h3>
+      <p>Run any address through the screen endpoint before committing. Get flood zone, seismic risk, AVM, and environmental flags in under 3 seconds.</p>
+    </div>
+    <div class="value-card">
+      <div class="value-icon">📋</div>
+      <h3>Collateral Risk Assessment</h3>
+      <p>When the borrower submits their inspection report, run a full analysis. Get repair cost estimates, deal breakers, and a condition-adjusted property value.</p>
+    </div>
+    <div class="value-card">
+      <div class="value-icon">⚡</div>
+      <h3>Portfolio Monitoring</h3>
+      <p>Screen existing portfolio properties for emerging risks — flood zone reclassifications, seismic events, air quality changes, and permit activity.</p>
+    </div>
+    <div class="value-card">
+      <div class="value-icon">🔌</div>
+      <h3>LOS Integration</h3>
+      <p>RESTful API drops into Encompass, Byte, or any LOS with webhook support. Bearer token auth, JSON responses, usage tracking built in.</p>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-label">API</div>
+  <h2>Three endpoints, one integration.</h2>
+  <p>Screen properties at scale, research individual addresses, or run full document analysis.</p>
+
+  <div class="api-box">
+    <span class="cmt"># Screen a property in your pipeline</span><br>
+    <span class="kw">POST</span> /api/v1/screen<br>
+    { <span class="str">"address"</span>: <span class="str">"1234 Oak St, San Jose CA 95123"</span>, <span class="str">"asking_price"</span>: 985000 }<br><br>
+    <span class="cmt"># Response: risk flags, AVM, flood zone, days on market</span><br>
+    { <span class="str">"risk_flags"</span>: [{ <span class="str">"flag"</span>: <span class="str">"overpriced"</span>, <span class="str">"severity"</span>: <span class="str">"medium"</span> }], <span class="str">"estimated_value"</span>: 952000 }
+  </div>
+
+  <div class="api-box">
+    <span class="cmt"># Full analysis with borrower's inspection report</span><br>
+    <span class="kw">POST</span> /api/v1/analyze<br>
+    { <span class="str">"disclosure_text"</span>: <span class="str">"..."</span>, <span class="str">"inspection_text"</span>: <span class="str">"..."</span>, <span class="str">"property_price"</span>: 985000 }<br><br>
+    <span class="cmt"># Response: risk score, repair costs, deal breakers, recommended value</span>
+  </div>
+</div>
+
+<div class="cta-section">
+  <h2>Add condition intelligence to your pipeline.</h2>
+  <p>Start with the API Starter plan (500 calls/month) or contact us for volume pricing.</p>
+  <div class="hero-btns">
+    <a href="/api/docs#pricing" class="btn-primary">Get API Access →</a>
+    <a href="mailto:support@getofferwise.ai?subject=Lender partnership inquiry" class="btn-secondary">Contact Sales</a>
+  </div>
+</div>
+
+<footer>
+  <p>&copy; 2026 OfferWise. All rights reserved.</p>
+  <p><a href="/terms">Terms</a><a href="/privacy">Privacy</a><a href="/api/docs">API Docs</a><a href="/">Home</a></p>
+</footer>
+
+</body>
+</html>

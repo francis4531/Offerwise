@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OfferWise — Strategic Assessment v3</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --paper:#f5f2eb;
+  --ink:#1a1612;
+  --ink2:#2d2820;
+  --rule:#c8bfad;
+  --rule-light:#e0d9ce;
+  --red:#c0392b;
+  --green:#1e6b3e;
+  --amber:#b07d2a;
+  --blue:#1a4a7a;
+  --muted:#7a6e62;
+  --accent:#8b1a1a;
+}
+html{scroll-behavior:smooth}
+body{
+  font-family:'IBM Plex Sans',sans-serif;
+  background:var(--paper);
+  color:var(--ink);
+  font-size:14px;
+  line-height:1.7;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ── GRAIN TEXTURE ─────────────────────────────────────── */
+body::before{
+  content:'';
+  position:fixed;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events:none;z-index:0;opacity:.6;
+}
+
+/* ── LAYOUT ────────────────────────────────────────────── */
+.page{max-width:860px;margin:0 auto;padding:60px 40px 100px;position:relative;z-index:1}
+
+/* ── MASTHEAD ──────────────────────────────────────────── */
+.masthead{border-bottom:3px solid var(--ink);padding-bottom:24px;margin-bottom:40px}
+.masthead-top{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;margin-bottom:12px}
+.pub-name{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.issue-meta{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);text-align:right;line-height:1.8}
+.masthead h1{font-family:'Playfair Display',Georgia,serif;font-size:clamp(36px,6vw,64px);font-weight:700;letter-spacing:-.02em;line-height:1;margin-bottom:8px}
+.masthead h1 em{font-style:italic;color:var(--accent)}
+.masthead-deck{font-size:13px;color:var(--muted);max-width:560px;line-height:1.6;border-top:1px solid var(--rule);padding-top:14px;margin-top:14px}
+
+/* ── SCORECARD ROW ─────────────────────────────────────── */
+.scorecard{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:2px solid var(--ink);margin-bottom:48px}
+.score-cell{padding:20px 24px;border-right:1px solid var(--ink)}
+.score-cell:last-child{border-right:none}
+.score-label{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.score-value{font-family:'Playfair Display',Georgia,serif;font-size:42px;font-weight:700;line-height:1;color:var(--ink)}
+.score-value.up{color:var(--green)}
+.score-value.warn{color:var(--amber)}
+.score-value.crit{color:var(--red)}
+.score-sub{font-size:11px;color:var(--muted);margin-top:4px}
+
+/* ── SECTION HEADERS ───────────────────────────────────── */
+.section{margin-bottom:52px}
+.section-num{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px}
+.section-title{font-family:'Playfair Display',Georgia,serif;font-size:26px;font-weight:700;margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid var(--rule)}
+
+/* ── GRADE ROWS ────────────────────────────────────────── */
+.grade-row{display:grid;grid-template-columns:1fr auto;gap:24px;align-items:start;padding:20px 0;border-bottom:1px solid var(--rule-light)}
+.grade-row:last-child{border-bottom:none}
+.grade-meta{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.grade-dimension{font-size:15px;font-weight:600;margin-bottom:8px}
+.grade-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0}
+.grade-letter{font-family:'Playfair Display',Georgia,serif;font-size:36px;font-weight:700;line-height:1}
+.grade-letter.a{color:var(--green)}
+.grade-letter.b{color:var(--blue)}
+.grade-letter.c{color:var(--amber)}
+.grade-letter.d{color:var(--red)}
+.grade-delta{font-family:'IBM Plex Mono',monospace;font-size:10px;padding:2px 6px;border-radius:2px;font-weight:500}
+.delta-up{background:rgba(30,107,62,.1);color:var(--green)}
+.delta-same{background:rgba(122,110,98,.1);color:var(--muted)}
+
+/* ── BULLETS ───────────────────────────────────────────── */
+.findings{margin-top:10px;display:flex;flex-direction:column;gap:4px}
+.finding{display:flex;gap:10px;font-size:13px;line-height:1.55}
+.finding::before{flex-shrink:0;margin-top:2px}
+.finding.pos::before{content:'✓';color:var(--green);font-weight:700}
+.finding.neg::before{content:'—';color:var(--red)}
+.finding.new::before{content:'↑';color:var(--blue);font-weight:700}
+
+/* ── CHANGES SINCE v2 ──────────────────────────────────── */
+.delta-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
+.delta-card{border:1px solid var(--rule);padding:14px 16px;border-radius:2px}
+.delta-card-head{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px}
+.delta-card-head.completed{color:var(--green)}
+.delta-card-head.pending{color:var(--amber)}
+.delta-card-head.new-risk{color:var(--red)}
+.delta-item{font-size:12px;line-height:1.5;color:var(--ink2);padding:3px 0;border-bottom:1px solid var(--rule-light)}
+.delta-item:last-child{border-bottom:none}
+
+/* ── EDITORIAL BLOCK ───────────────────────────────────── */
+.editorial{background:var(--ink);color:var(--paper);padding:32px 36px;margin:36px 0;position:relative}
+.editorial::before{content:'';position:absolute;top:8px;left:8px;right:-8px;bottom:-8px;border:1px solid var(--ink);z-index:-1}
+.editorial-label{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:rgba(245,242,235,.4);margin-bottom:14px}
+.editorial p{font-family:'Playfair Display',Georgia,serif;font-size:17px;font-style:italic;line-height:1.65;color:var(--paper)}
+.editorial-source{font-family:'IBM Plex Mono',monospace;font-size:10px;color:rgba(245,242,235,.4);margin-top:14px}
+
+/* ── TENSION MATRIX ────────────────────────────────────── */
+.matrix{width:100%;border-collapse:collapse;margin-top:16px;font-size:13px}
+.matrix th{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:8px 12px;border-bottom:2px solid var(--ink);text-align:left;font-weight:500}
+.matrix td{padding:10px 12px;border-bottom:1px solid var(--rule-light);vertical-align:top;line-height:1.5}
+.matrix tr:last-child td{border-bottom:none}
+.matrix td:first-child{font-weight:600;font-size:12px;width:160px}
+.pill{display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:500;padding:2px 7px;border-radius:2px;text-transform:uppercase;letter-spacing:.06em}
+.pill.done{background:rgba(30,107,62,.12);color:var(--green)}
+.pill.gap{background:rgba(176,125,42,.12);color:var(--amber)}
+.pill.crit{background:rgba(192,57,43,.1);color:var(--red)}
+
+/* ── PRIORITY TABLE ────────────────────────────────────── */
+.priority-list{display:flex;flex-direction:column;gap:0;margin-top:16px;border:1px solid var(--rule)}
+.priority-item{display:grid;grid-template-columns:40px 1fr auto;gap:0;border-bottom:1px solid var(--rule-light)}
+.priority-item:last-child{border-bottom:none}
+.priority-num{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:500;color:var(--muted);padding:14px;border-right:1px solid var(--rule-light);display:flex;align-items:flex-start;justify-content:center}
+.priority-body{padding:12px 16px}
+.priority-title{font-weight:600;font-size:13px;margin-bottom:3px}
+.priority-desc{font-size:12px;color:var(--muted);line-height:1.5}
+.priority-effort{font-family:'IBM Plex Mono',monospace;font-size:10px;padding:14px 12px;color:var(--muted);white-space:nowrap;border-left:1px solid var(--rule-light);display:flex;align-items:flex-start}
+
+/* ── FOOTER ────────────────────────────────────────────── */
+.report-footer{margin-top:60px;padding-top:20px;border-top:2px solid var(--ink);display:flex;justify-content:space-between;font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted)}
+
+/* ── ANIMATION ─────────────────────────────────────────── */
+.reveal{opacity:0;transform:translateY(16px);transition:opacity .5s ease,transform .5s ease}
+.reveal.visible{opacity:1;transform:translateY(0)}
+
+@media(max-width:620px){
+  .page{padding:32px 20px 60px}
+  .scorecard{grid-template-columns:1fr}
+  .score-cell{border-right:none;border-bottom:1px solid var(--ink)}
+  .score-cell:last-child{border-bottom:none}
+  .delta-grid{grid-template-columns:1fr}
+  .matrix{display:block;overflow-x:auto}
+  .priority-item{grid-template-columns:32px 1fr}
+  .priority-effort{display:none}
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- MASTHEAD -->
+<div class="masthead">
+  <div class="masthead-top">
+    <div class="pub-name">OfferWise AI — Internal Strategy Document</div>
+    <div class="issue-meta">
+      v5.76.63 · March 22, 2026<br>
+      329 routes · 52 models · 81 tests<br>
+      Assessment v3 (prev: v2 March 21)
+    </div>
+  </div>
+  <h1>Strategic<br>Assessment <em>v3</em></h1>
+  <div class="masthead-deck">
+    A dual-framework assessment against the Chris Rowen 10-Session Startup Bootcamp and
+    the standards of a billion-dollar software company — verified against the live codebase.
+    Updated 24 hours after v2 with all session work incorporated.
+  </div>
+</div>
+
+<!-- SCORECARD -->
+<div class="scorecard reveal">
+  <div class="score-cell">
+    <div class="score-label">Overall Grade</div>
+    <div class="score-value">B+</div>
+    <div class="score-sub">Unchanged from v2 — distribution still unvalidated</div>
+  </div>
+  <div class="score-cell">
+    <div class="score-label">Billion-Dollar Readiness</div>
+    <div class="score-value warn">38%</div>
+    <div class="score-sub">↑ from 35% — GTM pipeline now live, fallback added</div>
+  </div>
+  <div class="score-cell">
+    <div class="score-label">Most Urgent Risk</div>
+    <div class="score-value crit">CAC</div>
+    <div class="score-sub">Pixels live 24h — first attributed data arriving now</div>
+  </div>
+</div>
+
+<!-- SECTION 01: CHANGES SINCE v2 -->
+<div class="section reveal">
+  <div class="section-num">00 — Session delta</div>
+  <div class="section-title">What Changed Since Yesterday</div>
+  <div class="delta-grid">
+    <div class="delta-card">
+      <div class="delta-card-head completed">✓ Completed (25 items)</div>
+      <div class="delta-item">Facebook GTM pipeline — 8 groups, generate, manage, copy-post workflow</div>
+      <div class="delta-item">Nextdoor GTM pipeline — 10 neighborhoods, hyper-local tone generation</div>
+      <div class="delta-item">_social_gen_job — daily auto-drafts FB + ND posts at 7:30am PT</div>
+      <div class="delta-item">/analyze landing page — value-first funnel, no signup wall</div>
+      <div class="delta-item">All 22 guide CTAs redirected to /analyze</div>
+      <div class="delta-item">Homepage primary CTA → /analyze</div>
+      <div class="delta-item">ai_client.py — shared fallback module, 2-retry + GPT-4o</div>
+      <div class="delta-item">OpenAI fallback wired: analysis, agentic monitor, truth-check, objection letter, research agent</div>
+      <div class="delta-item">Persona grid: "Three ways in" → "Four ways in"</div>
+      <div class="delta-item">analyze.html type scale: 13 sizes → 6 sizes</div>
+      <div class="delta-item">admin-gtm.html FB/ND JS: switchTab bug fixed (v5.76.62)</div>
+    </div>
+    <div class="delta-card">
+      <div class="delta-card-head pending">⏳ Still Outstanding</div>
+      <div class="delta-item">Inspector champion outreach — top 5 not yet emailed</div>
+      <div class="delta-item">OPENAI_API_KEY not yet in Render env (fallback inactive)</div>
+      <div class="delta-item">Subscription churn tracking not built</div>
+      <div class="delta-item">Postgres restore procedure undocumented</div>
+      <div class="delta-item">Load test not run</div>
+      <div class="delta-item">Playwright E2E tests not written</div>
+      <div class="delta-item">OfferWatch long-term subscription (post-45-day) not built</div>
+      <div class="delta-item">ALTER TABLE blocks still in app.py startup</div>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 02: GRADES -->
+<div class="section reveal">
+  <div class="section-num">01 — Framework assessment</div>
+  <div class="section-title">Chris Rowen Framework — Grade by Dimension</div>
+
+  <div class="grade-row">
+    <div>
+      <div class="grade-meta">Product–Market Fit</div>
+      <div class="grade-dimension">Evidence of fit remains strong. Measurement gap closing.</div>
+      <div class="findings">
+        <div class="finding pos">Cross-reference engine, agentic monitoring, objection letter — no competitor does all three</div>
+        <div class="finding pos">QuickFeedback buttons now wired — proprietary labeled data finally accumulating</div>
+        <div class="finding pos">IssueConfirmation model live — every "✓ Found / ✗ Not found" click is a training example</div>
+        <div class="finding pos">Value-first funnel (/analyze) removes the signup wall — conversion hypothesis now testable</div>
+        <div class="finding neg">Still zero PMF signal — no first paying customer, no feature event data yet</div>
+        <div class="finding neg">One analysis per buyer lifecycle — repeat purchase mechanism unbuilt</div>
+        <div class="finding neg">OfferWatch capped at 45 days — should be a 7-year subscription</div>
+      </div>
+    </div>
+    <div class="grade-right">
+      <div class="grade-letter b">B+</div>
+      <div class="grade-delta delta-same">= v2</div>
+    </div>
+  </div>
+
+  <div class="grade-row">
+    <div>
+      <div class="grade-meta">Technical Architecture</div>
+      <div class="grade-dimension">329 routes, 52 models. Resilience meaningfully improved.</div>
+      <div class="findings">
+        <div class="finding new">ai_client.py — shared resilient AI module with 2-retry + GPT-4o fallback</div>
+        <div class="finding new">All 6 critical AI call sites now have OpenAI fallback (pending OPENAI_API_KEY in Render)</div>
+        <div class="finding new">_repair_note_block pre-existing f-string bug fixed (exposed by ruff)</div>
+        <div class="finding pos">9 scheduled jobs: drip, ads_sync, reddit, forum_scan, content_gen, social_gen, lead_expiry, funnel_alert, agentic_monitor</div>
+        <div class="finding pos">Docker + Render Postgres + Sentry + CI/CD — full production stack</div>
+        <div class="finding neg">app.py still 240 routes — 3 more extraction rounds needed</div>
+        <div class="finding neg">ALTER TABLE at startup — Alembic migration still incomplete</div>
+        <div class="finding neg">No load test — failure threshold still unknown</div>
+      </div>
+    </div>
+    <div class="grade-right">
+      <div class="grade-letter b">B+</div>
+      <div class="grade-delta delta-up">↑ from B</div>
+    </div>
+  </div>
+
+  <div class="grade-row">
+    <div>
+      <div class="grade-meta">Revenue &amp; Unit Economics</div>
+      <div class="grade-dimension">Five revenue lines. CAC data arriving. LTV structurally weak.</div>
+      <div class="findings">
+        <div class="finding pos">Google Ads + Reddit pixels live — first attributed conversions arriving in next 24h</div>
+        <div class="finding pos">Five revenue lines: buyer credits, subscription, inspector pro, contractor, B2B API</div>
+        <div class="finding pos">All outbound emails have product CTAs — distribution leverage activated</div>
+        <div class="finding neg">Zero revenue — no first paying customer yet</div>
+        <div class="finding neg">CAC unknown — first measurement window closes in 24–48h</div>
+        <div class="finding neg">No subscription churn tracking — 30-day retention rate unknown</div>
+        <div class="finding neg">LTV structurally weak — most buyers transact once</div>
+      </div>
+    </div>
+    <div class="grade-right">
+      <div class="grade-letter b">B+</div>
+      <div class="grade-delta delta-same">= v2</div>
+    </div>
+  </div>
+
+  <div class="grade-row">
+    <div>
+      <div class="grade-meta">Sales &amp; Distribution — Biggest Lever</div>
+      <div class="grade-dimension">GTM pipeline materially expanded. Inspector outreach not started.</div>
+      <div class="findings">
+        <div class="finding new">Facebook GTM: 8 target groups, Claude generates platform-native posts daily</div>
+        <div class="finding new">Nextdoor GTM: 10 Bay Area neighborhoods, hyper-local neighbour tone, 80–120 words</div>
+        <div class="finding new">_social_gen_job: daily auto-draft at 7:30am PT — copy-paste-post workflow</div>
+        <div class="finding new">/analyze landing page: value before signup, address → research → unlock CTA</div>
+        <div class="finding new">All 22 guide pages + homepage → /analyze (better conversion path from ads)</div>
+        <div class="finding neg">Inspector champion outreach: still not started — top 5 converters not yet emailed</div>
+        <div class="finding neg">No viral loop — no mechanism for buyers to refer other buyers</div>
+        <div class="finding neg">Reddit/Google paid CAC unknown — first data window still open</div>
+      </div>
+    </div>
+    <div class="grade-right">
+      <div class="grade-letter c">C+</div>
+      <div class="grade-delta delta-up">↑ trend</div>
+    </div>
+  </div>
+
+  <div class="grade-row">
+    <div>
+      <div class="grade-meta">Agentic AI</div>
+      <div class="grade-dimension">Fully complete. Vendor dependency partially resolved.</div>
+      <div class="findings">
+        <div class="finding pos">7 agentic features live: deadline monitor, comps, earthquake reanalysis, price cut, permits, inspector forward, buyer concern</div>
+        <div class="finding pos">Objection letter, repair addendum, negotiation letter — Claude writes from your data</div>
+        <div class="finding new">OpenAI GPT-4o fallback now wired to all 6 call sites — Anthropic outage no longer = zero revenue</div>
+        <div class="finding new">_repair_note_block pre-existing f-string bug fixed in deadline alerts</div>
+        <div class="finding neg">OPENAI_API_KEY not yet added to Render — fallback inactive until configured</div>
+        <div class="finding neg">Gmail send still a stub — objection letter requires copy/paste</div>
+      </div>
+    </div>
+    <div class="grade-right">
+      <div class="grade-letter a">A+</div>
+      <div class="grade-delta delta-same">= v2</div>
+    </div>
+  </div>
+
+  <div class="grade-row">
+    <div>
+      <div class="grade-meta">Resilience &amp; Operations</div>
+      <div class="grade-dimension">Single vendor dependency resolved. Process gaps remain.</div>
+      <div class="findings">
+        <div class="finding new">ai_client.py: Anthropic → retry → GPT-4o — all critical paths covered</div>
+        <div class="finding new">Truth-check fallback: Anthropic PDF API → GPT-4o with pdfplumber text extraction</div>
+        <div class="finding pos">Sentry live, Docker, managed Postgres, GitHub Actions CI</div>
+        <div class="finding pos">81 tests, ruff lint, 102 integrity tests passing</div>
+        <div class="finding neg">OPENAI_API_KEY not yet in Render env — fallback code exists but inactive</div>
+        <div class="finding neg">Postgres restore undocumented and untested</div>
+        <div class="finding neg">No load test — failure threshold at concurrent users unknown</div>
+        <div class="finding neg">No E2E tests — revenue paths can break silently</div>
+      </div>
+    </div>
+    <div class="grade-right">
+      <div class="grade-letter b">B−</div>
+      <div class="grade-delta delta-up">↑ from C+</div>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 03: EDITORIAL -->
+<div class="section reveal">
+  <div class="section-num">02 — Analysis</div>
+  <div class="section-title">The Billion-Dollar Lens</div>
+
+  <p style="margin-bottom:16px">In 24 hours, OfferWise added Facebook and Nextdoor as live GTM channels, fixed a single-vendor AI dependency that would have taken the product offline during any Anthropic outage, and rebuilt the conversion funnel so users see the product working before they're asked to sign up or pay. These are real, meaningful improvements.</p>
+
+  <p style="margin-bottom:16px">And yet the grade doesn't move. That's not a failure of execution — it's a function of what the grades actually measure. Technical improvements and GTM infrastructure don't change the PMF grade until someone pays. Distribution grades don't move until a channel converts. The work done this session builds the conditions for a grade change, but doesn't trigger one.</p>
+
+  <div class="editorial">
+    <div class="editorial-label">Assessment note</div>
+    <p>"The most important number in the business right now is not the OfferScore, not the route count, and not the test pass rate. It is the number of people who typed a real address into /analyze and clicked 'Get my free analysis.' That number is the only leading indicator that matters this week."</p>
+    <div class="editorial-source">— Framework observation, v3</div>
+  </div>
+
+  <p style="margin-bottom:16px">The billion-dollar readiness score moves from 35% to 38% — a small but legitimate increment. The fallback architecture means the product can survive an Anthropic outage. The GTM pipeline means content is being generated across five channels daily. The /analyze page means ad traffic now lands somewhere designed to convert. These are infrastructure improvements, not revenue events. The score moves when customers do.</p>
+
+  <p>The structural tension in the business remains unchanged from v2: <strong>the product is excellent; the distribution is unproven; the LTV is weak.</strong> The path to a higher score runs through three things that require no more code: (1) email the top 5 inspectors personally this week, (2) read the first CAC data when it arrives in the next 24 hours and act on it immediately, (3) post the first Facebook and Nextdoor content manually today. Everything else is maintenance.</p>
+</div>
+
+<!-- SECTION 04: TENSION MATRIX -->
+<div class="section reveal">
+  <div class="section-num">03 — What exists vs. what's proven</div>
+  <div class="section-title">The Tension Matrix</div>
+  <table class="matrix">
+    <thead>
+      <tr>
+        <th>Dimension</th>
+        <th>What Exists</th>
+        <th>What's Proven</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>AI Resilience</td>
+        <td>ai_client.py, 6 call sites covered, 2-retry + GPT-4o fallback</td>
+        <td>Code exists, OPENAI_API_KEY not yet in Render</td>
+        <td><span class="pill gap">Partial</span></td>
+      </tr>
+      <tr>
+        <td>Conversion Funnel</td>
+        <td>/analyze page, value before signup, address → research → CTA</td>
+        <td>Not yet tested with real ad traffic</td>
+        <td><span class="pill gap">Unvalidated</span></td>
+      </tr>
+      <tr>
+        <td>GTM — Reddit/BP</td>
+        <td>Forum scanner, content engine, 11 subreddits, admin review queue</td>
+        <td>No reply posted yet, no conversion attributed</td>
+        <td><span class="pill gap">Unvalidated</span></td>
+      </tr>
+      <tr>
+        <td>GTM — Facebook</td>
+        <td>8 groups seeded, generate + copy-post workflow, daily 7:30am auto-draft</td>
+        <td>No post made yet</td>
+        <td><span class="pill crit">Not started</span></td>
+      </tr>
+      <tr>
+        <td>GTM — Nextdoor</td>
+        <td>10 neighborhoods, hyper-local tone, daily auto-draft</td>
+        <td>No post made yet</td>
+        <td><span class="pill crit">Not started</span></td>
+      </tr>
+      <tr>
+        <td>Inspector Channel</td>
+        <td>Portal, ghost buyer flow, attribution tracking, share links</td>
+        <td>No personal outreach to top converters</td>
+        <td><span class="pill crit">Not started</span></td>
+      </tr>
+      <tr>
+        <td>Data Moat</td>
+        <td>IssueConfirmation model, QuickFeedback buttons wired</td>
+        <td>Labels accumulating in prod — first data exists</td>
+        <td><span class="pill done">Active</span></td>
+      </tr>
+      <tr>
+        <td>Paid Acquisition</td>
+        <td>Google Ads + Reddit Ads live, pixels firing, /analyze as destination</td>
+        <td>First attribution data arriving now (24–48h lag)</td>
+        <td><span class="pill gap">Measuring</span></td>
+      </tr>
+      <tr>
+        <td>Repeat Purchase</td>
+        <td>OfferWatch 45-day monitoring</td>
+        <td>45-day cap — no long-term retention mechanism</td>
+        <td><span class="pill crit">Gap</span></td>
+      </tr>
+      <tr>
+        <td>Operations</td>
+        <td>Sentry, Docker, managed Postgres, 81 tests, 9 scheduled jobs</td>
+        <td>Postgres restore not tested; no load test; no E2E tests</td>
+        <td><span class="pill gap">Partial</span></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- SECTION 05: PRIORITIES -->
+<div class="section reveal">
+  <div class="section-num">04 — This week only</div>
+  <div class="section-title">Ranked Priorities — No Code Required</div>
+
+  <div class="priority-list">
+    <div class="priority-item">
+      <div class="priority-num">01</div>
+      <div class="priority-body">
+        <div class="priority-title">Add OPENAI_API_KEY to Render env vars</div>
+        <div class="priority-desc">The fallback code is written and deployed. Without this env var it is dead code. One Anthropic outage = zero analyses = zero revenue. Takes 2 minutes.</div>
+      </div>
+      <div class="priority-effort">2 min</div>
+    </div>
+    <div class="priority-item">
+      <div class="priority-num">02</div>
+      <div class="priority-body">
+        <div class="priority-title">Read the first CAC data</div>
+        <div class="priority-desc">Google Ads pixels went live ~24h ago. Check the conversion dashboard now. If Google CAC &gt; $40: pause it and redirect budget to inspector outreach. If &lt; $20: double the daily budget immediately. If no conversions: the /analyze funnel needs work before spending more.</div>
+      </div>
+      <div class="priority-effort">15 min</div>
+    </div>
+    <div class="priority-item">
+      <div class="priority-num">03</div>
+      <div class="priority-body">
+        <div class="priority-title">Email the top 5 inspectors personally</div>
+        <div class="priority-desc">Run: <code style="font-family:'IBM Plex Mono',monospace;font-size:11px;background:rgba(0,0,0,.06);padding:1px 5px">SELECT business_name, email FROM inspectors ORDER BY total_buyers_converted DESC LIMIT 5</code>. Send a personal 3-sentence email from the founder — not a newsletter. Offer white-label branding at no cost. One inspector doing 15 reports/month is $0 CAC forever.</div>
+      </div>
+      <div class="priority-effort">1 hour</div>
+    </div>
+    <div class="priority-item">
+      <div class="priority-num">04</div>
+      <div class="priority-body">
+        <div class="priority-title">Post the first Facebook and Nextdoor content</div>
+        <div class="priority-desc">Go to /admin/gtm → Facebook tab → Generate → Copy → paste into the first Bay Area group. Same for Nextdoor San Jose. The infrastructure is live. The content will not post itself. Do this daily for 2 weeks before evaluating whether it's working.</div>
+      </div>
+      <div class="priority-effort">20 min/day</div>
+    </div>
+    <div class="priority-item">
+      <div class="priority-num">05</div>
+      <div class="priority-body">
+        <div class="priority-title">Post manually approved Reddit replies</div>
+        <div class="priority-desc">The forum scanner runs every 6h. Check /admin/gtm → Reddit & BP tab → Pending drafts. Approve the good ones, copy to clipboard, post to Reddit. A genuine helpful comment on r/FirstTimeHomeBuyer costs $0 and can drive 50–100 visitors per thread.</div>
+      </div>
+      <div class="priority-effort">30 min/day</div>
+    </div>
+    <div class="priority-item">
+      <div class="priority-num">06</div>
+      <div class="priority-body">
+        <div class="priority-title">Make the YouTube video</div>
+        <div class="priority-desc">Screen record: open sample-analysis.html, walk through the OfferScore (74), the two critical issues (roof $18K–$28K, HVAC $8K–$12K), the disclosure contradiction, the three offer strategies. 8 minutes. Title: "I found $47,000 in repairs the seller didn't disclose — here's how." Upload to YouTube. This ranks for years.</div>
+      </div>
+      <div class="priority-effort">Half day</div>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div class="report-footer reveal">
+  <div>OfferWise AI — Strategic Assessment v3</div>
+  <div>v5.76.63 · 329 routes · 52 models · March 22, 2026</div>
+</div>
+
+</div><!-- /page -->
+
+<script>
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.08, rootMargin: '0px 0px -20px 0px' });
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>

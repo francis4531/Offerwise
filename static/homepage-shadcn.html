@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OfferWise AI — Know your number before you offer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* ── shadcn CSS variables (exact) ─────────────────────────────── */
+  :root {
+    --background: hsl(0 0% 100%);
+    --foreground: hsl(0 0% 3.9%);
+    --card: hsl(0 0% 100%);
+    --card-foreground: hsl(0 0% 3.9%);
+    --popover: hsl(0 0% 100%);
+    --muted: hsl(0 0% 96.1%);
+    --muted-foreground: hsl(0 0% 45.1%);
+    --border: hsl(0 0% 89.8%);
+    --input: hsl(0 0% 89.8%);
+    --primary: hsl(0 0% 9%);
+    --primary-foreground: hsl(0 0% 98%);
+    --secondary: hsl(0 0% 96.1%);
+    --secondary-foreground: hsl(0 0% 9%);
+    --accent: hsl(0 0% 96.1%);
+    --accent-foreground: hsl(0 0% 9%);
+    --destructive: hsl(0 84.2% 60.2%);
+    --ring: hsl(0 0% 3.9%);
+    --radius: 0.625rem;
+
+    /* OfferWise brand on top of shadcn */
+    --ow-orange: hsl(24 95% 45%);
+    --ow-orange-light: hsl(24 95% 53%);
+    --ow-orange-muted: hsl(24 100% 97%);
+    --ow-orange-border: hsl(24 100% 88%);
+    --ow-green: hsl(142 71% 29%);
+    --ow-green-muted: hsl(138 76% 97%);
+    --ow-green-border: hsl(141 76% 86%);
+    --ow-amber: hsl(43 96% 48%);
+  }
+
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--background);
+    color: var(--foreground);
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── REUSABLE COMPONENTS ──────────────────────────────────────── */
+
+  /* Badge */
+  .badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    border: 1px solid var(--border);
+    background: var(--background);
+    color: var(--muted-foreground);
+    padding: 2px 10px; border-radius: 9999px;
+    font-size: 12px; font-weight: 500;
+    white-space: nowrap;
+  }
+  .badge-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--ow-orange); }
+  .badge.orange { background: var(--ow-orange-muted); border-color: var(--ow-orange-border); color: var(--ow-orange); }
+
+  /* Button - Primary */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    height: 36px; padding: 0 16px; border-radius: var(--radius);
+    font-size: 14px; font-weight: 500; cursor: pointer;
+    text-decoration: none; border: 1px solid transparent;
+    transition: background 0.15s, color 0.15s, border-color 0.15s, opacity 0.15s;
+    white-space: nowrap; font-family: inherit;
+  }
+  .btn-primary { background: var(--primary); color: var(--primary-foreground); }
+  .btn-primary:hover { background: hsl(0 0% 20%); }
+  .btn-outline { background: transparent; border-color: var(--border); color: var(--foreground); }
+  .btn-outline:hover { background: var(--muted); }
+  .btn-lg { height: 44px; padding: 0 24px; font-size: 15px; }
+  .btn-sm { height: 32px; padding: 0 12px; font-size: 13px; }
+
+  /* Card */
+  .card {
+    border: 1px solid var(--border); border-radius: var(--radius);
+    background: var(--card); color: var(--card-foreground);
+  }
+  .card-header { padding: 24px 24px 0; }
+  .card-content { padding: 24px; }
+  .card-footer { padding: 0 24px 24px; display: flex; align-items: center; }
+
+  /* Separator */
+  .sep { height: 1px; background: var(--border); }
+  .sep-v { width: 1px; background: var(--border); }
+
+  /* Input */
+  .input {
+    height: 36px; width: 100%; padding: 0 12px;
+    border: 1px solid var(--input); border-radius: var(--radius);
+    background: var(--background); font-size: 14px; font-family: inherit;
+    color: var(--foreground); outline: none;
+    transition: border-color 0.15s;
+  }
+  .input:focus { border-color: var(--ring); box-shadow: 0 0 0 3px hsla(0,0%,3.9%,0.08); }
+
+  /* Label */
+  .label { font-size: 13px; font-weight: 500; color: var(--foreground); display: block; margin-bottom: 6px; }
+
+  /* ── NAVIGATION ───────────────────────────────────────────────── */
+  header {
+    position: sticky; top: 0; z-index: 50;
+    border-bottom: 1px solid var(--border);
+    background: hsla(0,0%,100%,0.9);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+  .nav-inner {
+    max-width: 1280px; margin: 0 auto; padding: 0 32px;
+    height: 56px; display: flex; align-items: center; gap: 8px;
+  }
+  .nav-brand {
+    font-size: 15px; font-weight: 600; color: var(--foreground);
+    text-decoration: none; display: flex; align-items: center; gap: 8px;
+    margin-right: 16px;
+  }
+  .nav-brand-icon {
+    width: 24px; height: 24px; border-radius: 6px;
+    background: var(--primary); display: flex; align-items: center; justify-content: center;
+  }
+  .nav-brand-icon svg { width: 13px; height: 13px; fill: white; }
+  .nav-links { display: flex; align-items: center; gap: 0; flex: 1; }
+  .nav-link {
+    height: 36px; padding: 0 12px; display: flex; align-items: center;
+    border-radius: var(--radius); font-size: 14px; font-weight: 400;
+    color: var(--muted-foreground); text-decoration: none; transition: all 0.15s;
+  }
+  .nav-link:hover { color: var(--foreground); background: var(--muted); }
+  .nav-sep { width: 1px; height: 20px; background: var(--border); margin: 0 8px; }
+  .nav-right { display: flex; align-items: center; gap: 6px; margin-left: auto; }
+
+  /* ── HERO ─────────────────────────────────────────────────────── */
+  .hero {
+    max-width: 1280px; margin: 0 auto; padding: 80px 32px 64px;
+    display: flex; flex-direction: column; align-items: center; text-align: center;
+  }
+  .hero-badge { margin-bottom: 24px; }
+  .hero-title {
+    font-size: clamp(36px, 5vw, 60px); font-weight: 700;
+    line-height: 1.1; letter-spacing: -1.5px;
+    color: var(--foreground); margin-bottom: 20px;
+    max-width: 720px;
+  }
+  .hero-title-muted { color: var(--muted-foreground); font-weight: 400; }
+  .hero-sub {
+    font-size: 17px; font-weight: 400; color: var(--muted-foreground);
+    line-height: 1.65; max-width: 520px; margin-bottom: 32px;
+  }
+  .hero-actions { display: flex; gap: 8px; justify-content: center; margin-bottom: 64px; flex-wrap: wrap; }
+
+  /* ── DASHBOARD PREVIEW ────────────────────────────────────────── */
+  .preview-wrap {
+    width: 100%; max-width: 1100px; margin: 0 auto;
+    border: 1px solid var(--border); border-radius: calc(var(--radius) * 1.5);
+    overflow: hidden;
+    box-shadow: 0 1px 3px hsla(0,0%,0%,0.05), 0 4px 24px hsla(0,0%,0%,0.06);
+  }
+
+  /* fake browser chrome */
+  .preview-chrome {
+    background: var(--muted); border-bottom: 1px solid var(--border);
+    padding: 10px 16px; display: flex; align-items: center; gap: 12px;
+  }
+  .chrome-dots { display: flex; gap: 6px; }
+  .chrome-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--border); }
+  .chrome-url {
+    flex: 1; height: 24px; background: var(--background);
+    border: 1px solid var(--border); border-radius: 4px;
+    display: flex; align-items: center; padding: 0 10px;
+    font-size: 11px; color: var(--muted-foreground); max-width: 340px; margin: 0 auto;
+  }
+
+  /* dashboard layout inside preview */
+  .dash {
+    display: grid; grid-template-columns: 220px 1fr;
+    background: var(--muted); min-height: 480px;
+  }
+
+  /* sidebar */
+  .dash-sidebar {
+    background: var(--background); border-right: 1px solid var(--border);
+    padding: 16px 12px; display: flex; flex-direction: column; gap: 2px;
+  }
+  .dash-sidebar-brand {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 10px 16px; margin-bottom: 4px;
+    border-bottom: 1px solid var(--border); margin-bottom: 12px;
+  }
+  .sidebar-icon { width: 22px; height: 22px; border-radius: 5px; background: var(--primary); display: flex; align-items: center; justify-content: center; }
+  .sidebar-icon span { color: white; font-size: 11px; font-weight: 700; }
+  .dash-brand-txt { font-size: 13px; font-weight: 600; }
+  .sidebar-item {
+    display: flex; align-items: center; gap: 8px;
+    padding: 7px 10px; border-radius: calc(var(--radius) * 0.7);
+    font-size: 13px; color: var(--muted-foreground); cursor: pointer;
+    transition: all 0.1s;
+  }
+  .sidebar-item:hover, .sidebar-item.active { background: var(--muted); color: var(--foreground); }
+  .sidebar-item.active { font-weight: 500; }
+  .sidebar-icon-sm { width: 15px; height: 15px; opacity: 0.6; }
+  .sidebar-section-label { font-size: 11px; font-weight: 600; color: var(--muted-foreground); padding: 8px 10px 4px; letter-spacing: 0.05em; text-transform: uppercase; margin-top: 8px; }
+
+  /* main content */
+  .dash-main { padding: 20px; display: flex; flex-direction: column; gap: 16px; }
+  .dash-header { display: flex; align-items: center; justify-content: space-between; }
+  .dash-title { font-size: 16px; font-weight: 600; }
+  .dash-sub { font-size: 12px; color: var(--muted-foreground); }
+
+  /* stat cards */
+  .stat-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .stat-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; }
+  .stat-label { font-size: 12px; font-weight: 500; color: var(--muted-foreground); margin-bottom: 6px; }
+  .stat-value { font-size: 24px; font-weight: 700; color: var(--foreground); line-height: 1; margin-bottom: 4px; }
+  .stat-value.green { color: var(--ow-green); }
+  .stat-value.orange { color: var(--ow-orange); }
+  .stat-change { font-size: 11px; color: var(--muted-foreground); }
+  .stat-change.up { color: var(--ow-green); }
+
+  /* analysis card */
+  .analysis-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--radius); overflow: hidden;
+  }
+  .analysis-header {
+    padding: 14px 16px; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .analysis-title { font-size: 13px; font-weight: 600; }
+  .analysis-body { padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+
+  /* offer row */
+  .offer-row {
+    background: var(--ow-green-muted); border: 1px solid var(--ow-green-border);
+    border-radius: calc(var(--radius) * 0.8);
+    padding: 12px 14px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .offer-label { font-size: 11px; font-weight: 500; color: var(--ow-green); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 2px; }
+  .offer-price { font-size: 20px; font-weight: 700; color: var(--ow-green); }
+  .offer-save {
+    font-size: 11px; font-weight: 600; color: var(--ow-green);
+    background: var(--background); border: 1px solid var(--ow-green-border);
+    padding: 3px 8px; border-radius: 9999px;
+  }
+
+  /* finding rows */
+  .finding {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 10px 12px; border-radius: calc(var(--radius) * 0.7);
+    border: 1px solid var(--border); font-size: 12px; line-height: 1.5;
+  }
+  .finding-icon { font-size: 13px; flex-shrink: 0; margin-top: 1px; }
+  .finding.crit { background: hsl(0 100% 98%); border-color: hsl(0 96% 89%); color: hsl(0 72% 38%); }
+  .finding.warn { background: hsl(43 100% 97%); border-color: hsl(43 96% 80%); color: hsl(32 81% 35%); }
+  .finding.ok { background: var(--ow-green-muted); border-color: var(--ow-green-border); color: var(--ow-green); }
+
+  /* ── LOGOS BAR ────────────────────────────────────────────────── */
+  .logos {
+    border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+    padding: 20px 0; background: var(--muted);
+  }
+  .logos-inner {
+    max-width: 1280px; margin: 0 auto; padding: 0 32px;
+    display: flex; align-items: center; justify-content: center; gap: 32px; flex-wrap: wrap;
+  }
+  .logos-label { font-size: 11px; font-weight: 600; color: var(--muted-foreground); text-transform: uppercase; letter-spacing: 0.08em; }
+  .logo-chip {
+    font-size: 12px; font-weight: 600; color: var(--muted-foreground);
+    letter-spacing: 0.04em;
+  }
+
+  /* ── CONTENT SECTIONS ─────────────────────────────────────────── */
+  .section {
+    max-width: 1280px; margin: 0 auto; padding: 80px 32px;
+  }
+  .section-center { text-align: center; }
+  .section-badge { margin-bottom: 16px; }
+  .section-title {
+    font-size: clamp(24px, 3vw, 36px); font-weight: 700;
+    letter-spacing: -0.8px; color: var(--foreground);
+    margin-bottom: 12px; line-height: 1.2;
+  }
+  .section-body { font-size: 15px; color: var(--muted-foreground); line-height: 1.65; max-width: 480px; }
+  .section-center .section-body { margin: 0 auto; }
+
+  /* ── HOW IT WORKS — steps ──────────────────────────────────────  */
+  .steps {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 0; margin-top: 48px;
+    border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden;
+    background: var(--border);
+  }
+  .step {
+    background: var(--card); padding: 28px;
+    display: flex; flex-direction: column; gap: 12px;
+  }
+  .step-num {
+    width: 28px; height: 28px; border-radius: var(--radius);
+    background: var(--muted); border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; color: var(--muted-foreground);
+  }
+  .step-title { font-size: 15px; font-weight: 600; color: var(--foreground); }
+  .step-body { font-size: 13px; color: var(--muted-foreground); line-height: 1.65; }
+
+  /* ── FEATURES GRID ────────────────────────────────────────────── */
+  .features-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 0; margin-top: 48px;
+    border: 1px solid var(--border); border-radius: var(--radius);
+    overflow: hidden; background: var(--border);
+  }
+  .feature {
+    background: var(--card); padding: 28px;
+    display: flex; flex-direction: column; gap: 12px;
+    transition: background 0.15s;
+  }
+  .feature:hover { background: var(--muted); }
+  .feature-icon-box {
+    width: 36px; height: 36px; border-radius: var(--radius);
+    border: 1px solid var(--border); background: var(--background);
+    display: flex; align-items: center; justify-content: center; font-size: 16px;
+  }
+  .feature-title { font-size: 14px; font-weight: 600; color: var(--foreground); }
+  .feature-body { font-size: 13px; color: var(--muted-foreground); line-height: 1.6; }
+
+  /* ── PRICING ──────────────────────────────────────────────────── */
+  .pricing-bg { background: var(--muted); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+  .plans {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 16px; margin-top: 48px;
+  }
+  .plan {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 28px;
+    display: flex; flex-direction: column; gap: 0;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .plan:hover { border-color: var(--muted-foreground); }
+  .plan.popular {
+    border-color: var(--foreground);
+    box-shadow: 0 0 0 1px var(--foreground);
+  }
+  .plan-name { font-size: 13px; font-weight: 600; color: var(--foreground); margin-bottom: 4px; display: flex; align-items: center; justify-content: space-between; }
+  .plan-popular-tag {
+    font-size: 10px; font-weight: 600; color: var(--primary-foreground);
+    background: var(--primary); padding: 2px 8px; border-radius: 9999px;
+  }
+  .plan-price { font-size: 36px; font-weight: 700; color: var(--foreground); margin: 12px 0 4px; line-height: 1; }
+  .plan-per { font-size: 13px; color: var(--muted-foreground); margin-bottom: 20px; }
+  .plan-divider { height: 1px; background: var(--border); margin-bottom: 20px; }
+  .plan-features { list-style: none; display: flex; flex-direction: column; gap: 10px; flex: 1; margin-bottom: 24px; }
+  .plan-features li { font-size: 13px; color: var(--muted-foreground); display: flex; align-items: flex-start; gap: 8px; }
+  .plan-features li::before { content: '✓'; font-size: 12px; color: var(--ow-green); font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+  .plan-btn {
+    display: block; text-align: center; text-decoration: none;
+    height: 36px; line-height: 36px; border-radius: var(--radius);
+    font-size: 13px; font-weight: 500; cursor: pointer;
+    border: 1px solid var(--border); background: var(--background); color: var(--foreground);
+    transition: all 0.15s; font-family: inherit;
+  }
+  .plan-btn:hover { background: var(--muted); }
+  .plan.popular .plan-btn { background: var(--primary); border-color: var(--primary); color: var(--primary-foreground); }
+  .plan.popular .plan-btn:hover { background: hsl(0 0% 20%); }
+
+  /* ── CTA SECTION ──────────────────────────────────────────────── */
+  .cta-section {
+    display: flex; align-items: center; justify-content: space-between; gap: 32px;
+    padding: 48px; background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--radius); flex-wrap: wrap;
+  }
+  .cta-left h2 { font-size: 22px; font-weight: 700; letter-spacing: -0.4px; margin-bottom: 6px; }
+  .cta-left p { font-size: 14px; color: var(--muted-foreground); }
+  .cta-right { display: flex; gap: 8px; }
+
+  /* ── TESTIMONIALS ─────────────────────────────────────────────── */
+  .testimonials { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 48px; }
+  .testimonial {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 24px;
+  }
+  .testimonial-quote { font-size: 14px; color: var(--muted-foreground); line-height: 1.65; margin-bottom: 20px; }
+  .testimonial-author { display: flex; align-items: center; gap: 10px; }
+  .testimonial-avatar {
+    width: 32px; height: 32px; border-radius: 9999px;
+    border: 1px solid var(--border); font-size: 12px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center; color: white;
+    flex-shrink: 0;
+  }
+  .testimonial-name { font-size: 13px; font-weight: 600; }
+  .testimonial-role { font-size: 12px; color: var(--muted-foreground); }
+  .stars { color: var(--ow-amber); font-size: 12px; margin-bottom: 12px; }
+
+  /* ── FOOTER ───────────────────────────────────────────────────── */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 32px; background: var(--background);
+  }
+  .footer-inner {
+    max-width: 1280px; margin: 0 auto;
+    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;
+  }
+  .footer-brand { font-size: 14px; font-weight: 600; color: var(--foreground); display: flex; align-items: center; gap: 8px; }
+  .footer-links { display: flex; gap: 0; }
+  .footer-link { font-size: 13px; color: var(--muted-foreground); text-decoration: none; padding: 4px 12px; border-radius: var(--radius); transition: all 0.15s; }
+  .footer-link:hover { color: var(--foreground); background: var(--muted); }
+  .footer-copy { font-size: 12px; color: var(--muted-foreground); }
+
+  /* ── ANIMATIONS ───────────────────────────────────────────────── */
+  @keyframes fadeUp { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:translateY(0); } }
+  .hero > * { animation: fadeUp 0.5s ease-out both; }
+  .hero > *:nth-child(1) { animation-delay: 0.05s; }
+  .hero > *:nth-child(2) { animation-delay: 0.12s; }
+  .hero > *:nth-child(3) { animation-delay: 0.18s; }
+  .hero > *:nth-child(4) { animation-delay: 0.24s; }
+  .hero > *:nth-child(5) { animation-delay: 0.32s; }
+
+  /* ── RESPONSIVE ───────────────────────────────────────────────── */
+  @media (max-width: 900px) {
+    .nav-inner { padding: 0 20px; }
+    .hero { padding: 56px 20px 48px; }
+    .section { padding: 56px 20px; }
+    .steps { grid-template-columns: 1fr; }
+    .features-grid { grid-template-columns: 1fr; }
+    .plans { grid-template-columns: 1fr; }
+    .testimonials { grid-template-columns: 1fr; }
+    .cta-section { flex-direction: column; align-items: flex-start; padding: 32px; }
+    .dash { grid-template-columns: 1fr; }
+    .dash-sidebar { display: none; }
+    .stat-row { grid-template-columns: 1fr; }
+    .nav-links { display: none; }
+    .footer-inner { flex-direction: column; align-items: flex-start; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── NAV ─────────────────────────────────────────────────────── -->
+<header>
+  <div class="nav-inner">
+    <a class="nav-brand" href="#">
+      <div class="nav-brand-icon">
+        <svg viewBox="0 0 14 14"><path d="M7 1L9 5H13L10 8L11 12L7 10L3 12L4 8L1 5H5Z"/></svg>
+      </div>
+      OfferWise AI
+    </a>
+    <div class="nav-sep"></div>
+    <nav class="nav-links">
+      <a href="#" class="nav-link">How it works</a>
+      <a href="#" class="nav-link">Features</a>
+      <a href="#" class="nav-link">Pricing</a>
+      <a href="#" class="nav-link">For Agents</a>
+    </nav>
+    <div class="nav-right">
+      <a href="#" class="btn btn-outline btn-sm">Sign in</a>
+      <a href="#" class="btn btn-primary btn-sm">Get started</a>
+    </div>
+  </div>
+</header>
+
+<!-- ── HERO ─────────────────────────────────────────────────────── -->
+<section class="hero">
+  <div class="hero-badge">
+    <span class="badge">
+      <span class="badge-dot"></span>
+      AI-powered property analysis · Patent Pending
+    </span>
+  </div>
+  <h1 class="hero-title">
+    Know the real price<br>
+    <span class="hero-title-muted">before you offer.</span>
+  </h1>
+  <p class="hero-sub">Upload your inspection report and seller disclosure. OfferWise cross-references 13 data sources and tells you exactly what to offer — in 90 seconds.</p>
+  <div class="hero-actions">
+    <a href="#" class="btn btn-primary btn-lg">Get started for free</a>
+    <a href="#" class="btn btn-outline btn-lg">View sample report →</a>
+  </div>
+
+  <!-- DASHBOARD PREVIEW -->
+  <div class="preview-wrap">
+    <div class="preview-chrome">
+      <div class="chrome-dots">
+        <div class="chrome-dot"></div>
+        <div class="chrome-dot"></div>
+        <div class="chrome-dot"></div>
+      </div>
+      <div class="chrome-url">
+        <span style="color:hsl(0 0% 60%); margin-right:4px">🔒</span>
+        app.getofferwise.ai/analysis
+      </div>
+    </div>
+    <div class="dash">
+      <!-- SIDEBAR -->
+      <div class="dash-sidebar">
+        <div class="dash-sidebar-brand">
+          <div class="sidebar-icon"><span>OW</span></div>
+          <div class="dash-brand-txt">OfferWise</div>
+        </div>
+        <div class="sidebar-item active">
+          <svg class="sidebar-icon-sm" viewBox="0 0 16 16" fill="currentColor"><path d="M2 3a1 1 0 011-1h10a1 1 0 011 1v1a1 1 0 01-1 1H3a1 1 0 01-1-1V3zM2 7a1 1 0 011-1h10a1 1 0 011 1v1a1 1 0 01-1 1H3a1 1 0 01-1-1V7zM2 11a1 1 0 011-1h10a1 1 0 011 1v1a1 1 0 01-1 1H3a1 1 0 01-1-1v-1z"/></svg>
+          Analysis
+        </div>
+        <div class="sidebar-item">
+          <svg class="sidebar-icon-sm" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a7 7 0 100 14A7 7 0 008 1zm0 12.5a5.5 5.5 0 110-11 5.5 5.5 0 010 11z"/></svg>
+          OfferWatch™
+        </div>
+        <div class="sidebar-item">
+          <svg class="sidebar-icon-sm" viewBox="0 0 16 16" fill="currentColor"><path d="M2 2h12v10H2V2zm0 12h4v2H2v-2zm6 0h4v2H8v-2z"/></svg>
+          My Analyses
+        </div>
+        <div class="sidebar-section-label">Account</div>
+        <div class="sidebar-item">
+          <svg class="sidebar-icon-sm" viewBox="0 0 16 16" fill="currentColor"><path d="M8 8a3 3 0 100-6 3 3 0 000 6zm-5 6a5 5 0 0110 0H3z"/></svg>
+          Settings
+        </div>
+      </div>
+
+      <!-- MAIN CONTENT -->
+      <div class="dash-main">
+        <div class="dash-header">
+          <div>
+            <div class="dash-title">2839 Pendleton Drive, San Jose CA 95148</div>
+            <div class="dash-sub">Listed $900,000 · Analysis completed just now</div>
+          </div>
+          <div style="display:flex; gap:6px;">
+            <button class="btn btn-outline btn-sm">📄 PDF</button>
+            <button class="btn btn-primary btn-sm">Draft Addendum</button>
+          </div>
+        </div>
+
+        <!-- STAT CARDS -->
+        <div class="stat-row">
+          <div class="stat-card">
+            <div class="stat-label">OfferScore™</div>
+            <div class="stat-value orange">74</div>
+            <div class="stat-change">Proceed with caution</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Estimated Repairs</div>
+            <div class="stat-value">$65K</div>
+            <div class="stat-change">8 systems flagged</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Seller Transparency</div>
+            <div class="stat-value green">B+</div>
+            <div class="stat-change">1 contradiction found</div>
+          </div>
+        </div>
+
+        <!-- ANALYSIS CARD -->
+        <div class="analysis-card">
+          <div class="analysis-header">
+            <div class="analysis-title">Offer Recommendation</div>
+            <span class="badge">OfferWise Verdict · Proceed</span>
+          </div>
+          <div class="analysis-body">
+            <div class="offer-row">
+              <div>
+                <div class="offer-label">Recommended Offer</div>
+                <div class="offer-price">$847,000</div>
+              </div>
+              <div class="offer-save">↓ Save $53,000</div>
+            </div>
+            <div class="finding crit">
+              <span class="finding-icon">⛔</span>
+              Foundation exhibits differential settlement requiring structural engineer evaluation before offer.
+            </div>
+            <div class="finding warn">
+              <span class="finding-icon">⚠</span>
+              HVAC system 17 years old — at end of expected useful life. Budget $12K–$18K for replacement.
+            </div>
+            <div class="finding ok">
+              <span class="finding-icon">✓</span>
+              Roof replaced 2021. No visible defects or moisture intrusion detected.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── LOGOS ─────────────────────────────────────────────────────── -->
+<div class="logos">
+  <div class="logos-inner">
+    <span class="logos-label">Data sources queried:</span>
+    <span class="logo-chip">FEMA</span>
+    <span class="logo-chip">USGS</span>
+    <span class="logo-chip">RentCast</span>
+    <span class="logo-chip">US Census</span>
+    <span class="logo-chip">EPA</span>
+    <span class="logo-chip">Zillow</span>
+    <span class="logo-chip">CalFire</span>
+    <span class="logo-chip">+ 6 more</span>
+  </div>
+</div>
+
+<!-- ── HOW IT WORKS ───────────────────────────────────────────────── -->
+<section class="section">
+  <div class="section-badge"><span class="badge">How it works</span></div>
+  <h2 class="section-title">Three steps to a confident offer.</h2>
+  <p class="section-body">No real estate degree required. Upload your documents, wait 90 seconds, and walk into negotiations armed with data your agent doesn't have.</p>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-title">Upload your documents</div>
+      <div class="step-body">Drop in your seller disclosure and inspection report. PDFs are parsed locally in your browser — we only receive extracted text. Your privacy is protected by design.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-title">AI analyzes everything</div>
+      <div class="step-body">We cross-reference 13 public data sources, calculate ZIP-adjusted repair costs, score the seller's transparency, and flag every contradiction between what was disclosed and what was found.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-title">Get your number</div>
+      <div class="step-body">Receive your recommended offer price, full repair breakdown, negotiation playbook, and a state-aware Request for Repair document ready to hand to your agent.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FEATURES ───────────────────────────────────────────────────── -->
+<div style="border-top:1px solid var(--border); border-bottom:1px solid var(--border); background:var(--muted)">
+<section class="section">
+  <div class="section-center">
+    <div class="section-badge"><span class="badge">What's included</span></div>
+    <h2 class="section-title">Everything you need. Nothing you don't.</h2>
+    <p class="section-body">Every plan includes the full analysis stack. No feature gating except where it matters.</p>
+  </div>
+  <div class="features-grid">
+    <div class="feature">
+      <div class="feature-icon-box">💰</div>
+      <div class="feature-title">3-Option Offer Strategy</div>
+      <div class="feature-body">Aggressive, recommended, and conservative prices — each with a clear rationale you can share with your agent.</div>
+    </div>
+    <div class="feature">
+      <div class="feature-icon-box">🔍</div>
+      <div class="feature-title">Seller Transparency Report™</div>
+      <div class="feature-body">Grade A–F on how honestly the seller disclosed. Flags omissions, minimizations, and contradictions with the inspection.</div>
+    </div>
+    <div class="feature">
+      <div class="feature-icon-box">⛔</div>
+      <div class="feature-title">Deal Breaker Detection</div>
+      <div class="feature-body">Foundation issues, structural failures, and safety hazards — flagged before you're under contract and committed.</div>
+    </div>
+    <div class="feature">
+      <div class="feature-icon-box">📊</div>
+      <div class="feature-title">Live Market Context</div>
+      <div class="feature-body">AVM valuation, comparable sales, days on market, and buyer leverage score — live data from RentCast for every analysis.</div>
+    </div>
+    <div class="feature">
+      <div class="feature-icon-box">🎯</div>
+      <div class="feature-title">Negotiation Playbook</div>
+      <div class="feature-body">Ranked talking points, counter-objection scripts, and the exact repair credits to request — in order of priority.</div>
+    </div>
+    <div class="feature">
+      <div class="feature-icon-box">📄</div>
+      <div class="feature-title">Request for Repair Addendum</div>
+      <div class="feature-body">State-aware draft generated from your inspection findings. Review with your agent and submit the same day.</div>
+    </div>
+  </div>
+</section>
+</div>
+
+<!-- ── TESTIMONIALS ───────────────────────────────────────────────── -->
+<section class="section">
+  <div class="section-center">
+    <div class="section-badge"><span class="badge">Testimonials</span></div>
+    <h2 class="section-title">Trusted by buyers across California.</h2>
+  </div>
+  <div class="testimonials">
+    <div class="testimonial">
+      <div class="stars">★★★★★</div>
+      <div class="testimonial-quote">"Found $38K in repairs I would have missed. My agent was impressed I already had a repair addendum drafted when I made my offer."</div>
+      <div class="testimonial-author">
+        <div class="testimonial-avatar" style="background:#6366F1">J</div>
+        <div>
+          <div class="testimonial-name">Jennifer M.</div>
+          <div class="testimonial-role">First-time buyer, San Jose CA</div>
+        </div>
+      </div>
+    </div>
+    <div class="testimonial">
+      <div class="stars">★★★★★</div>
+      <div class="testimonial-quote">"The seller transparency score was eye-opening. Disclosure graded a D — we walked away and found out later the foundation needed $80K."</div>
+      <div class="testimonial-author">
+        <div class="testimonial-avatar" style="background:#EC4899">R</div>
+        <div>
+          <div class="testimonial-name">Robert K.</div>
+          <div class="testimonial-role">Home buyer, Sacramento CA</div>
+        </div>
+      </div>
+    </div>
+    <div class="testimonial">
+      <div class="stars">★★★★★</div>
+      <div class="testimonial-quote">"Paid $19 and saved $61,000 on my offer. That's the highest ROI on anything I've ever purchased. Period."</div>
+      <div class="testimonial-author">
+        <div class="testimonial-avatar" style="background:#14B8A6">S</div>
+        <div>
+          <div class="testimonial-name">Sarah L.</div>
+          <div class="testimonial-role">Home buyer, Fremont CA</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── PRICING ─────────────────────────────────────────────────────── -->
+<div class="pricing-bg">
+<section class="section">
+  <div class="section-center">
+    <div class="section-badge"><span class="badge">Pricing</span></div>
+    <h2 class="section-title">Simple, transparent pricing.</h2>
+    <p class="section-body">Start free. Upgrade when you need more analyses. Cancel anytime.</p>
+  </div>
+  <div class="plans">
+    <div class="plan">
+      <div class="plan-name">Starter</div>
+      <div class="plan-price">$9</div>
+      <div class="plan-per">per month</div>
+      <div class="plan-divider"></div>
+      <ul class="plan-features">
+        <li>5 full analyses per month</li>
+        <li>Complete offer strategy</li>
+        <li>Repair cost breakdown</li>
+        <li>Negotiation playbook</li>
+        <li>PDF download</li>
+      </ul>
+      <a href="#" class="plan-btn">Get started</a>
+    </div>
+    <div class="plan popular">
+      <div class="plan-name">
+        Pro
+        <span class="plan-popular-tag">Popular</span>
+      </div>
+      <div class="plan-price">$19</div>
+      <div class="plan-per">per month</div>
+      <div class="plan-divider"></div>
+      <ul class="plan-features">
+        <li>15 full analyses per month</li>
+        <li>Everything in Starter</li>
+        <li>OfferWatch™ daily alerts</li>
+        <li>Request for Repair addendum</li>
+        <li>Market intelligence reports</li>
+      </ul>
+      <a href="#" class="plan-btn">Get started</a>
+    </div>
+    <div class="plan">
+      <div class="plan-name">Unlimited</div>
+      <div class="plan-price">$49</div>
+      <div class="plan-per">per month</div>
+      <div class="plan-divider"></div>
+      <ul class="plan-features">
+        <li>Unlimited analyses</li>
+        <li>Everything in Pro</li>
+        <li>Agent referral portal</li>
+        <li>Priority support</li>
+      </ul>
+      <a href="#" class="plan-btn">Get started</a>
+    </div>
+  </div>
+</section>
+</div>
+
+<!-- ── CTA ────────────────────────────────────────────────────────── -->
+<section class="section">
+  <div class="cta-section">
+    <div class="cta-left">
+      <h2>Your first analysis is free.</h2>
+      <p>No credit card required. Results in 90 seconds.</p>
+    </div>
+    <div class="cta-right">
+      <a href="#" class="btn btn-outline">View sample report</a>
+      <a href="#" class="btn btn-primary">Get started →</a>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER ─────────────────────────────────────────────────────── -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <div class="nav-brand-icon" style="width:20px;height:20px;">
+        <svg viewBox="0 0 14 14" style="width:10px;height:10px;fill:white"><path d="M7 1L9 5H13L10 8L11 12L7 10L3 12L4 8L1 5H5Z"/></svg>
+      </div>
+      OfferWise AI
+    </div>
+    <div class="footer-links">
+      <a href="#" class="footer-link">Privacy</a>
+      <a href="#" class="footer-link">Terms</a>
+      <a href="#" class="footer-link">Disclaimer</a>
+      <a href="#" class="footer-link">Contact</a>
+    </div>
+    <div class="footer-copy">© 2026 OfferWise AI · Patent Pending</div>
+  </div>
+</footer>
+
+</body>
+</html>

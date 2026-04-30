@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OfferWise AI — Concept C</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --stone-50: #FAFAF9;
+    --stone-100: #F5F5F4;
+    --stone-200: #E7E5E4;
+    --stone-300: #D6D3D1;
+    --stone-400: #A8A29E;
+    --stone-600: #57534E;
+    --stone-800: #292524;
+    --stone-900: #1C1917;
+    --orange: #C2410C;
+    --orange-light: #EA580C;
+    --orange-pale: #FFF7ED;
+    --orange-border: #FED7AA;
+    --green: #15803D;
+    --green-pale: #F0FDF4;
+    --radius: 8px;
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--stone-50);
+    color: var(--stone-900);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* NAV */
+  nav {
+    background: var(--stone-50);
+    border-bottom: 1px solid var(--stone-200);
+    position: sticky; top: 0; z-index: 100;
+  }
+  .nav-inner {
+    max-width: 1200px; margin: 0 auto;
+    padding: 0 40px; height: 56px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .brand {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 21px; font-weight: 600;
+    color: var(--stone-900); text-decoration: none;
+    letter-spacing: 0.02em;
+  }
+  .brand span { color: var(--orange); }
+  .nav-right { display: flex; align-items: center; gap: 8px; }
+  .nav-link {
+    padding: 6px 14px; border-radius: 6px;
+    font-size: 13px; color: var(--stone-600); font-weight: 500;
+    text-decoration: none; transition: all 0.15s;
+  }
+  .nav-link:hover { background: var(--stone-100); color: var(--stone-900); }
+  .nav-pill {
+    padding: 7px 16px; background: var(--stone-900); color: white;
+    border-radius: 6px; font-size: 13px; font-weight: 600;
+    text-decoration: none; transition: all 0.15s;
+  }
+  .nav-pill:hover { background: var(--orange); }
+
+  /* HERO LAYOUT — newspaper broadsheet feel */
+  .hero-outer {
+    border-bottom: 2px solid var(--stone-900);
+  }
+  .hero-masthead {
+    max-width: 1200px; margin: 0 auto; padding: 48px 40px 0;
+    text-align: center; border-bottom: 1px solid var(--stone-200);
+    padding-bottom: 24px;
+  }
+  .masthead-rule { display: flex; align-items: center; gap: 16px; justify-content: center; margin-bottom: 20px; }
+  .masthead-line { flex: 1; max-width: 120px; height: 1px; background: var(--stone-300); }
+  .masthead-tag { font-size: 10px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--stone-400); }
+
+  .masthead-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(52px, 7vw, 96px);
+    font-weight: 700; line-height: 0.95;
+    letter-spacing: -2px; color: var(--stone-900);
+    margin-bottom: 20px;
+  }
+  .masthead-title em { font-style: italic; color: var(--orange); }
+
+  .masthead-deck {
+    font-size: 17px; color: var(--stone-600); font-weight: 300;
+    line-height: 1.7; max-width: 560px; margin: 0 auto 28px;
+  }
+  .masthead-ctas { display: flex; gap: 12px; justify-content: center; margin-bottom: 40px; }
+  .btn-a {
+    background: var(--orange); color: white;
+    padding: 13px 28px; border-radius: var(--radius);
+    font-size: 14px; font-weight: 600; text-decoration: none;
+    transition: all 0.15s; display: flex; align-items: center; gap: 6px;
+  }
+  .btn-a:hover { background: var(--stone-900); transform: translateY(-1px); }
+  .btn-b {
+    border: 1px solid var(--stone-300); background: white; color: var(--stone-800);
+    padding: 13px 24px; border-radius: var(--radius);
+    font-size: 14px; font-weight: 500; text-decoration: none; transition: all 0.15s;
+  }
+  .btn-b:hover { border-color: var(--stone-800); }
+
+  /* HERO COLUMNS */
+  .hero-cols {
+    max-width: 1200px; margin: 0 auto;
+    display: grid; grid-template-columns: 1fr 2px 1fr 2px 1fr;
+    gap: 0;
+  }
+  .hero-col-divider { background: var(--stone-200); }
+  .hero-col { padding: 40px; }
+
+  .col-eyebrow { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; color: var(--orange); margin-bottom: 14px; }
+  .col-heading {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px; font-weight: 600; line-height: 1.25;
+    color: var(--stone-900); margin-bottom: 12px;
+  }
+  .col-heading em { font-style: italic; }
+  .col-body { font-size: 13px; color: var(--stone-600); line-height: 1.7; font-weight: 300; }
+
+  /* REPORT WIDGET */
+  .report-widget {
+    background: white; border: 1px solid var(--stone-200);
+    border-radius: 12px; overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.07);
+  }
+  .rw-top {
+    background: var(--stone-900); color: white;
+    padding: 16px 20px; display: flex; justify-content: space-between; align-items: center;
+  }
+  .rw-address { font-size: 12px; color: rgba(255,255,255,0.6); margin-bottom: 2px; }
+  .rw-price { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 600; color: white; }
+  .rw-score {
+    text-align: center;
+  }
+  .rw-score-num { font-family: 'Cormorant Garamond', serif; font-size: 36px; font-weight: 700; color: #FCD34D; line-height: 1; }
+  .rw-score-lbl { font-size: 9px; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 0.08em; }
+
+  .rw-body { padding: 16px 20px; }
+  .rw-offer {
+    background: var(--green-pale); border: 1px solid #BBF7D0;
+    border-radius: 8px; padding: 12px 16px;
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 12px;
+  }
+  .rw-offer-lbl { font-size: 10px; font-weight: 600; color: var(--green); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 2px; }
+  .rw-offer-price { font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 700; color: var(--green); }
+  .rw-badge { font-size: 11px; font-weight: 700; color: var(--green); background: white; padding: 3px 8px; border-radius: 4px; border: 1px solid #BBF7D0; }
+
+  .rw-issues { display: flex; flex-direction: column; gap: 5px; }
+  .rw-issue { font-size: 11px; font-weight: 500; padding: 7px 10px; border-radius: 6px; }
+  .rw-issue.crit { background: #FEF2F2; color: #DC2626; }
+  .rw-issue.warn { background: #FFFBEB; color: #B45309; }
+  .rw-issue.good { background: var(--green-pale); color: var(--green); }
+
+  /* STATS BAR */
+  .stats-bar {
+    background: var(--stone-900);
+    border-bottom: 2px solid var(--stone-900);
+  }
+  .stats-inner {
+    max-width: 1200px; margin: 0 auto; padding: 0 40px;
+    display: grid; grid-template-columns: repeat(4, 1fr);
+  }
+  .stat-item {
+    padding: 28px 0; border-right: 1px solid rgba(255,255,255,0.1);
+    text-align: center;
+  }
+  .stat-item:last-child { border-right: none; }
+  .stat-num { font-family: 'Cormorant Garamond', serif; font-size: 40px; font-weight: 700; color: white; line-height: 1; margin-bottom: 4px; }
+  .stat-num span { color: var(--orange-light); }
+  .stat-lbl { font-size: 11px; color: rgba(255,255,255,0.45); font-weight: 400; text-transform: uppercase; letter-spacing: 0.08em; }
+
+  /* CONTENT SECTION */
+  .content-section {
+    max-width: 1200px; margin: 0 auto;
+    padding: 80px 40px;
+  }
+  .section-rule {
+    display: flex; align-items: center; gap: 16px; margin-bottom: 40px;
+  }
+  .section-rule-line { flex: 1; height: 1px; background: var(--stone-200); }
+  .section-rule-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 24px; font-weight: 600;
+    color: var(--stone-900);
+  }
+
+  .process-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; }
+  .process-item { }
+  .pi-num { font-family: 'Cormorant Garamond', serif; font-size: 56px; font-weight: 700; color: var(--stone-200); line-height: 1; margin-bottom: 12px; }
+  .pi-title { font-size: 16px; font-weight: 600; color: var(--stone-900); margin-bottom: 8px; }
+  .pi-body { font-size: 13px; color: var(--stone-600); line-height: 1.7; font-weight: 300; }
+
+  /* FEATURE TABLE */
+  .feature-section { background: white; border-top: 1px solid var(--stone-200); border-bottom: 1px solid var(--stone-200); }
+  .feature-inner { max-width: 1200px; margin: 0 auto; padding: 80px 40px; }
+  .feature-table { width: 100%; border-collapse: collapse; margin-top: 40px; }
+  .feature-table th {
+    padding: 12px 16px; text-align: left;
+    font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em;
+    color: var(--stone-400); border-bottom: 2px solid var(--stone-900);
+  }
+  .feature-table td {
+    padding: 16px; border-bottom: 1px solid var(--stone-200);
+    font-size: 14px; vertical-align: top;
+  }
+  .feature-table tr:hover td { background: var(--stone-50); }
+  .ft-icon { font-size: 18px; }
+  .ft-name { font-weight: 600; color: var(--stone-900); }
+  .ft-desc { color: var(--stone-600); font-weight: 300; font-size: 13px; margin-top: 2px; }
+  .ft-badge {
+    display: inline-block; font-size: 10px; font-weight: 600;
+    padding: 3px 8px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.06em;
+  }
+  .ft-badge.all { background: var(--green-pale); color: var(--green); }
+  .ft-badge.pro { background: var(--orange-pale); color: var(--orange); }
+
+  /* PRICING */
+  .pricing-outer { max-width: 1200px; margin: 0 auto; padding: 80px 40px; }
+  .price-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--stone-200); border: 1px solid var(--stone-200); border-radius: 12px; overflow: hidden; margin-top: 40px; }
+  .price-card { background: white; padding: 36px 32px; transition: background 0.15s; }
+  .price-card:hover { background: var(--stone-50); }
+  .price-card.highlight { background: var(--stone-900); }
+  .price-card.highlight:hover { background: #2C2420; }
+  .pc-name { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; color: var(--stone-400); margin-bottom: 16px; }
+  .price-card.highlight .pc-name { color: rgba(255,255,255,0.4); }
+  .pc-price { font-family: 'Cormorant Garamond', serif; font-size: 52px; font-weight: 700; line-height: 1; color: var(--stone-900); }
+  .price-card.highlight .pc-price { color: white; }
+  .pc-cycle { font-size: 14px; color: var(--stone-400); margin-bottom: 28px; }
+  .price-card.highlight .pc-cycle { color: rgba(255,255,255,0.4); }
+  .pc-features { list-style: none; display: flex; flex-direction: column; gap: 10px; margin-bottom: 32px; }
+  .pc-features li { font-size: 13px; color: var(--stone-600); display: flex; gap: 8px; align-items: flex-start; }
+  .price-card.highlight .pc-features li { color: rgba(255,255,255,0.65); }
+  .pc-check { color: var(--orange); font-weight: 700; font-size: 12px; flex-shrink: 0; margin-top: 1px; }
+  .price-card.highlight .pc-check { color: var(--orange-light); }
+  .pc-btn {
+    display: block; width: 100%; padding: 13px;
+    border: 1px solid var(--stone-300); background: transparent;
+    color: var(--stone-900); font-size: 14px; font-weight: 600;
+    border-radius: var(--radius); cursor: pointer; text-align: center;
+    text-decoration: none; transition: all 0.15s;
+  }
+  .pc-btn:hover { border-color: var(--orange); color: var(--orange); }
+  .price-card.highlight .pc-btn { background: var(--orange); border-color: var(--orange); color: white; }
+  .price-card.highlight .pc-btn:hover { background: var(--orange-light); }
+
+  /* FINAL CTA */
+  .final-cta {
+    background: var(--stone-900); color: white;
+    text-align: center; padding: 96px 40px;
+  }
+  .final-cta h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(36px, 5vw, 64px); font-weight: 700;
+    line-height: 1.1; margin-bottom: 16px;
+    letter-spacing: -1px;
+  }
+  .final-cta h2 em { font-style: italic; color: var(--orange-light); }
+  .final-cta p { font-size: 16px; color: rgba(255,255,255,0.55); font-weight: 300; margin-bottom: 40px; }
+  .final-cta .btn-a { margin: 0 auto; display: inline-flex; }
+
+  /* FOOTER */
+  footer {
+    background: var(--stone-50); border-top: 1px solid var(--stone-200);
+    padding: 36px 40px;
+  }
+  .footer-inner {
+    max-width: 1200px; margin: 0 auto;
+    display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px;
+  }
+  .footer-brand { font-family: 'Cormorant Garamond', serif; font-size: 18px; font-weight: 600; }
+  .footer-brand span { color: var(--orange); }
+  .footer-links { display: flex; gap: 24px; }
+  .footer-links a { font-size: 13px; color: var(--stone-400); text-decoration: none; }
+  .footer-links a:hover { color: var(--stone-900); }
+  .footer-copy { font-size: 12px; color: var(--stone-400); }
+
+  /* ANIMATIONS */
+  @keyframes fadeIn { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+  .masthead-title { animation: fadeIn 0.7s ease-out both; }
+  .masthead-deck { animation: fadeIn 0.7s ease-out 0.15s both; }
+  .masthead-ctas { animation: fadeIn 0.7s ease-out 0.25s both; }
+
+  @media (max-width: 900px) {
+    .hero-cols { grid-template-columns: 1fr; }
+    .hero-col-divider { display: none; }
+    .stats-inner { grid-template-columns: repeat(2, 1fr); }
+    .process-grid { grid-template-columns: 1fr; }
+    .price-cards { grid-template-columns: 1fr; }
+    .feature-table { font-size: 12px; }
+    .nav-inner { padding: 0 20px; }
+    .masthead-title { letter-spacing: -1px; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a class="brand" href="#">Offer<span>Wise</span> AI</a>
+    <div class="nav-right">
+      <a href="#" class="nav-link">How it works</a>
+      <a href="#" class="nav-link">Pricing</a>
+      <a href="#" class="nav-link">Agents</a>
+      <a href="#" class="nav-pill">Get started →</a>
+    </div>
+  </div>
+</nav>
+
+<!-- MASTHEAD -->
+<div class="hero-outer">
+  <div class="hero-masthead">
+    <div class="masthead-rule">
+      <div class="masthead-line"></div>
+      <div class="masthead-tag">AI-powered home buying intelligence</div>
+      <div class="masthead-line"></div>
+    </div>
+    <h1 class="masthead-title">Know your number.<br><em>Before you offer.</em></h1>
+    <p class="masthead-deck">Upload your inspection and seller disclosure. OfferWise reads every line, finds what's hidden, and tells you exactly what to offer — in 90 seconds.</p>
+    <div class="masthead-ctas">
+      <a href="#" class="btn-a">Analyze a property →</a>
+      <a href="#" class="btn-b">See a sample report</a>
+    </div>
+  </div>
+
+  <!-- THREE COLUMN FEATURE PREVIEW -->
+  <div class="hero-cols">
+    <div class="hero-col">
+      <div class="col-eyebrow">What you get</div>
+      <div class="col-heading">A complete due-diligence stack in <em>90 seconds.</em></div>
+      <p class="col-body">OfferScore™, deal breaker detection, seller transparency grade, ZIP-adjusted repair costs, negotiation playbook, market comps, and a one-click Request for Repair addendum — all from your inspection PDF.</p>
+    </div>
+    <div class="hero-col-divider"></div>
+    <div class="hero-col">
+      <!-- REPORT WIDGET -->
+      <div class="report-widget">
+        <div class="rw-top">
+          <div>
+            <div class="rw-address">2839 Pendleton Dr, San Jose CA</div>
+            <div class="rw-price">Listed $900,000</div>
+          </div>
+          <div class="rw-score">
+            <div class="rw-score-num">74</div>
+            <div class="rw-score-lbl">OfferScore™</div>
+          </div>
+        </div>
+        <div class="rw-body">
+          <div class="rw-offer">
+            <div>
+              <div class="rw-offer-lbl">Recommended Offer</div>
+              <div class="rw-offer-price">$847,000</div>
+            </div>
+            <div class="rw-badge">↓ Save $53K</div>
+          </div>
+          <div class="rw-issues">
+            <div class="rw-issue crit">⛔ Foundation differential settlement</div>
+            <div class="rw-issue warn">⚠ HVAC 17 years — near end of life</div>
+            <div class="rw-issue good">✓ Roof replaced 2021 — sound</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="hero-col-divider"></div>
+    <div class="hero-col">
+      <div class="col-eyebrow">Privacy first</div>
+      <div class="col-heading">Your PDFs <em>never</em> leave your browser.</div>
+      <p class="col-body">Text is extracted locally in your browser — we never receive your documents. Only the extracted text is sent for analysis. Your home buying information stays yours.<br><br>All analyses are yours to download, share, and keep.</p>
+    </div>
+  </div>
+</div>
+
+<!-- STATS BAR -->
+<div class="stats-bar">
+  <div class="stats-inner">
+    <div class="stat-item">
+      <div class="stat-num">$<span>47K</span></div>
+      <div class="stat-lbl">Avg. savings found</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num"><span>90</span>s</div>
+      <div class="stat-lbl">Analysis time</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num"><span>13</span></div>
+      <div class="stat-lbl">Public data sources</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num"><span>2,400+</span></div>
+      <div class="stat-lbl">Analyses completed</div>
+    </div>
+  </div>
+</div>
+
+<!-- HOW IT WORKS -->
+<div class="content-section">
+  <div class="section-rule">
+    <div class="section-rule-line"></div>
+    <div class="section-rule-title">How it works</div>
+    <div class="section-rule-line"></div>
+  </div>
+  <div class="process-grid">
+    <div class="process-item">
+      <div class="pi-num">01</div>
+      <div class="pi-title">Upload your documents</div>
+      <div class="pi-body">Drop in your seller disclosure and inspection report. PDFs are parsed in your browser — we only receive the extracted text. Your privacy is protected by design.</div>
+    </div>
+    <div class="process-item">
+      <div class="pi-num">02</div>
+      <div class="pi-title">AI reads everything</div>
+      <div class="pi-body">We cross-reference 13 public data sources, calculate ZIP-adjusted repair costs, score the seller's transparency, and flag every contradiction between disclosure and inspection.</div>
+    </div>
+    <div class="process-item">
+      <div class="pi-num">03</div>
+      <div class="pi-title">Get your number</div>
+      <div class="pi-body">Receive your recommended offer price, repair breakdown, negotiation playbook, and a state-aware Request for Repair document ready to submit to your agent.</div>
+    </div>
+  </div>
+</div>
+
+<!-- FEATURE TABLE -->
+<div class="feature-section">
+  <div class="feature-inner">
+    <div class="section-rule">
+      <div class="section-rule-line"></div>
+      <div class="section-rule-title">What's included</div>
+      <div class="section-rule-line"></div>
+    </div>
+    <table class="feature-table">
+      <thead>
+        <tr>
+          <th style="width:48px"></th>
+          <th>Feature</th>
+          <th style="width:200px">Description</th>
+          <th style="width:80px; text-align:center">Plan</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="ft-icon">💰</td>
+          <td><div class="ft-name">3-Option Offer Strategy</div><div class="ft-desc">Aggressive, recommended, and conservative with rationale</div></td>
+          <td></td>
+          <td style="text-align:center"><span class="ft-badge all">All plans</span></td>
+        </tr>
+        <tr>
+          <td class="ft-icon">⛔</td>
+          <td><div class="ft-name">Deal Breaker Detection</div><div class="ft-desc">Structural, foundation, and safety flags before you commit</div></td>
+          <td></td>
+          <td style="text-align:center"><span class="ft-badge all">All plans</span></td>
+        </tr>
+        <tr>
+          <td class="ft-icon">🔍</td>
+          <td><div class="ft-name">Seller Transparency Report™</div><div class="ft-desc">A–F grade on disclosure honesty and omission score</div></td>
+          <td></td>
+          <td style="text-align:center"><span class="ft-badge all">All plans</span></td>
+        </tr>
+        <tr>
+          <td class="ft-icon">📊</td>
+          <td><div class="ft-name">Live Market Context</div><div class="ft-desc">AVM, comps, days on market, and buyer leverage score</div></td>
+          <td></td>
+          <td style="text-align:center"><span class="ft-badge all">All plans</span></td>
+        </tr>
+        <tr>
+          <td class="ft-icon">🎯</td>
+          <td><div class="ft-name">Negotiation Playbook</div><div class="ft-desc">Ranked talking points and counter-objection scripts</div></td>
+          <td></td>
+          <td style="text-align:center"><span class="ft-badge all">All plans</span></td>
+        </tr>
+        <tr>
+          <td class="ft-icon">🔭</td>
+          <td><div class="ft-name">OfferWatch™ Alerts</div><div class="ft-desc">Daily monitoring for price drops, permits, seismic events</div></td>
+          <td></td>
+          <td style="text-align:center"><span class="ft-badge pro">Pro+</span></td>
+        </tr>
+        <tr>
+          <td class="ft-icon">📄</td>
+          <td><div class="ft-name">Request for Repair Addendum</div><div class="ft-desc">State-aware draft ready to hand to your agent</div></td>
+          <td></td>
+          <td style="text-align:center"><span class="ft-badge pro">Pro+</span></td>
+        </tr>
+        <tr>
+          <td class="ft-icon">🔮</td>
+          <td><div class="ft-name">Predicted Hidden Issues</div><div class="ft-desc">Pattern AI predicts what's likely wrong but wasn't visible</div></td>
+          <td></td>
+          <td style="text-align:center"><span class="ft-badge pro">Pro+</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- PRICING -->
+<div class="pricing-outer">
+  <div class="section-rule">
+    <div class="section-rule-line"></div>
+    <div class="section-rule-title">Simple pricing</div>
+    <div class="section-rule-line"></div>
+  </div>
+  <div class="price-cards">
+    <div class="price-card">
+      <div class="pc-name">Starter</div>
+      <div class="pc-price">$9</div>
+      <div class="pc-cycle">per month</div>
+      <ul class="pc-features">
+        <li><span class="pc-check">✓</span> 5 full analyses/month</li>
+        <li><span class="pc-check">✓</span> Offer strategy + repair costs</li>
+        <li><span class="pc-check">✓</span> Negotiation playbook</li>
+        <li><span class="pc-check">✓</span> PDF download</li>
+      </ul>
+      <a href="#" class="pc-btn">Get started</a>
+    </div>
+    <div class="price-card highlight">
+      <div class="pc-name">Pro — most popular</div>
+      <div class="pc-price">$19</div>
+      <div class="pc-cycle">per month</div>
+      <ul class="pc-features">
+        <li><span class="pc-check">✓</span> 15 full analyses/month</li>
+        <li><span class="pc-check">✓</span> Everything in Starter</li>
+        <li><span class="pc-check">✓</span> OfferWatch™ daily alerts</li>
+        <li><span class="pc-check">✓</span> Request for Repair addendum</li>
+        <li><span class="pc-check">✓</span> Market intelligence</li>
+      </ul>
+      <a href="#" class="pc-btn">Get started</a>
+    </div>
+    <div class="price-card">
+      <div class="pc-name">Unlimited</div>
+      <div class="pc-price">$49</div>
+      <div class="pc-cycle">per month</div>
+      <ul class="pc-features">
+        <li><span class="pc-check">✓</span> Unlimited analyses</li>
+        <li><span class="pc-check">✓</span> Everything in Pro</li>
+        <li><span class="pc-check">✓</span> Agent referral portal</li>
+        <li><span class="pc-check">✓</span> Priority support</li>
+      </ul>
+      <a href="#" class="pc-btn">Get started</a>
+    </div>
+  </div>
+</div>
+
+<!-- FINAL CTA -->
+<div class="final-cta">
+  <h2>Your first analysis is <em>free.</em></h2>
+  <p>No credit card. No setup. Results in 90 seconds.</p>
+  <a href="#" class="btn-a" style="font-size:15px; padding:14px 32px;">Analyze a property now →</a>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">Offer<span>Wise</span> AI</div>
+    <div class="footer-links">
+      <a href="#">Privacy</a>
+      <a href="#">Terms</a>
+      <a href="#">Disclaimer</a>
+      <a href="#">Contact</a>
+    </div>
+    <div class="footer-copy">© 2026 OfferWise AI · Patent Pending</div>
+  </div>
+</footer>
+
+</body>
+</html>

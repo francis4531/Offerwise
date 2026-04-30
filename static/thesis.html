@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OfferWise — The Investment Thesis</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/svg+xml" href="/logo-icon-only.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --accent:#f97316;--accent2:#f59e0b;--success:#22c55e;
+  --dark:#0f172a;--darker:#020617;
+  --surface:rgba(255,255,255,0.03);--surface2:rgba(255,255,255,0.06);
+  --border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.12);
+  --light:#f8fafc;--gray:#64748b;--gl:#94a3b8;
+}
+html,body{height:100%;overflow:hidden;}
+body{font-family:"Inter",-apple-system,sans-serif;background:var(--darker);color:var(--light);-webkit-font-smoothing:antialiased;}
+
+/* ── CHROME ── */
+.chrome{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;justify-content:space-between;align-items:center;padding:.9rem 2rem;background:rgba(2,6,23,0.9);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);}
+.logo{font-size:1.25rem;font-weight:800;color:#f1f5f9;text-decoration:none;letter-spacing:-.02em;}
+.logo .wise{background:linear-gradient(90deg,#f97316,#f59e0b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.chrome-center{display:flex;align-items:center;gap:.5rem;}
+.slide-dots{display:flex;gap:5px;align-items:center;}
+.dot{width:5px;height:5px;border-radius:50%;background:var(--border2);cursor:pointer;transition:all .25s;}
+.dot.active{background:var(--accent);width:18px;border-radius:3px;}
+.dot:hover:not(.active){background:var(--gl);}
+.slide-counter{font-size:.65rem;font-weight:700;letter-spacing:.12em;color:var(--gray);margin-left:.75rem;font-variant-numeric:tabular-nums;}
+.nav-tag{font-size:.65rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--gl);border:1px solid var(--border2);padding:4px 12px;border-radius:100px;}
+
+/* Progress bar */
+.progress{position:fixed;top:0;left:0;height:2px;background:linear-gradient(90deg,var(--accent),var(--accent2));z-index:200;transition:width .4s cubic-bezier(.4,0,.2,1);}
+
+/* ── SLIDES CONTAINER ── */
+.slides{position:fixed;inset:0;top:52px;}
+.slide{position:absolute;inset:0;display:flex;align-items:flex-start;justify-content:center;padding:0 220px;overflow:hidden;opacity:0;pointer-events:none;transform:translateY(30px);transition:opacity .5s cubic-bezier(.4,0,.2,1),transform .5s cubic-bezier(.4,0,.2,1);}
+.slide.active{opacity:1;pointer-events:all;transform:none;}
+.slide.exit-up{opacity:0;transform:translateY(-30px);}
+.slide.exit-down{opacity:0;transform:translateY(30px);}
+.slide-inner{max-width:1100px;width:100%;margin:0 auto;height:calc(100vh - 52px);overflow-y:auto;overflow-x:hidden;padding:.75rem 0 4rem;}
+.slide-inner::-webkit-scrollbar{width:3px;}
+.slide-inner::-webkit-scrollbar-track{background:transparent;}
+.slide-inner::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+
+/* ── NAV ARROWS ── */
+.nav-btn{position:fixed;top:50%;z-index:100;display:flex;align-items:center;gap:.75rem;background:rgba(15,23,42,0.85);backdrop-filter:blur(16px);border:1px solid var(--border2);color:var(--gl);padding:0 1.25rem;height:56px;border-radius:10px;cursor:pointer;transition:all .25s cubic-bezier(.4,0,.2,1);user-select:none;font-family:"Inter",-apple-system,sans-serif;}
+.nav-btn:hover{background:rgba(249,115,22,.1);border-color:rgba(249,115,22,.4);color:#f1f5f9;transform:translateY(-50%) scale(1.03);}
+.nav-btn:not(:hover){transform:translateY(-50%);}
+.nav-btn:disabled{opacity:.18;cursor:not-allowed;pointer-events:none;}
+.nav-btn:active{transform:translateY(-50%) scale(.97);}
+.nav-arrow{font-size:1.1rem;color:var(--accent);line-height:1;flex-shrink:0;}
+.nav-label{display:flex;flex-direction:column;align-items:flex-start;gap:1px;}
+.nav-label-sub{font-size:.58rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--gray);}
+.nav-label-title{font-size:.78rem;font-weight:700;color:#f1f5f9;white-space:nowrap;max-width:140px;overflow:hidden;text-overflow:ellipsis;}
+.nav-prev{left:1rem;flex-direction:row;}
+.nav-prev .nav-label{align-items:flex-start;}
+.nav-next{right:1rem;flex-direction:row-reverse;}
+.nav-next .nav-label{align-items:flex-end;}
+
+/* ── KEYBOARD HINT ── */
+.key-hint{position:fixed;bottom:1.25rem;left:50%;transform:translateX(-50%);font-size:.62rem;color:var(--gray);letter-spacing:.08em;display:flex;align-items:center;gap:.5rem;opacity:.6;transition:opacity .3s;}
+.key-hint:hover{opacity:1;}
+.key{border:1px solid var(--border2);padding:1px 6px;border-radius:4px;font-size:.6rem;color:var(--gl);}
+
+/* ══════════════════════════════════════════
+   SLIDE-SPECIFIC LAYOUTS
+══════════════════════════════════════════ */
+
+/* HERO slide */
+.hero-layout{display:grid;grid-template-columns:1fr 300px;gap:4rem;align-items:center;}
+.eyebrow{font-size:.68rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:1.25rem;display:flex;align-items:center;gap:10px;}
+.eyebrow::before{content:"";width:28px;height:1px;background:var(--accent);flex-shrink:0;}
+.hero-h1{font-size:clamp(2.6rem,5vw,4.4rem);font-weight:900;line-height:1.03;letter-spacing:-.03em;color:#f1f5f9;margin-bottom:1.5rem;}
+.hero-h1 span{color:var(--accent);}
+.hero-sub{font-size:1rem;color:var(--gl);line-height:1.8;margin-bottom:1.75rem;max-width:580px;}
+.hero-note{font-size:.8rem;color:var(--gray);line-height:1.75;border-left:2px solid rgba(249,115,22,.4);padding:.75rem 1rem;background:rgba(249,115,22,.04);border-radius:0 6px 6px 0;max-width:560px;}
+.hero-note strong{color:var(--gl);}
+.stat-box{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);border:1px solid var(--border);border-radius:14px;overflow:hidden;}
+.stat{background:var(--surface);padding:1.3rem 1rem;}
+.stat-val{font-size:1.8rem;font-weight:900;color:#f1f5f9;line-height:1;margin-bottom:4px;}
+.stat-val span{color:var(--accent);}
+.stat-lbl{font-size:.62rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--gray);line-height:1.4;}
+
+/* SECTION header (reusable) */
+.sec-head{margin-bottom:1.25rem;}
+.sec-num{font-size:.65rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);margin-bottom:.5rem;display:flex;align-items:center;gap:10px;}
+.sec-num::before{content:"";width:24px;height:1px;background:var(--accent);}
+.disp{font-size:clamp(1.7rem,3.5vw,2.6rem);font-weight:900;line-height:1.05;letter-spacing:-.03em;color:#f1f5f9;margin-bottom:.75rem;}
+.disp span{color:var(--accent);}
+.lead{font-size:.9rem;color:var(--gl);line-height:1.75;max-width:720px;margin-bottom:0;}
+
+/* PROBLEM */
+.prob-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-top:1rem;}
+.prob-card{background:rgba(2,6,23,.5);padding:1.4rem 1.5rem;position:relative;}
+.prob-card::after{content:"";position:absolute;bottom:0;left:0;right:0;height:2px;background:var(--accent);transform:scaleX(0);transform-origin:left;transition:transform .35s;}
+.prob-card:hover::after{transform:scaleX(1);}
+.prob-tag{font-size:.6rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-bottom:.75rem;}
+.prob-big{font-size:2rem;font-weight:900;color:#f1f5f9;line-height:1;margin-bottom:.35rem;}
+.prob-card h3{font-size:.95rem;font-weight:700;color:#f1f5f9;margin-bottom:.5rem;}
+.prob-card p{font-size:.83rem;color:var(--gl);line-height:1.75;}
+
+/* INNOVATION — two-column */
+.inno-layout{display:grid;grid-template-columns:1fr 1.05fr;gap:3rem;align-items:start;margin-top:1rem;}
+.inno-text h3{font-size:1.1rem;font-weight:800;color:#f1f5f9;margin-bottom:.875rem;}
+.inno-text p{font-size:.88rem;color:var(--gl);line-height:1.8;margin-bottom:1rem;}
+.console{background:linear-gradient(135deg,#0d1117,#111827);border:1px solid rgba(249,115,22,.15);border-radius:12px;overflow:hidden;}
+.con-hd{display:flex;align-items:center;gap:8px;padding:9px 13px;background:rgba(255,255,255,.02);border-bottom:1px solid rgba(255,255,255,.05);font-family:monospace;font-size:10px;color:#475569;}
+.cdot{width:7px;height:7px;border-radius:50%;background:var(--success);animation:pulse 1.5s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.con-row{display:grid;grid-template-columns:58px 84px 13px 1fr;gap:8px;align-items:start;padding:6px 13px;border-bottom:1px solid rgba(255,255,255,.04);font-family:monospace;font-size:10.5px;}
+.con-row:last-child{border-bottom:none;}
+.ct{color:#334155;}.ca{color:#60a5fa;}.cok{color:var(--success);}.cw{color:var(--accent);}
+.cs{color:var(--accent);animation:spin 1.5s linear infinite;display:inline-block;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.cx{color:#94a3b8;line-height:1.5;}.cx strong{color:var(--accent);font-weight:500;}
+.con-ft{display:flex;justify-content:space-between;padding:7px 13px;border-top:1px solid rgba(255,255,255,.05);font-family:monospace;font-size:10px;color:#334155;}
+.con-ft a{color:var(--accent);text-decoration:none;}
+
+/* INNOVATIONS LIST */
+.inno-list{display:flex;flex-direction:column;gap:1px;background:var(--border);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-top:1rem;}
+.inno{display:grid;grid-template-columns:44px 180px 1fr;gap:1.5rem;padding:1rem 1.5rem;align-items:start;border-bottom:1px solid var(--border);transition:background .2s;}
+.inno:last-child{border-bottom:none;}
+.inno:hover{background:rgba(249,115,22,.025);}
+.inno-n{font-size:1.2rem;font-weight:900;color:rgba(255,255,255,.07);line-height:1;}
+.itag{display:inline-block;font-size:.56rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;background:rgba(249,115,22,.1);color:var(--accent);border:1px solid rgba(249,115,22,.2);padding:2px 7px;border-radius:100px;margin-bottom:.35rem;}
+.inno h3{font-size:.92rem;font-weight:700;color:#f1f5f9;}
+.inno-body{font-size:.83rem;color:var(--gl);line-height:1.8;}
+
+/* MARKET */
+.mkt-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-top:1rem;}
+.mkt-cell{background:var(--surface);padding:1.5rem 1.5rem;position:relative;}
+.mkt-cell::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;}
+.mkt-cell.tam::before{background:rgba(255,255,255,.15);}
+.mkt-cell.sam::before{background:rgba(249,115,22,.5);}
+.mkt-cell.som::before{background:linear-gradient(90deg,var(--accent),var(--accent2));}
+.mkt-lbl{font-size:.6rem;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--gray);margin-bottom:.65rem;}
+.mkt-val{font-size:clamp(2.2rem,4vw,3.2rem);font-weight:900;color:#f1f5f9;line-height:1;margin-bottom:.45rem;}
+.mkt-val span{color:var(--accent);}
+.mkt-desc{font-size:.83rem;color:var(--gl);line-height:1.75;}
+
+/* FLYWHEEL */
+.fw{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-top:1rem;}
+.fw-node{background:var(--surface);padding:1.25rem 1.25rem;position:relative;}
+.fw-node:not(:last-child)::after{content:"›";position:absolute;right:-10px;top:50%;transform:translateY(-50%);font-size:1rem;color:var(--accent);z-index:2;}
+.fw-ico{font-size:1.5rem;margin-bottom:.8rem;}
+.fw-ttl{font-size:.9rem;font-weight:700;color:#f1f5f9;margin-bottom:.35rem;}
+.fw-dsc{font-size:.8rem;color:var(--gl);line-height:1.75;}
+.fw-fds{font-size:.6rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--accent);margin-top:.8rem;padding-top:.8rem;border-top:1px solid var(--border);}
+
+/* MOAT */
+.moat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-top:1rem;}
+.moat-item{background:var(--surface);padding:1.25rem 1.5rem;transition:background .2s;}
+.moat-item:hover{background:var(--surface2);}
+.moat-tag{display:inline-block;font-size:.56rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;border:1px solid var(--border2);padding:2px 8px;border-radius:100px;color:var(--gl);margin-bottom:.6rem;}
+.moat-item h3{font-size:.92rem;font-weight:700;color:#f1f5f9;margin-bottom:.45rem;}
+.moat-item p{font-size:.82rem;color:var(--gl);line-height:1.75;}
+
+/* REVENUE */
+.rev{width:100%;border-collapse:collapse;margin-top:1rem;font-size:.82rem;}
+.rev th{font-size:.58rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gray);text-align:left;padding:.5rem .875rem;border-bottom:1px solid var(--border2);}
+.rev td{padding:.7rem .875rem;border-bottom:1px solid var(--border);color:var(--gl);vertical-align:top;line-height:1.6;}
+.rev tr:hover td{background:rgba(249,115,22,.02);}
+.rev td:first-child{font-weight:700;color:#f1f5f9;}
+.rn{font-size:1rem;font-weight:800;color:var(--accent);}
+.rnt{font-size:.72rem;color:var(--gray);}
+
+/* GATE */
+.gate{background:linear-gradient(135deg,rgba(249,115,22,.07),rgba(245,158,11,.04));border:1px solid rgba(249,115,22,.2);border-radius:18px;padding:2rem;margin-top:1rem;text-align:center;position:relative;overflow:hidden;}
+.gate::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent),var(--accent2));}
+.gate-ey{font-size:.62rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);margin-bottom:1.25rem;}
+.gate-n{font-size:clamp(4rem,9vw,7rem);font-weight:900;color:#f1f5f9;line-height:1;margin-bottom:.2rem;letter-spacing:-.04em;}
+.gate-n span{color:var(--accent);}
+.gate-s{font-size:1.1rem;font-weight:700;color:var(--gl);margin-bottom:1.5rem;}
+.gate-b{font-size:.88rem;color:var(--gl);max-width:520px;margin:0 auto 2rem;line-height:1.8;}
+.gate-bw{max-width:420px;margin:0 auto 1rem;}
+.gate-bl{display:flex;justify-content:space-between;font-size:.65rem;color:var(--gray);margin-bottom:4px;}
+.gate-bar{height:4px;background:rgba(255,255,255,.06);border-radius:100px;overflow:hidden;}
+.gate-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:100px;width:4%;transition:width 1.5s ease;}
+.gate-fn{font-size:.65rem;color:var(--gray);letter-spacing:.04em;}
+
+/* CLOSING */
+.closing-inner{text-align:center;padding:2rem 0;}
+.closing-inner h2{font-size:clamp(2rem,4.5vw,3.4rem);font-weight:900;line-height:1.1;letter-spacing:-.03em;color:#f1f5f9;max-width:760px;margin:0 auto 1.25rem;}
+.closing-inner h2 span{color:var(--accent);}
+.closing-inner p{font-size:.95rem;color:var(--gl);max-width:460px;margin:0 auto 2.5rem;line-height:1.8;}
+.clink{font-size:.95rem;font-weight:700;color:var(--accent);text-decoration:none;border-bottom:1px solid rgba(249,115,22,.3);padding-bottom:2px;transition:border-color .2s;}
+.clink:hover{border-color:var(--accent);}
+.cnote{font-size:.65rem;color:var(--gray);letter-spacing:.08em;text-transform:uppercase;margin-top:.6rem;}
+.cfooter{font-size:.6rem;color:rgba(255,255,255,.1);letter-spacing:.06em;margin-top:3rem;}
+
+/* Scrollable slide content */
+/* slide-scroll handled by slide-inner */
+/* ── RESPONSIVE ── */
+
+/* Tablet: hide nav labels, shrink buttons */
+@media(max-width:1100px){
+  .slide{padding:0 68px;}
+  .nav-label{display:none;}
+  .nav-btn{padding:0;width:52px;justify-content:center;}
+  .hero-layout{grid-template-columns:1fr;gap:2.5rem;}
+  .stat-box{max-width:380px;}
+  .prob-cards{grid-template-columns:1fr;}
+  .inno-layout{grid-template-columns:1fr;}
+  .mkt-grid{grid-template-columns:1fr;}
+  .fw{grid-template-columns:1fr 1fr;}
+  .moat-grid{grid-template-columns:1fr 1fr;}
+  .inno{grid-template-columns:44px 1fr;gap:1rem;}
+  .inno-n{display:none;}
+  .inno{grid-template-columns:1fr;}
+  .rev th:nth-child(4),.rev td:nth-child(4){display:none;} /* hide Market Size col */
+}
+
+/* Mobile: icon-only nav, single-column everything */
+@media(max-width:768px){
+  .slide{padding:0 52px;}
+  .nav-btn{width:40px;height:44px;}
+  .chrome{padding:.75rem 1rem;}
+  .logo{font-size:1.1rem;}
+  .nav-pill{display:none;}
+  .slide-inner{padding:.5rem 0 4rem;}
+  .hero-layout{gap:1.75rem;}
+  .stat-box{grid-template-columns:1fr 1fr;max-width:100%;}
+  .fw{grid-template-columns:1fr;}
+  .fw-node:not(:last-child)::after{display:none;}
+  .moat-grid{grid-template-columns:1fr;}
+  .prob-cards{grid-template-columns:1fr;}
+  .mkt-grid{grid-template-columns:1fr;}
+  .inno-layout{grid-template-columns:1fr;}
+  .disp{font-size:clamp(1.7rem,6vw,2.6rem);}
+  .hero-h1{font-size:clamp(2rem,8vw,3.2rem);}
+  .hero-sub{font-size:.95rem;}
+  .sec-num{font-size:.6rem;}
+  .lead{font-size:.9rem;}
+  .gate-n{font-size:clamp(3rem,15vw,5rem);}
+  .closing-inner h2{font-size:clamp(1.7rem,6vw,2.8rem);}
+  .rev{font-size:.78rem;}
+  .rev th,.rev td{padding:.65rem .6rem;}
+  .rev th:nth-child(3),.rev td:nth-child(3){display:none;} /* hide Price Point col */
+  .rev th:nth-child(5),.rev td:nth-child(5){display:none;} /* hide Network Role col */
+  .key-hint{font-size:.6rem;}
+}
+
+/* Small mobile */
+@media(max-width:480px){
+  .slide{padding:0 44px;}
+  .nav-btn{width:36px;height:40px;}
+  .slide-dots{display:none;}
+  .hero-layout{gap:1.25rem;}
+  .stat{padding:1rem .75rem;}
+  .stat-val{font-size:1.5rem;}
+}
+</style>
+</head>
+<body>
+
+<!-- Progress bar -->
+<div class="progress" id="progress"></div>
+
+<!-- Chrome -->
+<div class="chrome">
+  <a href="/" class="logo">Offer<span class="wise">Wise</span></a>
+  <div class="chrome-center">
+    <div class="slide-dots" id="dots"></div>
+    <div class="slide-counter" id="counter">1 / 8</div>
+  </div>
+  <div class="nav-tag">Investment Thesis &middot; Confidential</div>
+</div>
+
+<!-- Nav buttons -->
+<button class="nav-btn nav-prev" id="prevBtn" onclick="go(-1)">
+  <span class="nav-arrow">&#8592;</span>
+  <div class="nav-label">
+    <span class="nav-label-sub">Previous</span>
+    <span class="nav-label-title" id="prevTitle">&mdash;</span>
+  </div>
+</button>
+<button class="nav-btn nav-next" id="nextBtn" onclick="go(1)">
+  <div class="nav-label">
+    <span class="nav-label-sub">Next</span>
+    <span class="nav-label-title" id="nextTitle">&mdash;</span>
+  </div>
+  <span class="nav-arrow">&#8594;</span>
+</button>
+
+<!-- Keyboard hint -->
+<div class="key-hint">
+  <span class="key">&#8592;</span> prev &nbsp; <span class="key">&#8594;</span> next &nbsp; <span class="key">space</span> advance
+</div>
+
+<!-- ══════════════════════════════════════════
+     SLIDES
+══════════════════════════════════════════ -->
+<div class="slides">
+
+  <!-- SLIDE 0: HERO -->
+  <div class="slide active" data-slide="0">
+    <div class="slide-inner" style="display:flex;align-items:center;padding-top:0;padding-bottom:0;">
+      <div class="hero-layout" style="width:100%;">
+        <div>
+          <div class="eyebrow">Investment Thesis &middot; getofferwise.ai</div>
+          <h1 class="hero-h1">The intelligence layer<br><span>real estate never had.</span></h1>
+          <p class="hero-sub">Every year, 5 million American families make the largest financial decision of their lives in 72 hours, with documents they were never trained to read. OfferWise fixes that &mdash; and in doing so, creates a new category of software that touches every participant in a $2.8 trillion annual market.</p>
+          <div class="hero-note"><strong>A note on timing:</strong> We are not seeking outside capital today. This thesis is shared with a small number of people whose perspective we value. We will open a conversation when we reach 1,000 paying customers &mdash; a milestone that proves the market, not just the product.</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat"><div class="stat-val">$<span>68</span>K</div><div class="stat-lbl">Avg hidden repair cost per transaction</div></div>
+          <div class="stat"><div class="stat-val"><span>5</span>M+</div><div class="stat-lbl">US home sales annually</div></div>
+          <div class="stat"><div class="stat-val"><span>73</span>%</div><div class="stat-lbl">Buyers who regret their due diligence</div></div>
+          <div class="stat"><div class="stat-val"><span>60</span>s</div><div class="stat-lbl">Time to a complete offer strategy</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 1: PROBLEM -->
+  <div class="slide" data-slide="1">
+    <div class="slide-inner slide-scroll">
+      <div class="sec-head">
+        <div class="sec-num">01 &middot; The Problem</div>
+        <h2 class="disp">A market running on<br><span>institutional blindness.</span></h2>
+        <p class="lead">The residential real estate transaction is a $2.8 trillion annual market with a stunning information asymmetry baked into its structure. Sellers know what they&rsquo;re hiding. Buyers don&rsquo;t know what to look for. Every professional in between is operating on experience and intuition &mdash; not structured data.</p>
+      </div>
+      <div class="prob-cards">
+        <div class="prob-card">
+          <div class="prob-tag">Buyer&rsquo;s problem</div>
+          <div class="prob-big">$38&ndash;67K</div>
+          <h3>Hidden cost per transaction</h3>
+          <p>The average buyer commits to a $420,000 purchase in 72 hours based on an 80-page inspection report they spend 11 minutes reading. No framework to evaluate it. No way to cross-reference what the seller claimed. No data to calculate what it actually costs to fix.</p>
+        </div>
+        <div class="prob-card">
+          <div class="prob-tag">Inspector&rsquo;s problem</div>
+          <div class="prob-big">$0</div>
+          <h3>Value captured from findings</h3>
+          <p>Home inspectors document everything &mdash; and their expertise ends the moment the PDF is sent. Their findings never become financial leverage. Their business is commoditized on Yelp because buyers can&rsquo;t see the difference between a thorough inspector and a checkbox inspector.</p>
+        </div>
+        <div class="prob-card">
+          <div class="prob-tag">Agent&rsquo;s problem</div>
+          <div class="prob-big">2M+</div>
+          <h3>Agents with no data tool</h3>
+          <p>There are over 2 million licensed real estate agents in the US. None of them have a product that turns a property&rsquo;s actual documents into a specific, defensible offer number in under 90 seconds. They guide buyers on instinct while Zillow estimates erode their credibility.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 2: INNOVATION — pipeline -->
+  <div class="slide" data-slide="2">
+    <div class="slide-inner slide-scroll">
+      <div class="sec-head">
+        <div class="sec-num">02 &middot; The Innovation</div>
+        <h2 class="disp">Six patent-pending breakthroughs.<br><span>One unified system.</span></h2>
+        <p class="lead">OfferWise is not a chatbot wrapper. It is a purpose-built agentic architecture that deploys 13 specialized AI agents simultaneously against two documents &mdash; the inspection report and the seller disclosure &mdash; and synthesizes their outputs into a complete offer strategy. Nothing like it exists.</p>
+      </div>
+      <div class="inno-layout">
+        <div class="inno-text">
+          <h3>The agentic pipeline</h3>
+          <p>Where a single AI model produces a generic response, OfferWise deploys a team of specialists &mdash; each with a defined role, a defined data source, and a defined output. The agents run in parallel, then the Offer Architect synthesizes everything into three offer tiers and a ready-to-send addendum.</p>
+          <p>The result is not a summary. It is a decision. This architecture is why OfferWise can cross-reference a seller&rsquo;s written disclosure against an inspector&rsquo;s findings and surface the specific page, the specific claim, and the specific dollar consequence &mdash; in under 10 seconds.</p>
+          <p>This is what separates OfferWise from every &ldquo;AI for real estate&rdquo; product that came before. Those products answer questions. OfferWise takes a position.</p>
+        </div>
+        <div class="console">
+          <div class="con-hd"><div class="cdot"></div>offerwise-agents &middot; 742 Oak St, Austin TX 78701</div>
+          <div class="con-row"><span class="ct">06:42:01</span><span class="ca">doc-parser</span><span class="cok">&#10003;</span><span class="cx">Parsed 38pg inspection &middot; 19 findings extracted</span></div>
+          <div class="con-row"><span class="ct">06:42:02</span><span class="ca">disclosure-ai</span><span class="cw">&#9888;</span><span class="cx"><strong>3 contradictions</strong> &middot; &ldquo;No water issues&rdquo; vs active crawl moisture pg.23</span></div>
+          <div class="con-row"><span class="ct">06:42:04</span><span class="ca">market-intel</span><span class="cok">&#10003;</span><span class="cx">AVM $1,241,000 &middot; 15 comps &middot; asking 3.5% above AVM</span></div>
+          <div class="con-row"><span class="ct">06:42:05</span><span class="ca">repair-cost</span><span class="cok">&#10003;</span><span class="cx">Total burden <strong>$38,500&ndash;$49,200</strong> &middot; HVAC + roof + moisture</span></div>
+          <div class="con-row"><span class="ct">06:42:06</span><span class="ca">seismic-env</span><span class="cok">&#10003;</span><span class="cx">Flood Zone X &middot; Wildfire Low &middot; No Superfund within 2mi</span></div>
+          <div class="con-row"><span class="ct">06:42:08</span><span class="ca">offer-architect</span><span class="cs">&#8635;</span><span class="cx">Seller grade: C+ &middot; Recommended: <strong>$1,198,000</strong> &middot; Addendum ready</span></div>
+          <div class="con-ft"><span>Analysis complete &middot; 7.2s &middot; 13 agents</span><a href="/sample-analysis.html">See full report &rarr;</a></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 3: INNOVATION — six innovations -->
+  <div class="slide" data-slide="3">
+    <div class="slide-inner slide-scroll">
+      <div class="sec-head">
+        <div class="sec-num">02 &middot; The Innovation (continued)</div>
+        <h2 class="disp">What no one else has built.</h2>
+      </div>
+      <div class="inno-list">
+        <div class="inno"><div class="inno-n">01</div><div><div class="itag">Patent Pending</div><h3>OfferScore&trade;</h3></div><div class="inno-body">A single investability grade (0&ndash;100) computed from 50+ property factors &mdash; structural integrity, systems condition, environmental risk, market position, and disclosure honesty. The first standardized score for a property&rsquo;s actual condition at the moment of purchase. Think of it as a credit score for real estate decisions.</div></div>
+        <div class="inno"><div class="inno-n">02</div><div><div class="itag">Patent Pending</div><h3>Property Risk DNA&trade;</h3></div><div class="inno-body">A visual risk fingerprint covering 12 risk categories simultaneously: structural, mechanical, electrical, plumbing, environmental, seismic, wildfire, flood, financial, legal, disclosure, and market. No other product maps a property&rsquo;s complete risk profile across all dimensions in a single view.</div></div>
+        <div class="inno"><div class="inno-n">03</div><div><div class="itag">Patent Pending</div><h3>Seller Transparency Report&trade;</h3></div><div class="inno-body">The only product that systematically cross-references every claim in a seller&rsquo;s written disclosure against every finding in the inspection report &mdash; surfacing contradictions with page-level citations. Not keyword matching. Semantic cross-reference against structured document graphs.</div></div>
+        <div class="inno"><div class="inno-n">04</div><div><div class="itag">Novel Architecture</div><h3>13-Agent Parallel Analysis</h3></div><div class="inno-body">13 purpose-built agents in parallel &mdash; each with a specialized role, a specific data source, and a structured output. The Offer Architect synthesizes all 13 outputs into three tiered offer recommendations. Results in under 10 seconds. Structurally reliable rather than probabilistically useful.</div></div>
+        <div class="inno"><div class="inno-n">05</div><div><div class="itag">Novel Architecture</div><h3>OfferWatch&trade; &mdash; Autonomous Monitoring</h3></div><div class="inno-body">After analysis, OfferWatch deploys an autonomous agent that watches the property daily &mdash; alerting the buyer if the price drops (recalculating the offer), an earthquake occurs nearby (updating the seismic report), new permits are filed (flagging undisclosed work), or comparable sales shift market position.</div></div>
+        <div class="inno"><div class="inno-n">06</div><div><div class="itag">Network Innovation</div><h3>The Four-Persona Flywheel</h3></div><div class="inno-body">A purpose-built network where each persona&rsquo;s usage makes the product more valuable for all others. An inspector&rsquo;s report becomes a buyer&rsquo;s analysis becomes a contractor&rsquo;s lead becomes pricing data that improves every future cost estimate. Structural, not cosmetic.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 4: MARKET -->
+  <div class="slide" data-slide="4">
+    <div class="slide-inner">
+      <div class="sec-head">
+        <div class="sec-num">03 &middot; Market Size</div>
+        <h2 class="disp">A $2.8 trillion market.<br><span>Zero category leaders.</span></h2>
+        <p class="lead">5 million sales annually at a median price of $420,000. Every transaction involves an inspection, a disclosure, an offer, and at least one professional intermediary. Not one of them is currently served by what OfferWise does.</p>
+      </div>
+      <div class="mkt-grid">
+        <div class="mkt-cell tam"><div class="mkt-lbl">TAM &mdash; Total Addressable Market</div><div class="mkt-val">$<span>2.8</span>T</div><div class="mkt-desc">Annual US residential real estate transaction value. 5M+ home sales per year at median $420K. Every transaction is a potential OfferWise touchpoint &mdash; buyer analysis, inspector report, agent attribution, contractor lead. This market does not need to grow for OfferWise to be a large business.</div></div>
+        <div class="mkt-cell sam"><div class="mkt-lbl">SAM &mdash; Serviceable Addressable Market</div><div class="mkt-val">$<span>4.2</span>B</div><div class="mkt-desc">Revenue from buyers ($9&ndash;49/mo), inspectors ($49/mo &times; 100K active), agents ($29/mo &times; 2M licensed), and contractors ($49&ndash;199/mo &times; 650K licensed) who are reachable with the current product today. Five independent subscription streams, all growing simultaneously.</div></div>
+        <div class="mkt-cell som"><div class="mkt-lbl">SOM &mdash; Serviceable Obtainable (5yr)</div><div class="mkt-val">$<span>420</span>M</div><div class="mkt-desc">10% penetration of the SAM over 5 years &mdash; a conservative estimate given the structural network effects. First-mover advantage in an uncontested category with disciplined distribution makes this achievable without a large enterprise sales motion.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 5: FLYWHEEL + MOAT -->
+  <div class="slide" data-slide="5">
+    <div class="slide-inner slide-scroll">
+      <div class="sec-head">
+        <div class="sec-num">04 &middot; Network Effect &amp; Moat</div>
+        <h2 class="disp">Four personas.<br><span>One compounding flywheel.</span></h2>
+        <p class="lead">Every new user &mdash; regardless of persona &mdash; makes the platform more valuable for every other user. This is not a marketing claim. It is built into the product architecture and produces data compounding effects no competitor can replicate without rebuilding from scratch.</p>
+      </div>
+      <div class="fw">
+        <div class="fw-node"><div class="fw-ico">&#128269;</div><div class="fw-ttl">Inspector uploads report</div><div class="fw-dsc">Generates a branded buyer analysis &mdash; extending the value of their report and driving buyers to the platform at zero CAC.</div><div class="fw-fds">&rarr; Feeds buyer analysis &middot; repair cost data</div></div>
+        <div class="fw-node"><div class="fw-ico">&#127969;</div><div class="fw-ttl">Buyer runs full analysis</div><div class="fw-dsc">Receives OfferScore, Risk DNA, Transparency Report, three offer tiers. Shares with agent. Upgrades to monitor more properties.</div><div class="fw-fds">&rarr; Feeds agent attribution &middot; contractor leads</div></div>
+        <div class="fw-node"><div class="fw-ico">&#129309;</div><div class="fw-ttl">Agent gets attribution</div><div class="fw-dsc">Analysis branded with their name. Every report sent strengthens their position as the advisor who gives buyers real data.</div><div class="fw-fds">&rarr; Feeds buyer confidence &middot; deal velocity</div></div>
+        <div class="fw-node"><div class="fw-ico">&#128296;</div><div class="fw-ttl">Contractor closes the job</div><div class="fw-dsc">Receives lead with finding, cost estimate, and contact pre-attached. Completed jobs feed actual pricing data back into the engine.</div><div class="fw-fds">&rarr; Feeds cost data &middot; trust &middot; next analysis</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 6: MOAT -->
+  <div class="slide" data-slide="6">
+    <div class="slide-inner slide-scroll">
+      <div class="sec-head">
+        <div class="sec-num">05 &middot; Competitive Moat</div>
+        <h2 class="disp">Six reasons this is<br><span>hard to replicate.</span></h2>
+      </div>
+      <div class="moat-grid">
+        <div class="moat-item"><div class="moat-tag">Patent Protection</div><h3>Three patent-pending innovations</h3><p>OfferScore&trade;, Property Risk DNA&trade;, and the Seller Transparency Report&trade; are in the patent pipeline. First-mover protection on the core scoring and cross-referencing methodologies creates a legal moat competitors would have to invent around.</p></div>
+        <div class="moat-item"><div class="moat-tag">Data Compounding</div><h3>Proprietary cost and risk data</h3><p>Every completed contractor job feeds real pricing back into the repair cost engine. Every analysis builds a corpus of property risk profiles by ZIP code. This data cannot be purchased and compounds with every transaction. A competitor starting today is already behind.</p></div>
+        <div class="moat-item"><div class="moat-tag">Network Effects</div><h3>Four-persona structural lock-in</h3><p>Each persona on the platform brings value to the others. This multi-sided network effect is structurally resistant to displacement &mdash; switching means losing the network, not just the software.</p></div>
+        <div class="moat-item"><div class="moat-tag">Document Intelligence</div><h3>Purpose-built document parsing</h3><p>Reads scanned handwritten inspection reports, multi-format disclosures, and specialty inspection PDFs with high accuracy. A specialized problem that took months to solve and improves with every document processed.</p></div>
+        <div class="moat-item"><div class="moat-tag">Regulatory Positioning</div><h3>Designed to complement, not replace</h3><p>Explicitly designed to stay within decision-support software &mdash; partnering with inspectors and agents rather than disintermediating them. A moat na&iuml;ve competitors won&rsquo;t understand until they hit the regulatory wall.</p></div>
+        <div class="moat-item"><div class="moat-tag">Distribution Flywheel</div><h3>Inspectors as a free acquisition channel</h3><p>Every inspector sends a branded analysis to their buyer &mdash; who sees the product and potentially upgrades. InterNACHI alone has 25,000 member inspectors. 10% penetration is 25,000 simultaneous buyer acquisition channels running at zero marginal cost.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 7: REVENUE -->
+  <div class="slide" data-slide="7">
+    <div class="slide-inner slide-scroll">
+      <div class="sec-head">
+        <div class="sec-num">06 &middot; Revenue Architecture</div>
+        <h2 class="disp">Five independent revenue streams.<br><span>Each one defensible alone.</span></h2>
+        <p class="lead">Most SaaS products have one revenue stream and a growth problem. OfferWise has five structurally independent streams &mdash; each serving a different persona, each growing independently, each reinforcing the others.</p>
+      </div>
+      <table class="rev">
+        <thead><tr><th>Stream</th><th>Model</th><th>Price Point</th><th>Market Size</th><th>Network Role</th></tr></thead>
+        <tbody>
+          <tr><td>Buyer Subscriptions</td><td>Monthly SaaS</td><td><div class="rn">$9&ndash;49</div><div class="rnt">Starter &middot; Pro &middot; Unlimited</div></td><td>5M transactions/yr<div class="rnt">Recurring for active buyers</div></td><td>Core data generator. Every analysis creates contractor leads and inspector attributions. The flywheel anchor.</td></tr>
+          <tr><td>Inspector Pro</td><td>Monthly SaaS</td><td><div class="rn">$49</div><div class="rnt">Unlimited buyer analyses</div></td><td>100K+ active inspectors<div class="rnt">25K InterNACHI members alone</div></td><td>Zero-CAC buyer acquisition. Each subscription brings buyers to the platform without a paid ad.</td></tr>
+          <tr><td>Agent Partner</td><td>Monthly SaaS</td><td><div class="rn">$29</div><div class="rnt">Free &middot; Pro &middot; Enterprise</div></td><td>2M+ licensed agents<div class="rnt">Largest addressable segment</div></td><td>Branded distribution at scale. Every agent puts the product in front of every buyer they work with.</td></tr>
+          <tr><td>Contractor Network</td><td>SaaS (lead access)</td><td><div class="rn">$49&ndash;199</div><div class="rnt">Starter &middot; Pro &middot; Enterprise</div></td><td>650K+ licensed contractors<div class="rnt">12 trades &times; every US ZIP</div></td><td>Closes the economic loop. Contractor pricing flows back into cost estimation, improving every future analysis.</td></tr>
+          <tr><td>B2B API / White Label</td><td>Usage-based API</td><td><div class="rn">$0.05&ndash;0.25</div><div class="rnt">+ monthly platform fee</div></td><td>Title cos &middot; lenders &middot; portals<div class="rnt">Institutional scale</div></td><td>Platform-level distribution. Embeds OfferWise intelligence into existing transaction workflows at scale.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- SLIDE 8: THE GATE -->
+  <div class="slide" data-slide="8">
+    <div class="slide-inner">
+      <div class="sec-head" style="text-align:center;max-width:680px;margin:0 auto 2rem;">
+        <div class="sec-num" style="justify-content:center;">07 &middot; The Milestone Gate</div>
+        <h2 class="disp">We will earn the right<br><span>to this conversation.</span></h2>
+        <p class="lead" style="max-width:620px;margin:0 auto;">We believe the strongest signal a founder can send to an investor is not a pitch deck &mdash; it is a working product with paying customers who chose to come back. We are building that signal before we open a conversation about capital.</p>
+      </div>
+      <div class="gate">
+        <div class="gate-ey">The milestone that unlocks the conversation</div>
+        <div class="gate-n"><span>1,000</span></div>
+        <div class="gate-s">paying customers</div>
+        <div class="gate-b">We are not raising money today. We are building the product, acquiring customers, and proving that people will pay for this &mdash; repeatedly, without a sales team. When we hit 1,000 paying customers, the market has spoken. That is when we will reach out to the people who received this page. Not before.</div>
+        <div class="gate-bw">
+          <div class="gate-bl"><span>Current progress</span><span>1,000 paying customers</span></div>
+          <div class="gate-bar"><div class="gate-fill" id="gbar"></div></div>
+        </div>
+        <div class="gate-fn">Progress updated when we reach out directly. This page is not monitored.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 9: CLOSING -->
+  <div class="slide" data-slide="9">
+    <div class="slide-inner" style="display:flex;align-items:center;justify-content:center;padding-top:0;padding-bottom:0;">
+      <div class="closing-inner">
+        <h2>The biggest financial decision of most people&rsquo;s lives deserves <span>better intelligence.</span></h2>
+        <p>OfferWise is building the infrastructure layer that makes that possible &mdash; for buyers, inspectors, agents, and contractors simultaneously. The market is large, the category is uncontested, and the network effects are structural. We&rsquo;ll talk when the numbers agree.</p>
+        <a href="mailto:hello@getofferwise.ai" class="clink">hello@getofferwise.ai</a>
+        <div class="cnote">Responses when the milestone is reached</div>
+        <div class="cfooter">&copy; 2026 OfferWise AI &middot; getofferwise.ai &middot; Patent Pending &middot; Confidential &middot; Not an offer to sell securities</div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /slides -->
+
+<script>
+const TOTAL = 10;
+let cur = 0;
+let isAnimating = false;
+
+const slides = document.querySelectorAll('.slide');
+const dotsEl = document.getElementById('dots');
+const counterEl = document.getElementById('counter');
+const progressEl = document.getElementById('progress');
+const prevBtn = document.getElementById('prevBtn');
+const nextBtn = document.getElementById('nextBtn');
+const bar = document.getElementById('gbar');
+
+// Build dots
+for (let i = 0; i < TOTAL; i++) {
+  const d = document.createElement('div');
+  d.className = 'dot' + (i === 0 ? ' active' : '');
+  d.onclick = () => go(i - cur);
+  dotsEl.appendChild(d);
+}
+
+function updateChrome() {
+  // Dots
+  document.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('active', i === cur));
+  // Counter
+  counterEl.textContent = (cur + 1) + ' / ' + TOTAL;
+  // Progress bar
+  progressEl.style.width = ((cur / (TOTAL - 1)) * 100) + '%';
+  // Buttons
+  prevBtn.disabled = cur === 0;
+  nextBtn.disabled = cur === TOTAL - 1;
+}
+
+function go(delta) {
+  const next = cur + delta;
+  if (next < 0 || next >= TOTAL || isAnimating) return;
+  isAnimating = true;
+
+  const direction = delta > 0 ? 'exit-up' : 'exit-down';
+  const current = slides[cur];
+  const target = slides[next];
+
+  current.classList.add(direction);
+  current.classList.remove('active');
+
+  // Reset scroll on target
+  const scrollable = target.querySelector('.slide-scroll');
+  if (scrollable) scrollable.scrollTop = 0;
+
+  // Small delay so exit animation starts first
+  setTimeout(() => {
+    target.classList.add('active');
+    current.classList.remove('active', 'exit-up', 'exit-down');
+    cur = next;
+    updateChrome();
+    updateNavLabels();
+    // Animate gate bar if on last slide
+    if (cur === 8 && bar) {
+      setTimeout(() => bar.style.width = '4%', 600);
+    }
+    setTimeout(() => { isAnimating = false; }, 520);
+  }, 80);
+}
+
+// Keyboard
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') { e.preventDefault(); go(1); }
+  if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp') { e.preventDefault(); go(-1); }
+});
+
+// Touch swipe
+let touchStartX = 0;
+let touchStartY = 0;
+document.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; touchStartY = e.touches[0].clientY; }, {passive:true});
+document.addEventListener('touchend', e => {
+  const dx = e.changedTouches[0].clientX - touchStartX;
+  const dy = e.changedTouches[0].clientY - touchStartY;
+  if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 50) go(dx < 0 ? 1 : -1);
+});
+
+// Slide titles for nav labels
+const TITLES = [
+  'The Thesis',
+  '01 · The Problem',
+  '02 · The Innovation',
+  '02 · Six Innovations',
+  '03 · Market Size',
+  '04 · Network Effect',
+  '05 · The Moat',
+  '06 · Revenue',
+  '07 · The Gate',
+  '08 · The Close',
+];
+
+function updateNavLabels() {
+  const prevTitle = document.getElementById('prevTitle');
+  const nextTitle = document.getElementById('nextTitle');
+  if (prevTitle) prevTitle.textContent = cur > 0 ? TITLES[cur - 1] : '—';
+  if (nextTitle) nextTitle.textContent = cur < TOTAL - 1 ? TITLES[cur + 1] : '—';
+}
+
+// Init
+updateChrome();
+updateNavLabels();
+</script>
+</body>
+</html>

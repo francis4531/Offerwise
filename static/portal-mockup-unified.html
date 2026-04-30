@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta name="robots" content="noindex, nofollow">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OfferWise — Unified Portal Mockup</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&family=IBM+Plex+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #060d1a; --surface: #0f1e35; --surface2: #162032;
+  --border: rgba(255,255,255,0.08); --border2: rgba(255,255,255,0.05);
+  --text: #f1f5f9; --muted: #94a3b8; --dim: #64748b;
+  --fire1: #f97316; --fire2: #f59e0b;
+  --green: #22c55e; --blue: #60a5fa; --red: #ef4444; --purple: #a78bfa;
+}
+body { font-family: 'IBM Plex Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+/* ── SCENARIO BAR ── */
+.scenario-bar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 9999;
+  background: rgba(6,13,26,0.97); border-bottom: 1px solid rgba(249,115,22,.25);
+  padding: 8px 24px; display: flex; align-items: center; gap: 8px;
+}
+.sb-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .12em; color: var(--fire1); margin-right: 4px; }
+.sb-btn {
+  padding: 5px 14px; border-radius: 20px; border: 1px solid var(--border);
+  background: transparent; color: var(--muted); font-size: 11px; font-weight: 600;
+  cursor: pointer; font-family: inherit; transition: all .15s; white-space: nowrap;
+}
+.sb-btn:hover { border-color: rgba(249,115,22,.4); color: var(--fire1); }
+.sb-btn.active { background: rgba(249,115,22,.12); border-color: rgba(249,115,22,.45); color: var(--fire1); }
+.sb-tip { margin-left: auto; font-size: 10px; color: var(--dim); font-style: italic; }
+
+/* ── NAV ── */
+nav {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 32px; border-bottom: 1px solid var(--border);
+  background: rgba(6,13,26,0.98); position: sticky; top: 37px; z-index: 1000;
+}
+.logo { font-size: 1.2rem; font-weight: 900; }
+.logo .wise { background: linear-gradient(90deg,#f97316,#f59e0b); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.nav-r { display: flex; align-items: center; gap: 12px; }
+.nav-badge { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; padding: 4px 10px; border-radius: 6px; }
+.nav-link { font-size: 13px; color: var(--muted); text-decoration: none; font-weight: 600; }
+
+/* ── ROLE SWITCHER ── */
+.rs { position: relative; }
+.rs-btn {
+  display: flex; align-items: center; gap: 6px; padding: 5px 12px;
+  background: rgba(255,255,255,.05); border: 1px solid var(--border);
+  border-radius: 8px; font-size: 12px; font-weight: 600; color: var(--muted);
+  cursor: pointer; white-space: nowrap; font-family: inherit; transition: all .15s;
+}
+.rs-btn:hover { border-color: rgba(249,115,22,.4); color: var(--fire1); }
+.rs-menu {
+  position: absolute; top: calc(100% + 8px); right: 0;
+  background: var(--surface); border: 1px solid rgba(249,115,22,.2);
+  border-radius: 14px; min-width: 248px;
+  box-shadow: 0 20px 60px rgba(0,0,0,.6); z-index: 9999; padding: 8px;
+  display: none;
+}
+.rs-menu.open { display: block; animation: fadeIn .15s ease; }
+@keyframes fadeIn { from { opacity:0; transform:translateY(-6px); } to { opacity:1; transform:translateY(0); } }
+.rs-item {
+  display: flex; align-items: flex-start; gap: 12px; padding: 10px 12px;
+  border-radius: 10px; text-decoration: none; cursor: pointer;
+  border: 1px solid transparent; transition: all .12s;
+}
+.rs-item:hover { background: rgba(255,255,255,.04); }
+.rs-item.here { background: rgba(249,115,22,.08); border-color: rgba(249,115,22,.2); }
+.rs-item .icon { font-size: 1.2rem; flex-shrink: 0; margin-top: 1px; }
+.rs-item .info .label { font-size: 13px; font-weight: 700; color: var(--text); }
+.rs-item .info .badge { font-size: 11px; color: var(--dim); margin-top: 2px; }
+.rs-here { font-size: 10px; color: var(--fire1); font-weight: 700; margin-left: 6px; }
+.rs-div { height: 1px; background: var(--border); margin: 5px 4px; }
+.rs-add { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 8px; font-size: 12px; font-weight: 600; color: var(--dim); cursor: pointer; background: none; border: none; font-family: inherit; width: 100%; transition: all .12s; }
+.rs-add:hover { color: var(--blue); background: rgba(96,165,250,.06); }
+.avatar { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg,#3b82f6,#06b6d4); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; cursor: pointer; }
+
+/* ── LAYOUT ── */
+.layout { display: grid; grid-template-columns: 240px 1fr; min-height: calc(100vh - 90px); }
+.sidebar { border-right: 1px solid var(--border); padding: 24px 16px; }
+.sl { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--dim); margin-bottom: 8px; padding: 0 8px; }
+.ss { margin-bottom: 28px; }
+.si {
+  display: flex; align-items: center; gap: 10px; padding: 9px 10px;
+  border-radius: 8px; font-size: 13px; font-weight: 600; color: var(--muted);
+  cursor: pointer; transition: all .15s; text-decoration: none; margin-bottom: 2px;
+}
+.si:hover { background: rgba(255,255,255,.04); color: var(--text); }
+.si.active { background: rgba(249,115,22,.1); color: var(--fire1); }
+.si.portal {
+  font-size: 12px; border: 1px solid var(--border2); background: rgba(255,255,255,.02);
+  color: var(--dim);
+}
+.si.portal:hover { border-color: rgba(249,115,22,.3); color: var(--fire1); background: rgba(249,115,22,.04); }
+.pb { margin-left: auto; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 4px; }
+.cbox { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px; margin-top: 8px; }
+.cv { font-size: 22px; font-weight: 800; letter-spacing: -.02em; }
+.cs { font-size: 11px; color: var(--muted); margin-top: 3px; }
+
+/* ── MAIN ── */
+.main { padding: 32px; }
+h1 { font-size: 22px; font-weight: 800; margin-bottom: 4px; }
+.sub { font-size: 14px; color: var(--muted); margin-bottom: 24px; }
+
+/* ── PORTAL OVERVIEW CARDS ── */
+.pcards { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; margin-bottom: 24px; }
+.pcard {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 14px; padding: 20px; position: relative; overflow: hidden;
+  cursor: pointer; transition: all .15s;
+}
+.pcard:hover { border-color: rgba(249,115,22,.3); transform: translateY(-1px); }
+.pcard.dim { opacity: .5; border-style: dashed; }
+.pcard.dim:hover { transform: none; }
+.pcard-icon { font-size: 1.8rem; margin-bottom: 10px; }
+.pcard-name { font-size: 14px; font-weight: 800; margin-bottom: 4px; }
+.pcard-desc { font-size: 12px; color: var(--dim); line-height: 1.5; margin-bottom: 12px; }
+.pcard-stat { padding-top: 10px; border-top: 1px solid var(--border2); font-size: 12px; color: var(--muted); }
+.pcard-stat strong { color: var(--text); }
+.pcard-badge { position: absolute; top: 14px; right: 14px; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 4px; }
+.pcard-arrow { position: absolute; bottom: 16px; right: 14px; font-size: 13px; color: var(--dim); }
+
+/* ── STATS ── */
+.srow { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin-bottom: 24px; }
+.sc { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
+.sl2 { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--dim); margin-bottom: 6px; }
+.sv { font-size: 1.8rem; font-weight: 800; letter-spacing: -.02em; }
+
+/* ── CARD ── */
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 22px; margin-bottom: 16px; }
+.ch { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.ct { font-size: 15px; font-weight: 700; }
+.btn-fire { background: linear-gradient(90deg,var(--fire1),var(--fire2)); color: white; border: none; padding: 9px 18px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; font-family: inherit; }
+.btn-ghost { background: transparent; color: var(--muted); border: 1px solid var(--border); padding: 7px 14px; border-radius: 8px; font-weight: 600; font-size: 12px; cursor: pointer; font-family: inherit; }
+
+/* history */
+.hr { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; padding: 12px 0; border-bottom: 1px solid var(--border2); font-size: 13px; align-items: center; }
+.hr:last-child { border-bottom: none; }
+.ha { font-weight: 600; }
+.hs { font-size: 11px; color: var(--dim); margin-top: 2px; }
+.sp { display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 50%; font-weight: 800; font-size: 13px; }
+
+/* visibility */
+[class*="s-"] { display: none !important; }
+.s1 .show1, .s2 .show2, .s3 .show3 { display: block !important; }
+.s1 .showflex1, .s2 .showflex2, .s3 .showflex3 { display: flex !important; }
+.s1 .showgrid1, .s2 .showgrid2, .s3 .showgrid3 { display: grid !important; }
+.always { display: block !important; }
+.always-flex { display: flex !important; }
+.always-grid { display: grid !important; }
+</style>
+</head>
+<body>
+
+<div class="scenario-bar">
+  <span class="sb-label">Persona</span>
+  <button class="sb-btn active" onclick="setS(1,this)">① Buyer only</button>
+  <button class="sb-btn" onclick="setS(2,this)">② Buyer + Inspector</button>
+  <button class="sb-btn" onclick="setS(3,this)">③ Buyer + Inspector + Contractor</button>
+  <span class="sb-tip">Click a scenario — the UI updates to show what that user sees</span>
+</div>
+
+<div id="app" class="s1">
+<nav>
+  <div class="logo">Offer<span class="wise">Wise</span> AI</div>
+  <div class="nav-r">
+    <span class="nav-badge show1 always" style="color:#f97316;background:rgba(249,115,22,.1);border:1px solid rgba(249,115,22,.25);" id="nb">Buyer</span>
+    <a class="nav-link">Settings</a>
+
+    <!-- Role switcher — hidden for buyer-only, shown for multi-role -->
+    <div class="rs s-show23" id="rswitch">
+      <button class="rs-btn" onclick="toggleRS()">⇄ <span id="rs-cur">Switch portal</span> ▾</button>
+      <div class="rs-menu" id="rs-menu">
+        <a class="rs-item here">
+          <div class="icon">🏠</div>
+          <div class="info">
+            <div class="label">Buyer Dashboard <span class="rs-here">← here</span></div>
+            <div class="badge">3 credits available</div>
+          </div>
+        </a>
+        <a class="rs-item s-show2only" id="rsi2">
+          <div class="icon">🔍</div>
+          <div class="info"><div class="label">Inspector Portal</div><div class="badge" id="insp-badge">Free · 2/5 used</div></div>
+        </a>
+        <a class="rs-item s-show3only" id="rsi2b">
+          <div class="icon">🔍</div>
+          <div class="info"><div class="label">Inspector Portal</div><div class="badge">Pro ⭐ · Unlimited</div></div>
+        </a>
+        <a class="rs-item s-show3only">
+          <div class="icon">🔧</div>
+          <div class="info"><div class="label">Contractor Portal</div><div class="badge">Pro · Active · 4 leads</div></div>
+        </a>
+        <div class="rs-div"></div>
+        <button class="rs-add s-show2only">+ Become a contractor</button>
+        <button class="rs-add s-show1only">+ Register as inspector</button>
+      </div>
+    </div>
+
+    <div class="avatar">F</div>
+  </div>
+</nav>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="ss">
+      <div class="sl">Menu</div>
+      <a class="si active">🏘️ My Properties</a>
+      <a class="si">✨ New Analysis</a>
+      <a class="si">⚙️ Settings</a>
+    </div>
+    <div class="ss">
+      <div class="sl">Credits</div>
+      <div class="cbox">
+        <div style="font-size:11px;color:var(--dim);margin-bottom:4px;">Analysis credits</div>
+        <div class="cv" style="color:#22c55e;">3</div>
+        <div class="cs">3 analyses available</div>
+      </div>
+    </div>
+
+    <!-- Other portals — sidebar links for multi-role -->
+    <div class="ss s-show23" id="sb-portals">
+      <div class="sl">Your other portals</div>
+      <a class="si portal s-show2only">
+        🔍 Inspector Portal
+        <span class="pb" style="background:rgba(249,115,22,.12);color:#f97316;">2/5</span>
+      </a>
+      <a class="si portal s-show3only">
+        🔍 Inspector Portal
+        <span class="pb" style="background:rgba(34,197,94,.12);color:#22c55e;">Pro ⭐</span>
+      </a>
+      <a class="si portal s-show3only">
+        🔧 Contractor Portal
+        <span class="pb" style="background:rgba(96,165,250,.12);color:#60a5fa;">4 leads</span>
+      </a>
+    </div>
+
+    <div class="ss">
+      <a class="si">💳 Buy Credits</a>
+      <a class="si">🎁 Referrals</a>
+      <a class="si">💬 Get Help</a>
+    </div>
+  </aside>
+
+  <main class="main">
+    <h1>Good to see you.</h1>
+    <p class="sub s-show1" id="sub1">Your analyzed properties and account overview.</p>
+    <p class="sub s-show23" id="sub23">You have <strong id="portal-count">2</strong> active portals — jump to any one below, or run a new analysis.</p>
+
+    <!-- Portal overview cards (multi-role only) -->
+    <div class="pcards s-show23" id="pcards">
+      <div class="pcard" style="border-color:rgba(249,115,22,.2);">
+        <span class="pcard-badge" style="background:rgba(34,197,94,.12);color:#22c55e;">Active</span>
+        <div class="pcard-icon">🏠</div>
+        <div class="pcard-name">Buyer Dashboard</div>
+        <div class="pcard-desc">Run property analyses, track offers, negotiate smarter.</div>
+        <div class="pcard-stat"><strong>3</strong> credits · <strong>4</strong> properties analyzed</div>
+        <div class="pcard-arrow">→</div>
+      </div>
+
+      <div class="pcard s-show2only">
+        <span class="pcard-badge" style="background:rgba(249,115,22,.12);color:#f97316;">Free · $0/mo</span>
+        <div class="pcard-icon">🔍</div>
+        <div class="pcard-name">Inspector Portal</div>
+        <div class="pcard-desc">AI-enhanced buyer reports from your inspection PDFs.</div>
+        <div class="pcard-stat"><strong>2</strong> reports · <strong>2/5</strong> quota · <a href="#" style="color:#f97316;font-weight:700;text-decoration:none;">Upgrade to Pro →</a></div>
+        <div class="pcard-arrow">→</div>
+      </div>
+
+      <div class="pcard s-show3only">
+        <span class="pcard-badge" style="background:rgba(249,115,22,.12);color:#f97316;">Pro ⭐ $49/mo</span>
+        <div class="pcard-icon">🔍</div>
+        <div class="pcard-name">Inspector Portal</div>
+        <div class="pcard-desc">AI-enhanced buyer reports from your inspection PDFs.</div>
+        <div class="pcard-stat"><strong>18</strong> reports sent · <strong>Unlimited</strong> quota</div>
+        <div class="pcard-arrow">→</div>
+      </div>
+
+      <div class="pcard s-show2only dim">
+        <div class="pcard-icon">🔧</div>
+        <div class="pcard-name" style="color:var(--dim);">Contractor Portal</div>
+        <div class="pcard-desc" style="color:var(--dim);">Receive qualified repair leads from buyers in your area.</div>
+        <div style="margin-top:12px;"><button class="btn-ghost" style="font-size:11px;padding:5px 12px;">+ Enroll as contractor</button></div>
+      </div>
+
+      <div class="pcard s-show3only">
+        <span class="pcard-badge" style="background:rgba(96,165,250,.12);color:#60a5fa;">Pro $99/mo</span>
+        <div class="pcard-icon">🔧</div>
+        <div class="pcard-name">Contractor Portal</div>
+        <div class="pcard-desc">Receive qualified repair leads from buyers in your area.</div>
+        <div class="pcard-stat"><strong>4</strong> leads this month · <strong>Active</strong></div>
+        <div class="pcard-arrow">→</div>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="srow always-grid">
+      <div class="sc"><div class="sl2">Credits</div><div class="sv" style="color:#f97316;">3</div></div>
+      <div class="sc"><div class="sl2">Analyzed</div><div class="sv">4</div></div>
+      <div class="sc"><div class="sl2">Potential Savings</div><div class="sv" style="color:#22c55e;">$47K</div></div>
+      <div class="sc"><div class="sl2">Avg Discount</div><div class="sv" style="color:#60a5fa;">3.2%</div></div>
+    </div>
+
+    <!-- Analysis history -->
+    <div class="card">
+      <div class="ch">
+        <div class="ct">📋 Analysis History</div>
+        <button class="btn-fire">✨ New Analysis</button>
+      </div>
+      <div class="hr" style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--dim);padding-bottom:8px;">
+        <div>Property</div><div>Score</div><div>Est. Repairs</div><div>Date</div>
+      </div>
+      <div class="hr">
+        <div><div class="ha">142 Oak Ave, Sunnyvale CA</div><div class="hs">$1,150,000</div></div>
+        <div><span class="sp" style="background:rgba(34,197,94,.15);color:#22c55e;border:1px solid rgba(34,197,94,.3);">84</span></div>
+        <div style="color:#f59e0b;font-weight:700;">$5K–$12K</div>
+        <div style="color:var(--dim);">Mar 14</div>
+      </div>
+      <div class="hr">
+        <div><div class="ha">881 Cedar Blvd, San Jose CA</div><div class="hs">$890,000</div></div>
+        <div><span class="sp" style="background:rgba(245,158,11,.15);color:#f59e0b;border:1px solid rgba(245,158,11,.3);">61</span></div>
+        <div style="color:#f59e0b;font-weight:700;">$28K–$45K</div>
+        <div style="color:var(--dim);">Mar 10</div>
+      </div>
+      <div class="hr">
+        <div><div class="ha">22 Maple St, Palo Alto CA</div><div class="hs">$2,300,000</div></div>
+        <div><span class="sp" style="background:rgba(239,68,68,.15);color:#ef4444;border:1px solid rgba(239,68,68,.3);">38</span></div>
+        <div style="color:#ef4444;font-weight:700;">$82K–$120K</div>
+        <div style="color:var(--dim);">Mar 7</div>
+      </div>
+    </div>
+  </main>
+</div>
+</div><!-- /app -->
+
+<script>
+const SCENARIOS = {
+  1: {
+    badge: 'Buyer',
+    badgeColor: '#f97316',
+    rsCurLabel: null,
+    subText: null,
+    portalCount: null,
+    show: ['s-show1']
+  },
+  2: {
+    badge: '🏠 Buyer Dashboard',
+    badgeColor: '#f97316',
+    rsCurLabel: 'Switch portal',
+    subText: '2',
+    portalCount: '2',
+    show: ['s-show23', 's-show2only']
+  },
+  3: {
+    badge: '🏠 Buyer Dashboard',
+    badgeColor: '#f97316',
+    rsCurLabel: 'Switch portal',
+    subText: '3',
+    portalCount: '3',
+    show: ['s-show23', 's-show3only']
+  }
+};
+
+function setS(n, btn) {
+  const app = document.getElementById('app');
+  app.className = 's' + n;
+
+  document.querySelectorAll('.sb-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+
+  const s = SCENARIOS[n];
+
+  // Nav badge
+  const nb = document.getElementById('nb');
+  nb.textContent = s.badge;
+
+  // Role switcher visibility
+  const rs = document.getElementById('rswitch');
+  rs.style.display = n === 1 ? 'none' : 'flex';
+
+  // Portal count in subtitle
+  const pc = document.getElementById('portal-count');
+  if (pc && s.portalCount) pc.textContent = s.portalCount;
+
+  // Close menu
+  document.getElementById('rs-menu').classList.remove('open');
+
+  // Show/hide visibility classes
+  // handled by CSS + class on app div
+}
+
+function toggleRS() {
+  document.getElementById('rs-menu').classList.toggle('open');
+}
+
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('.rs')) {
+    document.getElementById('rs-menu').classList.remove('open');
+  }
+});
+
+// Init
+document.getElementById('rswitch').style.display = 'none';
+</script>
+</body>
+</html>

@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Successful - OfferWise</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            color: white;
+        }
+        
+        .container {
+            max-width: 600px;
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid rgba(96, 165, 250, 0.2);
+            border-radius: 20px;
+            padding: 60px 40px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+        
+        .success-icon {
+            font-size: 80px;
+            margin-bottom: 30px;
+            animation: bounce 0.6s ease;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        h1 {
+            font-size: var(--text-display-l);
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        p {
+            font-size: var(--text-body-lg);
+            color: #cbd5e1;
+            line-height: 1.6;
+            margin-bottom: 40px;
+        }
+        
+        .button {
+            display: inline-block;
+            background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
+            color: white;
+            padding: 16px 40px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: var(--text-body-lg);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(96, 165, 250, 0.3);
+        }
+        
+        .credits-box {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 30px 0;
+        }
+        
+        .credits-box strong {
+            color: #10b981;
+            font-size: var(--text-h2);
+        }
+
+        @media (max-width: 640px) {
+            .container { padding: 1.5rem 1.25rem; margin: 0; max-width: 100%; border-radius: 0; }
+            body { padding: 1rem; align-items: flex-start; padding-top: 2rem; }
+            h1 { font-size: 1.5rem; }
+            p { font-size: 0.95rem; }
+            .btn, button, a[href] { min-height: 48px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+        }
+    
+/* ── MOBILE RESPONSIVE PATCH ── */
+
+@media (max-width: 480px) {
+  .container { padding: 1.25rem 1rem !important; max-width: 100% !important; border-radius: 0 !important; }
+  body { padding: 0.75rem !important; padding-top: 1.5rem !important; }
+  h1 { font-size: 1.4rem !important; }
+  .actions { flex-direction: column; gap: 0.75rem; }
+  .btn, a.btn, button { width: 100% !important; min-height: 48px !important; font-size: 16px !important; }
+}
+
+</style>
+    <script>
+        // Purchase conversion — fires GA4 + Google Ads + Reddit pixel via unified loader
+        function firePurchaseConversion() {
+            var urlParams = new URLSearchParams(window.location.search);
+            var purchaseAmount = parseInt(urlParams.get('amount') || '2900', 10) / 100;
+            var planName = urlParams.get('plan') || 'single';
+            var sessionId = urlParams.get('session_id') || Date.now().toString();
+            var planLabels = {
+                'single': 'Single Analysis',
+                'bundle_5': '5-Analysis Bundle',
+                'bundle_12': 'Investor Pro (12 Analyses)',
+                'buyer_starter': 'Buyer Starter Plan',
+                'buyer_pro': 'Buyer Pro Plan',
+                'buyer_unlimited': 'Buyer Unlimited Plan',
+                'inspector_pro': 'Inspector Pro Plan',
+            };
+            var label = planLabels[planName] || 'OfferWise Plan';
+            if (window.owFirePurchaseConversion) {
+                window.owFirePurchaseConversion(purchaseAmount, label, sessionId);
+            } else {
+                // analytics-loader not ready yet — retry
+                setTimeout(firePurchaseConversion, 300);
+            }
+        }
+        // Wait for analytics-loader to initialise, then fire
+        setTimeout(firePurchaseConversion, 800);
+    </script>
+    <script src="/static/analytics-loader.js"></script>
+    <!-- Reddit Pixel Base Code -->
+    <script>
+    !function(w,d){if(!w.rdt){var p=w.rdt=function(){p.sendEvent?p.sendEvent.apply(p,arguments):p.queue.push(arguments)};p.queue=[];var t=d.createElement('script');t.src='https://www.redditstatic.com/ads/pixel.js';t.async=!0;var s=d.getElementsByTagName('script')[0];s.parentNode.insertBefore(t,s)}}(window,document);
+    rdt('init','a2_ihx65g62d5n6',{optOut:false,useDecimalCurrencyValues:true,signalsMode:'all'});
+    rdt('track','PageVisit');
+    </script>
+    <!-- End Reddit Pixel -->
+</head>
+<body>
+    <div class="container">
+        <div class="success-icon">🎉</div>
+        
+        <h1>Payment Successful!</h1>
+        
+        <p>
+            Thank you for your purchase! Your credits have been added to your account
+            and are ready to use.
+        </p>
+        
+        <div class="credits-box">
+            <p style="margin-bottom: 10px; color: #94a3b8;">
+                Your analysis credits are now available
+            </p>
+            <strong>Start Analyzing Properties</strong>
+        </div>
+        
+        <p style="font-size: var(--text-body); margin-bottom: 30px;">
+            You can view your credit balance on the dashboard and start analyzing
+            properties right away.
+        </p>
+        
+        <a href="/settings?tab=analyses" class="button">Go to Dashboard</a>
+        <div style="margin-top: 20px;">
+            <a href="/app" style="color: #60a5fa; text-decoration: none; font-weight: 600;">
+                Or start analyzing →
+            </a>
+        </div>
+    </div>
+<script src="/static/js/compliance.js"></script>
+</body>
+</html>

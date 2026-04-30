@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How did it go? — OfferWise</title>
+<link rel="stylesheet" href="/static/ow-system.css">
+<style>
+.survey-wrap{max-width:520px;margin:80px auto 40px;padding:0 1.5rem}
+.survey-card{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:14px}
+.survey-q{font-size:15px;font-weight:600;margin-bottom:10px;color:var(--text-1)}
+.survey-opts{display:flex;flex-wrap:wrap;gap:8px}
+.survey-opt{font-size:13px;padding:7px 14px;border-radius:99px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);cursor:pointer;transition:all .15s;color:var(--text-2)}
+.survey-opt:hover{border-color:rgba(59,130,246,.4);color:var(--text-1)}
+.survey-opt.selected{background:rgba(59,130,246,.12);color:#60a5fa;border-color:rgba(59,130,246,.4);font-weight:600}
+.survey-input{width:100%;padding:10px 14px;font-size:14px;border:1px solid rgba(255,255,255,.1);border-radius:10px;background:rgba(255,255,255,.03);color:var(--text-1);font-family:inherit;outline:none;box-sizing:border-box;margin-top:8px}
+.survey-input:focus{border-color:rgba(59,130,246,.5)}
+.survey-btn{width:100%;padding:14px;font-size:15px;font-weight:700;background:linear-gradient(90deg,#3b82f6,#2563eb);color:white;border:none;border-radius:12px;cursor:pointer;margin-top:8px}
+.survey-btn:hover{opacity:.9}
+.survey-btn:disabled{opacity:.4;cursor:not-allowed}
+.survey-done{text-align:center;padding:60px 20px}
+.survey-done h2{font-size:1.5rem;font-weight:700;margin-bottom:8px}
+.survey-sub{font-size:13px;color:var(--text-3);margin-top:8px}
+</style>
+</head>
+<body>
+<nav class="ow-nav"><div class="ow-nav__inner">
+<a href="/" class="ow-nav__logo">Offer<span class="wise">Wise</span><span class="logo-dot"></span></a>
+</div></nav>
+
+<div class="survey-wrap" id="survey-form">
+  <div style="margin-bottom:24px">
+    <div style="font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--accent);margin-bottom:8px">POST-CLOSE FEEDBACK</div>
+    <h1 style="font-size:1.5rem;font-weight:800;margin-bottom:4px">How did it go?</h1>
+    <p id="survey-address" style="font-size:14px;color:var(--text-2)"></p>
+  </div>
+
+  <div class="survey-card">
+    <div class="survey-q">Did you end up buying this property?</div>
+    <div class="survey-opts" id="q-buy">
+      <div class="survey-opt" data-val="yes_closed" onclick="surveySelect(this)">Yes, I closed</div>
+      <div class="survey-opt" data-val="walked_away" onclick="surveySelect(this)">No, I walked away</div>
+      <div class="survey-opt" data-val="still_in_escrow" onclick="surveySelect(this)">Still in escrow</div>
+    </div>
+  </div>
+
+  <div class="survey-card" id="q-price-card" style="display:none">
+    <div class="survey-q">What was your final purchase price?</div>
+    <input class="survey-input" type="text" id="q-price" placeholder="$" oninput="this.value=this.value.replace(/[^0-9$,]/g,'')">
+    <div id="q-price-hint" class="survey-sub"></div>
+  </div>
+
+  <div class="survey-card">
+    <div class="survey-q">Which repairs did you actually need? (select all)</div>
+    <div class="survey-opts" id="q-repairs">
+      <div class="survey-opt" data-val="roofing" onclick="surveyToggle(this)">Roofing</div>
+      <div class="survey-opt" data-val="plumbing" onclick="surveyToggle(this)">Plumbing</div>
+      <div class="survey-opt" data-val="electrical" onclick="surveyToggle(this)">Electrical</div>
+      <div class="survey-opt" data-val="hvac" onclick="surveyToggle(this)">HVAC</div>
+      <div class="survey-opt" data-val="foundation" onclick="surveyToggle(this)">Foundation</div>
+      <div class="survey-opt" data-val="exterior" onclick="surveyToggle(this)">Exterior</div>
+      <div class="survey-opt" data-val="interior" onclick="surveyToggle(this)">Interior</div>
+      <div class="survey-opt" data-val="none" onclick="surveySelect(this)">None needed</div>
+    </div>
+  </div>
+
+  <div class="survey-card">
+    <div class="survey-q">Roughly how much did repairs cost in total?</div>
+    <div class="survey-opts" id="q-cost">
+      <div class="survey-opt" data-val="under_1k" onclick="surveySelect(this)">Under $1K</div>
+      <div class="survey-opt" data-val="1k_5k" onclick="surveySelect(this)">$1K – $5K</div>
+      <div class="survey-opt" data-val="5k_15k" onclick="surveySelect(this)">$5K – $15K</div>
+      <div class="survey-opt" data-val="15k_30k" onclick="surveySelect(this)">$15K – $30K</div>
+      <div class="survey-opt" data-val="30k_plus" onclick="surveySelect(this)">$30K+</div>
+    </div>
+  </div>
+
+  <div class="survey-card">
+    <div class="survey-q">Any surprises our analysis missed?</div>
+    <textarea class="survey-input" id="q-surprises" rows="2" placeholder="Optional — helps us improve"></textarea>
+  </div>
+
+  <div class="survey-card">
+    <div class="survey-q">How accurate was our analysis overall?</div>
+    <div class="survey-opts" id="q-rating">
+      <div class="survey-opt" data-val="1" onclick="surveySelect(this)">1 — Way off</div>
+      <div class="survey-opt" data-val="2" onclick="surveySelect(this)">2</div>
+      <div class="survey-opt" data-val="3" onclick="surveySelect(this)">3 — OK</div>
+      <div class="survey-opt" data-val="4" onclick="surveySelect(this)">4</div>
+      <div class="survey-opt" data-val="5" onclick="surveySelect(this)">5 — Spot on</div>
+    </div>
+  </div>
+
+  <button class="survey-btn" id="submit-btn" onclick="submitSurvey()">Submit feedback — earn 1 free analysis credit</button>
+  <div class="survey-sub" style="text-align:center;margin-top:6px">Takes 30 seconds. Your feedback trains our AI to be more accurate.</div>
+</div>
+
+<div class="survey-wrap survey-done" id="survey-done" style="display:none">
+  <div style="font-size:3rem;margin-bottom:12px">🎉</div>
+  <h2>Thank you!</h2>
+  <p style="color:var(--text-2);margin-top:8px">Your feedback helps us build better models. We added 1 free analysis credit to your account.</p>
+  <a href="/settings" style="display:inline-block;margin-top:20px;padding:12px 24px;background:var(--accent);color:white;border-radius:99px;font-weight:600;font-size:14px">Go to Dashboard →</a>
+</div>
+
+<div class="survey-wrap" id="survey-error" style="display:none;text-align:center;padding:60px 20px">
+  <div style="font-size:3rem;margin-bottom:12px">🔗</div>
+  <h2 style="font-size:1.3rem;font-weight:700">Invalid or expired link</h2>
+  <p style="color:var(--text-2);margin-top:8px">This survey link may have already been completed or has expired.</p>
+</div>
+
+<script>
+var surveyToken = new URLSearchParams(window.location.search).get('token') || '';
+var surveyData = {};
+
+(async function() {
+  if (!surveyToken) { showError(); return; }
+  try {
+    var r = await fetch('/api/survey/post-close?token=' + surveyToken);
+    if (!r.ok) { showError(); return; }
+    var d = await r.json();
+    surveyData = d;
+    document.getElementById('survey-address').textContent = 'Your analysis for ' + (d.property_address || 'your property');
+    if (d.predicted_offer_low && d.predicted_offer_high) {
+      document.getElementById('q-price-hint').textContent = 'We recommended $' + Number(d.predicted_offer_low).toLocaleString() + ' – $' + Number(d.predicted_offer_high).toLocaleString();
+    }
+    if (d.status === 'completed') { showDone(); }
+  } catch(e) { showError(); }
+})();
+
+function showError() { document.getElementById('survey-form').style.display='none'; document.getElementById('survey-error').style.display='block'; }
+function showDone() { document.getElementById('survey-form').style.display='none'; document.getElementById('survey-done').style.display='block'; }
+
+function surveySelect(el) {
+  el.parentElement.querySelectorAll('.survey-opt').forEach(function(o){ o.classList.remove('selected'); });
+  el.classList.add('selected');
+  if (el.dataset.val === 'yes_closed') document.getElementById('q-price-card').style.display = 'block';
+}
+function surveyToggle(el) { el.classList.toggle('selected'); }
+
+function getSelected(id) {
+  var el = document.getElementById(id);
+  var s = el.querySelector('.selected');
+  return s ? s.dataset.val : '';
+}
+function getMultiSelected(id) {
+  var opts = document.getElementById(id).querySelectorAll('.selected');
+  return Array.from(opts).map(function(o){ return o.dataset.val; });
+}
+
+async function submitSurvey() {
+  var btn = document.getElementById('submit-btn');
+  btn.disabled = true; btn.textContent = 'Submitting...';
+  try {
+    var body = {
+      token: surveyToken,
+      did_buy: getSelected('q-buy'),
+      final_price: (document.getElementById('q-price').value || '').replace(/[$,]/g, '') || null,
+      repairs_needed: getMultiSelected('q-repairs'),
+      repair_cost_range: getSelected('q-cost'),
+      surprises_text: document.getElementById('q-surprises').value || '',
+      accuracy_rating: parseInt(getSelected('q-rating')) || null,
+    };
+    var r = await fetch('/api/survey/post-close', {
+      method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body)
+    });
+    if (r.ok) { showDone(); } else { btn.disabled = false; btn.textContent = 'Submit feedback'; alert('Something went wrong. Please try again.'); }
+  } catch(e) { btn.disabled = false; btn.textContent = 'Submit feedback'; alert('Network error.'); }
+}
+</script>
+</body>
+</html>

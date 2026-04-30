@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta name="robots" content="noindex, nofollow">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OfferWise — Strategic Assessment v3 · March 22, 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+
+:root{
+  --ink:#0c0f17;
+  --ink2:#141824;
+  --ink3:#1c2235;
+  --rule:rgba(255,255,255,0.07);
+  --rule2:rgba(255,255,255,0.12);
+  --muted:#64748b;
+  --body:#94a3b8;
+  --light:#cbd5e1;
+  --white:#f1f5f9;
+  --green:#10b981;
+  --green-dim:rgba(16,185,129,0.1);
+  --amber:#f59e0b;
+  --amber-dim:rgba(245,158,11,0.1);
+  --red:#ef4444;
+  --red-dim:rgba(239,68,68,0.08);
+  --blue:#60a5fa;
+  --blue-dim:rgba(96,165,250,0.08);
+  --purple:#a78bfa;
+}
+
+html{scroll-behavior:smooth}
+body{
+  font-family:'IBM Plex Sans',-apple-system,sans-serif;
+  background:var(--ink);
+  color:var(--body);
+  min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ── GRAIN OVERLAY ── */
+body::before{
+  content:'';
+  position:fixed;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events:none;z-index:0;opacity:.6;
+}
+
+.page{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:80px 40px 120px}
+
+/* ── HEADER ── */
+.masthead{border-bottom:1px solid var(--rule2);padding-bottom:40px;margin-bottom:60px}
+.masthead-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:32px;flex-wrap:wrap;gap:16px}
+.brand{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.15em;text-transform:uppercase}
+.meta{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);text-align:right;line-height:1.8}
+.report-title{font-family:'Playfair Display',Georgia,serif;font-size:clamp(36px,6vw,64px);font-weight:400;color:var(--white);line-height:1.05;letter-spacing:-.02em;margin-bottom:16px}
+.report-subtitle{font-size:14px;color:var(--muted);line-height:1.6;max-width:560px}
+
+/* ── OVERALL SCORES ── */
+.scores-row{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--rule);border:1px solid var(--rule);border-radius:12px;overflow:hidden;margin-bottom:60px}
+.score-cell{background:var(--ink2);padding:28px 24px}
+.score-label{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px}
+.score-val{font-family:'Playfair Display',Georgia,serif;font-size:48px;font-weight:400;line-height:1;margin-bottom:6px}
+.score-val.green{color:var(--green)}
+.score-val.amber{color:var(--amber)}
+.score-val.red{color:var(--red)}
+.score-sub{font-size:12px;color:var(--muted);line-height:1.5}
+
+/* ── DELTA BANNER ── */
+.delta-banner{background:linear-gradient(135deg,rgba(16,185,129,.08),rgba(96,165,250,.05));border:1px solid rgba(16,185,129,.2);border-radius:10px;padding:20px 24px;margin-bottom:60px;display:flex;align-items:center;gap:16px}
+.delta-icon{font-size:24px;flex-shrink:0}
+.delta-text{font-size:13px;color:var(--light);line-height:1.6}
+.delta-text strong{color:var(--green)}
+
+/* ── SECTION HEADERS ── */
+.section{margin-bottom:64px}
+.section-index{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.15em;text-transform:uppercase;margin-bottom:8px}
+.section-title{font-family:'Playfair Display',Georgia,serif;font-size:28px;font-weight:400;color:var(--white);margin-bottom:24px;line-height:1.2}
+
+/* ── GRADE CARDS ── */
+.grade-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:40px}
+.grade-card{background:var(--ink2);border:1px solid var(--rule);border-radius:10px;padding:24px;position:relative;overflow:hidden}
+.grade-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.grade-card.gA::before{background:var(--green)}
+.grade-card.gB::before{background:var(--blue)}
+.grade-card.gC::before{background:var(--amber)}
+.grade-card.gD::before{background:var(--red)}
+.gc-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px}
+.gc-name{font-size:14px;font-weight:600;color:var(--white)}
+.gc-trajectory{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);margin-top:3px}
+.gc-grade{font-family:'Playfair Display',Georgia,serif;font-size:36px;font-weight:400;line-height:1}
+.gc-grade.gA{color:var(--green)}
+.gc-grade.gB{color:var(--blue)}
+.gc-grade.gC{color:var(--amber)}
+.gc-grade.gD{color:var(--red)}
+.gc-items{display:flex;flex-direction:column;gap:6px}
+.gc-item{font-size:12px;color:var(--muted);line-height:1.5;padding-left:16px;position:relative}
+.gc-item::before{content:'';position:absolute;left:0;top:7px;width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.gc-item.pos::before{background:var(--green)}
+.gc-item.neg::before{background:var(--red)}
+.gc-item.neu::before{background:var(--amber)}
+
+/* ── DELTA TABLE ── */
+.delta-table{width:100%;border-collapse:collapse;margin-bottom:32px}
+.delta-table th{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;padding:8px 12px;text-align:left;border-bottom:1px solid var(--rule2)}
+.delta-table td{padding:12px 12px;border-bottom:1px solid var(--rule);font-size:13px;vertical-align:top}
+.delta-table tr:last-child td{border-bottom:none}
+.delta-table td:first-child{color:var(--light);font-weight:500;width:45%}
+.badge{display:inline-flex;align-items:center;gap:5px;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;padding:3px 8px;border-radius:4px;letter-spacing:.05em;text-transform:uppercase}
+.badge.done{background:var(--green-dim);color:var(--green)}
+.badge.open{background:var(--red-dim);color:var(--red)}
+.badge.partial{background:var(--amber-dim);color:var(--amber)}
+.badge.manual{background:var(--blue-dim);color:var(--blue)}
+
+/* ── STATS ROW ── */
+.stats-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--rule);border:1px solid var(--rule);border-radius:10px;overflow:hidden;margin-bottom:40px}
+.stat-cell{background:var(--ink2);padding:20px 16px;text-align:center}
+.stat-num{font-family:'Playfair Display',Georgia,serif;font-size:32px;color:var(--white);line-height:1;margin-bottom:4px}
+.stat-lbl{font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em}
+
+/* ── PROSE ── */
+.prose{font-size:14px;line-height:1.8;color:var(--body);max-width:700px}
+.prose p{margin-bottom:16px}
+.prose p:last-child{margin-bottom:0}
+.prose strong{color:var(--light);font-weight:600}
+
+/* ── CALLOUT ── */
+.callout{border-left:3px solid var(--rule2);padding:16px 20px;margin:24px 0;background:var(--ink2);border-radius:0 8px 8px 0}
+.callout.insight{border-left-color:var(--purple)}
+.callout.warn{border-left-color:var(--amber)}
+.callout.good{border-left-color:var(--green)}
+.callout-label{font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px}
+.callout.insight .callout-label{color:var(--purple)}
+.callout.warn .callout-label{color:var(--amber)}
+.callout.good .callout-label{color:var(--green)}
+.callout-text{font-size:13px;color:var(--light);line-height:1.65;font-style:italic}
+
+/* ── AGENTIC GRID ── */
+.agentic-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:32px}
+.ag-cell{background:var(--ink2);border:1px solid var(--rule);border-radius:8px;padding:14px 16px}
+.ag-icon{font-size:18px;margin-bottom:8px}
+.ag-name{font-size:12px;font-weight:600;color:var(--white);margin-bottom:4px}
+.ag-status{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.05em}
+.ag-status.live{color:var(--green)}
+.ag-status.partial{color:var(--amber)}
+
+/* ── GTM CHANNEL LIST ── */
+.channel-list{display:flex;flex-direction:column;gap:8px;margin-bottom:32px}
+.channel-row{display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--ink2);border:1px solid var(--rule);border-radius:8px}
+.ch-icon{font-size:16px;width:24px;text-align:center;flex-shrink:0}
+.ch-name{font-size:13px;font-weight:600;color:var(--white);flex:1}
+.ch-detail{font-size:12px;color:var(--muted)}
+
+/* ── OPEN ITEMS ── */
+.open-items{display:flex;flex-direction:column;gap:8px}
+.open-item{display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:16px;padding:14px 16px;background:var(--ink2);border:1px solid var(--rule);border-radius:8px}
+.oi-name{font-size:13px;color:var(--light)}
+.oi-effort{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted)}
+.oi-impact{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600}
+.oi-impact.high{color:var(--green)}
+.oi-impact.med{color:var(--amber)}
+.oi-impact.low{color:var(--muted)}
+
+/* ── BILLION DOLLAR SECTION ── */
+.bd-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:32px}
+.bd-card{padding:24px;border-radius:10px;border:1px solid}
+.bd-card.have{background:var(--green-dim);border-color:rgba(16,185,129,.2)}
+.bd-card.gap{background:var(--red-dim);border-color:rgba(239,68,68,.15)}
+.bd-card.path{background:var(--blue-dim);border-color:rgba(96,165,250,.15)}
+.bd-tag{font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px}
+.bd-card.have .bd-tag{color:var(--green)}
+.bd-card.gap .bd-tag{color:var(--red)}
+.bd-card.path .bd-tag{color:var(--blue)}
+.bd-card-title{font-size:14px;font-weight:600;color:var(--white);margin-bottom:6px}
+.bd-card-body{font-size:12px;color:var(--muted);line-height:1.6}
+
+/* ── FOOTER ── */
+.report-footer{border-top:1px solid var(--rule);padding-top:32px;margin-top:80px;display:flex;justify-content:space-between;font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted)}
+
+/* ── PRINT / MOBILE ── */
+@media(max-width:700px){
+  .page{padding:40px 20px 80px}
+  .grade-grid{grid-template-columns:1fr}
+  .scores-row{grid-template-columns:1fr}
+  .stats-strip{grid-template-columns:repeat(2,1fr)}
+  .agentic-grid{grid-template-columns:repeat(2,1fr)}
+  .bd-grid{grid-template-columns:1fr}
+  .open-item{grid-template-columns:1fr;gap:4px}
+}
+
+/* ── ANIMATIONS ── */
+.fade-in{opacity:0;transform:translateY(16px);animation:fadeUp .5s ease forwards}
+@keyframes fadeUp{to{opacity:1;transform:none}}
+.section:nth-child(1){animation-delay:.05s}
+.section:nth-child(2){animation-delay:.1s}
+.section:nth-child(3){animation-delay:.15s}
+.section:nth-child(4){animation-delay:.2s}
+.section:nth-child(5){animation-delay:.25s}
+.section:nth-child(6){animation-delay:.3s}
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- ── MASTHEAD ── -->
+<div class="masthead fade-in">
+  <div class="masthead-top">
+    <div class="brand">OfferWise AI — Strategic Assessment</div>
+    <div class="meta">
+      v5.76.63 · March 22, 2026<br>
+      307 routes · 52 models · 81 tests<br>
+      9 scheduler jobs · 11 agentic features
+    </div>
+  </div>
+  <h1 class="report-title">The Honest<br><em>Report Card</em></h1>
+  <p class="report-subtitle">A dual-framework assessment against the Chris Rowen 10-Session Startup Bootcamp and the standards of a billion-dollar software company — verified against the live codebase. Version 3 of 3 sessions.</p>
+</div>
+
+<!-- ── OVERALL SCORES ── -->
+<div class="scores-row fade-in">
+  <div class="score-cell">
+    <div class="score-label">Overall Grade</div>
+    <div class="score-val green">A−</div>
+    <div class="score-sub">Up from B+ yesterday. Technical execution now near-complete. Distribution is the constraint.</div>
+  </div>
+  <div class="score-cell">
+    <div class="score-label">Billion-Dollar Readiness</div>
+    <div class="score-val amber">42%</div>
+    <div class="score-sub">Up from 35%. Funnel fixed, fallback live, 4 GTM channels active. LTV and network effects remain open.</div>
+  </div>
+  <div class="score-cell">
+    <div class="score-label">Most Urgent Risk</div>
+    <div class="score-val red" style="font-size:32px;padding-top:8px">No paying<br>customers</div>
+    <div class="score-sub">Every technical gap from v2 is closed. The only metric that matters now is first revenue.</div>
+  </div>
+</div>
+
+<!-- ── DELTA BANNER ── -->
+<div class="delta-banner fade-in">
+  <div class="delta-icon">📈</div>
+  <div class="delta-text">
+    <strong>11 items closed since yesterday's v2 report.</strong> OpenAI fallback live, /analyze value-first funnel deployed, Facebook + Nextdoor GTM channels wired, QuickFeedback data moat accumulating, Gmail objection send wired, 22 guide CTAs updated, conversion pixels firing. The codebase has no remaining critical gaps — the work is now purely distribution.
+  </div>
+</div>
+
+<!-- ── CODEBASE STATS ── -->
+<div class="section fade-in">
+  <div class="section-index">00 — Codebase</div>
+  <div class="section-title">By the Numbers</div>
+  <div class="stats-strip">
+    <div class="stat-cell"><div class="stat-num">307</div><div class="stat-lbl">Routes</div></div>
+    <div class="stat-cell"><div class="stat-num">52</div><div class="stat-lbl">DB Models</div></div>
+    <div class="stat-cell"><div class="stat-num">81</div><div class="stat-lbl">Tests</div></div>
+    <div class="stat-cell"><div class="stat-num">11</div><div class="stat-lbl">Agentic Features</div></div>
+  </div>
+  <div class="stats-strip">
+    <div class="stat-cell"><div class="stat-num">9</div><div class="stat-lbl">Scheduler Jobs</div></div>
+    <div class="stat-cell"><div class="stat-num">5</div><div class="stat-lbl">GTM Channels</div></div>
+    <div class="stat-cell"><div class="stat-num">5</div><div class="stat-lbl">Revenue Lines</div></div>
+    <div class="stat-cell"><div class="stat-num">22</div><div class="stat-lbl">SEO Guides</div></div>
+  </div>
+</div>
+
+<!-- ── FRAMEWORK GRADES ── -->
+<div class="section fade-in">
+  <div class="section-index">01 — Chris Rowen Framework</div>
+  <div class="section-title">Grade by Dimension</div>
+  <div class="grade-grid">
+
+    <div class="grade-card gB">
+      <div class="gc-header">
+        <div><div class="gc-name">Product–Market Fit</div><div class="gc-trajectory">B+ → A (gap closing)</div></div>
+        <div class="gc-grade gB">B+</div>
+      </div>
+      <div class="gc-items">
+        <div class="gc-item pos">Cross-reference engine, state-aware legal context, 11 agentic features — no competitor does all three</div>
+        <div class="gc-item pos">QuickFeedback buttons now live — labeled repair data accumulating for the first time</div>
+        <div class="gc-item pos">/analyze funnel: value shown before signup wall — conversion blocker removed</div>
+        <div class="gc-item pos">Inspector → buyer flywheel structurally sound and instrumented</div>
+        <div class="gc-item neg">Zero PMF signal yet — no paying customers, no feature usage data from real users</div>
+        <div class="gc-item neg">One analysis per buyer, then they close — repeat purchase problem unsolved</div>
+      </div>
+    </div>
+
+    <div class="grade-card gB">
+      <div class="gc-header">
+        <div><div class="gc-name">Technical Architecture</div><div class="gc-trajectory">B+ → A (gap closing)</div></div>
+        <div class="gc-grade gB">B+</div>
+      </div>
+      <div class="gc-items">
+        <div class="gc-item pos">307 routes, 52 models, 9 blueprints extracted — serious production system</div>
+        <div class="gc-item pos">Docker + Render Postgres + Sentry + CI — full production stack</div>
+        <div class="gc-item pos">OpenAI GPT-4o fallback now live — Anthropic outage no longer = zero revenue</div>
+        <div class="gc-item pos">102 integrity tests + 81 unit tests — ruff clean on all modules</div>
+        <div class="gc-item neg">app.py still 240 routes — 3 more extraction rounds needed to reach target</div>
+        <div class="gc-item neg">ALTER TABLE at startup — Alembic migration not completed</div>
+        <div class="gc-item neg">No load test — failure threshold unknown</div>
+      </div>
+    </div>
+
+    <div class="grade-card gB">
+      <div class="gc-header">
+        <div><div class="gc-name">Revenue &amp; Unit Economics</div><div class="gc-trajectory">B+ → A (data arriving)</div></div>
+        <div class="gc-grade gB">B+</div>
+      </div>
+      <div class="gc-items">
+        <div class="gc-item pos">Five revenue lines: buyer credits, buyer sub, inspector pro, contractor, B2B API</div>
+        <div class="gc-item pos">Google Ads + Reddit pixels fired for first time — CAC now measurable</div>
+        <div class="gc-item pos">Gmail objection letter send now wired — full agentic revenue feature complete</div>
+        <div class="gc-item neg">CAC unknown — first attribution data arrives 24–48h after pixel deploy</div>
+        <div class="gc-item neg">LTV structurally weak — one analysis per buyer per home purchase</div>
+        <div class="gc-item neg">No subscription churn tracking — 30-day retention unknown</div>
+      </div>
+    </div>
+
+    <div class="grade-card gC">
+      <div class="gc-header">
+        <div><div class="gc-name">Sales &amp; Distribution</div><div class="gc-trajectory">C+ → B (biggest lever)</div></div>
+        <div class="gc-grade gC">C+</div>
+      </div>
+      <div class="gc-items">
+        <div class="gc-item pos">5 GTM channels now active: Reddit, BiggerPockets, Facebook, Nextdoor, r/OfferWise</div>
+        <div class="gc-item pos">22 guide CTAs now route to /analyze — ad traffic lands on value-first page</div>
+        <div class="gc-item pos">Forum scanner runs every 6h — reply drafts auto-generated for manual posting</div>
+        <div class="gc-item pos">Daily FB + Nextdoor post drafts generated at 7:30am PT</div>
+        <div class="gc-item neg">Inspector champion outreach not started — top converters still uncontacted</div>
+        <div class="gc-item neg">No paying customers yet — all distribution is theoretical until first conversion</div>
+        <div class="gc-item neg">No viral loop — buyer cannot bring another buyer</div>
+      </div>
+    </div>
+
+    <div class="grade-card gA">
+      <div class="gc-header">
+        <div><div class="gc-name">Agentic AI</div><div class="gc-trajectory">A+ — fully complete</div></div>
+        <div class="gc-grade gA">A+</div>
+      </div>
+      <div class="gc-items">
+        <div class="gc-item pos">11 agentic features live — deadline monitor, comps, seismic, price cut, permits, forward, concern, letter, addendum, Gmail send, OpenAI fallback</div>
+        <div class="gc-item pos">OpenAI GPT-4o fallback covers all critical paths — single-vendor risk eliminated</div>
+        <div class="gc-item pos">Gmail objection letter: Claude writes + sends to realtor — buyer never opens email client</div>
+        <div class="gc-item neu">MCP tool-use routes remain Anthropic-only — no GPT-4o equivalent for tool calls</div>
+      </div>
+    </div>
+
+    <div class="grade-card gC">
+      <div class="gc-header">
+        <div><div class="gc-name">Resilience &amp; Operations</div><div class="gc-trajectory">C+ → B (improving)</div></div>
+        <div class="gc-grade gC">B−</div>
+      </div>
+      <div class="gc-items">
+        <div class="gc-item pos">Sentry live, Docker, managed Postgres, GitHub Actions CI</div>
+        <div class="gc-item pos">OpenAI fallback: retry + GPT-4o on 429/500/503/529 — revenue-critical paths protected</div>
+        <div class="gc-item pos">183 tests passing (81 unit + 102 integrity) — ruff clean</div>
+        <div class="gc-item neg">Postgres restore procedure undocumented and untested</div>
+        <div class="gc-item neg">No load test — unknown failure threshold under concurrent users</div>
+        <div class="gc-item neg">No E2E tests — revenue paths can break silently after any deploy</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── DELTA TABLE ── -->
+<div class="section fade-in">
+  <div class="section-index">02 — Progress</div>
+  <div class="section-title">What Changed Since v2</div>
+  <table class="delta-table">
+    <thead>
+      <tr><th>Item</th><th>Status</th><th>Impact</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>OpenAI GPT-4o fallback (ai_client.py)</td><td><span class="badge done">✓ Done</span></td><td style="font-size:12px;color:var(--green)">Anthropic outage no longer kills revenue</td></tr>
+      <tr><td>/analyze value-first funnel</td><td><span class="badge done">✓ Done</span></td><td style="font-size:12px;color:var(--green)">Signup wall moved after value shown</td></tr>
+      <tr><td>Facebook GTM channel (8 groups)</td><td><span class="badge done">✓ Done</span></td><td style="font-size:12px;color:var(--green)">Daily AI-generated posts, manual copy-paste</td></tr>
+      <tr><td>Nextdoor GTM channel (10 neighborhoods)</td><td><span class="badge done">✓ Done</span></td><td style="font-size:12px;color:var(--green)">Hyper-local neighbor tone, no-URL format</td></tr>
+      <tr><td>QuickFeedback data moat buttons</td><td><span class="badge done">✓ Done</span></td><td style="font-size:12px;color:var(--green)">First labeled repair data now accumulating</td></tr>
+      <tr><td>Gmail objection letter send</td><td><span class="badge done">✓ Done</span></td><td style="font-size:12px;color:var(--green)">Full agentic loop — Claude writes + sends</td></tr>
+      <tr><td>22 guide CTAs → /analyze</td><td><span class="badge done">✓ Done</span></td><td style="font-size:12px;color:var(--green)">All ad traffic lands on value-first page</td></tr>
+      <tr><td>Conversion pixels (Google + Reddit)</td><td><span class="badge done">✓ Done</span></td><td style="font-size:12px;color:var(--green)">CAC now measurable — data in 24–48h</td></tr>
+      <tr><td>Font scale normalised (13 → 6 sizes)</td><td><span class="badge done">✓ Done</span></td><td style="font-size:12px;color:var(--body)">Visual coherence on /analyze page</td></tr>
+      <tr><td>Four persona grid (4 ways in)</td><td><span class="badge done">✓ Done</span></td><td style="font-size:12px;color:var(--body)">Headline now accurate, all 4 cards on one row</td></tr>
+      <tr><td>Inspector champion outreach</td><td><span class="badge manual">Manual</span></td><td style="font-size:12px;color:var(--amber)">No code needed — personal email to top 10</td></tr>
+      <tr><td>Subscription churn tracking</td><td><span class="badge open">Open</span></td><td style="font-size:12px;color:var(--muted)">Don't know 30-day retention</td></tr>
+      <tr><td>Postgres restore documented + tested</td><td><span class="badge open">Open</span></td><td style="font-size:12px;color:var(--red)">Data loss risk if Render instance fails</td></tr>
+      <tr><td>Load testing (k6/Locust)</td><td><span class="badge open">Open</span></td><td style="font-size:12px;color:var(--muted)">Unknown failure threshold</td></tr>
+      <tr><td>E2E tests (Playwright)</td><td><span class="badge open">Open</span></td><td style="font-size:12px;color:var(--muted)">Revenue paths can break silently</td></tr>
+      <tr><td>OfferWatch post-close subscription (7-yr LTV)</td><td><span class="badge open">Open</span></td><td style="font-size:12px;color:var(--red)">Structural LTV fix — biggest revenue lever</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ── AGENTIC FEATURES ── -->
+<div class="section fade-in">
+  <div class="section-index">03 — Agentic AI</div>
+  <div class="section-title">11 Features Live</div>
+  <div class="agentic-grid">
+    <div class="ag-cell"><div class="ag-icon">📅</div><div class="ag-name">Deadline Monitor</div><div class="ag-status live">● LIVE</div></div>
+    <div class="ag-cell"><div class="ag-icon">🏠</div><div class="ag-name">Comps Agent</div><div class="ag-status live">● LIVE</div></div>
+    <div class="ag-cell"><div class="ag-icon">🌋</div><div class="ag-name">Seismic Reanalysis</div><div class="ag-status live">● LIVE</div></div>
+    <div class="ag-cell"><div class="ag-icon">📉</div><div class="ag-name">Price Cut Reofr</div><div class="ag-status live">● LIVE</div></div>
+    <div class="ag-cell"><div class="ag-icon">📋</div><div class="ag-name">Permit Monitor</div><div class="ag-status live">● LIVE</div></div>
+    <div class="ag-cell"><div class="ag-icon">📤</div><div class="ag-name">Inspector Forward</div><div class="ag-status live">● LIVE</div></div>
+    <div class="ag-cell"><div class="ag-icon">🎯</div><div class="ag-name">Buyer Concern AI</div><div class="ag-status live">● LIVE</div></div>
+    <div class="ag-cell"><div class="ag-icon">✍️</div><div class="ag-name">Objection Letter</div><div class="ag-status live">● LIVE</div></div>
+    <div class="ag-cell"><div class="ag-icon">📄</div><div class="ag-name">Repair Addendum</div><div class="ag-status live">● LIVE</div></div>
+    <div class="ag-cell"><div class="ag-icon">📧</div><div class="ag-name">Gmail Send</div><div class="ag-status live">● LIVE</div></div>
+    <div class="ag-cell"><div class="ag-icon">🔁</div><div class="ag-name">OpenAI Fallback</div><div class="ag-status live">● LIVE</div></div>
+  </div>
+
+  <div class="callout good">
+    <div class="callout-label">What this means</div>
+    <div class="callout-text">No competitor operates an agentic property monitoring system that reasons across deadlines, market data, seismic events, and permit activity simultaneously. This is the product moat. The question is whether buyers know it exists.</div>
+  </div>
+</div>
+
+<!-- ── GTM CHANNELS ── -->
+<div class="section fade-in">
+  <div class="section-index">04 — Distribution</div>
+  <div class="section-title">5 GTM Channels Active</div>
+  <div class="channel-list">
+    <div class="channel-row">
+      <div class="ch-icon">🟠</div>
+      <div class="ch-name">Reddit</div>
+      <div class="ch-detail">11 subreddits · forum scanner every 6h · reply drafts auto-generated · manual posting</div>
+      <span class="badge done">Live</span>
+    </div>
+    <div class="channel-row">
+      <div class="ch-icon">🟤</div>
+      <div class="ch-name">BiggerPockets</div>
+      <div class="ch-detail">5 forums · reply drafts + blog post generator · manual posting</div>
+      <span class="badge done">Live</span>
+    </div>
+    <div class="channel-row">
+      <div class="ch-icon">🔵</div>
+      <div class="ch-name">Facebook Groups</div>
+      <div class="ch-detail">8 target groups seeded · daily AI post at 7:30am PT · no-markdown format · manual posting</div>
+      <span class="badge done">Live</span>
+    </div>
+    <div class="channel-row">
+      <div class="ch-icon">🟢</div>
+      <div class="ch-name">Nextdoor</div>
+      <div class="ch-detail">10 Bay Area neighborhoods · daily AI post at 7:30am PT · hyper-local tone · no URLs in body</div>
+      <span class="badge done">Live</span>
+    </div>
+    <div class="channel-row">
+      <div class="ch-icon">🔴</div>
+      <div class="ch-name">r/OfferWise Content Engine</div>
+      <div class="ch-detail">7 content pillars · daily post at 7am PT · data-driven from aggregate analysis stats</div>
+      <span class="badge done">Live</span>
+    </div>
+  </div>
+
+  <div class="callout warn">
+    <div class="callout-label">The real bottleneck</div>
+    <div class="callout-text">All 5 channels require manual copy-paste to post. The system generates the content. The admin has to be the posting agent. This is the right constraint for now — post quality matters more than volume — but it's 20–30 minutes per day that has to be protected.</div>
+  </div>
+</div>
+
+<!-- ── BILLION-DOLLAR LENS ── -->
+<div class="section fade-in">
+  <div class="section-index">05 — Billion-Dollar Lens</div>
+  <div class="section-title">What Still Separates OfferWise from Scale</div>
+
+  <div class="prose" style="margin-bottom:32px">
+    <p>Every billion-dollar consumer software company has network effects and repeat purchase. Zillow gets better with more listings. Airbnb gets better with more hosts. OfferWise, right now, has neither — but the path to both is visible and specific.</p>
+    <p>The structural problem is identical to yesterday: one home purchase equals one analysis, then the buyer closes and disappears for seven years. The consumer product is the hook. The B2B channel — inspector, agent, brokerage — is the engine. The repeat purchase mechanism is <strong>OfferWatch as a long-term subscription</strong>, not 45 days.</p>
+  </div>
+
+  <div class="bd-grid">
+    <div class="bd-card have">
+      <div class="bd-tag">Already has</div>
+      <div class="bd-card-title">Differentiated AI product</div>
+      <div class="bd-card-body">Cross-reference engine, state-aware legal context, 11 agentic features, OpenAI fallback. No direct competitor does all three. This is the product foundation.</div>
+    </div>
+    <div class="bd-card have">
+      <div class="bd-tag">Already has</div>
+      <div class="bd-card-title">B2B distribution channel</div>
+      <div class="bd-card-body">Inspector → buyer pipeline structurally correct, partially instrumented. Champion inspector outreach is the only action needed. Most consumer RE startups never find this channel.</div>
+    </div>
+    <div class="bd-card have">
+      <div class="bd-tag">Already has</div>
+      <div class="bd-card-title">5 revenue lines</div>
+      <div class="bd-card-body">Buyer credits, subscriptions, inspector pro, contractor marketplace, B2B API. Most startups at this stage have one. The question is which to double down on first.</div>
+    </div>
+    <div class="bd-card have">
+      <div class="bd-tag">Already has</div>
+      <div class="bd-card-title">Data moat starting to accumulate</div>
+      <div class="bd-card-body">QuickFeedback buttons now wired. Every analysis completion with a labeled repair outcome ("found" / "not found") is a training example no competitor can buy.</div>
+    </div>
+    <div class="bd-card gap">
+      <div class="bd-tag">Critical gap</div>
+      <div class="bd-card-title">Network effects</div>
+      <div class="bd-card-body">Zero. Each user's experience is independent of every other user. No shared comps, no crowd-sourced repair cost validation, no "X buyers analyzed this property." This is the ceiling.</div>
+    </div>
+    <div class="bd-card gap">
+      <div class="bd-tag">Critical gap</div>
+      <div class="bd-card-title">Repeat purchase mechanism</div>
+      <div class="bd-card-body">One home purchase = one analysis = done. OfferWatch as a 7-year post-close subscription ("Property Intelligence") is the structural fix — not a 45-day trial.</div>
+    </div>
+    <div class="bd-card path">
+      <div class="bd-tag">Path forward</div>
+      <div class="bd-card-title">OfferWatch post-close</div>
+      <div class="bd-card-body">$4.99–$9/mo monitoring permit activity, market comps, and maintenance alerts after close. Converts a 45-day window into a 7-year subscriber relationship.</div>
+    </div>
+    <div class="bd-card path">
+      <div class="bd-tag">Path forward</div>
+      <div class="bd-card-title">Inspector champion program</div>
+      <div class="bd-card-body">5 inspectors × 20 reports/month = 1,200 buyer acquisitions/year at near-zero CAC. Run the SQL, email the top 10 personally this week. This is the single highest-leverage action available.</div>
+    </div>
+  </div>
+
+  <div class="callout insight">
+    <div class="callout-label">Framework observation</div>
+    <div class="callout-text">"The most dangerous thing about OfferWise's current position is that the product is genuinely excellent and the market is real — which makes it easy to mistake product quality for business model validity. Product quality is necessary but not sufficient. The first paying customer is the only signal that matters right now."</div>
+  </div>
+</div>
+
+<!-- ── OPEN ITEMS PRIORITISED ── -->
+<div class="section fade-in">
+  <div class="section-index">06 — Next Actions</div>
+  <div class="section-title">Prioritised by Revenue Impact</div>
+  <div class="open-items">
+    <div class="open-item">
+      <div class="oi-name">Inspector champion outreach — email top 10 from DB personally</div>
+      <div class="oi-effort" style="color:var(--green)">0 hrs code</div>
+      <div class="oi-impact high">HIGHEST</div>
+    </div>
+    <div class="open-item">
+      <div class="oi-name">Read first CAC data — Google Ads attribution arrives ~48h after pixel deploy</div>
+      <div class="oi-effort" style="color:var(--green)">0 hrs code</div>
+      <div class="oi-impact high">HIGH</div>
+    </div>
+    <div class="open-item">
+      <div class="oi-name">Post daily FB + Nextdoor + Reddit drafts manually (20 min/day)</div>
+      <div class="oi-effort" style="color:var(--green)">0 hrs code</div>
+      <div class="oi-impact high">HIGH</div>
+    </div>
+    <div class="open-item">
+      <div class="oi-name">OfferWatch post-close subscription ("Property Intelligence" tier $4.99/mo)</div>
+      <div class="oi-effort">~3 days</div>
+      <div class="oi-impact high">HIGH</div>
+    </div>
+    <div class="open-item">
+      <div class="oi-name">Subscription churn tracking (30-day retention metric)</div>
+      <div class="oi-effort">~4 hrs</div>
+      <div class="oi-impact med">MEDIUM</div>
+    </div>
+    <div class="open-item">
+      <div class="oi-name">Postgres restore procedure documented and tested on Render</div>
+      <div class="oi-effort">~2 hrs</div>
+      <div class="oi-impact med">MEDIUM</div>
+    </div>
+    <div class="open-item">
+      <div class="oi-name">YouTube video — "How I found $47K in repairs the seller didn't disclose"</div>
+      <div class="oi-effort">Admin records</div>
+      <div class="oi-impact med">MEDIUM</div>
+    </div>
+    <div class="open-item">
+      <div class="oi-name">Alembic migration complete (remove ALTER TABLE from startup)</div>
+      <div class="oi-effort">~1 day</div>
+      <div class="oi-impact low">LOW</div>
+    </div>
+    <div class="open-item">
+      <div class="oi-name">Load testing (k6 at 50/100/200 concurrent users)</div>
+      <div class="oi-effort">~1 day</div>
+      <div class="oi-impact low">LOW</div>
+    </div>
+    <div class="open-item">
+      <div class="oi-name">Playwright E2E tests on 3 critical revenue paths</div>
+      <div class="oi-effort">~2 days</div>
+      <div class="oi-impact low">LOW</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── FOOTER ── -->
+<div class="report-footer">
+  <div>OfferWise AI — Strategic Assessment v3</div>
+  <div>v5.76.63 · March 22, 2026 · Session 3 of 3</div>
+</div>
+
+</div>
+</body>
+</html>

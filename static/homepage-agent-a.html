@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OfferWise AI — Your AI Agent for Home Offers</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#0d0f12;
+  --paper:#f7f4ef;
+  --orange:#e8521a;
+  --orange-pale:#fdf0e8;
+  --slate:#2d3748;
+  --muted:#6b7280;
+  --border:#e5e0d8;
+  --green:#16a34a;
+  --radius:12px;
+}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);overflow-x:hidden}
+
+/* ── NAV ── */
+nav{display:flex;align-items:center;justify-content:space-between;padding:20px 48px;position:sticky;top:0;background:rgba(247,244,239,0.92);backdrop-filter:blur(12px);z-index:100;border-bottom:1px solid var(--border)}
+.logo{font-family:'Instrument Serif',serif;font-size:22px;color:var(--ink)}.logo span{color:var(--orange)}
+.nav-links{display:flex;align-items:center;gap:32px;list-style:none}
+.nav-links a{text-decoration:none;color:var(--muted);font-size:14px;font-weight:500;transition:color .2s}.nav-links a:hover{color:var(--ink)}
+.nav-cta{background:var(--orange);color:#fff;padding:10px 22px;border-radius:100px;font-size:14px;font-weight:600;text-decoration:none;transition:transform .15s,box-shadow .15s}.nav-cta:hover{transform:translateY(-1px);box-shadow:0 4px 20px rgba(232,82,26,.35)}
+
+/* ── HERO ── */
+.hero{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center;max-width:1200px;margin:0 auto;padding:96px 48px 80px}
+.hero-label{display:inline-flex;align-items:center;gap:8px;background:var(--orange-pale);border:1px solid rgba(232,82,26,.2);border-radius:100px;padding:6px 16px;font-size:12px;font-weight:600;color:var(--orange);letter-spacing:.05em;text-transform:uppercase;margin-bottom:28px}
+.hero-label::before{content:'';width:8px;height:8px;border-radius:50%;background:var(--orange);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.6;transform:scale(1.3)}}
+.hero h1{font-family:'Instrument Serif',serif;font-size:clamp(44px,5vw,64px);line-height:1.1;color:var(--ink);margin-bottom:24px}
+.hero h1 em{color:var(--orange);font-style:italic}
+.hero-sub{font-size:18px;color:var(--muted);line-height:1.65;margin-bottom:40px;max-width:480px}
+.hero-actions{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.btn-primary{background:var(--orange);color:#fff;padding:16px 32px;border-radius:100px;font-size:15px;font-weight:600;text-decoration:none;transition:all .2s;box-shadow:0 2px 12px rgba(232,82,26,.25)}.btn-primary:hover{transform:translateY(-2px);box-shadow:0 6px 24px rgba(232,82,26,.4)}
+.btn-ghost{color:var(--ink);font-size:14px;font-weight:500;text-decoration:none;display:flex;align-items:center;gap:6px}.btn-ghost:hover{color:var(--orange)}
+.hero-trust{margin-top:40px;display:flex;align-items:center;gap:20px;font-size:13px;color:var(--muted)}
+.hero-trust strong{color:var(--ink)}
+
+/* ── AGENT VISUAL ── */
+.agent-panel{background:#fff;border:1px solid var(--border);border-radius:20px;padding:28px;box-shadow:0 8px 40px rgba(0,0,0,.08);position:relative;overflow:hidden}
+.agent-panel::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(232,82,26,.03) 0%,transparent 60%);pointer-events:none}
+.ap-header{display:flex;align-items:center;gap:12px;margin-bottom:24px;padding-bottom:20px;border-bottom:1px solid var(--border)}
+.ap-icon{width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,var(--orange),#f97316);display:flex;align-items:center;justify-content:center;font-size:20px}
+.ap-title{font-weight:600;font-size:15px}
+.ap-sub{font-size:12px;color:var(--muted)}
+.ap-status{margin-left:auto;display:flex;align-items:center;gap:6px;font-size:12px;color:var(--green);font-weight:500}
+.ap-status::before{content:'';width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+
+.agent-step{display:flex;gap:14px;margin-bottom:16px;align-items:flex-start;animation:stepIn .4s ease both}
+.agent-step:nth-child(1){animation-delay:.1s}
+.agent-step:nth-child(2){animation-delay:.25s}
+.agent-step:nth-child(3){animation-delay:.4s}
+.agent-step:nth-child(4){animation-delay:.55s}
+.agent-step:nth-child(5){animation-delay:.7s}
+@keyframes stepIn{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:none}}
+.step-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;background:var(--orange-pale)}
+.step-done{background:#dcfce7}
+.step-content{flex:1}
+.step-label{font-size:13px;font-weight:600;color:var(--ink);margin-bottom:2px}
+.step-detail{font-size:12px;color:var(--muted)}
+.step-badge{margin-left:auto;font-size:11px;padding:3px 10px;border-radius:100px;font-weight:600}
+.badge-done{background:#dcfce7;color:#15803d}
+.badge-active{background:#fff7ed;color:var(--orange)}
+
+.ap-result{background:linear-gradient(135deg,#0d0f12,#1a1f2e);border-radius:14px;padding:20px;margin-top:20px;color:#fff}
+.result-label{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,.5);margin-bottom:12px}
+.result-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.result-key{font-size:13px;color:rgba(255,255,255,.7)}
+.result-val{font-size:13px;font-weight:700;color:#fff}
+.result-val.orange{color:#fb923c}
+.result-val.green{color:#4ade80}
+.result-score{text-align:center;margin-top:16px;padding-top:16px;border-top:1px solid rgba(255,255,255,.1)}
+.score-num{font-family:'Instrument Serif',serif;font-size:48px;color:#fb923c}
+.score-label{font-size:12px;color:rgba(255,255,255,.5);margin-top:2px}
+
+/* ── HOW IT WORKS ── */
+.section{max-width:1200px;margin:0 auto;padding:80px 48px}
+.section-label{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--orange);margin-bottom:16px}
+.section-title{font-family:'Instrument Serif',serif;font-size:clamp(36px,4vw,52px);line-height:1.15;margin-bottom:16px}
+.section-sub{font-size:17px;color:var(--muted);max-width:560px;line-height:1.7}
+
+.timeline{margin-top:56px;display:grid;grid-template-columns:repeat(4,1fr);gap:32px;position:relative}
+.timeline::before{content:'';position:absolute;top:28px;left:5%;right:5%;height:1px;background:var(--border)}
+.tl-item{position:relative;text-align:center}
+.tl-num{width:56px;height:56px;border-radius:50%;background:#fff;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:'Instrument Serif',serif;font-size:22px;margin:0 auto 20px;position:relative;z-index:1;transition:all .3s}
+.tl-num.active{background:var(--orange);border-color:var(--orange);color:#fff;box-shadow:0 0 0 6px rgba(232,82,26,.15)}
+.tl-title{font-size:15px;font-weight:600;margin-bottom:8px}
+.tl-desc{font-size:13px;color:var(--muted);line-height:1.6}
+
+/* ── AGENT GRID ── */
+.agent-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:56px}
+.agent-card{background:#fff;border:1px solid var(--border);border-radius:16px;padding:28px;transition:all .25s;cursor:default}
+.agent-card:hover{transform:translateY(-4px);box-shadow:0 12px 40px rgba(0,0,0,.1);border-color:rgba(232,82,26,.3)}
+.ac-icon{font-size:32px;margin-bottom:16px}
+.ac-title{font-size:16px;font-weight:600;margin-bottom:8px}
+.ac-desc{font-size:14px;color:var(--muted);line-height:1.6}
+.ac-tag{display:inline-block;margin-top:12px;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--orange)}
+
+/* ── SOCIAL PROOF ── */
+.proof-band{background:var(--ink);color:#fff;padding:80px 48px}
+.proof-inner{max-width:1200px;margin:0 auto}
+.proof-grid{display:grid;grid-template-columns:1fr 2fr;gap:80px;align-items:center}
+.proof-stats{display:grid;grid-template-columns:1fr 1fr;gap:32px}
+.stat-num{font-family:'Instrument Serif',serif;font-size:52px;color:var(--orange)}
+.stat-label{font-size:14px;color:rgba(255,255,255,.6);margin-top:4px}
+.testimonial{font-family:'Instrument Serif',serif;font-size:26px;line-height:1.5;color:rgba(255,255,255,.9);font-style:italic}
+.t-attr{margin-top:20px;font-size:14px;color:rgba(255,255,255,.5);font-style:normal;font-family:'DM Sans',sans-serif}
+
+/* ── CTA ── */
+.cta-section{background:linear-gradient(135deg,var(--orange) 0%,#c2410c 100%);padding:100px 48px;text-align:center}
+.cta-inner{max-width:700px;margin:0 auto}
+.cta-inner h2{font-family:'Instrument Serif',serif;font-size:clamp(40px,5vw,56px);color:#fff;margin-bottom:20px;line-height:1.15}
+.cta-inner p{color:rgba(255,255,255,.85);font-size:18px;margin-bottom:40px;line-height:1.6}
+.btn-white{background:#fff;color:var(--orange);padding:18px 40px;border-radius:100px;font-size:16px;font-weight:700;text-decoration:none;display:inline-block;transition:all .2s;box-shadow:0 4px 20px rgba(0,0,0,.2)}.btn-white:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,.3)}
+.cta-fine{margin-top:16px;color:rgba(255,255,255,.6);font-size:13px}
+
+/* ── FOOTER ── */
+footer{background:var(--ink);color:rgba(255,255,255,.5);text-align:center;padding:32px 48px;font-size:13px}
+footer a{color:rgba(255,255,255,.5);text-decoration:none}
+
+@media(max-width:900px){
+  .hero{grid-template-columns:1fr;gap:40px;padding:60px 24px}
+  .timeline{grid-template-columns:1fr 1fr}
+  .agent-grid{grid-template-columns:1fr}
+  .proof-grid{grid-template-columns:1fr}
+  nav{padding:16px 24px}
+  .section{padding:60px 24px}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">Offer<span>Wise</span> AI</div>
+  <ul class="nav-links">
+    <li><a href="#how">How it works</a></li>
+    <li><a href="#agents">AI Agents</a></li>
+    <li><a href="/pricing.html">Pricing</a></li>
+    <li><a href="/for-inspectors.html">For Inspectors</a></li>
+  </ul>
+  <a href="/analyze.html" class="nav-cta">Get your offer →</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-left">
+    <div class="hero-label">Agentic AI for real estate</div>
+    <h1>Your AI agent that<br>negotiates <em>for you</em></h1>
+    <p class="hero-sub">OfferWise deploys a team of AI agents that read your inspection report and seller disclosure, cross-reference 13 live data sources, and hand you a precise offer strategy — in 60 seconds.</p>
+    <div class="hero-actions">
+      <a href="/analyze.html" class="btn-primary">Upload your documents — free</a>
+      <a href="#how" class="btn-ghost">See how it works →</a>
+    </div>
+    <div class="hero-trust">
+      <div>✓ No credit card &nbsp;✓ First analysis free &nbsp;✓ PDF &amp; scanned documents</div>
+    </div>
+  </div>
+  <div class="hero-right">
+    <div class="agent-panel">
+      <div class="ap-header">
+        <div class="ap-icon">🤖</div>
+        <div><div class="ap-title">OfferWise Agent</div><div class="ap-sub">Running 6 parallel analyses</div></div>
+        <div class="ap-status">Live</div>
+      </div>
+
+      <div class="agent-step">
+        <div class="step-icon step-done">📄</div>
+        <div class="step-content">
+          <div class="step-label">Document ingestion</div>
+          <div class="step-detail">Parsed 38-page inspection + 22-page disclosure</div>
+        </div>
+        <div class="step-badge badge-done">Done</div>
+      </div>
+      <div class="agent-step">
+        <div class="step-icon step-done">🔍</div>
+        <div class="step-content">
+          <div class="step-label">Cross-reference engine</div>
+          <div class="step-detail">Found 4 disclosure omissions vs inspection findings</div>
+        </div>
+        <div class="step-badge badge-done">Done</div>
+      </div>
+      <div class="agent-step">
+        <div class="step-icon step-done">🏠</div>
+        <div class="step-content">
+          <div class="step-label">Market intelligence</div>
+          <div class="step-detail">Pulled 15 comps, AVM $1.2M, 34 avg DOM</div>
+        </div>
+        <div class="step-badge badge-done">Done</div>
+      </div>
+      <div class="agent-step">
+        <div class="step-icon">🔨</div>
+        <div class="step-content">
+          <div class="step-label">Repair cost modeling</div>
+          <div class="step-detail">HVAC, roof, foundation — 47 line items</div>
+        </div>
+        <div class="step-badge badge-active">Running</div>
+      </div>
+      <div class="agent-step">
+        <div class="step-icon">📊</div>
+        <div class="step-content">
+          <div class="step-label">Offer strategy synthesis</div>
+          <div class="step-detail">Building 3-path negotiation playbook</div>
+        </div>
+        <div class="step-badge badge-active">Queued</div>
+      </div>
+
+      <div class="ap-result">
+        <div class="result-label">Preliminary findings</div>
+        <div class="result-row"><span class="result-key">Seller transparency</span><span class="result-val orange">C+ (flagged)</span></div>
+        <div class="result-row"><span class="result-key">Est. repair costs</span><span class="result-val">$28,400–$34,200</span></div>
+        <div class="result-row"><span class="result-key">Market leverage</span><span class="result-val green">Buyer advantage</span></div>
+        <div class="result-score">
+          <div class="score-num">72</div>
+          <div class="score-label">OfferScore™ — Negotiating room exists</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="section" id="how" style="border-top:1px solid var(--border)">
+  <div class="section-label">The process</div>
+  <div class="section-title">Four agents.<br>One recommendation.</div>
+  <p class="section-sub">While a human analyst takes days, OfferWise's autonomous AI pipeline runs in parallel — completing in under 60 seconds.</p>
+
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-num active">1</div>
+      <div class="tl-title">Upload documents</div>
+      <div class="tl-desc">Drop your inspection report and seller disclosure — PDF, scan, or photo.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-num">2</div>
+      <div class="tl-title">Agents deploy</div>
+      <div class="tl-desc">Six specialized AI agents run simultaneously across your documents and live market data.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-num">3</div>
+      <div class="tl-title">Cross-reference</div>
+      <div class="tl-desc">Every claim in the seller's disclosure is checked against what the inspector actually found.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-num">4</div>
+      <div class="tl-title">Offer strategy</div>
+      <div class="tl-desc">You get three offer paths, a negotiation playbook, and a one-click repair addendum.</div>
+    </div>
+  </div>
+</section>
+
+<!-- AGENTS -->
+<section class="section" id="agents" style="background:#fff;max-width:100%;padding:80px 0">
+  <div style="max-width:1200px;margin:0 auto;padding:0 48px">
+  <div class="section-label">Under the hood</div>
+  <div class="section-title">Six agents working<br>simultaneously</div>
+  <p class="section-sub">Each agent is a specialist. Together they cover every risk a buyer faces.</p>
+
+  <div class="agent-grid">
+    <div class="agent-card">
+      <div class="ac-icon">📋</div>
+      <div class="ac-title">Document Parser Agent</div>
+      <div class="ac-desc">Reads and structures every finding from inspection reports and seller disclosures — including scanned handwriting and photos.</div>
+      <div class="ac-tag">OCR + NLP</div>
+    </div>
+    <div class="agent-card">
+      <div class="ac-icon">🔍</div>
+      <div class="ac-title">Cross-Reference Agent</div>
+      <div class="ac-desc">Compares what the seller disclosed versus what the inspector found. Flags every omission, minimization, and contradiction.</div>
+      <div class="ac-tag">Disclosure analysis</div>
+    </div>
+    <div class="agent-card">
+      <div class="ac-icon">🏠</div>
+      <div class="ac-title">Market Intelligence Agent</div>
+      <div class="ac-desc">Pulls live comps, AVM, days on market, and price trend data from RentCast — then applies ZIP-level market pressure to your offer.</div>
+      <div class="ac-tag">Live market data</div>
+    </div>
+    <div class="agent-card">
+      <div class="ac-icon">🔨</div>
+      <div class="ac-title">Repair Cost Agent</div>
+      <div class="ac-desc">Estimates repair costs for every deficiency using 47 system categories — calibrated to your local contractor market.</div>
+      <div class="ac-tag">Cost modeling</div>
+    </div>
+    <div class="agent-card">
+      <div class="ac-icon">📊</div>
+      <div class="ac-title">Offer Strategy Agent</div>
+      <div class="ac-desc">Synthesizes all findings into three offer scenarios — aggressive, recommended, and conservative — with rationale for each.</div>
+      <div class="ac-tag">Negotiation AI</div>
+    </div>
+    <div class="agent-card">
+      <div class="ac-icon">📡</div>
+      <div class="ac-title">OfferWatch Agent</div>
+      <div class="ac-desc">Monitors your property 24/7 after your offer. Alerts you instantly to price cuts, new comps, permit activity, and seismic events.</div>
+      <div class="ac-tag">Always-on monitoring</div>
+    </div>
+  </div>
+  </div>
+</section>
+
+<!-- PROOF -->
+<div class="proof-band">
+  <div class="proof-inner">
+    <div class="proof-grid">
+      <div class="proof-stats">
+        <div><div class="stat-num">13</div><div class="stat-label">Live data sources per analysis</div></div>
+        <div><div class="stat-num">60s</div><div class="stat-label">Average agent runtime</div></div>
+        <div><div class="stat-num">$28K</div><div class="stat-label">Average repair costs surfaced</div></div>
+        <div><div class="stat-num">100%</div><div class="stat-label">Disclosures cross-checked</div></div>
+      </div>
+      <div>
+        <div class="testimonial">"It found $34,000 in repairs the seller didn't disclose. We negotiated every dollar back."</div>
+        <div class="t-attr">— Sarah M., first-time buyer, San Jose CA</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CTA -->
+<div class="cta-section">
+  <div class="cta-inner">
+    <h2>Your offer deserves an AI agent in your corner.</h2>
+    <p>Upload your inspection report and seller disclosure. Get your full agentic analysis free.</p>
+    <a href="/analyze.html" class="btn-white">Start your free analysis →</a>
+    <div class="cta-fine">No credit card. No account required to start.</div>
+  </div>
+</div>
+
+<footer>
+  <div>© 2026 OfferWise AI · <a href="/privacy.html">Privacy</a> · <a href="/terms.html">Terms</a> · <a href="mailto:support@getofferwise.ai">support@getofferwise.ai</a></div>
+</footer>
+
+</body>
+</html>

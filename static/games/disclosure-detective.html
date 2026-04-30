@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Disclosure Detective — OfferWise</title>
+<meta name="description" content="Can you spot what the seller didn't tell you? Play Disclosure Detective and test your skills at catching contradictions between seller disclosures and inspection reports.">
+<meta property="og:title" content="Disclosure Detective — Can you spot what sellers hide?">
+<meta property="og:description" content="Test your skills at catching contradictions between seller disclosures and inspection findings. Free game from OfferWise.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://www.getofferwise.ai/games/disclosure-detective">
+<link rel="canonical" href="https://www.getofferwise.ai/games/disclosure-detective">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0f1a;--surface:#111827;--surface2:#1e293b;--border:#334155;--text:#f1f5f9;--text2:#94a3b8;--blue:#3b82f6;--green:#22c55e;--red:#ef4444;--yellow:#fbbf24;--orange:#f97316;--purple:#a78bfa}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;background:linear-gradient(rgba(59,130,246,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(59,130,246,.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
+.container{max-width:900px;margin:0 auto;padding:20px;position:relative;z-index:1}
+.game-header{text-align:center;padding:24px 0 16px}
+.game-header .logo{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--blue);letter-spacing:3px;text-transform:uppercase;margin-bottom:8px}
+.game-header h1{font-size:clamp(28px,5vw,42px);font-weight:700;line-height:1.1;margin-bottom:8px;background:linear-gradient(135deg,var(--text) 0%,var(--blue) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.game-header .subtitle{color:var(--text2);font-size:16px}
+.hud{display:flex;justify-content:space-between;align-items:center;padding:12px 20px;background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:16px;font-family:'JetBrains Mono',monospace}
+.hud-item{text-align:center}
+.hud-label{font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:1px}
+.hud-value{font-size:22px;font-weight:700}
+.hud-value.score{color:var(--green)}.hud-value.timer{color:var(--yellow)}.hud-value.round{color:var(--blue)}
+.hud-value.timer.warning{color:var(--red);animation:pulse .5s infinite alternate}
+@keyframes pulse{to{opacity:.5}}
+.streak-bar{display:flex;gap:6px;justify-content:center;margin-bottom:14px;min-height:24px}
+.streak-dot{width:24px;height:24px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:12px;transition:all .3s}
+.streak-dot.correct{border-color:var(--green);background:rgba(34,197,94,.15);color:var(--green)}
+.streak-dot.wrong{border-color:var(--red);background:rgba(239,68,68,.15);color:var(--red)}
+.game-area{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+@media(max-width:700px){.game-area{grid-template-columns:1fr}}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;position:relative;overflow:hidden}
+.panel::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.panel.disclosure::before{background:var(--blue)}.panel.inspection::before{background:var(--orange)}
+.panel-tag{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.panel.disclosure .panel-tag{color:var(--blue)}.panel.inspection .panel-tag{color:var(--orange)}
+.panel-tag .icon{width:18px;height:18px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:11px}
+.panel.disclosure .panel-tag .icon{background:rgba(59,130,246,.2)}.panel.inspection .panel-tag .icon{background:rgba(249,115,22,.2)}
+.finding{padding:10px 14px;margin-bottom:8px;border-radius:8px;font-size:14px;line-height:1.5;cursor:pointer;border:2px solid transparent;transition:all .15s;background:var(--surface2)}
+.finding:hover{border-color:var(--yellow);background:rgba(251,191,36,.05)}
+.finding.selected{border-color:var(--yellow);background:rgba(251,191,36,.1);box-shadow:0 0 20px rgba(251,191,36,.1)}
+.finding.correct-reveal{border-color:var(--green)!important;background:rgba(34,197,94,.1)!important}
+.finding.wrong-reveal{border-color:var(--red)!important;background:rgba(239,68,68,.05)!important}
+.finding.decoy-reveal{border-color:var(--text2)!important;opacity:.5}
+.finding .contradiction-label{display:none;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;margin-top:6px;padding:3px 8px;border-radius:4px;width:fit-content}
+.finding.correct-reveal .contradiction-label{display:block;color:var(--green);background:rgba(34,197,94,.15)}
+.finding.wrong-reveal .contradiction-label{display:block;color:var(--red);background:rgba(239,68,68,.1)}
+.action-area{text-align:center;margin-bottom:16px}
+.instruction{color:var(--text2);font-size:14px;margin-bottom:12px}
+.btn{display:inline-block;padding:12px 32px;border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:600;cursor:pointer;transition:all .15s;text-decoration:none}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn-primary{background:var(--blue);color:white}.btn-primary:hover:not(:disabled){background:#2563eb;transform:translateY(-1px)}
+.btn-green{background:var(--green);color:#0a0f1a}.btn-green:hover:not(:disabled){background:#16a34a;transform:translateY(-1px)}
+.btn-ghost{background:transparent;color:var(--text2);border:1px solid var(--border)}.btn-ghost:hover{border-color:var(--text2);color:var(--text)}
+.explanation{display:none;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 20px;margin-bottom:16px;animation:slideUp .3s ease-out}
+.explanation.show{display:block}
+.explanation h3{font-size:14px;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.explanation p{font-size:13px;color:var(--text2);line-height:1.6}
+@keyframes slideUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.screen{display:none;text-align:center}.screen.active{display:block}
+.start-hero{padding:40px 20px}
+.start-hero .badge{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--yellow);background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.2);padding:4px 12px;border-radius:20px;margin-bottom:16px;letter-spacing:1px}
+.start-hero h2{font-size:clamp(32px,6vw,52px);font-weight:700;margin-bottom:16px;line-height:1.1}
+.start-hero .desc{color:var(--text2);font-size:17px;max-width:500px;margin:0 auto 24px;line-height:1.6}
+.how-it-works{display:flex;gap:24px;justify-content:center;margin:24px 0;flex-wrap:wrap}
+.how-step{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px 20px;width:160px;text-align:center}
+.how-step .num{font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:700;color:var(--blue);margin-bottom:6px}
+.how-step .label{font-size:13px;color:var(--text2)}
+.difficulty-select{display:flex;gap:10px;justify-content:center;margin:20px 0 24px}
+.diff-btn{padding:10px 20px;background:var(--surface);border:2px solid var(--border);border-radius:10px;color:var(--text2);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all .15s;text-align:center;min-width:90px}
+.diff-btn:hover{border-color:var(--text2)}
+.diff-btn.active{border-color:var(--blue);background:rgba(59,130,246,.1);color:var(--text)}
+.diff-btn .diff-count{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text2);margin-top:2px}
+.pb-badge{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--yellow);background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.15);padding:4px 10px;border-radius:6px;margin-top:12px}
+.results-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:40px;margin:20px auto;max-width:500px;text-align:center}
+.results-card .grade{font-size:72px;font-weight:700;font-family:'JetBrains Mono',monospace;margin-bottom:8px}
+.results-card .grade.a{color:var(--green)}.results-card .grade.b{color:var(--blue)}.results-card .grade.c{color:var(--yellow)}.results-card .grade.d{color:var(--orange)}.results-card .grade.f{color:var(--red)}
+.results-card .title{font-size:22px;font-weight:700;margin-bottom:4px}
+.results-card .sub{color:var(--text2);font-size:14px;margin-bottom:24px}
+.stat-row{display:flex;justify-content:space-around;gap:12px;margin-bottom:24px}
+.stat{text-align:center}.stat .val{font-family:'JetBrains Mono',monospace;font-size:28px;font-weight:700}.stat .lbl{font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:1px}
+.emoji-grid{font-family:'JetBrains Mono',monospace;font-size:24px;letter-spacing:4px;margin:12px 0 20px;line-height:1.6}
+.new-pb{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--yellow);background:rgba(251,191,36,.15);border:1px solid rgba(251,191,36,.25);padding:6px 16px;border-radius:20px;margin-bottom:16px;animation:streakPulse .6s ease-out}
+@keyframes streakPulse{0%{transform:scale(1)}50%{transform:scale(1.3)}100%{transform:scale(1)}}
+.cta-box{background:linear-gradient(135deg,rgba(59,130,246,.1),rgba(34,197,94,.1));border:1px solid rgba(59,130,246,.2);border-radius:12px;padding:20px;margin:20px 0}
+.cta-box h3{font-size:15px;margin-bottom:6px}.cta-box p{font-size:13px;color:var(--text2);margin-bottom:12px}
+.share-row{display:flex;gap:10px;justify-content:center;margin-top:16px;flex-wrap:wrap}
+.cross-promo{margin-top:20px;padding:14px;background:var(--surface2);border:1px solid var(--border);border-radius:10px}
+.cross-promo a{color:var(--red);text-decoration:none;font-weight:600;font-size:14px}
+.cross-promo p{font-size:12px;color:var(--text2);margin-top:4px}
+.email-capture{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;margin:16px 0;text-align:center}
+.email-capture h4{font-size:14px;margin-bottom:4px;color:var(--text)}
+.email-capture p{font-size:12px;color:var(--text2);margin-bottom:12px}
+.email-capture .email-row{display:flex;gap:8px;max-width:360px;margin:0 auto}
+.email-capture input{flex:1;padding:10px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;outline:none}
+.email-capture input::placeholder{color:var(--text2)}
+.email-capture input:focus{border-color:var(--blue)}
+.email-capture .btn-email{padding:10px 20px;background:var(--green);color:#0a0f1a;border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer}
+.email-capture .skip-link{display:block;margin-top:8px;font-size:11px;color:var(--text2);cursor:pointer;background:none;border:none;font-family:'DM Sans',sans-serif}
+.email-capture .success-msg{color:var(--green);font-size:13px;font-weight:600}
+.readiness-badge{background:linear-gradient(135deg,rgba(167,139,250,.1),rgba(59,130,246,.1));border:1px solid rgba(167,139,250,.2);border-radius:12px;padding:16px 20px;margin:16px 0;text-align:center}
+.readiness-badge .label{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--purple);margin-bottom:6px}
+.readiness-badge .score-val{font-family:'JetBrains Mono',monospace;font-size:36px;font-weight:700;background:linear-gradient(135deg,var(--purple),var(--blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.readiness-badge .score-label{font-size:12px;color:var(--text2);margin-top:2px}
+.readiness-badge .breakdown{display:flex;justify-content:center;gap:16px;margin-top:10px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text2)}
+.readiness-badge .breakdown span{padding:2px 8px;background:var(--surface2);border-radius:4px}
+.result-flash{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0);font-size:72px;z-index:50;pointer-events:none;animation:flashIn .5s ease-out}
+@keyframes flashIn{0%{transform:translate(-50%,-50%) scale(0);opacity:1}50%{transform:translate(-50%,-50%) scale(1.3);opacity:1}100%{transform:translate(-50%,-50%) scale(1);opacity:0}}
+.points-popup{position:fixed;top:40%;left:50%;transform:translateX(-50%);font-family:'JetBrains Mono',monospace;font-size:24px;font-weight:700;pointer-events:none;z-index:50;animation:pointsFly 1s ease-out forwards}
+@keyframes pointsFly{0%{opacity:1;transform:translateX(-50%) translateY(0)}100%{opacity:0;transform:translateX(-50%) translateY(-60px)}}
+#confetti{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:100}
+</style>
+</head>
+<body>
+<div class="container">
+  <header class="game-header">
+    <div class="logo">OfferWise AI</div>
+    <h1>Disclosure Detective</h1>
+    <p class="subtitle">Can you spot what the seller didn't tell you?</p>
+  </header>
+
+  <!-- START SCREEN -->
+  <div id="startScreen" class="screen active">
+    <div class="start-hero">
+      <div class="badge">🔍 FREE GAME</div>
+      <h2>Think You Can<br>Spot the Lies?</h2>
+      <p class="desc">Sellers are required to disclose property defects. But what happens when the inspection tells a different story? <strong style="color:var(--yellow);">Click the contradicting pair</strong> — one from the disclosure, one from the inspection — before time runs out.</p>
+      <div class="how-it-works">
+        <div class="how-step"><div class="num">01</div><div class="label">Read the seller's disclosure</div></div>
+        <div class="how-step"><div class="num">02</div><div class="label">Read the inspector's findings</div></div>
+        <div class="how-step"><div class="num">03</div><div class="label">Click the contradicting pair</div></div>
+      </div>
+      <div class="difficulty-select">
+        <button class="diff-btn active" onclick="setDifficulty(5,this)">Quick<div class="diff-count">5 rounds</div></button>
+        <button class="diff-btn" onclick="setDifficulty(7,this)">Normal<div class="diff-count">7 rounds</div></button>
+        <button class="diff-btn" onclick="setDifficulty(10,this)">Expert<div class="diff-count">10 rounds</div></button>
+      </div>
+      <button class="btn btn-primary" onclick="startGame()" style="font-size:18px;padding:16px 48px;">Start Playing →</button>
+      <div id="pbDisplay"></div>
+      <p style="color:var(--text2);font-size:12px;margin-top:12px;">5 rounds · 45 seconds each · No signup required</p>
+      <p style="margin-top:20px;"><a href="/games/red-flag-game" style="color:var(--red);font-size:14px;text-decoration:none;font-weight:600;">🚩 Or try Red Flag or No Big Deal →</a></p>
+    </div>
+  </div>
+
+  <!-- GAME SCREEN -->
+  <div id="gameScreen" class="screen">
+    <div class="hud">
+      <div class="hud-item"><div class="hud-label">Score</div><div class="hud-value score" id="score">0</div></div>
+      <div class="hud-item"><div class="hud-label">Time</div><div class="hud-value timer" id="timer">45</div></div>
+      <div class="hud-item"><div class="hud-label">Round</div><div class="hud-value round" id="round">1/5</div></div>
+      <div class="hud-item"><div class="hud-label">Streak</div><div class="hud-value" id="streak" style="color:var(--yellow)">0🔥</div></div>
+    </div>
+    <div class="streak-bar" id="streakBar"></div>
+    <div class="game-area" id="gameArea"></div>
+    <div class="action-area">
+      <p class="instruction" id="instruction">Click the finding that contradicts the disclosure</p>
+      <button class="btn btn-green" id="nextBtn" onclick="nextRound()" style="display:none;">Next Round →</button>
+    </div>
+    <div class="explanation" id="explanation"></div>
+  </div>
+
+  <!-- RESULTS SCREEN -->
+  <div id="resultsScreen" class="screen"><div class="results-card" id="resultsCard"></div></div>
+</div>
+<canvas id="confetti"></canvas>
+
+<script>
+// ============================================================
+// SCENARIO POOL — 20 scenarios (doubled from original 10)
+// Each scenario stores the contradiction as a separate pair,
+// plus a pool of decoy disclosures and findings.
+// At runtime, positions are randomized so the contradiction
+// can appear in any slot.
+// ============================================================
+const SCENARIOS=[
+// === ORIGINAL 10 (reformatted for randomization) ===
+{
+  context:"Single-family home, built 1978, San Jose CA",
+  contraDisc:"Seller states: \"No knowledge of any water intrusion or moisture problems.\"",
+  contraFind:"Inspector observed active water staining on the garage ceiling with visible mold growth, consistent with a chronic leak.",
+  decoyDisc:[
+    "Seller states: \"Roof was replaced approximately 8 years ago.\"",
+    "Seller states: \"All plumbing fixtures are in working condition.\"",
+    "Seller states: \"Garage has been used only for vehicle storage.\""
+  ],
+  decoyFind:[
+    "Roof shingles show normal wear consistent with age. Estimated 12-15 years of remaining life.",
+    "All faucets tested — functional. Water heater is 9 years old, approaching end of typical service life.",
+    "Garage door opener is operational. Safety auto-reverse mechanism tested and functioning."
+  ],
+  explanation:"The seller claimed no knowledge of water problems, but the inspector found active water staining with mold growth. Mold indicates a chronic, long-standing issue — the seller almost certainly knew about this. This is a classic disclosure violation under CA Civil Code §1102.",
+  severity:"high",savings:"$8,000 – $15,000"
+},
+{
+  context:"Townhome, built 2004, Sunnyvale CA",
+  contraDisc:"Seller states: \"No additions or modifications were made without required permits.\"",
+  contraFind:"Converted garage appears to be used as a bedroom with no visible building permit on file with the city. Electrical work in this area does not meet current code.",
+  decoyDisc:[
+    "Seller states: \"HOA dues are current and no special assessments pending.\"",
+    "Seller states: \"HVAC system was serviced within the last 12 months.\"",
+    "Seller states: \"No insurance claims filed on the property.\""
+  ],
+  decoyFind:[
+    "HVAC system is functional. Filter is clean. Condensate line is clear.",
+    "Minor cosmetic cracks in interior drywall. Typical settlement for this age.",
+    "Exterior stucco is in good condition with no visible cracking."
+  ],
+  explanation:"The seller claimed all work was permitted, but the inspector found an unpermitted garage conversion used as a bedroom. Unpermitted work can cost $15,000-$40,000 to remedy and may affect insurance coverage.",
+  severity:"high",savings:"$15,000 – $40,000"
+},
+{
+  context:"Ranch home, built 1962, Fremont CA",
+  contraDisc:"Seller states: \"Electrical system has been updated and is in good condition.\"",
+  contraFind:"Main electrical panel is a Federal Pacific Electric (FPE) Stab-Lok panel. These panels have a documented history of failing to trip during overcurrent events and are considered a fire hazard.",
+  decoyDisc:[
+    "Seller states: \"There are no known issues with the foundation.\"",
+    "Seller states: \"Landscaping irrigation is functional.\"",
+    "Seller states: \"No pest or termite issues.\""
+  ],
+  decoyFind:[
+    "Foundation appears stable. No visible cracks exceeding 1/8 inch. Minor efflorescence on garage wall.",
+    "Irrigation timer is operational. Two sprinkler heads in the backyard need replacement.",
+    "No visible evidence of active termite activity. Wood damage noted on fence post only."
+  ],
+  explanation:"The seller said electrical was 'updated and in good condition,' but the inspector found an FPE Stab-Lok panel — a well-documented fire hazard that most insurers refuse to cover.",
+  severity:"critical",savings:"$2,000 – $4,000"
+},
+{
+  context:"Condo, built 1988, Mountain View CA",
+  contraDisc:"Seller states: \"All windows are original and in working condition.\"",
+  contraFind:"Multiple windows show failed thermal seals with visible condensation between panes. Three windows do not latch properly and are a security concern.",
+  decoyDisc:[
+    "Seller states: \"No knowledge of any pest or wood-destroying organism issues.\"",
+    "Seller states: \"No neighborhood noise concerns.\"",
+    "Seller states: \"Interior has been freshly painted.\""
+  ],
+  decoyFind:[
+    "No visible evidence of wood-destroying organisms. Recommend a Section 1 pest report before closing.",
+    "Smoke detectors present in all bedrooms. CO detector present in hallway.",
+    "Interior paint appears recently applied. No peeling or bubbling observed."
+  ],
+  explanation:"Seller claimed all windows are 'in working condition,' but the inspector found failed thermal seals and three windows that don't latch — a security issue.",
+  severity:"medium",savings:"$3,000 – $8,000"
+},
+{
+  context:"Single-family, built 1995, Santa Clara CA",
+  contraDisc:"Seller states: \"No flooding or drainage problems on the property.\"",
+  contraFind:"Significant water pooling observed at the foundation perimeter on the north side. Soil grading directs water toward the structure rather than away from it. Evidence of prior water entry at the base of the exterior wall.",
+  decoyDisc:[
+    "Seller states: \"Appliances are being sold as-is.\"",
+    "Seller states: \"Property is not in a flood zone.\"",
+    "Seller states: \"Backyard fence was installed 3 years ago.\""
+  ],
+  decoyFind:[
+    "Dishwasher and range are functional. Refrigerator was not tested (personal property).",
+    "Gutters are clogged with debris. Downspouts discharge too close to the foundation.",
+    "Backyard fence is in good condition. One post shows minor lean."
+  ],
+  explanation:"Seller said no flooding or drainage problems, but the inspector found water pooling at the foundation with evidence of prior water entry. The grading issue means this has been happening for a long time.",
+  severity:"high",savings:"$5,000 – $12,000"
+},
+{
+  context:"Split-level, built 1971, Campbell CA",
+  contraDisc:"Seller states: \"No knowledge of any issues with the heating system.\"",
+  contraFind:"Furnace heat exchanger shows visible cracks. This is a potential carbon monoxide hazard and the furnace should not be operated until repaired or replaced.",
+  decoyDisc:[
+    "Seller states: \"Sewer line was scoped and cleared last year.\"",
+    "Seller states: \"All GFCIs are functional.\"",
+    "Seller states: \"Water heater was replaced 4 years ago.\""
+  ],
+  decoyFind:[
+    "Sewer scope report from 2025 on file shows minor root intrusion at 45 feet. Re-scope in 2 years recommended.",
+    "GFCI outlets in kitchen and bathrooms tested and tripped correctly.",
+    "Water heater is 4 years old and functioning normally. Anode rod should be checked."
+  ],
+  explanation:"Seller claimed no knowledge of heating system issues, but the inspector found a cracked heat exchanger — a carbon monoxide hazard. This develops over time with visible symptoms a homeowner would notice.",
+  severity:"critical",savings:"$3,500 – $7,000"
+},
+{
+  context:"Victorian, built 1905, San Jose CA",
+  contraDisc:"Seller states: \"No asbestos, lead paint, or other hazardous materials known.\"",
+  contraFind:"Lead-based paint detected on window trim and door frames via XRF testing. This is expected for pre-1978 construction. Paint is currently intact but deteriorating in the upstairs bedroom.",
+  decoyDisc:[
+    "Seller states: \"Property has been maintained in good condition.\"",
+    "Seller states: \"All bedrooms have proper egress windows.\"",
+    "Seller states: \"Chimney was cleaned within the past year.\""
+  ],
+  decoyFind:[
+    "Original hardwood floors are in good condition. Minor refinishing recommended.",
+    "All bedroom windows meet egress requirements. Screens are present.",
+    "Chimney flue is clear. Minor mortar deterioration at the crown."
+  ],
+  explanation:"In a 1905 home, the seller claiming 'no known hazardous materials' while lead paint is actively deteriorating is a serious disclosure failure. Federal law requires sellers of pre-1978 homes to disclose known lead paint.",
+  severity:"high",savings:"$4,000 – $10,000"
+},
+{
+  context:"Contemporary, built 2015, Milpitas CA",
+  contraDisc:"Seller states: \"Roof is in excellent condition with no leaks.\"",
+  contraFind:"Multiple areas of improper roof flashing observed at chimney and skylight penetrations. Active moisture reading detected at the skylight area. Recommend immediate repair.",
+  decoyDisc:[
+    "Seller states: \"Home has a transferable builder's warranty.\"",
+    "Seller states: \"Solar panels are owned, not leased.\"",
+    "Seller states: \"All smart home features are functional.\""
+  ],
+  decoyFind:[
+    "Builder's warranty documentation was not available for review. Buyer should verify transferability.",
+    "Solar panel system is operational. Inverter shows normal output. Panels are clean.",
+    "Smart thermostat and doorbell camera are functioning. Lock codes should be reset at move-in."
+  ],
+  explanation:"Seller stated the roof is in 'excellent condition with no leaks,' but the inspector found improper flashing and active moisture at the skylight.",
+  severity:"high",savings:"$6,000 – $15,000"
+},
+{
+  context:"Eichler, built 1958, Palo Alto CA",
+  contraDisc:"Seller states: \"Plumbing has been updated with copper piping.\"",
+  contraFind:"Visible sections of galvanized steel pipe remain throughout the kitchen and main bathroom supply lines. Corrosion is present. Only the front bathroom appears to have been re-piped with copper.",
+  decoyDisc:[
+    "Seller states: \"Radiant floor heating system is operational.\"",
+    "Seller states: \"Attic insulation was added 5 years ago.\"",
+    "Seller states: \"Original post-and-beam structure is intact.\""
+  ],
+  decoyFind:[
+    "Radiant floor heating tested — all zones functional. Boiler is 12 years old.",
+    "Attic insulation present — appears to be R-30 blown-in fiberglass. Good coverage.",
+    "Post-and-beam roof structure is in good condition. No signs of sagging."
+  ],
+  explanation:"Seller claimed plumbing was 'updated with copper piping,' but the inspector found original galvanized steel pipes still in the kitchen and main bathroom. Galvanized pipes corrode from the inside.",
+  severity:"medium",savings:"$8,000 – $20,000"
+},
+{
+  context:"Single-family, built 1985, Cupertino CA",
+  contraDisc:"Seller states: \"No settling, soil, or grading issues.\"",
+  contraFind:"Stair-step cracking observed in the exterior brick veneer on the east wall. Interior door frames show out-of-square conditions. Evidence of prior cosmetic repair over foundation cracks. Recommend structural engineer evaluation.",
+  decoyDisc:[
+    "Seller states: \"Air conditioning system works well and was recently serviced.\"",
+    "Seller states: \"Fireplace is wood-burning and functional.\"",
+    "Seller states: \"Exterior was repainted 2 years ago.\""
+  ],
+  decoyFind:[
+    "AC system produced 18°F temperature differential. Compressor is 6 years old — good condition.",
+    "Fireplace damper is operational. Firebox shows normal wear. Flue is not visible — chimney scope recommended.",
+    "Exterior paint is in good condition. No peeling or bubbling noted."
+  ],
+  explanation:"Seller claimed no settling or soil issues, but the inspector found stair-step cracking, out-of-square door frames, and cosmetic patches hiding foundation cracks. The cosmetic repair is especially damning — the seller literally covered up the evidence.",
+  severity:"critical",savings:"$20,000 – $100,000+"
+},
+// === 10 NEW SCENARIOS (doubled pool) ===
+{
+  context:"Mid-century modern, built 1967, Los Gatos CA",
+  contraDisc:"Seller states: \"No knowledge of any sewage or septic system issues.\"",
+  contraFind:"Sewer scope reveals complete pipe separation at 32 feet with active root intrusion. Bellied section at 55 feet trapping debris. Inspector recommends full line replacement.",
+  decoyDisc:[
+    "Seller states: \"Pool equipment was serviced annually.\"",
+    "Seller states: \"Retaining wall was professionally built.\"",
+    "Seller states: \"All bathroom fixtures are in working condition.\""
+  ],
+  decoyFind:[
+    "Pool pump is operational. Filter pressure is within normal range. Heater ignites properly.",
+    "Retaining wall shows minor efflorescence but no structural lean. Drainage weep holes present.",
+    "Master bathroom faucets are functional. Shower valve shows normal wear."
+  ],
+  explanation:"The seller claimed no knowledge of sewage issues, but the inspector's sewer scope found a complete pipe separation — a catastrophic failure that causes obvious symptoms like slow drains and gurgling that the seller would have experienced daily.",
+  severity:"critical",savings:"$10,000 – $25,000"
+},
+{
+  context:"Colonial, built 1942, Saratoga CA",
+  contraDisc:"Seller states: \"No mold or mildew conditions exist on the property.\"",
+  contraFind:"Significant black mold growth identified behind the master bathroom vanity during removal of the access panel. Moisture levels in the wall cavity measured at 35%, indicating an active leak source behind the shower wall.",
+  decoyDisc:[
+    "Seller states: \"Original hardwood floors refinished last year.\"",
+    "Seller states: \"Electrical panel was upgraded to 200-amp service.\"",
+    "Seller states: \"Attic has been converted to usable storage space.\""
+  ],
+  decoyFind:[
+    "Hardwood floors are in excellent condition with fresh finish. Minor wear at high-traffic areas.",
+    "Electrical panel is a 200-amp Square D panel. All breakers tested and functioning properly.",
+    "Attic storage area has plywood flooring over joists. Adequate ventilation present."
+  ],
+  explanation:"The seller denied any mold conditions, but the inspector found significant black mold behind the bathroom vanity with 35% moisture levels — far above the 15% threshold. This level of growth takes months to develop.",
+  severity:"critical",savings:"$8,000 – $20,000"
+},
+{
+  context:"Craftsman bungalow, built 1923, San Jose CA",
+  contraDisc:"Seller states: \"Home has been properly maintained and all systems are functional.\"",
+  contraFind:"Knob-and-tube wiring found active in the attic and walls. Insulation has been placed directly over wires in multiple locations — a fire hazard. Several circuits show signs of amateur splicing with non-rated materials.",
+  decoyDisc:[
+    "Seller states: \"Original built-in cabinetry has been preserved.\"",
+    "Seller states: \"Driveway was repaved within the last 5 years.\"",
+    "Seller states: \"Bathroom was updated with modern fixtures.\""
+  ],
+  decoyFind:[
+    "Built-in cabinetry is original and in good condition. Doors and drawers operate smoothly.",
+    "Driveway is in good condition with no significant cracking or settling.",
+    "Bathroom fixtures appear updated. Tile work is well-executed with clean grout lines."
+  ],
+  explanation:"Claiming 'all systems are functional' while having active knob-and-tube wiring buried under insulation is a serious misrepresentation. K&T covered by insulation is one of the top causes of electrical fires in older homes. Most insurers won't cover it.",
+  severity:"critical",savings:"$12,000 – $25,000"
+},
+{
+  context:"Townhome, built 2010, Dublin CA",
+  contraDisc:"Seller states: \"No water heater issues. Unit was replaced 2 years ago.\"",
+  contraFind:"Water heater serial number decodes to a manufacture date of 2011 — making the unit 14 years old, not 2 years. Significant rust at the base with active weeping from the relief valve. Tank replacement is imminent.",
+  decoyDisc:[
+    "Seller states: \"HOA is well-funded with no litigation pending.\"",
+    "Seller states: \"Windows are dual-pane and energy efficient.\"",
+    "Seller states: \"Garage floor has epoxy coating in good condition.\""
+  ],
+  decoyFind:[
+    "HOA documents reviewed — reserve study appears adequate. No special assessments noted.",
+    "Windows are dual-pane vinyl with intact seals. No fogging observed.",
+    "Garage floor epoxy shows normal tire marks but no peeling."
+  ],
+  explanation:"The seller claimed the water heater was replaced 2 years ago, but the serial number proves it's 14 years old — past its typical lifespan. The rust and weeping relief valve confirm the unit is failing. This is a provably false statement.",
+  severity:"medium",savings:"$1,500 – $3,000"
+},
+{
+  context:"Ranch, built 1975, Morgan Hill CA",
+  contraDisc:"Seller states: \"Roof has at least 10 years of remaining life per our roofer's assessment.\"",
+  contraFind:"Extensive granule loss in all gutters. Multiple shingles are curled and cracked. Three areas of active flashing failure. Daylight visible through the roof decking in the attic. Inspector estimates 1-2 years remaining life at best.",
+  decoyDisc:[
+    "Seller states: \"Central air conditioning was installed 5 years ago.\"",
+    "Seller states: \"Hardscape and patio are in good condition.\"",
+    "Seller states: \"No neighborhood nuisance issues.\""
+  ],
+  decoyFind:[
+    "AC unit is 5 years old and functioning well. Ductwork is properly sealed in the attic.",
+    "Patio pavers are level with no significant settling. Minor moss growth in shaded areas.",
+    "Property is in a quiet cul-de-sac. No unusual noise during the inspection."
+  ],
+  explanation:"The seller claimed 10+ years of roof life, but the inspector found extensive failures including daylight through the decking — a clear sign the roof is at end-of-life. Either the seller fabricated the roofer's assessment or it was never done.",
+  severity:"high",savings:"$15,000 – $30,000"
+},
+{
+  context:"Mediterranean, built 2001, Gilroy CA",
+  contraDisc:"Seller states: \"Swimming pool and spa are fully operational with no known defects.\"",
+  contraFind:"Pool plaster shows significant delamination and roughness. Spa jet pump is non-functional. Pool deck has multiple raised expansion joints creating trip hazards. Chlorinator cell is heavily calcified and not generating chlorine.",
+  decoyDisc:[
+    "Seller states: \"Tile roof was inspected and sealed last year.\"",
+    "Seller states: \"Tankless water heater was descaled recently.\"",
+    "Seller states: \"Landscaping is on an automated drip system.\""
+  ],
+  decoyFind:[
+    "Tile roof appears well-maintained. No cracked or displaced tiles observed from ground level.",
+    "Tankless water heater is producing hot water at all fixtures. Unit is 8 years old.",
+    "Drip irrigation system is operational. Timer is set and running. One emitter in the front bed is clogged."
+  ],
+  explanation:"The seller described the pool and spa as 'fully operational with no known defects,' but the inspector found a non-functional spa pump, failing plaster, trip hazards, and a dead chlorinator. These are expensive repairs the seller uses daily — impossible not to know about.",
+  severity:"high",savings:"$12,000 – $25,000"
+},
+{
+  context:"Cape Cod, built 1952, Sunnyvale CA",
+  contraDisc:"Seller states: \"Basement is dry and has never had water issues.\"",
+  contraFind:"Efflorescence and water staining visible on all four basement walls. Floor shows tide marks from repeated flooding. A sump pump was found hidden behind stored items — evidence that water has been an ongoing managed problem.",
+  decoyDisc:[
+    "Seller states: \"Upstairs bathroom was renovated in 2020.\"",
+    "Seller states: \"Gas furnace is serviced annually.\"",
+    "Seller states: \"Original wood siding is in good condition.\""
+  ],
+  decoyFind:[
+    "Upstairs bathroom shows quality renovation work. Tile, fixtures, and ventilation all appear well-done.",
+    "Gas furnace is 11 years old. Flame pattern is normal. Filter is clean.",
+    "Wood siding shows paint wear on the south side but no rot. Recommend repainting within 2 years."
+  ],
+  explanation:"The seller claimed the basement is dry and has 'never had water issues,' but the inspector found efflorescence on all four walls, flood tide marks on the floor, and a hidden sump pump. A sump pump exists precisely because there are water issues.",
+  severity:"high",savings:"$10,000 – $30,000"
+},
+{
+  context:"Modern farmhouse, built 2018, San Jose CA",
+  contraDisc:"Seller states: \"No known defects with the HVAC system. Both units serviced in January.\"",
+  contraFind:"Upstairs HVAC unit has a refrigerant leak at the evaporator coil. System is 3 lbs low on R-410A. Compressor is short-cycling every 4 minutes. Downstairs unit is functioning normally.",
+  decoyDisc:[
+    "Seller states: \"Smart home system works with the included hub.\"",
+    "Seller states: \"EV charger in the garage was professionally installed.\"",
+    "Seller states: \"Quartz countertops have no chips or cracks.\""
+  ],
+  decoyFind:[
+    "Smart home hub is connected and operational. Buyer should factory reset all devices at move-in.",
+    "EV charger is on a dedicated 50-amp circuit with proper disconnect. Installation appears code-compliant.",
+    "Quartz countertops are in excellent condition. Seams are tight."
+  ],
+  explanation:"The seller said no known HVAC defects and claimed recent service, but the upstairs unit has a significant refrigerant leak causing short-cycling. A real HVAC service would have caught this — either the service was never done, or the seller is hiding the diagnosis.",
+  severity:"high",savings:"$3,000 – $8,000"
+},
+{
+  context:"Tri-level, built 1980, Cupertino CA",
+  contraDisc:"Seller states: \"All bathroom and kitchen plumbing is leak-free.\"",
+  contraFind:"Active leak observed under the kitchen sink at the supply line connection. Water damage visible on the cabinet floor with softened wood and mold growth. Damage pattern indicates a slow leak over many months.",
+  decoyDisc:[
+    "Seller states: \"Garage has been used for storage only.\"",
+    "Seller states: \"Deck was stained and sealed this summer.\"",
+    "Seller states: \"Security system is active and transferable.\""
+  ],
+  decoyFind:[
+    "Garage is being used for storage. No unpermitted modifications observed. Fire separation wall is intact.",
+    "Deck stain appears fresh. No soft spots or structural concerns. Railing is secure.",
+    "Security system panel is active. Seller should provide transfer instructions and access codes."
+  ],
+  explanation:"The seller declared all plumbing leak-free, but the inspector found an active leak under the kitchen sink with months of accumulated water damage and mold. The softened wood and mold growth prove this has been ongoing — not a sudden occurrence.",
+  severity:"medium",savings:"$2,000 – $5,000"
+},
+{
+  context:"Spanish revival, built 1936, Los Altos CA",
+  contraDisc:"Seller states: \"Foundation was reinforced and bolted. No structural concerns.\"",
+  contraFind:"No evidence of seismic retrofitting found during the crawl space inspection. Original unreinforced masonry foundation with no anchor bolts. Cripple walls are not braced. Mudsill shows signs of dry rot at the southwest corner.",
+  decoyDisc:[
+    "Seller states: \"Clay tile roof was repaired last spring.\"",
+    "Seller states: \"Original arched doorways have been preserved.\"",
+    "Seller states: \"Copper plumbing throughout the home.\""
+  ],
+  decoyFind:[
+    "Clay tile roof shows quality repair work in the front section. Underlayment appears adequate.",
+    "Arched doorways are original and intact. Decorative plaster is in good condition.",
+    "Visible supply lines in the crawl space are copper. Drain lines are cast iron with some surface corrosion."
+  ],
+  explanation:"The seller claimed the foundation was reinforced and bolted, but the inspector found no evidence of any seismic retrofitting — no anchor bolts, no cripple wall bracing. In earthquake country, this is both a safety hazard and a provably false disclosure.",
+  severity:"critical",savings:"$15,000 – $30,000"
+}
+];
+
+// ============================================================
+// GAME ENGINE — with randomized positions and decoys
+// ============================================================
+let totalRounds=5;
+let state={currentRound:0,score:0,streak:0,maxStreak:0,correct:0,results:[],timerInterval:null,timeLeft:45,selectedDisclosure:null,selectedFinding:null,roundActive:false,shuffled:[],prepared:[]};
+
+function setDifficulty(r,btn){totalRounds=r;document.querySelectorAll('.diff-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');showPersonalBest()}
+
+// === PERSONAL BEST ===
+function getPersonalBest(){try{return JSON.parse(localStorage.getItem('dd_pb')||'{}')}catch{return{}}}
+function savePersonalBest(rounds,score,pct){try{const d=getPersonalBest();const k='r'+rounds;if(!d[k]||score>d[k].score){d[k]={score,pct,date:new Date().toLocaleDateString()};localStorage.setItem('dd_pb',JSON.stringify(d));return true}return false}catch{return false}}
+function showPersonalBest(){const pb=getPersonalBest()['r'+totalRounds];const el=document.getElementById('pbDisplay');el.innerHTML=pb?'<div class="pb-badge">🏆 Personal best: '+pb.score+' pts ('+pb.pct+'%)</div>':''}
+
+// === CROSS-GAME PROGRESSION ===
+function getReadinessData(){try{return JSON.parse(localStorage.getItem('ow_readiness')||'{}')}catch{return{}}}
+function saveReadinessData(d){try{localStorage.setItem('ow_readiness',JSON.stringify(d))}catch{}}
+function updateReadiness(game,pct,score){
+  const d=getReadinessData();
+  if(!d[game]||score>d[game].score) d[game]={pct,score,date:new Date().toISOString()};
+  d.lastPlayed=game;d.lastDate=new Date().toISOString();
+  saveReadinessData(d);
+}
+function calcReadinessScore(){
+  const d=getReadinessData();
+  const rf=d.redFlag?d.redFlag.pct:0;
+  const dd=d.detective?d.detective.pct:0;
+  if(rf===0&&dd===0) return null;
+  if(rf>0&&dd===0) return {score:Math.round(rf*.4),rfPct:rf,ddPct:0,partial:true};
+  if(rf===0&&dd>0) return {score:Math.round(dd*.6),rfPct:0,ddPct:dd,partial:true};
+  return {score:Math.round(rf*.4+dd*.6),rfPct:rf,ddPct:dd,partial:false};
+}
+function getReadinessLabel(s){
+  if(s>=90) return "Ready to Buy";
+  if(s>=75) return "Well Prepared";
+  if(s>=60) return "Getting There";
+  if(s>=40) return "Needs Practice";
+  return "Just Starting";
+}
+
+// === EMAIL CAPTURE ===
+function isEmailCaptured(){return !!localStorage.getItem('ow_email')}
+function submitEmail(formId){
+  const input=document.querySelector('#'+formId+' input[type="email"]');
+  const email=input?input.value.trim():'';
+  if(!email||!email.includes('@')){input.style.borderColor='var(--red)';return}
+  localStorage.setItem('ow_email',email);
+  fetch('/api/game-email',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,source:'disclosure-detective',score:state.score,pct:Math.round(state.correct/totalRounds*100)})}).catch(()=>{});
+  document.getElementById(formId).innerHTML='<p class="success-msg">✅ You\'re in! Check your inbox for disclosure tips.</p>';
+  trackEvent('game_email_capture',{game:'disclosure_detective',score:state.score});
+}
+function skipEmail(formId){document.getElementById(formId).style.display='none'}
+
+// === DYNAMIC CTA BASED ON PERFORMANCE ===
+function getDynamicCTA(pct,missed){
+  if(pct>=90) return {h:'🤖 You\'re sharp — but our AI does this in seconds',p:'You spotted the contradictions, but in a real deal you won\'t have 45 seconds per item. Upload your actual inspection report and seller disclosure — our AI cross-references every line instantly.'};
+  if(pct>=70) return {h:'🤖 Good instincts — now try it on YOUR deal',p:'You caught most of the lies, but real disclosures are 10+ pages long with subtle contradictions buried in legal language. Our AI reads every word and flags what doesn\'t match.'};
+  if(missed>=3) return {h:'🚨 You missed '+missed+' contradictions — sellers count on that',p:'Those missed contradictions could cost you $'+((missed*10000).toLocaleString())+' or more. OfferWise AI catches every discrepancy automatically and gives you the evidence to negotiate.'};
+  return {h:'🤖 Our AI catches what you missed',p:'Every contradiction you missed? Our AI would have flagged it instantly. Upload your inspection report and seller disclosure to get a complete Seller Transparency Report™.'};
+}
+
+// === PREPARE ROUND — Randomize contradiction position, add decoys ===
+function prepareRound(scenario){
+  // Determine number of items per panel (3 base + sometimes 1 decoy for harder difficulty)
+  const numItems=totalRounds>=10?4:3;
+  
+  // Pick random position for the contradiction in each panel
+  const discPos=Math.floor(Math.random()*numItems);
+  const findPos=Math.floor(Math.random()*numItems);
+  
+  // Build disclosure list: shuffle decoys, insert contradiction at random pos
+  const shuffledDecoyDisc=[...scenario.decoyDisc].sort(()=>Math.random()-.5).slice(0,numItems-1);
+  const disclosures=[];
+  for(let i=0;i<numItems;i++){
+    if(i===discPos) disclosures.push({text:scenario.contraDisc,isContradiction:true});
+    else disclosures.push({text:shuffledDecoyDisc.pop()||scenario.decoyDisc[0],isContradiction:false});
+  }
+  
+  // Build findings list: shuffle decoys, insert contradiction at random pos
+  const shuffledDecoyFind=[...scenario.decoyFind].sort(()=>Math.random()-.5).slice(0,numItems-1);
+  const findings=[];
+  for(let i=0;i<numItems;i++){
+    if(i===findPos) findings.push({text:scenario.contraFind,isContradiction:true});
+    else findings.push({text:shuffledDecoyFind.pop()||scenario.decoyFind[0],isContradiction:false});
+  }
+  
+  return {
+    context:scenario.context,
+    disclosures,
+    findings,
+    contradictionPair:[discPos,findPos],
+    explanation:scenario.explanation,
+    severity:scenario.severity,
+    savings:scenario.savings
+  };
+}
+
+function startGame(){
+  const shuffled=[...SCENARIOS].sort(()=>Math.random()-.5).slice(0,totalRounds);
+  const prepared=shuffled.map(s=>prepareRound(s));
+  state={currentRound:0,score:0,streak:0,maxStreak:0,correct:0,results:[],timerInterval:null,timeLeft:45,selectedDisclosure:null,selectedFinding:null,roundActive:false,shuffled:shuffled,prepared:prepared};
+  document.getElementById('startScreen').classList.remove('active');
+  document.getElementById('gameScreen').classList.add('active');
+  document.getElementById('resultsScreen').classList.remove('active');
+  document.getElementById('streakBar').innerHTML='';
+  loadRound();
+  trackEvent('game_start',{game:'disclosure_detective',rounds:totalRounds});
+}
+
+function loadRound(){
+  const round=state.prepared[state.currentRound];
+  state.timeLeft=45;
+  state.selectedDisclosure=null;
+  state.selectedFinding=null;
+  state.roundActive=true;
+  
+  document.getElementById('score').textContent=state.score;
+  document.getElementById('round').textContent=(state.currentRound+1)+'/'+totalRounds;
+  document.getElementById('streak').textContent=state.streak+'🔥';
+  document.getElementById('timer').textContent='45';
+  document.getElementById('timer').classList.remove('warning');
+  document.getElementById('nextBtn').style.display='none';
+  document.getElementById('explanation').classList.remove('show');
+  document.getElementById('instruction').textContent='📍 '+round.context+' — Click the contradicting pair';
+  
+  const area=document.getElementById('gameArea');
+  area.innerHTML='<div class="panel disclosure"><div class="panel-tag"><span class="icon">📋</span> SELLER DISCLOSURE</div>'+
+    round.disclosures.map((d,i)=>'<div class="finding" data-type="disclosure" data-idx="'+i+'" onclick="selectItem(\'disclosure\','+i+')">'+d.text+'<div class="contradiction-label"></div></div>').join('')+
+    '</div><div class="panel inspection"><div class="panel-tag"><span class="icon">🔍</span> INSPECTOR FINDINGS</div>'+
+    round.findings.map((f,i)=>'<div class="finding" data-type="finding" data-idx="'+i+'" onclick="selectItem(\'finding\','+i+')">'+f.text+'<div class="contradiction-label"></div></div>').join('')+
+    '</div>';
+  
+  clearInterval(state.timerInterval);
+  state.timerInterval=setInterval(()=>{
+    state.timeLeft--;
+    const timerEl=document.getElementById('timer');
+    timerEl.textContent=state.timeLeft;
+    if(state.timeLeft<=10) timerEl.classList.add('warning');
+    if(state.timeLeft<=0){clearInterval(state.timerInterval);resolveRound(false,true)}
+  },1000);
+}
+
+function selectItem(type,idx){
+  if(!state.roundActive) return;
+  if(type==='disclosure'){
+    document.querySelectorAll('[data-type="disclosure"]').forEach(el=>el.classList.remove('selected'));
+    document.querySelector('[data-type="disclosure"][data-idx="'+idx+'"]').classList.add('selected');
+    state.selectedDisclosure=idx;
+  }else{
+    document.querySelectorAll('[data-type="finding"]').forEach(el=>el.classList.remove('selected'));
+    document.querySelector('[data-type="finding"][data-idx="'+idx+'"]').classList.add('selected');
+    state.selectedFinding=idx;
+  }
+  if(state.selectedDisclosure!==null&&state.selectedFinding!==null) checkAnswer();
+}
+
+function checkAnswer(){
+  const round=state.prepared[state.currentRound];
+  const [correctDisc,correctFind]=round.contradictionPair;
+  const isCorrect=(state.selectedDisclosure===correctDisc&&state.selectedFinding===correctFind);
+  resolveRound(isCorrect,false);
+}
+
+function resolveRound(isCorrect,timedOut){
+  clearInterval(state.timerInterval);
+  state.roundActive=false;
+  
+  const round=state.prepared[state.currentRound];
+  const [correctDisc,correctFind]=round.contradictionPair;
+  
+  let points=0;
+  if(isCorrect){
+    const timeBonus=Math.floor(state.timeLeft*2);
+    const streakBonus=state.streak*10;
+    points=100+timeBonus+streakBonus;
+    state.score+=points;
+    state.streak++;
+    state.correct++;
+    if(state.streak>state.maxStreak) state.maxStreak=state.streak;
+  }else{
+    state.streak=0;
+  }
+  
+  state.results.push({correct:isCorrect,timedOut,points,timeUsed:45-state.timeLeft});
+  
+  document.getElementById('score').textContent=state.score;
+  document.getElementById('streak').textContent=state.streak+'🔥';
+  
+  // Flash
+  const flash=document.createElement('div');flash.className='result-flash';flash.textContent=isCorrect?'✅':'❌';document.body.appendChild(flash);setTimeout(()=>flash.remove(),600);
+  
+  // Points popup
+  if(isCorrect){
+    const popup=document.createElement('div');popup.className='points-popup';popup.style.color='var(--green)';popup.textContent='+'+points;if(state.streak>1)popup.textContent+=' ('+state.streak+'🔥)';document.body.appendChild(popup);setTimeout(()=>popup.remove(),1000);
+  }
+  
+  // Streak bar
+  const bar=document.getElementById('streakBar');
+  const dot=document.createElement('div');
+  dot.className='streak-dot '+(isCorrect?'correct':'wrong');
+  dot.textContent=isCorrect?'✓':'✗';
+  bar.appendChild(dot);
+  
+  // Reveal correct answers
+  document.querySelectorAll('.finding').forEach(el=>el.style.cursor='default');
+  
+  const correctDiscEl=document.querySelector('[data-type="disclosure"][data-idx="'+correctDisc+'"]');
+  const correctFindEl=document.querySelector('[data-type="finding"][data-idx="'+correctFind+'"]');
+  
+  if(correctDiscEl){correctDiscEl.classList.add('correct-reveal');correctDiscEl.querySelector('.contradiction-label').textContent='⚡ CONTRADICTION — DISCLOSURE'}
+  if(correctFindEl){correctFindEl.classList.add('correct-reveal');correctFindEl.querySelector('.contradiction-label').textContent='⚡ CONTRADICTION — FINDING'}
+  
+  // Mark wrong selections
+  if(!isCorrect&&state.selectedDisclosure!==null&&state.selectedDisclosure!==correctDisc){
+    const w=document.querySelector('[data-type="disclosure"][data-idx="'+state.selectedDisclosure+'"]');
+    if(w){w.classList.add('wrong-reveal');w.querySelector('.contradiction-label').textContent='✗ Not the contradiction'}
+  }
+  if(!isCorrect&&state.selectedFinding!==null&&state.selectedFinding!==correctFind){
+    const w=document.querySelector('[data-type="finding"][data-idx="'+state.selectedFinding+'"]');
+    if(w){w.classList.add('wrong-reveal');w.querySelector('.contradiction-label').textContent='✗ Not the contradiction'}
+  }
+  
+  // Show explanation
+  const sevColor={critical:'var(--red)',high:'var(--orange)',medium:'var(--yellow)'}[round.severity]||'var(--text2)';
+  const expEl=document.getElementById('explanation');
+  expEl.innerHTML='<h3 style="color:'+(isCorrect?'var(--green)':'var(--red)')+'">'+(isCorrect?'✅ Correct! +'+points+' points':timedOut?'⏰ Time\'s up!':'❌ Not quite')+'</h3><p style="margin-bottom:8px;">'+round.explanation+'</p><div style="display:flex;gap:16px;margin-top:8px;flex-wrap:wrap"><span style="font-family:\'JetBrains Mono\',monospace;font-size:11px;color:'+sevColor+';background:'+sevColor+'15;padding:3px 8px;border-radius:4px;">Severity: '+round.severity.toUpperCase()+'</span><span style="font-family:\'JetBrains Mono\',monospace;font-size:11px;color:var(--green);background:rgba(34,197,94,.1);padding:3px 8px;border-radius:4px;">Potential savings: '+round.savings+'</span></div>';
+  expEl.classList.add('show');
+  
+  const nextBtn=document.getElementById('nextBtn');
+  nextBtn.style.display='inline-block';
+  nextBtn.textContent=state.currentRound<totalRounds-1?'Next Round →':'See Results →';
+  document.getElementById('instruction').textContent='';
+}
+
+function nextRound(){
+  state.currentRound++;
+  if(state.currentRound>=totalRounds) showResults();
+  else loadRound();
+}
+
+function showResults(){
+  document.getElementById('gameScreen').classList.remove('active');
+  document.getElementById('resultsScreen').classList.add('active');
+  
+  const pct=Math.round(state.correct/totalRounds*100);
+  let grade,gradeClass,title;
+  if(pct>=90){grade='A+';gradeClass='a';title='Master Detective'}
+  else if(pct>=80){grade='A';gradeClass='a';title='Sharp Eye'}
+  else if(pct>=70){grade='B';gradeClass='b';title='Good Instincts'}
+  else if(pct>=60){grade='C';gradeClass='c';title='Getting There'}
+  else if(pct>=40){grade='D';gradeClass='d';title='Needs Practice'}
+  else{grade='F';gradeClass='f';title='The Seller Fooled You'}
+  
+  const avgTime=Math.round(state.results.reduce((s,r)=>s+r.timeUsed,0)/totalRounds);
+  const missed=totalRounds-state.correct;
+  const eg=state.results.map(r=>r.correct?'🟩':r.timedOut?'⏰':'🟥').join('');
+  const dl=totalRounds===5?'Quick':totalRounds===7?'Normal':'Expert';
+  const isNewPB=savePersonalBest(totalRounds,state.score,pct);
+  
+  if(pct>=80) launchConfetti();
+  
+  // Update cross-game readiness
+  updateReadiness('detective',pct,state.score);
+  const readiness=calcReadinessScore();
+  
+  // Dynamic CTA
+  const cta=getDynamicCTA(pct,missed);
+  
+  // Email capture
+  const emailSection=isEmailCaptured()?'':'<div class="email-capture" id="ddEmailForm"><h4>📬 Get the Seller Red Flags Cheat Sheet</h4><p>Learn the 10 most common things sellers hide — and how to catch them.</p><div class="email-row"><input type="email" placeholder="you@email.com"><button class="btn-email" onclick="submitEmail(\'ddEmailForm\')">Send It</button></div><button class="skip-link" onclick="skipEmail(\'ddEmailForm\')">No thanks</button></div>';
+  
+  // Readiness badge
+  let readinessBadge='';
+  if(readiness){
+    readinessBadge='<div class="readiness-badge"><div class="label">Homebuyer Readiness Score</div><div class="score-val">'+readiness.score+'/100</div><div class="score-label">'+getReadinessLabel(readiness.score)+'</div><div class="breakdown"><span>🚩 Red Flag: '+(readiness.rfPct||'—')+'%</span><span>🔍 Detective: '+(readiness.ddPct||'—')+'%</span></div>'+(readiness.partial?'<p style="font-size:11px;color:var(--text2);margin-top:8px">Play both games to unlock your full score!</p>':'')+'</div>';
+  }
+  
+  const card=document.getElementById('resultsCard');
+  card.innerHTML=(isNewPB?'<div class="new-pb">🏆 NEW PERSONAL BEST!</div>':'')+
+    '<div class="grade '+gradeClass+'">'+grade+'</div>'+
+    '<div class="title">'+title+'</div>'+
+    '<div class="sub">'+state.correct+'/'+totalRounds+' contradictions spotted ('+pct+'%) · '+dl+' mode</div>'+
+    '<div class="emoji-grid">'+eg+'</div>'+
+    '<div class="stat-row"><div class="stat"><div class="val" style="color:var(--green)">'+state.score+'</div><div class="lbl">Score</div></div><div class="stat"><div class="val" style="color:var(--yellow)">'+state.maxStreak+'</div><div class="lbl">Best Streak</div></div><div class="stat"><div class="val" style="color:var(--blue)">'+avgTime+'s</div><div class="lbl">Avg Time</div></div></div>'+
+    readinessBadge+
+    '<div class="cta-box"><h3>'+cta.h+'</h3><p>'+cta.p+'</p><a href="/app" class="btn btn-primary" style="text-decoration:none">Analyze Your Property →</a></div>'+
+    emailSection+
+    '<div class="share-row"><button class="btn btn-ghost" onclick="shareResult(\'twitter\')">Share on 𝕏</button><button class="btn btn-ghost" onclick="shareResult(\'copy\')">Copy Score</button><button class="btn btn-primary" onclick="startGame()">Play Again</button></div>'+
+    '<div class="cross-promo"><a href="/games/red-flag-game">🚩 Try Red Flag or No Big Deal →</a><p>Can you tell a deal breaker from a cosmetic issue? Swipe your way through real inspection findings.</p></div>';
+  
+  trackEvent('game_complete',{game:'disclosure_detective',score:state.score,pct,rounds:totalRounds,missed});
+}
+
+function shareResult(platform){
+  const pct=Math.round(state.correct/totalRounds*100);
+  const eg=state.results.map(r=>r.correct?'🟩':r.timedOut?'⏰':'🟥').join('');
+  const dl=totalRounds===5?'Quick':totalRounds===7?'Normal':'Expert';
+  const readiness=calcReadinessScore();
+  let text='🔍 Disclosure Detective ('+dl+')\n\n'+eg+'\n'+state.correct+'/'+totalRounds+' · '+state.score+' pts';
+  if(readiness&&!readiness.partial) text+='\n🎯 Homebuyer Readiness: '+readiness.score+'/100';
+  text+='\n\nCan you beat my score?\nhttps://www.getofferwise.ai/games/disclosure-detective';
+  if(platform==='twitter') window.open('https://twitter.com/intent/tweet?text='+encodeURIComponent(text),'_blank');
+  else navigator.clipboard.writeText(text).then(()=>{event.target.textContent='✓ Copied!';setTimeout(()=>event.target.textContent='Copy Score',2000)});
+}
+
+function launchConfetti(){const c=document.getElementById('confetti'),x=c.getContext('2d');c.width=window.innerWidth;c.height=window.innerHeight;const p=[],cl=['#3b82f6','#22c55e','#fbbf24','#ef4444','#a78bfa','#f97316'];for(let i=0;i<150;i++)p.push({x:Math.random()*c.width,y:-20-Math.random()*200,w:6+Math.random()*6,h:4+Math.random()*4,color:cl[Math.floor(Math.random()*cl.length)],vy:2+Math.random()*3,vx:(Math.random()-.5)*4,rot:Math.random()*360,vr:(Math.random()-.5)*10});let f=0;function a(){x.clearRect(0,0,c.width,c.height);p.forEach(q=>{q.y+=q.vy;q.x+=q.vx;q.rot+=q.vr;q.vy+=.05;x.save();x.translate(q.x,q.y);x.rotate(q.rot*Math.PI/180);x.fillStyle=q.color;x.fillRect(-q.w/2,-q.h/2,q.w,q.h);x.restore()});f++;if(f<180)requestAnimationFrame(a);else x.clearRect(0,0,c.width,c.height)}a()}
+
+function trackEvent(n,p){if(typeof gtag==='function')gtag('event',n,p)}
+showPersonalBest();
+</script>
+</body>
+</html>

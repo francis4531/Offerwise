@@ -1,0 +1,1028 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Infrastructure & Dev Costs — OfferWise Admin</title>
+<style>
+  :root {
+    --bg: #080c14; --surface: #0f1623; --border: #1e2d45; --faint: rgba(255,255,255,0.06);
+    --text: #e2e8f0; --muted: #64748b; --mono: 'SF Mono','Fira Code',monospace;
+    --green: #22c55e; --green-dim: rgba(34,197,94,0.12);
+    --amber: #f59e0b; --amber-dim: rgba(245,158,11,0.12);
+    --red: #ef4444;   --red-dim: rgba(239,68,68,0.12);
+    --blue: #3b82f6;  --indigo: #818cf8;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; font-size: 14px; min-height: 100vh; }
+
+  .topbar { display:flex; justify-content:space-between; align-items:center; padding:18px 28px; border-bottom:1px solid var(--border); }
+  .topbar-title { font-size:20px; font-weight:800; letter-spacing:-0.5px; }
+  .topbar-sub { font-size:12px; color:var(--muted); margin-top:2px; }
+  .topbar-right { display:flex; align-items:center; gap:12px; }
+
+  .main { max-width:1200px; margin:0 auto; padding:24px 28px; }
+
+  .btn { padding:8px 16px; border-radius:8px; border:none; cursor:pointer; font-size:13px; font-weight:600; transition:opacity .15s; }
+  .btn:hover { opacity:.85; }
+  .btn-primary { background:var(--blue); color:#fff; }
+  .btn-ghost   { background:rgba(255,255,255,0.08); color:var(--text); }
+  .btn-danger  { background:var(--red); color:#fff; }
+  .btn-sm      { padding:5px 11px; font-size:12px; }
+
+  /* Summary cards */
+  .cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:16px; margin-bottom:28px; }
+  .card { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:20px; }
+  .card-label { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.5px; margin-bottom:6px; }
+  .card-value { font-size:26px; font-weight:800; letter-spacing:-1px; }
+  .card-sub   { font-size:11px; color:var(--muted); margin-top:4px; }
+
+  /* Section panels */
+  .panel { background:var(--surface); border:1px solid var(--border); border-radius:12px; margin-bottom:20px; overflow:hidden; }
+  .panel-header { display:flex; justify-content:space-between; align-items:center; padding:16px 20px; border-bottom:1px solid var(--border); }
+  .panel-title  { font-size:15px; font-weight:700; display:flex; align-items:center; gap:8px; }
+  .panel-body   { padding:0; }
+
+  table { width:100%; border-collapse:collapse; }
+  th { padding:10px 16px; text-align:left; font-size:11px; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:.5px; border-bottom:1px solid var(--border); background:rgba(255,255,255,0.02); }
+  td { padding:12px 16px; border-bottom:1px solid rgba(255,255,255,0.04); vertical-align:middle; }
+  tr:last-child td { border-bottom:none; }
+  tr:hover td { background:rgba(255,255,255,0.02); }
+
+  .vendor-name { font-weight:600; font-size:14px; }
+  .vendor-cat  { font-size:11px; color:var(--muted); margin-top:2px; }
+  .amount { font-family:var(--mono); font-weight:700; font-size:14px; color:#34d399; }
+  .amount-zero { color:var(--muted); }
+  .period-pill { font-size:11px; color:var(--muted); font-family:var(--mono); }
+  .ref-pill { font-size:11px; color:var(--indigo); font-family:var(--mono); }
+
+  .has-file   { color:var(--green); font-size:12px; cursor:pointer; text-decoration:underline; }
+  .no-file    { color:var(--muted); font-size:12px; }
+
+  /* Chart */
+  .chart-wrap { padding:20px; }
+  .chart-row  { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+  .chart-label { width:120px; font-size:12px; color:var(--muted); text-align:right; flex-shrink:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .chart-track { flex:1; height:22px; background:var(--faint); border-radius:4px; overflow:hidden; }
+  .chart-fill  { height:100%; border-radius:4px; display:flex; align-items:center; padding:0 8px; font-size:11px; font-family:var(--mono); color:#fff; min-width:8px; transition:width .4s; }
+  .chart-val   { width:70px; font-size:12px; font-family:var(--mono); color:var(--text); text-align:right; flex-shrink:0; }
+
+  /* Modal overlay */
+  .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:9999; align-items:center; justify-content:center; }
+  .modal-overlay.open { display:flex; }
+  .modal { background:var(--surface); border:1px solid var(--border); border-radius:16px; width:520px; max-width:95vw; max-height:90vh; overflow-y:auto; padding:28px; position:relative; z-index:10000; }
+  .modal-title { font-size:17px; font-weight:800; margin-bottom:20px; }
+  .field { margin-bottom:16px; }
+  .field label { display:block; font-size:12px; color:var(--muted); margin-bottom:6px; font-weight:600; }
+  .field input, .field select, .field textarea {
+    width:100%; padding:10px 12px; background:rgba(255,255,255,0.06); border:1px solid var(--border);
+    border-radius:8px; color:var(--text); font-size:14px; outline:none;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus { border-color:var(--blue); }
+  .field textarea { resize:vertical; min-height:70px; }
+  .field-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .upload-zone { border:2px dashed var(--border); border-radius:8px; padding:20px; text-align:center; cursor:pointer; transition:border-color .2s; }
+  .upload-zone:hover { border-color:var(--blue); }
+  .upload-zone.has-file { border-color:var(--green); background:var(--green-dim); }
+  .upload-zone.drag-over { border-color:var(--blue); background:rgba(59,130,246,0.08); transform:scale(1.01); }
+  #bulk-drop-zone.drag-over { border-color:var(--blue); background:rgba(59,130,246,0.06); }
+  #bulk-drop-zone.has-files { border-color:var(--green); }
+  .bulk-row { background:var(--surface); border:1px solid var(--border); border-radius:9px; padding:12px 14px; display:grid; grid-template-columns:auto 1fr auto auto auto auto; gap:10px; align-items:center; font-size:12px; }
+  .bulk-row select, .bulk-row input { background:#0a1628; border:1px solid var(--border); border-radius:6px; color:var(--text); padding:5px 8px; font-size:12px; font-family:inherit; outline:none; }
+  .bulk-row input[type=number] { width:90px; }
+  .bulk-row input[type=month]  { width:130px; }
+  .bulk-row .file-icon { font-size:1.2rem; }
+  .bulk-row .file-name { font-weight:600; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:180px; }
+  .bulk-row .remove-btn { background:none; border:none; color:var(--muted); cursor:pointer; font-size:14px; padding:2px 6px; border-radius:4px; }
+  .bulk-row .remove-btn:hover { color:var(--red); }
+  .bulk-row.saved { border-color:var(--green); opacity:.7; }
+  .bulk-row.error { border-color:var(--red); }
+  .upload-hint { font-size:12px; color:var(--muted); margin-top:4px; }
+  .modal-actions { display:flex; gap:10px; margin-top:22px; justify-content:flex-end; }
+
+  .empty-state { padding:40px; text-align:center; color:var(--muted); font-size:13px; }
+
+  .tag { display:inline-block; padding:2px 8px; border-radius:99px; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.4px; }
+  .tag-hosting  { background:rgba(59,130,246,.2); color:#60a5fa; }
+  .tag-ai       { background:rgba(139,92,246,.2); color:#a78bfa; }
+  .tag-platform { background:rgba(16,185,129,.2); color:#34d399; }
+  .tag-email    { background:rgba(245,158,11,.2); color:#fbbf24; }
+  .tag-data     { background:rgba(236,72,153,.2); color:#f472b6; }
+  .tag-tooling  { background:rgba(99,102,241,.2); color:#818cf8; }
+  .tag-domain   { background:rgba(20,184,166,.2); color:#2dd4bf; }
+  .tag-other    { background:rgba(255,255,255,.1); color:#94a3b8; }
+
+  .refresh-ts { font-size:11px; color:var(--muted); }
+  .section-title { font-size:18px; font-weight:800; margin:28px 0 16px; }
+  .notice { background:var(--amber-dim); border:1px solid rgba(245,158,11,.3); border-radius:8px; padding:12px 16px; font-size:12px; color:var(--amber); margin-bottom:20px; }
+</style>
+</head>
+<body>
+
+<div id="admin-nav" style="display:flex;gap:8px;padding:10px 28px;background:rgba(8,12,20,0.98);border-bottom:1px solid #1e2d45;flex-wrap:wrap;align-items:center;">
+  <span style="color:#60a5fa;font-weight:800;font-size:13px;margin-right:8px;">⚙️ Admin</span>
+</div>
+<script>
+(function() {
+  const ak = new URLSearchParams(location.search).get('admin_key') || '';
+  const q = ak ? '?admin_key=' + ak : '';
+  const current = location.pathname;
+  const pages = [
+    ['📊 Dashboard',  '/admin'],
+    ['🔬 Insights',   '/admin/insights'],
+    ['🚀 GTM',        '/admin/gtm'],
+    ['💸 API Costs',  '/admin/api-costs'],
+    ['🏗️ Infra Costs','/admin/infra-costs'],
+    ['🆘 Support',    '/admin/support-shares'],
+    ['🔧 Debug',      '/debug'],
+    ['← App',         '/dashboard'],
+  ];
+  const nav = document.getElementById('admin-nav');
+  nav.innerHTML = '';
+  const lbl = document.createElement('span');
+  lbl.style.cssText = 'color:#60a5fa;font-weight:800;font-size:13px;margin-right:8px;';
+  lbl.textContent = '⚙️ Admin';
+  nav.appendChild(lbl);
+  pages.forEach(([label, path]) => {
+    const active = current === path || (path !== '/admin' && current.startsWith(path));
+    const a = document.createElement('a');
+    a.href = path + q;
+    a.textContent = label;
+    a.style.cssText = 'padding:6px 14px;border-radius:6px;text-decoration:none;font-size:13px;font-weight:600;' +
+      (active ? 'background:#3b82f6;color:white;' : 'background:rgba(255,255,255,0.08);color:#e2e8f0;');
+    nav.appendChild(a);
+  });
+})();
+</script>
+
+<div class="topbar">
+  <div>
+    <div class="topbar-title">🏗️ Infrastructure &amp; Dev Costs</div>
+    <div class="topbar-sub">OfferWise Admin · Your monthly costs to build and run the platform</div>
+  </div>
+  <div class="topbar-right">
+    <span class="refresh-ts" id="refresh-ts">–</span>
+    <button class="btn btn-ghost btn-sm" onclick="loadAll()">↻ Refresh</button>
+    <button class="btn btn-primary" onclick="openAddModal()">+ Add Invoice</button>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- ── Bulk Invoice Upload ── -->
+  <div class="panel" id="bulk-upload-panel" style="margin-bottom:24px;">
+    <div class="panel-header">
+      <div>
+        <div class="panel-title">📥 Upload Invoices</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px;">Drop multiple PDFs or images — vendor auto-matched from filename</div>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="document.getElementById('bulk-file-input').click()">+ Select files</button>
+    </div>
+    <div class="panel-body" style="padding:20px;">
+      <div id="bulk-drop-zone"
+        style="border:2px dashed var(--border);border-radius:10px;padding:32px 20px;text-align:center;cursor:pointer;transition:all .2s;margin-bottom:0;"
+        onclick="document.getElementById('bulk-file-input').click()"
+        ondragover="bulkDragOver(event)" ondragleave="bulkDragLeave(event)" ondrop="bulkDrop(event)">
+        <div style="font-size:2rem;margin-bottom:8px;">📂</div>
+        <div style="font-weight:700;margin-bottom:4px;">Drop invoice files here</div>
+        <div style="font-size:12px;color:var(--muted);">PDF · PNG · JPG &nbsp;·&nbsp; multiple files OK &nbsp;·&nbsp; max 10 MB each</div>
+      </div>
+      <input type="file" id="bulk-file-input" multiple accept=".pdf,.png,.jpg,.jpeg" style="display:none" onchange="bulkFilesSelected(this.files)">
+      <div id="bulk-queue" style="display:none;margin-top:18px;">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:10px;" id="bulk-queue-label"></div>
+        <div id="bulk-queue-rows" style="display:flex;flex-direction:column;gap:8px;"></div>
+        <div style="display:flex;gap:10px;margin-top:16px;justify-content:flex-end;align-items:center;">
+          <span id="bulk-save-status" style="font-size:12px;color:var(--muted);"></span>
+          <button class="btn btn-ghost btn-sm" onclick="clearBulkQueue()">Clear all</button>
+          <button class="btn btn-sm" id="bulk-save-btn" onclick="saveBulkQueue()"
+            style="background:var(--blue);color:white;border:none;">💾 Save all invoices</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="notice">
+    💡 These are <strong>your personal developer costs</strong> — subscriptions, hosting, and tooling you pay to build OfferWise.
+    Separate from per-user API costs tracked in the API Cost Dashboard.
+    Upload your invoices as PDF or image for a complete record.
+  </div>
+
+  <!-- Summary cards -->
+  <div class="cards" id="summary-cards">
+    <div class="card"><div class="card-label">This Month</div><div class="card-value" id="card-month">—</div><div class="card-sub">infrastructure spend</div></div>
+    <div class="card"><div class="card-label">Avg / Month</div><div class="card-value" id="card-avg">—</div><div class="card-sub">trailing 12 months</div></div>
+    <div class="card"><div class="card-label">Last 12 Months</div><div class="card-value" id="card-total">—</div><div class="card-sub">total dev spend</div></div>
+    <div class="card"><div class="card-label">Vendors Tracked</div><div class="card-value" id="card-vendors">—</div><div class="card-sub">with invoices logged</div></div>
+  </div>
+
+  <!-- ── P&L Summary ── -->
+  <div class="panel" id="pnl-panel" style="margin-bottom:28px;">
+    <div class="panel-header" style="display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid var(--border);">
+      <div>
+        <div class="panel-title" style="font-size:15px;font-weight:700;">📊 P&amp;L — Revenue vs Costs</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px;">MRR · infra invoices · AI spend · gross margin</div>
+      </div>
+      <span id="pnl-status" style="font-size:11px;color:var(--muted);">Loading…</span>
+    </div>
+
+    <!-- Current month hero row -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1px;background:var(--border);border-bottom:1px solid var(--border);">
+      <div style="background:var(--surface);padding:18px 20px;">
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:6px;">MRR</div>
+        <div id="pnl-mrr" style="font-size:24px;font-weight:800;color:var(--green);">—</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px;">this month</div>
+      </div>
+      <div style="background:var(--surface);padding:18px 20px;">
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:6px;">Infra Cost</div>
+        <div id="pnl-infra" style="font-size:24px;font-weight:800;color:var(--amber);">—</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px;">this month</div>
+      </div>
+      <div style="background:var(--surface);padding:18px 20px;">
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:6px;">AI Cost</div>
+        <div id="pnl-ai" style="font-size:24px;font-weight:800;color:var(--amber);">—</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px;">this month</div>
+      </div>
+      <div style="background:var(--surface);padding:18px 20px;">
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:6px;">Total Cost</div>
+        <div id="pnl-total-cost" style="font-size:24px;font-weight:800;color:var(--red);">—</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px;">this month</div>
+      </div>
+      <div style="background:var(--surface);padding:18px 20px;">
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:6px;">Gross Margin</div>
+        <div id="pnl-margin" style="font-size:24px;font-weight:800;">—</div>
+        <div id="pnl-margin-pct" style="font-size:11px;color:var(--muted);margin-top:2px;">—</div>
+      </div>
+    </div>
+
+    <!-- Trailing 12-month table -->
+    <div style="padding:0;">
+      <table style="width:100%;border-collapse:collapse;">
+        <thead>
+          <tr style="background:rgba(255,255,255,.02);">
+            <th style="padding:10px 20px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);border-bottom:1px solid var(--border);">Month</th>
+            <th style="padding:10px 16px;text-align:right;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);border-bottom:1px solid var(--border);">MRR</th>
+            <th style="padding:10px 16px;text-align:right;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);border-bottom:1px solid var(--border);">Infra</th>
+            <th style="padding:10px 16px;text-align:right;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);border-bottom:1px solid var(--border);">AI</th>
+            <th style="padding:10px 16px;text-align:right;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);border-bottom:1px solid var(--border);">Total Cost</th>
+            <th style="padding:10px 16px;text-align:right;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);border-bottom:1px solid var(--border);">Margin</th>
+            <th style="padding:10px 20px;text-align:right;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);border-bottom:1px solid var(--border);">Margin %</th>
+          </tr>
+        </thead>
+        <tbody id="pnl-table-body">
+          <tr><td colspan="7" style="padding:24px;text-align:center;color:var(--muted);">Loading…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Spend by vendor chart -->
+  <div class="panel">
+    <div class="panel-header">
+      <div class="panel-title">📊 12-Month Spend by Vendor</div>
+    </div>
+    <div class="chart-wrap" id="vendor-chart">
+      <div class="empty-state">Loading…</div>
+    </div>
+  </div>
+
+  <!-- Monthly trend chart -->
+  <div class="panel">
+    <div class="panel-header">
+      <div class="panel-title">📅 Monthly Trend</div>
+    </div>
+    <div class="chart-wrap" id="monthly-chart">
+      <div class="empty-state">Loading…</div>
+    </div>
+  </div>
+
+  <!-- Invoice log -->
+  <div class="panel">
+    <div class="panel-header">
+      <div class="panel-title">🧾 Invoice Log</div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <select id="filter-vendor" onchange="filterInvoices()" style="background:rgba(255,255,255,0.06);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:5px 10px;font-size:12px;">
+          <option value="">All vendors</option>
+        </select>
+      </div>
+    </div>
+    <div class="panel-body">
+      <table>
+        <thead>
+          <tr>
+            <th>Vendor</th>
+            <th>Period</th>
+            <th>Amount</th>
+            <th>Description</th>
+            <th>Ref</th>
+            <th>Invoice</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="invoices-tbody">
+          <tr><td colspan="7" class="empty-state">Loading…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Vendor list -->
+  <div class="panel">
+    <div class="panel-header">
+      <div class="panel-title">🏢 Vendors</div>
+      <button class="btn btn-ghost btn-sm" onclick="openAddVendorModal()">+ Add Vendor</button>
+    </div>
+    <div class="panel-body">
+      <table>
+        <thead>
+          <tr><th>Vendor</th><th>Category</th><th>Notes</th><th></th></tr>
+        </thead>
+        <tbody id="vendors-tbody">
+          <tr><td colspan="4" class="empty-state">Loading…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── ADD INVOICE MODAL ── -->
+<div class="modal-overlay" id="invoice-modal">
+  <div class="modal">
+    <div class="modal-title" id="invoice-modal-title">Add Invoice</div>
+    <input type="hidden" id="edit-invoice-id" value="">
+
+    <div class="field">
+      <label>Vendor *</label>
+      <select id="inv-vendor"></select>
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label>Period Start * (YYYY-MM-DD)</label>
+        <input type="date" id="inv-period-start">
+      </div>
+      <div class="field">
+        <label>Period End (YYYY-MM-DD)</label>
+        <input type="date" id="inv-period-end">
+      </div>
+    </div>
+    <div class="field">
+      <label>Amount (USD) *</label>
+      <input type="number" id="inv-amount" step="0.01" min="0.01" placeholder="e.g. 19.00">
+    </div>
+    <div class="field">
+      <label>Description</label>
+      <textarea id="inv-description" placeholder="e.g. Pro plan + 500k extra tokens overage"></textarea>
+    </div>
+    <div class="field">
+      <label>Invoice / Receipt Ref</label>
+      <input type="text" id="inv-ref" placeholder="e.g. INV-2026-0311">
+    </div>
+    <div class="field">
+      <label>Upload Invoice (PDF or image, max 10 MB)</label>
+      <div class="upload-zone" id="upload-zone"
+           onclick="document.getElementById('inv-file').click()"
+           ondragover="event.preventDefault();this.classList.add('drag-over')"
+           ondragleave="this.classList.remove('drag-over')"
+           ondrop="event.preventDefault();this.classList.remove('drag-over');handleFileDrop(event)">
+        <div style="font-size:1.5rem;margin-bottom:6px;">📎</div>
+        <div id="upload-label" style="font-weight:600;margin-bottom:3px;">Drop invoice here or click to browse</div>
+        <div class="upload-hint">PDF, PNG, JPG · max 10 MB</div>
+      </div>
+      <input type="file" id="inv-file" accept=".pdf,.png,.jpg,.jpeg,.webp" style="display:none" onchange="handleFileSelect(this)">
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('invoice-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="submitInvoice()">Save Invoice</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── ADD VENDOR MODAL ── -->
+<div class="modal-overlay" id="vendor-modal">
+  <div class="modal" style="width:420px;">
+    <div class="modal-title">Add Vendor</div>
+    <div class="field">
+      <label>Name *</label>
+      <input type="text" id="vnd-name" placeholder="e.g. Vercel">
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label>Category</label>
+        <select id="vnd-category">
+          <option value="hosting">Hosting</option>
+          <option value="ai">AI / LLM</option>
+          <option value="platform">Platform</option>
+          <option value="email">Email</option>
+          <option value="data">Data API</option>
+          <option value="tooling">Tooling</option>
+          <option value="domain">Domain</option>
+          <option value="other" selected>Other</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Emoji</label>
+        <input type="text" id="vnd-emoji" placeholder="💼" maxlength="4">
+      </div>
+    </div>
+    <div class="field">
+      <label>Notes</label>
+      <input type="text" id="vnd-notes" placeholder="What this vendor is used for">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('vendor-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="submitVendor()">Add Vendor</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const ADMIN_KEY = new URLSearchParams(location.search).get('admin_key') || '';
+const HEADERS = { 'X-Admin-Key': ADMIN_KEY, 'X-Requested-With': 'XMLHttpRequest' };
+
+let allVendors = [];
+let allInvoices = [];
+let summaryData = null;
+
+function apiUrl(path) {
+  const sep = path.includes('?') ? '&' : '?';
+  return path + sep + 'admin_key=' + ADMIN_KEY;
+}
+
+async function apiFetch(url, opts = {}) {
+  opts.headers = { ...HEADERS, ...(opts.headers || {}) };
+  const r = await fetch(apiUrl(url), opts);
+  if (!r.ok) {
+    const err = await r.json().catch(() => ({}));
+    throw new Error(err.error || 'HTTP ' + r.status);
+  }
+  return r.json();
+}
+
+// ── LOAD ──────────────────────────────────────────────────────────────────
+
+// ── DRAG-AND-DROP ─────────────────────────────────────────────────────────
+function handleFileDrop(event) {
+  const file = event.dataTransfer.files[0];
+  if (!file) return;
+  const input = document.getElementById('inv-file');
+  // Assign dropped file to the hidden input via DataTransfer
+  const dt = new DataTransfer();
+  dt.items.add(file);
+  input.files = dt.files;
+  const label = document.getElementById('upload-label');
+  label.textContent = '✅ ' + file.name + ' (' + (file.size/1024).toFixed(0) + ' KB)';
+  document.getElementById('upload-zone').classList.add('has-file');
+}
+
+// ── P&L ───────────────────────────────────────────────────────────────────
+async function loadPnL(infraSummary) {
+  try {
+    // Fetch MRR and AI costs in parallel
+    const [revenue, aiCosts] = await Promise.all([
+      apiFetch('/api/admin/revenue'),
+      apiFetch('/api/admin/ai-costs?days=0').catch(() => ({total_cost: 0})),
+    ]);
+
+    const mrr = revenue?.summary?.total_mrr || 0;
+    const aiThisMonth = aiCosts?.total_cost || 0;
+
+    const now = new Date();
+    const thisMonthKey = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0');
+    const infraThisMonth = infraSummary.by_month?.[thisMonthKey]?.total || 0;
+    const totalCost = infraThisMonth + aiThisMonth;
+    const margin = mrr - totalCost;
+    const marginPct = mrr > 0 ? (margin / mrr * 100) : null;
+
+    // Hero row
+    const fmt = v => '$' + Math.abs(v).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+    document.getElementById('pnl-mrr').textContent        = fmt(mrr);
+    document.getElementById('pnl-infra').textContent      = fmt(infraThisMonth);
+    document.getElementById('pnl-ai').textContent         = fmt(aiThisMonth);
+    document.getElementById('pnl-total-cost').textContent = fmt(totalCost);
+
+    const marginEl   = document.getElementById('pnl-margin');
+    const marginPctEl = document.getElementById('pnl-margin-pct');
+    marginEl.textContent   = (margin < 0 ? '−' : '') + fmt(margin);
+    marginEl.style.color   = margin >= 0 ? 'var(--green)' : 'var(--red)';
+    marginPctEl.textContent = marginPct !== null
+      ? (marginPct >= 0 ? '+' : '') + marginPct.toFixed(1) + '% gross margin'
+      : 'No revenue yet';
+    marginPctEl.style.color = marginPct >= 0 ? 'var(--green)' : 'var(--red)';
+
+    // Build trailing 12 months table
+    // Generate last 12 month keys
+    const months = [];
+    for (let i = 11; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      months.push(d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0'));
+    }
+
+    // MRR we only have current — approximate past months as same MRR (conservative)
+    // AI costs: we only have this month from the endpoint — mark others as n/a
+    const tbody = document.getElementById('pnl-table-body');
+    const rows = months.map(mk => {
+      const infraAmt = infraSummary.by_month?.[mk]?.total || 0;
+      const isCurrent = mk === thisMonthKey;
+      const aiAmt  = isCurrent ? aiThisMonth : null;
+      const mrrAmt = isCurrent ? mrr : null;
+      const totalC = infraAmt + (aiAmt || 0);
+      const mgn    = mrrAmt !== null ? mrrAmt - totalC : null;
+      const mgnPct = mrrAmt > 0 ? mgn / mrrAmt * 100 : null;
+
+      const monthLabel = new Date(mk + '-15').toLocaleDateString('en-US', {month:'short', year:'numeric'});
+      const na = '<span style="color:#334155;">—</span>';
+      const fmtC = v => v > 0 ? '<span style="color:var(--amber);">$' + v.toFixed(2) + '</span>' : '<span style="color:#334155;">$0</span>';
+      const fmtM = v => v === null ? na : (v < 0
+        ? '<span style="color:var(--red);">−$' + Math.abs(v).toFixed(2) + '</span>'
+        : '<span style="color:var(--green);">$' + v.toFixed(2) + '</span>');
+      const fmtPct = p => p === null ? na : '<span style="color:' + (p>=0?'var(--green)':'var(--red)') + ';font-weight:700;">' + (p>=0?'+':'') + p.toFixed(1) + '%</span>';
+
+      const rowBg = isCurrent ? 'background:rgba(59,130,246,0.05);' : '';
+      return '<tr style="border-bottom:1px solid rgba(255,255,255,.04);' + rowBg + '">' +
+        '<td style="padding:10px 20px;font-weight:' + (isCurrent?'700':'400') + ';font-size:13px;">' + monthLabel + (isCurrent?' <span style="font-size:10px;color:var(--blue);background:rgba(59,130,246,.12);border-radius:4px;padding:1px 5px;margin-left:4px;">now</span>':'') + '</td>' +
+        '<td style="padding:10px 16px;text-align:right;font-size:13px;">' + (mrrAmt !== null ? '<span style="color:var(--green);">$' + mrrAmt.toFixed(2) + '</span>' : na) + '</td>' +
+        '<td style="padding:10px 16px;text-align:right;font-size:13px;">' + fmtC(infraAmt) + '</td>' +
+        '<td style="padding:10px 16px;text-align:right;font-size:13px;">' + (aiAmt !== null ? fmtC(aiAmt) : na) + '</td>' +
+        '<td style="padding:10px 16px;text-align:right;font-size:13px;">' + (totalC > 0 ? '<span style="color:var(--red);">$' + totalC.toFixed(2) + '</span>' : na) + '</td>' +
+        '<td style="padding:10px 16px;text-align:right;font-size:13px;">' + fmtM(mgn) + '</td>' +
+        '<td style="padding:10px 20px;text-align:right;font-size:13px;">' + fmtPct(mgnPct) + '</td>' +
+        '</tr>';
+    });
+    tbody.innerHTML = rows.join('');
+
+    document.getElementById('pnl-status').textContent = 'Updated ' + new Date().toLocaleTimeString();
+  } catch(e) {
+    document.getElementById('pnl-status').textContent = 'P&L error: ' + e.message;
+  }
+}
+
+// ── Bulk invoice upload ──────────────────────────────────────────────────
+var _bulkQueue   = [];   // [{file, vendorId, period, amount, dataUrl}]
+var _bulkVendors = [];   // cached from allVendors
+
+// Vendor keyword → vendor name mapping for auto-match
+var VENDOR_KEYWORDS = {
+  'render':     'Render',
+  'anthropic':  'Anthropic',
+  'google':     'Google Cloud',
+  'gcloud':     'Google Cloud',
+  'resend':     'Resend',
+  'sentry':     'Sentry',
+  'github':     'GitHub',
+  'rentcast':   'RentCast',
+  'stripe':     'Stripe',
+};
+
+function guessVendorId(filename, vendors) {
+  var lower = filename.toLowerCase();
+  for (var kw in VENDOR_KEYWORDS) {
+    if (lower.includes(kw)) {
+      var vname = VENDOR_KEYWORDS[kw];
+      var v = vendors.find(function(x){ return x.name === vname; });
+      if (v) return v.id;
+    }
+  }
+  return '';
+}
+
+function guessMonth(filename) {
+  // Match patterns like 2026-03, 202603, march-2026, mar26, etc.
+  var lower = filename.toLowerCase();
+  var m;
+  // YYYY-MM or YYYYMM
+  m = lower.match(/(\d{4})[_\-]?(\d{2})/);
+  if (m && parseInt(m[1]) > 2020 && parseInt(m[2]) >= 1 && parseInt(m[2]) <= 12)
+    return m[1] + '-' + m[2];
+  // month name
+  var months = {jan:1,feb:2,mar:3,apr:4,may:5,jun:6,jul:7,aug:8,sep:9,oct:10,nov:11,dec:12,
+                january:1,february:2,march:3,april:4,june:6,july:7,august:8,september:9,october:10,november:11,december:12};
+  for (var mn in months) {
+    if (lower.includes(mn)) {
+      var yr = (lower.match(/20(\d{2})/) || [])[0] || new Date().getFullYear().toString();
+      return yr + '-' + String(months[mn]).padStart(2,'0');
+    }
+  }
+  // Default to current month
+  var now = new Date();
+  return now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0');
+}
+
+function bulkDragOver(e) {
+  e.preventDefault();
+  document.getElementById('bulk-drop-zone').classList.add('drag-over');
+}
+function bulkDragLeave(e) {
+  document.getElementById('bulk-drop-zone').classList.remove('drag-over');
+}
+function bulkDrop(e) {
+  e.preventDefault();
+  document.getElementById('bulk-drop-zone').classList.remove('drag-over');
+  bulkFilesSelected(e.dataTransfer.files);
+}
+
+function bulkFilesSelected(files) {
+  _bulkVendors = allVendors || [];
+  for (var i = 0; i < files.length; i++) {
+    var f = files[i];
+    if (f.size > 10 * 1024 * 1024) { alert(f.name + ' is over 10 MB — skipped.'); continue; }
+    var vendorId = guessVendorId(f.name, _bulkVendors);
+    var month    = guessMonth(f.name);
+    _bulkQueue.push({ id: Date.now() + i, file: f, vendorId: vendorId, month: month, amount: '', status: 'pending' });
+  }
+  renderBulkQueue();
+}
+
+function renderBulkQueue() {
+  var q = document.getElementById('bulk-queue');
+  var rows = document.getElementById('bulk-queue-rows');
+  var label = document.getElementById('bulk-queue-label');
+  if (!_bulkQueue.length) { q.style.display = 'none'; return; }
+  q.style.display = 'block';
+  document.getElementById('bulk-drop-zone').classList.add('has-files');
+  label.textContent = _bulkQueue.length + ' invoice' + (_bulkQueue.length !== 1 ? 's' : '') + ' queued — review and save';
+
+  var vendorOpts = '<option value="">— select vendor —</option>' +
+    (_bulkVendors || []).map(function(v){ return '<option value="'+v.id+'">'+v.logo_emoji+' '+v.name+'</option>'; }).join('');
+
+  rows.innerHTML = _bulkQueue.map(function(item) {
+    var ext = item.file.name.split('.').pop().toLowerCase();
+    var icon = ext === 'pdf' ? '📄' : '🖼️';
+    var rowClass = 'bulk-row' + (item.status === 'saved' ? ' saved' : item.status === 'error' ? ' error' : '');
+    var sel = vendorOpts.replace('value="'+item.vendorId+'"', 'value="'+item.vendorId+'" selected');
+    return '<div class="'+rowClass+'" id="bulk-row-'+item.id+'">' +
+      '<span class="file-icon">'+icon+'</span>' +
+      '<div><div class="file-name" title="'+item.file.name+'">'+item.file.name+'</div>' +
+        '<div style="font-size:10px;color:var(--muted);">'+(item.file.size/1024).toFixed(0)+' KB'+(item.status==='saved'?' · <span style="color:var(--green);">✓ Saved</span>':item.status==='error'?' · <span style="color:var(--red);">Error</span>':'')+'</div></div>' +
+      '<select onchange="bulkSetField('+item.id+',\'vendorId\',this.value)">'+sel+'</select>' +
+      '<input type="month" value="'+item.month+'" onchange="bulkSetField('+item.id+',\'month\',this.value)">' +
+      '<input type="number" placeholder="Amount $" value="'+item.amount+'" min="0" step="0.01" onchange="bulkSetField('+item.id+',\'amount\',this.value)">' +
+      '<button class="remove-btn" onclick="bulkRemove('+item.id+')">✕</button>' +
+    '</div>';
+  }).join('');
+}
+
+function bulkSetField(id, field, value) {
+  var item = _bulkQueue.find(function(x){ return x.id === id; });
+  if (item) item[field] = value;
+}
+
+function bulkRemove(id) {
+  _bulkQueue = _bulkQueue.filter(function(x){ return x.id !== id; });
+  if (!_bulkQueue.length) document.getElementById('bulk-drop-zone').classList.remove('has-files');
+  renderBulkQueue();
+}
+
+function clearBulkQueue() {
+  _bulkQueue = [];
+  document.getElementById('bulk-drop-zone').classList.remove('has-files');
+  renderBulkQueue();
+}
+
+async function saveBulkQueue() {
+  var pending = _bulkQueue.filter(function(x){ return x.status === 'pending'; });
+  if (!pending.length) { alert('No invoices to save.'); return; }
+
+  // Validate
+  for (var i = 0; i < pending.length; i++) {
+    var item = pending[i];
+    if (!item.vendorId) { alert('Please select a vendor for: ' + item.file.name); return; }
+    if (!item.amount || parseFloat(item.amount) <= 0) { alert('Please enter an amount for: ' + item.file.name); return; }
+  }
+
+  var btn = document.getElementById('bulk-save-btn');
+  var status = document.getElementById('bulk-save-status');
+  btn.disabled = true;
+  btn.textContent = 'Saving…';
+
+  var saved = 0, errors = 0;
+  for (var j = 0; j < pending.length; j++) {
+    var it = pending[j];
+    status.textContent = 'Saving ' + (j+1) + ' of ' + pending.length + '…';
+    try {
+      // Period: month input gives YYYY-MM, convert to YYYY-MM-01
+      var ps = it.month + '-01';
+      var pe = it.month + '-01'; // backend fills end-of-month
+
+      var fd = new FormData();
+      fd.append('vendor_id',    it.vendorId);
+      fd.append('period_start', ps);
+      fd.append('period_end',   pe);
+      fd.append('amount_usd',   it.amount);
+      fd.append('invoice_file', it.file);
+
+      var r = await fetch('/api/admin/infra/invoices?admin_key=' + ADMIN_KEY, {
+        method: 'POST',
+        headers: { 'X-Admin-Key': ADMIN_KEY, 'X-Requested-With': 'XMLHttpRequest' },
+        body: fd,
+      });
+      if (!r.ok) { var e = await r.json().catch(()=>({})); throw new Error(e.error || 'HTTP '+r.status); }
+      it.status = 'saved';
+      saved++;
+    } catch(err) {
+      it.status = 'error';
+      it.errorMsg = err.message;
+      errors++;
+    }
+    renderBulkQueue();
+  }
+
+  btn.disabled = false;
+  btn.textContent = '💾 Save all invoices';
+  status.textContent = saved + ' saved' + (errors ? ', ' + errors + ' failed' : '') + ' · ' + new Date().toLocaleTimeString();
+
+  if (saved > 0) {
+    // Remove saved items after 1.5s, reload data
+    setTimeout(function() {
+      _bulkQueue = _bulkQueue.filter(function(x){ return x.status !== 'saved'; });
+      if (!_bulkQueue.length) document.getElementById('bulk-drop-zone').classList.remove('has-files');
+      renderBulkQueue();
+      loadAll();
+    }, 1500);
+  }
+}
+
+async function loadAll() {
+  document.getElementById('refresh-ts').textContent = 'Refreshing…';
+  try {
+    const [vendors, invoices, summary] = await Promise.all([
+      apiFetch('/api/admin/infra/vendors'),
+      apiFetch('/api/admin/infra/invoices?months=12'),
+      apiFetch('/api/admin/infra/invoices/summary?months=12'),
+    ]);
+    allVendors  = vendors;
+    allInvoices = invoices;
+    summaryData = summary;
+    renderSummaryCards(summary, invoices);
+    loadPnL(summary);
+    renderVendorChart(summary);
+    renderMonthlyChart(summary);
+    renderInvoices(invoices);
+    renderVendors(vendors);
+    populateVendorSelects(vendors);
+    document.getElementById('refresh-ts').textContent = 'Updated ' + new Date().toLocaleTimeString();
+  } catch(e) {
+    document.getElementById('refresh-ts').textContent = 'Error: ' + e.message;
+  }
+}
+
+// ── SUMMARY CARDS ─────────────────────────────────────────────────────────
+
+function renderSummaryCards(summary, invoices) {
+  const now = new Date();
+  const thisMonthKey = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0');
+  const thisMonth = summary.by_month[thisMonthKey]?.total ?? 0;
+  const vendorsWithInvoices = new Set(invoices.map(i => i.vendor_id)).size;
+
+  document.getElementById('card-month').textContent   = '$' + thisMonth.toFixed(2);
+  document.getElementById('card-avg').textContent     = '$' + summary.avg_monthly.toFixed(2);
+  document.getElementById('card-total').textContent   = '$' + summary.grand_total.toFixed(2);
+  document.getElementById('card-vendors').textContent = vendorsWithInvoices;
+}
+
+// ── CHARTS ────────────────────────────────────────────────────────────────
+
+const COLORS = ['#3b82f6','#8b5cf6','#10b981','#f59e0b','#ec4899','#6366f1','#14b8a6','#f97316'];
+
+function renderVendorChart(summary) {
+  const el = document.getElementById('vendor-chart');
+  const totals = Object.entries(summary.vendor_totals).sort((a,b) => b[1]-a[1]);
+  if (!totals.length) { el.innerHTML = '<div class="empty-state">No invoices logged yet.</div>'; return; }
+  const max = totals[0][1];
+  el.innerHTML = totals.map(([name, amt], i) => {
+    const pct = max > 0 ? (amt / max * 100) : 0;
+    const col = COLORS[i % COLORS.length];
+    return '<div class="chart-row">' +
+      '<div class="chart-label">' + escHtml(name) + '</div>' +
+      '<div class="chart-track"><div class="chart-fill" style="width:' + pct + '%;background:' + col + ';">$' + amt.toFixed(0) + '</div></div>' +
+      '<div class="chart-val">$' + amt.toFixed(2) + '</div>' +
+      '</div>';
+  }).join('');
+}
+
+function renderMonthlyChart(summary) {
+  const el = document.getElementById('monthly-chart');
+  const months = Object.entries(summary.by_month).sort((a,b) => a[0].localeCompare(b[0]));
+  if (!months.length) { el.innerHTML = '<div class="empty-state">No invoices logged yet.</div>'; return; }
+  const max = Math.max(...months.map(([,v]) => v.total), 1);
+  el.innerHTML = months.map(([month, data]) => {
+    const pct = (data.total / max * 100);
+    const label = new Date(month + '-01').toLocaleDateString('en-US', {month:'short', year:'2-digit'});
+    const col = pct > 80 ? '#ef4444' : pct > 50 ? '#f59e0b' : '#3b82f6';
+    return '<div class="chart-row">' +
+      '<div class="chart-label">' + label + '</div>' +
+      '<div class="chart-track"><div class="chart-fill" style="width:' + pct + '%;background:' + col + ';">$' + data.total.toFixed(0) + '</div></div>' +
+      '<div class="chart-val">$' + data.total.toFixed(2) + '</div>' +
+      '</div>';
+  }).join('');
+}
+
+// ── INVOICE TABLE ─────────────────────────────────────────────────────────
+
+function renderInvoices(invoices) {
+  const tbody = document.getElementById('invoices-tbody');
+  if (!invoices.length) {
+    tbody.innerHTML = '<tr><td colspan="7" class="empty-state">No invoices yet. Click "+ Add Invoice" to log your first one.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = invoices.map(inv => {
+    const cat = inv.vendor_category || 'other';
+    return '<tr>' +
+      '<td><div class="vendor-name">' + (inv.vendor_emoji||'💼') + ' ' + escHtml(inv.vendor_name||'') + '</div>' +
+        '<span class="tag tag-' + cat + '">' + cat + '</span></td>' +
+      '<td class="period-pill">' + fmtPeriod(inv.period_start, inv.period_end) + '</td>' +
+      '<td><span class="amount">$' + Number(inv.amount_usd).toFixed(2) + '</span></td>' +
+      '<td style="color:var(--muted);font-size:12px;max-width:220px;">' + escHtml(inv.description||'—') + '</td>' +
+      '<td><span class="ref-pill">' + escHtml(inv.invoice_ref||'—') + '</span></td>' +
+      '<td>' + (inv.has_pdf
+        ? '<a class="has-file" onclick="viewFile(' + inv.id + ')" href="#">📄 View</a>'
+        : '<span class="no-file">—</span>') + '</td>' +
+      '<td><button class="btn btn-danger btn-sm" onclick="deleteInvoice(' + inv.id + ')">✕</button></td>' +
+      '</tr>';
+  }).join('');
+}
+
+function filterInvoices() {
+  const vid = document.getElementById('filter-vendor').value;
+  const filtered = vid ? allInvoices.filter(i => String(i.vendor_id) === vid) : allInvoices;
+  renderInvoices(filtered);
+}
+
+// ── VENDOR TABLE ──────────────────────────────────────────────────────────
+
+function renderVendors(vendors) {
+  const tbody = document.getElementById('vendors-tbody');
+  tbody.innerHTML = vendors.map(v => {
+    const cat = v.category || 'other';
+    return '<tr>' +
+      '<td class="vendor-name">' + (v.logo_emoji||'💼') + ' ' + escHtml(v.name) + '</td>' +
+      '<td><span class="tag tag-' + cat + '">' + cat + '</span></td>' +
+      '<td style="color:var(--muted);font-size:12px;">' + escHtml(v.notes||'—') + '</td>' +
+      '<td><button class="btn btn-danger btn-sm" onclick="deleteVendor(' + v.id + ',\'' + escHtml(v.name) + '\')">✕</button></td>' +
+      '</tr>';
+  }).join('');
+}
+
+function populateVendorSelects(vendors) {
+  // Invoice modal dropdown
+  const sel = document.getElementById('inv-vendor');
+  sel.innerHTML = vendors.map(v => '<option value="' + v.id + '">' + (v.logo_emoji||'') + ' ' + escHtml(v.name) + '</option>').join('');
+  // Filter dropdown
+  const filter = document.getElementById('filter-vendor');
+  filter.innerHTML = '<option value="">All vendors</option>' +
+    vendors.map(v => '<option value="' + v.id + '">' + escHtml(v.name) + '</option>').join('');
+}
+
+// ── MODALS ────────────────────────────────────────────────────────────────
+
+function openAddModal() {
+  document.getElementById('invoice-modal-title').textContent = 'Add Invoice';
+  document.getElementById('edit-invoice-id').value = '';
+  document.getElementById('inv-amount').value = '';
+  document.getElementById('inv-description').value = '';
+  document.getElementById('inv-ref').value = '';
+  document.getElementById('inv-file').value = '';
+  document.getElementById('upload-label').textContent = '📎 Click to attach invoice file';
+  document.getElementById('upload-zone').classList.remove('has-file');
+  // Default period: first of this month → last of this month
+  const now = new Date();
+  const y = now.getFullYear(), m = String(now.getMonth()+1).padStart(2,'0');
+  const lastDay = new Date(y, now.getMonth()+1, 0).getDate();
+  document.getElementById('inv-period-start').value = y + '-' + m + '-01';
+  document.getElementById('inv-period-end').value   = y + '-' + m + '-' + String(lastDay).padStart(2,'0');
+  document.getElementById('invoice-modal').classList.add('open');
+}
+
+function openAddVendorModal() {
+  document.getElementById('vnd-name').value = '';
+  document.getElementById('vnd-notes').value = '';
+  document.getElementById('vnd-emoji').value = '';
+  document.getElementById('vendor-modal').classList.add('open');
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+
+function handleFileSelect(input) {
+  const zone = document.getElementById('upload-zone');
+  const label = document.getElementById('upload-label');
+  if (input.files[0]) {
+    label.textContent = '✅ ' + input.files[0].name + ' (' + (input.files[0].size/1024).toFixed(0) + ' KB)';
+    zone.classList.add('has-file');
+  } else {
+    label.textContent = '📎 Click to attach invoice file';
+    zone.classList.remove('has-file');
+  }
+}
+
+// ── SUBMIT ────────────────────────────────────────────────────────────────
+
+async function submitInvoice() {
+  const vendorId   = document.getElementById('inv-vendor').value;
+  const periodStart= document.getElementById('inv-period-start').value;
+  const periodEnd  = document.getElementById('inv-period-end').value;
+  const amount     = document.getElementById('inv-amount').value;
+  const description= document.getElementById('inv-description').value;
+  const ref        = document.getElementById('inv-ref').value;
+  const file       = document.getElementById('inv-file').files[0];
+
+  if (!vendorId || !periodStart || !amount) {
+    alert('Vendor, period start, and amount are required.');
+    return;
+  }
+
+  try {
+    const fd = new FormData();
+    fd.append('vendor_id',    vendorId);
+    fd.append('period_start', periodStart);
+    fd.append('period_end',   periodEnd || periodStart);
+    fd.append('amount_usd',   amount);
+    fd.append('description',  description);
+    fd.append('invoice_ref',  ref);
+    if (file) fd.append('invoice_file', file);
+
+    const sep = '/api/admin/infra/invoices'.includes('?') ? '&' : '?';
+    const r = await fetch('/api/admin/infra/invoices' + sep + 'admin_key=' + ADMIN_KEY, {
+      method: 'POST',
+      headers: { 'X-Admin-Key': ADMIN_KEY, 'X-Requested-With': 'XMLHttpRequest' },
+      body: fd,
+    });
+    if (!r.ok) {
+      const err = await r.json().catch(() => ({}));
+      throw new Error(err.error || 'HTTP ' + r.status);
+    }
+    closeModal('invoice-modal');
+    loadAll();
+  } catch(e) {
+    alert('Error saving invoice: ' + e.message);
+  }
+}
+
+async function submitVendor() {
+  const name     = document.getElementById('vnd-name').value.trim();
+  const category = document.getElementById('vnd-category').value;
+  const emoji    = document.getElementById('vnd-emoji').value.trim() || '💼';
+  const notes    = document.getElementById('vnd-notes').value.trim();
+  if (!name) { alert('Vendor name is required.'); return; }
+  try {
+    await apiFetch('/api/admin/infra/vendors', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, category, logo_emoji: emoji, notes }),
+    });
+    closeModal('vendor-modal');
+    loadAll();
+  } catch(e) {
+    alert('Error: ' + e.message);
+  }
+}
+
+async function deleteInvoice(id) {
+  if (!confirm('Delete this invoice? This cannot be undone.')) return;
+  try {
+    await apiFetch('/api/admin/infra/invoices/' + id, { method: 'DELETE' });
+    loadAll();
+  } catch(e) {
+    alert('Error: ' + e.message);
+  }
+}
+
+async function deleteVendor(id, name) {
+  if (!confirm('Delete vendor "' + name + '" and all its invoices? This cannot be undone.')) return;
+  try {
+    await apiFetch('/api/admin/infra/vendors/' + id, { method: 'DELETE' });
+    loadAll();
+  } catch(e) {
+    alert('Error: ' + e.message);
+  }
+}
+
+function viewFile(invoiceId) {
+  window.open('/api/admin/infra/invoices/' + invoiceId + '/file?admin_key=' + ADMIN_KEY, '_blank');
+}
+
+// ── HELPERS ───────────────────────────────────────────────────────────────
+
+function fmtPeriod(start, end) {
+  if (!start) return '—';
+  const s = new Date(start + 'T00:00:00').toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'});
+  if (!end || end === start) return s;
+  const e = new Date(end + 'T00:00:00').toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'});
+  return s + ' – ' + e;
+}
+
+function escHtml(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// Close modal on overlay click
+document.querySelectorAll('.modal-overlay').forEach(el => {
+  el.addEventListener('click', e => { if (e.target === el) el.classList.remove('open'); });
+});
+
+// Boot
+loadAll();
+</script>
+</body>
+</html>

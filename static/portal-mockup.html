@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta name="robots" content="noindex, nofollow">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OfferWise — Merged Portal Mockup</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #060d1a; --surface: #0f1e35; --surface2: #162032;
+  --border: rgba(255,255,255,0.08); --border2: rgba(255,255,255,0.05);
+  --text: #f1f5f9; --muted: #94a3b8; --dim: #64748b;
+  --fire1: #f97316; --fire2: #f59e0b;
+  --green: #22c55e; --blue: #60a5fa; --red: #ef4444; --purple: #a78bfa;
+}
+body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+
+/* ── SCENARIO TABS (mockup nav) ── */
+.scenarios { display: flex; gap: 0; border-bottom: 2px solid var(--border); background: #030810; padding: 0 24px; }
+.scenario-tab { padding: 12px 20px; font-size: 12px; font-weight: 700; color: var(--dim); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; text-transform: uppercase; letter-spacing: .08em; transition: all .15s; }
+.scenario-tab:hover { color: var(--muted); }
+.scenario-tab.active { color: var(--fire1); border-bottom-color: var(--fire1); }
+.scenario { display: none; }
+.scenario.active { display: block; }
+
+/* ── NAV ── */
+nav { display: flex; align-items: center; justify-content: space-between; padding: 14px 32px; border-bottom: 1px solid var(--border); background: rgba(6,13,26,0.98); }
+.nav-logo { font-size: 1.2rem; font-weight: 900; }
+.nav-logo .wise { background: linear-gradient(90deg,#f97316,#f59e0b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.nav-right { display: flex; align-items: center; gap: 12px; }
+.nav-badge { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; padding: 4px 10px; border-radius: 6px; }
+.nav-badge.buyer     { color: #60a5fa; background: rgba(96,165,250,.1); border: 1px solid rgba(96,165,250,.25); }
+.nav-badge.inspector { color: #f97316; background: rgba(249,115,22,.1); border: 1px solid rgba(249,115,22,.25); }
+.nav-badge.contractor{ color: #22c55e; background: rgba(34,197,94,.1); border: 1px solid rgba(34,197,94,.25); }
+.nav-link { font-size: 13px; color: var(--muted); text-decoration: none; font-weight: 600; }
+
+/* ── ROLE SWITCHER ── */
+.role-switcher { position: relative; }
+.role-switcher-btn { display: flex; align-items: center; gap: 6px; padding: 6px 12px; background: rgba(255,255,255,.05); border: 1px solid var(--border); border-radius: 8px; font-size: 12px; font-weight: 600; color: var(--muted); cursor: pointer; white-space: nowrap; }
+.role-switcher-btn:hover { border-color: rgba(249,115,22,.4); color: var(--fire1); }
+.role-switcher-btn .chevron { font-size: 10px; opacity: .6; }
+.role-menu { position: absolute; top: calc(100% + 8px); right: 0; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; min-width: 230px; box-shadow: 0 10px 40px rgba(0,0,0,.5); z-index: 999; padding: 6px; }
+.role-menu-item { display: flex; align-items: flex-start; gap: 10px; padding: 10px 12px; border-radius: 8px; text-decoration: none; cursor: pointer; transition: background .12s; }
+.role-menu-item:hover { background: rgba(255,255,255,.04); }
+.role-menu-item.current { background: rgba(249,115,22,.08); border: 1px solid rgba(249,115,22,.15); }
+.rmi-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 1px; }
+.rmi-label { font-size: 13px; font-weight: 700; color: var(--text); }
+.rmi-badge { font-size: 11px; color: var(--dim); margin-top: 2px; }
+.here-tag { font-size: 10px; color: var(--fire1); font-weight: 600; margin-left: 6px; }
+
+/* ── LAYOUT ── */
+.layout { display: grid; grid-template-columns: 240px 1fr; min-height: calc(100vh - 53px); }
+.sidebar { border-right: 1px solid var(--border); padding: 24px 16px; }
+.sidebar-section { margin-bottom: 28px; }
+.sidebar-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--dim); margin-bottom: 8px; padding: 0 8px; }
+.sidebar-item { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 8px; font-size: 13px; font-weight: 600; color: var(--muted); cursor: pointer; transition: all .15s; text-decoration: none; margin-bottom: 2px; }
+.sidebar-item:hover { background: rgba(255,255,255,.04); color: var(--text); }
+.sidebar-item.active { background: rgba(249,115,22,.1); color: var(--fire1); }
+.stat-box { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px; margin-top: 8px; }
+.stat-box-label { font-size: 11px; color: var(--dim); margin-bottom: 4px; }
+.stat-box-val { font-size: 22px; font-weight: 800; letter-spacing: -.02em; }
+.stat-box-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.main { padding: 32px; }
+
+/* ── STATS ROW ── */
+.stats-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin-bottom: 28px; }
+.stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
+.stat-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--dim); margin-bottom: 6px; }
+.stat-val { font-size: 1.8rem; font-weight: 800; letter-spacing: -.02em; }
+.stat-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+/* ── PORTAL CARDS ── */
+.portal-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; margin-bottom: 28px; }
+.portal-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 20px; cursor: pointer; transition: all .15s; position: relative; overflow: hidden; }
+.portal-card:hover { border-color: rgba(255,255,255,.15); transform: translateY(-1px); }
+.portal-card.active-portal { border-color: rgba(249,115,22,.4); background: rgba(249,115,22,.04); }
+.portal-card-icon { font-size: 1.8rem; margin-bottom: 10px; }
+.portal-card-title { font-size: 14px; font-weight: 800; margin-bottom: 4px; }
+.portal-card-badge { display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 4px; margin-bottom: 10px; }
+.portal-card-stats { display: flex; gap: 16px; }
+.portal-card-stat { font-size: 11px; color: var(--dim); }
+.portal-card-stat strong { color: var(--muted); font-weight: 700; }
+.portal-card-cta { position: absolute; bottom: 14px; right: 14px; font-size: 11px; font-weight: 700; padding: 5px 10px; border-radius: 6px; }
+.current-label { position: absolute; top: 12px; right: 12px; font-size: 10px; font-weight: 700; color: var(--fire1); background: rgba(249,115,22,.1); padding: 2px 8px; border-radius: 4px; }
+
+/* ── SECTION HDR ── */
+.section-hdr { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.section-hdr h2 { font-size: 16px; font-weight: 700; }
+
+/* ── TABLE ── */
+.data-table { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+.table-hdr { display: grid; gap: 8px; padding: 10px 16px; background: var(--surface2); border-bottom: 1px solid var(--border); font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--dim); }
+.table-row { display: grid; gap: 8px; padding: 14px 16px; border-bottom: 1px solid var(--border2); align-items: center; }
+.table-row:last-child { border-bottom: none; }
+.table-row:hover { background: rgba(255,255,255,.02); }
+
+/* ── ANNOTATION ── */
+.annotation { position: relative; }
+.ann-bubble { position: absolute; background: rgba(245,158,11,.95); color: #000; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 6px; white-space: nowrap; z-index: 100; }
+.ann-bubble::after { content: ''; position: absolute; border: 5px solid transparent; }
+.ann-bubble.right::after { border-right-color: rgba(245,158,11,.95); left: -10px; top: 50%; transform: translateY(-50%); }
+.ann-bubble.below::after { border-bottom-color: rgba(245,158,11,.95); top: -10px; left: 50%; transform: translateX(-50%); }
+
+/* ── COMPARISON ── */
+.compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin: 0 24px; }
+.compare-col { }
+.compare-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--dim); margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+.compare-label.bad { color: #ef4444; }
+.compare-label.good { color: #22c55e; }
+
+/* ── BTN ── */
+.btn-fire { background: linear-gradient(90deg,var(--fire1),var(--fire2)); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; font-family: inherit; }
+
+/* ── ANNOTATION CALLOUTS ── */
+.callout-row { display: flex; gap: 12px; margin: 16px 0; flex-wrap: wrap; }
+.callout { background: rgba(245,158,11,.1); border: 1px solid rgba(245,158,11,.3); border-radius: 8px; padding: 8px 12px; font-size: 12px; font-weight: 600; color: #f59e0b; }
+.callout span { font-weight: 400; color: var(--muted); }
+
+.scenario-desc { padding: 12px 24px; background: rgba(96,165,250,.06); border-bottom: 1px solid rgba(96,165,250,.15); font-size: 13px; color: #60a5fa; font-weight: 600; }
+.scenario-desc em { color: var(--muted); font-weight: 400; font-style: normal; }
+</style>
+</head>
+<body>
+
+<!-- ── SCENARIO SELECTOR ── -->
+<div style="background:#030810;padding:12px 24px;border-bottom:1px solid var(--border);">
+  <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--dim);margin-bottom:8px;">Mockup Scenarios — click to explore</div>
+  <div class="scenarios" style="border:none;padding:0;">
+    <div class="scenario-tab active" onclick="show('s1')">1 · Buyer Only</div>
+    <div class="scenario-tab" onclick="show('s2')">2 · Buyer + Inspector</div>
+    <div class="scenario-tab" onclick="show('s3')">3 · All Three Roles</div>
+    <div class="scenario-tab" onclick="show('s4')">4 · Smart Login Redirect</div>
+    <div class="scenario-tab" onclick="show('s5')">5 · Before vs After</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SCENARIO 1: Buyer Only — no switcher shown
+════════════════════════════════════════════ -->
+<div id="s1" class="scenario active">
+  <div class="scenario-desc">Scenario 1: Pure buyer. No inspector or contractor account. <em>Role switcher is invisible — no clutter for single-role users.</em></div>
+  <nav>
+    <div class="nav-logo">Offer<span class="wise">Wise</span> AI</div>
+    <div class="nav-right">
+      <span class="nav-badge buyer">Buyer</span>
+      <a class="nav-link">Settings</a>
+      <a class="nav-link">Log out</a>
+      <!-- No role switcher — single role -->
+    </div>
+  </nav>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-label">Menu</div>
+        <a class="sidebar-item active">🏘️ My Properties</a>
+        <a class="sidebar-item">✨ New Analysis</a>
+        <a class="sidebar-item">⚙️ Settings</a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-label">Credits</div>
+        <div class="stat-box">
+          <div class="stat-box-label">Analysis credits</div>
+          <div class="stat-box-val" style="color:#22c55e;">3</div>
+          <div class="stat-box-sub">3 analyses available</div>
+        </div>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-label">Account</div>
+        <div style="padding:0 8px;font-size:12px;color:var(--muted);">user@example.com</div>
+        <div style="padding:2px 8px;font-size:11px;color:var(--dim);">Buyer · Free</div>
+      </div>
+      <div class="sidebar-section">
+        <a class="sidebar-item">💳 Buy Credits</a>
+        <a class="sidebar-item">🎁 Referrals</a>
+        <a class="sidebar-item">💬 Get Help</a>
+      </div>
+    </aside>
+    <main class="main">
+      <div style="margin-bottom:24px;">
+        <h1 style="font-size:22px;font-weight:800;margin-bottom:4px;">Good morning, Alex.</h1>
+        <p style="color:var(--muted);font-size:14px;">Your analyzed properties and account overview.</p>
+      </div>
+      <div class="stats-row">
+        <div class="stat-card"><div class="stat-label">Credits</div><div class="stat-val" style="color:#22c55e;">3</div></div>
+        <div class="stat-card"><div class="stat-label">Analyzed</div><div class="stat-val">7</div></div>
+        <div class="stat-card"><div class="stat-label">Potential Savings</div><div class="stat-val" style="color:#22c55e;">$42K</div></div>
+        <div class="stat-card"><div class="stat-label">Avg Discount</div><div class="stat-val" style="color:#60a5fa;">3.2%</div></div>
+      </div>
+      <div class="callout-row">
+        <div class="callout">✅ No role switcher shown <span>— single role user sees a clean, focused buyer experience</span></div>
+        <div class="callout">✅ Nav badge says "Buyer" <span>— clear identity</span></div>
+      </div>
+      <div class="section-hdr"><h2>📋 Analysis History</h2><button class="btn-fire">✨ New Analysis</button></div>
+      <div class="data-table">
+        <div class="table-hdr" style="grid-template-columns:2fr 1fr 1fr 1fr;">
+          <div>Property</div><div>OfferScore</div><div>Est. Repairs</div><div>Date</div>
+        </div>
+        <div class="table-row" style="grid-template-columns:2fr 1fr 1fr 1fr;">
+          <div><div style="font-weight:600;">123 Oak St, San Jose</div><div style="font-size:11px;color:var(--dim);">$1.35M asking</div></div>
+          <div style="font-size:20px;font-weight:800;color:#22c55e;">84</div>
+          <div style="color:#f59e0b;font-weight:700;">$8.5K</div>
+          <div style="color:var(--dim);font-size:12px;">Mar 14</div>
+        </div>
+        <div class="table-row" style="grid-template-columns:2fr 1fr 1fr 1fr;">
+          <div><div style="font-weight:600;">445 Pine Ave, Sunnyvale</div><div style="font-size:11px;color:var(--dim);">$1.1M asking</div></div>
+          <div style="font-size:20px;font-weight:800;color:#f59e0b;">61</div>
+          <div style="color:#f59e0b;font-weight:700;">$24K</div>
+          <div style="color:var(--dim);font-size:12px;">Mar 10</div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SCENARIO 2: Buyer + Inspector
+════════════════════════════════════════════ -->
+<div id="s2" class="scenario">
+  <div class="scenario-desc">Scenario 2: A user is a buyer AND a licensed inspector. <em>Role switcher appears. Currently on Buyer Dashboard. Inspector Portal linked with quota context.</em></div>
+  <nav>
+    <div class="nav-logo">Offer<span class="wise">Wise</span> AI</div>
+    <div class="nav-right">
+      <span class="nav-badge buyer">🏠 Buyer Dashboard</span>
+      <a class="nav-link">Settings</a>
+      <a class="nav-link">Log out</a>
+      <!-- Role switcher — 2 roles -->
+      <div class="role-switcher">
+        <div class="role-switcher-btn">⇄ Switch portal <span class="chevron">▾</span></div>
+        <div class="role-menu">
+          <div class="role-menu-item current">
+            <div class="rmi-icon">🏠</div>
+            <div><div class="rmi-label">Buyer Dashboard <span class="here-tag">← here</span></div><div class="rmi-badge">3 credits available</div></div>
+          </div>
+          <div class="role-menu-item">
+            <div class="rmi-icon">🔍</div>
+            <div><div class="rmi-label">Inspector Portal</div><div class="rmi-badge">Pro ⭐ · Unlimited · 12 reports sent</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-label">Menu</div>
+        <a class="sidebar-item active">🏘️ My Properties</a>
+        <a class="sidebar-item">✨ New Analysis</a>
+        <a class="sidebar-item">⚙️ Settings</a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-label">Credits</div>
+        <div class="stat-box">
+          <div class="stat-box-label">Analysis credits</div>
+          <div class="stat-box-val" style="color:#22c55e;">3</div>
+          <div class="stat-box-sub">3 analyses available</div>
+        </div>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-label">Other Portals</div>
+        <a class="sidebar-item" style="color:#f97316;background:rgba(249,115,22,.05);">🔍 Inspector Portal →</a>
+      </div>
+    </aside>
+    <main class="main">
+      <div style="margin-bottom:24px;">
+        <h1 style="font-size:22px;font-weight:800;margin-bottom:4px;">Good morning, Alex.</h1>
+        <p style="color:var(--muted);font-size:14px;">Your analyzed properties and account overview.</p>
+      </div>
+      <div class="callout-row">
+        <div class="callout">✅ Role switcher in nav <span>— dropdown shows both portals with contextual badges</span></div>
+        <div class="callout">✅ "Other Portals" in sidebar <span>— always one click away</span></div>
+        <div class="callout">✅ Each portal clearly valued <span>— "3 credits" vs "Pro · 12 reports"</span></div>
+      </div>
+      <div class="stats-row">
+        <div class="stat-card"><div class="stat-label">Credits</div><div class="stat-val" style="color:#22c55e;">3</div></div>
+        <div class="stat-card"><div class="stat-label">Analyzed</div><div class="stat-val">7</div></div>
+        <div class="stat-card"><div class="stat-label">Potential Savings</div><div class="stat-val" style="color:#22c55e;">$42K</div></div>
+        <div class="stat-card"><div class="stat-label">Avg Discount</div><div class="stat-val" style="color:#60a5fa;">3.2%</div></div>
+      </div>
+      <div class="section-hdr"><h2>📋 Analysis History</h2><button class="btn-fire">✨ New Analysis</button></div>
+      <div class="data-table">
+        <div class="table-hdr" style="grid-template-columns:2fr 1fr 1fr 1fr;"><div>Property</div><div>OfferScore</div><div>Est. Repairs</div><div>Date</div></div>
+        <div class="table-row" style="grid-template-columns:2fr 1fr 1fr 1fr;">
+          <div><div style="font-weight:600;">123 Oak St, San Jose</div><div style="font-size:11px;color:var(--dim);">$1.35M asking</div></div>
+          <div style="font-size:20px;font-weight:800;color:#22c55e;">84</div>
+          <div style="color:#f59e0b;font-weight:700;">$8.5K</div>
+          <div style="color:var(--dim);font-size:12px;">Mar 14</div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SCENARIO 3: All Three Roles
+════════════════════════════════════════════ -->
+<div id="s3" class="scenario">
+  <div class="scenario-desc">Scenario 3: The user has all three roles — Buyer, Inspector Pro, Contractor Pro. <em>Currently viewing Inspector Portal. Switcher shows all three with badges.</em></div>
+  <nav>
+    <div class="nav-logo">Offer<span class="wise">Wise</span> AI</div>
+    <div class="nav-right">
+      <span class="nav-badge inspector">🔍 Inspector Portal</span>
+      <a class="nav-link">My Dashboard</a>
+      <a class="nav-link">Log out</a>
+      <div class="role-switcher">
+        <div class="role-switcher-btn">🔍 Inspector Portal <span class="chevron">▾</span></div>
+        <div class="role-menu">
+          <div class="role-menu-item">
+            <div class="rmi-icon">🏠</div>
+            <div><div class="rmi-label">Buyer Dashboard</div><div class="rmi-badge">3 credits available</div></div>
+          </div>
+          <div class="role-menu-item current">
+            <div class="rmi-icon">🔍</div>
+            <div><div class="rmi-label">Inspector Portal <span class="here-tag">← here</span></div><div class="rmi-badge">Pro ⭐ · Unlimited · 12 reports</div></div>
+          </div>
+          <div class="role-menu-item">
+            <div class="rmi-icon">🔧</div>
+            <div><div class="rmi-label">Contractor Portal</div><div class="rmi-badge">Pro · 8 leads this month</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-label">Menu</div>
+        <a class="sidebar-item active">📊 Overview</a>
+        <a class="sidebar-item">✨ New Analysis</a>
+        <a class="sidebar-item">📋 All Reports</a>
+        <a class="sidebar-item">👤 My Profile</a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-label">Usage</div>
+        <div class="stat-box">
+          <div class="stat-box-label">Monthly analyses</div>
+          <div class="stat-box-val" style="color:#f97316;">∞</div>
+          <div class="stat-box-sub">12 used · Unlimited ⭐</div>
+        </div>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-label">Other Portals</div>
+        <a class="sidebar-item" style="color:#60a5fa;background:rgba(96,165,250,.05);">🏠 Buyer Dashboard →</a>
+        <a class="sidebar-item" style="color:#22c55e;background:rgba(34,197,94,.05);">🔧 Contractor Portal →</a>
+      </div>
+    </aside>
+    <main class="main">
+      <div style="margin-bottom:24px;">
+        <h1 style="font-size:22px;font-weight:800;margin-bottom:4px;">Good to see you, Frank.</h1>
+        <p style="color:var(--muted);font-size:14px;">Reports for buyers, sellers, refinance, and homeowners.</p>
+      </div>
+      <!-- Portal cards — overview of all three -->
+      <div class="section-hdr" style="margin-bottom:12px;"><h2>Your OfferWise Accounts</h2></div>
+      <div class="portal-grid" style="margin-bottom:28px;">
+        <div class="portal-card">
+          <div class="portal-card-icon">🏠</div>
+          <div class="portal-card-title">Buyer Dashboard</div>
+          <div class="portal-card-badge" style="background:rgba(96,165,250,.1);color:#60a5fa;">3 credits</div>
+          <div class="portal-card-stats">
+            <div class="portal-card-stat"><strong>7</strong> analyses</div>
+            <div class="portal-card-stat"><strong>$42K</strong> savings found</div>
+          </div>
+          <div class="portal-card-cta" style="background:rgba(96,165,250,.1);color:#60a5fa;">Go →</div>
+        </div>
+        <div class="portal-card active-portal">
+          <span class="current-label">Here now</span>
+          <div class="portal-card-icon">🔍</div>
+          <div class="portal-card-title">Inspector Portal</div>
+          <div class="portal-card-badge" style="background:rgba(249,115,22,.1);color:#f97316;">Pro ⭐ · $49/mo</div>
+          <div class="portal-card-stats">
+            <div class="portal-card-stat"><strong>12</strong> reports sent</div>
+            <div class="portal-card-stat"><strong>8</strong> buyers registered</div>
+          </div>
+        </div>
+        <div class="portal-card">
+          <div class="portal-card-icon">🔧</div>
+          <div class="portal-card-title">Contractor Portal</div>
+          <div class="portal-card-badge" style="background:rgba(34,197,94,.1);color:#22c55e;">Pro · $99/mo</div>
+          <div class="portal-card-stats">
+            <div class="portal-card-stat"><strong>8</strong> leads this month</div>
+            <div class="portal-card-stat"><strong>3</strong> jobs closed</div>
+          </div>
+          <div class="portal-card-cta" style="background:rgba(34,197,94,.1);color:#22c55e;">Go →</div>
+        </div>
+      </div>
+      <div class="callout-row">
+        <div class="callout">✅ "Your OfferWise Accounts" overview <span>— shows all three with purchase value visible</span></div>
+        <div class="callout">✅ Current portal highlighted <span>— "Here now" badge, active border</span></div>
+        <div class="callout">✅ Sidebar links to other portals <span>— always one click away</span></div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SCENARIO 4: Smart Login Redirect
+════════════════════════════════════════════ -->
+<div id="s4" class="scenario">
+  <div class="scenario-desc">Scenario 4: Smart post-login redirect logic. <em>Where does the user land after logging in?</em></div>
+  <div style="padding:32px;max-width:900px;margin:0 auto;">
+    <h2 style="font-size:20px;font-weight:800;margin-bottom:24px;">Smart Login Redirect Rules</h2>
+    <div style="display:flex;flex-direction:column;gap:16px;">
+      <!-- Rule 1 -->
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:20px;">
+        <div>
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--dim);margin-bottom:6px;">User has</div>
+          <div style="font-size:14px;font-weight:700;">Only buyer credits, no inspector or contractor account</div>
+          <div style="font-size:12px;color:var(--dim);margin-top:4px;">Example: purchased a 5-pack, running home analyses</div>
+        </div>
+        <div style="font-size:1.5rem;color:var(--fire1);">→</div>
+        <div style="background:rgba(96,165,250,.08);border:1px solid rgba(96,165,250,.2);border-radius:10px;padding:16px;">
+          <div style="font-size:11px;font-weight:700;color:#60a5fa;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;">Lands on</div>
+          <div style="font-size:16px;font-weight:800;">🏠 Buyer Dashboard</div>
+          <div style="font-size:12px;color:var(--dim);margin-top:2px;">/dashboard</div>
+        </div>
+      </div>
+      <!-- Rule 2 -->
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:20px;">
+        <div>
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--dim);margin-bottom:6px;">User has</div>
+          <div style="font-size:14px;font-weight:700;">Inspector account, zero buyer credits</div>
+          <div style="font-size:12px;color:var(--dim);margin-top:4px;">Example: signed up via /for-inspectors, never bought credits</div>
+        </div>
+        <div style="font-size:1.5rem;color:var(--fire1);">→</div>
+        <div style="background:rgba(249,115,22,.08);border:1px solid rgba(249,115,22,.2);border-radius:10px;padding:16px;">
+          <div style="font-size:11px;font-weight:700;color:#f97316;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;">Lands on</div>
+          <div style="font-size:16px;font-weight:800;">🔍 Inspector Portal</div>
+          <div style="font-size:12px;color:var(--dim);margin-top:2px;">/inspector-portal</div>
+        </div>
+      </div>
+      <!-- Rule 3 -->
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:20px;">
+        <div>
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--dim);margin-bottom:6px;">User has</div>
+          <div style="font-size:14px;font-weight:700;">Active contractor account, zero buyer credits</div>
+          <div style="font-size:12px;color:var(--dim);margin-top:4px;">Example: signed up via /for-contractors, paying for leads</div>
+        </div>
+        <div style="font-size:1.5rem;color:var(--fire1);">→</div>
+        <div style="background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);border-radius:10px;padding:16px;">
+          <div style="font-size:11px;font-weight:700;color:#22c55e;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;">Lands on</div>
+          <div style="font-size:16px;font-weight:800;">🔧 Contractor Portal</div>
+          <div style="font-size:12px;color:var(--dim);margin-top:2px;">/contractor-portal</div>
+        </div>
+      </div>
+      <!-- Rule 4 -->
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:20px;">
+        <div>
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--dim);margin-bottom:6px;">User has</div>
+          <div style="font-size:14px;font-weight:700;">Inspector account + buyer credits</div>
+          <div style="font-size:12px;color:var(--dim);margin-top:4px;">Example: inspector who also bought credits to analyze their own purchases</div>
+        </div>
+        <div style="font-size:1.5rem;color:var(--fire1);">→</div>
+        <div style="background:rgba(96,165,250,.08);border:1px solid rgba(96,165,250,.2);border-radius:10px;padding:16px;">
+          <div style="font-size:11px;font-weight:700;color:#60a5fa;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;">Lands on</div>
+          <div style="font-size:16px;font-weight:800;">🏠 Buyer Dashboard</div>
+          <div style="font-size:12px;color:var(--dim);margin-top:2px;">Role switcher → Inspector Portal in nav</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SCENARIO 5: Before vs After
+════════════════════════════════════════════ -->
+<div id="s5" class="scenario">
+  <div class="scenario-desc">Scenario 5: Before vs After — what changes for a user who is both a buyer and an inspector.</div>
+  <div style="padding:32px;">
+    <div class="compare-grid">
+      <div class="compare-col">
+        <div class="compare-label bad">❌ Before (current) — Confusion</div>
+        <div style="background:var(--surface);border:1px solid rgba(239,68,68,.2);border-radius:12px;padding:20px;margin-bottom:16px;">
+          <div style="font-size:13px;font-weight:700;margin-bottom:12px;color:#ef4444;">Login experience</div>
+          <div style="font-size:13px;color:var(--muted);line-height:1.8;">
+            1. Inspector signs up at /for-inspectors<br>
+            2. Uses inspector portal happily<br>
+            3. Wants to analyze their own home purchase<br>
+            4. Goes to getofferwise.ai and sees <strong style="color:var(--text);">Buyer Dashboard</strong><br>
+            5. Looks completely different — different nav, different layout<br>
+            6. Wonders: <em style="color:#f59e0b;">"Is this the same account? Did I lose my inspector data?"</em><br>
+            7. Has to find the inspector portal URL separately<br>
+            8. No connection between their $49/mo inspector plan and their buyer credits
+          </div>
+        </div>
+        <div style="background:var(--surface);border:1px solid rgba(239,68,68,.2);border-radius:12px;padding:20px;">
+          <div style="font-size:13px;font-weight:700;margin-bottom:8px;color:#ef4444;">The buyer dashboard looks like</div>
+          <div style="background:#0a1628;border-radius:8px;padding:12px;font-size:12px;color:var(--dim);">
+            🏠 Buyer Dashboard<br>
+            <span style="font-size:11px;">— No mention of inspector account</span><br>
+            <span style="font-size:11px;">— No way to navigate to inspector portal</span><br>
+            <span style="font-size:11px;">— No indication accounts are linked</span>
+          </div>
+        </div>
+      </div>
+      <div class="compare-col">
+        <div class="compare-label good">✅ After (this build) — Clarity</div>
+        <div style="background:var(--surface);border:1px solid rgba(34,197,94,.2);border-radius:12px;padding:20px;margin-bottom:16px;">
+          <div style="font-size:13px;font-weight:700;margin-bottom:12px;color:#22c55e;">Login experience</div>
+          <div style="font-size:13px;color:var(--muted);line-height:1.8;">
+            1. Inspector signs up at /for-inspectors<br>
+            2. Logs in → <strong style="color:var(--text);">lands directly on inspector portal</strong> (zero credits = inspector primary)<br>
+            3. Wants to analyze their own home — buys 1 credit<br>
+            4. Now lands on buyer dashboard after login<br>
+            5. <strong style="color:var(--text);">Nav shows: ⇄ Switch portal ▾</strong><br>
+            6. One click → inspector portal, badge shows "Pro ⭐ · 12 reports"<br>
+            7. Both purchases clearly visible and valued
+          </div>
+        </div>
+        <div style="background:var(--surface);border:1px solid rgba(34,197,94,.2);border-radius:12px;padding:20px;">
+          <div style="font-size:13px;font-weight:700;margin-bottom:8px;color:#22c55e;">The nav switcher dropdown</div>
+          <div class="role-menu" style="position:static;box-shadow:none;border-color:rgba(34,197,94,.2);">
+            <div class="role-menu-item current">
+              <div class="rmi-icon">🏠</div>
+              <div><div class="rmi-label">Buyer Dashboard <span class="here-tag">← here</span></div><div class="rmi-badge">1 credit available</div></div>
+            </div>
+            <div class="role-menu-item">
+              <div class="rmi-icon">🔍</div>
+              <div><div class="rmi-label">Inspector Portal</div><div class="rmi-badge">Pro ⭐ · Unlimited · 12 reports</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function show(id) {
+  document.querySelectorAll('.scenario').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.scenario-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.target.classList.add('active');
+}
+</script>
+</body>
+</html>

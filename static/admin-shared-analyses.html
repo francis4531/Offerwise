@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Shared Analyses — OfferWise Admin</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0b0e14;
+            --surface: #131720;
+            --surface2: #1a1f2e;
+            --border: #232a3b;
+            --text: #c9d1d9;
+            --text-dim: #6b7b8d;
+            --text-bright: #e6edf3;
+            --accent: #58a6ff;
+            --green: #3fb950;
+            --red: #f85149;
+            --amber: #d29922;
+            --purple: #bc8cff;
+            --cyan: #39d2c0;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+
+        /* Nav */
+
+        /* Header */
+        .page-header { margin-bottom:24px;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px; }
+        .page-header h1 { font-family:'JetBrains Mono',monospace;font-size:20px;color:var(--text-bright);font-weight:700; }
+        .page-header p { color:var(--text-dim);font-size:13px;margin-top:4px; }
+
+        /* Toolbar */
+        .toolbar { display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:20px; }
+        .toolbar input { background:var(--surface);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:6px;font-size:13px;min-width:240px;outline:none; }
+        .toolbar input:focus { border-color:var(--accent); }
+        .toolbar select { background:var(--surface);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:6px;font-size:13px;outline:none;cursor:pointer; }
+        .toolbar button { padding:8px 16px;border-radius:6px;border:none;cursor:pointer;font-size:13px;font-weight:600; }
+        .btn-primary { background:var(--accent);color:#0b0e14; }
+        .btn-primary:hover { opacity:0.85; }
+        .btn-ghost { background:var(--surface2);color:var(--text);border:1px solid var(--border); }
+        .btn-ghost:hover { border-color:var(--accent);color:var(--accent); }
+        .total-badge { font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text-dim);margin-left:auto; }
+
+        /* Table */
+        .table-wrap { background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden; }
+        table { width:100%;border-collapse:collapse; }
+        thead tr { background:var(--surface2); }
+        th { padding:10px 14px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--text-dim);font-weight:600;white-space:nowrap; }
+        td { padding:12px 14px;border-top:1px solid var(--border);font-size:13px;vertical-align:top; }
+        tr:hover td { background:rgba(255,255,255,0.02); }
+
+        .addr { font-weight:600;color:var(--text-bright);max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; }
+        .user-email { color:var(--accent);font-size:12px; }
+        .mono { font-family:'JetBrains Mono',monospace; }
+        .dim { color:var(--text-dim);font-size:12px; }
+
+        /* Risk tier badges */
+        .tier { display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700;font-family:'JetBrains Mono',monospace;white-space:nowrap; }
+        .tier-MINIMAL  { background:rgba(63,185,80,.15);color:#3fb950; }
+        .tier-LOW      { background:rgba(63,185,80,.15);color:#3fb950; }
+        .tier-MODERATE { background:rgba(210,153,34,.15);color:#d29922; }
+        .tier-ELEVATED { background:rgba(210,153,34,.2);color:#e3a42a; }
+        .tier-HIGH     { background:rgba(248,81,73,.15);color:#f85149; }
+        .tier-CRITICAL { background:rgba(248,81,73,.25);color:#ff6b63; }
+
+        .score-pill { display:inline-block;padding:2px 10px;border-radius:20px;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700; }
+
+        /* Status indicators */
+        .dot { width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:5px; }
+        .dot-green { background:var(--green); }
+        .dot-red   { background:var(--red); }
+        .dot-amber { background:var(--amber); }
+
+        /* Action buttons */
+        .action-btn { padding:4px 10px;border-radius:5px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:11px;font-weight:600;cursor:pointer;text-decoration:none;display:inline-block;transition:all .15s; }
+        .action-btn:hover { border-color:var(--accent);color:var(--accent); }
+        .action-btn.danger:hover { border-color:var(--red);color:var(--red); }
+
+        /* Expand row */
+        .expand-row td { background:var(--surface2);padding:0; }
+        .expand-inner { padding:20px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px; }
+        @media(max-width:900px){ .expand-inner { grid-template-columns:1fr 1fr; } }
+        .expand-section h4 { font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--text-dim);margin-bottom:8px;font-weight:600; }
+        .expand-section p { font-size:13px;margin-bottom:4px; }
+        .expand-section .val { color:var(--text-bright);font-weight:600; }
+
+        .findings-list { list-style:none;display:flex;flex-direction:column;gap:4px; }
+        .findings-list li { font-size:12px;padding:5px 8px;background:rgba(248,81,73,.08);border-left:2px solid var(--red);border-radius:0 4px 4px 0;color:var(--text); }
+        .findings-list li.elevated { background:rgba(210,153,34,.08);border-color:var(--amber); }
+        .findings-list li.empty { color:var(--text-dim);border-color:var(--border);background:transparent; }
+
+        .reaction-counts { display:flex;gap:8px;flex-wrap:wrap; }
+        .reaction-pill { font-size:11px;padding:3px 8px;border-radius:4px;background:var(--surface);border:1px solid var(--border); }
+
+        .debug-link { font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--purple);text-decoration:none; }
+        .debug-link:hover { text-decoration:underline; }
+
+        /* Pagination */
+        .pagination { display:flex;gap:8px;justify-content:flex-end;align-items:center;margin-top:16px; }
+        .pagination button { padding:6px 12px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:12px;cursor:pointer; }
+        .pagination button:disabled { opacity:.35;cursor:default; }
+        .pagination button:not(:disabled):hover { border-color:var(--accent);color:var(--accent); }
+        .pagination .page-info { font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text-dim); }
+
+        /* Empty / loading */
+        .empty-state { padding:60px 24px;text-align:center;color:var(--text-dim); }
+        .empty-state .icon { font-size:36px;margin-bottom:12px; }
+        .loading { padding:60px 24px;text-align:center;color:var(--text-dim);font-family:'JetBrains Mono',monospace;font-size:13px; }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <!-- Header -->
+    <div class="page-header">
+        <div>
+            <h1>🔍 Shared Analyses</h1>
+            <p>Analyses users have explicitly shared — the only analyses you can view with their consent.</p>
+        </div>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+        <input id="searchInput" type="text" placeholder="Search by email or address…" onkeydown="if(event.key==='Enter')load()">
+        <select id="daysFilter" onchange="load()">
+            <option value="0">All time</option>
+            <option value="7">Last 7 days</option>
+            <option value="30">Last 30 days</option>
+            <option value="90">Last 90 days</option>
+        </select>
+        <button class="btn-primary" onclick="load()">Search</button>
+        <button class="btn-ghost" onclick="clearFilters()">Clear</button>
+        <span class="total-badge" id="totalBadge"></span>
+    </div>
+
+    <!-- Table -->
+    <div class="table-wrap">
+        <table id="mainTable">
+            <thead>
+                <tr>
+                    <th>Property</th>
+                    <th>User</th>
+                    <th>Offer Score</th>
+                    <th>Risk</th>
+                    <th>Offer</th>
+                    <th>Repairs</th>
+                    <th>Views</th>
+                    <th>Shared</th>
+                    <th>Status</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+                <tr><td colspan="10" class="loading">Loading…</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="pagination" id="pagination"></div>
+
+</div>
+
+<script>
+    let adminKey = new URLSearchParams(location.search).get('admin_key') || '';
+    let currentPage = 1;
+    let totalPages = 1;
+    let expandedToken = null;
+
+    function goAdmin(path) {
+        const k = adminKey ? `?admin_key=${adminKey}` : '';
+        location.href = `/${path}${k}`;
+    }
+
+    function clearFilters() {
+        document.getElementById('searchInput').value = '';
+        document.getElementById('daysFilter').value = '0';
+        currentPage = 1;
+        load();
+    }
+
+    async function load(page) {
+        if (page) currentPage = page;
+        const search = document.getElementById('searchInput').value.trim();
+        const days   = document.getElementById('daysFilter').value;
+
+        const params = new URLSearchParams({ page: currentPage, per_page: 50 });
+        if (search) params.set('search', search);
+        if (days !== '0') params.set('days', days);
+
+        const headers = { 'X-Requested-With': 'XMLHttpRequest' };
+        if (adminKey) headers['X-Admin-Key'] = adminKey;
+
+        try {
+            const r = await fetch(`/api/admin/shared-analyses?${params}`, { headers });
+            if (r.status === 403) {
+                document.getElementById('tableBody').innerHTML =
+                    `<tr><td colspan="10" class="loading" style="color:var(--red)">Unauthorized. Add ?admin_key=… to the URL.</td></tr>`;
+                return;
+            }
+            const data = await r.json();
+            totalPages = data.pages || 1;
+            renderTable(data.links || [], data.total || 0);
+            renderPagination(data.total || 0);
+        } catch(e) {
+            document.getElementById('tableBody').innerHTML =
+                `<tr><td colspan="10" class="loading" style="color:var(--red)">Error loading data.</td></tr>`;
+        }
+    }
+
+    function renderTable(links, total) {
+        document.getElementById('totalBadge').textContent =
+            total === 0 ? 'No results' : `${total} share link${total !== 1 ? 's' : ''}`;
+
+        if (!links.length) {
+            document.getElementById('tableBody').innerHTML =
+                `<tr><td colspan="10"><div class="empty-state"><div class="icon">🔍</div><p>No shared analyses found.</p></div></td></tr>`;
+            return;
+        }
+
+        const rows = links.map(lnk => {
+            const snap    = lnk.snapshot || {};
+            const score   = snap.offerscore ?? '—';
+            const tier    = snap.risk_tier || '—';
+            const offer   = snap.recommended_offer ? `$${Math.round(snap.recommended_offer).toLocaleString()}` : '—';
+            const repLow  = snap.repair_cost_low  ? `$${Math.round(snap.repair_cost_low).toLocaleString()}`  : null;
+            const repHigh = snap.repair_cost_high ? `$${Math.round(snap.repair_cost_high).toLocaleString()}` : null;
+            const repairs = (repLow && repHigh) ? `${repLow}–${repHigh}` : '—';
+            const age     = timeAgo(lnk.created_at);
+            const expired = lnk.is_expired;
+            const statusDot = expired
+                ? `<span class="dot dot-red"></span>Expired`
+                : `<span class="dot dot-green"></span>Active`;
+
+            const scoreColor = score === '—' ? 'var(--text-dim)' : score >= 70 ? 'var(--green)' : score >= 45 ? 'var(--amber)' : 'var(--red)';
+            const tierBadge  = tier !== '—' ? `<span class="tier tier-${tier}">${tier}</span>` : `<span class="dim">—</span>`;
+
+            return `<tr id="row-${lnk.token}">
+                <td>
+                    <div class="addr" title="${esc(lnk.address)}">${esc(lnk.address)}</div>
+                    <div class="dim">#${lnk.property_id}</div>
+                </td>
+                <td>
+                    <div class="user-email">${esc(lnk.user_email)}</div>
+                    ${lnk.sharer_name ? `<div class="dim">${esc(lnk.sharer_name)}</div>` : ''}
+                </td>
+                <td><span class="score-pill mono" style="color:${scoreColor}">${score}</span></td>
+                <td>${tierBadge}</td>
+                <td class="mono" style="font-size:12px">${offer}</td>
+                <td class="mono dim" style="font-size:12px">${repairs}</td>
+                <td class="mono" style="font-size:12px">${lnk.view_count}</td>
+                <td class="dim">${age}</td>
+                <td class="dim" style="font-size:12px">${statusDot}</td>
+                <td style="white-space:nowrap">
+                    <a class="action-btn" href="${lnk.share_url}" target="_blank">View</a>
+                    <button class="action-btn" onclick="toggleExpand('${lnk.token}')" style="margin-left:4px">Debug ▾</button>
+                </td>
+            </tr>
+            <tr class="expand-row" id="expand-${lnk.token}" style="display:none">
+                <td colspan="10">${renderExpand(lnk)}</td>
+            </tr>`;
+        });
+
+        document.getElementById('tableBody').innerHTML = rows.join('');
+    }
+
+    function renderExpand(lnk) {
+        const snap = lnk.snapshot || {};
+        const ak   = adminKey ? `?admin_key=${adminKey}` : '';
+        const findings = (snap.top_findings || []);
+        const reactions = (lnk.reactions || []);
+        const reactionCounts = reactions.reduce((acc, r) => {
+            acc[r.reaction] = (acc[r.reaction] || 0) + 1; return acc;
+        }, {});
+        const reactionLabels = { good_deal: '👍 Good deal', fair_price: '🤔 Fair price', walk_away: '🚶 Walk away' };
+
+        const findingsHtml = findings.length
+            ? findings.map(f => `<li class="${f.severity === 'critical' ? '' : 'elevated'}">${esc(f.text)}</li>`).join('')
+            : `<li class="empty">No top findings captured in snapshot.</li>`;
+
+        const reactionHtml = Object.keys(reactionCounts).length
+            ? Object.entries(reactionCounts).map(([k,v]) =>
+                `<span class="reaction-pill">${reactionLabels[k] || k}: ${v}</span>`).join('')
+            : `<span class="dim">No reactions yet.</span>`;
+
+        const noteHtml = lnk.personal_note
+            ? `<p><span class="dim">Note:</span> <em>"${esc(lnk.personal_note)}"</em></p>`
+            : `<p class="dim">No personal note.</p>`;
+
+        const recipientHtml = lnk.recipient_name
+            ? `<p><span class="dim">Shared with:</span> <span class="val">${esc(lnk.recipient_name)}</span></p>`
+            : '';
+
+        return `<div class="expand-inner">
+            <div class="expand-section">
+                <h4>Snapshot</h4>
+                <p><span class="dim">Address:</span> <span class="val">${esc(snap.address || lnk.address)}</span></p>
+                <p><span class="dim">Price:</span> <span class="val">${snap.price ? '$' + Math.round(snap.price).toLocaleString() : '—'}</span></p>
+                <p><span class="dim">Transparency:</span> <span class="val">${snap.transparency_score != null ? Math.round(snap.transparency_score) + '/100' : '—'}</span></p>
+                <p><span class="dim">Contradictions:</span> <span class="val">${snap.contradictions_count != null ? snap.contradictions_count : '—'}</span></p>
+                <p><span class="dim">Discount:</span> <span class="val">${snap.discount_percentage != null ? snap.discount_percentage.toFixed(1) + '%' : '—'}</span></p>
+                ${recipientHtml}
+                <br>${noteHtml}
+            </div>
+            <div class="expand-section">
+                <h4>Top Findings</h4>
+                <ul class="findings-list">${findingsHtml}</ul>
+                <br>
+                <h4>Reactions</h4>
+                <div class="reaction-counts">${reactionHtml}</div>
+            </div>
+            <div class="expand-section">
+                <h4>Links & Debug</h4>
+                <p><span class="dim">Token:</span> <code class="mono" style="font-size:11px">${lnk.token}</code></p>
+                <p><span class="dim">Created:</span> ${new Date(lnk.created_at).toLocaleString()}</p>
+                <p><span class="dim">Expires:</span> ${lnk.expires_at ? new Date(lnk.expires_at).toLocaleDateString() : 'Never'}</p>
+                <br>
+                <p style="display:flex;flex-direction:column;gap:6px">
+                    <a class="action-btn" href="${lnk.share_url}" target="_blank">🔗 Open shared page</a>
+                    <a class="action-btn" href="/api/admin/inspect-analysis/${lnk.property_id}${ak}" target="_blank">🛠 Raw analysis JSON</a>
+                    <a class="action-btn" href="/api/admin/inspect-analysis/${lnk.property_id}${ak}" target="_blank" onclick="copyDebugUrl(event, '/api/admin/inspect-analysis/${lnk.property_id}${ak}')">📋 Copy debug URL</a>
+                </p>
+            </div>
+        </div>`;
+    }
+
+    function toggleExpand(token) {
+        const row = document.getElementById(`expand-${token}`);
+        const wasOpen = row.style.display !== 'none';
+        // Collapse any open row
+        if (expandedToken) {
+            const prev = document.getElementById(`expand-${expandedToken}`);
+            if (prev) prev.style.display = 'none';
+        }
+        if (!wasOpen || expandedToken !== token) {
+            row.style.display = '';
+            expandedToken = token;
+        } else {
+            expandedToken = null;
+        }
+    }
+
+    function copyDebugUrl(e, url) {
+        e.preventDefault();
+        const full = location.origin + url;
+        navigator.clipboard.writeText(full).then(() => {
+            const btn = e.target;
+            const orig = btn.textContent;
+            btn.textContent = '✅ Copied!';
+            setTimeout(() => btn.textContent = orig, 1500);
+        });
+    }
+
+    function renderPagination(total) {
+        const pg = document.getElementById('pagination');
+        if (totalPages <= 1) { pg.innerHTML = ''; return; }
+        pg.innerHTML = `
+            <button onclick="load(${currentPage - 1})" ${currentPage <= 1 ? 'disabled' : ''}>← Prev</button>
+            <span class="page-info">Page ${currentPage} of ${totalPages}</span>
+            <button onclick="load(${currentPage + 1})" ${currentPage >= totalPages ? 'disabled' : ''}>Next →</button>`;
+    }
+
+    function timeAgo(iso) {
+        const diff = Date.now() - new Date(iso).getTime();
+        const m = Math.floor(diff / 60000);
+        if (m < 2)   return 'just now';
+        if (m < 60)  return `${m}m ago`;
+        const h = Math.floor(m / 60);
+        if (h < 24)  return `${h}h ago`;
+        const d = Math.floor(h / 24);
+        if (d < 30)  return `${d}d ago`;
+        return new Date(iso).toLocaleDateString();
+    }
+
+    function esc(s) {
+        return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    // Boot
+    load();
+</script>
+</body>
+</html>

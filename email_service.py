@@ -1,0 +1,682 @@
+"""
+OfferWise Email Service
+Transactional emails for key user touchpoints
+
+Uses Resend for reliable delivery with beautiful HTML templates.
+Fallback gracefully if email service unavailable.
+
+Email Types:
+1. Welcome - After first signup
+2. Purchase Receipt - After buying credits  
+3. Analysis Complete - When analysis finishes
+4. Credits Reminder - If unused credits (7 days)
+"""
+
+import os
+import logging
+from datetime import datetime
+
+logger = logging.getLogger(__name__)
+
+# Try to import resend, gracefully handle if not available
+try:
+    import resend
+    RESEND_AVAILABLE = True
+except ImportError:
+    RESEND_AVAILABLE = False
+    logger.warning("⚠️ Resend not installed - emails disabled")
+
+# Configuration
+RESEND_API_KEY = os.environ.get('RESEND_API_KEY', '')
+FROM_EMAIL    = os.environ.get('FROM_EMAIL',    'OfferWise <noreply@getofferwise.ai>')
+SUPPORT_EMAIL = os.environ.get('SUPPORT_EMAIL', 'support@getofferwise.ai')
+
+# Initialize Resend
+if RESEND_AVAILABLE and RESEND_API_KEY:
+    resend.api_key = RESEND_API_KEY
+    EMAIL_ENABLED = True
+    logger.info("✅ Email service enabled (Resend)")
+else:
+    EMAIL_ENABLED = False
+    if not RESEND_API_KEY:
+        logger.warning("⚠️ RESEND_API_KEY not set - emails disabled")
+
+
+# =============================================================================
+# EMAIL TEMPLATES
+# =============================================================================
+
+def get_base_template(content: str, preview_text: str = "") -> str:
+    """Wrap content in beautiful base email template"""
+    return f'''
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>OfferWise</title>
+    <!--[if mso]>
+    <style type="text/css">
+        table {{border-collapse: collapse;}}
+        .button {{padding: 12px 24px !important;}}
+    </style>
+    <![endif]-->
+</head>
+<body style="margin: 0; padding: 0; background-color: #0f172a; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
+    <!-- Preview text -->
+    <div style="display: none; max-height: 0; overflow: hidden;">
+        {preview_text}
+    </div>
+    
+    <!-- Email wrapper -->
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #0f172a;">
+        <tr>
+            <td align="center" style="padding: 40px 20px;">
+                <!-- Content container -->
+                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="600" style="max-width: 600px; background-color: #1e293b; border-radius: 16px; overflow: hidden; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);">
+                    
+                    <!-- Header -->
+                    <tr>
+                        <td style="background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%); padding: 32px 40px; text-align: center;">
+                            <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 800; letter-spacing: -0.5px;">
+                                OfferWise
+                            </h1>
+                        </td>
+                    </tr>
+                    
+                    <!-- Body -->
+                    <tr>
+                        <td style="padding: 40px;">
+                            {content}
+                        </td>
+                    </tr>
+                    
+                    <!-- Footer -->
+                    <tr>
+                        <td style="background-color: #0f172a; padding: 24px 40px; text-align: center; border-top: 1px solid rgba(255, 255, 255, 0.1);">
+                            <p style="margin: 0 0 8px 0; color: #64748b; font-size: 13px;">
+                                © 2026 OfferWise. All rights reserved.
+                            </p>
+                            <p style="margin: 0; color: #64748b; font-size: 13px;">
+                                <a href="https://www.getofferwise.ai/privacy" style="color: #60a5fa; text-decoration: none;">Privacy</a>
+                                &nbsp;·&nbsp;
+                                <a href="https://www.getofferwise.ai/terms" style="color: #60a5fa; text-decoration: none;">Terms</a>
+                                &nbsp;·&nbsp;
+                                <a href="mailto:{SUPPORT_EMAIL}" style="color: #60a5fa; text-decoration: none;">Support</a>
+                            </p>
+                        </td>
+                    </tr>
+                    
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
+'''
+
+
+def get_button(text: str, url: str, color: str = "#3b82f6") -> str:
+    """Generate email-safe button"""
+    return f'''
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin: 24px auto;">
+        <tr>
+            <td style="background-color: {color}; border-radius: 8px;">
+                <a href="{url}" target="_blank" style="display: inline-block; padding: 14px 32px; color: #ffffff; text-decoration: none; font-weight: 600; font-size: 16px;">
+                    {text}
+                </a>
+            </td>
+        </tr>
+    </table>
+    '''
+
+
+# =============================================================================
+# EMAIL CONTENT GENERATORS
+# =============================================================================
+
+def get_welcome_email(user_name: str) -> tuple:
+    """Generate welcome email content"""
+    first_name = user_name.split()[0] if user_name else "there"
+    
+    subject = "🎁 Your free analysis is loaded and ready, " + first_name
+    
+    content = f'''
+        <h2 style="margin: 0 0 8px 0; color: #f8fafc; font-size: 24px; font-weight: 700;">
+            Welcome, {first_name}! 👋
+        </h2>
+        <p style="margin: 0 0 24px 0; color: #94a3b8; font-size: 15px; line-height: 1.6;">
+            You've just gained an unfair advantage in real estate negotiations.
+        </p>
+
+        <!-- Free credit callout — the most important thing -->
+        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%"
+               style="background: linear-gradient(135deg, rgba(16,185,129,0.12), rgba(59,130,246,0.08));
+                      border: 2px solid rgba(16,185,129,0.4);
+                      border-radius: 14px;
+                      margin: 0 0 28px 0;">
+            <tr>
+                <td style="padding: 24px;">
+                    <div style="font-size: 32px; margin-bottom: 10px;">🎁</div>
+                    <div style="font-size: 20px; font-weight: 800; color: #4ade80; margin-bottom: 6px;">
+                        1 Free Analysis Credit — Loaded &amp; Ready
+                    </div>
+                    <div style="font-size: 14px; color: #94a3b8; margin-bottom: 16px; line-height: 1.6;">
+                        No credit card needed. Your free credit is in your account right now —
+                        use it on any property you&rsquo;re considering.
+                    </div>
+                    <div style="font-size: 12px; color: #4ade80; font-weight: 600; letter-spacing: 0.04em;">
+                        ✓ Ready in 60 seconds &nbsp;&nbsp; ✓ Any PDF accepted &nbsp;&nbsp; ✓ Never expires
+                    </div>
+                </td>
+            </tr>
+        </table>
+
+        <!-- What they get -->
+        <p style="margin: 0 0 16px 0; color: #cbd5e1; font-size: 15px; line-height: 1.6;">
+            Upload a seller&rsquo;s disclosure and inspection report and you&rsquo;ll get:
+        </p>
+        
+        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin: 0 0 24px 0;">
+            <tr>
+                <td width="40" valign="top" style="padding-right: 16px;">
+                    <div style="width: 32px; height: 32px; background: rgba(59, 130, 246, 0.2); border-radius: 8px; text-align: center; line-height: 32px; font-size: 16px;">🎯</div>
+                </td>
+                <td style="color: #cbd5e1; font-size: 15px; padding-bottom: 14px;">
+                    <strong style="color: #f8fafc;">OfferScore™</strong> — a 0–100 property grade<br>
+                    <span style="font-size: 13px; color: #64748b;">Tells you instantly whether this property is a good deal</span>
+                </td>
+            </tr>
+            <tr>
+                <td width="40" valign="top" style="padding-right: 16px;">
+                    <div style="width: 32px; height: 32px; background: rgba(139, 92, 246, 0.2); border-radius: 8px; text-align: center; line-height: 32px; font-size: 16px;">🔍</div>
+                </td>
+                <td style="color: #cbd5e1; font-size: 15px; padding-bottom: 14px;">
+                    <strong style="color: #f8fafc;">Seller Transparency Report™</strong> — disclosure gaps exposed<br>
+                    <span style="font-size: 13px; color: #64748b;">We cross-reference what they said vs. what the inspector found</span>
+                </td>
+            </tr>
+            <tr>
+                <td width="40" valign="top" style="padding-right: 16px;">
+                    <div style="width: 32px; height: 32px; background: rgba(16, 185, 129, 0.2); border-radius: 8px; text-align: center; line-height: 32px; font-size: 16px;">💰</div>
+                </td>
+                <td style="color: #cbd5e1; font-size: 15px;">
+                    <strong style="color: #f8fafc;">Recommended offer price</strong> + negotiation talking points<br>
+                    <span style="font-size: 13px; color: #64748b;">Data-backed, not a gut feeling</span>
+                </td>
+            </tr>
+        </table>
+        
+        {get_button("Analyze a Property Now →", "https://www.getofferwise.ai/app?utm_source=welcome_email&utm_medium=email", "#10b981")}
+        
+        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%"
+               style="background:rgba(249,115,22,0.08);border:1px solid rgba(249,115,22,0.2);border-radius:10px;margin:20px 0 0;">
+          <tr><td style="padding:16px 20px;">
+            <p style="margin:0 0 4px;color:#f97316;font-size:13px;font-weight:700;">💰 Earn free analyses</p>
+            <p style="margin:0;color:#94a3b8;font-size:12px;line-height:1.5;">
+              Share your referral link and you both get a free analysis when they sign up.
+              <a href="https://www.getofferwise.ai/settings?tab=referrals" style="color:#f97316;">Get your link →</a>
+            </p>
+          </td></tr>
+        </table>
+        
+        <p style="margin: 24px 0 0 0; color: #94a3b8; font-size: 14px; text-align: center; line-height: 1.6;">
+            Don&rsquo;t have documents yet? No problem &mdash;
+            <a href="https://www.getofferwise.ai/dashboard" style="color: #60a5fa;">go to your dashboard</a>
+            to explore nearby listings first.<br>
+            Questions? Reply to this email or contact <a href="mailto:{SUPPORT_EMAIL}" style="color: #60a5fa;">{SUPPORT_EMAIL}</a>
+        </p>
+    '''
+    
+    html = get_base_template(content, "Your free OfferWise analysis is loaded and ready")
+    return subject, html
+
+
+def get_purchase_receipt_email(user_name: str, plan_name: str, credits: int, amount: float) -> tuple:
+    """Generate purchase receipt email"""
+    first_name = user_name.split()[0] if user_name else "there"
+    
+    subject = f"Receipt: {plan_name} - ${amount:.2f}"
+    
+    content = f'''
+        <h2 style="margin: 0 0 16px 0; color: #f8fafc; font-size: 24px; font-weight: 700;">
+            Thank you for your purchase! 🎉
+        </h2>
+        
+        <p style="margin: 0 0 24px 0; color: #cbd5e1; font-size: 16px; line-height: 1.6;">
+            Hi {first_name}, your credits have been added to your account.
+        </p>
+        
+        <!-- Receipt Box -->
+        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: rgba(15, 23, 42, 0.6); border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.1); margin: 24px 0;">
+            <tr>
+                <td style="padding: 24px;">
+                    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                        <tr>
+                            <td style="color: #94a3b8; font-size: 14px; padding-bottom: 12px;">Plan</td>
+                            <td align="right" style="color: #f8fafc; font-size: 14px; font-weight: 600; padding-bottom: 12px;">{plan_name}</td>
+                        </tr>
+                        <tr>
+                            <td style="color: #94a3b8; font-size: 14px; padding-bottom: 12px;">Credits Added</td>
+                            <td align="right" style="color: #10b981; font-size: 14px; font-weight: 600; padding-bottom: 12px;">+{credits} analyses</td>
+                        </tr>
+                        <tr>
+                            <td style="color: #94a3b8; font-size: 14px; padding-bottom: 12px;">Date</td>
+                            <td align="right" style="color: #f8fafc; font-size: 14px; padding-bottom: 12px;">{datetime.now().strftime('%B %d, %Y')}</td>
+                        </tr>
+                        <tr>
+                            <td colspan="2" style="border-top: 1px solid rgba(255, 255, 255, 0.1); padding-top: 12px;"></td>
+                        </tr>
+                        <tr>
+                            <td style="color: #f8fafc; font-size: 16px; font-weight: 600;">Total</td>
+                            <td align="right" style="color: #f8fafc; font-size: 20px; font-weight: 700;">${amount:.2f}</td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+        
+        <p style="margin: 0 0 8px 0; color: #cbd5e1; font-size: 16px; line-height: 1.6;">
+            Your credits never expire. Use them whenever you're ready to analyze a property.
+        </p>
+        
+        {get_button("Analyze a Property Now →", "https://www.getofferwise.ai/app?utm_source=receipt_email&utm_medium=email", "#10b981")}
+        
+        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%"
+               style="background:rgba(249,115,22,0.08);border:1px solid rgba(249,115,22,0.2);border-radius:10px;margin:20px 0 0;">
+          <tr><td style="padding:16px 20px;">
+            <p style="margin:0 0 4px;color:#f97316;font-size:13px;font-weight:700;">📤 Refer a buyer, earn free analyses</p>
+            <p style="margin:0;color:#94a3b8;font-size:12px;line-height:1.5;">
+              Know someone buying a home? Share your link — you both get a credit when they sign up.
+              <a href="https://www.getofferwise.ai/settings?tab=referrals" style="color:#f97316;">Get your referral link →</a>
+            </p>
+          </td></tr>
+        </table>
+        
+        <p style="margin: 24px 0 0 0; color: #94a3b8; font-size: 13px; text-align: center;">
+            Need a refund or have billing questions? Contact <a href="mailto:billing@getofferwise.ai" style="color: #60a5fa;">billing@getofferwise.ai</a>
+        </p>
+    '''
+    
+    html = get_base_template(content, f"Receipt for {plan_name} - {credits} analysis credits")
+    return subject, html
+
+
+def get_analysis_complete_email(user_name: str, property_address: str, offer_score: int, recommended_offer, asking_price, property_id: int = None) -> tuple:
+    """Generate analysis complete email"""
+    first_name = user_name.split()[0] if user_name else "there"
+    
+    # Ensure clean integers — no floating point decimals in dollar amounts
+    recommended_offer = round(recommended_offer)
+    asking_price = round(asking_price)
+    offer_score = round(offer_score)
+    
+    # Calculate potential savings
+    savings = max(0, asking_price - recommended_offer)
+    
+    # Right box: Show recommended offer with savings context
+    if savings > 0:
+        right_label = "Recommended Offer"
+        right_value = f"${recommended_offer:,}"
+        right_sub = f"Save ${savings:,} vs asking"
+        right_color = "#10b981"
+    else:
+        right_label = "Recommended Offer"
+        right_value = f"${recommended_offer:,}"
+        right_sub = "Fair at asking price"
+        right_color = "#3b82f6"
+    
+    # Score color — OfferScore is quality (higher = better)
+    if offer_score >= 80:
+        score_color = "#10b981"
+        score_label = "Strong Buy"
+    elif offer_score >= 60:
+        score_color = "#3b82f6"
+        score_label = "Good"
+    elif offer_score >= 40:
+        score_color = "#f59e0b"
+        score_label = "Negotiate"
+    elif offer_score >= 25:
+        score_color = "#f97316"
+        score_label = "Caution"
+    else:
+        score_color = "#ef4444"
+        score_label = "High Risk"
+    
+    subject = f"Your Analysis is Ready: {property_address[:30]}..."
+    
+    content = f'''
+        <h2 style="margin: 0 0 16px 0; color: #f8fafc; font-size: 24px; font-weight: 700;">
+            Your Analysis is Ready! 📊
+        </h2>
+        
+        <p style="margin: 0 0 8px 0; color: #94a3b8; font-size: 14px;">
+            Property Address
+        </p>
+        <p style="margin: 0 0 24px 0; color: #f8fafc; font-size: 18px; font-weight: 600;">
+            {property_address}
+        </p>
+        
+        <!-- Results Summary -->
+        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin: 24px 0;">
+            <tr>
+                <td width="50%" style="padding-right: 8px;">
+                    <div style="background: rgba(15, 23, 42, 0.6); border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.1); padding: 20px; text-align: center;">
+                        <div style="font-size: 14px; color: #94a3b8; margin-bottom: 8px;">OfferScore™</div>
+                        <div style="font-size: 36px; font-weight: 800; color: {score_color};">{offer_score}</div>
+                        <div style="font-size: 13px; color: {score_color};">{score_label}</div>
+                    </div>
+                </td>
+                <td width="50%" style="padding-left: 8px;">
+                    <div style="background: rgba(15, 23, 42, 0.6); border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.1); padding: 20px; text-align: center;">
+                        <div style="font-size: 14px; color: #94a3b8; margin-bottom: 8px;">{right_label}</div>
+                        <div style="font-size: 36px; font-weight: 800; color: {right_color};">{right_value}</div>
+                        <div style="font-size: 13px; color: #94a3b8;">{right_sub}</div>
+                    </div>
+                </td>
+            </tr>
+        </table>
+        
+        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: rgba(59, 130, 246, 0.1); border-radius: 12px; border: 1px solid rgba(59, 130, 246, 0.3); margin: 24px 0;">
+            <tr>
+                <td style="padding: 20px;">
+                    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                        <tr>
+                            <td style="color: #94a3b8; font-size: 14px;">Asking Price</td>
+                            <td align="right" style="color: #f8fafc; font-size: 16px;">${asking_price:,}</td>
+                        </tr>
+                        <tr>
+                            <td style="color: #60a5fa; font-size: 14px; font-weight: 600; padding-top: 8px;">Recommended Offer</td>
+                            <td align="right" style="color: #60a5fa; font-size: 18px; font-weight: 700; padding-top: 8px;">${recommended_offer:,}</td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+        
+        <p style="margin: 0 0 8px 0; color: #cbd5e1; font-size: 16px; line-height: 1.6;">
+            Your full report includes Risk DNA™, Seller Transparency Report™, and negotiation talking points.
+        </p>
+        
+        {get_button("View Full Report →", f"https://www.getofferwise.ai/app?analysis={property_id}" if property_id else "https://www.getofferwise.ai/app")}
+        
+        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%"
+               style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:10px;margin:20px 0 0;">
+          <tr><td style="padding:16px 20px;">
+            <p style="margin:0 0 4px;color:#ef4444;font-size:13px;font-weight:700;">📄 Next: Draft your repair addendum</p>
+            <p style="margin:0 0 10px;color:#94a3b8;font-size:12px;line-height:1.5;">
+              Claude will write your formal Request for Repair from these findings — state-aware, clause by clause.
+            </p>
+            <a href="{'https://www.getofferwise.ai/app?analysis=' + str(property_id) + '&action=addendum&utm_source=analysis_email&utm_medium=email' if property_id else 'https://www.getofferwise.ai/app?action=addendum&utm_source=analysis_email&utm_medium=email'}"
+               style="display:inline-block;padding:10px 20px;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);color:#fca5a5;text-decoration:none;font-weight:700;font-size:13px;border-radius:8px;">
+              Draft repair addendum →
+            </a>
+          </td></tr>
+        </table>
+        
+        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%"
+               style="background:rgba(249,115,22,0.08);border:1px solid rgba(249,115,22,0.2);border-radius:10px;margin:12px 0 0;">
+          <tr><td style="padding:14px 20px;">
+            <p style="margin:0;color:#94a3b8;font-size:12px;line-height:1.5;">
+              💰 <strong style="color:#f97316;">Refer a buyer</strong> — share your link and you both get a free analysis.
+              <a href="https://www.getofferwise.ai/settings?tab=referrals" style="color:#f97316;">Get your link →</a>
+            </p>
+          </td></tr>
+        </table>
+    '''
+    
+    html = get_base_template(content, f"Analysis ready for {property_address} - OfferScore {offer_score}")
+    return subject, html
+
+
+def get_credits_reminder_email(user_name: str, credits: int, days_unused: int) -> tuple:
+    """Generate unused credits reminder email"""
+    first_name = user_name.split()[0] if user_name else "there"
+    
+    subject = f"You have {credits} unused analysis credits 🏠"
+    
+    content = f'''
+        <h2 style="margin: 0 0 16px 0; color: #f8fafc; font-size: 24px; font-weight: 700;">
+            Don't forget your credits! 💫
+        </h2>
+        
+        <p style="margin: 0 0 20px 0; color: #cbd5e1; font-size: 16px; line-height: 1.6;">
+            Hi {first_name}, you have <strong style="color: #10b981;">{credits} analysis credit{'s' if credits != 1 else ''}</strong> waiting for you.
+        </p>
+        
+        <p style="margin: 0 0 20px 0; color: #cbd5e1; font-size: 16px; line-height: 1.6;">
+            Looking at a property? Upload your inspection report and seller disclosure to get:
+        </p>
+        
+        <ul style="margin: 0 0 24px 0; padding-left: 20px; color: #cbd5e1; font-size: 15px; line-height: 1.8;">
+            <li>Your personalized <strong style="color: #f8fafc;">OfferScore™</strong></li>
+            <li>Complete <strong style="color: #f8fafc;">Property Risk DNA™</strong></li>
+            <li><strong style="color: #f8fafc;">Seller Transparency Report™</strong> (what they disclosed vs what inspectors found)</li>
+            <li>Specific <strong style="color: #f8fafc;">offer recommendation</strong></li>
+            <li><strong style="color: #f8fafc;">Negotiation talking points</strong></li>
+        </ul>
+        
+        <p style="margin: 0 0 24px 0; color: #94a3b8; font-size: 14px;">
+            Your credits never expire — use them whenever you're ready.
+        </p>
+        
+        {get_button("Analyze a Property →", "https://www.getofferwise.ai/app?utm_source=credits_reminder&utm_medium=email")}
+        
+        <p style="margin:20px 0 0;color:#94a3b8;font-size:13px;text-align:center;line-height:1.6;">
+          Don't have a property yet?
+          <a href="https://www.getofferwise.ai/settings?tab=referrals" style="color:#f97316;">Refer a friend who does</a>
+          and you both earn a free analysis.
+        </p>
+    '''
+    
+    html = get_base_template(content, f"You have {credits} unused OfferWise credits")
+    return subject, html
+
+
+# =============================================================================
+# EMAIL SENDING FUNCTIONS
+# =============================================================================
+
+def send_email(to_email: str, subject: str, html_content: str, reply_to: str = None,
+               headers: dict = None, email_type: str = 'other', user_id: int = None) -> bool:
+    """Send an email via Resend and log to EmailSendLog for cost tracking.
+
+    Args:
+        to_email: Recipient email address
+        subject: Email subject
+        html_content: HTML content of email
+        reply_to: Optional reply-to address
+        headers: Optional dict of custom headers
+        email_type: Category for cost dashboard (welcome, drip_1..5, receipt, analysis_complete, market_intel)
+        user_id: Optional user ID for attribution
+
+    Returns:
+        True if sent successfully, False otherwise
+    """
+    if not EMAIL_ENABLED:
+        logger.info(f"📧 Email disabled - would send '{subject}' to {to_email}")
+        return False
+
+    resend_id = None
+    success = False
+    try:
+        params = {
+            "from": FROM_EMAIL,
+            "to": [to_email],
+            "subject": subject,
+            "html": html_content,
+        }
+        if reply_to:
+            params["reply_to"] = reply_to
+        if headers:
+            params["headers"] = headers
+
+        response = resend.Emails.send(params)
+        resend_id = response.get('id', None)
+        success = True
+        logger.info(f"✅ Email sent: '{subject}' to {to_email} (ID: {resend_id or 'unknown'})")
+        return True
+
+    except Exception as e:
+        logger.error(f"❌ Email failed: '{subject}' to {to_email} - {str(e)}")
+        return False
+
+    finally:
+        # Always log the attempt for cost dashboard accuracy
+        try:
+            from app import app as _app, db as _db
+            from models import EmailSendLog
+            with _app.app_context():
+                _db.session.add(EmailSendLog(
+                    to_email=to_email,
+                    email_type=email_type,
+                    subject=(subject or '')[:255],
+                    resend_id=resend_id,
+                    success=success,
+                    user_id=user_id,
+                ))
+                _db.session.commit()
+        except Exception as log_err:
+            logger.warning(f"EmailSendLog write failed: {log_err}")
+
+
+# =============================================================================
+# HIGH-LEVEL EMAIL FUNCTIONS (Call these from app.py)
+# =============================================================================
+
+def send_welcome_email(to_email: str, user_name: str, user_id: int = None) -> bool:
+    """Send welcome email to new user"""
+    subject, html = get_welcome_email(user_name)
+    return send_email(to_email, subject, html, email_type='welcome', user_id=user_id)
+
+
+def send_purchase_receipt(to_email: str, user_name: str, plan_name: str, credits: int, amount: float, user_id: int = None) -> bool:
+    """Send purchase receipt after successful payment"""
+    subject, html = get_purchase_receipt_email(user_name, plan_name, credits, amount)
+    return send_email(to_email, subject, html, email_type='receipt', user_id=user_id)
+
+
+def send_analysis_complete(to_email: str, user_name: str, property_address: str, 
+                           offer_score: int, recommended_offer: int, asking_price: int,
+                           property_id: int = None) -> bool:
+    """Send notification when analysis completes"""
+    subject, html = get_analysis_complete_email(
+        user_name, property_address, offer_score, recommended_offer, asking_price, property_id
+    )
+    return send_email(to_email, subject, html, email_type='analysis_complete')
+
+
+def send_credits_reminder(to_email: str, user_name: str, credits: int, days_unused: int = 7) -> bool:
+    """Send reminder about unused credits"""
+    subject, html = get_credits_reminder_email(user_name, credits, days_unused)
+    return send_email(to_email, subject, html)
+
+
+def get_negotiation_guide_email() -> tuple[str, str]:
+    """Generate the free Home Buying Negotiation Guide email."""
+    subject = "Your Free Negotiation Guide — 10 Tactics the Pros Use"
+    
+    tactics = [
+        ("Start Below Asking — Strategically", "In most markets, the first offer sets the anchor. Open 5-8% below asking on homes that have sat 14+ days. Sellers expect negotiation; don't rob them of the dance."),
+        ("Use Inspection Findings as Leverage", "Every crack, leak, and code violation is a negotiation chip. Quantify repair costs with contractor estimates and present them factually, not emotionally."),
+        ("Never Reveal Your Budget", "Your pre-approval amount is not your offer ceiling. If you're approved for $900K, that doesn't mean you should offer anywhere near it."),
+        ("Request Seller Credits Instead of Price Cuts", "Sellers often prefer a higher sale price (for their own comps and ego) with credits back to you at closing. A $10K credit feels different than a $10K price drop — to them."),
+        ("Set a Walk-Away Number Before You Start", "Decide your absolute maximum before emotions take over. Write it down. When bidding heats up, check the number, not your feelings."),
+        ("Time Your Offer Strategically", "Homes listed on Friday often get weekend offers. Submit yours on Tuesday or Wednesday for less competition. End-of-month offers appeal to sellers with closing deadlines."),
+        ("Escalation Clauses — Use with Caution", "An escalation clause says 'I'll beat any offer by $X up to $Y.' It reveals your ceiling. Use only when you're confident about your max and expect multiple bids."),
+        ("Ask for Closing Cost Assistance", "Especially effective in buyer's markets. Requesting 2-3% of the price toward closing costs can save you $10-20K out of pocket without changing the headline price."),
+        ("Shorten or Lengthen Contingency Periods", "A shorter inspection window (7 days vs. 17) signals seriousness. A flexible closing date that matches the seller's timeline can win over a higher offer."),
+        ("Let the Data Make Your Case", "Emotion-driven negotiations fail. Come armed with comparable sales, days-on-market stats, and objective risk assessments. Data disarms even the toughest listing agent."),
+    ]
+    
+    tactics_html = ""
+    for i, (title, desc) in enumerate(tactics, 1):
+        tactics_html += f'''
+        <tr>
+            <td style="padding: 16px 0; border-bottom: 1px solid rgba(255,255,255,0.06);">
+                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                    <tr>
+                        <td width="40" valign="top" style="padding-right: 12px;">
+                            <div style="width: 32px; height: 32px; background: linear-gradient(135deg, #3b82f6, #8b5cf6); border-radius: 50%; text-align: center; line-height: 32px; color: #fff; font-weight: 700; font-size: 14px;">{i}</div>
+                        </td>
+                        <td>
+                            <p style="margin: 0 0 4px; font-weight: 700; color: #f1f5f9; font-size: 15px;">{title}</p>
+                            <p style="margin: 0; color: #94a3b8; font-size: 14px; line-height: 1.5;">{desc}</p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>'''
+    
+    content = f'''
+    <tr>
+        <td style="padding: 32px 32px 16px;">
+            <h1 style="margin: 0 0 8px; color: #f1f5f9; font-size: 22px; font-weight: 800;">Your Negotiation Playbook</h1>
+            <p style="margin: 0 0 24px; color: #94a3b8; font-size: 15px; line-height: 1.6;">
+                Here are 10 tactics that experienced buyers and agents use to negotiate better home prices. Bookmark this email — you'll want it when you're ready to make an offer.
+            </p>
+            
+            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                {tactics_html}
+            </table>
+        </td>
+    </tr>
+    
+    <tr>
+        <td style="padding: 24px 32px 32px;">
+            <div style="background: linear-gradient(135deg, rgba(59,130,246,0.15), rgba(139,92,246,0.15)); border: 1px solid rgba(59,130,246,0.2); border-radius: 12px; padding: 24px; text-align: center;">
+                <p style="margin: 0 0 8px; color: #f1f5f9; font-size: 16px; font-weight: 700;">Ready to Put Data Behind Your Offer?</p>
+                <p style="margin: 0 0 16px; color: #94a3b8; font-size: 14px;">Upload your disclosure and inspection PDFs. Our AI finds the risks sellers hope you'll miss.</p>
+                <a href="https://getofferwise.ai/?utm_source=guide_email&utm_medium=email&utm_campaign=negotiation_guide" style="display: inline-block; background: linear-gradient(135deg, #3b82f6, #8b5cf6); color: #ffffff; text-decoration: none; padding: 12px 28px; border-radius: 8px; font-weight: 700; font-size: 15px;">Analyze Your Property</a>
+            </div>
+        </td>
+    </tr>'''
+    
+    html = get_base_template(content, preview_text="10 negotiation tactics the pros use — your free guide from OfferWise")
+    return subject, html
+
+
+def send_negotiation_guide(to_email: str) -> bool:
+    """Send the free negotiation guide to a subscriber."""
+    subject, html = get_negotiation_guide_email()
+    return send_email(to_email, subject, html)
+
+
+# =============================================================================
+# TEST FUNCTION
+# =============================================================================
+
+def test_email_templates():
+    """Generate test emails and print to console (for development)"""
+    print("\n" + "="*60)
+    print("TESTING EMAIL TEMPLATES")
+    print("="*60)
+    
+    # Test Welcome
+    subject, html = get_welcome_email("John Smith")
+    print(f"\n📧 WELCOME EMAIL\nSubject: {subject}\nLength: {len(html)} chars")
+    
+    # Test Receipt
+    subject, html = get_purchase_receipt_email("John Smith", "5-Pack Bundle", 5, 99.00)
+    print(f"\n📧 RECEIPT EMAIL\nSubject: {subject}\nLength: {len(html)} chars")
+    
+    # Test Analysis Complete
+    subject, html = get_analysis_complete_email(
+        "John Smith", "123 Main Street, San Jose, CA 95123", 
+        78, 725000, 799000
+    )
+    print(f"\n📧 ANALYSIS COMPLETE EMAIL\nSubject: {subject}\nLength: {len(html)} chars")
+    
+    # Test Credits Reminder
+    subject, html = get_credits_reminder_email("John Smith", 3, 7)
+    print(f"\n📧 CREDITS REMINDER EMAIL\nSubject: {subject}\nLength: {len(html)} chars")
+    
+    print("\n" + "="*60)
+    print(f"EMAIL_ENABLED: {EMAIL_ENABLED}")
+    print(f"RESEND_API_KEY set: {bool(RESEND_API_KEY)}")
+    print("="*60 + "\n")
+
+
+if __name__ == "__main__":
+    test_email_templates()

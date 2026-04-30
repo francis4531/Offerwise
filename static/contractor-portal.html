@@ -1,0 +1,1461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contractor Dashboard — OfferWise AI</title>
+  <link rel="icon" type="image/svg+xml" href="/logo-icon-only.svg">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #060d1a; --surface: #0f1e35; --surface2: #162032;
+      --border: rgba(255,255,255,0.08); --border2: rgba(255,255,255,0.05);
+      --text: #f1f5f9; --muted: #94a3b8; --dim: #64748b;
+      --fire1: #f97316; --fire2: #f59e0b;
+      --green: #22c55e; --blue: #60a5fa; --red: #ef4444;
+    }
+    body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; min-height: 100vh; }
+
+    /* NAV */
+    nav { display: flex; align-items: center; justify-content: space-between; padding: 14px 32px; border-bottom: 1px solid var(--border); background: rgba(6,13,26,0.98); }
+    .nav-logo { font-size: 1.2rem; font-weight: 900; color: var(--text); text-decoration: none; }
+    .nav-logo .wise { background: linear-gradient(90deg,var(--fire1),var(--fire2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .nav-right { display: flex; align-items: center; gap: 16px; }
+    .nav-badge { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--fire1); background: rgba(249,115,22,.1); border: 1px solid rgba(249,115,22,.25); padding: 4px 10px; border-radius: 6px; }
+    .nav-link { font-size: 13px; color: var(--muted); text-decoration: none; }
+    .nav-link:hover { color: var(--text); }
+
+    /* LAYOUT */
+    .layout { display: grid; grid-template-columns: 240px 1fr; min-height: calc(100vh - 53px); }
+    @media (max-width: 768px) { .layout { grid-template-columns: 1fr; } .sidebar { display: none; } }
+
+    /* SIDEBAR */
+    .sidebar { border-right: 1px solid var(--border); padding: 24px 16px; }
+    .sidebar-section { margin-bottom: 32px; }
+    .sidebar-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--dim); margin-bottom: 8px; padding: 0 8px; }
+    .sidebar-item { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 8px; font-size: 13px; font-weight: 600; color: var(--muted); cursor: pointer; transition: all .15s; text-decoration: none; margin-bottom: 2px; }
+    .sidebar-item:hover { background: rgba(255,255,255,.04); color: var(--text); }
+    .sidebar-item.active { background: rgba(249,115,22,.1); color: var(--fire1); }
+    .plan-box { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px; margin-top: 8px; }
+    .plan-label { font-size: 11px; color: var(--dim); margin-bottom: 6px; }
+    .plan-name { font-size: 14px; font-weight: 700; }
+    .plan-sub { font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+    /* MAIN */
+    .main { padding: 32px; overflow-x: hidden; }
+    .page { display: none; }
+    .page.active { display: block; }
+
+    /* STATS ROW */
+    .stats-row { display: grid; grid-template-columns: repeat(auto-fit,minmax(160px,1fr)); gap: 12px; margin-bottom: 28px; }
+    .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
+    .stat-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--dim); margin-bottom: 6px; }
+    .stat-val { font-size: 1.8rem; font-weight: 800; letter-spacing: -.02em; }
+    .stat-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+    /* SECTION HEADER */
+    .section-hdr { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+    .section-hdr h2 { font-size: 16px; font-weight: 700; }
+    .btn-fire { background: linear-gradient(90deg,var(--fire1),var(--fire2)); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; font-family: inherit; }
+    .btn-ghost { background: transparent; color: var(--muted); border: 1px solid var(--border); padding: 8px 16px; border-radius: 8px; font-weight: 600; font-size: 13px; cursor: pointer; font-family: inherit; }
+    .btn-ghost:hover { border-color: rgba(255,255,255,.2); color: var(--text); }
+
+    /* LEADS TABLE */
+    .leads-table { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+    .mkt-chip { padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; cursor: pointer; border: 1px solid rgba(255,255,255,.1); background: rgba(255,255,255,.04); color: #64748b; font-family: inherit; transition: all .12s; }
+    .mkt-chip:hover { border-color: rgba(249,115,22,.3); color: #94a3b8; }
+    .mkt-chip.active { border-color: rgba(249,115,22,.5); background: rgba(249,115,22,.12); color: #f97316; }
+    .cap-warning { font-size: 10px; font-weight: 700; color: #ef4444; background: rgba(239,68,68,.1); border: 1px solid rgba(239,68,68,.25); border-radius: 4px; padding: 1px 6px; margin-left: 4px; }
+    .table-hdr { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 80px; gap: 8px; padding: 10px 16px; background: var(--surface2); border-bottom: 1px solid var(--border); font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--dim); }
+    .table-row { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 80px; gap: 8px; padding: 14px 16px; border-bottom: 1px solid var(--border2); align-items: center; transition: background .1s; }
+    .table-row:last-child { border-bottom: none; }
+    .table-row:hover { background: rgba(255,255,255,.02); }
+    .table-cell { font-size: 13px; }
+    .address-cell { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .address-sub { font-size: 11px; color: var(--dim); margin-top: 2px; }
+    .empty-state { text-align: center; padding: 48px 24px; color: var(--dim); }
+    .empty-state .icon { font-size: 2.5rem; margin-bottom: 12px; }
+    .empty-state p { font-size: 14px; line-height: 1.6; }
+
+    /* PROFILE FORM */
+    .profile-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 28px; max-width: 560px; }
+    .form-group { margin-bottom: 18px; }
+    .form-group label { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--dim); margin-bottom: 7px; }
+    .form-group input, .form-group textarea, .form-group select { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; color: var(--text); font-size: 14px; font-family: inherit; outline: none; transition: border-color .15s; }
+    .form-group input:focus, .form-group textarea:focus { border-color: rgba(249,115,22,.5); }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .form-hint { font-size: 11px; color: var(--dim); margin-top: 5px; }
+    .save-btn { width: 100%; padding: 14px; background: linear-gradient(90deg,var(--fire1),var(--fire2)); border: none; border-radius: 10px; color: white; font-size: 15px; font-weight: 700; cursor: pointer; font-family: inherit; margin-top: 8px; }
+    .save-btn:disabled { opacity: .6; cursor: not-allowed; }
+  
+  /* ── Role switcher ── */
+  .role-switcher { position:relative; }
+  .role-switcher-btn { display:flex;align-items:center;gap:6px;padding:5px 10px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;transition:all .15s;white-space:nowrap; }
+  .role-switcher-btn:hover { border-color:rgba(249,115,22,.4);color:var(--fire1); }
+  .role-switcher-menu { position:absolute;top:calc(100% + 8px);right:0;background:var(--surface);border:1px solid var(--border);border-radius:12px;min-width:220px;box-shadow:0 10px 40px rgba(0,0,0,.4);z-index:9999;display:none;padding:6px; }
+  .role-switcher-menu.open { display:block; }
+  .role-switcher-item { display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border-radius:8px;text-decoration:none;transition:background .12s;cursor:pointer; }
+  .role-switcher-item:hover { background:rgba(255,255,255,.04); }
+  .role-switcher-item.current { background:rgba(249,115,22,.08);border:1px solid rgba(249,115,22,.15); }
+  .role-switcher-item .ri-icon { font-size:1.1rem;flex-shrink:0;margin-top:1px; }
+  .role-switcher-item .ri-label { font-size:13px;font-weight:700;color:var(--text); }
+  .role-switcher-item .ri-badge { font-size:11px;color:var(--dim);margin-top:2px; }
+
+  
+  /* ── Your OfferWise Accounts Panel ── */
+  .accounts-panel { margin-bottom: 28px; display: none; }
+  .accounts-panel.visible { display: block; }
+  .accounts-panel-hdr { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--dim); margin-bottom: 12px; }
+  .accounts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+  .account-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; text-decoration: none; transition: all .15s; position: relative; display: block; }
+  .account-card:hover { border-color: rgba(255,255,255,.15); transform: translateY(-1px); }
+  .account-card.here { border-color: rgba(249,115,22,.4); background: rgba(249,115,22,.04); }
+  .account-card-icon { font-size: 1.4rem; margin-bottom: 8px; }
+  .account-card-title { font-size: 13px; font-weight: 800; margin-bottom: 3px; }
+  .account-card-badge { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 4px; display: inline-block; margin-bottom: 8px; }
+  .account-card-stats { display: flex; gap: 12px; flex-wrap: wrap; }
+  .account-card-stat { font-size: 11px; color: var(--dim); }
+  .account-card-stat strong { color: var(--muted); }
+  .account-here-tag { position: absolute; top: 10px; right: 10px; font-size: 10px; font-weight: 700; color: var(--fire1); background: rgba(249,115,22,.1); padding: 2px 7px; border-radius: 4px; }
+
+  
+  /* ── User profile dropdown (matches buyer/inspector portal) ── */
+  .user-profile-dropdown { position: relative; }
+  .user-profile-button { display:flex;align-items:center;gap:8px;background:transparent;border:none;cursor:pointer;padding:4px;border-radius:8px;color:var(--text); }
+  .user-profile-button:hover { background:rgba(255,255,255,.05); }
+  .user-avatar { width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#f97316,#f59e0b);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:white;flex-shrink:0; }
+  .user-dropdown-menu { position:absolute;top:calc(100% + 8px);right:0;background:var(--surface);border:1px solid var(--border);border-radius:12px;min-width:200px;box-shadow:0 10px 40px rgba(0,0,0,.4);z-index:9999;display:none;padding:6px; }
+  .user-dropdown-menu.open { display:block; }
+  .user-dropdown-header { padding:10px 12px 8px; }
+  .user-dropdown-email { font-size:13px;font-weight:600;color:var(--text); }
+  .user-dropdown-tier { font-size:11px;color:var(--dim);margin-top:2px; }
+  .user-dropdown-divider { height:1px;background:var(--border);margin:4px 0; }
+  .user-dropdown-item { display:flex;align-items:center;gap:8px;padding:9px 12px;border-radius:8px;font-size:13px;font-weight:600;color:var(--muted);text-decoration:none;transition:background .12s; }
+  .user-dropdown-item:hover { background:rgba(255,255,255,.04);color:var(--text); }
+  .user-dropdown-logout { color:#ef4444; }
+  .user-dropdown-logout:hover { background:rgba(239,68,68,.08); }
+
+    @media (max-width: 768px) {
+      .layout { grid-template-columns: 1fr !important; }
+      .sidebar { display: none; }
+      .sidebar.open { display: block !important; position: fixed; inset: 0; z-index: 300; background: var(--bg); overflow-y: auto; padding: 20px 16px; }
+      .mobile-nav-toggle { display: flex; align-items: center; gap: 8px; margin-bottom: 20px; padding: 9px 14px; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; font-size: 13px; font-weight: 600; color: var(--text); cursor: pointer; }
+      .main { padding: 16px !important; }
+      input, select { font-size: 16px !important; }
+      .btn, button { min-height: 44px; }
+      .stats-row, .leads-grid { grid-template-columns: 1fr 1fr !important; gap: 8px; }
+      .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+      table { min-width: 500px; }
+    }
+    @media (max-width: 480px) {
+      .stats-row, .leads-grid { grid-template-columns: 1fr !important; }
+    }
+    @media (min-width: 769px) { .mobile-nav-toggle { display: none !important; } }
+    
+/* ── MOBILE RESPONSIVE PATCH ── */
+
+@media (max-width: 768px) {
+  .stats-grid,
+  .leads-grid { grid-template-columns: 1fr 1fr !important; gap: 0.75rem !important; }
+  .portal-header { flex-wrap: wrap; gap: 0.5rem; }
+  .table-wrap { overflow-x: auto !important; -webkit-overflow-scrolling: touch; }
+  table { min-width: 480px; }
+  .lead-card { padding: 1rem !important; }
+}
+@media (max-width: 480px) {
+  .stats-grid { grid-template-columns: 1fr !important; }
+  button, .btn { min-height: 44px !important; font-size: 15px !important; }
+  .lead-meta { flex-direction: column !important; gap: 0.25rem !important; }
+  .zip-tags { flex-wrap: wrap; }
+}
+
+</style>
+    <!-- Reddit Pixel Base Code -->
+    <script>
+    !function(w,d){if(!w.rdt){var p=w.rdt=function(){p.sendEvent?p.sendEvent.apply(p,arguments):p.queue.push(arguments)};p.queue=[];var t=d.createElement('script');t.src='https://www.redditstatic.com/ads/pixel.js';t.async=!0;var s=d.getElementsByTagName('script')[0];s.parentNode.insertBefore(t,s)}}(window,document);
+    rdt('init','a2_ihx65g62d5n6',{optOut:false,useDecimalCurrencyValues:true,signalsMode:'all'});
+    rdt('track','PageVisit');
+    </script>
+    <!-- End Reddit Pixel -->
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo">Offer<span class="wise">Wise</span> AI</a>
+  <div class="nav-right">
+    <span class="nav-badge" id="nav-badge">Contractor Portal</span>
+    <!-- Role Switcher — hidden for single-role users -->
+    <div id="role-switcher" style="display:none;" class="role-switcher">
+      <button class="role-switcher-btn" onclick="toggleRoleSwitcher()" id="role-switcher-btn">
+        <span id="role-switcher-icon">🔧</span>
+        <span id="role-switcher-label">Contractor Portal</span>
+        <span style="font-size:10px;opacity:.6;">▾</span>
+      </button>
+      <div class="role-switcher-menu" id="role-switcher-menu"></div>
+    </div>
+    <!-- User avatar dropdown -->
+    <div class="user-profile-dropdown" id="user-profile-dropdown">
+      <button class="user-profile-button" id="user-profile-button">
+        <div class="user-avatar" id="user-avatar"><span id="user-initial">?</span></div>
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" style="margin-left:2px;opacity:.5;"><path d="M4 6l4 4 4-4"/></svg>
+      </button>
+      <div class="user-dropdown-menu" id="user-dropdown-menu">
+        <div class="user-dropdown-header">
+          <div class="user-dropdown-email" id="user-dropdown-email">Loading...</div>
+          <div class="user-dropdown-tier" id="user-dropdown-tier">Contractor</div>
+        </div>
+        <div class="user-dropdown-divider"></div>
+        <a href="/logout" class="user-dropdown-item user-dropdown-logout">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4m7 14l5-5-5-5m5 5H9"/></svg>
+          Log out
+        </a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div class="layout">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <a class="sidebar-item active" onclick="showPage('overview')" href="#">📊 Overview</a>
+      <a class="sidebar-item" onclick="showPage('marketplace')" href="#">🏪 Lead Marketplace</a>
+      <a class="sidebar-item" onclick="showPage('my-claims')" href="#">📋 My Claims</a>
+      <a class="sidebar-item" onclick="showPage('profile')" href="#">👤 My Profile</a>
+            <a class="sidebar-item" onclick="showPage('alerts')" href="#">🔭 OfferWatch™ <span id="alerts-badge" style="display:none;background:#ef4444;color:white;font-size:9px;font-weight:700;padding:1px 6px;border-radius:8px;margin-left:4px;vertical-align:middle;"></span></a>
+      <a class="sidebar-item" onclick="showPage('subscription')" href="#">💳 Subscription</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Plan</div>
+      <div class="plan-box">
+        <div class="plan-label">Current plan</div>
+        <div class="plan-name" id="sidebar-plan-name">Loading...</div>
+        <div class="plan-sub" id="sidebar-plan-sub"></div>
+      </div>
+    </div>
+    <div class="sidebar-section">
+      <a class="sidebar-item" id="sidebar-upgrade-btn" href="/for-contractors#pricing">⭐ Upgrade Plan</a>
+      <a class="sidebar-item" href="/contact" target="_blank">💬 Get Help</a>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- OVERVIEW PAGE -->
+    <div id="page-overview" class="page active">
+
+      <div style="margin-bottom:24px;">
+        <h1 style="font-size:22px;font-weight:800;margin-bottom:4px;">Good to see you, <span id="contractor-name">Contractor</span>.</h1>
+        <p style="color:var(--muted);font-size:14px;">Here's your lead activity and account status.</p>
+      </div>
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-label">Leads received</div>
+          <div class="stat-val" id="stat-total">—</div>
+          <div class="stat-sub">all time</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">This month</div>
+          <div class="stat-val" id="stat-month">—</div>
+          <div class="stat-sub">leads this month</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Lead limit</div>
+          <div class="stat-val" id="stat-limit" style="font-size:1.3rem;">—</div>
+          <div class="stat-sub">per your plan</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Account</div>
+          <div class="stat-val" id="stat-status" style="font-size:1.1rem;font-weight:700;">—</div>
+          <div class="stat-sub">account status</div>
+        </div>
+      </div>
+
+      <!-- How leads work -->
+      <div style="margin:0 0 28px;padding:18px 20px;background:rgba(249,115,22,.06);border:1px solid rgba(249,115,22,.15);border-radius:14px;">
+        <div style="font-size:13px;font-weight:700;color:#f97316;text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px;">How your leads work</div>
+        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;">
+          <div style="display:flex;gap:10px;align-items:flex-start;">
+            <span style="font-size:1.1rem;flex-shrink:0;">🏠</span>
+            <div>
+              <div style="font-size:13px;font-weight:700;color:#f1f5f9;">Pre-qualified buyers</div>
+              <div style="font-size:12px;color:#64748b;margin-top:2px;">Every lead has already run an inspection analysis. They know exactly what repair they need and have a cost estimate in hand.</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:10px;align-items:flex-start;">
+            <span style="font-size:1.1rem;flex-shrink:0;">📧</span>
+            <div>
+              <div style="font-size:13px;font-weight:700;color:#f1f5f9;">Delivered by email</div>
+              <div style="font-size:12px;color:#64748b;margin-top:2px;">Leads arrive instantly by email with the buyer's name, phone, property address, repair type, and estimated cost.</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:10px;align-items:flex-start;">
+            <span style="font-size:1.1rem;flex-shrink:0;">📍</span>
+            <div>
+              <div style="font-size:13px;font-weight:700;color:#f1f5f9;">Matched to your area</div>
+              <div style="font-size:12px;color:#64748b;margin-top:2px;">We only send leads where the property ZIP matches your service area. Update your ZIPs in My Profile.</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:10px;align-items:flex-start;">
+            <span style="font-size:1.1rem;flex-shrink:0;">🚫</span>
+            <div>
+              <div style="font-size:13px;font-weight:700;color:#f1f5f9;">No referral fees — ever</div>
+              <div style="font-size:12px;color:#64748b;margin-top:2px;">You pay a flat subscription. When you close a job, the money is yours. OfferWise makes no guarantee of lead quality or job outcomes.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent leads -->
+      <div class="section-hdr">
+        <h2>Recent Leads</h2>
+        <button class="btn-ghost" onclick="showPage('marketplace')">Open Marketplace →</button>
+      </div>
+      <div id="overview-leads-container">
+        <div class="empty-state"><div class="icon">🔧</div><p>No leads yet. Leads arrive once your account is activated and your service area is configured.</p></div>
+      </div>
+    </div>
+
+    <!-- MY LEADS PAGE -->
+    <!-- MARKETPLACE PAGE -->
+    <div id="page-marketplace" class="page" style="display:none">
+      <div style="margin-bottom:20px;display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+        <div>
+          <h1 style="font-size:22px;font-weight:800;margin-bottom:4px;">Lead Marketplace</h1>
+          <p style="color:var(--muted);font-size:14px;">Browse and claim leads in your trade and area. Buyer details unlock after you claim.</p>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span style="font-size:13px;color:var(--muted);">Available for leads:</span>
+          <button id="availability-toggle" onclick="toggleAvailability()"
+            style="padding:7px 16px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;border:none;font-family:inherit;transition:all .15s;">
+            Loading...
+          </button>
+        </div>
+      </div>
+
+      <!-- Filter + sort bar -->
+      <div id="marketplace-filter-bar" style="display:none;margin-bottom:16px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+        <div style="display:flex;gap:6px;flex-wrap:wrap;" id="trade-filter-chips">
+          <button class="mkt-chip active" onclick="setTradeFilter('all',this)">All trades</button>
+        </div>
+        <div style="margin-left:auto;display:flex;align-items:center;gap:8px;">
+          <span style="font-size:11px;color:#64748b;">Sort:</span>
+          <select id="mkt-sort" onchange="applyFilters()" style="font-size:11px;padding:4px 8px;background:#0d1f38;border:1px solid rgba(255,255,255,.1);border-radius:6px;color:#94a3b8;cursor:pointer;outline:none;">
+            <option value="urgency">⚡ Urgency first</option>
+            <option value="value">💰 Highest value</option>
+            <option value="newest">🕐 Newest first</option>
+          </select>
+          <span id="mkt-count" style="font-size:11px;color:#475569;"></span>
+        </div>
+      </div>
+
+      <div id="marketplace-container">
+        <div class="empty-state"><div class="icon">🏪</div><p>Loading marketplace...</p></div>
+      </div>
+    </div>
+
+    <!-- MY CLAIMS PAGE -->
+    <div id="page-my-claims" class="page" style="display:none">
+      <div style="margin-bottom:20px;">
+        <h1 style="font-size:22px;font-weight:800;margin-bottom:4px;">My Claims</h1>
+        <p style="color:var(--muted);font-size:14px;">Leads you have claimed — full buyer contact info and job status.</p>
+      </div>
+      <div id="my-claims-container">
+        <div class="empty-state"><div class="icon">📋</div><p>No claims yet. Browse the marketplace to get started.</p></div>
+      </div>
+    </div>
+
+    <!-- MY PROFILE PAGE -->
+    <div id="page-profile" class="page" style="display:none">
+      <div style="margin-bottom:24px;">
+        <h1 style="font-size:22px;font-weight:800;margin-bottom:4px;">My Profile</h1>
+        <p style="color:var(--muted);font-size:14px;">Keep your trades and service area up to date so leads match correctly.</p>
+      </div>
+      <div class="profile-card">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Business name</label>
+            <input type="text" id="p-biz" placeholder="Bay Area Roofing Co.">
+          </div>
+          <div class="form-group">
+            <label>Your name</label>
+            <input type="text" id="p-name" placeholder="Mike Chen">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Phone</label>
+            <input type="tel" id="p-phone" placeholder="(415) 555-0123">
+          </div>
+          <div class="form-group">
+            <label>Website</label>
+            <input type="url" id="p-website" placeholder="https://yourbiz.com">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>License number</label>
+            <input type="text" id="p-license" placeholder="CA-LIC-12345">
+          </div>
+          <div class="form-group">
+            <label>State</label>
+            <select id="p-state">
+              <option value="CA">California</option><option value="TX">Texas</option>
+              <option value="FL">Florida</option><option value="NY">New York</option>
+              <option value="WA">Washington</option><option value="OR">Oregon</option>
+              <option value="AZ">Arizona</option><option value="NV">Nevada</option>
+              <option value="CO">Colorado</option><option value="other">Other</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Trades</label>
+          <input type="text" id="p-trades" placeholder="roofing, hvac, electrical, plumbing">
+          <div class="form-hint">Comma-separated. We match these against the repair type in each buyer's analysis.</div>
+        </div>
+        <div class="form-group">
+          <label>Service ZIP codes</label>
+          <input type="text" id="p-zips" placeholder="94086, 95128, 94043, 95035">
+          <div class="form-hint">Comma-separated. Leads are only sent when the property ZIP is in this list.</div>
+        </div>
+        <div class="form-group">
+          <label>Service cities (optional)</label>
+          <input type="text" id="p-cities" placeholder="San Jose, Santa Clara, Sunnyvale">
+        </div>
+        <button class="save-btn" onclick="saveProfile()" id="save-profile-btn">Save Profile</button>
+        <div id="profile-saved" style="display:none;margin-top:10px;text-align:center;font-size:13px;color:var(--green);">✓ Profile saved</div>
+      </div>
+    </div>
+
+    <!-- SUBSCRIPTION PAGE -->
+    <div id="page-subscription" class="page" style="display:none">
+      <div style="margin-bottom:24px;">
+        <h1 style="font-size:22px;font-weight:800;margin-bottom:4px;">Subscription</h1>
+        <p style="color:var(--muted);font-size:14px;">Your current plan and billing details.</p>
+      </div>
+
+      <!-- Current plan card -->
+      <div id="sub-current-card" style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px;max-width:560px;margin-bottom:20px;">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--dim);margin-bottom:12px;">Current Plan</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+          <div>
+            <div id="sub-plan-name" style="font-size:20px;font-weight:800;">Loading...</div>
+            <div id="sub-plan-detail" style="font-size:13px;color:var(--muted);margin-top:4px;"></div>
+          </div>
+          <div id="sub-plan-badge" style="padding:6px 16px;border-radius:20px;font-size:13px;font-weight:700;background:rgba(249,115,22,.12);color:#f97316;"></div>
+        </div>
+        <div id="sub-activated" style="margin-top:12px;font-size:12px;color:var(--dim);"></div>
+      </div>
+
+      <!-- Disclaimer -->
+      <div style="background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:12px;padding:18px 20px;max-width:560px;margin-bottom:20px;">
+        <div style="font-size:12px;color:#64748b;line-height:1.8;">
+          OfferWise provides lead access only. We make no guarantee of lead quality, buyer readiness, or job outcomes.
+          You contact the buyer directly. Cancel anytime via your Stripe billing portal.
+        </div>
+      </div>
+
+      <!-- Upgrade options -->
+      <div id="sub-upgrade-section" style="max-width:560px;">
+        <div style="font-size:14px;font-weight:700;margin-bottom:16px;color:var(--text);">Change Plan</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;" id="sub-plan-grid">
+          <!-- Rendered by JS -->
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ALERTS PAGE -->
+    <div class="page" style="display:none" id="page-alerts">
+      <div class="page-header" style="margin-bottom:24px;">
+        <h1 style="font-size:22px;font-weight:800;margin-bottom:10px;">🔭 OfferWatch™</h1>
+        <p style="font-size:13px;color:var(--muted);line-height:1.7;max-width:600px;">Every lead you claim automatically starts a 45-day background watch on that property — no setup required. Each morning at 7am PT, OfferWatch scans for permit filings, price drops, new comps, and seismic events. If the seller pulls permits for the same repair you quoted, or the listing price drops, you get an email immediately so you can act before the window closes.</p>
+      </div>
+      
+      <!-- How it works strip -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:28px;">
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;">
+          <div style="font-size:1.3rem;margin-bottom:6px;">🔨</div>
+          <div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:3px;">Permit filed</div>
+          <div style="font-size:11px;color:var(--dim);">Seller pulling a permit for the same repair you quoted — act before the job disappears</div>
+        </div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;">
+          <div style="font-size:1.3rem;margin-bottom:6px;">💰</div>
+          <div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:3px;">Price drop</div>
+          <div style="font-size:11px;color:var(--dim);">Listing price cut — buyer's budget may have changed, follow up now</div>
+        </div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;">
+          <div style="font-size:1.3rem;margin-bottom:6px;">📊</div>
+          <div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:3px;">New comps</div>
+          <div style="font-size:11px;color:var(--dim);">Market shift on your claimed lead — buyer leverage has changed</div>
+        </div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;">
+          <div style="font-size:1.3rem;margin-bottom:6px;">🌍</div>
+          <div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:3px;">Seismic event</div>
+          <div style="font-size:11px;color:var(--dim);">Earthquake near your active lead — structural scope may expand</div>
+        </div>
+      </div>
+
+      <!-- Active watches -->
+      <div style="margin-bottom:24px;">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--dim);margin-bottom:10px;">Active Lead Watches</div>
+        <div id="pro-watches-container">
+          <div style="color:var(--muted);font-size:13px;padding:14px;background:var(--surface);border:1px solid var(--border);border-radius:10px;">No active watches yet. Every lead you claim starts a 45-day property watch.</div>
+        </div>
+      </div>
+
+      <!-- Alert feed -->
+      <div>
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--dim);margin-bottom:10px;">Recent Alerts</div>
+        <div id="pro-alerts-container">
+          <div style="color:var(--muted);font-size:13px;padding:14px;background:var(--surface);border:1px solid var(--border);border-radius:10px;">No alerts yet. OfferWatch checks your claimed properties every morning at 7am PT. If the seller pulls permits for the repair you quoted, or the price drops, it shows up here immediately.</div>
+        </div>
+      </div>
+    </div>
+    </div>
+
+    </main>
+</div>
+
+<!-- Registration modal (shown if not yet a contractor) -->
+<div id="reg-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9999;align-items:center;justify-content:center;padding:16px;">
+  <div style="background:#0f1e35;border:1px solid rgba(249,115,22,.3);border-radius:16px;padding:32px;max-width:480px;width:100%;">
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#f97316;margin-bottom:12px;">Not registered yet</div>
+    <h2 style="font-size:20px;font-weight:800;margin-bottom:8px;">Set up your contractor account</h2>
+    <p style="font-size:13px;color:#94a3b8;margin-bottom:20px;">Tell us your trade and service area. Your account will be reviewed and activated within 24 hours.</p>
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <input id="reg-biz" type="text" placeholder="Business name" style="background:#060d1a;border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:10px 14px;color:#f1f5f9;font-size:14px;font-family:inherit;outline:none;width:100%;">
+      <input id="reg-trades" type="text" placeholder="Trades (e.g. roofing, hvac, electrical)" style="background:#060d1a;border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:10px 14px;color:#f1f5f9;font-size:14px;font-family:inherit;outline:none;width:100%;">
+      <input id="reg-zips" type="text" placeholder="Service ZIPs (e.g. 94086, 95128)" style="background:#060d1a;border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:10px 14px;color:#f1f5f9;font-size:14px;font-family:inherit;outline:none;width:100%;">
+      <input id="reg-phone" type="tel" placeholder="Phone" style="background:#060d1a;border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:10px 14px;color:#f1f5f9;font-size:14px;font-family:inherit;outline:none;width:100%;">
+    </div>
+    <button onclick="completeRegistration()" style="margin-top:20px;width:100%;padding:14px;background:linear-gradient(90deg,#f97316,#f59e0b);border:none;border-radius:10px;color:white;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;">
+      Submit for Review →
+    </button>
+    <div style="margin-top:12px;font-size:12px;color:#475569;text-align:center;">Already have an account? <a href="/for-contractors#pricing" style="color:#f97316;">Choose a plan →</a></div>
+  </div>
+</div>
+
+<script src="https://js.stripe.com/v3/"></script>
+<script>
+
+// ── Your OfferWise Accounts Panel ────────────────────────────────────────
+async function loadAccountsPanel(currentPortal) {
+  try {
+    const res = await fetch('/api/user/roles', { credentials: 'include' });
+    if (!res.ok) return;
+    const data = await res.json();
+    const roles = data.roles || [];
+    if (roles.length <= 1) return; // hide for single-role users
+
+    const panel = document.getElementById('accounts-panel');
+    if (!panel) return;
+
+    const colorMap = {
+      buyer:      { badge: 'rgba(96,165,250,.12)',  text: '#60a5fa' },
+      inspector:  { badge: 'rgba(249,115,22,.12)',  text: '#f97316' },
+      contractor: { badge: 'rgba(34,197,94,.12)',   text: '#22c55e' },
+    };
+
+    const cards = roles.map(r => {
+      const c = colorMap[r.role] || { badge: 'rgba(255,255,255,.06)', text: '#94a3b8' };
+      const isHere = r.role === currentPortal;
+      const opacity = r.active ? '1' : '0.6';
+      return `<a href="${r.url}" class="account-card ${isHere ? 'here' : ''}" style="opacity:${opacity};">
+        ${isHere ? '<span class="account-here-tag">Here now</span>' : ''}
+        <div class="account-card-icon">${r.icon}</div>
+        <div class="account-card-title">${r.label}</div>
+        <div class="account-card-badge" style="background:${c.badge};color:${c.text};">${r.badge}</div>
+      </a>`;
+    }).join('');
+
+    panel.innerHTML = `
+      <div class="accounts-panel-hdr">Your OfferWise Accounts</div>
+      <div class="accounts-grid">${cards}</div>`;
+    panel.classList.add('visible');
+  } catch(e) { /* silent */ }
+}
+
+let contractorData = null;
+let allLeads = [];
+
+const PLANS = {
+  free:                  { label: 'Free (Pending)', price: '$0',    limit: 'Pending activation',  color: '#64748b' },
+  contractor_starter:    { label: 'Starter',        price: '$49/mo', limit: '5 leads/month, 3 ZIPs', color: '#f97316' },
+  contractor_pro:        { label: 'Pro',             price: '$99/mo', limit: 'Unlimited leads, 10 ZIPs', color: '#22c55e' },
+  contractor_enterprise: { label: 'Enterprise',      price: '$199/mo',limit: 'Unlimited, statewide',  color: '#a78bfa' },
+};
+
+// ── Navigation ──
+function showPage(name) {
+  if (name === 'marketplace') loadMarketplace();
+  if (name === 'my-claims')   loadMyClaims();
+  document.querySelectorAll('.page').forEach(p => { p.classList.remove('active'); p.style.display = 'none'; });
+  document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+  const _target = document.getElementById('page-' + name);
+  if (_target) { _target.classList.add('active'); _target.style.display = 'block'; }
+  document.querySelectorAll('.sidebar-item').forEach(i => {
+    if (i.getAttribute('onclick') && i.getAttribute('onclick').includes(name)) i.classList.add('active');
+  });
+  if (name === 'leads')        renderLeadsTable(allLeads);
+  if (name === 'overview')     renderOverview();
+  if (name === 'subscription') renderSubscription();
+  if (name === 'alerts') { loadAlertsPage(); }
+}
+
+// ── Init ──
+async function init() {
+  const res = await fetch('/api/contractor/me', { credentials: 'include' });
+  if (res.status === 401) { window.location.href = '/login?redirect=/contractor-portal'; return; }
+  const data = await res.json();
+
+  if (!data.registered) {
+    // Redirect to dedicated onboarding wizard
+    window.location.href = '/contractor-onboarding';
+    return;
+  }
+
+  contractorData = data;
+  allLeads = data.recent_leads || [];
+
+  // Populate avatar
+  const _email = data.email || '';
+  const _name  = data.name  || data.business_name || '';
+  const _initial = _name ? _name[0].toUpperCase() : (_email ? _email[0].toUpperCase() : 'C');
+  const _el = document.getElementById('user-initial');
+  const _em = document.getElementById('user-dropdown-email');
+  const _ti = document.getElementById('user-dropdown-tier');
+  if (_el) _el.textContent = _initial;
+  if (_em) _em.textContent = _email;
+  if (_ti) {
+    const planLabels = {free:'Free Plan',contractor_starter:'Starter Plan',contractor_pro:'Pro Plan',contractor_enterprise:'Enterprise Plan'};
+    _ti.textContent = planLabels[data.plan] || 'Contractor';
+  }
+
+  // Nav badge
+  const plan = data.plan || 'free';
+  const pi = PLANS[plan] || PLANS.free;
+  if (plan !== 'free') {
+    document.getElementById('nav-badge').textContent = `Contractor ${pi.label}`;
+  }
+
+  // Sidebar plan box
+  document.getElementById('sidebar-plan-name').textContent = pi.label;
+  document.getElementById('sidebar-plan-name').style.color = pi.color;
+  document.getElementById('sidebar-plan-sub').textContent = pi.limit;
+
+  // Hide upgrade if on enterprise
+  if (plan === 'contractor_enterprise') {
+    document.getElementById('sidebar-upgrade-btn').style.display = 'none';
+  }
+
+  // Stats
+  document.getElementById('contractor-name').textContent = data.business_name || data.name || 'Contractor';
+  document.getElementById('stat-total').textContent = data.leads_all_time || 0;
+  // Update stat labels to reflect marketplace model
+  const statTotalLabel = document.querySelector('[data-label="stat-total"]');
+  if (statTotalLabel) statTotalLabel.textContent = 'CLAIMED';
+  document.getElementById('stat-month').textContent = data.leads_this_month || 0;
+  document.getElementById('stat-limit').textContent = pi.limit.split(',')[0];
+
+  const statusColors = { active:'#22c55e', pending:'#f59e0b', paused:'#94a3b8', inactive:'#ef4444' };
+  const sc = statusColors[data.status] || '#64748b';
+  const _statusLabel = (data.status || 'pending').charAt(0).toUpperCase() + (data.status||'pending').slice(1);
+  const _statusInfo = {
+    active: "Your account is active. Browse the Lead Marketplace to claim jobs.",
+    paused: "Your availability is off — toggle it on in the Marketplace tab.",
+    suspended: "Account suspended. Contact support.",
+    pending: "Setting up your account..."
+  };
+  const _tip = _statusInfo[data.status || 'pending'] || '';
+  document.getElementById('stat-status').innerHTML = _statusLabel +
+    (_tip ? ` <span title="${_tip}" style="display:inline-flex;align-items:center;justify-content:center;` +
+    `width:14px;height:14px;border-radius:50%;background:rgba(255,255,255,.1);color:var(--dim);` +
+    `font-size:9px;font-weight:700;cursor:help;margin-left:4px;vertical-align:middle;">i</span>` : '');
+  document.getElementById('stat-status').style.color = sc;
+
+  // Pre-fill profile
+  document.getElementById('p-biz').value = data.business_name || '';
+  document.getElementById('p-name').value = data.name || '';
+  document.getElementById('p-phone').value = data.phone || '';
+  document.getElementById('p-website').value = data.website || '';
+  document.getElementById('p-license').value = data.license_number || '';
+  document.getElementById('p-trades').value = (data.trades || []).join(', ');
+  document.getElementById('p-zips').value = data.service_zips || '';
+  document.getElementById('p-cities').value = data.service_cities || '';
+
+  renderOverview();
+}
+
+// ── Overview ──
+function renderOverview() {
+  const container = document.getElementById('overview-leads-container');
+  if (!allLeads.length) {
+    container.innerHTML = '<div class="empty-state"><div class="icon">🔧</div><p>No recent activity. Browse the Lead Marketplace to claim your first job.</p></div>';
+    return;
+  }
+  container.innerHTML = renderLeadsHTML(allLeads.slice(0, 5));
+}
+
+// ── Leads table ──
+function renderLeadsTable(leads) {
+  const container = document.getElementById('leads-container');
+  if (!leads.length) {
+    container.innerHTML = '<div class="empty-state"><div class="icon">🔧</div><p>No leads yet.</p></div>';
+    return;
+  }
+  container.innerHTML = renderLeadsHTML(leads);
+}
+
+function renderLeadsHTML(leads) {
+  const timingLabels = { asap:'🔴 ASAP', this_week:'This week', just_exploring:'Exploring' };
+  const statusColors = { new:'#f59e0b', sent:'#60a5fa', contacted:'#22c55e', closed:'#a78bfa' };
+
+  const rows = leads.map(l => {
+    const date = l.sent_at ? new Date(l.sent_at).toLocaleDateString('en-US',{month:'short',day:'numeric'}) : '—';
+    const timing = timingLabels[l.contact_timing] || l.contact_timing || '—';
+    const sc = statusColors[l.status] || '#64748b';
+    const trade = (l.repair_system || '—').replace(/_/g,' ');
+    const tradeCapital = trade.charAt(0).toUpperCase() + trade.slice(1);
+    return `
+      <div class="table-row">
+        <div class="table-cell">
+          <div class="address-cell">${l.property_address || '—'}</div>
+          <div class="address-sub">${tradeCapital} · ${date}</div>
+        </div>
+        <div class="table-cell" style="color:#f59e0b;font-weight:600;">${l.cost_estimate || '—'}</div>
+        <div class="table-cell" style="color:var(--muted);">${timing}</div>
+        <div class="table-cell">
+          <span style="font-size:11px;padding:3px 8px;border-radius:4px;background:${sc}22;color:${sc};font-weight:700;text-transform:uppercase;">${l.status || 'new'}</span>
+        </div>
+        <div class="table-cell">
+          <span style="font-size:11px;color:var(--dim);">#${l.id}</span>
+        </div>
+      </div>`;
+  }).join('');
+
+  return `
+    <div class="leads-table">
+      <div class="table-hdr">
+        <div>Property / Trade</div>
+        <div>Est. Cost</div>
+        <div>Timing</div>
+        <div>Status</div>
+        <div>Ref #</div>
+      </div>
+      ${rows}
+    </div>`;
+}
+
+// ── Subscription page ──
+function renderSubscription() {
+  if (!contractorData) return;
+  const plan = contractorData.plan || 'free';
+  const pi = PLANS[plan] || PLANS.free;
+
+  document.getElementById('sub-plan-name').textContent = pi.label;
+  document.getElementById('sub-plan-name').style.color = pi.color;
+  document.getElementById('sub-plan-detail').textContent = pi.limit;
+  document.getElementById('sub-plan-badge').textContent = pi.price;
+  document.getElementById('sub-plan-badge').style.background = pi.color + '22';
+  document.getElementById('sub-plan-badge').style.color = pi.color;
+
+  if (contractorData.plan_activated_at) {
+    const d = new Date(contractorData.plan_activated_at).toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+    document.getElementById('sub-activated').textContent = `Active since ${d}`;
+  }
+
+  // Manage Billing button — shown for any paid plan
+  const subUpgrade = document.getElementById('sub-upgrade-section');
+  const manageBillingDiv = document.getElementById('sub-manage-billing') || document.createElement('div');
+  manageBillingDiv.id = 'sub-manage-billing';
+  if (plan !== 'free') {
+    manageBillingDiv.innerHTML = '<div style="margin-bottom:16px;"><button onclick="openBillingPortal()" style="padding:10px 20px;background:rgba(96,165,250,.1);color:#60a5fa;border:1px solid rgba(96,165,250,.25);border-radius:9px;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit;">⚙️ Manage Billing</button></div>';
+    if (subUpgrade && !document.getElementById('sub-manage-billing')) subUpgrade.insertBefore(manageBillingDiv, subUpgrade.firstChild);
+  } else {
+    manageBillingDiv.innerHTML = '';
+  }
+
+  // Plan grid — show upgrade options (hide current plan)
+  const upgradePlans = ['contractor_starter', 'contractor_pro', 'contractor_enterprise'];
+  const grid = document.getElementById('sub-plan-grid');
+  grid.innerHTML = upgradePlans.map(pk => {
+    const p = PLANS[pk];
+    const isCurrent = pk === plan;
+    return `
+      <div style="background:${isCurrent ? `${p.color}11` : 'var(--surface)'};border:${isCurrent ? `2px solid ${p.color}66` : '1px solid var(--border)'};border-radius:12px;padding:18px;text-align:center;position:relative;">
+        ${isCurrent ? `<div style="position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:${p.color};color:white;font-size:10px;font-weight:700;padding:2px 10px;border-radius:10px;white-space:nowrap;">Current</div>` : ''}
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:${p.color};margin-bottom:8px;">${p.label}</div>
+        <div style="font-size:22px;font-weight:800;margin-bottom:4px;">${p.price}</div>
+        <div style="font-size:11px;color:var(--dim);margin-bottom:14px;">${p.limit}</div>
+        ${isCurrent
+          ? `<div style="font-size:12px;color:var(--dim);padding:6px 0;">✓ Your current plan</div>`
+          : `<button onclick="startContractorCheckout('${pk}')"
+               style="width:100%;padding:8px;background:${p.color}22;color:${p.color};border:1px solid ${p.color}44;border-radius:7px;font-weight:700;font-size:12px;cursor:pointer;font-family:inherit;">
+               ${['contractor_starter','contractor_pro'].includes(plan) && upgradePlans.indexOf(pk) > upgradePlans.indexOf(plan) ? 'Upgrade' : 'Switch'} →
+             </button>`}
+      </div>`;
+  }).join('');
+}
+
+async function openBillingPortal() {
+  try {
+    var res = await fetch('/api/billing-portal', { method: 'POST', credentials: 'include' });
+    var data = await res.json();
+    if (data.url) window.location.href = data.url;
+    else alert(data.error || 'Could not open billing portal. Please contact support.');
+  } catch(e) { alert('Something went wrong. Please try again.'); }
+}
+
+// ── Stripe checkout ──
+async function startContractorCheckout(plan) {
+  try {
+    const configRes = await fetch('/api/stripe-config', { credentials: 'include' });
+    const config = await configRes.json();
+    if (!config.publishableKey) throw new Error('Stripe not configured');
+    const stripe = Stripe(config.publishableKey);
+    const res = await fetch('/api/create-checkout-session', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ plan })
+    });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    await stripe.redirectToCheckout({ sessionId: data.sessionId });
+  } catch(e) {
+    alert(e.message || 'Could not start checkout. Please try again or contact support.');
+  }
+}
+
+// ── Save profile ──
+async function saveProfile() {
+  const btn = document.getElementById('save-profile-btn');
+  btn.textContent = 'Saving...'; btn.disabled = true;
+  const res = await fetch('/api/contractor/me', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify({
+      business_name:  document.getElementById('p-biz').value.trim(),
+      name:           document.getElementById('p-name').value.trim(),
+      phone:          document.getElementById('p-phone').value.trim(),
+      website:        document.getElementById('p-website').value.trim(),
+      license_number: document.getElementById('p-license').value.trim(),
+      license_state:  document.getElementById('p-state').value,
+      trades:         document.getElementById('p-trades').value.trim(),
+      service_zips:   document.getElementById('p-zips').value.trim(),
+      service_cities: document.getElementById('p-cities').value.trim(),
+    })
+  });
+  btn.textContent = 'Save Profile'; btn.disabled = false;
+  if (res.ok) {
+    document.getElementById('profile-saved').style.display = 'block';
+    setTimeout(() => { document.getElementById('profile-saved').style.display = 'none'; }, 3000);
+  } else {
+    alert('Save failed. Please try again.');
+  }
+}
+
+// ── Registration ──
+async function completeRegistration() {
+  const biz    = document.getElementById('reg-biz').value.trim();
+  const trades = document.getElementById('reg-trades').value.trim();
+  const zips   = document.getElementById('reg-zips').value.trim();
+  const phone  = document.getElementById('reg-phone').value.trim();
+  if (!biz) { alert('Business name is required.'); return; }
+
+  const btn = document.querySelector('#reg-modal button');
+  btn.textContent = 'Submitting...'; btn.disabled = true;
+
+  const res = await fetch('/api/contractor/signup', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify({
+      business_name: biz, name: biz,
+      trades, service_zips: zips, phone
+      // email omitted — server uses current_user.email when logged in
+    })
+  });
+  const data = await res.json();
+  btn.textContent = 'Submit for Review →'; btn.disabled = false;
+
+  if (!res.ok) {
+    alert(data.error || 'Submission failed. Please try again.');
+    return;
+  }
+
+  // Success — hide modal and show pending state
+  document.getElementById('reg-modal').style.display = 'none';
+  document.getElementById('reg-modal').innerHTML = '';
+  document.getElementById('contractor-name').textContent = biz;
+  document.getElementById('stat-status').innerHTML = 'Pending <span title="Your application is under review. We\'ll activate your account within 24 hours and notify you by email." style="display:inline-flex;align-items:center;justify-content:center;width:14px;height:14px;border-radius:50%;background:rgba(245,158,11,.2);color:#f59e0b;font-size:9px;font-weight:700;cursor:help;margin-left:4px;vertical-align:middle;border:1px solid rgba(245,158,11,.4);">i</span>';
+  document.getElementById('stat-status').style.color = '#f59e0b';
+  document.getElementById('overview-leads-container').innerHTML = `
+    <div style="padding:28px;background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.2);border-radius:12px;text-align:center;">
+      <div style="font-size:1.5rem;margin-bottom:8px;">⏳</div>
+      <div style="font-size:15px;font-weight:700;margin-bottom:6px;">Application submitted</div>
+      <div style="font-size:13px;color:#94a3b8;max-width:400px;margin:0 auto;">We'll review your application within 24 hours and email you when you're activated. In the meantime, <a href="/for-contractors#pricing" style="color:#f97316;">choose a plan</a> to go live immediately.</div>
+    </div>`;
+}
+
+
+// ═══════════════════════════════════════════════════════════════════
+// MARKETPLACE
+// ═══════════════════════════════════════════════════════════════════
+
+let _available = true;
+
+// ── Marketplace state ────────────────────────────────────────────────────
+var _mktLeads = [];          // raw leads from API
+var _mktTradeFilter = 'all'; // current trade filter
+var _mktSort = 'urgency';    // current sort
+
+function setTradeFilter(trade, chipEl) {
+  _mktTradeFilter = trade;
+  document.querySelectorAll('.mkt-chip').forEach(function(c){ c.classList.remove('active'); });
+  if (chipEl) chipEl.classList.add('active');
+  applyFilters();
+}
+
+function applyFilters() {
+  var sort = document.getElementById('mkt-sort');
+  _mktSort = sort ? sort.value : 'urgency';
+
+  var leads = _mktLeads.slice();
+
+  // Filter by trade
+  if (_mktTradeFilter !== 'all') {
+    leads = leads.filter(function(l) {
+      return (l.repair_system || '').toLowerCase().replace(/ /g,'_') === _mktTradeFilter;
+    });
+  }
+
+  // Sort
+  var now = Date.now();
+  leads.sort(function(a, b) {
+    if (_mktSort === 'urgency') {
+      // ASAP first, then by hours remaining (fewest first)
+      var aAsap = a.contact_timing === 'asap' ? 0 : 1;
+      var bAsap = b.contact_timing === 'asap' ? 0 : 1;
+      if (aAsap !== bAsap) return aAsap - bAsap;
+      var aExp = a.expires_at ? new Date(a.expires_at).getTime() : Infinity;
+      var bExp = b.expires_at ? new Date(b.expires_at).getTime() : Infinity;
+      return aExp - bExp;
+    } else if (_mktSort === 'value') {
+      // Extract upper end of cost estimate for sorting
+      function parseMax(est) {
+        if (!est) return 0;
+        var m = est.match(/(\d+)K/g);
+        if (!m) return 0;
+        return parseInt(m[m.length-1]) * 1000;
+      }
+      return parseMax(b.cost_estimate) - parseMax(a.cost_estimate);
+    } else {
+      // newest first
+      return new Date(b.created_at||0) - new Date(a.created_at||0);
+    }
+  });
+
+  var container = document.getElementById('marketplace-container');
+  if (!leads.length) {
+    var tradeLabel = _mktTradeFilter === 'all' ? '' : ' matching that trade';
+    container.innerHTML = '<div class="empty-state"><div class="icon">🔍</div><p>No leads' + tradeLabel + ' right now.</p></div>';
+  } else {
+    container.innerHTML = leads.map(function(lead){ return renderMarketplaceLead(lead); }).join('');
+  }
+
+  var countEl = document.getElementById('mkt-count');
+  if (countEl) countEl.textContent = leads.length + ' lead' + (leads.length !== 1 ? 's' : '');
+}
+
+async function loadMarketplace() {
+  var container = document.getElementById('marketplace-container');
+  container.innerHTML = '<div class="empty-state"><div class="icon">⏳</div><p>Loading marketplace...</p></div>';
+  try {
+    var res = await fetch('/api/contractor/marketplace', { credentials: 'include' });
+    var data = await res.json();
+
+    // Sync availability toggle
+    _available = data.contractor?.available !== false;
+    var btn = document.getElementById('availability-toggle');
+    if (btn) {
+      btn.textContent  = _available ? '🟢 Available for leads' : '🔴 Unavailable';
+      btn.style.background = _available ? 'rgba(34,197,94,.15)' : 'rgba(239,68,68,.12)';
+      btn.style.color  = _available ? '#22c55e' : '#ef4444';
+      btn.style.border = _available ? '1px solid rgba(34,197,94,.3)' : '1px solid rgba(239,68,68,.3)';
+    }
+
+    _mktLeads = data.leads || [];
+    if (!_mktLeads.length) {
+      container.innerHTML = '<div class="empty-state"><div class="icon">🏪</div><p>No leads in your area right now. We will email you when new ones arrive.</p></div>';
+      document.getElementById('marketplace-filter-bar').style.display = 'none';
+      return;
+    }
+
+    // Build trade filter chips from actual trades in results
+    var trades = {};
+    _mktLeads.forEach(function(l) {
+      var t = (l.repair_system || 'other').toLowerCase().replace(/ /g,'_');
+      trades[t] = (trades[t] || 0) + 1;
+    });
+    var chipsHtml = '<button class="mkt-chip' + (_mktTradeFilter==='all'?' active':'') + '" onclick="setTradeFilter(\'all\',this)">All trades</button>';
+    Object.keys(trades).sort().forEach(function(t) {
+      var label = t.replace(/_/g,' ').replace(/\b\w/g, function(c){ return c.toUpperCase(); });
+      chipsHtml += '<button class="mkt-chip' + (_mktTradeFilter===t?' active':'') + '" onclick="setTradeFilter(\'' + t + '\',this)">' + label + ' <span style="opacity:.6;">(' + trades[t] + ')</span></button>';
+    });
+    document.getElementById('trade-filter-chips').innerHTML = chipsHtml;
+    document.getElementById('marketplace-filter-bar').style.display = 'flex';
+
+    applyFilters();
+  } catch(e) {
+    container.innerHTML = '<div class="empty-state"><div class="icon">⚠️</div><p>Could not load marketplace. Try refreshing.</p></div>';
+  }
+}
+
+function renderMarketplaceLead(lead) {
+  const _isFree = !contractorData || contractorData.plan === 'free' || !contractorData.plan;
+  const timingLabels = { asap:'🔴 ASAP — urgent', this_week:'🟡 This week', just_exploring:'⚪ Exploring' };
+  const timing = timingLabels[lead.contact_timing] || lead.contact_timing || '—';
+  const urgentBorder = lead.contact_timing === 'asap' ? 'border-left:3px solid #ef4444;' : 'border-left:3px solid rgba(255,255,255,.08);';
+  const isMine = !!lead.my_claim_status && lead.my_claim_status !== 'passed';
+  const trade = (lead.repair_system || '—').replace(/_/g,' ');
+  const tradeTitle = trade.charAt(0).toUpperCase() + trade.slice(1);
+
+  const expires = lead.expires_at ? new Date(lead.expires_at) : null;
+  const now = new Date();
+  const hoursLeft = expires ? Math.max(0, Math.round((expires - now) / 3600000)) : null;
+  const expiryStr = hoursLeft !== null ? (hoursLeft === 0 ? 'Expiring soon' : `${hoursLeft}h left`) : '';
+  const expiryColor = hoursLeft !== null && hoursLeft < 6 ? '#ef4444' : '#64748b';
+
+  if (isMine) {
+    // Already claimed — show full details
+    return `<div style="background:#0f1e35;border:1px solid rgba(34,197,94,.3);${urgentBorder.replace('border-left:','border-left:2px solid #22c55e;border:')}border-radius:12px;padding:18px 20px;margin-bottom:12px;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+        <span style="font-size:1.1rem;background:rgba(34,197,94,.12);color:#22c55e;border:1px solid rgba(34,197,94,.3);border-radius:8px;padding:4px 10px;font-size:12px;font-weight:700;">✓ Claimed</span>
+        <span style="font-size:14px;font-weight:700;color:var(--text);">${tradeTitle}</span>
+        <span style="margin-left:auto;font-size:11px;color:#64748b;">${lead.claim_count} contractor${lead.claim_count!==1?'s':''} interested</span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;font-size:13px;">
+        <div><span style="color:var(--dim);">Property</span><br><strong>${lead.property_address || lead.property_area}</strong></div>
+        <div><span style="color:var(--dim);">Est. cost</span><br><strong style="color:#f59e0b;">${lead.cost_estimate || '—'}</strong></div>
+        <div><span style="color:var(--dim);">Buyer</span><br><strong>${lead.buyer_name || '—'}</strong></div>
+        <div><span style="color:var(--dim);">Phone</span><br><strong style="color:#22c55e;">${lead.buyer_phone || '—'}</strong></div>
+        <div><span style="color:var(--dim);">Email</span><br><strong>${lead.buyer_email || '—'}</strong></div>
+        <div><span style="color:var(--dim);">Timing</span><br><strong>${timing}</strong></div>
+      </div>
+      ${lead.issue_summary ? `<div style="padding:10px 12px;background:rgba(255,255,255,.04);border-radius:8px;font-size:12px;color:#94a3b8;margin-bottom:12px;">${lead.issue_summary}</div>` : ''}
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        ${lead.my_claim_status === 'claimed' ? `<button onclick="markContacted(${lead.id})" style="padding:7px 14px;background:rgba(34,197,94,.12);color:#22c55e;border:1px solid rgba(34,197,94,.3);border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;">📞 Mark Contacted</button>` : `<span style="font-size:11px;color:#22c55e;padding:7px 0;font-weight:600;">✓ Contacted</span>`}
+        <button onclick="closeLead(${lead.id})" style="padding:7px 14px;background:rgba(167,139,250,.12);color:#a78bfa;border:1px solid rgba(167,139,250,.3);border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;">✓ Mark Closed</button>
+        <button onclick="passLead(${lead.id})" style="padding:7px 14px;background:rgba(255,255,255,.05);color:#64748b;border:1px solid rgba(255,255,255,.08);border-radius:7px;font-size:12px;cursor:pointer;font-family:inherit;">Pass</button>
+      </div>
+    </div>`;
+  }
+
+  // Not yet claimed — show teaser only
+  return `<div style="background:#0f1e35;border:1px solid rgba(255,255,255,.1);${urgentBorder}border-radius:12px;padding:18px 20px;margin-bottom:12px;">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+      <span style="font-size:14px;font-weight:700;color:var(--text);">${tradeTitle}</span>
+      <span style="font-size:11px;font-weight:700;color:#f59e0b;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.2);border-radius:5px;padding:2px 8px;">${lead.cost_estimate || 'Est. TBD'}</span>
+      ${lead.claim_count > 0 ? `<span style="font-size:11px;color:#94a3b8;margin-left:2px;">· ${lead.claim_count} interested</span>` : ''}
+      ${lead.claim_count >= 3 ? `<span class="cap-warning">3/3 — last spot</span>` : (lead.claim_count >= 2 ? `<span style="font-size:10px;font-weight:700;color:#f59e0b;margin-left:4px;">1 spot left</span>` : '')}
+      <span style="margin-left:auto;font-size:11px;color:${expiryColor};">${expiryStr}</span>
+    </div>
+    <div style="display:flex;gap:24px;margin-bottom:12px;font-size:13px;">
+      <div><span style="color:var(--dim);font-size:10px;text-transform:uppercase;letter-spacing:.06em;">Area</span><br><strong>${lead.property_area || lead.property_zip || '—'}</strong></div>
+      <div><span style="color:var(--dim);font-size:10px;text-transform:uppercase;letter-spacing:.06em;">Timing</span><br><strong>${timing}</strong></div>
+      <div><span style="color:var(--dim);font-size:10px;text-transform:uppercase;letter-spacing:.06em;">Buyer details</span><br><strong style="color:#64748b;">🔒 Unlock on claim</strong></div>
+    </div>
+    ${_isFree
+      ? `<div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:rgba(249,115,22,.06);border:1px solid rgba(249,115,22,.2);border-radius:8px;">
+          <div style="flex:1;font-size:12px;color:#94a3b8;">Upgrade to claim leads and contact buyers directly.</div>
+          <a href="/for-contractors#pricing" style="padding:7px 16px;background:linear-gradient(135deg,#f97316,#f59e0b);color:white;border:none;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;text-decoration:none;white-space:nowrap;">Upgrade →</a>
+        </div>`
+      : `<button onclick="claimLead(${lead.id}, this)" style="padding:8px 20px;background:linear-gradient(135deg,#f97316,#f59e0b);color:white;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">
+          Claim this lead →
+        </button>`
+    }
+  </div>`;
+}
+
+async function claimLead(leadId, btn) {
+  if (btn) { btn.disabled = true; btn.textContent = 'Claiming...'; }
+  try {
+    const res = await fetch(`/api/contractor/leads/${leadId}/claim`, {
+      method: 'POST', credentials: 'include',
+      headers: {'Content-Type':'application/json'}, body: '{}'
+    });
+    const data = await res.json();
+    if (data.success) {
+      // Refresh marketplace to show unlocked details
+      loadMarketplace();
+      // Also update my claims
+      const mc = document.getElementById('my-claims-container');
+      if (mc) loadMyClaims();
+    } else {
+      alert(data.error || 'Could not claim lead. Try again.');
+      if (btn) { btn.disabled = false; btn.textContent = 'Claim this lead →'; }
+    }
+  } catch(e) {
+    alert('Network error. Try again.');
+    if (btn) { btn.disabled = false; btn.textContent = 'Claim this lead →'; }
+  }
+}
+
+async function markContacted(leadId) {
+  try {
+    const res = await fetch(`/api/contractor/leads/${leadId}/contacted`, {
+      method: 'POST', credentials: 'include',
+      headers: {'Content-Type':'application/json'}, body: '{}'
+    });
+    const data = await res.json();
+    if (data.success) { loadMarketplace(); loadMyClaims(); }
+    else alert(data.error || 'Could not update.');
+  } catch(e) { alert('Network error.'); }
+}
+
+async function passLead(leadId) {
+  if (!confirm('Pass on this lead? It will remain on the marketplace for other contractors.')) return;
+  await fetch(`/api/contractor/leads/${leadId}/pass`, {
+    method: 'POST', credentials: 'include',
+    headers: {'Content-Type':'application/json'}, body: '{}'
+  });
+  loadMarketplace();
+}
+
+async function closeLead(leadId) {
+  const val = prompt('Job value (optional, e.g. 8500):');
+  const body = val ? JSON.stringify({job_value: parseFloat(val)}) : '{}';
+  await fetch(`/api/contractor/leads/${leadId}/close`, {
+    method: 'POST', credentials: 'include',
+    headers: {'Content-Type':'application/json'}, body
+  });
+  loadMarketplace();
+  loadMyClaims();
+}
+
+async function toggleAvailability() {
+  _available = !_available;
+  await fetch('/api/contractor/availability', {
+    method: 'POST', credentials: 'include',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({available: _available})
+  });
+  loadMarketplace();
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// MY CLAIMS
+// ═══════════════════════════════════════════════════════════════════
+
+async function loadMyClaims() {
+  const container = document.getElementById('my-claims-container');
+  if (!container) return;
+  container.innerHTML = '<div class="empty-state"><div class="icon">⏳</div><p>Loading...</p></div>';
+  try {
+    const res = await fetch('/api/contractor/my-leads', { credentials: 'include' });
+    const data = await res.json();
+    const leads = data.leads || [];
+    if (!leads.length) {
+      container.innerHTML = '<div class="empty-state"><div class="icon">📋</div><p>No claims yet. Browse the marketplace to get started.</p></div>';
+      return;
+    }
+    const statusColors = { claimed:'#60a5fa', contacted:'#22c55e', closed:'#a78bfa', passed:'#64748b' };
+    const statusLabels = { claimed:'Claimed', contacted:'Contacted', closed:'✓ Closed', passed:'Passed' };
+    container.innerHTML = leads.map(lead => {
+      const sc = statusColors[lead.claim_status] || '#64748b';
+      const sl = statusLabels[lead.claim_status] || lead.claim_status;
+      const trade = (lead.repair_system || '—').replace(/_/g,' ');
+      const tradeTitle = trade.charAt(0).toUpperCase() + trade.slice(1);
+      const date = new Date(lead.claimed_at).toLocaleDateString('en-US',{month:'short',day:'numeric'});
+      const timingLabels = { asap:'🔴 ASAP', this_week:'This week', just_exploring:'Exploring' };
+      return `<div style="background:#0f1e35;border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:16px 20px;margin-bottom:10px;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+          <span style="font-size:13px;font-weight:700;">${tradeTitle}</span>
+          <span style="font-size:11px;padding:2px 8px;border-radius:5px;background:${sc}22;color:${sc};border:1px solid ${sc}44;font-weight:700;">${sl}</span>
+          <span style="margin-left:auto;font-size:11px;color:#64748b;">${date}</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px;font-size:13px;">
+          <div><span style="color:var(--dim);font-size:10px;text-transform:uppercase;">Property</span><br><strong style="font-size:12px;">${lead.property_address || '—'}</strong></div>
+          <div><span style="color:var(--dim);font-size:10px;text-transform:uppercase;">Buyer</span><br><strong>${lead.buyer_name || '—'}</strong></div>
+          <div><span style="color:var(--dim);font-size:10px;text-transform:uppercase;">Phone</span><br><strong style="color:#22c55e;">${lead.buyer_phone || '—'}</strong></div>
+          <div><span style="color:var(--dim);font-size:10px;text-transform:uppercase;">Email</span><br><strong style="font-size:12px;">${lead.buyer_email || '—'}</strong></div>
+          <div><span style="color:var(--dim);font-size:10px;text-transform:uppercase;">Cost est.</span><br><strong style="color:#f59e0b;">${lead.cost_estimate || '—'}</strong></div>
+          <div><span style="color:var(--dim);font-size:10px;text-transform:uppercase;">Timing</span><br><strong>${timingLabels[lead.contact_timing] || lead.contact_timing || '—'}</strong></div>
+        </div>
+        ${lead.issue_description ? `<div style="padding:8px 12px;background:rgba(255,255,255,.03);border-radius:6px;font-size:12px;color:#94a3b8;margin-bottom:10px;">${lead.issue_description}</div>` : ''}
+        ${lead.claim_status === 'claimed' ? `<div style="display:flex;gap:8px;">
+          <button onclick="markContacted(${lead.lead_id})" style="padding:6px 14px;background:rgba(34,197,94,.12);color:#22c55e;border:1px solid rgba(34,197,94,.3);border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;">📞 Mark Contacted</button>
+          <button onclick="closeLead(${lead.lead_id})" style="padding:6px 14px;background:rgba(167,139,250,.12);color:#a78bfa;border:1px solid rgba(167,139,250,.3);border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;">✓ Mark Closed</button>
+        </div>` : lead.claim_status === 'contacted' ? `<div style="display:flex;gap:8px;">
+          <button onclick="closeLead(${lead.lead_id})" style="padding:6px 14px;background:rgba(167,139,250,.12);color:#a78bfa;border:1px solid rgba(167,139,250,.3);border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;">✓ Mark Closed</button>
+        </div>` : ''}
+      </div>`;
+    }).join('');
+  } catch(e) {
+    container.innerHTML = '<div class="empty-state"><div class="icon">⚠️</div><p>Could not load claims.</p></div>';
+  }
+}
+
+// Avatar dropdown
+(function() {
+  const btn  = document.getElementById('user-profile-button');
+  const menu = document.getElementById('user-dropdown-menu');
+  if (btn && menu) {
+    btn.addEventListener('click', e => { e.stopPropagation(); menu.classList.toggle('open'); });
+    document.addEventListener('click', e => {
+      const dd = document.getElementById('user-profile-dropdown');
+      if (dd && !dd.contains(e.target)) menu.classList.remove('open');
+    });
+  }
+})();
+
+init();
+</script>
+
+<script data-portal="contractor">
+// ── Role Switcher (shared across all portals) ─────────────────────────────
+(function() {
+  var CURRENT_PORTAL = document.currentScript ? document.currentScript.getAttribute('data-portal') : null;
+
+  async function loadRoles() {
+    try {
+      var res = await fetch('/api/user/roles', { credentials: 'include' });
+      if (!res.ok) return;
+      var data = await res.json();
+      var roles = data.roles || [];
+
+      // Only show switcher if user has more than one role
+      if (roles.length <= 1) return;
+
+      var switcher = document.getElementById('role-switcher');
+      if (!switcher) return;
+      switcher.style.display = 'block';
+
+      // Build menu
+      var menu = document.getElementById('role-switcher-menu');
+      var btn  = document.getElementById('role-switcher-btn');
+      var icon = document.getElementById('role-switcher-icon');
+      var label = document.getElementById('role-switcher-label');
+
+      // Find current role for button label
+      var currentRole = roles.find(function(r) {
+        return window.location.pathname.startsWith(r.url) ||
+               (r.url === '/dashboard' && window.location.pathname === '/dashboard');
+      });
+      if (currentRole) {
+        icon.textContent = currentRole.icon;
+        label.textContent = currentRole.label;
+      }
+
+      var html = '';
+      roles.forEach(function(r) {
+        var isCurrent = currentRole && r.role === currentRole.role;
+        var opacity = r.active ? '1' : '0.5';
+        html += '<a href="' + r.url + '" class="role-switcher-item ' + (isCurrent ? 'current' : '') + '" style="opacity:' + opacity + '">' +
+          '<div class="ri-icon">' + r.icon + '</div>' +
+          '<div>' +
+            '<div class="ri-label">' + r.label + (isCurrent ? ' <span style="font-size:10px;color:#f97316;">← here</span>' : '') + '</div>' +
+            '<div class="ri-badge">' + r.badge + '</div>' +
+          '</div>' +
+        '</a>';
+      });
+      menu.innerHTML = html;
+
+    } catch(e) { /* silent */ }
+  }
+
+  window.toggleRoleSwitcher = function() {
+    var menu = document.getElementById('role-switcher-menu');
+    if (!menu) return;
+    menu.classList.toggle('open');
+  };
+
+  // Close on outside click
+  document.addEventListener('click', function(e) {
+    var sw = document.getElementById('role-switcher');
+    if (sw && !sw.contains(e.target)) {
+      var menu = document.getElementById('role-switcher-menu');
+      if (menu) menu.classList.remove('open');
+    }
+  });
+
+  loadRoles();
+})();
+</script>
+
+
+<script>
+// ── Role Switcher ─────────────────────────────────────────────────────────
+(function() {
+  async function loadRoles() {
+    try {
+      var res = await fetch('/api/user/roles', { credentials: 'include' });
+      if (!res.ok) return;
+      var data = await res.json();
+      var roles = data.roles || [];
+      if (roles.length <= 1) return;
+
+      var switcher = document.getElementById('role-switcher');
+      if (!switcher) return;
+      switcher.style.display = 'block';
+
+      var menu  = document.getElementById('role-switcher-menu');
+      var icon  = document.getElementById('role-switcher-icon');
+      var label = document.getElementById('role-switcher-label');
+
+      var currentRole = roles.find(function(r) {
+        return window.location.pathname.startsWith(r.url);
+      });
+      if (currentRole) {
+        icon.textContent  = currentRole.icon;
+        label.textContent = currentRole.label;
+      }
+
+      var html = '';
+      roles.forEach(function(r) {
+        var isCurrent = currentRole && r.role === currentRole.role;
+        var opacity   = r.active ? '1' : '0.5';
+        html += '<a href="' + r.url + '" class="role-switcher-item ' + (isCurrent ? 'current' : '') + '" style="opacity:' + opacity + '">' +
+          '<div class="ri-icon">' + r.icon + '</div>' +
+          '<div>' +
+            '<div class="ri-label">' + r.label + (isCurrent ? ' <span style="font-size:10px;color:#f97316;">← here</span>' : '') + '</div>' +
+            '<div class="ri-badge">' + r.badge + '</div>' +
+          '</div>' +
+        '</a>';
+      });
+      menu.innerHTML = html;
+    } catch(e) { /* silent */ }
+  }
+
+  window.toggleRoleSwitcher = function() {
+    var menu = document.getElementById('role-switcher-menu');
+    if (menu) menu.classList.toggle('open');
+  };
+
+  document.addEventListener('click', function(e) {
+    var sw = document.getElementById('role-switcher');
+    if (sw && !sw.contains(e.target)) {
+      var menu = document.getElementById('role-switcher-menu');
+      if (menu) menu.classList.remove('open');
+    }
+  });
+
+  loadRoles();
+})();
+</script>
+
+
+<script>
+(function() {
+  async function loadRoles() {
+    try {
+      var res = await fetch('/api/user/roles', { credentials: 'include' });
+      if (!res.ok) return;
+      var data = await res.json();
+      var roles = data.roles || [];
+      if (roles.length <= 1) return;
+      var switcher = document.getElementById('role-switcher');
+      if (!switcher) return;
+      switcher.style.display = 'block';
+      var menu  = document.getElementById('role-switcher-menu');
+      var icon  = document.getElementById('role-switcher-icon');
+      var label = document.getElementById('role-switcher-label');
+      var currentRole = roles.find(function(r) { return window.location.pathname.startsWith(r.url); });
+      if (currentRole && icon)  icon.textContent  = currentRole.icon;
+      if (currentRole && label) label.textContent = currentRole.label;
+      var html = '';
+      roles.forEach(function(r) {
+        var isCurrent = currentRole && r.role === currentRole.role;
+        html += '<a href="' + r.url + '" class="role-switcher-item ' + (isCurrent ? 'current' : '') + '">' +
+          '<div class="ri-icon">' + r.icon + '</div>' +
+          '<div><div class="ri-label">' + r.label +
+            (isCurrent ? ' <span style="font-size:10px;color:#f97316;">← here</span>' : '') +
+          '</div><div class="ri-badge">' + r.badge + '</div></div></a>';
+      });
+      if (menu) menu.innerHTML = html;
+    } catch(e) { /* silent */ }
+  }
+  window.toggleRoleSwitcher = function() {
+    var menu = document.getElementById('role-switcher-menu');
+    if (menu) menu.classList.toggle('open');
+  };
+  document.addEventListener('click', function(e) {
+    var sw = document.getElementById('role-switcher');
+    if (sw && !sw.contains(e.target)) {
+      var menu = document.getElementById('role-switcher-menu');
+      if (menu) menu.classList.remove('open');
+    }
+  });
+  loadRoles();
+})();
+
+async function loadAlertsPage() {
+  // Watches
+  try {
+    var wr = await fetch('/api/watches', { credentials: 'include' });
+    var wd = wr.ok ? await wr.json() : { watches: [] };
+    var wc = document.getElementById('pro-watches-container');
+    if (wc) {
+      if (!wd.watches || !wd.watches.length) {
+        wc.innerHTML = '<div style="color:var(--muted);font-size:13px;padding:14px 16px;background:var(--surface);border:1px solid var(--border);border-radius:10px;">No watches yet. Every lead you claim in the marketplace automatically starts a 45-day property watch. Claim your next lead and OfferWatch will begin tracking it — alerting you if the seller pulls permits or the listing price drops.</div>';
+      } else {
+        wc.innerHTML = wd.watches.map(function(w) {
+          var daysLeft = w.expires_at ? Math.max(0, Math.round((new Date(w.expires_at) - Date.now()) / 86400000)) : '?';
+          return '<div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 16px;margin-bottom:6px;display:flex;align-items:center;justify-content:space-between;gap:12px;">' +
+            '<div><div style="font-weight:700;font-size:13px;">🔭 ' + (w.address || '—') + '</div>' +
+            '<div style="font-size:11px;color:var(--dim);margin-top:2px;">' + daysLeft + ' days remaining' + (w.asking_price ? ' · ' + "$" + Math.round(w.asking_price/1000) + "K asking" : '') + '</div></div>' +
+            '<span style="font-size:10px;font-weight:700;padding:3px 8px;border-radius:4px;background:rgba(34,197,94,.1);color:#22c55e;border:1px solid rgba(34,197,94,.2);">● Watching</span>' +
+          '</div>';
+        }).join('');
+      }
+    }
+  } catch(e) { console.error('Watches load error', e); }
+
+  // Alerts
+  try {
+    var ar = await fetch('/api/alerts?limit=20', { credentials: 'include' });
+    var ad = ar.ok ? await ar.json() : { alerts: [] };
+    var ac = document.getElementById('pro-alerts-container');
+    if (ac) {
+      if (!ad.alerts || !ad.alerts.length) {
+        ac.innerHTML = '<div style="color:var(--muted);font-size:13px;padding:14px 16px;background:var(--surface);border:1px solid var(--border);border-radius:10px;">No alerts yet. OfferWatch checks your claimed properties every morning at 7am PT. If the seller pulls permits for the repair you quoted, or the listing price drops, it shows up here immediately.</div>';
+      } else {
+        var sev = { critical:'#ef4444', warning:'#f59e0b', info:'#60a5fa' };
+        var icons = { new_comp:'📊', price_drop:'💰', earthquake:'🌍', new_permit:'🔨', buyer_concern:'👁️', market_intel:'🔔' };
+        ac.innerHTML = ad.alerts.map(function(a) {
+          var color = sev[a.severity] || '#94a3b8';
+          var icon = icons[a.alert_type] || '🔔';
+          var timeStr = a.created_at ? new Date(a.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}) : '';
+          return '<div style="background:var(--surface);border:1px solid var(--border);border-left:3px solid ' + color + ';border-radius:10px;padding:14px 16px;margin-bottom:8px;">' +
+            '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;">' +
+              '<div style="font-weight:700;font-size:13px;">' + icon + ' ' + (a.title || 'Alert') + '</div>' +
+              '<span style="font-size:10px;color:var(--dim);white-space:nowrap;">' + timeStr + '</span>' +
+            '</div>' +
+            (a.body ? '<div style="font-size:12px;color:var(--muted);margin-top:5px;line-height:1.5;">' + a.body.replace(/<[^>]+>/g,'').slice(0,200) + '</div>' : '') +
+          '</div>';
+        }).join('');
+
+        // Update badge
+        var unread = ad.alerts.filter(function(a){ return !a.read_at; }).length;
+        var badge = document.getElementById('alerts-badge');
+        if (badge && unread > 0) { badge.textContent = unread; badge.style.display = 'inline'; }
+      }
+    }
+  } catch(e) { console.error('Alerts load error', e); }
+}
+
+// Load badge count on portal init
+(function() {
+  fetch('/api/alerts?limit=5', { credentials: 'include' }).then(function(r){ return r.json(); }).then(function(d){
+    var unread = (d.alerts || []).filter(function(a){ return !a.read_at; }).length;
+    var badge = document.getElementById('alerts-badge');
+    if (badge && unread > 0) { badge.textContent = unread; badge.style.display = 'inline'; }
+  }).catch(function(){});
+})();
+</script>
+</body>
+</html>

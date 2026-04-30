@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Analyze Your Property — OfferWise AI</title>
+<meta name="description" content="See exactly what to offer before you sign anything. Upload your inspection report and disclosure — get an OfferScore, repair breakdown, and offer price in 60 seconds.">
+<link rel="icon" type="image/svg+xml" href="/logo-icon-only.svg">
+<meta property="og:title" content="See what your inspector found — before you make an offer">
+<meta property="og:description" content="OfferWise cross-references your inspection report against the seller's disclosure. First analysis free.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="/static/analytics-loader.js" defer></script>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --ink:#080c14;
+  --ink2:#111827;
+  --slate:#64748b;
+  --muted:#94a3b8;
+  --rule:rgba(148,163,184,0.1);
+  --blue:#3b82f6;
+  --blue-dim:rgba(59,130,246,0.08);
+  --green:#10b981;
+  --green-dim:rgba(16,185,129,0.08);
+  --amber:#f59e0b;
+  --red:#ef4444;
+  --red-dim:rgba(239,68,68,0.07);
+  --purple:#8b5cf6;
+  --white:#f8fafc;
+}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',-apple-system,system-ui,sans-serif;background:var(--ink);color:var(--white);min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+
+/* ── TOPBAR ─────────────────────────────────────────── */
+.topbar{display:flex;justify-content:space-between;align-items:center;padding:20px 32px;position:sticky;top:0;z-index:100;background:rgba(8,12,20,0.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--rule)}
+.logo{font-size:15px;font-weight:700;letter-spacing:-.02em;text-decoration:none;color:var(--white)}
+.logo span{color:var(--purple)}
+.topbar-right{display:flex;align-items:center;gap:16px}
+.signin-link{font-size:13px;color:var(--muted);text-decoration:none;transition:color .2s}
+.signin-link:hover{color:var(--white)}
+
+/* ── HERO ────────────────────────────────────────────── */
+.hero{padding:72px 32px 48px;max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center}
+.hero-left{}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:6px;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.2);border-radius:4px;padding:5px 12px;font-size:11px;font-weight:700;color:var(--green);letter-spacing:.08em;text-transform:uppercase;margin-bottom:20px}
+.hero-eyebrow::before{content:'●';font-size:8px;animation:blink 2s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.hero-h1{font-family:'Instrument Serif',Georgia,serif;font-size:clamp(34px,4.5vw,54px);line-height:1.1;letter-spacing:-.02em;margin-bottom:18px}
+.hero-h1 em{font-style:italic;color:var(--blue)}
+.hero-sub{font-size:14px;color:var(--muted);line-height:1.7;margin-bottom:32px;max-width:440px}
+
+/* ── ADDRESS FORM ────────────────────────────────────── */
+.address-form{background:rgba(255,255,255,0.03);border:1px solid var(--rule);border-radius:12px;padding:24px}
+.form-label{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px;display:block}
+.address-row{display:flex;gap:8px}
+.address-input{flex:1;background:rgba(255,255,255,0.06);border:1px solid rgba(148,163,184,0.15);border-radius:8px;padding:14px 16px;font-size:14px;font-family:inherit;color:var(--white);outline:none;transition:border-color .2s}
+.address-input::placeholder{color:var(--slate)}
+.address-input:focus{border-color:var(--blue)}
+.address-btn{background:var(--blue);border:none;border-radius:8px;padding:14px 20px;font-size:14px;font-weight:700;color:white;cursor:pointer;font-family:inherit;white-space:nowrap;transition:all .2s;display:flex;align-items:center;gap:6px}
+.address-btn:hover:not(:disabled){background:#2563eb;transform:translateY(-1px)}
+.address-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.form-note{font-size:11px;color:var(--slate);margin-top:10px;display:flex;align-items:center;gap:12px}
+.form-note span{display:flex;align-items:center;gap:4px}
+
+/* ── RESEARCH RESULTS ────────────────────────────────── */
+#researchPanel{display:none;margin-top:16px;animation:slideDown .3s ease}
+@keyframes slideDown{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.research-result{background:var(--ink2);border:1px solid var(--rule);border-radius:10px;padding:16px 20px}
+.research-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.r-stat{background:rgba(255,255,255,0.03);border-radius:6px;padding:10px 12px}
+.r-stat-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;font-weight:700;margin-bottom:3px}
+.r-stat-val{font-size:15px;font-weight:700;color:var(--white)}
+.r-stat-val.green{color:var(--green)}
+.r-stat-val.amber{color:var(--amber)}
+.r-stat-val.red{color:var(--red)}
+.unlock-block{background:linear-gradient(135deg,rgba(59,130,246,0.1),rgba(139,92,246,0.08));border:1px solid rgba(59,130,246,0.2);border-radius:10px;padding:20px;text-align:center}
+.unlock-h{font-size:15px;font-weight:700;margin-bottom:6px}
+.unlock-sub{font-size:13px;color:var(--muted);margin-bottom:16px;line-height:1.5}
+.unlock-feats{display:flex;flex-direction:column;gap:5px;text-align:left;margin-bottom:18px;max-width:300px;margin-left:auto;margin-right:auto}
+.unlock-feat{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:8px}
+.unlock-feat::before{content:'✓';color:var(--green);font-weight:700;flex-shrink:0}
+.unlock-cta{display:inline-flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:14px;background:linear-gradient(135deg,var(--blue),var(--purple));border-radius:8px;color:white;font-size:15px;font-weight:700;text-decoration:none;transition:all .2s;border:none;cursor:pointer;font-family:inherit}
+.unlock-cta:hover{opacity:.9;transform:translateY(-1px)}
+.unlock-cta-sub{font-size:11px;color:var(--muted);margin-top:8px}
+.or-divider{display:flex;align-items:center;gap:10px;margin:12px 0;font-size:11px;color:var(--slate)}
+.or-divider::before,.or-divider::after{content:'';flex:1;height:1px;background:var(--rule)}
+.email-cta{display:flex;gap:8px}
+.email-input{flex:1;background:rgba(255,255,255,0.06);border:1px solid rgba(148,163,184,0.15);border-radius:8px;padding:12px 14px;font-size:13px;font-family:inherit;color:var(--white);outline:none}
+.email-input::placeholder{color:var(--slate)}
+.email-input:focus{border-color:var(--blue)}
+.email-btn{background:var(--green);border:none;border-radius:8px;padding:12px 18px;font-size:13px;font-weight:700;color:white;cursor:pointer;font-family:inherit;white-space:nowrap;transition:background .2s}
+.email-btn:hover{background:#059669}
+
+/* ── SAMPLE REPORT (right column) ───────────────────── */
+.hero-right{position:relative}
+.sample-label{font-size:11px;font-weight:700;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.sample-label::before{content:'';width:20px;height:1px;background:var(--rule)}
+.report-card{background:var(--ink2);border:1px solid var(--rule);border-radius:16px;overflow:hidden;box-shadow:0 40px 80px rgba(0,0,0,.5);position:relative}
+.report-topbar{display:flex;align-items:center;gap:6px;padding:10px 16px;border-bottom:1px solid var(--rule)}
+.dot{width:8px;height:8px;border-radius:50%}
+.dot-r{background:#ff5f57}.dot-y{background:#ffbd2e}.dot-g{background:#28c840}
+.report-url{flex:1;text-align:center;font-size:11px;color:var(--slate);background:rgba(148,163,184,0.05);padding:4px 12px;border-radius:4px;margin:0 24px}
+.report-inner{padding:24px}
+.rp-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px}
+.rp-brand{font-size:13px;font-weight:700}
+.rp-brand .w{color:var(--purple)}
+.rp-date{font-size:11px;color:var(--muted);text-align:right}
+.rp-address{font-family:'Instrument Serif',Georgia,serif;font-size:20px;line-height:1.2;margin-bottom:4px}
+.rp-price{font-size:11px;color:var(--muted);margin-bottom:16px}
+.rp-price strong{color:var(--white)}
+.rp-offer{background:var(--green-dim);border:1px solid rgba(16,185,129,0.2);border-radius:8px;padding:14px 16px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center}
+.rp-offer-label{font-size:11px;color:var(--green);text-transform:uppercase;letter-spacing:.08em;font-weight:700}
+.rp-offer-amount{font-family:'Instrument Serif',Georgia,serif;font-size:26px;color:var(--green);line-height:1}
+.rp-offer-save{font-size:11px;color:var(--green);opacity:.8}
+.rp-offer-save strong{opacity:1}
+.rp-metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:16px}
+.rp-m{background:rgba(255,255,255,0.03);border-radius:6px;padding:10px 6px;text-align:center}
+.rp-m-val{font-family:'Instrument Serif',Georgia,serif;font-size:20px;line-height:1}
+.rp-m-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-weight:700;margin-top:2px}
+.rp-issue{padding:10px 12px;background:var(--red-dim);border-left:3px solid var(--red);border-radius:0 5px 5px 0;margin-bottom:6px;font-size:13px;color:#fca5a5;line-height:1.5}
+.rp-issue:last-child{margin-bottom:0}
+
+/* ── blur tease ── */
+.blur-section{position:relative;margin-top:12px}
+.blur-content{filter:blur(4px);user-select:none;pointer-events:none}
+.blur-overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(8,12,20,.6);border-radius:8px}
+.blur-cta{font-size:11px;color:var(--blue);font-weight:700;display:flex;align-items:center;gap:4px;white-space:nowrap}
+.blur-hint{font-size:11px;color:var(--muted);margin-top:4px;text-align:center}
+
+/* ── PROOF STRIP ─────────────────────────────────────── */
+.proof{max-width:1100px;margin:0 auto;padding:0 32px 64px;display:flex;align-items:center;gap:32px;flex-wrap:wrap}
+.proof-item{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)}
+.proof-item strong{color:var(--white)}
+.proof-dot{width:3px;height:3px;border-radius:50%;background:var(--rule);flex-shrink:0}
+
+/* ── HOW IT WORKS ────────────────────────────────────── */
+.how{max-width:1100px;margin:0 auto;padding:80px 32px;border-top:1px solid var(--rule)}
+.how-eyebrow{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px}
+.how-h2{font-family:'Instrument Serif',Georgia,serif;font-size:clamp(28px,3.5vw,42px);line-height:1.15;margin-bottom:48px;max-width:500px}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:32px}
+.step{position:relative}
+.step-num{font-family:'Instrument Serif',Georgia,serif;font-size:48px;color:rgba(148,163,184,0.12);line-height:1;margin-bottom:12px}
+.step-title{font-size:15px;font-weight:700;margin-bottom:6px}
+.step-body{font-size:13px;color:var(--muted);line-height:1.65}
+.step-connector{position:absolute;top:24px;right:-16px;width:32px;height:1px;background:var(--rule)}
+.step:last-child .step-connector{display:none}
+
+/* ── SOCIAL PROOF ────────────────────────────────────── */
+.quotes{max-width:1100px;margin:0 auto;padding:0 32px 80px;display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.quote{background:var(--ink2);border:1px solid var(--rule);border-radius:12px;padding:24px}
+.quote-text{font-size:13px;line-height:1.7;color:var(--muted);font-style:italic;margin-bottom:16px}
+.quote-text strong{color:var(--white);font-style:normal}
+.quote-author{font-size:13px;font-weight:700;color:var(--white)}
+.quote-meta{font-size:11px;color:var(--muted);margin-top:2px}
+.quote-stars{color:var(--amber);font-size:13px;margin-bottom:10px;letter-spacing:1px}
+
+/* ── BOTTOM CTA ──────────────────────────────────────── */
+.bottom-cta{background:linear-gradient(135deg,rgba(59,130,246,0.06),rgba(139,92,246,0.04));border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);padding:80px 32px;text-align:center}
+.bottom-cta-h{font-family:'Instrument Serif',Georgia,serif;font-size:clamp(28px,4vw,48px);margin-bottom:12px;line-height:1.1}
+.bottom-cta-sub{font-size:14px;color:var(--muted);margin-bottom:32px}
+.bottom-cta-form{display:flex;gap:8px;max-width:480px;margin:0 auto 12px}
+.bottom-cta-input{flex:1;background:rgba(255,255,255,0.06);border:1px solid rgba(148,163,184,0.15);border-radius:8px;padding:14px 16px;font-size:14px;font-family:inherit;color:var(--white);outline:none}
+.bottom-cta-input::placeholder{color:var(--slate)}
+.bottom-cta-input:focus{border-color:var(--blue)}
+.bottom-cta-btn{background:var(--blue);border:none;border-radius:8px;padding:14px 24px;font-size:14px;font-weight:700;color:white;cursor:pointer;font-family:inherit;white-space:nowrap;transition:all .2s}
+.bottom-cta-btn:hover{background:#2563eb;transform:translateY(-1px)}
+.bottom-note{font-size:13px;color:var(--slate)}
+
+/* ── FOOTER ──────────────────────────────────────────── */
+.footer{max-width:1100px;margin:0 auto;padding:24px 32px;display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--slate)}
+.footer a{color:var(--slate);text-decoration:none}
+.footer a:hover{color:var(--white)}
+
+/* ── LOADING STATE ───────────────────────────────────── */
+.spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,0.2);border-top-color:white;border-radius:50%;animation:spin .6s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+#researchError{display:none;margin-top:10px;padding:10px 14px;background:var(--red-dim);border:1px solid rgba(239,68,68,0.2);border-radius:6px;font-size:13px;color:#fca5a5}
+
+/* ── RESPONSIVE ──────────────────────────────────────── */
+@media(max-width:900px){
+  .hero{grid-template-columns:1fr;gap:40px;padding:48px 20px 32px}
+  .hero-right{order:-1}
+  .steps{grid-template-columns:1fr;gap:24px}
+  .step-connector{display:none}
+  .quotes{grid-template-columns:1fr}
+  .proof{justify-content:center}
+  .bottom-cta-form{flex-direction:column}
+  .topbar{padding:16px 20px}
+}
+@media(max-width:600px){
+  .rp-metrics{grid-template-columns:repeat(2,1fr)}
+  .address-row{flex-direction:column}
+}
+
+@media (max-width: 768px) {
+  .hero { grid-template-columns: 1fr; gap: 32px; padding: 48px 20px 32px; }
+  .hero h1 { font-size: clamp(1.8rem,7vw,2.5rem); }
+  .research-row { grid-template-columns: 1fr; }
+  .rp-metrics { grid-template-columns: 1fr 1fr; }
+  .steps { grid-template-columns: 1fr; }
+  .proof { flex-direction: column; align-items: flex-start; gap: 16px; padding: 0 20px 40px; }
+  .how { padding: 48px 20px; }
+  input, select, textarea { font-size: 16px !important; }
+  .btn, button[type="submit"] { width: 100%; min-height: 48px; }
+}
+@media (max-width: 480px) {
+  .hero { padding: 32px 16px 24px; }
+  .rp-metrics { grid-template-columns: 1fr 1fr; gap: 8px; }
+}
+
+/* ── MOBILE RESPONSIVE PATCH ── */
+
+@media (max-width: 768px) {
+  .hero-grid,
+  .split-layout,
+  .two-col { grid-template-columns: 1fr !important; }
+  .hero { padding: 3rem 1.25rem 2rem !important; }
+  .upload-area { padding: 1.5rem 1rem !important; }
+}
+@media (max-width: 480px) {
+  .hero h1 { font-size: clamp(1.8rem, 7vw, 2.4rem) !important; }
+  input, select, textarea { font-size: 16px !important; }
+  button, .btn, [type="submit"] { min-height: 48px !important; width: 100% !important; font-size: 16px !important; }
+  .trust-badges { flex-wrap: wrap; gap: 0.5rem; justify-content: center; }
+  .step-list { padding-left: 0 !important; }
+}
+
+</style>
+  <link rel="canonical" href="https://www.getofferwise.ai/analyze">
+</head>
+<body>
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <a href="/" class="logo">Offer<span>Wise</span>™</a>
+  <div class="topbar-right">
+    <a href="/login" class="signin-link">Sign in</a>
+    <a href="/login?signup=1" style="background:var(--blue);color:white;padding:8px 16px;border-radius:6px;font-size:13px;font-weight:700;text-decoration:none;">Get started free</a>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-left">
+    <div class="hero-eyebrow">Live · First analysis free</div>
+    <h1 class="hero-h1">Know exactly what to offer.<br><em>Before you sign anything.</em></h1>
+    <p class="hero-sub">Upload your inspection report and seller disclosure. OfferWise cross-references every finding against what the seller claimed — and tells you exactly what to offer.</p>
+
+    <!-- ADDRESS FORM -->
+    <div class="address-form">
+      <label class="form-label" for="addressInput">Start with your property address</label>
+      <div class="address-row">
+        <input id="addressInput" class="address-input" type="text"
+          placeholder="123 Oak Street, Austin, TX 95126"
+          autocomplete="off" autocorrect="off" spellcheck="false">
+        <button class="address-btn" id="researchBtn" onclick="runResearch()">
+          <span id="btnLabel">Research →</span>
+        </button>
+      </div>
+      <div class="form-note">
+        <span>🔒 Private</span>
+        <span>⚡ Instant</span>
+        <span>💳 No credit card</span>
+      </div>
+    </div>
+
+    <!-- RESEARCH RESULTS -->
+    <div id="researchPanel">
+      <div id="researchResult" class="research-result"></div>
+      <div id="researchError"></div>
+    </div>
+  </div>
+
+  <!-- SAMPLE REPORT -->
+  <div class="hero-right">
+    <div class="sample-label">Real example report</div>
+    <div class="report-card">
+      <div class="report-topbar">
+        <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+        <div class="report-url">getofferwise.ai / your-analysis</div>
+      </div>
+      <div class="report-inner">
+        <div class="rp-header">
+          <div class="rp-brand">Offer<span class="w">Wise</span>™</div>
+          <div class="rp-date">AI-POWERED · PATENT PENDING</div>
+        </div>
+        <div class="rp-address">4827 Oakridge Drive, Austin, TX</div>
+        <div class="rp-price">Listed at <strong>$1,295,000</strong></div>
+        <div class="rp-offer">
+          <div>
+            <div class="rp-offer-label">Recommended Offer</div>
+            <div class="rp-offer-amount">$1,238,000</div>
+          </div>
+          <div style="text-align:right">
+            <div class="rp-offer-save"><strong>$57,000</strong> below asking</div>
+            <div class="rp-offer-save">Est. repairs: $38K–$53K</div>
+          </div>
+        </div>
+        <div class="rp-metrics">
+          <div class="rp-m"><div class="rp-m-val" style="color:var(--green)">74</div><div class="rp-m-label">OfferScore™</div></div>
+          <div class="rp-m"><div class="rp-m-val" style="color:var(--red)">2</div><div class="rp-m-label">Critical</div></div>
+          <div class="rp-m"><div class="rp-m-val" style="font-size:14px;color:var(--amber)">$38K+</div><div class="rp-m-label">Repairs</div></div>
+          <div class="rp-m"><div class="rp-m-val" style="font-size:14px;color:var(--amber)">62/100</div><div class="rp-m-label">Transparency</div></div>
+        </div>
+        <div class="rp-issue">⛔ Roof: active water intrusion, seller said "no known leaks" — $18K–$28K repair</div>
+        <div class="rp-issue">⛔ HVAC: cracked heat exchanger (CO hazard), 22yr old system — $8K–$12K</div>
+        <div class="blur-section">
+          <div class="blur-content">
+            <div style="padding:10px 12px;background:rgba(59,130,246,0.06);border-left:3px solid var(--blue);border-radius:0 5px 5px 0;margin-bottom:6px;font-size:11px;color:var(--muted);line-height:1.5">🎯 Negotiation: Cite roof inconsistency for $25K price reduction — seller contradicted their own disclosure</div>
+            <div style="padding:10px 12px;background:rgba(59,130,246,0.06);border-left:3px solid var(--blue);border-radius:0 5px 5px 0;font-size:11px;color:var(--muted);line-height:1.5">🔍 Hidden issue (82% prob): water damage behind walls from active roof leak — request $8K credit</div>
+          </div>
+          <div class="blur-overlay">
+            <div class="blur-cta">🔓 Your report shows this for your property</div>
+            <div class="blur-hint">Enter your address above to get started</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROOF STRIP -->
+<div class="proof">
+  <div class="proof-item"><strong>60 seconds</strong> from upload to results</div>
+  <div class="proof-dot"></div>
+  <div class="proof-item">Works in <strong>all 50 states</strong></div>
+  <div class="proof-dot"></div>
+  <div class="proof-item">Any <strong>PDF inspection report</strong> or disclosure</div>
+  <div class="proof-dot"></div>
+  <div class="proof-item"><strong>First analysis free</strong> — no credit card</div>
+  <div class="proof-dot"></div>
+  <div class="proof-item"><strong>Patent-pending</strong> AI technology</div>
+</div>
+
+<!-- HOW IT WORKS -->
+<section class="how">
+  <div class="how-eyebrow">How it works</div>
+  <h2 class="how-h2">From documents to decision in three steps.</h2>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">01</div>
+      <div class="step-title">Upload your documents</div>
+      <div class="step-body">Drop in your inspection report and seller disclosure PDF. OfferWise reads every page — all systems, all findings, all disclosures.</div>
+      <div class="step-connector"></div>
+    </div>
+    <div class="step">
+      <div class="step-num">02</div>
+      <div class="step-title">AI cross-references everything</div>
+      <div class="step-body">Our engine compares what the inspector found against what the seller claimed. Every mismatch becomes your negotiation leverage.</div>
+      <div class="step-connector"></div>
+    </div>
+    <div class="step">
+      <div class="step-num">03</div>
+      <div class="step-title">Get your offer number</div>
+      <div class="step-body">You receive an OfferScore, three offer strategies with dollar amounts, a repair cost breakdown, and specific negotiation talking points — in 60 seconds.</div>
+    </div>
+  </div>
+</section>
+
+<!-- SOCIAL PROOF -->
+<section style="max-width:1100px;margin:0 auto;padding:0 32px 80px">
+  <div style="font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:24px">What buyers say</div>
+  <div class="quotes">
+    <div class="quote">
+      <div class="quote-stars">★★★★★</div>
+      <div class="quote-text">"The seller said 'no known roof issues.' OfferWise flagged a <strong>$23,000 repair</strong> the inspector found on page 14. My agent used it to get a full price reduction. Worth every penny."</div>
+      <div class="quote-author">Sarah M.</div>
+      <div class="quote-meta">First-time buyer · Austin, TX</div>
+    </div>
+    <div class="quote">
+      <div class="quote-stars">★★★★★</div>
+      <div class="quote-text">"I uploaded the inspection report and got a recommended offer price with exact reasoning behind every dollar. <strong>Saved me from overpaying by $40K</strong> on a house that needed a new roof and HVAC."</div>
+      <div class="quote-author">James K.</div>
+      <div class="quote-meta">Home buyer · Denver, CO</div>
+    </div>
+    <div class="quote">
+      <div class="quote-stars">★★★★★</div>
+      <div class="quote-text">"My inspector gave me a 47-page report. I had no idea what was critical vs cosmetic. OfferWise <strong>told me exactly what mattered</strong> and exactly what to say to the seller."</div>
+      <div class="quote-author">Priya R.</div>
+      <div class="quote-meta">Home buyer · Atlanta, GA</div>
+    </div>
+  </div>
+</section>
+
+<!-- BOTTOM CTA -->
+<section class="bottom-cta">
+  <h2 class="bottom-cta-h">Your property is waiting.</h2>
+  <p class="bottom-cta-sub">Enter your address and upload your documents. First analysis is free — no credit card required.</p>
+  <div class="bottom-cta-form">
+    <input class="bottom-cta-input" id="bottomAddress" type="text" placeholder="123 Oak Street, Austin, TX">
+    <button class="bottom-cta-btn" onclick="startWithAddress()">Analyze free →</button>
+  </div>
+  <div class="bottom-note">Or <a href="/login?signup=1" style="color:var(--blue)">create your free account</a> and upload directly</div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div>© 2026 OfferWise Inc. · <a href="/disclaimer">Disclaimer</a> · <a href="/privacy">Privacy</a></div>
+  <div><a href="/">Home</a> · <a href="/pricing">Pricing</a> · <a href="/for-inspectors">Inspectors</a></div>
+</footer>
+
+<script src="/static/js/compliance.js"></script>
+<script>
+// ── Research agent ────────────────────────────────────────
+let researchDone = false;
+let researchAddress = '';
+
+// ── Funnel tracking helper ──────────────────────────────────────
+function owTrack(stage, source) {
+  try {
+    // Get UTM params from URL if present
+    var params = new URLSearchParams(window.location.search);
+    var utmSource = params.get('utm_source') || source || 'analyze_page';
+    var utmMedium = params.get('utm_medium') || 'none';
+    fetch('/api/funnel/track', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        stage: stage,
+        source: utmSource,
+        medium: utmMedium,
+        page: 'analyze'
+      })
+    }).catch(function(){});
+  } catch(e) {}
+}
+
+async function runResearch() {
+  const input = document.getElementById('addressInput');
+  const btn   = document.getElementById('researchBtn');
+  const label = document.getElementById('btnLabel');
+  const panel = document.getElementById('researchPanel');
+  const result= document.getElementById('researchResult');
+  const errEl = document.getElementById('researchError');
+
+  const addr = input.value.trim();
+  if (addr.length < 10) {
+    input.focus();
+    input.style.borderColor = 'var(--red)';
+    setTimeout(() => input.style.borderColor = '', 1500);
+    return;
+  }
+
+  // Track address entry
+  owTrack('address_entered', null);
+
+  // Loading state
+  btn.disabled = true;
+  label.innerHTML = '<div class="spinner"></div>';
+  errEl.style.display = 'none';
+  panel.style.display = 'block';
+  result.innerHTML = '<div style="font-size:13px;color:var(--muted);padding:8px 0;">Researching ' + addr.replace(/</g,'&lt;') + '...</div>';
+
+  try {
+    const resp = await fetch('/api/research', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({address: addr})
+    });
+    const data = await resp.json();
+
+    if (data.error) throw new Error(data.error);
+
+    researchDone = true;
+    researchAddress = addr;
+
+    // Track
+    window.owTrack && window.owTrack('research_complete', 'analyze_page');
+
+    // Build result card
+    const zip = data.zip_code || '';
+    const median = data.zip_median_price ? '$' + Math.round(data.zip_median_price/1000) + 'K' : null;
+    const dom   = data.avg_dom != null ? data.avg_dom + ' days' : null;
+    const year  = data.year_built || null;
+    const flood = data.flood_risk_level || null;
+    const fire  = data.fire_hazard_zone || null;
+
+    let statsHtml = '';
+    if (median) statsHtml += '<div class="r-stat"><div class="r-stat-label">ZIP Median</div><div class="r-stat-val green">' + median + '</div></div>';
+    if (dom)    statsHtml += '<div class="r-stat"><div class="r-stat-label">Avg Days on Market</div><div class="r-stat-val">' + dom + '</div></div>';
+    if (year)   statsHtml += '<div class="r-stat"><div class="r-stat-label">Year Built</div><div class="r-stat-val">' + year + '</div></div>';
+    if (flood)  statsHtml += '<div class="r-stat"><div class="r-stat-label">Flood Risk</div><div class="r-stat-val ' + (flood === 'High' ? 'red' : flood === 'Moderate' ? 'amber' : '') + '">' + flood + '</div></div>';
+
+    result.innerHTML =
+      '<div style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">Property research — ' + addr.split(',')[0].replace(/</g,'&lt;') + '</div>' +
+      (statsHtml ? '<div class="research-row">' + statsHtml + '</div>' : '') +
+      '<div class="unlock-block">' +
+        '<div class="unlock-h">Get the full analysis on this property</div>' +
+        '<div class="unlock-sub">Upload your inspection report and seller disclosure.<br>We\'ll cross-reference every finding against what the seller claimed.</div>' +
+        '<div class="unlock-feats">' +
+          '<div class="unlock-feat">Recommended offer price with 3 strategies</div>' +
+          '<div class="unlock-feat">Deal breakers the seller didn\'t disclose</div>' +
+          '<div class="unlock-feat">Repair cost breakdown by ZIP code</div>' +
+          '<div class="unlock-feat">Seller Transparency Report™ — every discrepancy</div>' +
+          '<div class="unlock-feat">Negotiation leverage points with exact dollar amounts</div>' +
+        '</div>' +
+        '<a href="/login?signup=1&next=/app&address=' + encodeURIComponent(addr) + '" class="unlock-cta" onclick="trackSignupCTA()">🔓 Get my free analysis →</a>' +
+        '<div class="unlock-cta-sub">Free — no credit card required · Takes 60 seconds</div>' +
+        '<div class="or-divider">or save your address by email</div>' +
+        '<div class="email-cta">' +
+          '<input class="email-input" id="emailCapture" type="email" placeholder="your@email.com">' +
+          '<button class="email-btn" onclick="captureEmail()">Send link →</button>' +
+        '</div>' +
+      '</div>';
+
+  } catch(e) {
+    panel.style.display = 'block';
+    result.innerHTML = '';
+    errEl.style.display = 'block';
+    errEl.textContent = e.message || 'Could not research that address. Try a full street address with city and state.';
+    // Still show the CTA even on research error
+    result.innerHTML =
+      '<div class="unlock-block">' +
+        '<div class="unlock-h">Analyze ' + (addr.split(',')[0].replace(/</g,'&lt;') || 'this property') + '</div>' +
+        '<div class="unlock-sub">Create your free account and upload your inspection report and seller disclosure.</div>' +
+        '<a href="/login?signup=1&next=/app" class="unlock-cta" onclick="trackSignupCTA()">Get my free analysis →</a>' +
+        '<div class="unlock-cta-sub">Free · No credit card</div>' +
+      '</div>';
+  } finally {
+    btn.disabled = false;
+    label.innerHTML = 'Research →';
+  }
+}
+
+function trackSignupCTA() {
+  window.owTrack && window.owTrack('signup_cta_click', 'analyze_page');
+  if (window.owFireSignupConversion) window.owFireSignupConversion('');
+}
+
+async function captureEmail() {
+  const email = document.getElementById('emailCapture')?.value?.trim();
+  const addr  = researchAddress || document.getElementById('addressInput')?.value?.trim();
+  if (!email || !email.includes('@')) return;
+
+  try {
+    await fetch('/api/waitlist', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({email, source: 'analyze_page', property_address: addr})
+    });
+    const btn = document.querySelector('.email-btn');
+    if (btn) { btn.textContent = '✓ Sent!'; btn.disabled = true; }
+    window.owTrack && window.owTrack('email_capture', 'analyze_page');
+  } catch(e) {
+    // Fail silently — user still sees the Google CTA
+  }
+}
+
+function startWithAddress() {
+  const addr = document.getElementById('bottomAddress')?.value?.trim();
+  if (addr) {
+    document.getElementById('addressInput').value = addr;
+    window.scrollTo({top:0, behavior:'smooth'});
+    setTimeout(runResearch, 400);
+  } else {
+    window.location.href = '/login?signup=1';
+  }
+}
+
+// Enter key on address input
+document.getElementById('addressInput').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') runResearch();
+});
+
+// Fire page view
+window.owTrack && window.owTrack('page_view', 'analyze_landing');
+</script>
+</body>
+</html>

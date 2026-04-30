@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>What's Hiding at This Address? | Free Property Risk Scanner | OfferWise</title>
+    <meta name="description" content="Enter any address. Instantly see hidden flood zones, earthquake danger, wildfire exposure, and disaster history — with a dollar estimate of your risk. Free, no signup.">
+    <meta property="og:title" content="What's Hiding at This Address? | OfferWise" id="ogTitle">
+    <meta property="og:description" content="I just scanned an address and found hidden risks the seller won't tell you about. Check yours free." id="ogDesc">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://www.getofferwise.ai/risk-check">
+    <meta name="twitter:card" content="summary_large_image">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=DM+Serif+Display&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #3b82f6;
+            --primary-dark: #2563eb;
+            --primary-glow: rgba(59,130,246,0.15);
+            --accent: #f59e0b;
+            --accent-glow: rgba(245,158,11,0.12);
+            --red: #ef4444;
+            --red-glow: rgba(239,68,68,0.12);
+            --green: #10b981;
+            --green-glow: rgba(16,185,129,0.12);
+            --dark: #0f172a;
+            --darker: #020617;
+            --card: #1e293b;
+            --border: rgba(148,163,184,0.1);
+            --text: #f1f5f9;
+            --text-dim: #94a3b8;
+            --gray: #64748b;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'DM Sans', -apple-system, sans-serif;
+            background: var(--darker);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        body::before {
+            content: '';
+            position: fixed; inset: 0;
+            background-image:
+                linear-gradient(rgba(148,163,184,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(148,163,184,0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+            pointer-events: none; z-index: 0;
+        }
+        .container { max-width: 640px; margin: 0 auto; padding: 0 20px; position: relative; z-index: 1; }
+
+        .nav { padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; z-index: 10; position: relative; }
+        .nav-logo { font-weight: 800; font-size: 1.2rem; color: var(--text); text-decoration: none; letter-spacing: -0.5px; }
+        .nav-logo span { color: var(--primary); }
+        .nav-links { display: flex; gap: 20px; }
+        .nav-links a { color: var(--text-dim); text-decoration: none; font-size: 0.85rem; font-weight: 500; transition: color 0.2s; }
+        .nav-links a:hover { color: var(--text); }
+
+        /* HERO */
+        .hero { padding: 80px 0 40px; text-align: center; }
+        .hero-badge {
+            display: inline-block; padding: 5px 16px;
+            background: var(--primary-glow); border: 1px solid rgba(59,130,246,0.2);
+            border-radius: 100px; font-size: 0.72rem; font-weight: 700;
+            letter-spacing: 2.5px; color: var(--primary); text-transform: uppercase; margin-bottom: 28px;
+        }
+        .hero h1 {
+            font-size: clamp(2.2rem, 7vw, 3.4rem); font-weight: 900;
+            line-height: 1.08; letter-spacing: -1.5px; margin-bottom: 20px;
+        }
+        .hero h1 .highlight { color: var(--accent); }
+        .hero-sub { color: var(--text-dim); font-size: 1.05rem; line-height: 1.65; max-width: 480px; margin: 0 auto 40px; }
+
+        /* INPUT */
+        .input-wrapper { position: relative; max-width: 520px; margin: 0 auto; }
+        .address-input {
+            width: 100%; padding: 18px 150px 18px 20px;
+            font-family: 'DM Sans', -apple-system, sans-serif; font-size: 1.05rem; font-weight: 500;
+            background: var(--dark); border: 1px solid var(--border); border-radius: 14px;
+            color: var(--text); outline: none; transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        .address-input:focus { border-color: rgba(59,130,246,0.5); box-shadow: 0 0 0 4px var(--primary-glow); }
+        .address-input::placeholder { color: var(--gray); font-weight: 400; }
+        .scan-btn {
+            position: absolute; right: 6px; top: 6px; bottom: 6px; padding: 0 24px;
+            font-family: 'DM Sans', -apple-system, sans-serif; font-size: 0.95rem; font-weight: 700;
+            background: var(--primary); color: white; border: none; border-radius: 10px;
+            cursor: pointer; transition: all 0.2s; letter-spacing: 0.3px;
+        }
+        .scan-btn:hover { background: var(--primary-dark); transform: scale(1.02); }
+        .scan-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        @media (max-width: 520px) {
+            .address-input { padding-right: 20px; }
+            .scan-btn { position: static; width: 100%; margin-top: 10px; padding: 16px; border-radius: 14px; }
+            .input-wrapper { display: flex; flex-direction: column; }
+        }
+        .hero-note { margin-top: 20px; color: var(--gray); font-size: 0.72rem; }
+
+        /* SCAN */
+        .scan-section { display: none; text-align: center; padding: 120px 0; }
+        .scan-section.active { display: block; }
+        .scanner { width: 80px; height: 80px; position: relative; margin: 0 auto 32px; }
+        .scanner-ring {
+            position: absolute; inset: 0; border: 2px solid transparent;
+            border-top-color: var(--primary); border-radius: 50%; animation: spin 1.2s linear infinite;
+        }
+        .scanner-ring:nth-child(2) { inset: 8px; border-top-color: var(--accent); animation-duration: 1.8s; animation-direction: reverse; }
+        .scanner-ring:nth-child(3) { inset: 16px; border-top-color: var(--green); animation-duration: 2.4s; }
+        .scanner-dot {
+            position: absolute; width: 8px; height: 8px; background: var(--primary); border-radius: 50%;
+            top: 50%; left: 50%; transform: translate(-50%,-50%); animation: pulse 1.2s ease infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes pulse { 0%,100% { opacity:1; transform: translate(-50%,-50%) scale(1); } 50% { opacity:0.4; transform: translate(-50%,-50%) scale(0.6); } }
+        .scan-status { font-size: 1.2rem; font-weight: 600; margin-bottom: 8px; }
+        .scan-substatus { font-size: 0.85rem; color: var(--text-dim); }
+
+        /* RESULTS */
+        .results-section { display: none; padding: 20px 0 60px; }
+        .results-section.active { display: block; }
+
+        .exposure-header {
+            text-align: center; padding: 52px 24px 48px;
+            border: 1px solid var(--border); border-radius: 20px;
+            margin-bottom: 12px; position: relative; overflow: hidden;
+        }
+        .exposure-header::before {
+            content: ''; position: absolute; top: -50%; left: 50%; transform: translateX(-50%);
+            width: 300px; height: 300px; pointer-events: none;
+        }
+        .exposure-label { font-size: 0.72rem; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--text-dim); margin-bottom: 16px; position: relative; }
+        .exposure-amount {
+            font-family: 'DM Sans', -apple-system, sans-serif; font-size: clamp(3rem, 12vw, 4.5rem);
+            font-weight: 700; line-height: 1; position: relative; margin-bottom: 12px;
+        }
+        .exposure-amount.grade-f, .exposure-amount.grade-d { color: var(--red); }
+        .exposure-amount.grade-c { color: var(--accent); }
+        .exposure-amount.grade-b, .exposure-amount.grade-a { color: var(--green); }
+        .exposure-subtitle { font-size: 0.85rem; color: var(--text-dim); position: relative; margin-bottom: 20px; }
+
+        .grade-badge { display: inline-block; padding: 6px 20px; border-radius: 100px; font-size: 0.72rem; font-weight: 800; letter-spacing: 1px; position: relative; }
+        .grade-badge.grade-f, .grade-badge.grade-d { background: var(--red-glow); color: var(--red); border: 1px solid rgba(239,68,68,0.25); }
+        .grade-badge.grade-c { background: var(--accent-glow); color: var(--accent); border: 1px solid rgba(245,158,11,0.25); }
+        .grade-badge.grade-b, .grade-badge.grade-a { background: var(--green-glow); color: var(--green); border: 1px solid rgba(16,185,129,0.25); }
+
+        .results-address { text-align: center; font-size: 0.85rem; color: var(--text-dim); padding: 14px 0 8px; margin-bottom: 24px; }
+
+        /* RISK CARDS */
+        .risk-card {
+            background: var(--dark); border: 1px solid var(--border); border-radius: 16px;
+            padding: 22px 24px; margin-bottom: 12px; transition: border-color 0.3s;
+        }
+        .risk-card:hover { border-color: rgba(148,163,184,0.2); }
+        .risk-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .risk-card-left { display: flex; align-items: center; gap: 12px; }
+        .risk-icon { font-size: 1.5rem; }
+        .risk-title { font-size: 1.05rem; font-weight: 700; }
+        .risk-level { font-size: 0.72rem; font-weight: 800; letter-spacing: 1px; padding: 4px 12px; border-radius: 100px; }
+        .risk-level.HIGH, .risk-level.VERYHIGH { background: var(--red-glow); color: var(--red); }
+        .risk-level.MODERATE { background: var(--accent-glow); color: var(--accent); }
+        .risk-level.LOW { background: var(--green-glow); color: var(--green); }
+        .risk-cost { font-family: 'DM Sans', -apple-system, sans-serif; font-size: 1.4rem; font-weight: 700; color: var(--red); margin-bottom: 8px; }
+        .risk-detail { font-size: 0.85rem; color: var(--text-dim); line-height: 1.55; margin-bottom: 10px; }
+        .risk-seller-hide {
+            font-size: 0.85rem; color: var(--text); line-height: 1.5;
+            padding: 12px 14px; background: rgba(239,68,68,0.04); border-radius: 10px;
+            border-left: 3px solid rgba(239,68,68,0.2);
+        }
+        .risk-seller-hide strong { color: var(--red); font-weight: 700; }
+
+        .clean-result { text-align: center; padding: 48px 24px; background: var(--dark); border: 1px solid var(--border); border-radius: 16px; }
+        .clean-result p { color: var(--text-dim); font-size: 0.95rem; margin-top: 12px; line-height: 1.6; }
+
+        /* SHARE MODULE */
+        .share-module {
+            background: var(--dark); border: 1px solid var(--border); border-radius: 20px;
+            padding: 28px 24px; margin: 32px 0;
+        }
+        .share-module-header {
+            text-align: center; margin-bottom: 20px;
+        }
+        .share-module-header h3 {
+            font-size: 1.2rem; font-weight: 800; margin-bottom: 6px;
+        }
+        .share-module-header p {
+            font-size: 0.85rem; color: var(--text-dim); line-height: 1.5;
+        }
+        .share-preview {
+            background: rgba(148,163,184,0.04); border: 1px solid var(--border);
+            border-radius: 12px; padding: 14px 16px; margin-bottom: 18px;
+            font-size: 0.85rem; color: var(--text); line-height: 1.55;
+        }
+        .share-preview .share-link { color: var(--primary); word-break: break-all; }
+        .share-primary-row {
+            display: flex; gap: 10px; margin-bottom: 14px;
+        }
+        .share-primary-row button {
+            flex: 1; padding: 14px; border-radius: 12px; font-family: 'DM Sans', -apple-system, sans-serif;
+            font-size: 0.95rem; font-weight: 700; cursor: pointer; border: none;
+            display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s;
+        }
+        .share-btn-native {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white;
+            display: none;
+        }
+        .share-btn-native.visible { display: flex; }
+        .share-btn-native:hover { filter: brightness(1.1); }
+        .share-btn-copy {
+            background: rgba(59,130,246,0.12); color: var(--primary);
+            border: 2px solid rgba(59,130,246,0.25) !important;
+        }
+        .share-btn-copy:hover { background: rgba(59,130,246,0.2); }
+        .share-btn-copy.done { background: rgba(16,185,129,0.12); color: var(--green); border-color: rgba(16,185,129,0.3) !important; }
+        .share-channels-label {
+            font-size: 0.72rem; font-weight: 700; color: var(--gray); text-transform: uppercase;
+            letter-spacing: 1.5px; margin-bottom: 10px;
+        }
+        .share-grid {
+            display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;
+        }
+        .share-grid button {
+            padding: 11px 6px; font-family: 'DM Sans', -apple-system, sans-serif; font-size: 0.85rem; font-weight: 600;
+            border-radius: 10px; cursor: pointer; transition: all 0.2s; border: 1px solid; text-align: center;
+        }
+        .share-grid button:hover { filter: brightness(1.2); }
+        .share-grid .ch-imessage { background: rgba(34,197,94,0.08); color: #22c55e; border-color: rgba(34,197,94,0.2); }
+        .share-grid .ch-whatsapp { background: rgba(37,211,102,0.08); color: #25D366; border-color: rgba(37,211,102,0.2); }
+        .share-grid .ch-messenger { background: rgba(0,132,255,0.08); color: #0084FF; border-color: rgba(0,132,255,0.2); }
+        .share-grid .ch-telegram { background: rgba(38,165,224,0.08); color: #26A5E0; border-color: rgba(38,165,224,0.2); }
+        .share-grid .ch-twitter { background: rgba(148,163,184,0.06); color: var(--text-dim); border-color: rgba(148,163,184,0.15); }
+        .share-grid .ch-email { background: rgba(96,165,250,0.08); color: #60a5fa; border-color: rgba(96,165,250,0.2); }
+
+        /* WAITLIST */
+        .community-waitlist {
+            background: linear-gradient(135deg, rgba(139,92,246,0.12), rgba(59,130,246,0.12));
+            border: 1px solid rgba(139,92,246,0.3);
+            border-radius: 16px; padding: 32px; margin: 32px 0; text-align: center;
+        }
+        .waitlist-badge {
+            display: inline-block; background: rgba(139,92,246,0.2); color: #c4b5fd;
+            font-size: 0.72rem; font-weight: 800; letter-spacing: 2px;
+            padding: 4px 14px; border-radius: 20px; margin-bottom: 12px;
+        }
+        .waitlist-title { font-size: 1.4rem; font-weight: 800; margin-bottom: 8px; color: #f1f5f9; }
+        .waitlist-desc { color: #94a3b8; font-size: 0.95rem; line-height: 1.6; margin-bottom: 16px; max-width: 500px; margin-left: auto; margin-right: auto; }
+        .waitlist-features {
+            display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;
+            margin-bottom: 20px; font-size: 0.85rem; color: #cbd5e1;
+        }
+        .waitlist-form { display: flex; gap: 8px; max-width: 420px; margin: 0 auto; }
+        .waitlist-input {
+            flex: 1; padding: 12px 16px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.15);
+            background: rgba(255,255,255,0.06); color: #f1f5f9; font-size: 0.95rem; outline: none;
+        }
+        .waitlist-input:focus { border-color: #8b5cf6; }
+        .waitlist-input::placeholder { color: #64748b; }
+        .waitlist-btn {
+            padding: 12px 24px; border-radius: 10px; border: none;
+            background: linear-gradient(135deg, #8b5cf6, #6366f1); color: white;
+            font-weight: 700; font-size: 0.95rem; cursor: pointer; white-space: nowrap;
+            transition: all 0.2s;
+        }
+        .waitlist-btn:hover { filter: brightness(1.15); transform: translateY(-1px); }
+        .waitlist-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        .waitlist-success { color: #86efac; font-weight: 600; font-size: 0.95rem; margin-top: 4px; }
+        .waitlist-count { color: #64748b; font-size: 0.85rem; margin-top: 10px; }
+        @media (max-width: 500px) {
+            .waitlist-form { flex-direction: column; }
+            .waitlist-features { flex-direction: column; gap: 6px; }
+        }
+
+        /* DIVIDER */
+        .section-divider { width: 48px; height: 2px; background: var(--border); margin: 12px auto 40px; border-radius: 1px; }
+
+        /* CTA */
+        .cta-section {
+            text-align: center; padding: 44px 28px;
+            background: linear-gradient(135deg, rgba(59,130,246,0.06), rgba(245,158,11,0.04));
+            border: 1px solid rgba(59,130,246,0.12); border-radius: 20px; margin-bottom: 32px;
+        }
+        .cta-section h3 { font-size: 1.2rem; font-weight: 800; margin-bottom: 12px; line-height: 1.3; }
+        .cta-section p { color: var(--text-dim); font-size: 0.95rem; margin-bottom: 28px; line-height: 1.6; max-width: 420px; margin-left: auto; margin-right: auto; }
+        .cta-btn {
+            display: inline-block; padding: 16px 36px; background: var(--accent); color: #000;
+            font-family: 'DM Sans', -apple-system, sans-serif; font-size: 1.05rem; font-weight: 700;
+            text-decoration: none; border-radius: 12px; transition: all 0.2s;
+        }
+        .cta-btn:hover { background: #d97706; transform: translateY(-2px); }
+        .cta-secondary { display: block; margin-top: 16px; color: var(--text-dim); font-size: 0.85rem; text-decoration: none; }
+        .cta-secondary:hover { color: var(--text); }
+
+        .try-another { text-align: center; margin: 8px 0 16px; }
+        .try-another button {
+            padding: 12px 28px; font-family: 'DM Sans', -apple-system, sans-serif; font-size: 0.85rem; font-weight: 600;
+            background: transparent; border: 1px solid var(--border); color: var(--text-dim);
+            border-radius: 10px; cursor: pointer; transition: all 0.2s;
+        }
+        .try-another button:hover { color: var(--text); border-color: rgba(148,163,184,0.2); }
+
+        .sources { text-align: center; padding: 40px 0; color: var(--gray); font-size: 0.72rem; border-top: 1px solid var(--border); line-height: 1.7; }
+        .sources a { color: var(--gray); text-decoration: none; }
+        .sources a:hover { color: var(--text); }
+
+        .fade-up { opacity: 0; transform: translateY(20px); animation: fadeUp 0.5s ease forwards; }
+        @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+        .delay-1 { animation-delay: 0.1s; } .delay-2 { animation-delay: 0.2s; }
+        .delay-3 { animation-delay: 0.3s; } .delay-4 { animation-delay: 0.4s; }
+
+        .error-msg {
+            background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.2); color: var(--red);
+            padding: 16px; border-radius: 12px; text-align: center; margin-top: 16px; font-size: 0.95rem; display: none;
+        }
+        /* ============================================================
+           MOBILE RESPONSIVENESS (v5.61.0)
+           ============================================================ */
+        @media (max-width: 768px) {
+            .container { padding: 0 16px; }
+            .hero-title { font-size: clamp(1.8rem, 6vw, 2.4rem); }
+            .hero-desc { font-size: 0.9rem; padding: 0 8px; }
+            .exposure-amount { font-size: clamp(2rem, 8vw, 3rem); }
+            .results-header { padding: 32px 16px; }
+            .risk-cards { grid-template-columns: 1fr; gap: 12px; padding: 0 8px; }
+            .share-bar { flex-direction: column; gap: 8px; padding: 12px; }
+            .share-bar button { width: 100%; }
+            .community-waitlist { padding: 32px 16px; margin: 0 8px; }
+            .waitlist-features { gap: 8px; }
+            .waitlist-features span { font-size: 0.8rem; }
+            .cta-section { padding: 32px 16px; }
+            .cta-btn { width: 100%; text-align: center; }
+            .cta-secondary { font-size: 0.85rem; }
+            .sources { padding: 24px 16px; font-size: 0.7rem; }
+            .grade-circle { width: 80px; height: 80px; font-size: 2rem; }
+        }
+        @media (max-width: 380px) {
+            .hero-title { font-size: 1.6rem; }
+            .exposure-amount { font-size: 1.8rem; }
+            .risk-card { padding: 16px; }
+            .risk-card-title { font-size: 0.95rem; }
+        }
+    
+/* ── MOBILE RESPONSIVE PATCH ── */
+
+@media (max-width: 480px) {
+  .upload-zone { padding: 1.5rem 1rem !important; }
+  .result-grid { grid-template-columns: 1fr !important; }
+  button, .btn, [type="submit"] { min-height: 48px !important; width: 100% !important; font-size: 16px !important; }
+  input, textarea { font-size: 16px !important; }
+  .risk-score-circle { width: 100px !important; height: 100px !important; font-size: 1.8rem !important; }
+  .findings-list { padding: 0 !important; }
+}
+
+</style>
+    <script src="/static/analytics-loader.js" defer></script>
+  <link rel="canonical" href="https://www.getofferwise.ai/risk-check">
+</head>
+<body>
+    <nav class="nav">
+        <a href="/" class="nav-logo">Offer<span>Wise</span></a>
+        <div class="nav-links">
+            <a href="/truth-check">Truth Check</a>
+            <a href="/login?signup">Sign Up</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <section class="hero" id="heroSection">
+            <div class="hero-badge">Free · No signup · 11 government databases</div>
+            <h1>What's <span class="highlight">Hiding</span><br>at This Address?</h1>
+            <p class="hero-sub">We scan FEMA flood maps, USGS seismic data, EPA toxic sites, Superfund records, and 7 more federal databases to find risks sellers don't disclose.</p>
+            <div class="input-wrapper">
+                <input type="text" class="address-input" id="addressInput" placeholder="Enter address with ZIP (e.g., 123 Main St, Austin, TX 78701)" autocomplete="street-address">
+                <button class="scan-btn" id="scanBtn" onclick="startScan()">Scan Address</button>
+            </div>
+            <div class="error-msg" id="errorMsg"></div>
+            <p class="hero-note">Works for any US address. Results in seconds.</p>
+        </section>
+
+        <section class="scan-section" id="scanSection">
+            <div class="scanner">
+                <div class="scanner-ring"></div>
+                <div class="scanner-ring"></div>
+                <div class="scanner-ring"></div>
+                <div class="scanner-dot"></div>
+            </div>
+            <div class="scan-status" id="scanStatus">Scanning address...</div>
+            <div class="scan-substatus" id="scanSubstatus">Checking government databases</div>
+        </section>
+
+        <section class="results-section" id="resultsSection">
+            <div class="exposure-header fade-up" id="exposureHeader">
+                <div class="exposure-label">Hidden Risk Exposure</div>
+                <div class="exposure-amount" id="exposureAmount">$0</div>
+                <div class="exposure-subtitle" id="exposureSubtitle">in potential undisclosed risks at this property</div>
+                <div class="grade-badge" id="gradeBadge">Grade A</div>
+            </div>
+            <div class="results-address" id="resultsAddress"></div>
+            <div id="riskCards"></div>
+
+            <!-- SHARE MODULE -->
+            <div class="share-module fade-up delay-2" id="shareModule">
+                <div class="share-module-header">
+                    <h3>Know Someone Buying a Home?</h3>
+                    <p>Send them this report — they'll see the risks before it's too late.</p>
+                </div>
+                <div class="share-preview" id="sharePreview"></div>
+                <div class="share-primary-row">
+                    <button class="share-btn-native" id="shareNativeBtn" onclick="nativeShare()">📤 Share</button>
+                    <button class="share-btn-copy" id="shareCopyBtn" onclick="copyLink(this)">📋 Copy Link</button>
+                </div>
+                <div class="share-channels-label">Send via</div>
+                <div class="share-grid" style="margin-bottom:8px">
+                    <button class="ch-imessage" onclick="shareVia('imessage')">💬 iMessage</button>
+                    <button class="ch-whatsapp" onclick="shareVia('whatsapp')">WhatsApp</button>
+                    <button class="ch-messenger" onclick="shareVia('messenger')">Messenger</button>
+                </div>
+                <div class="share-grid">
+                    <button class="ch-telegram" onclick="shareVia('telegram')">Telegram</button>
+                    <button class="ch-twitter" onclick="shareVia('twitter')">𝕏 Post</button>
+                    <button class="ch-email" onclick="shareVia('email')">✉️ Email</button>
+                </div>
+            </div>
+
+            <!-- WAITLIST -->
+            <div class="community-waitlist fade-up delay-3" id="upgradePrompt">
+                <div class="waitlist-badge">FREE FIRST ANALYSIS</div>
+                <h3 class="waitlist-title" id="upgradeTitleText">You Found Hidden Risks. Now Get the Full Picture.</h3>
+                <p class="waitlist-desc" id="upgradeDescText">Risk Check found government-reported hazards at this address. Upload the seller's disclosure and inspection report — our AI cross-references everything to find what the seller didn't tell you, and calculates exactly what to offer.</p>
+                <div class="waitlist-features">
+                    <span>🔍 Seller Contradiction Detection</span>
+                    <span>💰 Data-Backed Offer Price</span>
+                    <span>📋 Negotiation Strategy</span>
+                </div>
+                <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:16px;">
+                    <a href="/login?signup" class="waitlist-btn" style="text-decoration:none;display:inline-block;">Get Free Analysis →</a>
+                    <a href="/sample-analysis" class="waitlist-btn" style="text-decoration:none;display:inline-block;background:transparent;border:1px solid #475569;color:#e2e8f0;">See Sample Report</a>
+                </div>
+            </div>
+
+            <div class="section-divider"></div>
+
+            <div class="cta-section fade-up delay-3">
+                <h3>This Is What Government Data Shows.<br>Now See What the Seller Is Hiding.</h3>
+                <p>Upload the seller's disclosure. Our AI checks every line against inspection findings and public records to find contradictions.</p>
+                <a href="/truth-check" class="cta-btn">Run Free Truth Check →</a>
+                <a href="/login?signup" class="cta-secondary">Or get the full property analysis — first one free</a>
+            </div>
+
+            <div class="try-another">
+                <button onclick="resetScan()">Check Another Address</button>
+            </div>
+        </section>
+
+        <div class="sources">
+            Data from 11 federal databases: FEMA Flood Hazard Layer, USGS Earthquake Hazards, OpenFEMA Disaster Declarations,
+            CAL FIRE Severity Zones, CGS Fault Activity Map, EPA AirNow, EPA Superfund (SEMS), EPA Toxic Release Inventory,
+            EPA Hazardous Waste (RCRA), EPA Brownfields, EPA Radon Zones.<br>
+            <a href="/">OfferWise</a> · Risk estimates are approximations for educational purposes.<br>
+            <strong>AI-generated analysis — not legal, financial, or professional real estate advice.</strong>
+            Consult qualified professionals before making purchase decisions. <a href="/disclaimer" style="color:#60a5fa;">Full disclaimer</a>
+        </div>
+    </div>
+
+    <script>
+    var lastResult = null;
+    var shareUrl = '';
+
+    var statusMessages = [
+        ['Locating property...', 'Geocoding address coordinates'],
+        ['Checking flood zones...', 'Querying FEMA National Flood Hazard Layer'],
+        ['Scanning earthquake data...', 'Searching USGS seismic records within 50km'],
+        ['Analyzing wildfire exposure...', 'Checking CAL FIRE severity zones'],
+        ['Reviewing disaster history...', 'Querying OpenFEMA disaster declarations'],
+        ['Checking air quality...', 'Pulling EPA AirNow sensor data'],
+        ['Scanning toxic sites...', 'Searching EPA Superfund and TRI databases'],
+        ['Checking hazardous waste...', 'Querying EPA RCRA and Brownfield records'],
+        ['Analyzing radon exposure...', 'Looking up EPA radon zone classification'],
+        ['Calculating risk exposure...', 'Aggregating 11 databases into dollar estimate'],
+    ];
+
+    function startScan() {
+        var address = document.getElementById('addressInput').value.trim();
+        if (!address) { document.getElementById('addressInput').style.borderColor = 'var(--red)'; return; }
+        if (address.length < 5) { showError('Please enter a full street address with city and state.'); return; }
+        if (!/\b\d{5}\b/.test(address)) { showError('Please include the 5-digit ZIP code (e.g., 123 Main St, Austin, TX 78701). This is needed for accurate risk data.'); return; }
+
+        hideError();
+        document.getElementById('scanBtn').disabled = true;
+        document.getElementById('scanBtn').textContent = 'Scanning...';
+        document.getElementById('heroSection').style.display = 'none';
+        document.getElementById('resultsSection').style.display = 'none';
+        document.getElementById('scanSection').classList.add('active');
+
+        var msgIndex = 0;
+        var statusInterval = setInterval(function() {
+            msgIndex = (msgIndex + 1) % statusMessages.length;
+            document.getElementById('scanStatus').textContent = statusMessages[msgIndex][0];
+            document.getElementById('scanSubstatus').textContent = statusMessages[msgIndex][1];
+        }, 1200);
+
+        var controller = new AbortController();
+        var timeoutId = setTimeout(function() { controller.abort(); }, 30000);
+
+        fetch('/api/risk-check', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ address: address }),
+            signal: controller.signal
+        })
+        .then(function(r) { clearTimeout(timeoutId); if (!r.ok) throw new Error('Server returned ' + r.status); return r.json(); })
+        .then(function(data) {
+            clearInterval(statusInterval);
+            if (data.error) { showError(data.error); resetToInput(); return; }
+            lastResult = data;
+            showResults(data);
+        })
+        .catch(function(err) {
+            clearInterval(statusInterval); clearTimeout(timeoutId);
+            showError(err.name === 'AbortError' ? 'Scan timed out — please try again.' : 'Scan failed — please try again.');
+            resetToInput();
+        });
+    }
+
+    document.getElementById('addressInput').addEventListener('keypress', function(e) { if (e.key === 'Enter') startScan(); });
+
+    function showResults(data) {
+        document.getElementById('scanSection').classList.remove('active');
+        var resultsEl = document.getElementById('resultsSection');
+        resultsEl.classList.add('active');
+        resultsEl.style.display = 'block';
+
+        // Show AI disclaimer (v5.61.0)
+        if (window.OfferWiseCompliance) OfferWiseCompliance.showAIDisclaimer('resultsSection');
+
+        var g = data.risk_grade.charAt(0).toLowerCase();
+        var gc = 'grade-' + g;
+
+        var amountEl = document.getElementById('exposureAmount');
+        amountEl.className = 'exposure-amount ' + gc;
+        animateCounter(amountEl, data.risk_exposure);
+
+        // Header tint based on grade
+        var header = document.getElementById('exposureHeader');
+        var tint = (g === 'f' || g === 'd') ? '239,68,68' : g === 'c' ? '245,158,11' : '16,185,129';
+        header.style.background = 'linear-gradient(180deg, rgba(' + tint + ',0.06) 0%, transparent 100%)';
+        header.style.borderColor = 'rgba(' + tint + ',0.12)';
+
+        var badge = document.getElementById('gradeBadge');
+        badge.className = 'grade-badge ' + gc;
+        badge.textContent = 'Risk Grade: ' + data.risk_grade;
+
+        document.getElementById('exposureSubtitle').textContent =
+            data.risk_count > 0 ? 'in potential undisclosed risks at this property' : 'No major risks detected from government databases';
+        document.getElementById('resultsAddress').textContent = data.address;
+
+        var html = '';
+        if (data.risks && data.risks.length > 0) {
+            data.risks.forEach(function(risk, i) {
+                var lvl = risk.level.replace(' ', '');
+                html += '<div class="risk-card fade-up delay-' + Math.min(i + 1, 4) + '">'
+                    + '<div class="risk-card-header">'
+                    + '<div class="risk-card-left"><span class="risk-icon">' + risk.icon + '</span>'
+                    + '<span class="risk-title">' + risk.title + '</span></div>'
+                    + '<span class="risk-level ' + lvl + '">' + risk.level + '</span></div>'
+                    + '<div class="risk-cost">$' + risk.cost.toLocaleString() + ' exposure</div>'
+                    + '<div class="risk-detail">' + risk.detail + '</div>'
+                    + '<div class="risk-seller-hide"><strong>What sellers hide:</strong> ' + risk.seller_hide + '</div></div>';
+            });
+        } else {
+            html = '<div class="clean-result fade-up delay-1">'
+                + '<div style="font-size:2.5rem;margin-bottom:12px">✅</div>'
+                + '<h3 style="color:var(--green)">Looking Clean</h3>'
+                + '<p>No major environmental or disaster risks detected from government databases. '
+                + 'There may still be risks only visible in the seller\'s disclosure and inspection report.</p></div>';
+        }
+        document.getElementById('riskCards').innerHTML = html;
+
+        // Build share URL with encoded result summary for OG tags
+        var sd = { e: data.risk_exposure, g: data.risk_grade, n: data.risk_count, c: data.city || '', s: data.state || '' };
+        shareUrl = window.location.origin + '/risk-check?r=' + btoa(JSON.stringify(sd));
+
+        buildShareContent(data);
+
+        if (typeof gtag === 'function') {
+            gtag('event', 'risk_check_complete', {
+                event_category: 'risk_check', risk_exposure: data.risk_exposure,
+                risk_grade: data.risk_grade, risk_count: data.risk_count, state: data.state
+            });
+        }
+        resultsEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function animateCounter(el, target) {
+        if (target === 0) { el.textContent = '$0'; return; }
+        var startTime = null;
+        function step(ts) {
+            if (!startTime) startTime = ts;
+            var p = Math.min((ts - startTime) / 1500, 1);
+            el.textContent = '$' + Math.round((1 - Math.pow(1 - p, 3)) * target).toLocaleString();
+            if (p < 1) requestAnimationFrame(step);
+        }
+        requestAnimationFrame(step);
+    }
+
+    // === SHARING ===
+    var _shareText = '';
+
+    function buildShareContent(data) {
+        var amount = '$' + data.risk_exposure.toLocaleString();
+        var grade = data.risk_grade;
+        var loc = (data.city || '') + (data.city && data.state ? ', ' : '') + (data.state || '');
+        var risks = data.risk_count;
+
+        // Pre-written message
+        _shareText = 'I just ran a free risk check on a property' + (loc ? ' in ' + loc : '') + ' and found ' + amount + ' in hidden risk exposure (Grade ' + grade + ').\n\n'
+            + risks + ' risk factor' + (risks !== 1 ? 's' : '') + ' that sellers typically don\'t disclose — scanned 11 government databases including FEMA, EPA Superfund, toxic releases, and more.\n\n'
+            + 'You can check any address for free (no signup):\n' + shareUrl;
+
+        // Show preview
+        var preview = document.getElementById('sharePreview');
+        preview.innerHTML = 'I just ran a free risk check on a property' + (loc ? ' in ' + loc : '') + ' and found <strong>' + amount + '</strong> in hidden risk exposure (Grade ' + grade + ').<br><br>'
+            + risks + ' risk factor' + (risks !== 1 ? 's' : '') + ' from 11 government databases that sellers don\'t disclose.<br><br>'
+            + '<span class="share-link">' + shareUrl + '</span>';
+
+        // Show native share button on mobile
+        if (navigator.share) {
+            document.getElementById('shareNativeBtn').classList.add('visible');
+        }
+    }
+
+    function nativeShare() {
+        if (!shareUrl) return;
+        navigator.share({
+            title: '$' + (lastResult ? lastResult.risk_exposure.toLocaleString() : '0') + ' in Hidden Risks Found',
+            text: _shareText,
+            url: shareUrl
+        }).then(function() { track('native_share'); }).catch(function() {});
+    }
+
+    function copyLink(btn) {
+        navigator.clipboard.writeText(shareUrl).then(function() {
+            btn.classList.add('done');
+            btn.textContent = '✅ Copied!';
+            setTimeout(function() { btn.classList.remove('done'); btn.textContent = '📋 Copy Link'; }, 2000);
+        });
+        track('copy_link');
+    }
+
+    function shareVia(channel) {
+        if (!shareUrl) return;
+        var text = encodeURIComponent(_shareText);
+        var url = encodeURIComponent(shareUrl);
+        var emailSubject = encodeURIComponent('Check this — hidden risks at a property');
+        var emailBody = encodeURIComponent('Hey,\n\nI ran a free risk check on a property and the results were eye-opening. Found ' + (lastResult ? '$' + lastResult.risk_exposure.toLocaleString() : 'hidden risks') + ' in undisclosed risk exposure.\n\nYou should check any address you\'re looking at:\n' + shareUrl + '\n\nIt\'s free, no signup, takes 10 seconds. Uses FEMA, USGS, and CAL FIRE data.');
+
+        switch(channel) {
+            case 'imessage':
+                window.open('sms:?&body=' + text, '_self'); break;
+            case 'whatsapp':
+                window.open('https://wa.me/?text=' + text, '_blank'); break;
+            case 'messenger':
+                var mUrl = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
+                    ? 'fb-messenger://share/?link=' + url
+                    : 'https://www.messenger.com/new';
+                window.open(mUrl, '_blank'); break;
+            case 'telegram':
+                window.open('https://t.me/share/url?url=' + url + '&text=' + text, '_blank'); break;
+            case 'twitter':
+                var tweet = encodeURIComponent('I just scanned a property and found $' + (lastResult ? lastResult.risk_exposure.toLocaleString() : '0') + ' in hidden risks — ' + (lastResult ? lastResult.risk_count : 0) + ' risk factors the seller didn\'t disclose.\n\nCheck YOUR address free:');
+                window.open('https://twitter.com/intent/tweet?text=' + tweet + '&url=' + url, '_blank', 'width=600,height=400'); break;
+            case 'email':
+                window.open('mailto:?subject=' + emailSubject + '&body=' + emailBody, '_self'); break;
+        }
+        track(channel);
+    }
+
+    function track(method) {
+        if (typeof gtag === 'function') gtag('event', 'risk_share', { method: method, risk_exposure: lastResult ? lastResult.risk_exposure : 0 });
+    }
+
+    // === WAITLIST ===
+    async function joinWaitlist() {
+        var email = document.getElementById('waitlistEmail').value.trim();
+        if (!email || !email.includes('@') || !email.includes('.')) {
+            document.getElementById('waitlistEmail').style.borderColor = '#ef4444';
+            return;
+        }
+        var btn = document.getElementById('waitlistBtn');
+        btn.textContent = 'Joining...';
+        btn.disabled = true;
+        try {
+            var res = await fetch('/api/waitlist/community', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: email,
+                    source: 'risk-check-results',
+                    referrer: document.referrer || '',
+                    had_result: !!lastResult,
+                    result_address: lastResult ? lastResult.address : (document.getElementById('addressInput').value || ''),
+                    result_grade: lastResult ? lastResult.risk_grade : null,
+                    result_exposure: lastResult ? lastResult.risk_exposure : null,
+                    result_zip: lastResult ? lastResult.zip : null,
+                    result_city: lastResult ? lastResult.city : null,
+                    result_state: lastResult ? lastResult.state : null
+                })
+            });
+            var data = await res.json();
+            if (data.success) {
+                document.getElementById('waitlistForm').style.display = 'none';
+                document.getElementById('waitlistSuccess').style.display = 'block';
+                if (data.position) {
+                    document.getElementById('waitlistCount').textContent = 'You are #' + data.position + ' on the waitlist';
+                }
+                if (typeof gtag === 'function') {
+                    gtag('event', 'waitlist_signup', { event_category: 'community', event_label: 'risk_check_results' });
+                }
+            } else {
+                btn.textContent = data.error === 'already_joined' ? 'Already on the list ✓' : 'Try Again';
+                btn.disabled = data.error === 'already_joined';
+            }
+        } catch(e) { btn.textContent = 'Try Again'; btn.disabled = false; }
+    }
+    document.getElementById('waitlistEmail').addEventListener('keypress', function(e) { if (e.key === 'Enter') joinWaitlist(); });
+
+    // === HELPERS ===
+    function showError(msg) { var el = document.getElementById('errorMsg'); el.textContent = msg; el.style.display = 'block'; }
+    function hideError() { document.getElementById('errorMsg').style.display = 'none'; }
+    function resetToInput() {
+        document.getElementById('scanSection').classList.remove('active');
+        document.getElementById('heroSection').style.display = 'block';
+        document.getElementById('scanBtn').disabled = false;
+        document.getElementById('scanBtn').textContent = 'Scan Address';
+    }
+    function resetScan() {
+        document.getElementById('resultsSection').style.display = 'none';
+        document.getElementById('resultsSection').classList.remove('active');
+        document.getElementById('heroSection').style.display = 'block';
+        document.getElementById('scanBtn').disabled = false;
+        document.getElementById('scanBtn').textContent = 'Scan Address';
+        document.getElementById('addressInput').value = '';
+        document.getElementById('addressInput').focus();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // === SHARED RESULT LANDING ===
+    (function() {
+        var r = new URLSearchParams(window.location.search).get('r');
+        if (r) {
+            try {
+                var d = JSON.parse(atob(r));
+                document.getElementById('heroSection').innerHTML =
+                    '<div class="hero-badge">SHARED RISK REPORT</div>'
+                    + '<h1>Someone found <span class="highlight">$' + (d.e || 0).toLocaleString() + '</span><br>in hidden risks</h1>'
+                    + '<p class="hero-sub">at a property in ' + (d.c || '') + (d.c && d.s ? ', ' : '') + (d.s || '') + '. Risk Grade: <strong>' + (d.g || '?') + '</strong> with ' + (d.n || 0) + ' risk factor' + (d.n !== 1 ? 's' : '') + ' found.</p>'
+                    + '<div style="margin-top:24px"><a href="/risk-check" class="cta-btn" style="background:var(--primary);color:white;">Check YOUR Address Free →</a></div>'
+                    + '<p class="hero-note" style="margin-top:20px">Free. No signup. Results in seconds.</p>';
+            } catch (e) {}
+        }
+    })();
+    </script>
+<script src="/static/js/compliance.js"></script>
+</body>
+</html>

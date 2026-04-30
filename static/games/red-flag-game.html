@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Red Flag or No Big Deal? — OfferWise</title>
+<meta name="description" content="Swipe left on deal breakers, swipe right on minor issues. Test your home inspection instincts in this free game from OfferWise.">
+<meta property="og:title" content="Red Flag or No Big Deal? — Test Your Inspection Instincts">
+<meta property="og:description" content="Can you tell a deal breaker from a cosmetic issue? Swipe your way through real inspection findings.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://www.getofferwise.ai/games/red-flag-game">
+<link rel="canonical" href="https://www.getofferwise.ai/games/red-flag-game">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0f1a;--surface:#111827;--surface2:#1e293b;--border:#334155;--text:#f1f5f9;--text2:#94a3b8;--blue:#3b82f6;--green:#22c55e;--red:#ef4444;--yellow:#fbbf24;--orange:#f97316;--purple:#a78bfa}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden;user-select:none;-webkit-user-select:none}
+body::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;background:radial-gradient(ellipse at 20% 50%,rgba(239,68,68,.04) 0%,transparent 50%),radial-gradient(ellipse at 80% 50%,rgba(34,197,94,.04) 0%,transparent 50%);pointer-events:none;z-index:0}
+.container{max-width:520px;margin:0 auto;padding:16px;position:relative;z-index:1}
+.game-header{text-align:center;padding:20px 0 16px}
+.game-header .logo{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--blue);letter-spacing:3px;text-transform:uppercase;margin-bottom:6px}
+.game-header h1{font-size:clamp(24px,5vw,36px);font-weight:700;line-height:1.1}
+.game-header h1 .red{color:var(--red)}.game-header h1 .green{color:var(--green)}
+.hud{display:flex;justify-content:space-between;padding:10px 16px;background:var(--surface);border:1px solid var(--border);border-radius:10px;margin-bottom:16px;font-family:'JetBrains Mono',monospace;font-size:13px}
+.hud-score{color:var(--green);font-weight:700}.hud-round{color:var(--text2)}.hud-streak{color:var(--yellow);font-weight:700}
+.progress-track{height:4px;background:var(--surface2);border-radius:2px;margin-bottom:20px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--blue),var(--purple));border-radius:2px;transition:width .4s ease}
+.card-stack{position:relative;height:380px;margin-bottom:16px;perspective:1000px}
+.card{position:absolute;top:0;left:0;right:0;height:100%;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px 24px;display:flex;flex-direction:column;transition:transform .1s,opacity .1s;touch-action:none;cursor:grab}
+.card:active{cursor:grabbing}
+.card.swiping-left{animation:swipeLeft .4s ease-out forwards}
+.card.swiping-right{animation:swipeRight .4s ease-out forwards}
+@keyframes swipeLeft{to{transform:translateX(-150%) rotate(-20deg);opacity:0}}
+@keyframes swipeRight{to{transform:translateX(150%) rotate(20deg);opacity:0}}
+.card .category-tag{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text2);margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.card .category-icon{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:16px;background:var(--surface2)}
+.card .finding-text{font-size:16px;line-height:1.65;flex:1;display:flex;align-items:center}
+.card .cost-hint{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text2);padding:8px 12px;background:var(--surface2);border-radius:8px;margin-top:12px}
+.swipe-indicator{position:absolute;top:20px;padding:8px 20px;border-radius:8px;font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:700;opacity:0;transition:opacity .15s;pointer-events:none;z-index:10}
+.swipe-indicator.left{right:20px;color:var(--red);border:3px solid var(--red);transform:rotate(12deg)}
+.swipe-indicator.right{left:20px;color:var(--green);border:3px solid var(--green);transform:rotate(-12deg)}
+.swipe-buttons{display:flex;justify-content:center;gap:24px;margin-bottom:20px}
+.swipe-btn{width:64px;height:64px;border-radius:50%;border:2px solid;background:transparent;font-size:28px;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center}
+.swipe-btn.flag{border-color:var(--red);color:var(--red)}.swipe-btn.flag:hover{background:rgba(239,68,68,.15);transform:scale(1.1)}
+.swipe-btn.ok{border-color:var(--green);color:var(--green)}.swipe-btn.ok:hover{background:rgba(34,197,94,.15);transform:scale(1.1)}
+.swipe-buttons.disabled .swipe-btn{opacity:.3;pointer-events:none}
+.btn-labels{display:flex;justify-content:center;gap:60px;font-size:11px;color:var(--text2);font-family:'JetBrains Mono',monospace;letter-spacing:.5px;margin-top:-12px;margin-bottom:16px}
+.result-flash{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0);font-size:72px;z-index:50;pointer-events:none;animation:flashIn .5s ease-out}
+@keyframes flashIn{0%{transform:translate(-50%,-50%) scale(0);opacity:1}50%{transform:translate(-50%,-50%) scale(1.3);opacity:1}100%{transform:translate(-50%,-50%) scale(1);opacity:0}}
+.points-popup{position:fixed;top:40%;left:50%;transform:translateX(-50%);font-family:'JetBrains Mono',monospace;font-size:24px;font-weight:700;pointer-events:none;z-index:50;animation:pointsFly 1s ease-out forwards}
+@keyframes pointsFly{0%{opacity:1;transform:translateX(-50%) translateY(0)}100%{opacity:0;transform:translateX(-50%) translateY(-60px)}}
+@keyframes streakPulse{0%{transform:scale(1)}50%{transform:scale(1.3)}100%{transform:scale(1)}}
+.streak-burst{animation:streakPulse .4s ease-out}
+.feedback{display:none;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px;animation:slideUp .3s ease-out}
+.feedback.show{display:block}
+.feedback h4{font-size:14px;margin-bottom:4px;display:flex;align-items:center;gap:6px}
+.feedback p{font-size:13px;color:var(--text2);line-height:1.5}
+.feedback .did-you-know{margin-top:10px;padding:10px 12px;background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.15);border-radius:8px;font-size:12px;color:var(--text2);line-height:1.5}
+.feedback .did-you-know strong{color:var(--blue)}
+.next-btn-wrap{text-align:center;margin-top:12px}
+.btn-next{display:inline-block;padding:10px 32px;background:var(--blue);color:white;border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all .15s;animation:slideUp .3s ease-out}
+.btn-next:hover{background:#2563eb;transform:translateY(-1px)}
+@keyframes slideUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.shake{animation:shake .3s ease-out}
+.screen{display:none}.screen.active{display:block}
+.start-hero{text-align:center;padding:30px 10px}
+.start-hero .badge{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--yellow);background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.2);padding:4px 12px;border-radius:20px;margin-bottom:16px}
+.start-hero h2{font-size:clamp(28px,6vw,44px);font-weight:700;margin-bottom:12px;line-height:1.15}
+.start-hero .desc{color:var(--text2);font-size:16px;max-width:400px;margin:0 auto 24px;line-height:1.6}
+.demo-swipe{display:flex;justify-content:center;align-items:center;gap:24px;margin:24px 0}
+.demo-arrow{font-size:32px;opacity:.4}
+.demo-label{font-family:'JetBrains Mono',monospace;font-size:12px;padding:6px 14px;border-radius:6px}
+.demo-label.red{color:var(--red);background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2)}
+.demo-label.green{color:var(--green);background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.2)}
+.difficulty-select{display:flex;gap:10px;justify-content:center;margin:20px 0 24px}
+.diff-btn{padding:10px 20px;background:var(--surface);border:2px solid var(--border);border-radius:10px;color:var(--text2);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all .15s;text-align:center;min-width:90px}
+.diff-btn:hover{border-color:var(--text2)}
+.diff-btn.active{border-color:var(--blue);background:rgba(59,130,246,.1);color:var(--text)}
+.diff-btn .diff-count{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text2);margin-top:2px}
+.btn-start{display:inline-block;padding:16px 48px;background:var(--blue);color:white;border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:18px;font-weight:600;cursor:pointer;transition:all .15s}
+.btn-start:hover{background:#2563eb;transform:translateY(-1px)}
+.pb-badge{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--yellow);background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.15);padding:4px 10px;border-radius:6px;margin-top:12px}
+.results-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:36px 28px;text-align:center;margin:20px 0}
+.results-card .big-score{font-family:'JetBrains Mono',monospace;font-size:56px;font-weight:700;margin-bottom:4px}
+.results-card .title{font-size:20px;font-weight:700;margin-bottom:4px}
+.results-card .sub{color:var(--text2);font-size:14px;margin-bottom:20px}
+.results-stats{display:flex;justify-content:space-around;margin-bottom:24px}
+.results-stats .stat .val{font-family:'JetBrains Mono',monospace;font-size:24px;font-weight:700}
+.results-stats .stat .lbl{font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:1px}
+.new-pb{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--yellow);background:rgba(251,191,36,.15);border:1px solid rgba(251,191,36,.25);padding:6px 16px;border-radius:20px;margin-bottom:16px;animation:streakPulse .6s ease-out}
+.emoji-grid{font-family:'JetBrains Mono',monospace;font-size:24px;letter-spacing:4px;margin:12px 0 20px;line-height:1.6}
+.cta-box{background:linear-gradient(135deg,rgba(59,130,246,.1),rgba(34,197,94,.1));border:1px solid rgba(59,130,246,.2);border-radius:12px;padding:20px;margin:20px 0}
+.cta-box h3{font-size:15px;margin-bottom:6px}.cta-box p{font-size:13px;color:var(--text2);margin-bottom:12px}
+.btn{display:inline-block;padding:10px 24px;border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;text-decoration:none;transition:all .15s}
+.btn-primary{background:var(--blue);color:white}.btn-primary:hover{background:#2563eb}
+.btn-ghost{background:transparent;color:var(--text2);border:1px solid var(--border)}.btn-ghost:hover{border-color:var(--text2);color:var(--text)}
+.share-row{display:flex;gap:10px;justify-content:center;margin-top:16px;flex-wrap:wrap}
+.cross-promo{margin-top:20px;padding:14px;background:var(--surface2);border:1px solid var(--border);border-radius:10px}
+.cross-promo a{color:var(--blue);text-decoration:none;font-weight:600;font-size:14px}
+.cross-promo p{font-size:12px;color:var(--text2);margin-top:4px}
+.key-hint{text-align:center;font-size:11px;color:var(--text2);font-family:'JetBrains Mono',monospace;margin-bottom:8px;opacity:.6}
+.key-hint kbd{display:inline-block;padding:2px 6px;background:var(--surface2);border:1px solid var(--border);border-radius:3px;font-size:10px}
+#confetti{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:100}
+/* Email capture */
+.email-capture{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;margin:16px 0;text-align:center}
+.email-capture h4{font-size:14px;margin-bottom:4px;color:var(--text)}
+.email-capture p{font-size:12px;color:var(--text2);margin-bottom:12px}
+.email-capture .email-row{display:flex;gap:8px;max-width:360px;margin:0 auto}
+.email-capture input{flex:1;padding:10px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;outline:none}
+.email-capture input::placeholder{color:var(--text2)}
+.email-capture input:focus{border-color:var(--blue)}
+.email-capture .btn-email{padding:10px 20px;background:var(--green);color:#0a0f1a;border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer}
+.email-capture .skip-link{display:block;margin-top:8px;font-size:11px;color:var(--text2);cursor:pointer;background:none;border:none;font-family:'DM Sans',sans-serif}
+.email-capture .success-msg{color:var(--green);font-size:13px;font-weight:600}
+/* Readiness score badge */
+.readiness-badge{background:linear-gradient(135deg,rgba(167,139,250,.1),rgba(59,130,246,.1));border:1px solid rgba(167,139,250,.2);border-radius:12px;padding:16px 20px;margin:16px 0;text-align:center}
+.readiness-badge .label{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--purple);margin-bottom:6px}
+.readiness-badge .score-val{font-family:'JetBrains Mono',monospace;font-size:36px;font-weight:700;background:linear-gradient(135deg,var(--purple),var(--blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.readiness-badge .score-label{font-size:12px;color:var(--text2);margin-top:2px}
+.readiness-badge .breakdown{display:flex;justify-content:center;gap:16px;margin-top:10px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text2)}
+.readiness-badge .breakdown span{padding:2px 8px;background:var(--surface2);border-radius:4px}
+</style>
+</head>
+<body>
+<div class="container">
+  <header class="game-header">
+    <div class="logo">OfferWise AI</div>
+    <h1><span class="red">Red Flag</span> or <span class="green">No Big Deal?</span></h1>
+  </header>
+  <div id="startScreen" class="screen active">
+    <div class="start-hero">
+      <div class="badge">🏠 FREE GAME</div>
+      <h2>Test Your Home Inspection Instincts</h2>
+      <p class="desc">You'll see real inspection findings. Swipe left if it's a red flag, swipe right if it's no big deal.</p>
+      <div class="demo-swipe">
+        <div><div class="demo-label red">🚩 RED FLAG</div><div class="demo-arrow">←</div></div>
+        <div style="color:var(--text2);font-size:12px;">or</div>
+        <div><div class="demo-label green">✅ NO BIG DEAL</div><div class="demo-arrow">→</div></div>
+      </div>
+      <div class="difficulty-select">
+        <button class="diff-btn active" onclick="setDifficulty(5,this)">Quick<div class="diff-count">5 cards</div></button>
+        <button class="diff-btn" onclick="setDifficulty(7,this)">Normal<div class="diff-count">7 cards</div></button>
+        <button class="diff-btn" onclick="setDifficulty(10,this)">Expert<div class="diff-count">10 cards</div></button>
+      </div>
+      <button class="btn-start" onclick="startGame()">Start Playing →</button>
+      <div id="pbDisplay"></div>
+      <p style="color:var(--text2);font-size:12px;margin-top:12px;">Tap or swipe · No signup</p>
+      <p style="margin-top:20px;"><a href="/games/disclosure-detective" style="color:var(--blue);font-size:14px;text-decoration:none;font-weight:600;">🔍 Or try Disclosure Detective →</a></p>
+    </div>
+  </div>
+  <div id="gameScreen" class="screen">
+    <div class="hud">
+      <div class="hud-score" id="score">0 pts</div>
+      <div class="hud-round" id="round">1/5</div>
+      <div class="hud-streak" id="streak">0🔥</div>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="progress" style="width:0%"></div></div>
+    <div class="card-stack" id="cardStack"></div>
+    <div class="swipe-buttons" id="swipeButtons">
+      <button class="swipe-btn flag" onclick="answer('flag')" title="Red Flag">🚩</button>
+      <button class="swipe-btn ok" onclick="answer('ok')" title="No Big Deal">✅</button>
+    </div>
+    <div class="btn-labels"><span>RED FLAG</span><span>NO BIG DEAL</span></div>
+    <div class="key-hint">Keyboard: <kbd>←</kbd> Red Flag · <kbd>→</kbd> No Big Deal · <kbd>Enter</kbd> Next</div>
+    <div class="feedback" id="feedback"></div>
+    <div class="next-btn-wrap" id="nextBtnWrap" style="display:none;"><button class="btn-next" id="nextBtn" onclick="nextCard()">Next →</button></div>
+  </div>
+  <div id="resultsScreen" class="screen"><div class="results-card" id="resultsCard"></div></div>
+</div>
+<canvas id="confetti"></canvas>
+<script>
+// ============================================================
+// FINDING POOL — 60 findings (doubled from original 30)
+// ============================================================
+const FINDINGS=[
+// === ORIGINAL 30 ===
+{text:"Federal Pacific Electric (FPE) Stab-Lok breaker panel identified. These panels have a documented failure rate and are considered a fire hazard.",category:"Electrical",icon:"⚡",answer:"flag",severity:"critical",cost:"$2,000–$4,000",explain:"FPE panels are a known fire hazard. Most insurers won't cover them. Immediate replacement recommended.",didYouKnow:"FPE panels were installed in over 28 million homes between 1950-1980. Studies show their breakers fail to trip 60% of the time during overcurrent events."},
+{text:"Minor cosmetic crack in drywall above doorway, less than 1/16 inch wide. Common in homes over 10 years old.",category:"Structure",icon:"🏠",answer:"ok",severity:"cosmetic",cost:"$50–$100",explain:"Hairline drywall cracks above doors are caused by normal settling. Purely cosmetic — fill with spackle.",didYouKnow:"All homes settle. In California, minor settling typically stabilizes within 3-5 years of construction. Cracks under 1/8 inch are almost always cosmetic."},
+{text:"Active water staining on basement ceiling with visible mold growth in a 6-inch diameter area.",category:"Water/Mold",icon:"💧",answer:"flag",severity:"high",cost:"$3,000–$10,000",explain:"Active mold with water staining means there's an ongoing leak. Source must be found and mold professionally remediated.",didYouKnow:"Mold can begin growing within 24-48 hours of water exposure. The EPA estimates that 50% of US homes have at least some mold problem."},
+{text:"Exterior paint is peeling on the south-facing wall. Wood trim appears weathered but structurally sound.",category:"Exterior",icon:"🎨",answer:"ok",severity:"cosmetic",cost:"$500–$1,500",explain:"Peeling paint on a sun-facing wall is normal wear. Repaint within a year to protect the wood, but not a deal breaker.",didYouKnow:"South-facing walls receive 2-3x more UV exposure than north-facing walls, causing paint to degrade up to 50% faster."},
+{text:"Polybutylene (poly-B) supply piping identified throughout the home. This material is known for premature failure.",category:"Plumbing",icon:"🔧",answer:"flag",severity:"critical",cost:"$5,000–$15,000",explain:"Poly-B pipes degrade from the inside out and can fail catastrophically. Many insurers require replacement before issuing a policy.",didYouKnow:"Polybutylene pipes were used in approximately 10 million homes from 1978-1995. A class-action settlement paid out $1 billion to affected homeowners."},
+{text:"GFCI outlet in the kitchen did not trip when tested. No GFCI protection on kitchen counter receptacles.",category:"Electrical",icon:"⚡",answer:"flag",severity:"high",cost:"$200–$500",explain:"Missing GFCI protection in a kitchen is a code violation and electrocution risk. Inexpensive to fix but safety-critical.",didYouKnow:"GFCI outlets prevent approximately 300 electrocution deaths per year in the US. They detect current imbalances as small as 5 milliamps in 1/40th of a second."},
+{text:"Toilet runs intermittently. Flapper valve may need replacement.",category:"Plumbing",icon:"🔧",answer:"ok",severity:"minor",cost:"$10–$30",explain:"Running toilet is a $10 hardware store fix. Replace the flapper — takes 5 minutes.",didYouKnow:"A running toilet can waste 200+ gallons of water per day — that's $1,000+ per year added to your water bill for a $10 part."},
+{text:"Roof shingles are curling and granule loss is visible in the gutters. Estimated 2-3 years of remaining useful life.",category:"Roof",icon:"🏠",answer:"flag",severity:"high",cost:"$8,000–$20,000",explain:"A roof near end-of-life is a major negotiation point. You'll need to replace it within 2-3 years at significant cost.",didYouKnow:"The average cost of a new roof in California is $15,000-$25,000. Pro tip: this is one of the strongest negotiation points in real estate — sellers often credit 50-100% of replacement cost."},
+{text:"Garbage disposal hums but does not spin. Likely jammed or motor is burned out.",category:"Appliance",icon:"🍽️",answer:"ok",severity:"minor",cost:"$150–$300",explain:"Disposals are inexpensive to replace and it might just need an Allen wrench unjam. Not a deal breaker.",didYouKnow:"Most jammed disposals can be freed with a 1/4 inch Allen wrench inserted into the bottom of the unit. This solves the problem 70% of the time."},
+{text:"Evidence of prior termite treatment (drill holes in garage slab). No active infestation observed.",category:"Pest",icon:"🐛",answer:"ok",severity:"minor",cost:"$0",explain:"Prior treatment holes with no active infestation means the problem was addressed. Get a pest clearance letter to confirm.",didYouKnow:"Termites cause an estimated $5 billion in property damage in the US annually. In California, 1 in 5 homes has had termite activity at some point."},
+{text:"Cracked heat exchanger observed in the gas furnace. Carbon monoxide risk — furnace should not be operated.",category:"HVAC",icon:"🌡️",answer:"flag",severity:"critical",cost:"$3,500–$7,000",explain:"Cracked heat exchanger is a carbon monoxide poisoning risk. The furnace must be replaced immediately — non-negotiable.",didYouKnow:"Carbon monoxide is called the 'silent killer' because it's odorless and colorless. Over 400 Americans die from unintentional CO poisoning every year."},
+{text:"Deck railing height is 30 inches. Current building code requires 36 inches minimum for decks over 30 inches above grade.",category:"Exterior",icon:"🏗️",answer:"flag",severity:"medium",cost:"$500–$2,000",explain:"Railing below code height is a fall hazard, especially with children. Many jurisdictions require correction at sale.",didYouKnow:"Falls from decks and balconies send over 500,000 Americans to the emergency room each year. Railing height was increased from 30 to 36 inches in the 2003 building code."},
+{text:"One bedroom window is painted shut. Window does not open.",category:"Safety",icon:"🪟",answer:"flag",severity:"high",cost:"$100–$300",explain:"A bedroom with a window that doesn't open fails egress requirements. In a fire, occupants can't escape. Must be fixed.",didYouKnow:"Every bedroom must have at least one emergency escape window (egress). The minimum opening must be 5.7 sq ft — large enough for a firefighter in full gear to enter."},
+{text:"Slow drain in the master bathroom sink. May indicate partial clog in drain line.",category:"Plumbing",icon:"🔧",answer:"ok",severity:"minor",cost:"$50–$150",explain:"Slow drains are usually a simple snaking job. Could indicate a bigger issue, but most likely just hair and soap buildup.",didYouKnow:"The average American household spends $250/year on plumbing repairs. A drain snake costs $25 and handles 80% of slow drain issues."},
+{text:"Horizontal crack in the foundation wall, approximately 1/4 inch wide, spanning 8 feet. Wall appears to be bowing inward.",category:"Structure",icon:"🏠",answer:"flag",severity:"critical",cost:"$10,000–$50,000+",explain:"Horizontal foundation cracks with bowing indicate lateral pressure from soil. This is a serious structural failure that requires immediate engineering evaluation.",didYouKnow:"Foundation repairs average $4,500 nationally but can exceed $100,000 for severe cases. Horizontal cracks are far more serious than vertical ones."},
+{text:"Grout is cracked and missing in several places in the shower surround. No signs of water damage behind tiles.",category:"Bathroom",icon:"🚿",answer:"ok",severity:"cosmetic",cost:"$100–$300",explain:"Missing grout is a maintenance item. Re-grout before it allows water behind the tiles, but right now it's cosmetic.",didYouKnow:"Grout should be sealed every 1-2 years and replaced every 15-20 years. It's the #1 most neglected maintenance item in bathrooms."},
+{text:"Double-tapped breakers found in the electrical panel — two wires connected to a single-pole breaker not rated for double-tap.",category:"Electrical",icon:"⚡",answer:"flag",severity:"medium",cost:"$200–$600",explain:"Double-tapped breakers can overheat and cause fires. An electrician can add a tandem breaker or new circuits to fix this.",didYouKnow:"Double-tapped breakers are one of the top 5 most common electrical defects found in home inspections — present in roughly 1 in 4 homes."},
+{text:"Water heater is 14 years old. Typical lifespan is 8-12 years. No visible leaks or corrosion.",category:"Plumbing",icon:"🔧",answer:"ok",severity:"minor",cost:"$1,000–$2,000",explain:"It's past its typical lifespan but still functioning. Plan for replacement soon, but it's not an emergency.",didYouKnow:"Tankless water heaters last 20+ years vs 8-12 for tank models. They cost 2-3x more upfront but save $100/year in energy costs."},
+{text:"Asbestos-containing vermiculite insulation identified in the attic. Material appears undisturbed.",category:"Environmental",icon:"☣️",answer:"flag",severity:"high",cost:"$5,000–$20,000",explain:"Vermiculite insulation (likely Zonolite/Libby) often contains asbestos. While undisturbed it's lower risk, but any renovation triggers expensive abatement.",didYouKnow:"70% of all vermiculite insulation sold in the US came from a mine in Libby, Montana contaminated with naturally occurring asbestos. Over 35 million homes may contain it."},
+{text:"Three hardwired smoke detectors are past their 10-year expiration date and should be replaced.",category:"Safety",icon:"🔥",answer:"ok",severity:"minor",cost:"$60–$120",explain:"Expired smoke detectors need replacing but it's a simple, inexpensive fix. Most buyers handle this at move-in.",didYouKnow:"Working smoke detectors cut the risk of dying in a home fire by 50%. Yet 1 in 4 smoke detectors in US homes have dead batteries or are expired."},
+{text:"Aluminum branch circuit wiring observed throughout the home. Connections show signs of oxidation.",category:"Electrical",icon:"⚡",answer:"flag",severity:"high",cost:"$3,000–$8,000",explain:"Aluminum wiring from the 1960s-70s is a fire hazard at connection points due to oxidation and thermal expansion. CPSC estimates it's 55x more likely to reach fire-ready conditions.",didYouKnow:"Between 1965-1975, over 2 million homes were wired with aluminum branch circuits. Insurance companies often charge higher premiums or require remediation."},
+{text:"Condensation visible on the inside of dual-pane windows in two bedrooms. Seals have failed.",category:"Windows",icon:"🪟",answer:"ok",severity:"minor",cost:"$200–$600",explain:"Failed window seals cause foggy glass but don't affect structural integrity or energy efficiency significantly. Replace individual panes when convenient.",didYouKnow:"Dual-pane window seals typically last 15-20 years. Failed seals reduce insulation value by about 10%, but the windows still function normally."},
+{text:"Main sewer line shows root intrusion and bellied sections on camera scope. Partial blockage at 40 feet.",category:"Plumbing",icon:"🔧",answer:"flag",severity:"high",cost:"$4,000–$15,000",explain:"Root intrusion with bellied pipe sections will worsen over time and eventually cause sewage backups. Trenchless relining or full replacement is needed.",didYouKnow:"Sewer line replacement is one of the most expensive surprise repairs. The average cost in California is $8,000-$12,000. A camera scope before buying can save you from this."},
+{text:"Weatherstripping is worn on the front door. Minor air drafts detectable around the frame.",category:"Exterior",icon:"🏠",answer:"ok",severity:"cosmetic",cost:"$20–$50",explain:"Worn weatherstripping is a 10-minute DIY fix. Pick up a replacement strip at any hardware store and peel-and-stick.",didYouKnow:"Proper weatherstripping on all exterior doors can save 10-15% on heating and cooling costs — one of the highest-ROI home improvements."},
+{text:"Retaining wall in the backyard is leaning approximately 3 inches over its 4-foot height. No weep holes observed.",category:"Exterior",icon:"🏗️",answer:"flag",severity:"medium",cost:"$5,000–$15,000",explain:"A leaning retaining wall without drainage (weep holes) is under hydrostatic pressure and will eventually fail. Rebuilding is needed before it collapses.",didYouKnow:"Retaining wall failures can cause landslides that damage neighboring properties. The homeowner can be held liable for damages under California Civil Code §832."},
+{text:"Clothes dryer vent uses flexible vinyl tubing and runs over 15 feet to the exterior.",category:"Safety",icon:"🔥",answer:"flag",severity:"medium",cost:"$200–$500",explain:"Vinyl dryer vents are a fire hazard — lint accumulates in the flexible ribbing. Code requires rigid or semi-rigid metal duct and runs under 25 feet.",didYouKnow:"Clothes dryers cause approximately 2,900 house fires per year in the US. Failure to clean lint buildup is the leading cause. Vinyl vents trap 3x more lint than rigid metal."},
+{text:"Kitchen faucet has very low water pressure compared to other fixtures in the home.",category:"Plumbing",icon:"🔧",answer:"ok",severity:"minor",cost:"$50–$200",explain:"Low pressure at one fixture usually means a clogged aerator or a partially closed supply valve. Easy fix — unscrew the aerator and clean it.",didYouKnow:"Mineral buildup in aerators is the #1 cause of low pressure at a single fixture. A new aerator costs $5 and takes 2 minutes to install."},
+{text:"No visible clean-out access for the main sewer line. If one exists, it could not be located.",category:"Plumbing",icon:"🔧",answer:"ok",severity:"minor",cost:"$300–$800",explain:"A missing clean-out is inconvenient but not dangerous. If the sewer backs up, a plumber can install one. Many older homes don't have them.",didYouKnow:"Modern building codes require a sewer clean-out within 5 feet of the building. Adding one is a straightforward job that takes a plumber 2-3 hours."},
+{text:"Gas meter and main shutoff valve are rusted and difficult to turn. Meter appears to be original to the 1960s home.",category:"Safety",icon:"⚡",answer:"flag",severity:"medium",cost:"$0 (utility repair)",explain:"A gas shutoff that won't turn is a safety hazard in an earthquake or gas leak. Contact the gas company — they'll replace it for free.",didYouKnow:"In California earthquake country, everyone should know where their gas shutoff is and be able to turn it. After a quake, a stuck valve could mean you can't stop a gas leak."},
+{text:"Bathroom exhaust fan is very loud but moves little air. Duct may be disconnected or blocked in the attic.",category:"HVAC",icon:"🌡️",answer:"ok",severity:"minor",cost:"$100–$300",explain:"A non-functional bath fan isn't a deal breaker, but it should be fixed to prevent moisture buildup. Often it's just a disconnected duct in the attic.",didYouKnow:"A properly working bathroom exhaust fan should move at least 50 CFM. Running it for 20 minutes after a shower prevents 90% of bathroom mold issues."},
+// === 30 NEW FINDINGS (doubled pool) ===
+{text:"Knob-and-tube wiring found active in the attic. Insulation has been placed directly over the wires.",category:"Electrical",icon:"⚡",answer:"flag",severity:"critical",cost:"$8,000–$20,000",explain:"Active knob-and-tube wiring with insulation on top is an immediate fire risk. The wiring was designed to dissipate heat in open air — covering it traps heat and can ignite surrounding materials.",didYouKnow:"Knob-and-tube wiring was standard from the 1880s to the 1940s. It's not inherently dangerous when in open air, but insulation contact makes it one of the top causes of electrical fires in older homes."},
+{text:"Minor rust staining around the base of the water heater. No active dripping observed.",category:"Plumbing",icon:"🔧",answer:"ok",severity:"minor",cost:"$0–$200",explain:"Light rust staining at the base of a water heater is common condensation residue, especially during heavy use. Monitor it, but no active leak means no emergency.",didYouKnow:"Water heater tanks have a sacrificial anode rod inside that corrodes instead of the tank. Replacing this $30 rod every 3-5 years can double the heater's lifespan."},
+{text:"Evidence of Chinese drywall (darkened copper coils on HVAC, sulfur smell from outlets). Installed during 2006 renovation.",category:"Environmental",icon:"☣️",answer:"flag",severity:"critical",cost:"$40,000–$100,000+",explain:"Chinese drywall emits hydrogen sulfide gas that corrodes copper wiring, plumbing, and HVAC coils. Full remediation requires gutting walls down to studs. Health effects include respiratory and sinus issues.",didYouKnow:"Between 2001-2009, an estimated 100,000 homes received defective Chinese drywall during a US drywall shortage. It was linked to over 3,000 complaints to the CPSC."},
+{text:"Attic access hatch does not have weatherstripping. Minor air leakage noted.",category:"HVAC",icon:"🌡️",answer:"ok",severity:"cosmetic",cost:"$15–$40",explain:"An unweatherstripped attic hatch is a common energy loss point but a simple DIY fix with adhesive-backed foam tape.",didYouKnow:"An uninsulated, unsealed attic hatch can account for up to 10% of a home's total energy loss, equivalent to leaving a window open year-round."},
+{text:"Buried oil tank detected via ground-penetrating radar in the front yard. Tank status unknown.",category:"Environmental",icon:"☣️",answer:"flag",severity:"critical",cost:"$10,000–$50,000+",explain:"A buried oil tank — even if no longer in use — is a major environmental liability. If it has leaked, the homeowner is responsible for soil remediation, which can cost $50,000 or more.",didYouKnow:"Many homes built before 1970 had underground heating oil tanks. Even abandoned tanks can leak decades later. Some states require tank removal before a property can be sold."},
+{text:"Ceiling fan in the living room wobbles significantly during operation. Mounting appears loose.",category:"Appliance",icon:"🍽️",answer:"ok",severity:"minor",cost:"$50–$100",explain:"A wobbling ceiling fan usually just needs its mounting bracket tightened or blades rebalanced. It's a 15-minute fix, not a structural concern.",didYouKnow:"Over 80% of wobbling ceiling fans are caused by unbalanced blades, not bad mounts. A $5 balancing kit from the hardware store fixes most cases."},
+{text:"Efflorescence (white mineral deposits) visible on the interior basement walls. No active moisture or water pooling.",category:"Structure",icon:"🏠",answer:"ok",severity:"minor",cost:"$200–$500",explain:"Efflorescence means water has moved through the masonry at some point, leaving mineral salts behind. Without active moisture, it's cosmetic. Brush it off and apply a waterproof sealant.",didYouKnow:"Efflorescence itself is harmless — it's just calcium carbonate. However, it indicates that moisture has passed through the wall, so monitoring for active leaks is wise."},
+{text:"Chimney mortar joints are deteriorated and separating. Several bricks in the crown are loose. Visible daylight through the flue liner crack.",category:"Exterior",icon:"🏗️",answer:"flag",severity:"high",cost:"$3,000–$8,000",explain:"Deteriorated chimney mortar with a cracked flue liner is a fire and carbon monoxide hazard. Gases can escape through the cracks into the home. Tuckpointing and liner replacement are needed.",didYouKnow:"The National Fire Protection Association recommends chimney inspections annually. Chimney fires cause over $200 million in property damage per year in the US."},
+{text:"Dishwasher lacks a high loop or air gap on the drain line. Water could backflow from the garbage disposal.",category:"Plumbing",icon:"🔧",answer:"ok",severity:"minor",cost:"$20–$50",explain:"A missing high loop is a plumbing code violation but a very simple fix. Loop the drain hose up to the underside of the countertop and secure it with a clamp.",didYouKnow:"Without a high loop or air gap, dirty water from the garbage disposal can siphon back into your clean dishwasher. It's one of the most common — and easiest to fix — plumbing defects."},
+{text:"Load-bearing wall appears to have been partially removed without proper header or support column. Sagging visible in the ceiling above.",category:"Structure",icon:"🏠",answer:"flag",severity:"critical",cost:"$5,000–$25,000",explain:"A compromised load-bearing wall is a major structural defect. The ceiling sag confirms the load is not being properly transferred. A structural engineer must assess and design a repair.",didYouKnow:"One of the most dangerous DIY home renovations is removing walls without knowing if they're load-bearing. The repair often costs 10x more than doing the work correctly the first time."},
+{text:"Garage door auto-reverse safety mechanism did not activate when tested with a 2x4 board on the floor.",category:"Safety",icon:"🔥",answer:"flag",severity:"medium",cost:"$100–$300",explain:"A garage door that doesn't auto-reverse is a serious safety hazard, especially for children and pets. Federal law has required this feature since 1993. Sensor realignment or replacement is usually all that's needed.",didYouKnow:"Garage doors are the largest moving object in most homes and weigh 150-400 lbs. Before auto-reverse was mandated, garage doors were responsible for several child deaths per year."},
+{text:"Exterior hose bibs do not have anti-siphon (vacuum breaker) devices installed.",category:"Plumbing",icon:"🔧",answer:"ok",severity:"minor",cost:"$10–$30",explain:"Missing vacuum breakers on hose bibs is a minor code violation. Screw-on devices cost about $5 each and prevent contaminated water from backflowing into the drinking water supply.",didYouKnow:"Anti-siphon devices have been required on hose bibs by the Uniform Plumbing Code since 1988. They prevent garden chemicals and fertilizers from siphoning back into your home's water supply."},
+{text:"Standing water in the crawl space, approximately 2 inches deep. Visible organic growth on floor joists. Musty odor present.",category:"Water/Mold",icon:"💧",answer:"flag",severity:"high",cost:"$5,000–$15,000",explain:"Standing water in a crawl space with mold growth on structural members is a serious issue. It damages floor joists, attracts pests, and creates unhealthy air quality throughout the home.",didYouKnow:"Up to 40% of the air you breathe on the first floor of your home comes from the crawl space through a process called the 'stack effect.' Mold in the crawl space means mold in your living space."},
+{text:"One electrical outlet in the kitchen has reversed polarity (hot and neutral wires swapped).",category:"Electrical",icon:"⚡",answer:"ok",severity:"minor",cost:"$75–$150",explain:"Reversed polarity is a wiring error that an electrician can fix in minutes. It's not an immediate danger for most appliances but should be corrected for safety.",didYouKnow:"Reversed polarity means the 'off' switch on an appliance doesn't fully disconnect it from power. A $10 outlet tester from the hardware store can detect this in any outlet."},
+{text:"Galvanized steel drain pipes under the kitchen show heavy internal corrosion. Water flow is visibly restricted.",category:"Plumbing",icon:"🔧",answer:"flag",severity:"medium",cost:"$2,000–$5,000",explain:"Heavily corroded galvanized drain pipes will eventually fail and cause water damage. The restricted flow will worsen and could lead to recurring backups. Replacement with ABS or PVC is recommended.",didYouKnow:"Galvanized steel pipes were standard until the 1960s and have a lifespan of 40-70 years. They corrode from the inside, so they often look fine from the outside while being nearly blocked internally."},
+{text:"Patio concrete has minor surface spalling and small hairline cracks. No heaving or settling observed.",category:"Exterior",icon:"🏠",answer:"ok",severity:"cosmetic",cost:"$200–$500",explain:"Surface spalling on patio concrete is cosmetic wear from freeze-thaw cycles or age. It doesn't indicate structural problems. A concrete resurfacer can restore the appearance.",didYouKnow:"Sealing concrete every 2-3 years prevents 90% of surface spalling. A gallon of concrete sealer costs about $30 and takes 30 minutes to apply for a typical patio."},
+{text:"Gas water heater in a bedroom closet has no combustion air vents or sealed combustion chamber.",category:"Safety",icon:"🔥",answer:"flag",severity:"high",cost:"$1,500–$3,500",explain:"A gas water heater in a bedroom closet without proper combustion air supply is a carbon monoxide and fire hazard. It must either be moved, have vents installed, or be replaced with a sealed-combustion unit.",didYouKnow:"Building codes prohibit standard gas water heaters in bedrooms and bathrooms without special provisions because of CO poisoning risk. This is one of the most dangerous configurations inspectors find."},
+{text:"HVAC condensate drain line is dripping near the furnace. Small puddle visible on the floor.",category:"HVAC",icon:"🌡️",answer:"ok",severity:"minor",cost:"$50–$150",explain:"A dripping condensate line usually just needs cleaning or a new fitting. It's a routine maintenance item, not a system failure. Clear it with compressed air or a wet-dry vac.",didYouKnow:"A clogged condensate drain is the #1 cause of AC system shutdowns in summer. Pouring a cup of white vinegar down the drain line every 3 months prevents most clogs."},
+{text:"Stucco exterior shows pattern cracking with dark staining beneath. Moisture meter reads above 20% inside wall cavity.",category:"Exterior",icon:"🏗️",answer:"flag",severity:"high",cost:"$10,000–$30,000",explain:"High moisture readings behind stucco with visible cracking means water is trapped in the wall assembly. This can cause hidden rot, mold, and structural damage. Full investigation and possible re-stuccoing is needed.",didYouKnow:"Stucco failures became epidemic in the 2000s due to improper installation. The 'stucco crisis' in the Southeast affected over 100,000 homes, with individual repairs averaging $15,000-$25,000."},
+{text:"Single-pane windows throughout the home. No storm windows installed.",category:"Windows",icon:"🪟",answer:"ok",severity:"minor",cost:"$3,000–$10,000",explain:"Single-pane windows are inefficient but not defective. They function normally and can be upgraded over time. Factor the eventual replacement cost into your offer.",didYouKnow:"Upgrading from single-pane to double-pane windows can reduce energy costs by 25-30%. However, the payback period is typically 15-20 years, so it's rarely an urgent replacement."},
+{text:"Underground sprinkler system has two broken heads and one zone that won't activate.",category:"Exterior",icon:"🏠",answer:"ok",severity:"minor",cost:"$100–$300",explain:"Broken sprinkler heads and a non-working zone are routine maintenance items. Heads cost $3-8 each, and the dead zone likely just has a bad solenoid valve.",didYouKnow:"Sprinkler systems should be inspected and blown out annually. A properly maintained system adds about 15% to a home's curb appeal value, according to landscape industry studies."},
+{text:"Fireplace damper is rusted open and cannot be closed. Significant drafts felt from firebox area.",category:"HVAC",icon:"🌡️",answer:"ok",severity:"minor",cost:"$200–$500",explain:"A stuck-open damper wastes energy but isn't dangerous. A chimney sweep can usually free or replace the damper. In the meantime, a fireplace draft stopper balloon works as a temporary fix.",didYouKnow:"An open fireplace damper is equivalent to leaving a 48-inch window open in your home. Even when 'closed,' most traditional dampers leak. A top-mount damper cap solves this permanently."},
+{text:"Electrical panel is a Zinsco/Sylvania brand. Multiple breakers show signs of melting and discoloration.",category:"Electrical",icon:"⚡",answer:"flag",severity:"critical",cost:"$2,500–$5,000",explain:"Zinsco/Sylvania panels, like FPE, have documented safety issues. Breakers can fuse to the bus bar, failing to trip during overloads. With visible melting, this panel needs immediate replacement.",didYouKnow:"Zinsco panels were manufactured from the 1950s through the 1970s and are found in an estimated 1.5 million American homes. Like FPE panels, many insurance companies refuse to cover them."},
+{text:"Exterior dryer vent flap is missing. Open pipe visible from outside, accessible by pests.",category:"Exterior",icon:"🏠",answer:"ok",severity:"minor",cost:"$15–$30",explain:"A missing vent flap allows pests, cold air, and moisture into the duct. It's a $15 replacement you can install with four screws in 10 minutes.",didYouKnow:"Birds and rodents frequently nest in uncovered dryer vents, creating fire hazards and blocking airflow. The US Fire Administration recommends checking vent covers annually."},
+{text:"Radon test results show 6.2 pCi/L in the basement. EPA action level is 4.0 pCi/L.",category:"Environmental",icon:"☣️",answer:"flag",severity:"high",cost:"$800–$2,500",explain:"Radon above the EPA action level requires mitigation. A radon mitigation system (sub-slab depressurization) is effective and relatively affordable, reducing levels by up to 99%.",didYouKnow:"Radon is the second leading cause of lung cancer after smoking, responsible for 21,000 deaths per year in the US. An estimated 1 in 15 American homes has elevated radon levels."},
+{text:"Minor gap between the garage wall and the house foundation. Gap is less than 1/4 inch.",category:"Structure",icon:"🏠",answer:"ok",severity:"cosmetic",cost:"$50–$100",explain:"A small separation between the garage and house is normal differential settlement. These structures have separate foundations and naturally move independently. Seal with flexible caulk.",didYouKnow:"Attached garages almost always show some separation from the main house over time because they have shallower foundations and lighter loads. Gaps under 1/2 inch are rarely structural concerns."},
+{text:"Main electrical panel has no bonding of the grounding system. Ground rods are missing or disconnected.",category:"Electrical",icon:"⚡",answer:"flag",severity:"high",cost:"$300–$1,000",explain:"Missing grounding means the safety system that diverts fault current to earth is non-functional. This increases the risk of electrocution and equipment damage during a ground fault. An electrician must install proper grounding.",didYouKnow:"Proper grounding also protects your electronics from lightning-induced surges. Homes without grounding have 5x the rate of appliance damage during electrical storms."},
+{text:"Interior door sticks slightly in humid weather. Frame shows no signs of structural movement.",category:"Structure",icon:"🏠",answer:"ok",severity:"cosmetic",cost:"$0–$50",explain:"Doors sticking in humid weather is a sign of normal wood expansion, not structural problems. A few passes with a hand plane or sandpaper on the edge fixes it permanently.",didYouKnow:"Wood doors and frames can expand up to 1/8 inch during high humidity. This is why experienced carpenters leave a slightly larger gap when installing doors during dry seasons."},
+{text:"Sewer cleanout cap in the front yard is cracked and partially buried. No active backup observed.",category:"Plumbing",icon:"🔧",answer:"ok",severity:"minor",cost:"$30–$80",explain:"A cracked cleanout cap should be replaced to prevent debris and pests from entering the line, but it's a quick, inexpensive fix — not a sign of underlying sewer problems.",didYouKnow:"Sewer cleanouts are required within 5 feet of the building per modern plumbing codes. Many homeowners don't even know where theirs is until a backup happens."},
+{text:"Visible separation between the chimney and the house exterior wall, approximately 2 inches wide. Gap increases from bottom to top.",category:"Structure",icon:"🏠",answer:"flag",severity:"high",cost:"$5,000–$20,000",explain:"A chimney pulling away from the house indicates foundation settlement or footing failure beneath the chimney. The widening gap from bottom to top confirms rotational movement. A structural engineer should evaluate before the chimney becomes a collapse risk.",didYouKnow:"Chimneys have separate footings from the main house and are particularly vulnerable to settlement because of their concentrated weight. In earthquake zones, unbraced chimneys are the #1 cause of structural damage."},
+];
+
+let totalRounds=5;
+let state={current:0,score:0,streak:0,maxStreak:0,correct:0,results:[],animating:false,waitingForNext:false,shuffled:[]};
+
+function setDifficulty(r,btn){totalRounds=r;document.querySelectorAll('.diff-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');showPersonalBest()}
+function getPersonalBest(){try{return JSON.parse(localStorage.getItem('rfg_pb')||'{}')}catch{return{}}}
+function savePersonalBest(rounds,score,pct){try{const d=getPersonalBest();const k='r'+rounds;if(!d[k]||score>d[k].score){d[k]={score,pct,date:new Date().toLocaleDateString()};localStorage.setItem('rfg_pb',JSON.stringify(d));return true}return false}catch{return false}}
+function showPersonalBest(){const pb=getPersonalBest()['r'+totalRounds];const el=document.getElementById('pbDisplay');el.innerHTML=pb?'<div class="pb-badge">🏆 Personal best: '+pb.score+' pts ('+pb.pct+'%)</div>':''}
+
+// === CROSS-GAME PROGRESSION ===
+function getReadinessData(){try{return JSON.parse(localStorage.getItem('ow_readiness')||'{}')}catch{return{}}}
+function saveReadinessData(d){try{localStorage.setItem('ow_readiness',JSON.stringify(d))}catch{}}
+function updateReadiness(game,pct,score){
+  const d=getReadinessData();
+  if(!d[game]||score>d[game].score) d[game]={pct,score,date:new Date().toISOString()};
+  d.lastPlayed=game;
+  d.lastDate=new Date().toISOString();
+  saveReadinessData(d);
+}
+function calcReadinessScore(){
+  const d=getReadinessData();
+  const rf=d.redFlag?d.redFlag.pct:0;
+  const dd=d.detective?d.detective.pct:0;
+  // Weighted: Red Flag 40%, Detective 60% (harder game)
+  if(rf===0&&dd===0) return null;
+  if(rf>0&&dd===0) return {score:Math.round(rf*0.4),rfPct:rf,ddPct:0,partial:true};
+  if(rf===0&&dd>0) return {score:Math.round(dd*0.6),rfPct:0,ddPct:dd,partial:true};
+  return {score:Math.round(rf*0.4+dd*0.6),rfPct:rf,ddPct:dd,partial:false};
+}
+function getReadinessLabel(score){
+  if(score>=90) return "Ready to Buy";
+  if(score>=75) return "Well Prepared";
+  if(score>=60) return "Getting There";
+  if(score>=40) return "Needs Practice";
+  return "Just Starting";
+}
+
+// === EMAIL CAPTURE ===
+function isEmailCaptured(){return !!localStorage.getItem('ow_email')}
+function submitEmail(formId){
+  const input=document.querySelector('#'+formId+' input[type="email"]');
+  const email=input?input.value.trim():'';
+  if(!email||!email.includes('@')){input.style.borderColor='var(--red)';return}
+  localStorage.setItem('ow_email',email);
+  // Send to backend
+  fetch('/api/game-email',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,source:'red-flag-game',score:state.score,pct:Math.round(state.correct/totalRounds*100)})}).catch(()=>{});
+  const container=document.getElementById(formId);
+  container.innerHTML='<p class="success-msg">✅ You\'re in! Check your inbox for inspection tips.</p>';
+  trackEvent('game_email_capture',{game:'red_flag',score:state.score});
+}
+function skipEmail(formId){document.getElementById(formId).style.display='none'}
+
+function startGame(){
+  state.shuffled=[...FINDINGS].sort(()=>Math.random()-.5).slice(0,totalRounds);
+  state.current=0;state.score=0;state.streak=0;state.maxStreak=0;state.correct=0;state.results=[];state.animating=false;state.waitingForNext=false;
+  document.getElementById('startScreen').classList.remove('active');
+  document.getElementById('gameScreen').classList.add('active');
+  document.getElementById('resultsScreen').classList.remove('active');
+  loadCard();updateHud();
+  trackEvent('game_start',{game:'red_flag',rounds:totalRounds});
+}
+
+function loadCard(){
+  if(state.current>=totalRounds){showResults();return}
+  const f=state.shuffled[state.current];
+  document.getElementById('cardStack').innerHTML='<div class="card" id="currentCard"><div class="swipe-indicator left">🚩 FLAG</div><div class="swipe-indicator right">✅ OK</div><div class="category-tag"><span class="category-icon">'+f.icon+'</span>'+f.category+'</div><div class="finding-text">'+f.text+'</div><div class="cost-hint">💰 Typical cost: '+f.cost+'</div></div>';
+  document.getElementById('feedback').classList.remove('show');
+  document.getElementById('nextBtnWrap').style.display='none';
+  document.getElementById('swipeButtons').classList.remove('disabled');
+  state.waitingForNext=false;
+  setupDrag(document.getElementById('currentCard'));
+}
+
+function setupDrag(card){
+  let startX=0,currentX=0,dragging=false;
+  function onStart(e){if(state.animating||state.waitingForNext)return;dragging=true;startX=e.type==='touchstart'?e.touches[0].clientX:e.clientX;card.style.transition='none'}
+  function onMove(e){if(!dragging)return;currentX=(e.type==='touchmove'?e.touches[0].clientX:e.clientX)-startX;card.style.transform='translateX('+currentX+'px) rotate('+(currentX*.08)+'deg)';card.querySelector('.swipe-indicator.left').style.opacity=Math.min(1,Math.max(0,-currentX/80));card.querySelector('.swipe-indicator.right').style.opacity=Math.min(1,Math.max(0,currentX/80))}
+  function onEnd(){if(!dragging)return;dragging=false;card.style.transition='transform .3s ease';if(currentX<-80)answer('flag');else if(currentX>80)answer('ok');else{card.style.transform='';card.querySelector('.swipe-indicator.left').style.opacity=0;card.querySelector('.swipe-indicator.right').style.opacity=0}currentX=0}
+  card.addEventListener('mousedown',onStart);card.addEventListener('touchstart',onStart,{passive:true});document.addEventListener('mousemove',onMove);document.addEventListener('touchmove',onMove,{passive:true});document.addEventListener('mouseup',onEnd);document.addEventListener('touchend',onEnd);
+}
+
+function answer(choice){
+  if(state.animating||state.current>=totalRounds||state.waitingForNext)return;
+  state.animating=true;
+  const f=state.shuffled[state.current],isCorrect=(choice===f.answer);
+  const card=document.getElementById('currentCard');
+  if(card)card.classList.add(choice==='flag'?'swiping-left':'swiping-right');
+  const flash=document.createElement('div');flash.className='result-flash';flash.textContent=isCorrect?'✅':'❌';document.body.appendChild(flash);setTimeout(()=>flash.remove(),600);
+  if(!isCorrect){document.querySelector('.container').classList.add('shake');setTimeout(()=>document.querySelector('.container').classList.remove('shake'),300)}
+  let pointsEarned=0;
+  if(isCorrect){state.correct++;state.streak++;if(state.streak>state.maxStreak)state.maxStreak=state.streak;const sb=Math.min(state.streak-1,5)*5;pointsEarned=10+sb;state.score+=pointsEarned;const popup=document.createElement('div');popup.className='points-popup';popup.style.color='var(--green)';popup.textContent='+'+pointsEarned;if(state.streak>1)popup.textContent+=' ('+state.streak+'🔥)';document.body.appendChild(popup);setTimeout(()=>popup.remove(),1000);if(state.streak>=3){const se=document.getElementById('streak');se.classList.add('streak-burst');setTimeout(()=>se.classList.remove('streak-burst'),400)}}else{state.streak=0}
+  state.results.push({finding:f,choice,correct:isCorrect});
+  const fb=document.getElementById('feedback');const sc={critical:'var(--red)',high:'var(--orange)',medium:'var(--yellow)',minor:'var(--blue)',cosmetic:'var(--text2)'};
+  fb.innerHTML='<h4 style="color:'+(isCorrect?'var(--green)':'var(--red)')+'">'+(isCorrect?'✅ Correct!':'❌ Wrong!')+' — '+(f.answer==='flag'?'🚩 Red Flag':'✅ No Big Deal')+'</h4><p>'+f.explain+'</p><div style="margin-top:8px"><span style="font-family:\'JetBrains Mono\',monospace;font-size:10px;color:'+sc[f.severity]+';background:'+sc[f.severity]+'18;padding:2px 8px;border-radius:4px;text-transform:uppercase">'+f.severity+'</span><span style="font-family:\'JetBrains Mono\',monospace;font-size:10px;color:var(--green);background:rgba(34,197,94,.1);padding:2px 8px;border-radius:4px;margin-left:4px">Cost: '+f.cost+'</span></div>'+(f.didYouKnow?'<div class="did-you-know"><strong>💡 Did you know?</strong> '+f.didYouKnow+'</div>':'');
+  fb.classList.add('show');state.current++;updateHud();
+  document.getElementById('swipeButtons').classList.add('disabled');state.waitingForNext=true;
+  setTimeout(()=>{state.animating=false;document.getElementById('nextBtnWrap').style.display='block';const btn=document.getElementById('nextBtn');btn.textContent=state.current>=totalRounds?'See Results →':'Next →';btn.focus()},500);
+}
+
+function nextCard(){state.waitingForNext=false;loadCard()}
+function updateHud(){document.getElementById('score').textContent=state.score+' pts';document.getElementById('round').textContent=Math.min(state.current+1,totalRounds)+'/'+totalRounds;document.getElementById('streak').textContent=state.streak+'🔥';document.getElementById('progress').style.width=(state.current/totalRounds*100)+'%'}
+
+// === DYNAMIC CTA BASED ON PERFORMANCE ===
+function getDynamicCTA(pct,mf){
+  if(pct>=90) return {h:'🤖 You\'re sharp — but our AI is faster',p:'You spotted the red flags, but what about the ones that aren\'t so obvious? Upload your real inspection report and our AI will cross-reference every detail against the seller\'s disclosure in seconds.'};
+  if(pct>=70) return {h:'🤖 Good eye — now imagine this on YOUR deal',p:'You caught most of the flags, but in a real transaction, you only get one shot. Our AI analyzes every line of your inspection report and gives you a risk score, cost estimate, and negotiation strategy.'};
+  if(mf>=3) return {h:'🚨 You missed '+mf+' red flags — our AI catches them all',p:'In a real transaction, those missed flags could cost you $'+((mf*5000).toLocaleString())+' or more. OfferWise AI catches every red flag automatically and tells you exactly what to negotiate.'};
+  return {h:'🤖 Our AI catches what you missed',p:'Every finding you got wrong? Our AI would have caught it. Upload your inspection report and get a complete risk analysis with cost estimates and negotiation talking points.'};
+}
+
+function showResults(){
+  document.getElementById('gameScreen').classList.remove('active');document.getElementById('resultsScreen').classList.add('active');
+  const pct=Math.round(state.correct/totalRounds*100);let title,scoreColor;
+  if(pct>=90){title='Inspector-Level Instincts';scoreColor='var(--green)'}else if(pct>=75){title='Sharp Buyer';scoreColor='var(--blue)'}else if(pct>=60){title='Decent Eye';scoreColor='var(--yellow)'}else if(pct>=40){title='Needs Work';scoreColor='var(--orange)'}else{title="You'd Miss the Red Flags";scoreColor='var(--red)'}
+  const fc=state.results.filter(r=>r.finding.answer==='flag'&&r.correct).length,tf=state.results.filter(r=>r.finding.answer==='flag').length,mf=tf-fc;
+  const eg=state.results.map(r=>r.correct?'🟩':r.finding.answer==='flag'?'🟥':'⬛').join('');
+  const isNewPB=savePersonalBest(totalRounds,state.score,pct);
+  if(pct>=80)launchConfetti();
+  const dl=totalRounds===5?'Quick':totalRounds===7?'Normal':'Expert';
+
+  // Update cross-game readiness
+  updateReadiness('redFlag',pct,state.score);
+  const readiness=calcReadinessScore();
+
+  // Dynamic CTA
+  const cta=getDynamicCTA(pct,mf);
+
+  // Email capture section (only if not already captured)
+  const emailSection=isEmailCaptured()?'':'<div class="email-capture" id="rfEmailForm"><h4>📬 Get free inspection red flags cheat sheet</h4><p>Plus weekly tips on what to look for when buying a home.</p><div class="email-row"><input type="email" placeholder="you@email.com"><button class="btn-email" onclick="submitEmail(\'rfEmailForm\')">Send It</button></div><button class="skip-link" onclick="skipEmail(\'rfEmailForm\')">No thanks</button></div>';
+
+  // Readiness badge
+  let readinessBadge='';
+  if(readiness){
+    readinessBadge='<div class="readiness-badge"><div class="label">Homebuyer Readiness Score</div><div class="score-val">'+readiness.score+'/100</div><div class="score-label">'+getReadinessLabel(readiness.score)+'</div><div class="breakdown"><span>🚩 Red Flag: '+(readiness.rfPct||'—')+'%</span><span>🔍 Detective: '+(readiness.ddPct||'—')+'%</span></div>'+(readiness.partial?'<p style="font-size:11px;color:var(--text2);margin-top:8px">Play both games to unlock your full score!</p>':'')+'</div>';
+  }
+
+  document.getElementById('resultsCard').innerHTML=(isNewPB?'<div class="new-pb">🏆 NEW PERSONAL BEST!</div>':'')+'<div class="big-score" style="color:'+scoreColor+'">'+state.score+'</div><div class="title">'+title+'</div><div class="sub">'+state.correct+'/'+totalRounds+' correct ('+pct+'%) · '+dl+' mode</div><div class="emoji-grid">'+eg+'</div><div class="results-stats"><div class="stat"><div class="val" style="color:var(--green)">'+state.correct+'</div><div class="lbl">Correct</div></div><div class="stat"><div class="val" style="color:var(--yellow)">'+state.maxStreak+'</div><div class="lbl">Best Streak</div></div><div class="stat"><div class="val" style="color:var(--red)">'+mf+'</div><div class="lbl">Missed Flags</div></div></div>'+readinessBadge+'<div class="cta-box"><h3>'+cta.h+'</h3><p>'+cta.p+'</p><a href="/app" class="btn btn-primary" style="text-decoration:none">Analyze Your Property →</a></div>'+emailSection+'<div class="share-row"><button class="btn btn-ghost" onclick="shareResult(\'twitter\')">Share on 𝕏</button><button class="btn btn-ghost" onclick="shareResult(\'copy\')">Copy Score</button><button class="btn btn-primary" onclick="startGame()">Play Again</button></div><div class="cross-promo"><a href="/games/disclosure-detective">🔍 Try Disclosure Detective →</a><p>Can you spot what the seller didn\'t tell you? Match contradictions between disclosures and inspection findings.</p></div>';
+
+  trackEvent('game_complete',{game:'red_flag',score:state.score,pct,rounds:totalRounds,missed_flags:mf});
+}
+
+function shareResult(platform){
+  const eg=state.results.map(r=>r.correct?'🟩':r.finding.answer==='flag'?'🟥':'⬛').join('');
+  const dl=totalRounds===5?'Quick':totalRounds===7?'Normal':'Expert';
+  const readiness=calcReadinessScore();
+  let text='🏠 Red Flag or No Big Deal? ('+dl+')\n\n'+eg+'\n'+state.correct+'/'+totalRounds+' · '+state.score+' pts';
+  if(readiness&&!readiness.partial) text+='\n🎯 Homebuyer Readiness: '+readiness.score+'/100';
+  text+='\n\nCan you beat my score?\nhttps://www.getofferwise.ai/games/red-flag-game';
+  if(platform==='twitter')window.open('https://twitter.com/intent/tweet?text='+encodeURIComponent(text),'_blank');
+  else navigator.clipboard.writeText(text).then(()=>{event.target.textContent='✓ Copied!';setTimeout(()=>event.target.textContent='Copy Score',2000)});
+}
+
+function launchConfetti(){const c=document.getElementById('confetti'),x=c.getContext('2d');c.width=window.innerWidth;c.height=window.innerHeight;const p=[],cl=['#3b82f6','#22c55e','#fbbf24','#ef4444','#a78bfa','#f97316'];for(let i=0;i<150;i++)p.push({x:Math.random()*c.width,y:-20-Math.random()*200,w:6+Math.random()*6,h:4+Math.random()*4,color:cl[Math.floor(Math.random()*cl.length)],vy:2+Math.random()*3,vx:(Math.random()-.5)*4,rot:Math.random()*360,vr:(Math.random()-.5)*10});let f=0;function a(){x.clearRect(0,0,c.width,c.height);p.forEach(q=>{q.y+=q.vy;q.x+=q.vx;q.rot+=q.vr;q.vy+=.05;x.save();x.translate(q.x,q.y);x.rotate(q.rot*Math.PI/180);x.fillStyle=q.color;x.fillRect(-q.w/2,-q.h/2,q.w,q.h);x.restore()});f++;if(f<180)requestAnimationFrame(a);else x.clearRect(0,0,c.width,c.height)}a()}
+
+document.addEventListener('keydown',e=>{if(state.waitingForNext&&(e.key==='Enter'||e.key===' '||e.key==='ArrowRight'||e.key==='ArrowLeft')){e.preventDefault();nextCard();return}if(e.key==='ArrowLeft')answer('flag');if(e.key==='ArrowRight')answer('ok')});
+showPersonalBest();
+function trackEvent(n,p){if(typeof gtag==='function')gtag('event',n,p)}
+</script>
+</body>
+</html>

@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contractor Setup — OfferWise AI</title>
+<link rel="icon" type="image/svg+xml" href="/logo-icon-only.svg">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root { --bg:#060d1a; --surface:#0f1e35; --border:rgba(255,255,255,.08); --text:#f1f5f9; --muted:#94a3b8; --dim:#64748b; --fire1:#f97316; --fire2:#f59e0b; --green:#22c55e; }
+body { background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px; }
+.wizard { width:100%; max-width:520px; }
+.logo { text-align:center; margin-bottom:32px; font-size:1.3rem; font-weight:900; letter-spacing:-.02em; text-decoration:none; color:var(--text); display:block; }
+.logo .wise { background:linear-gradient(90deg,var(--fire1),var(--fire2)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.progress-wrap { display:flex; align-items:center; gap:8px; margin-bottom:32px; }
+.progress-step { flex:1; height:4px; border-radius:2px; background:rgba(255,255,255,.08); transition:background .3s; }
+.progress-step.done { background:var(--green); }
+.progress-step.active { background:linear-gradient(90deg,var(--fire1),var(--fire2)); }
+.progress-label { font-size:11px; color:var(--dim); white-space:nowrap; }
+.card { background:var(--surface); border:1px solid var(--border); border-radius:20px; padding:36px; }
+.step { display:none; } .step.active { display:block; }
+.step-tag { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:var(--fire1); margin-bottom:12px; }
+.step-icon { font-size:2.4rem; margin-bottom:16px; }
+h2 { font-size:22px; font-weight:800; letter-spacing:-.02em; margin-bottom:8px; }
+.step-desc { font-size:14px; color:var(--muted); line-height:1.6; margin-bottom:28px; }
+.form-group { margin-bottom:16px; }
+.form-group label { display:block; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--dim); margin-bottom:6px; }
+.form-group input, .form-group select, .form-group textarea { width:100%; background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:10px 14px; color:var(--text); font-size:14px; font-family:inherit; outline:none; transition:border-color .15s; resize:none; }
+.form-group input:focus, .form-group select:focus { border-color:rgba(249,115,22,.5); }
+.form-group select option { background:var(--surface); }
+.form-hint { font-size:11px; color:var(--dim); margin-top:5px; }
+.form-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.trades-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:8px; }
+.trade-chip { background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:9px 12px; cursor:pointer; font-size:13px; font-weight:600; color:var(--muted); text-align:center; transition:all .15s; user-select:none; }
+.trade-chip.selected { background:rgba(249,115,22,.1); border-color:rgba(249,115,22,.4); color:var(--fire1); }
+.checkbox-group { display:flex; flex-direction:column; gap:12px; margin-bottom:24px; }
+.checkbox-item { background:var(--bg); border:1px solid var(--border); border-radius:10px; padding:14px 16px; cursor:pointer; transition:border-color .15s; }
+.checkbox-item:has(input:checked) { border-color:rgba(249,115,22,.4); background:rgba(249,115,22,.04); }
+.checkbox-item label { display:flex; gap:12px; align-items:flex-start; cursor:pointer; }
+.checkbox-item input[type=checkbox] { margin-top:2px; accent-color:var(--fire1); flex-shrink:0; width:16px; height:16px; }
+.checkbox-title { font-size:14px; font-weight:700; margin-bottom:3px; }
+.checkbox-desc { font-size:12px; color:var(--muted); line-height:1.5; }
+.checkbox-desc a { color:var(--fire1); text-decoration:none; }
+.btn-row { display:flex; gap:10px; margin-top:28px; }
+.btn-back { flex:0 0 auto; padding:12px 20px; background:transparent; border:1px solid var(--border); border-radius:10px; color:var(--muted); font-size:14px; font-weight:600; cursor:pointer; font-family:inherit; }
+.btn-back:hover { border-color:rgba(255,255,255,.2); color:var(--text); }
+.btn-next { flex:1; padding:13px; background:linear-gradient(90deg,var(--fire1),var(--fire2)); border:none; border-radius:10px; color:white; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit; }
+.btn-next:disabled { opacity:.5; cursor:not-allowed; }
+.success-icon { font-size:3rem; margin-bottom:16px; }
+.success-items { display:flex; flex-direction:column; gap:10px; margin:24px 0; }
+.success-item { display:flex; gap:12px; align-items:flex-start; font-size:13px; color:var(--muted); }
+.success-item .si-icon { font-size:1.1rem; flex-shrink:0; }
+.success-item strong { color:var(--text); display:block; margin-bottom:2px; }
+
+@media (max-width: 600px) {
+  body { padding: 16px 12px; align-items: flex-start; }
+  .wizard { max-width: 100%; }
+  .card { padding: 24px 20px; border-radius: 14px; }
+  .form-row { grid-template-columns: 1fr; gap: 0; }
+  .trades-grid, .specialty-grid { grid-template-columns: 1fr 1fr; }
+  input, select, textarea { font-size: 16px !important; min-height: 48px; }
+  button[type="submit"], .btn-primary, button.next-btn { min-height: 48px; font-size: 16px; width: 100%; }
+  .step-header { flex-direction: column; gap: 8px; }
+}
+@media (max-width: 380px) {
+  .card { padding: 20px 16px; }
+  .trades-grid, .specialty-grid { grid-template-columns: 1fr; }
+}
+
+/* ── MOBILE RESPONSIVE PATCH ── */
+
+@media (max-width: 560px) {
+  .card { max-width: 100% !important; margin: 0 1rem !important; }
+  body { padding: 1rem !important; }
+  input, select, textarea { font-size: 16px !important; min-height: 48px; }
+  button, .btn { min-height: 48px; font-size: 16px; width: 100%; }
+  .zip-grid,
+  .trades-grid { grid-template-columns: 1fr 1fr !important; }
+}
+@media (max-width: 380px) {
+  .zip-grid,
+  .trades-grid { grid-template-columns: 1fr !important; }
+}
+
+</style>
+    <!-- Reddit Pixel Base Code -->
+    <script>
+    !function(w,d){if(!w.rdt){var p=w.rdt=function(){p.sendEvent?p.sendEvent.apply(p,arguments):p.queue.push(arguments)};p.queue=[];var t=d.createElement('script');t.src='https://www.redditstatic.com/ads/pixel.js';t.async=!0;var s=d.getElementsByTagName('script')[0];s.parentNode.insertBefore(t,s)}}(window,document);
+    rdt('init','a2_ihx65g62d5n6',{optOut:false,useDecimalCurrencyValues:true,signalsMode:'all'});
+    rdt('track','PageVisit');
+    </script>
+    <!-- End Reddit Pixel -->
+</head>
+<body>
+<div class="wizard">
+  <a href="/" class="logo">Offer<span class="wise">Wise</span> AI</a>
+  <div class="progress-wrap">
+    <div class="progress-step active" id="ps1"></div>
+    <div class="progress-step" id="ps2"></div>
+    <div class="progress-step" id="ps3"></div>
+    <div class="progress-step" id="ps4"></div>
+    <span class="progress-label" id="prog-label">Step 1 of 4</span>
+  </div>
+  <div class="card">
+
+    <!-- Step 1: Business Profile -->
+    <div class="step active" id="step-1">
+      <div class="step-tag">Step 1 of 4 — Your Business</div>
+      <div class="step-icon">🔧</div>
+      <h2>Set up your contractor profile</h2>
+      <p class="step-desc">Buyers see your business name when you claim a lead. A complete profile builds trust and increases response rates.</p>
+      <div class="form-group"><label>Business Name *</label><input type="text" id="s1-biz" placeholder="Reliable HVAC Services"></div>
+      <div class="form-group"><label>Your Name *</label><input type="text" id="s1-name" placeholder="John Smith"></div>
+      <div class="form-row">
+        <div class="form-group"><label>Phone *</label><input type="tel" id="s1-phone" placeholder="(555) 123-4567"></div>
+        <div class="form-group"><label>Email *</label><input type="email" id="s1-email" placeholder="john@business.com"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>License # (optional)</label><input type="text" id="s1-lic" placeholder="e.g. CSLB 123456"></div>
+        <div class="form-group"><label>License State</label>
+          <select id="s1-state">
+            <option value="">State</option>
+            <option>AL</option><option>AK</option><option>AZ</option><option>AR</option><option>CA</option>
+            <option>CO</option><option>CT</option><option>DE</option><option>FL</option><option>GA</option>
+            <option>HI</option><option>ID</option><option>IL</option><option>IN</option><option>IA</option>
+            <option>KS</option><option>KY</option><option>LA</option><option>ME</option><option>MD</option>
+            <option>MA</option><option>MI</option><option>MN</option><option>MS</option><option>MO</option>
+            <option>MT</option><option>NE</option><option>NV</option><option>NH</option><option>NJ</option>
+            <option>NM</option><option>NY</option><option>NC</option><option>ND</option><option>OH</option>
+            <option>OK</option><option>OR</option><option>PA</option><option>RI</option><option>SC</option>
+            <option>SD</option><option>TN</option><option>TX</option><option>UT</option><option>VT</option>
+            <option>VA</option><option>WA</option><option>WV</option><option>WI</option><option>WY</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group"><label>Website (optional)</label><input type="url" id="s1-site" placeholder="https://"></div>
+      <div class="btn-row"><button class="btn-next" onclick="toStep(2)">Continue →</button></div>
+    </div>
+
+    <!-- Step 2: Trades & Service Area -->
+    <div class="step" id="step-2">
+      <div class="step-tag">Step 2 of 4 — Trades &amp; Coverage</div>
+      <div class="step-icon">🗺️</div>
+      <h2>What do you do, and where?</h2>
+      <p class="step-desc">Leads are matched to your trades and service area. Be specific — it means better-fit jobs and fewer wasted calls.</p>
+      <div class="form-group"><label>Select your trades (all that apply)</label>
+        <div class="trades-grid" id="trade-chips">
+          <div class="trade-chip" onclick="toggleChip(this,'HVAC')">HVAC</div>
+          <div class="trade-chip" onclick="toggleChip(this,'Roofing')">Roofing</div>
+          <div class="trade-chip" onclick="toggleChip(this,'Plumbing')">Plumbing</div>
+          <div class="trade-chip" onclick="toggleChip(this,'Electrical')">Electrical</div>
+          <div class="trade-chip" onclick="toggleChip(this,'Foundation')">Foundation</div>
+          <div class="trade-chip" onclick="toggleChip(this,'Mold / Water')">Mold / Water</div>
+          <div class="trade-chip" onclick="toggleChip(this,'Windows / Doors')">Windows / Doors</div>
+          <div class="trade-chip" onclick="toggleChip(this,'Pest / Termite')">Pest / Termite</div>
+          <div class="trade-chip" onclick="toggleChip(this,'Siding / Exterior')">Siding / Exterior</div>
+          <div class="trade-chip" onclick="toggleChip(this,'General Contractor')">General Contractor</div>
+          <div class="trade-chip" onclick="toggleChip(this,'Landscaping')">Landscaping</div>
+          <div class="trade-chip" onclick="toggleChip(this,'Other')">Other</div>
+        </div>
+      </div>
+      <div class="form-group"><label>Service Cities / ZIP Codes *</label>
+        <input type="text" id="s2-cities" placeholder="e.g. Austin TX, Round Rock TX 78664">
+        <div class="form-hint">List every area you're willing to travel to.</div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Service Radius (miles)</label>
+          <select id="s2-radius">
+            <option value="10">10 miles</option><option value="25" selected>25 miles</option>
+            <option value="50">50 miles</option><option value="100">100 miles</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Avg. Job Size</label>
+          <select id="s2-jobsize">
+            <option value="">Select...</option>
+            <option value="500">Under $1,000</option><option value="2500">$1,000 – $5,000</option>
+            <option value="10000">$5,000 – $15,000</option><option value="25000">$15,000+</option>
+          </select>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn-back" onclick="toStep(1)">← Back</button>
+        <button class="btn-next" onclick="toStep(3)">Continue →</button>
+      </div>
+    </div>
+
+    <!-- Step 3: Legal -->
+    <div class="step" id="step-3">
+      <div class="step-tag">Step 3 of 4 — Marketplace Agreement</div>
+      <div class="step-icon">⚖️</div>
+      <h2>Marketplace rules</h2>
+      <p class="step-desc">OfferWise connects you with motivated buyers. These rules protect everyone — including you.</p>
+      <div class="checkbox-group">
+        <div class="checkbox-item">
+          <label><input type="checkbox" id="c1" onchange="checkConsents()">
+            <div><div class="checkbox-title">📞 Contact commitment</div>
+            <div class="checkbox-desc">When I claim a lead, I will contact the buyer within 48 hours. Claiming and not contacting hurts the platform and will result in account suspension.</div></div>
+          </label>
+        </div>
+        <div class="checkbox-item">
+          <label><input type="checkbox" id="c2" onchange="checkConsents()">
+            <div><div class="checkbox-title">🏆 Honest representation</div>
+            <div class="checkbox-desc">I represent a legitimate licensed (where required) contracting business. I will provide accurate quotes and professional service. Fraudulent leads or price manipulation will result in permanent removal.</div></div>
+          </label>
+        </div>
+        <div class="checkbox-item">
+          <label><input type="checkbox" id="c3" onchange="checkConsents()">
+            <div><div class="checkbox-title">📋 Terms of Service</div>
+            <div class="checkbox-desc">I agree to OfferWise's Terms of Service. I understand this is a lead marketplace — OfferWise does not guarantee job volume or exclusivity. <a href="/terms" target="_blank">Read Terms →</a></div></div>
+          </label>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn-back" onclick="toStep(2)">← Back</button>
+        <button class="btn-next" id="btn-agree" disabled onclick="completeOnboarding()">I Agree — Finish Setup →</button>
+      </div>
+    </div>
+
+    <!-- Step 4: Welcome -->
+    <div class="step" id="step-4">
+      <div class="success-icon">🔧</div>
+      <h2>You're in the marketplace.</h2>
+      <p class="step-desc">Your profile is live. Here's what happens next:</p>
+      <div class="success-items">
+        <div class="success-item"><div class="si-icon">📬</div><div><strong>Leads arrive in your dashboard</strong>When a buyer in your area submits a job that matches your trades, you'll see it in the Marketplace tab — available to claim.</div></div>
+        <div class="success-item"><div class="si-icon">👆</div><div><strong>You claim what fits</strong>Review the job details, then claim it. First-come first-served. Max 3 contractors per lead — no auction, no bidding war.</div></div>
+        <div class="success-item"><div class="si-icon">📞</div><div><strong>Contact within 48 hours</strong>The buyer gets your contact info. Reach out quickly — response time is the #1 factor in winning the job.</div></div>
+        <div class="success-item"><div class="si-icon">⭐</div><div><strong>Free plan: 10 leads/month</strong>Upgrade to Pro ($99/mo) or Enterprise ($199/mo) for higher monthly limits and priority placement.</div></div>
+      </div>
+      <button class="btn-next" onclick="window.location.href='/contractor-portal'">Go to My Portal →</button>
+    </div>
+
+  </div>
+</div>
+<script>
+var selectedChips = {};
+
+function toStep(n) {
+  if (n === 2) {
+    var biz  = document.getElementById('s1-biz').value.trim();
+    var name = document.getElementById('s1-name').value.trim();
+    var phone= document.getElementById('s1-phone').value.trim();
+    var email= document.getElementById('s1-email').value.trim();
+    if (!biz || !name || !phone || !email) { alert('Please fill in all required fields.'); return; }
+  }
+  if (n === 3) {
+    var cities = document.getElementById('s2-cities').value.trim();
+    if (!cities) { alert('Please enter your service area.'); return; }
+    if (!Object.keys(selectedChips).length) { alert('Please select at least one trade.'); return; }
+  }
+  document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+  document.getElementById('step-' + n).classList.add('active');
+  ['ps1','ps2','ps3','ps4'].forEach(function(id, i) {
+    var el = document.getElementById(id);
+    el.classList.remove('active','done');
+    if (i + 1 < n) el.classList.add('done');
+    else if (i + 1 === n) el.classList.add('active');
+  });
+  document.getElementById('prog-label').textContent = 'Step ' + n + ' of 4';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function toggleChip(el, val) {
+  el.classList.toggle('selected');
+  if (el.classList.contains('selected')) selectedChips[val] = true;
+  else delete selectedChips[val];
+}
+
+function checkConsents() {
+  var all = ['c1','c2','c3'].every(id => document.getElementById(id).checked);
+  document.getElementById('btn-agree').disabled = !all;
+}
+
+async function completeOnboarding() {
+  var btn = document.getElementById('btn-agree');
+  btn.disabled = true; btn.textContent = 'Setting up...';
+  try {
+    var res = await fetch('/api/contractor/signup', {
+      method: 'POST', headers: {'Content-Type': 'application/json'}, credentials: 'include',
+      body: JSON.stringify({
+        business_name: document.getElementById('s1-biz').value.trim(),
+        name:          document.getElementById('s1-name').value.trim(),
+        phone:         document.getElementById('s1-phone').value.trim(),
+        email:         document.getElementById('s1-email').value.trim(),
+        license_number:document.getElementById('s1-lic').value.trim(),
+        license_state: document.getElementById('s1-state').value || 'XX',
+        website:       document.getElementById('s1-site').value.trim(),
+        trades:        Object.keys(selectedChips),
+        service_cities:document.getElementById('s2-cities').value.trim(),
+        service_radius_miles: parseInt(document.getElementById('s2-radius').value) || 25,
+        avg_job_size:  parseInt(document.getElementById('s2-jobsize').value) || 0,
+        agreed_to_terms: true,
+      })
+    });
+    var data = await res.json();
+    if (data.success) { toStep(4); }
+    else { alert(data.error || 'Setup failed. Please try again.'); btn.disabled = false; btn.textContent = 'I Agree — Finish Setup →'; }
+  } catch(e) {
+    alert('Something went wrong. Please try again.');
+    btn.disabled = false; btn.textContent = 'I Agree — Finish Setup →';
+  }
+}
+</script>
+</body>
+</html>

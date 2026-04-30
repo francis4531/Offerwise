@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OfferWise AI — Report Card v5</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;700&family=IBM+Plex+Sans:wght@400;500;600;700;800&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink: #0f172a;
+    --paper: #fafaf8;
+    --red: #dc2626;
+    --amber: #d97706;
+    --green: #16a34a;
+    --blue: #1d4ed8;
+    --muted: #64748b;
+    --border: #e2e8f0;
+    --mono: 'IBM Plex Mono', monospace;
+    --sans: 'IBM Plex Sans', sans-serif;
+  }
+
+  body {
+    font-family: var(--sans);
+    background: var(--paper);
+    color: var(--ink);
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 48px 32px;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    border-bottom: 3px solid var(--ink);
+    padding-bottom: 16px;
+    margin-bottom: 12px;
+  }
+  .brand { font-family: var(--mono); font-size: 22px; font-weight: 700; letter-spacing: -.02em; }
+  .brand span { color: var(--blue); }
+  .stamp {
+    font-family: var(--mono); font-size: 11px; font-weight: 700;
+    letter-spacing: .15em; color: var(--muted);
+    border: 2px solid var(--muted); padding: 4px 10px; border-radius: 2px;
+  }
+  .meta { font-family: var(--mono); font-size: 10px; color: var(--muted); margin-bottom: 32px; }
+  .divider { border: none; border-top: 1px solid var(--border); margin: 24px 0; }
+
+  .overall {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    background: var(--ink);
+    color: #f8fafc;
+    border-radius: 8px;
+    padding: 28px 32px;
+    margin-bottom: 36px;
+  }
+  .og { font-family: var(--mono); font-size: 64px; font-weight: 700; line-height: 1; color: #fbbf24; min-width: 90px; text-align: center; }
+  .og-lbl { font-family: var(--mono); font-size: 10px; letter-spacing: .12em; color: #94a3b8; text-align: center; margin-top: 4px; }
+  .ot h2 { font-size: 17px; font-weight: 700; margin-bottom: 8px; line-height: 1.35; }
+  .ot p { font-size: 13px; color: #94a3b8; line-height: 1.6; }
+
+  .delta {
+    display: inline-block; font-family: var(--mono); font-size: 11px; font-weight: 700;
+    padding: 2px 8px; border-radius: 3px; margin-left: 8px; vertical-align: middle;
+  }
+  .delta.up { background: #dcfce7; color: #15803d; }
+  .delta.same { background: #f1f5f9; color: #64748b; }
+  .delta.down { background: #fee2e2; color: #b91c1c; }
+
+  .traction {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 36px;
+  }
+  .traction-cell {
+    background: white;
+    padding: 16px 12px;
+    text-align: center;
+  }
+  .traction-cell .val { font-family: var(--mono); font-size: 22px; font-weight: 700; line-height: 1; }
+  .traction-cell .lbl { font-size: 10px; color: var(--muted); margin-top: 4px; text-transform: uppercase; letter-spacing: .06em; }
+  .val.red { color: var(--red); }
+  .val.amber { color: var(--amber); }
+  .val.green { color: var(--green); }
+  .val.blue { color: var(--blue); }
+
+  .section-title {
+    font-family: var(--mono); font-size: 10px; font-weight: 700;
+    letter-spacing: .12em; color: var(--muted); text-transform: uppercase;
+    margin-bottom: 12px; margin-top: 36px;
+  }
+  .dim {
+    display: grid;
+    grid-template-columns: 180px 48px 1fr;
+    gap: 16px;
+    align-items: start;
+    padding: 18px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .dim:last-child { border-bottom: none; }
+  .dim-name { font-weight: 700; font-size: 14px; }
+  .dim-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .grade {
+    font-family: var(--mono); font-size: 26px; font-weight: 700; line-height: 1;
+    text-align: center; padding-top: 2px;
+  }
+  .grade.A  { color: var(--green); }
+  .grade.Ap { color: var(--green); }
+  .grade.Am { color: #22c55e; }
+  .grade.B  { color: var(--blue); }
+  .grade.Bp { color: var(--blue); }
+  .grade.Bm { color: #3b82f6; }
+  .grade.C  { color: var(--amber); }
+  .grade.Cp { color: var(--amber); }
+  .grade.Cm { color: #f59e0b; }
+  .grade.D  { color: var(--red); }
+  .grade.F  { color: var(--red); }
+
+  .dim-body p { font-size: 13px; color: #374151; margin-bottom: 6px; }
+  .pill-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+  .pill {
+    font-family: var(--mono); font-size: 10px; font-weight: 700;
+    padding: 3px 9px; border-radius: 3px; letter-spacing: .03em;
+  }
+  .pill.done { background: #dcfce7; color: #15803d; }
+  .pill.gap  { background: #fee2e2; color: #b91c1c; }
+  .pill.warn { background: #fef3c7; color: #92400e; }
+  .pill.info { background: #dbeafe; color: #1e40af; }
+  .pill.new  { background: #f3e8ff; color: #6d28d9; }
+
+  .gap-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 12px;
+  }
+  .gap-card {
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 16px 18px;
+  }
+  .gap-card h4 { font-size: 13px; font-weight: 700; margin-bottom: 8px; }
+  .gap-card ul { list-style: none; }
+  .gap-card ul li { font-size: 12px; color: #374151; padding: 3px 0; display: flex; gap: 8px; }
+  .gap-card ul li::before { content: '→'; color: var(--muted); flex-shrink: 0; }
+  .gap-card.blocker { border-color: #fca5a5; background: #fff5f5; }
+  .gap-card.blocker h4 { color: var(--red); }
+  .gap-card.strength { border-color: #86efac; background: #f0fdf4; }
+  .gap-card.strength h4 { color: var(--green); }
+  .gap-card.moat { border-color: #93c5fd; background: #eff6ff; }
+  .gap-card.moat h4 { color: var(--blue); }
+  .gap-card.next { border-color: #fde68a; background: #fffbeb; }
+  .gap-card.next h4 { color: #92400e; }
+
+  .verdict {
+    background: #fff;
+    border: 2px solid var(--ink);
+    border-radius: 8px;
+    padding: 24px 28px;
+    margin-top: 36px;
+  }
+  .verdict h3 { font-size: 16px; font-weight: 800; margin-bottom: 10px; }
+  .verdict p { font-size: 13px; color: #374151; line-height: 1.7; margin-bottom: 8px; }
+  .verdict p:last-child { margin-bottom: 0; }
+
+  .footer {
+    margin-top: 32px;
+    border-top: 1px solid var(--border);
+    padding-top: 16px;
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--muted);
+  }
+
+  @media print {
+    body { padding: 24px; }
+    .dim { page-break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="brand">Offer<span>Wise</span> AI</div>
+  <div class="stamp">REPORT CARD v5</div>
+</div>
+<div class="meta">April 2, 2026 · v5.84.56 · Verified against live codebase · Prior report: v4 · March 24, 2026 · v5.79.2</div>
+
+<!-- Overall grade -->
+<div class="overall">
+  <div>
+    <div class="og">B+</div>
+    <div class="og-lbl">OVERALL</div>
+  </div>
+  <div class="ot">
+    <h2>Same grade, different problems. The product got sharper; the conversion crisis got louder.</h2>
+    <p>v4 said "The Product Is Ready. Now Go Sell It." Nine days later, the product is measurably better — paywall is live, the gated report works, 1,601 tests passing, agent landing pages shipped. But the scoreboard hasn't moved. Still 0 paying customers. The urgency is no longer about product readiness. It's about whether distribution happens at all.</p>
+  </div>
+</div>
+
+<!-- Traction snapshot -->
+<div class="section-title">Traction Snapshot — April 2, 2026</div>
+<div class="traction">
+  <div class="traction-cell">
+    <div class="val red">0</div>
+    <div class="lbl">Paying customers</div>
+  </div>
+  <div class="traction-cell">
+    <div class="val amber">36+</div>
+    <div class="lbl">Signups (stale)</div>
+  </div>
+  <div class="traction-cell">
+    <div class="val blue">5.84.56</div>
+    <div class="lbl">Current version</div>
+  </div>
+  <div class="traction-cell">
+    <div class="val blue">1,601</div>
+    <div class="lbl">Tests collected</div>
+  </div>
+  <div class="traction-cell">
+    <div class="val amber">$155</div>
+    <div class="lbl">Google Ads spend</div>
+  </div>
+  <div class="traction-cell">
+    <div class="val red">0%</div>
+    <div class="lbl">Conversion rate</div>
+  </div>
+</div>
+
+<!-- Dimension grades -->
+<div class="section-title">Dimension Grades</div>
+
+<div class="dim">
+  <div>
+    <div class="dim-name">Core AI Product</div>
+    <div class="dim-sub">Analysis quality · accuracy · depth</div>
+  </div>
+  <div class="grade Ap">A−</div>
+  <div class="dim-body">
+    <p>The analysis engine is genuinely differentiated. OfferScore™, Property Risk DNA™, Seller Transparency Report™, 3-option offer strategy, ZIP-adjusted repair costs via RentCast, cross-reference analysis, predicted hidden issues, and negotiation toolkit — all live and producing real output. The free-tier paywall is now correctly gated: OfferScore visible, everything below Evidence & Details locked. PDF blocked for free users at both the UI and function level. The 100-credit threshold for <code>has_paid</code> is a clean solution that doesn't require env var dependency for admin access.</p>
+    <div class="pill-row">
+      <span class="pill done">OfferScore™ live</span>
+      <span class="pill done">Paywall correctly gated</span>
+      <span class="pill done">PDF locked for free users</span>
+      <span class="pill done">Repair costs ZIP-adjusted</span>
+      <span class="pill done">Agent landing pages</span>
+      <span class="pill new">680px column layout</span>
+      <span class="pill warn">0 real user feedback yet</span>
+    </div>
+  </div>
+</div>
+
+<div class="dim">
+  <div>
+    <div class="dim-name">Product Design & UX</div>
+    <div class="dim-sub">Free tier paywall · conversion design</div>
+  </div>
+  <div class="grade B">B</div>
+  <div class="dim-body">
+    <p>The free tier paywall went through 8 iterations this session and is now defensible: OfferScore + repair strip + unlock card + Key Issues + Evidence & Details gate, all in a single 680px centered column. The gated report no longer leaks the full PDF. shadcn-style homepage concepts were built (light and dark) — good direction, not yet deployed. The biggest UX gap is still the homepage: <code>index.html</code> has not been replaced since v4. New users land on an old page, which directly hurts conversion. This is a meaningful gap given that ads are running.</p>
+    <div class="pill-row">
+      <span class="pill done">Free tier paywall live</span>
+      <span class="pill done">PDF gate (UI + function)</span>
+      <span class="pill done">shadcn homepage concepts ready</span>
+      <span class="pill new">Dark mode variant built</span>
+      <span class="pill gap">Old homepage still live</span>
+      <span class="pill gap">Ad traffic → old landing page</span>
+    </div>
+  </div>
+</div>
+
+<div class="dim">
+  <div>
+    <div class="dim-name">Flywheel Architecture</div>
+    <div class="dim-sub">Four-persona loops · network effects</div>
+  </div>
+  <div class="grade Bp">B+</div>
+  <div class="dim-body">
+    <p>Agent vanity links are live: <code>/a/&lt;slug&gt;</code> routes, QR code generator, co-branded buyer landing pages with agent photo and business details. This is the agent flywheel trigger — agents share their link, buyers land on a co-branded page, agent gets attribution when the buyer subscribes. Inspector→realtor one-click forwarding, contractor job completion forms, and buyer verdict cards all remain live from P2. The architecture is complete; the network has zero nodes in it yet.</p>
+    <div class="pill-row">
+      <span class="pill done">Agent vanity links</span>
+      <span class="pill done">QR code generator</span>
+      <span class="pill done">Co-branded landing pages</span>
+      <span class="pill done">Inspector→realtor forward</span>
+      <span class="pill done">Contractor completion flow</span>
+      <span class="pill gap">0 agents registered</span>
+      <span class="pill gap">0 referral conversions</span>
+    </div>
+  </div>
+</div>
+
+<div class="dim">
+  <div>
+    <div class="dim-name">Automation & Agentic</div>
+    <div class="dim-sub">Scheduled jobs · monitoring · alerts</div>
+  </div>
+  <div class="grade Bp">B+</div>
+  <div class="dim-body">
+    <p>Unchanged from v4 — all 9 scheduled jobs remain live. Seismic reanalysis, price-cut offer recalculation, inspector→realtor forwarding, RentCast sync, Google Ads sync, Reddit Ads sync, drip email. The Reddit Ads pixel was unblocked via CSP updates in a prior session. The automation stack continues to run in the background against a user base of zero, which is both a strength (proven, ready) and a reminder of urgency.</p>
+    <div class="pill-row">
+      <span class="pill done">9 scheduled jobs live</span>
+      <span class="pill done">Seismic reanalysis</span>
+      <span class="pill done">Price-cut recalc</span>
+      <span class="pill done">Reddit Ads pixel fixed</span>
+      <span class="pill warn">Reddit Ads: still $0 spend</span>
+      <span class="pill warn">Drip: 0 opened</span>
+    </div>
+  </div>
+</div>
+
+<div class="dim">
+  <div>
+    <div class="dim-name">Operations & Admin</div>
+    <div class="dim-sub">Admin shell · GTM engine · monitoring</div>
+  </div>
+  <div class="grade Bp">B+</div>
+  <div class="dim-body">
+    <p>No regression from v4. 26 admin views, GTM 4-platform engine, CAC tracking, Sentry active. One notable improvement: hardcoded developer emails removed from two places in <code>app.py</code> (ADMIN_EMAILS default and a cron endpoint admin check). All developer access now correctly routes through environment variables. The 58 "integrity bugs" filed against v5.84.39 were diagnosed as a cascade from one startup crash — not 58 real issues. Clean.</p>
+    <div class="pill-row">
+      <span class="pill done">26 admin views</span>
+      <span class="pill done">No hardcoded emails</span>
+      <span class="pill done">58 false bugs diagnosed</span>
+      <span class="pill done">Sentry active</span>
+      <span class="pill warn">0 GTM posts published</span>
+    </div>
+  </div>
+</div>
+
+<div class="dim">
+  <div>
+    <div class="dim-name">Infrastructure & Reliability</div>
+    <div class="dim-sub">Security · tests · data integrity</div>
+  </div>
+  <div class="grade Bm">B−</div>
+  <div class="dim-body">
+    <p>Test suite grew from 1,048 to 1,601 collected. Of those, 1,447 pass, 38 fail, 88 error — most errors are SQLAlchemy connection issues in the test environment, not production bugs. The one real test fix: <code>test_risk_dna_descriptions_present</code> updated to match current axis labels. Security improved: PDF generation gated at both UI and function level. Hardcoded credentials removed. The grade drops slightly from B because 38 failing tests and 88 errors is a wider gap than last report — needs a cleanup pass.</p>
+    <div class="pill-row">
+      <span class="pill done">1,601 tests collected</span>
+      <span class="pill done">1,447 passing</span>
+      <span class="pill done">PDF security gate</span>
+      <span class="pill done">No hardcoded secrets</span>
+      <span class="pill gap">38 failing tests</span>
+      <span class="pill gap">88 test errors</span>
+    </div>
+  </div>
+</div>
+
+<div class="dim">
+  <div>
+    <div class="dim-name">Revenue & Monetization</div>
+    <div class="dim-sub">Pricing · Stripe · conversion</div>
+  </div>
+  <div class="grade Cm">C−</div>
+  <div class="dim-body">
+    <p>Same grade. Same problem. The paywall is now architecturally correct — free users see the OfferScore and repair exposure, everything below is locked, PDF is blocked, the unlock card is the only CTA. That's the right structure. But structure doesn't produce revenue. Nine days have passed since v4 identified "0 paying customers" as the only metric that matters. It is still 0. The free analysis is being used as a design tool by the developer, not by real buyers discovering real value. Until a stranger pays $9, nothing else in this report is validated.</p>
+    <div class="pill-row">
+      <span class="pill done">Stripe live</span>
+      <span class="pill done">Paywall correctly placed</span>
+      <span class="pill done">has_paid logic fixed</span>
+      <span class="pill gap">0 paying customers</span>
+      <span class="pill gap">0% conversion rate</span>
+      <span class="pill gap">9 days, no change</span>
+    </div>
+  </div>
+</div>
+
+<div class="dim">
+  <div>
+    <div class="dim-name">Distribution & GTM</div>
+    <div class="dim-sub">Ads · SEO · content · communities</div>
+  </div>
+  <div class="grade D">D</div>
+  <div class="dim-body">
+    <p>Grade drops from C− to D. In v4, the GTM not executing was forgivable — it was day zero of the engine. Nine days later, zero posts have been published, zero Reddit replies written, zero BiggerPockets responses drafted. $155 in Google Ads has produced 58 clicks and 0 conversions, and those clicks are landing on the old homepage. The GTM engine is genuinely impressive infrastructure. An impressive engine that isn't running is just expensive storage. This is now the single biggest risk to the company's survival.</p>
+    <div class="pill-row">
+      <span class="pill done">Google Ads live</span>
+      <span class="pill done">GTM engine ready</span>
+      <span class="pill done">Reddit Ads configured</span>
+      <span class="pill gap">0 posts published</span>
+      <span class="pill gap">0 Reddit replies</span>
+      <span class="pill gap">0 BP replies</span>
+      <span class="pill gap">Old homepage in production</span>
+    </div>
+  </div>
+</div>
+
+<div class="dim">
+  <div>
+    <div class="dim-name">Data Moat</div>
+    <div class="dim-sub">Proprietary data · feedback loops</div>
+  </div>
+  <div class="grade Cp">C+</div>
+  <div class="dim-body">
+    <p>Unchanged. The feedback architecture is correct; it still needs transaction volume. Agent vanity links create a new data stream — when a buyer comes through an agent link and subscribes, that's an attribution signal nobody else has. The issue feedback loop (✓ Found / ✗ Not found buttons on repair items) is wired and waiting. At current trajectory, the moat remains purely architectural for another quarter at minimum.</p>
+    <div class="pill-row">
+      <span class="pill done">OfferWatch live</span>
+      <span class="pill done">Issue feedback wired</span>
+      <span class="pill done">Agent attribution ready</span>
+      <span class="pill warn">Need 1,000+ analyses</span>
+      <span class="pill gap">0 closed-deal outcomes</span>
+    </div>
+  </div>
+</div>
+
+<div class="dim">
+  <div>
+    <div class="dim-name">Team & Execution</div>
+    <div class="dim-sub">Velocity · focus · priorities</div>
+  </div>
+  <div class="grade B">B</div>
+  <div class="dim-body">
+    <p>Ship velocity remains exceptional — v5.79.2 to v5.84.56 in 9 days, agent landing pages, paywall redesign through 8 iterations, homepage concepts, test suite expansion, security fixes. The execution quality on product is high. The concern, which drops this from B+ to B, is allocation: this session was predominantly product refinement — paywall iterations, homepage design concepts, column sizing — while GTM sits at zero. The product is not the bottleneck. Time spent refining the free-tier column width is time not spent posting in r/FirstTimeHomeBuyer.</p>
+    <div class="pill-row">
+      <span class="pill done">High ship velocity</span>
+      <span class="pill done">Clean architecture decisions</span>
+      <span class="pill warn">GTM execution = 0</span>
+      <span class="pill gap">Product refinement vs. distribution tradeoff</span>
+    </div>
+  </div>
+</div>
+
+<!-- Gap analysis -->
+<div class="section-title">The Billion-Dollar Gap Analysis</div>
+<div class="gap-grid">
+  <div class="gap-card blocker">
+    <h4>🚨 Now Critical — Not Just Important</h4>
+    <ul>
+      <li>v4 said "get 1 paying customer in 30 days." 9 days in, 0 progress</li>
+      <li>Every day without revenue is a day the thesis is unvalidated</li>
+      <li>The paywall is live — there is literally nothing left to build before selling</li>
+      <li>Deploy the new homepage. Post the first Reddit reply. Today.</li>
+      <li>Email the 36 signups personally — one reply changes everything</li>
+    </ul>
+  </div>
+  <div class="gap-card strength">
+    <h4>✅ What Got Better Since v4</h4>
+    <ul>
+      <li>Paywall correctly gated — OfferScore visible, rest locked</li>
+      <li>PDF gate closed — full report no longer leakable</li>
+      <li>Agent vanity links + co-branded landing pages live</li>
+      <li>has_paid logic fixed for 100+ credit users</li>
+      <li>shadcn homepage concepts ready to deploy</li>
+      <li>No more hardcoded developer emails anywhere</li>
+    </ul>
+  </div>
+  <div class="gap-card moat">
+    <h4>🏰 The Emerging Insight</h4>
+    <ul>
+      <li>Agent vanity links are a distribution hack hiding in plain sight</li>
+      <li>One agent sharing their link = 10 warm buyer leads who trust the source</li>
+      <li>This is lower friction than cold Google Ads traffic</li>
+      <li>Get 3 agents using their link before spending another dollar on ads</li>
+      <li>Inspector network → agent network → buyer network: the flywheel is real</li>
+    </ul>
+  </div>
+  <div class="gap-card next">
+    <h4>⚡ Next 7 Days — Non-Negotiable</h4>
+    <ul>
+      <li>Deploy new homepage (shadcn light or dark — either is better than current)</li>
+      <li>Post first Reddit reply in r/FirstTimeHomeBuyer or r/homebuying</li>
+      <li>Add francis@piotnetworks.com to DEVELOPER_EMAILS on Render</li>
+      <li>Email 36 signups personally — one question: "what stopped you?"</li>
+      <li>Give 1 local agent their vanity link and ask them to share it</li>
+    </ul>
+  </div>
+</div>
+
+<!-- Verdict -->
+<div class="verdict">
+  <h3>Verdict: Stop Building. Start Distributing. The Clock Is Running.</h3>
+  <p>v4's verdict was generous — it said the product was ready and framed GTM as the next chapter. v5's verdict is less patient. Nine days have passed. The product got better in ways that don't move the metric that matters. The paywall column width was adjusted eight times. The homepage was redesigned in three concepts that aren't deployed. The PDF gate was closed. None of this produced a customer.</p>
+  <p>The honest diagnosis: product refinement is comfortable. Distribution is uncomfortable. Posting in Reddit feels risky. Emailing 36 strangers who didn't convert feels awkward. Giving an agent a link and asking them to use it feels presumptuous. Every hour spent on column widths is a vote for comfort over survival.</p>
+  <p>The product is good enough. The paywall is correct. The pricing is right. The agent flywheel — vanity links driving warm buyer traffic — is a genuine insight that most PropTech companies don't have at this stage. None of it compounds without the first node in the network.</p>
+  <p>The grade stays B+ because the fundamentals are strong. It moves to A the moment a stranger pays $9. It moves to A+ when the agent flywheel produces its first attributed conversion. Both of those outcomes are a Reddit post and a phone call away — not a sprint cycle away.</p>
+</div>
+
+<div class="footer">
+  <span>OfferWise AI · Report Card v5 · April 2, 2026 · v5.84.56</span>
+  <span>86,951 LOC · 1,601 tests · 54 models · Prior: 158,178 LOC · 1,048 tests · v5.79.2</span>
+</div>
+
+</body>
+</html>

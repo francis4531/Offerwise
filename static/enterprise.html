@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OfferWise Enterprise — Property Condition Intelligence API</title>
+<meta name="description" content="Screen properties at scale via API. AVM, flood zone, seismic risk, permit history, repair estimates — one call, structured JSON. For lenders, insurers, title companies, and AMCs.">
+<link rel="icon" type="image/svg+xml" href="/logo-icon-only.svg">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#060d1a;--surface:#0f1e35;--surface2:#131d30;--border:rgba(255,255,255,0.08);--text:#f1f5f9;--muted:#94a3b8;--dim:#64748b;--fire1:#f97316;--fire2:#f59e0b;--green:#22c55e;--blue:#60a5fa;--red:#ef4444}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;line-height:1.6}
+
+/* Nav */
+nav{display:flex;align-items:center;justify-content:space-between;padding:18px 40px;border-bottom:1px solid var(--border);position:sticky;top:0;background:rgba(6,13,26,0.95);backdrop-filter:blur(12px);z-index:100}
+.nav-logo{font-size:1.3rem;font-weight:900;color:var(--text);text-decoration:none}.nav-logo .wise{background:linear-gradient(90deg,var(--fire1),var(--fire2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.nav-links{display:flex;gap:20px;align-items:center;font-size:13px}
+.nav-links a{color:var(--muted);text-decoration:none;font-weight:500}
+.nav-cta{background:linear-gradient(90deg,var(--fire1),var(--fire2));color:white;border:none;padding:10px 22px;border-radius:8px;font-weight:700;font-size:14px;text-decoration:none}
+
+/* Hero */
+.hero{text-align:center;padding:80px 24px 48px;max-width:800px;margin:0 auto}
+.hero-tag{display:inline-block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--fire1);border:1px solid rgba(249,115,22,.3);background:rgba(249,115,22,.08);padding:5px 14px;border-radius:20px;margin-bottom:24px}
+.hero h1{font-size:clamp(2rem,5vw,3rem);font-weight:900;letter-spacing:-.03em;line-height:1.1;margin-bottom:20px}
+.hero h1 em{font-style:normal;background:linear-gradient(90deg,var(--fire1),var(--fire2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero p{font-size:1.05rem;color:var(--muted);max-width:600px;margin:0 auto 36px;line-height:1.7}
+.hero-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.btn-primary{background:linear-gradient(90deg,var(--fire1),var(--fire2));color:white;border:none;padding:14px 32px;border-radius:10px;font-weight:700;font-size:16px;text-decoration:none;cursor:pointer}
+.btn-secondary{background:transparent;color:var(--muted);border:1px solid var(--border);padding:14px 28px;border-radius:10px;font-weight:600;font-size:15px;text-decoration:none}
+
+/* Sections */
+.section{padding:64px 24px;max-width:960px;margin:0 auto}
+.section-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--fire1);margin-bottom:12px}
+.section h2{font-size:clamp(1.5rem,3vw,2rem);font-weight:800;margin-bottom:16px;letter-spacing:-.02em}
+.section>p{color:var(--muted);max-width:600px;margin-bottom:40px}
+
+/* Personas */
+.persona-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px}
+.persona{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px;text-decoration:none;display:block;transition:border-color .15s}
+.persona:hover{border-color:rgba(249,115,22,.3)}
+.persona-icon{font-size:1.6rem;margin-bottom:10px}
+.persona-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px}
+.persona-desc{font-size:12px;color:var(--dim);line-height:1.5}
+
+/* Stats */
+.stat-row{display:flex;gap:16px;flex-wrap:wrap;margin:32px 0}
+.stat{background:var(--surface);border:1px solid rgba(249,115,22,.15);border-radius:12px;padding:20px;flex:1;min-width:140px;text-align:center}
+.stat .num{font-size:2rem;font-weight:900;background:linear-gradient(90deg,var(--fire1),var(--fire2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.stat .lbl{font-size:11px;color:var(--muted);margin-top:4px}
+
+/* API box */
+.api-box{background:#0d1117;border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:20px;font-family:monospace;font-size:12px;color:var(--muted);overflow-x:auto;margin:20px 0}
+.api-box .kw{color:var(--blue)}.api-box .str{color:var(--green)}.api-box .cmt{color:var(--dim)}.api-box .num{color:var(--fire1)}
+
+/* Signup form */
+.signup-card{max-width:520px;margin:0 auto;background:var(--surface);border:1px solid rgba(249,115,22,.2);border-radius:16px;padding:32px}
+.signup-card h3{font-size:1.3rem;font-weight:800;margin-bottom:8px}
+.signup-card>p{font-size:13px;color:var(--muted);margin-bottom:24px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.form-group{display:flex;flex-direction:column;gap:4px}
+.form-group.full{grid-column:1/-1}
+.form-group label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--dim)}
+.form-group input,.form-group select{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 14px;color:var(--text);font-size:14px;font-family:inherit;outline:none}
+.form-group input:focus,.form-group select:focus{border-color:rgba(249,115,22,.5)}
+.form-group select option{background:var(--bg)}
+.submit-btn{width:100%;padding:14px;background:linear-gradient(90deg,var(--fire1),var(--fire2));border:none;border-radius:10px;color:white;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:16px}
+.submit-btn:disabled{opacity:.5;cursor:not-allowed}
+#signup-result{margin-top:16px;padding:16px;border-radius:10px;font-size:13px;display:none}
+.key-display{background:#0d1117;border:1px solid rgba(34,197,94,.3);border-radius:8px;padding:12px 16px;font-family:monospace;font-size:13px;color:var(--green);word-break:break-all;margin:8px 0}
+
+/* CTA */
+.cta-section{background:linear-gradient(135deg,rgba(249,115,22,.06),rgba(245,158,11,.03));border-top:1px solid rgba(249,115,22,.15);padding:64px 24px;text-align:center}
+.cta-section h2{font-size:1.8rem;font-weight:800;margin-bottom:12px}
+.cta-section p{color:var(--muted);margin-bottom:28px;max-width:480px;margin-left:auto;margin-right:auto}
+
+footer{text-align:center;padding:32px;font-size:12px;color:var(--dim);border-top:1px solid var(--border)}
+footer a{color:var(--dim);text-decoration:none;margin:0 8px}
+@media(max-width:640px){nav{padding:14px 16px}.hero{padding:48px 16px 40px}.section{padding:40px 16px}.form-row{grid-template-columns:1fr}.nav-links{display:none}}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo">Offer<span class="wise">Wise</span></a>
+  <div class="nav-links">
+    <a href="/api/docs">API Docs</a>
+    <a href="/static/offerwise-enterprise-deck.pdf" target="_blank">Download Deck</a>
+    <a href="#get-access" class="nav-cta">Get API Access →</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="hero-tag">Enterprise API</div>
+  <h1>Property condition intelligence<br>for <em>every transaction.</em></h1>
+  <p>Screen properties at scale. One API call returns AVM, flood zone, seismic risk, permit history, environmental exposure, and condition-adjusted risk flags. Structured JSON. Under 3 seconds.</p>
+  <div class="hero-btns">
+    <a href="#get-access" class="btn-primary">Get 50 Free API Calls →</a>
+    <a href="/static/offerwise-enterprise-deck.pdf" target="_blank" class="btn-secondary">Download Proof Deck</a>
+  </div>
+</div>
+
+<div class="section">
+  <div class="stat-row">
+    <div class="stat"><div class="num">13</div><div class="lbl">Data sources per property</div></div>
+    <div class="stat"><div class="num">&lt;3s</div><div class="lbl">Response time</div></div>
+    <div class="stat"><div class="num">4</div><div class="lbl">API endpoints</div></div>
+    <div class="stat"><div class="num">99.5%</div><div class="lbl">Uptime SLA</div></div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-label">Who It's For</div>
+  <h2>Built for every role in the transaction.</h2>
+  <div class="persona-grid">
+    <a href="/for-lenders" class="persona">
+      <div class="persona-icon">🏦</div>
+      <div class="persona-title">Lenders</div>
+      <div class="persona-desc">Screen collateral condition before committing. Flag deferred maintenance that appraisals miss.</div>
+    </a>
+    <a href="/for-insurance" class="persona">
+      <div class="persona-icon">🛡</div>
+      <div class="persona-title">Insurance</div>
+      <div class="persona-desc">Property risk profiles for underwriting. Roof, electrical, plumbing, hazards — no inspector needed.</div>
+    </a>
+    <a href="/for-title-companies" class="persona">
+      <div class="persona-icon">📑</div>
+      <div class="persona-title">Title Companies</div>
+      <div class="persona-desc">Automated disclosure analysis at every closing. Surface contradictions before they become disputes.</div>
+    </a>
+    <a href="/for-appraisers" class="persona">
+      <div class="persona-icon">📋</div>
+      <div class="persona-title">Appraisers &amp; AMCs</div>
+      <div class="persona-desc">Pre-screen before dispatch. Permits, hazards, comps — appraisers arrive informed.</div>
+    </a>
+    <a href="/for-inspectors" class="persona">
+      <div class="persona-icon">🔍</div>
+      <div class="persona-title">Inspectors</div>
+      <div class="persona-desc">Buyer intelligence report with every inspection. Your findings, our analysis.</div>
+    </a>
+    <a href="/for-agents" class="persona">
+      <div class="persona-icon">🏠</div>
+      <div class="persona-title">Agents</div>
+      <div class="persona-desc">Branded property analysis for your buyers. Better offers, your name on it.</div>
+    </a>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-label">The API</div>
+  <h2>Three calls cover every use case.</h2>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-bottom:24px">
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px">
+      <div style="font-size:12px;font-weight:700;color:var(--fire1);font-family:monospace;margin-bottom:8px">POST /api/v1/screen</div>
+      <div style="font-size:14px;font-weight:700;margin-bottom:6px">Property Screening</div>
+      <div style="font-size:12px;color:var(--muted)">Address + optional price. Returns risk flags, AVM, flood zone, walk score, days on market. Under 3 seconds. Designed for batch/portfolio use.</div>
+    </div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px">
+      <div style="font-size:12px;font-weight:700;color:var(--blue);font-family:monospace;margin-bottom:8px">POST /api/v1/research</div>
+      <div style="font-size:14px;font-weight:700;margin-bottom:6px">Property Intelligence</div>
+      <div style="font-size:12px;color:var(--muted)">Full research profile: AVM with comps, hazards (flood, seismic, wildfire, air quality), schools, permits, neighborhood scores, and AI synthesis.</div>
+    </div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px">
+      <div style="font-size:12px;font-weight:700;color:var(--green);font-family:monospace;margin-bottom:8px">POST /api/v1/analyze</div>
+      <div style="font-size:14px;font-weight:700;margin-bottom:6px">Document Analysis</div>
+      <div style="font-size:12px;color:var(--muted)">Submit inspection report + disclosure + price. Returns risk score, deal breakers, repair costs, disclosure contradictions, and offer strategy.</div>
+    </div>
+  </div>
+
+  <div class="api-box">
+    <span class="cmt"># Screen a property in your pipeline</span><br>
+    <span class="kw">curl</span> -X POST https://www.getofferwise.ai/api/v1/screen \<br>
+    &nbsp;&nbsp;-H <span class="str">"Authorization: Bearer ow_live_xxxx"</span> \<br>
+    &nbsp;&nbsp;-H <span class="str">"Content-Type: application/json"</span> \<br>
+    &nbsp;&nbsp;-d <span class="str">'{"address": "1234 Oak St, San Jose CA 95123", "asking_price": 985000}'</span><br><br>
+    <span class="cmt"># Response</span><br>
+    { <span class="str">"success"</span>: true, <span class="str">"estimated_value"</span>: <span class="num">952000</span>, <span class="str">"price_gap_pct"</span>: <span class="num">3.5</span>,<br>
+    &nbsp;&nbsp;<span class="str">"risk_flags"</span>: [{ <span class="str">"flag"</span>: <span class="str">"overpriced"</span>, <span class="str">"severity"</span>: <span class="str">"medium"</span> }],<br>
+    &nbsp;&nbsp;<span class="str">"flood_zone"</span>: <span class="str">"X"</span>, <span class="str">"walk_score"</span>: <span class="num">72</span>, <span class="str">"research_time_ms"</span>: <span class="num">2800</span> }
+  </div>
+</div>
+
+<!-- Self-serve API key signup -->
+<div class="section" id="get-access">
+  <div class="signup-card">
+    <h3>Get your API key — 50 free calls.</h3>
+    <p>No credit card. No sales call required. Test it on real properties in your pipeline, then talk to us about volume pricing.</p>
+    <div id="signup-form">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Name</label>
+          <input type="text" id="ent-name" placeholder="Your name">
+        </div>
+        <div class="form-group">
+          <label>Company</label>
+          <input type="text" id="ent-company" placeholder="Company name">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Work Email</label>
+          <input type="email" id="ent-email" placeholder="you@company.com">
+        </div>
+        <div class="form-group">
+          <label>Role</label>
+          <select id="ent-role">
+            <option value="">Select your role</option>
+            <option value="lender">Lending / Underwriting</option>
+            <option value="insurance">Insurance / Risk</option>
+            <option value="title">Title / Escrow</option>
+            <option value="amc">Appraisal / AMC</option>
+            <option value="inspector">Inspection Company</option>
+            <option value="agent">Real Estate Agent / Broker</option>
+            <option value="developer">Developer / Engineering</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group full">
+        <label>Monthly Volume (optional)</label>
+        <select id="ent-volume">
+          <option value="">How many properties/month?</option>
+          <option value="under100">Under 100</option>
+          <option value="100-500">100 - 500</option>
+          <option value="500-2000">500 - 2,000</option>
+          <option value="2000-10000">2,000 - 10,000</option>
+          <option value="10000+">10,000+</option>
+        </select>
+      </div>
+      <button class="submit-btn" id="ent-submit" onclick="submitEnterprise()">Get API Key →</button>
+    </div>
+    <div id="signup-result"></div>
+  </div>
+</div>
+
+<div class="cta-section">
+  <h2>Need volume pricing or a custom integration?</h2>
+  <p>Enterprise plans include unlimited calls, SLA guarantees, white-label options, and dedicated support.</p>
+  <div class="hero-btns">
+    <a href="mailto:support@getofferwise.ai?subject=Enterprise API inquiry" class="btn-primary">Contact Sales →</a>
+    <a href="/static/offerwise-enterprise-deck.pdf" target="_blank" class="btn-secondary">Download Deck (PDF)</a>
+  </div>
+</div>
+
+<footer>
+  <p>&copy; 2026 OfferWise AI. All rights reserved.</p>
+  <p><a href="/">Home</a><a href="/api/docs">API Docs</a><a href="/terms">Terms</a><a href="/privacy">Privacy</a></p>
+</footer>
+
+<script>
+async function submitEnterprise() {
+  var name = (document.getElementById('ent-name').value || '').trim();
+  var company = (document.getElementById('ent-company').value || '').trim();
+  var email = (document.getElementById('ent-email').value || '').trim();
+  var role = document.getElementById('ent-role').value;
+  var volume = document.getElementById('ent-volume').value;
+  var btn = document.getElementById('ent-submit');
+  var result = document.getElementById('signup-result');
+
+  if (!name || !email || !email.includes('@')) {
+    result.style.display = 'block';
+    result.style.background = 'rgba(239,68,68,.1)';
+    result.style.border = '1px solid rgba(239,68,68,.3)';
+    result.style.color = '#fca5a5';
+    result.textContent = 'Please enter your name and a valid email address.';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Creating your API key...';
+
+  try {
+    // Step 1: Create account via magic link flow (or login if exists)
+    var authResp = await fetch('/api/auth/magic-link', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: email, name: name, redirect: '/api/docs?activated=1' })
+    });
+    var authData = await authResp.json();
+
+    // Step 2: Send enterprise inquiry email with details
+    fetch('/api/checkout/api-enterprise', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ company: company, volume: volume, use_case: role })
+    }).catch(function(){});
+
+    result.style.display = 'block';
+    result.style.background = 'rgba(34,197,94,.08)';
+    result.style.border = '1px solid rgba(34,197,94,.3)';
+    result.style.color = '#86efac';
+    result.innerHTML = '<div style="font-weight:700;font-size:15px;margin-bottom:8px">Check your email.</div>' +
+      '<div style="font-size:13px;color:#94a3b8">We sent a login link to <strong style="color:#f1f5f9">' + email + '</strong>. ' +
+      'Click it to access your dashboard and generate your API key. ' +
+      'Your first 50 API calls are free.</div>';
+
+    document.getElementById('signup-form').style.display = 'none';
+  } catch(e) {
+    result.style.display = 'block';
+    result.style.background = 'rgba(239,68,68,.1)';
+    result.style.border = '1px solid rgba(239,68,68,.3)';
+    result.style.color = '#fca5a5';
+    result.textContent = 'Something went wrong. Please email support@getofferwise.ai directly.';
+    btn.disabled = false;
+    btn.textContent = 'Get API Key →';
+  }
+}
+</script>
+
+</body>
+</html>

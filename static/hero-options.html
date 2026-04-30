@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OfferWise — Hero Options</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0f172a;--surface:#1e293b;--border:rgba(255,255,255,0.08);--text:#f1f5f9;--muted:#94a3b8;--accent:#f97316;--accent2:#f59e0b;--blue:#3b82f6;--green:#22c55e}
+body{font-family:'DM Sans',sans-serif;background:#020617;color:var(--text);line-height:1.6}
+.option-label{text-align:center;padding:60px 24px 20px;font-size:14px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--accent)}
+.option-desc{text-align:center;max-width:600px;margin:0 auto 40px;font-size:14px;color:var(--muted);padding:0 24px}
+.divider{height:1px;background:linear-gradient(90deg,transparent,rgba(249,115,22,.3),transparent);margin:0 auto;max-width:800px}
+
+/* Shared nav */
+nav{background:rgba(15,23,42,0.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:14px 24px}
+.nav-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between}
+.logo{font-size:1.4rem;font-weight:800;color:var(--text)}
+.logo span{color:var(--accent)}
+.nav-links{display:flex;gap:20px;align-items:center;font-size:13px}
+.nav-links a{color:var(--muted);text-decoration:none;font-weight:500}
+.nav-cta{background:linear-gradient(90deg,var(--accent),var(--accent2));color:white;padding:8px 18px;border-radius:8px;font-weight:700;font-size:13px;text-decoration:none;border:none;cursor:pointer}
+
+/* Hero shared */
+.hero{max-width:1100px;margin:0 auto;padding:80px 24px 60px;text-align:center}
+.hero h1{font-family:'DM Serif Display',Georgia,serif;font-size:clamp(36px,5vw,56px);line-height:1.1;margin-bottom:20px;letter-spacing:-.02em}
+.hero h1 em{font-style:italic;color:var(--accent)}
+.hero .sub{font-size:17px;color:var(--muted);max-width:580px;margin:0 auto 32px;line-height:1.7}
+.hero-note{font-size:12px;color:var(--muted);margin-top:16px}
+
+/* Address bar */
+.addr-bar{display:flex;max-width:560px;margin:0 auto;background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;height:52px}
+.addr-bar input{flex:1;background:transparent;border:none;padding:0 16px;font-size:15px;color:var(--text);outline:none;font-family:inherit}
+.addr-bar input::placeholder{color:#475569}
+.addr-bar button{background:linear-gradient(90deg,var(--accent),var(--accent2));border:none;padding:0 24px;color:white;font-weight:700;font-size:14px;cursor:pointer;font-family:inherit;white-space:nowrap}
+
+/* Big CTA */
+.big-cta{display:inline-block;background:linear-gradient(90deg,var(--accent),var(--accent2));color:white;padding:16px 40px;border-radius:12px;font-weight:800;font-size:17px;text-decoration:none;transition:transform .15s}
+.big-cta:hover{transform:translateY(-2px)}
+.ghost-cta{display:inline-block;border:1px solid var(--border);color:var(--muted);padding:14px 32px;border-radius:12px;font-weight:600;font-size:15px;text-decoration:none;margin-left:12px}
+
+/* Social proof strip */
+.proof{display:flex;justify-content:center;gap:40px;margin-top:48px;padding-top:32px;border-top:1px solid var(--border);flex-wrap:wrap}
+.proof-item{text-align:center}
+.proof-num{font-size:28px;font-weight:800;color:var(--text)}
+.proof-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-top:2px}
+
+/* Stats badges */
+.stat-badges{display:flex;gap:16px;justify-content:center;margin-top:24px;flex-wrap:wrap}
+.stat-badge{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:8px;padding:8px 16px;font-size:12px;color:var(--muted)}
+.stat-badge strong{color:var(--text);font-weight:700}
+
+/* Agent console mini */
+.console-mini{max-width:500px;margin:32px auto 0;background:#0d1117;border:1px solid rgba(249,115,22,.15);border-radius:12px;overflow:hidden;text-align:left}
+.console-header{display:flex;align-items:center;gap:8px;padding:10px 14px;background:rgba(255,255,255,.02);border-bottom:1px solid rgba(255,255,255,.05);font-size:11px;color:#475569;font-family:monospace}
+.console-dot{width:8px;height:8px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.console-lines{padding:12px 14px;display:flex;flex-direction:column;gap:4px;font-family:monospace;font-size:11px;color:var(--muted)}
+.console-lines .done{color:var(--green)}
+.console-lines .warn{color:var(--accent)}
+
+@media(max-width:640px){
+  .hero{padding:48px 16px 40px}
+  .hero h1{font-size:clamp(28px,7vw,42px)}
+  .addr-bar{flex-direction:column;height:auto;border-radius:10px}
+  .addr-bar input{padding:14px 16px}
+  .addr-bar button{padding:14px}
+  .proof{gap:24px}
+  .ghost-cta{margin-left:0;margin-top:8px}
+  .nav-links{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- OPTION A: Address-First — Zero friction, instant value        -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div class="option-label">Option A — Address First</div>
+<p class="option-desc">Lead with the address bar. Instant value, zero signup friction. The quick check IS the hero. Visitor types address, sees data, gets hooked, then uploads documents for the full analysis.</p>
+
+<div style="background:var(--bg);border-radius:16px;margin:0 24px 60px;overflow:hidden;border:1px solid var(--border)">
+<nav><div class="nav-inner">
+  <div class="logo">Offer<span>Wise</span></div>
+  <div class="nav-links">
+    <a href="#">How It Works</a><a href="#">Guides</a><a href="#">Pricing</a><a href="#">Professionals</a>
+    <a class="nav-cta" href="#">Analyze Free →</a>
+  </div>
+</div></nav>
+
+<div class="hero">
+  <h1>What's hiding at<br><em>your next address?</em></h1>
+  <p class="sub">Enter any property address. Get instant market value, flood risk, seismic data, school ratings, and permit history — free, no signup.</p>
+
+  <div class="addr-bar">
+    <input type="text" placeholder="Enter an address — e.g. 742 Oak St, Austin TX 78701" />
+    <button>Check Property →</button>
+  </div>
+  <p class="hero-note">Free instant check · No signup required · Then upload your inspection for the full analysis</p>
+
+  <div class="proof">
+    <div class="proof-item"><div class="proof-num">13</div><div class="proof-label">Data Sources</div></div>
+    <div class="proof-item"><div class="proof-num">60s</div><div class="proof-label">Full Analysis</div></div>
+    <div class="proof-item"><div class="proof-num">$0</div><div class="proof-label">First Report Free</div></div>
+  </div>
+</div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- OPTION B: Anxiety-Led — Speak to the buyer's fear             -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div class="option-label">Option B — Buyer Anxiety</div>
+<p class="option-desc">Lead with the emotion — fear of overpaying, fear of hidden issues. The headline speaks directly to what keeps buyers up at night. CTA is direct and primary.</p>
+
+<div style="background:var(--bg);border-radius:16px;margin:0 24px 60px;overflow:hidden;border:1px solid var(--border)">
+<nav><div class="nav-inner">
+  <div class="logo">Offer<span>Wise</span></div>
+  <div class="nav-links">
+    <a href="#">How It Works</a><a href="#">Sample Report</a><a href="#">Guides</a><a href="#">Pricing</a>
+    <a class="nav-cta" href="#">Analyze Free →</a>
+  </div>
+</div></nav>
+
+<div class="hero">
+  <h1>Your inspector found 47 issues.<br><em>We tell you which ones matter.</em></h1>
+  <p class="sub">Upload your inspection report. In 60 seconds, OfferWise tells you exactly what to negotiate, what to ignore, and what to offer — backed by 13 live data sources.</p>
+
+  <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+    <a class="big-cta" href="#">Analyze a Property Free →</a>
+    <a class="ghost-cta" href="#">See a Sample Report</a>
+  </div>
+  <p class="hero-note">No credit card needed. Your first analysis is free.</p>
+
+  <div class="console-mini">
+    <div class="console-header"><div class="console-dot"></div> offerwise-agents · analyzing 742 Oak Street</div>
+    <div class="console-lines">
+      <div class="done">✓ Parsed 47 inspection findings</div>
+      <div class="done">✓ Cross-referenced seller disclosure — 3 contradictions found</div>
+      <div class="warn">⚠ Foundation: moderate settlement not disclosed by seller</div>
+      <div class="done">✓ Repair estimate: $18,400–$27,600 (San Jose metro adjustment)</div>
+      <div class="done">✓ Recommended offer: $872,000 (9.2% below asking)</div>
+    </div>
+  </div>
+
+  <div class="stat-badges">
+    <div class="stat-badge"><strong>3</strong> contradictions found</div>
+    <div class="stat-badge"><strong>$27K</strong> estimated repairs</div>
+    <div class="stat-badge"><strong>$872K</strong> recommended offer</div>
+  </div>
+</div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- OPTION C: Outcome-Led — Focus on the money saved              -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div class="option-label">Option C — Outcome / Money Saved</div>
+<p class="option-desc">Lead with the outcome — what you walk away with. Not about the AI, not about the process. About the result: a better offer, less risk, more leverage.</p>
+
+<div style="background:var(--bg);border-radius:16px;margin:0 24px 60px;overflow:hidden;border:1px solid var(--border)">
+<nav><div class="nav-inner">
+  <div class="logo">Offer<span>Wise</span></div>
+  <div class="nav-links">
+    <a href="#">How It Works</a><a href="#">Guides</a><a href="#">Pricing</a><a href="#">Professionals</a>
+    <a class="nav-cta" href="#">Analyze Free →</a>
+  </div>
+</div></nav>
+
+<div class="hero">
+  <h1>Know exactly what to offer<br><em>before you sign anything.</em></h1>
+  <p class="sub">Drop in your inspection report. OfferWise reads every finding, checks the seller's disclosures, and hands you three offer prices — with the negotiation playbook to back each one up.</p>
+
+  <div style="display:flex;gap:12px;justify-content:center;align-items:center;flex-wrap:wrap">
+    <a class="big-cta" href="#">Analyze Your Property Free →</a>
+  </div>
+  <p class="hero-note">No credit card · First analysis free · 60-second turnaround</p>
+
+  <div style="display:flex;gap:12px;justify-content:center;margin-top:20px;flex-wrap:wrap">
+    <div class="addr-bar" style="max-width:480px;flex:1">
+      <input type="text" placeholder="Or check any address instantly — free" />
+      <button>Check →</button>
+    </div>
+  </div>
+
+  <div class="proof">
+    <div class="proof-item"><div class="proof-num" style="color:var(--green)">$38K</div><div class="proof-label">Avg. negotiated below asking</div></div>
+    <div class="proof-item"><div class="proof-num">3</div><div class="proof-label">Offer tiers per report</div></div>
+    <div class="proof-item"><div class="proof-num" style="color:var(--accent)">60s</div><div class="proof-label">Time to full analysis</div></div>
+  </div>
+</div>
+</div>
+
+<div style="padding:60px 24px;text-align:center">
+  <p style="color:var(--muted);font-size:13px;max-width:500px;margin:0 auto">These are hero section mockups. Each focuses on a different entry point: instant data (A), emotional pain (B), or concrete outcome (C). They can be mixed — e.g. headline from B + address bar from A.</p>
+</div>
+
+</body>
+</html>

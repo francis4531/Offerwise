@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OfferWise — Hybrid B+A Mockup</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: #060d1a;
+  color: #f1f5f9;
+  min-height: 100vh;
+}
+
+/* ── STICKY BAR (from A) ── */
+.sticky-bar {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(9,15,29,0.97);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(51,65,85,0.5);
+  padding: 0 28px;
+}
+.sticky-inner {
+  max-width: 1100px; margin: 0 auto;
+  display: flex; align-items: center; justify-content: space-between;
+  height: 52px; gap: 20px;
+}
+.sticky-left { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.sticky-brand { font-size: 14px; font-weight: 800; color: #f1f5f9; margin-right: 8px; }
+.sticky-brand span { color: #7c3aed; }
+.sticky-divider { width: 1px; height: 22px; background: rgba(51,65,85,0.7); margin: 0 6px; }
+.sticky-item { display: flex; align-items: center; gap: 5px; }
+.sticky-item-label { font-size: 11px; font-weight: 600; color: #475569; }
+.sticky-item-val   { font-size: 15px; font-weight: 800; }
+.sticky-actions { display: flex; gap: 8px; flex-shrink: 0; }
+.sticky-btn {
+  padding: 7px 14px; border-radius: 7px; font-size: 12px;
+  font-weight: 600; cursor: pointer; font-family: inherit; border: none;
+}
+
+/* ── HERO — Option B narrative ── */
+.hero {
+  max-width: 1100px; margin: 0 auto;
+  padding: 52px 28px 44px;
+  border-bottom: 1px solid rgba(51,65,85,0.25);
+}
+.hero-eyebrow {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 18px;
+}
+.hero-eyebrow-brand { font-size: 13px; font-weight: 800; }
+.hero-eyebrow-brand span { color: #7c3aed; }
+.hero-eyebrow-sep { width: 1px; height: 16px; background: rgba(51,65,85,0.7); }
+.hero-eyebrow-addr {
+  font-size: 13px; color: #64748b;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.hero-date { font-size: 12px; color: #334155; margin-left: auto; flex-shrink: 0; }
+
+.hero-two { display: grid; grid-template-columns: 1fr 340px; gap: 48px; align-items: start; }
+
+/* Left — narrative */
+.hero-verdict-label {
+  font-size: 11px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.12em; color: #475569; margin-bottom: 12px;
+}
+.hero-verdict-sentence {
+  font-size: clamp(24px, 4vw, 34px);
+  font-weight: 800; color: #f1f5f9;
+  line-height: 1.2; letter-spacing: -0.02em;
+  margin-bottom: 20px;
+}
+.hero-verdict-sentence .highlight { color: #60a5fa; }
+.hero-verdict-sentence .danger    { color: #ef4444; }
+.hero-verdict-sentence .savings   { color: #22c55e; }
+
+.hero-para {
+  font-size: 15px; line-height: 1.85; color: #94a3b8;
+  font-style: italic;
+  padding: 16px 20px;
+  border-left: 3px solid rgba(96,165,250,0.3);
+  background: rgba(96,165,250,0.03);
+  border-radius: 0 10px 10px 0;
+  margin-bottom: 24px;
+  max-width: 560px;
+}
+
+.hero-chips { display: flex; gap: 8px; flex-wrap: wrap; }
+.chip {
+  padding: 6px 14px; border-radius: 20px;
+  font-size: 12px; font-weight: 600; border: 1px solid;
+}
+
+/* Right — from A: offer cards + OfferScore */
+.hero-right {}
+.offerscore-bar {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 18px;
+  background: rgba(30,41,59,0.5);
+  border: 1px solid rgba(51,65,85,0.5);
+  border-radius: 10px; margin-bottom: 14px;
+}
+.offerscore-label { font-size: 11px; font-weight: 700; color: #64748b; white-space: nowrap; }
+.offerscore-track {
+  flex: 1; height: 7px;
+  background: rgba(51,65,85,0.5); border-radius: 4px; overflow: hidden;
+}
+.offerscore-fill { height: 100%; border-radius: 4px; }
+.offerscore-val {
+  font-size: 13px; font-weight: 800; white-space: nowrap;
+  padding: 3px 10px; border-radius: 6px;
+}
+
+.offer-cards { display: flex; flex-direction: column; gap: 8px; }
+.offer-card {
+  padding: 16px 18px; border-radius: 12px; cursor: pointer;
+  border: 1px solid rgba(51,65,85,0.5);
+  background: rgba(15,23,42,0.4);
+  transition: all 0.15s;
+  position: relative; overflow: hidden;
+}
+.offer-card::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+}
+.offer-card.aggressive::before { background: #22c55e; }
+.offer-card.recommended        { border-color: rgba(96,165,250,0.3); background: rgba(96,165,250,0.05); }
+.offer-card.recommended::before { background: #60a5fa; }
+.offer-card.conservative::before { background: #f59e0b; }
+
+.offer-card-row { display: flex; justify-content: space-between; align-items: baseline; }
+.offer-card-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #475569; margin-bottom: 4px; }
+.offer-card.recommended .offer-card-label { color: #60a5fa; }
+.offer-card-price { font-size: 22px; font-weight: 900; color: #f1f5f9; }
+.offer-card-save  { font-size: 12px; font-weight: 600; color: #22c55e; }
+.offer-card-note  { font-size: 11px; color: #475569; margin-top: 5px; line-height: 1.5; }
+
+/* ── METRIC ROW (from A) ── */
+.metric-row {
+  border-top: 1px solid rgba(51,65,85,0.25);
+  border-bottom: 1px solid rgba(51,65,85,0.25);
+  background: rgba(15,23,42,0.6);
+}
+.metric-inner {
+  max-width: 1100px; margin: 0 auto;
+  display: grid; grid-template-columns: repeat(4, 1fr);
+}
+.metric-cell {
+  padding: 20px 24px; border-right: 1px solid rgba(51,65,85,0.3);
+  position: relative;
+}
+.metric-cell:last-child { border-right: none; }
+.metric-accent { position: absolute; bottom: 0; left: 0; right: 0; height: 2px; }
+.metric-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: #475569; margin-bottom: 6px; }
+.metric-val   { font-size: 26px; font-weight: 900; }
+.metric-sub   { font-size: 11px; color: #64748b; margin-top: 4px; line-height: 1.5; }
+
+/* ── EVIDENCE (narrow, from current) ── */
+.evidence {
+  max-width: 800px; margin: 0 auto;
+  padding: 40px 28px 0;
+}
+.section-label {
+  font-size: 10px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.15em; color: #475569; margin-bottom: 16px;
+}
+
+/* Timeline issues */
+.tl-item {
+  display: flex; gap: 16px; margin-bottom: 0;
+  align-items: stretch;
+}
+.tl-spine {
+  display: flex; flex-direction: column; align-items: center;
+  flex-shrink: 0; padding-top: 4px;
+}
+.tl-dot  { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.tl-line { flex: 1; width: 1px; min-height: 24px; margin: 4px 0; }
+.tl-content {
+  flex: 1; padding-bottom: 24px;
+}
+.tl-title { font-size: 14px; font-weight: 700; color: #f1f5f9; margin-bottom: 4px; }
+.tl-body  { font-size: 13px; color: #64748b; line-height: 1.65; }
+.tl-cost  { font-size: 13px; font-weight: 700; color: #f59e0b; margin-top: 6px; }
+.tl-badge {
+  display: inline-block; font-size: 10px; font-weight: 700;
+  padding: 2px 8px; border-radius: 4px; margin-right: 6px; margin-bottom: 6px;
+}
+
+/* Collapsed ECard style */
+.ecard {
+  background: #1e293b; border: 1px solid #334155;
+  border-radius: 12px; margin-bottom: 10px; overflow: hidden;
+}
+.ecard-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 17px 20px; cursor: pointer;
+}
+.ecard-left { display: flex; align-items: center; gap: 14px; }
+.ecard-icon { font-size: 18px; width: 34px; text-align: center; }
+.ecard-title { font-size: 14px; font-weight: 600; color: #e2e8f0; }
+.ecard-summary { font-size: 12px; color: #64748b; margin-top: 2px; }
+.ecard-right { display: flex; align-items: center; gap: 8px; }
+.ecard-badge {
+  padding: 3px 10px; border-radius: 20px;
+  font-size: 11px; font-weight: 700;
+}
+.ecard-chevron { color: #475569; font-size: 13px; }
+
+/* Playbook grid */
+.playbook-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;
+}
+.playbook-card {
+  padding: 18px 16px; border-radius: 14px; cursor: pointer;
+  display: flex; flex-direction: column; gap: 10px; text-align: left;
+}
+.playbook-card-top { display: flex; justify-content: space-between; align-items: center; }
+.playbook-card-step {
+  font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 4px;
+}
+.playbook-card-title { font-size: 13px; font-weight: 700; color: #f1f5f9; margin-bottom: 3px; }
+.playbook-card-sub   { font-size: 11px; color: #64748b; line-height: 1.5; }
+
+/* Verdict card */
+.verdict-card {
+  border-radius: 18px; overflow: hidden;
+  margin: 28px 0 0; position: relative;
+}
+.verdict-accent { height: 3px; }
+.verdict-header { padding: 22px 26px 16px; display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+.verdict-eyebrow { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: #64748b; margin-bottom: 8px; }
+.verdict-title { font-size: 20px; font-weight: 800; color: #f1f5f9; line-height: 1.2; }
+.verdict-badge { padding: 6px 16px; border-radius: 20px; font-size: 12px; font-weight: 700; white-space: nowrap; flex-shrink: 0; }
+.verdict-quote { padding: 0 26px 18px; font-size: 15px; line-height: 1.85; color: #94a3b8; font-style: italic; }
+.verdict-bullets { padding: 0 26px 20px; display: flex; flex-direction: column; gap: 8px; }
+.verdict-bullet {
+  display: flex; align-items: flex-start; gap: 12px; padding: 12px 14px;
+  background: rgba(255,255,255,0.03); border: 1px solid rgba(51,65,85,0.4);
+  border-radius: 10px; font-size: 13px; color: #94a3b8;
+}
+.verdict-footer {
+  padding: 14px 26px; border-top: 1px solid rgba(51,65,85,0.4);
+  background: rgba(0,0,0,0.2); display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
+}
+.verdict-footer-note { margin-left: auto; font-size: 11px; color: #475569; }
+
+/* Upsell */
+.upsell {
+  background: linear-gradient(135deg, rgba(59,130,246,0.1), rgba(139,92,246,0.08));
+  border: 1px solid rgba(59,130,246,0.3);
+  border-radius: 16px; padding: 28px; margin: 32px 0 0; text-align: center;
+}
+
+/* Bottom actions */
+.bottom-actions {
+  display: flex; gap: 10px; flex-wrap: wrap;
+  padding: 40px 0 60px; margin-top: 20px;
+  border-top: 1px solid #334155; justify-content: center;
+}
+
+/* Responsive */
+@media (max-width: 700px) {
+  .hero-two { grid-template-columns: 1fr; }
+  .metric-inner { grid-template-columns: 1fr 1fr; }
+  .metric-cell:nth-child(2) { border-right: none; }
+  .hero-right { order: -1; }
+  .playbook-grid { grid-template-columns: 1fr; }
+}
+
+/* Annotation labels */
+.annotate {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em;
+  padding: 3px 10px; border-radius: 4px; margin-bottom: 8px;
+}
+</style>
+</head>
+<body>
+
+<!-- ─────────────────────────────────────────── -->
+<!-- STICKY BAR — from Option A                  -->
+<!-- ─────────────────────────────────────────── -->
+<div class="sticky-bar">
+  <div class="sticky-inner">
+    <div class="sticky-left">
+      <div class="sticky-brand">Offer<span>Wise</span>™</div>
+      <div class="sticky-divider"></div>
+      <div class="sticky-item">
+        <span class="sticky-item-label">OfferScore™</span>
+        <span class="sticky-item-val" style="color:#60a5fa;">72</span>
+      </div>
+      <div class="sticky-divider"></div>
+      <div class="sticky-item">
+        <span class="sticky-item-label">Offer</span>
+        <span class="sticky-item-val" style="color:#60a5fa;">$788,500</span>
+      </div>
+      <div class="sticky-divider"></div>
+      <div class="sticky-item">
+        <span class="sticky-item-label">Repairs</span>
+        <span class="sticky-item-val" style="color:#f59e0b;">$65K</span>
+      </div>
+      <div class="sticky-divider"></div>
+      <div class="sticky-item">
+        <span class="sticky-item-label">Save</span>
+        <span class="sticky-item-val" style="color:#22c55e;">$110K</span>
+      </div>
+    </div>
+    <div class="sticky-actions">
+      <button class="sticky-btn" style="background:rgba(51,65,85,0.5);color:#94a3b8;">↑ Top</button>
+      <button class="sticky-btn" style="background:linear-gradient(135deg,#3b82f6,#2563eb);color:white;">📄 PDF Report</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─────────────────────────────────────────── -->
+<!-- HERO — Option B narrative sentence          -->
+<!-- ─────────────────────────────────────────── -->
+<div class="hero">
+  <div class="hero-eyebrow">
+    <div class="hero-eyebrow-brand">Offer<span>Wise</span>™</div>
+    <div class="hero-eyebrow-sep"></div>
+    <div class="hero-eyebrow-addr">123 Maple Street, San Jose, CA 95112 &nbsp;·&nbsp; Listed $898,000</div>
+    <div class="hero-date">March 31, 2026</div>
+  </div>
+
+  <div class="hero-two">
+    <!-- Left: narrative -->
+    <div>
+      <div class="hero-verdict-label">Our verdict</div>
+      <div class="hero-verdict-sentence">
+        This is a <span class="highlight">buyable house</span> —
+        offer <span class="highlight">$788,500</span>,
+        not <span style="color:#64748b;text-decoration:line-through;">$898,000</span>.
+      </div>
+
+      <div class="hero-para">
+        "At $788,500 you're not taking a risk — you're buying a property at a price that reflects what it actually costs to own. The $65K in estimated repairs is already embedded in the discount. The foundation issues are real and expensive, but they're systems, not bones. Don't offer asking. Don't walk away. Offer $788,500 and let the data do the talking."
+      </div>
+
+      <div class="hero-chips">
+        <div class="chip" style="background:rgba(239,68,68,0.08);border-color:rgba(239,68,68,0.2);color:#ef4444;">⛔ 1 deal breaker</div>
+        <div class="chip" style="background:rgba(245,158,11,0.08);border-color:rgba(245,158,11,0.2);color:#f59e0b;">🔧 $65K repairs</div>
+        <div class="chip" style="background:rgba(34,197,94,0.08);border-color:rgba(34,197,94,0.2);color:#22c55e;">💰 Save $109,500</div>
+        <div class="chip" style="background:rgba(96,165,250,0.06);border-color:rgba(51,65,85,0.5);color:#64748b;">🔄 2 contradictions</div>
+        <div class="chip" style="background:rgba(96,165,250,0.06);border-color:rgba(51,65,85,0.5);color:#64748b;">📍 Balanced market</div>
+      </div>
+    </div>
+
+    <!-- Right: offer cards + score (from A) -->
+    <div class="hero-right">
+      <div class="offerscore-bar">
+        <div class="offerscore-label">OfferScore™</div>
+        <div class="offerscore-track">
+          <div class="offerscore-fill" style="width:72%;background:linear-gradient(90deg,#60a5fa,#3b82f6);"></div>
+        </div>
+        <div class="offerscore-val" style="color:#60a5fa;background:rgba(96,165,250,0.1);">72 / 100</div>
+      </div>
+
+      <div class="offer-cards">
+        <div class="offer-card aggressive">
+          <div class="offer-card-label">🔥 Aggressive</div>
+          <div class="offer-card-row">
+            <div class="offer-card-price">$762,300</div>
+            <div class="offer-card-save">Save $135K</div>
+          </div>
+          <div class="offer-card-note">Lead with repair costs. Best if listing has been sitting.</div>
+        </div>
+        <div class="offer-card recommended">
+          <div class="offer-card-label">★ Recommended</div>
+          <div class="offer-card-row">
+            <div class="offer-card-price" style="color:#60a5fa;">$788,500</div>
+            <div class="offer-card-save">Save $110K</div>
+          </div>
+          <div class="offer-card-note">Backed by repair data and market comps. Defensible at the table.</div>
+        </div>
+        <div class="offer-card conservative">
+          <div class="offer-card-label">🤝 Conservative</div>
+          <div class="offer-card-row">
+            <div class="offer-card-price">$850,000</div>
+            <div class="offer-card-save" style="color:#f59e0b;">Save $48K</div>
+          </div>
+          <div class="offer-card-note">Minimal reduction. Use against competing offers.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─────────────────────────────────────────── -->
+<!-- METRIC ROW — from Option A                  -->
+<!-- ─────────────────────────────────────────── -->
+<div class="metric-row">
+  <div class="metric-inner">
+    <div class="metric-cell">
+      <div class="metric-accent" style="background:linear-gradient(90deg,#60a5fa,transparent);width:72%;"></div>
+      <div class="metric-label">OfferScore™</div>
+      <div class="metric-val" style="color:#60a5fa;">72</div>
+      <div class="metric-sub">Buy · moderate risk</div>
+    </div>
+    <div class="metric-cell">
+      <div class="metric-accent" style="background:linear-gradient(90deg,#f59e0b,transparent);width:45%;"></div>
+      <div class="metric-label">Repair exposure</div>
+      <div class="metric-val" style="color:#f59e0b;">$65K</div>
+      <div class="metric-sub">3 systems · avg estimate</div>
+    </div>
+    <div class="metric-cell">
+      <div class="metric-accent" style="background:linear-gradient(90deg,#ef4444,transparent);width:30%;"></div>
+      <div class="metric-label">Deal breakers</div>
+      <div class="metric-val" style="color:#ef4444;">1</div>
+      <div class="metric-sub">Foundation movement</div>
+    </div>
+    <div class="metric-cell">
+      <div class="metric-accent" style="background:linear-gradient(90deg,#a78bfa,transparent);width:60%;"></div>
+      <div class="metric-label">Market context</div>
+      <div class="metric-val" style="color:#a78bfa;">Warm</div>
+      <div class="metric-sub">31 DOM · AVM +4.2% over ask</div>
+    </div>
+  </div>
+</div>
+
+<!-- ─────────────────────────────────────────── -->
+<!-- EVIDENCE — timeline issues (from B)         -->
+<!-- ─────────────────────────────────────────── -->
+<div class="evidence">
+  <div class="section-label">Evidence &amp; Details</div>
+
+  <!-- Deal Breakers as timeline -->
+  <div class="ecard" style="margin-bottom:10px;">
+    <div class="ecard-header">
+      <div class="ecard-left">
+        <div class="ecard-icon">⛔</div>
+        <div>
+          <div class="ecard-title">Deal Breakers</div>
+          <div class="ecard-summary">1 issue that significantly affects value</div>
+        </div>
+      </div>
+      <div class="ecard-right">
+        <span class="ecard-badge" style="background:rgba(239,68,68,0.1);color:#ef4444;">1 critical</span>
+        <span class="ecard-chevron">▾</span>
+      </div>
+    </div>
+    <!-- Open state showing timeline style -->
+    <div style="padding:0 20px 20px;border-top:1px solid rgba(51,65,85,0.4);">
+      <div class="tl-item" style="padding-top:16px;">
+        <div class="tl-spine">
+          <div class="tl-dot" style="background:#ef4444;box-shadow:0 0 8px rgba(239,68,68,0.4);"></div>
+        </div>
+        <div class="tl-content" style="padding-bottom:0;">
+          <div style="margin-bottom:6px;">
+            <span class="tl-badge" style="background:rgba(239,68,68,0.1);color:#ef4444;border:1px solid rgba(239,68,68,0.2);">CRITICAL</span>
+            <span class="tl-badge" style="background:rgba(167,139,250,0.1);color:#a78bfa;border:1px solid rgba(167,139,250,0.2);">👷 Specialist required</span>
+          </div>
+          <div class="tl-title">Foundation — significant structural movement observed</div>
+          <div class="tl-body" style="margin-top:6px;">Inspector documented diagonal cracking at corners and visible separation at the sill plate. Consistent with differential settlement. A licensed structural engineer evaluation is required before removing your inspection contingency. Seller has not disclosed any prior foundation work.</div>
+          <div class="tl-cost">$25,000–$60,000 &nbsp;·&nbsp; Already factored into recommended offer</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Other ECards collapsed as usual -->
+  <div class="ecard">
+    <div class="ecard-header">
+      <div class="ecard-left">
+        <div class="ecard-icon">🔄</div>
+        <div>
+          <div class="ecard-title">Disclosure Contradictions</div>
+          <div class="ecard-summary">2 points where disclosure conflicts with inspection</div>
+        </div>
+      </div>
+      <div class="ecard-right">
+        <span class="ecard-badge" style="background:rgba(245,158,11,0.1);color:#f59e0b;">2 found</span>
+        <span class="ecard-chevron">▾</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="ecard">
+    <div class="ecard-header">
+      <div class="ecard-left">
+        <div class="ecard-icon">📊</div>
+        <div>
+          <div class="ecard-title">Market Context</div>
+          <div class="ecard-summary">Warm market · AVM $861K · Inventory +8.3% MoM</div>
+        </div>
+      </div>
+      <div class="ecard-right">
+        <span class="ecard-badge" style="background:rgba(96,165,250,0.1);color:#60a5fa;">AVM available</span>
+        <span class="ecard-chevron">▾</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="ecard">
+    <div class="ecard-header">
+      <div class="ecard-left">
+        <div class="ecard-icon">⚠️</div>
+        <div>
+          <div class="ecard-title">Risk Findings</div>
+          <div class="ecard-summary">5 issues across 3 systems</div>
+        </div>
+      </div>
+      <div class="ecard-right">
+        <span class="ecard-badge" style="background:rgba(245,158,11,0.1);color:#f59e0b;">5 findings</span>
+        <span class="ecard-chevron">▾</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="ecard">
+    <div class="ecard-header">
+      <div class="ecard-left">
+        <div class="ecard-icon">✅</div>
+        <div>
+          <div class="ecard-title">Property Strengths</div>
+          <div class="ecard-summary">3 positive findings</div>
+        </div>
+      </div>
+      <div class="ecard-right">
+        <span class="ecard-badge" style="background:rgba(34,197,94,0.1);color:#22c55e;">3 positives</span>
+        <span class="ecard-chevron">▾</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Disclaimer -->
+  <div style="font-size:12px;color:#475569;line-height:1.6;padding:20px;background:rgba(30,41,59,0.3);border-radius:10px;margin:24px 0;border:1px solid #334155;">
+    <strong style="color:#64748b;">Important:</strong> This analysis is based on the documents you provided and publicly available data. It is not a substitute for professional inspection, legal, or financial advice.
+  </div>
+
+  <!-- ─── NEGOTIATION PLAYBOOK ─── -->
+  <div style="margin-top:32px;">
+    <div class="section-label">Your negotiation playbook</div>
+    <div class="playbook-grid">
+      <div class="playbook-card" style="background:rgba(245,158,11,0.05);border:1px solid rgba(245,158,11,0.18);">
+        <div class="playbook-card-top">
+          <span style="font-size:1.3rem;">🔧</span>
+          <span class="playbook-card-step" style="background:rgba(245,158,11,0.12);color:#f59e0b;border:1px solid rgba(245,158,11,0.2);">Step 1</span>
+        </div>
+        <div>
+          <div class="playbook-card-title">Repair costs</div>
+          <div class="playbook-card-sub">Every dollar at stake, by system. Each line is a separate ask.</div>
+        </div>
+      </div>
+      <div class="playbook-card" style="background:rgba(34,197,94,0.05);border:1px solid rgba(34,197,94,0.18);">
+        <div class="playbook-card-top">
+          <span style="font-size:1.3rem;">📋</span>
+          <span class="playbook-card-step" style="background:rgba(34,197,94,0.1);color:#22c55e;border:1px solid rgba(34,197,94,0.2);">Step 2</span>
+        </div>
+        <div>
+          <div class="playbook-card-title">Negotiation checklist</div>
+          <div class="playbook-card-sub">Your documented asks. Share with your agent directly.</div>
+        </div>
+      </div>
+      <div class="playbook-card" style="background:rgba(139,92,246,0.05);border:1px solid rgba(139,92,246,0.18);">
+        <div class="playbook-card-top">
+          <span style="font-size:1.3rem;">🧮</span>
+          <span class="playbook-card-step" style="background:rgba(139,92,246,0.1);color:#a78bfa;border:1px solid rgba(139,92,246,0.2);">Step 3</span>
+        </div>
+        <div>
+          <div class="playbook-card-title">Offer calculator <span style="color:#a78bfa;font-size:12px;">$788K</span></div>
+          <div class="playbook-card-sub">Aggressive, balanced, and conservative bands.</div>
+        </div>
+      </div>
+      <div class="playbook-card" style="background:linear-gradient(135deg,rgba(239,68,68,0.07),rgba(220,38,38,0.03));border:1px solid rgba(239,68,68,0.25);">
+        <div class="playbook-card-top">
+          <span style="font-size:1.3rem;">📄</span>
+          <span class="playbook-card-step" style="background:rgba(239,68,68,0.12);color:#fca5a5;border:1px solid rgba(239,68,68,0.25);">Step 4</span>
+        </div>
+        <div>
+          <div class="playbook-card-title">Draft addendum</div>
+          <div class="playbook-card-sub">State-aware Request for Repair, ready to sign.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── VERDICT CARD ─── -->
+  <div class="verdict-card" style="border:1px solid rgba(96,165,250,0.2);background:linear-gradient(160deg,rgba(15,22,41,0.9),rgba(17,17,24,0.95));">
+    <div class="verdict-accent" style="background:linear-gradient(90deg,#60a5fa,#60a5fa88,#60a5fa);"></div>
+    <div class="verdict-header">
+      <div>
+        <div class="verdict-eyebrow">OfferWise Verdict</div>
+        <div class="verdict-title">This is a buyable house at the right number.</div>
+      </div>
+      <div class="verdict-badge" style="background:rgba(96,165,250,0.1);color:#60a5fa;border:1px solid rgba(96,165,250,0.2);">✓ Proceed</div>
+    </div>
+    <div class="verdict-quote">
+      "At $788,500 you're not overpaying — you're buying a property at a price that reflects what it actually costs to own. The ~$65K in estimated repairs is already embedded in the discount. The disclosure has 2 contradictions worth using at the table — that gives you standing to ask for what you need. Don't offer asking. Don't walk away. Offer $788,500 and let the data do the talking."
+    </div>
+    <div class="verdict-bullets">
+      <div class="verdict-bullet">
+        <span style="font-size:15px;flex-shrink:0;">🏠</span>
+        <div><strong style="color:#e2e8f0;">The house: </strong>Structurally sound with known issues. Systems, not bones — expensive but finite. OfferScore™ 72/100.</div>
+      </div>
+      <div class="verdict-bullet">
+        <span style="font-size:15px;flex-shrink:0;">💰</span>
+        <div><strong style="color:#e2e8f0;">The number: </strong>$788,500 is 12.2% below asking with ~$65K estimated repairs already embedded in the discount.</div>
+      </div>
+      <div class="verdict-bullet">
+        <span style="font-size:15px;flex-shrink:0;">🎯</span>
+        <div><strong style="color:#e2e8f0;">Your leverage: </strong>2 disclosure contradictions · 31 avg days on market · AVM 4.2% below asking</div>
+      </div>
+    </div>
+    <div class="verdict-footer">
+      <button style="padding:9px 20px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;border:none;background:linear-gradient(135deg,#3b82f6,#6366f1);color:#fff;font-family:inherit;">📋 Copy Verdict</button>
+      <button style="padding:9px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;background:transparent;color:#64748b;border:1px solid rgba(51,65,85,0.6);font-family:inherit;">📤 Share</button>
+      <button style="padding:9px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;background:transparent;color:#94a3b8;border:1px solid rgba(51,65,85,0.6);font-family:inherit;">🎯 See Negotiation Toolkit</button>
+      <div class="verdict-footer-note">This verdict reflects the full analysis — not a guarantee.</div>
+    </div>
+  </div>
+
+  <!-- ─── UPSELL ─── -->
+  <div class="upsell">
+    <div style="font-size:1.75rem;margin-bottom:12px;">💡</div>
+    <div style="font-size:18px;font-weight:800;color:#f1f5f9;margin-bottom:10px;letter-spacing:-0.01em;line-height:1.3;">
+      Found $176K in issues and savings. What's hiding in the next property?
+    </div>
+    <div style="font-size:14px;color:#94a3b8;line-height:1.65;max-width:460px;margin:0 auto 22px;">
+      This analysis flagged $65K in repairs and a $110K negotiation opportunity. At $19/month, Pro pays for itself the moment it finds one issue your agent missed.
+    </div>
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:14px;">
+      <a href="#" style="display:inline-block;background:linear-gradient(135deg,#3b82f6,#2563eb);color:white;padding:13px 28px;border-radius:10px;font-weight:700;font-size:15px;text-decoration:none;">Upgrade to Pro — $19/mo →</a>
+      <a href="#" style="display:inline-block;background:transparent;color:#94a3b8;padding:13px 20px;border-radius:10px;font-weight:600;font-size:14px;text-decoration:none;border:1px solid #334155;">See all plans</a>
+      <button style="padding:13px 20px;border-radius:10px;font-weight:600;font-size:14px;cursor:pointer;font-family:inherit;background:linear-gradient(90deg,#f97316,#f59e0b);border:none;color:white;white-space:nowrap;">Share & Earn →</button>
+    </div>
+    <div style="font-size:12px;color:#475569;">
+      Starter $9/mo &nbsp;·&nbsp; Pro $19/mo &nbsp;·&nbsp; Unlimited $49/mo &nbsp;·&nbsp; Cancel anytime &nbsp;·&nbsp; Refer a friend, you both get a free analysis
+    </div>
+  </div>
+
+  <!-- Bottom actions -->
+  <div class="bottom-actions">
+    <button style="padding:12px 24px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;border:none;background:#60a5fa;color:white;">📄 Download PDF Report</button>
+    <button style="padding:12px 24px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;background:transparent;color:#94a3b8;border:1px solid #334155;">🔄 Analyze Another Property</button>
+  </div>
+</div>
+
+</body>
+</html>
