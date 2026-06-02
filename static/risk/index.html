@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bay Area Property Risk Reports — 25 Zip Codes Ranked | OfferWise</title>
+    <meta name="description" content="Free property risk reports for 25 Bay Area zip codes. Ranked by hidden risk exposure using FEMA flood maps, USGS earthquake data, CAL FIRE wildfire zones. Find out if your zip code is safe to buy.">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://www.getofferwise.ai/risk">
+    
+    <meta property="og:title" content="Bay Area Property Risk Reports — 25 Zip Codes Ranked">
+    <meta property="og:description" content="Government data reveals hidden risk exposure from $22K to $95K across Bay Area zip codes. Free reports for every zip.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://www.getofferwise.ai/risk">
+    
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'DM Sans', -apple-system, sans-serif;
+            background: #f8fafc;
+            color: #1e293b;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+        nav {
+            background: #0f172a;
+            padding: 14px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        nav .logo { color: white; font-weight: 700; font-size: 18px; text-decoration: none; letter-spacing: -0.5px; }
+        nav .logo span { color: #60a5fa; }
+        nav .cta-nav { background: #2563eb; color: white; padding: 8px 18px; border-radius: 6px; text-decoration: none; font-size: 14px; font-weight: 600; }
+        
+        .container { max-width: 1000px; margin: 0 auto; padding: 0 24px; }
+        
+        h1 {
+            font-size: clamp(28px, 4vw, 42px);
+            font-weight: 700;
+            letter-spacing: -1.5px;
+            margin: 40px 0 12px;
+            color: #0f172a;
+        }
+        .subtitle {
+            font-size: 17px;
+            color: #64748b;
+            max-width: 600px;
+            margin-bottom: 36px;
+        }
+        
+        .stats-bar {
+            display: flex;
+            gap: 32px;
+            margin-bottom: 36px;
+            flex-wrap: wrap;
+        }
+        .stat { text-align: center; }
+        .stat-num { font-size: 28px; font-weight: 700; font-family: 'DM Mono', monospace; color: #0f172a; }
+        .stat-label { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: #94a3b8; }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+            border: 1px solid #e2e8f0;
+        }
+        thead { background: #f8fafc; }
+        th {
+            text-align: left;
+            padding: 14px 16px;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #94a3b8;
+            font-weight: 600;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        td {
+            padding: 14px 16px;
+            font-size: 14px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        tr:hover { background: #f8fafc; }
+        .rank { color: #94a3b8; font-family: 'DM Mono', monospace; font-size: 13px; }
+        .exposure { font-weight: 700; font-family: 'DM Mono', monospace; }
+        td a { color: #2563eb; text-decoration: none; font-weight: 600; }
+        td a:hover { text-decoration: underline; }
+        .risk-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+        .risk-tags span {
+            background: #f1f5f9;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            color: #64748b;
+            white-space: nowrap;
+        }
+        
+        .cta-section {
+            margin: 48px 0;
+            background: #0f172a;
+            border-radius: 14px;
+            padding: 36px;
+            text-align: center;
+        }
+        .cta-section h2 { color: white; font-size: 22px; margin-bottom: 8px; }
+        .cta-section p { color: #94a3b8; font-size: 15px; margin-bottom: 20px; }
+        .cta-btn {
+            display: inline-block;
+            background: #2563eb;
+            color: white;
+            padding: 14px 36px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: 600;
+        }
+        
+        footer {
+            padding: 30px 0;
+            border-top: 1px solid #e2e8f0;
+            color: #94a3b8;
+            font-size: 13px;
+            margin-top: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .risk-tags { display: none; }
+            th:last-child, td:last-child { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="https://www.getofferwise.ai" class="logo">Offer<span>Wise</span></a>
+        <a href="https://www.getofferwise.ai/risk-check" class="cta-nav">Free Risk Check →</a>
+    </nav>
+    
+    <div class="container">
+        <h1>Bay Area Property Risk Reports</h1>
+        <p class="subtitle">25 zip codes ranked by hidden risk exposure. Government data from FEMA, USGS, CAL FIRE, CGS, and EPA.</p>
+        
+        <div class="stats-bar">
+            <div class="stat">
+                <div class="stat-num">25</div>
+                <div class="stat-label">Zip Codes</div>
+            </div>
+            <div class="stat">
+                <div class="stat-num">$57,160</div>
+                <div class="stat-label">Avg Exposure</div>
+            </div>
+            <div class="stat">
+                <div class="stat-num">5</div>
+                <div class="stat-label">Grade F</div>
+            </div>
+            <div class="stat">
+                <div class="stat-num">6</div>
+                <div class="stat-label">Gov APIs Used</div>
+            </div>
+        </div>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>Rank</th>
+                    <th>Zip</th>
+                    <th>City</th>
+                    <th>County</th>
+                    <th>Grade</th>
+                    <th>Exposure</th>
+                    <th>Top Risks</th>
+                </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td class="rank">#1</td>
+                <td><a href="/risk/94063">94063</a></td>
+                <td><a href="/risk/94063">Redwood City</a></td>
+                <td>San Mateo</td>
+                <td style="color:#dc2626;font-weight:700;font-family:'DM Mono',monospace">F</td>
+                <td class="exposure" style="color:#dc2626">$95,000</td>
+                <td class="risk-tags"><span>FEMA AE flood zone</span><span>Hayward Fault proximity</span></td>
+            </tr>
+            <tr>
+                <td class="rank">#2</td>
+                <td><a href="/risk/94560">94560</a></td>
+                <td><a href="/risk/94560">Newark</a></td>
+                <td>Alameda</td>
+                <td style="color:#dc2626;font-weight:700;font-family:'DM Mono',monospace">F</td>
+                <td class="exposure" style="color:#dc2626">$91,000</td>
+                <td class="risk-tags"><span>FEMA AE flood zone</span><span>Hayward Fault <2mi</span></td>
+            </tr>
+            <tr>
+                <td class="rank">#3</td>
+                <td><a href="/risk/94080">94080</a></td>
+                <td><a href="/risk/94080">South San Francisco</a></td>
+                <td>San Mateo</td>
+                <td style="color:#dc2626;font-weight:700;font-family:'DM Mono',monospace">F</td>
+                <td class="exposure" style="color:#dc2626">$88,000</td>
+                <td class="risk-tags"><span>San Andreas Fault <3mi</span><span>FEMA flood zones</span></td>
+            </tr>
+            <tr>
+                <td class="rank">#4</td>
+                <td><a href="/risk/94541">94541</a></td>
+                <td><a href="/risk/94541">Hayward</a></td>
+                <td>Alameda</td>
+                <td style="color:#dc2626;font-weight:700;font-family:'DM Mono',monospace">F</td>
+                <td class="exposure" style="color:#dc2626">$86,000</td>
+                <td class="risk-tags"><span>Hayward Fault runs through city</span><span>FEMA flood zones</span></td>
+            </tr>
+            <tr>
+                <td class="rank">#5</td>
+                <td><a href="/risk/94501">94501</a></td>
+                <td><a href="/risk/94501">Alameda</a></td>
+                <td>Alameda</td>
+                <td style="color:#dc2626;font-weight:700;font-family:'DM Mono',monospace">F</td>
+                <td class="exposure" style="color:#dc2626">$84,000</td>
+                <td class="risk-tags"><span>FEMA AE/VE flood zones</span><span>Liquefaction extreme</span></td>
+            </tr>
+            <tr>
+                <td class="rank">#6</td>
+                <td><a href="/risk/94043">94043</a></td>
+                <td><a href="/risk/94043">Mountain View</a></td>
+                <td>Santa Clara</td>
+                <td style="color:#ea580c;font-weight:700;font-family:'DM Mono',monospace">D</td>
+                <td class="exposure" style="color:#ea580c">$72,000</td>
+                <td class="risk-tags"><span>FEMA flood zones (Stevens Creek)</span><span>San Andreas Fault <8mi</span></td>
+            </tr>
+            <tr>
+                <td class="rank">#7</td>
+                <td><a href="/risk/95050">95050</a></td>
+                <td><a href="/risk/95050">Santa Clara</a></td>
+                <td>Santa Clara</td>
+                <td style="color:#ea580c;font-weight:700;font-family:'DM Mono',monospace">D</td>
+                <td class="exposure" style="color:#ea580c">$70,000</td>
+                <td class="risk-tags"><span>FEMA flood zones</span><span>San Andreas + Hayward Fault zone</span></td>
+            </tr>
+            <tr>
+                <td class="rank">#8</td>
+                <td><a href="/risk/94901">94901</a></td>
+                <td><a href="/risk/94901">San Rafael</a></td>
+                <td>Marin</td>
+                <td style="color:#ea580c;font-weight:700;font-family:'DM Mono',monospace">D</td>
+                <td class="exposure" style="color:#ea580c">$67,000</td>
+                <td class="risk-tags"><span>FEMA flood zones</span><span>San Andreas Fault <6mi</span></td>
+            </tr>
+            <tr>
+                <td class="rank">#9</td>
+                <td><a href="/risk/94124">94124</a></td>
+                <td><a href="/risk/94124">San Francisco (Bayview)</a></td>
+                <td>San Francisco</td>
+                <td style="color:#ea580c;font-weight:700;font-family:'DM Mono',monospace">D</td>
+                <td class="exposure" style="color:#ea580c">$65,000</td>
+                <td class="risk-tags"><span>FEMA flood zones</span><span>Liquefaction extreme</span></td>
+            </tr>
+            <tr>
+                <td class="rank">#10</td>
+                <td><a href="/risk/95035">95035</a></td>
+                <td><a href="/risk/95035">Milpitas</a></td>
+                <td>Santa Clara</td>
+                <td style="color:#ea580c;font-weight:700;font-family:'DM Mono',monospace">D</td>
+                <td class="exposure" style="color:#ea580c">$63,000</td>
+                <td class="risk-tags"><span>Hayward + Calaveras Faults</span><span>FEMA flood zones</span></td>
+            </tr>
+            <tr>
+                <td class="rank">#11</td>
+                <td><a href="/risk/94102">94102</a></td>
+                <td><a href="/risk/94102">San Francisco (Civic Center)</a></td>
+                <td>San Francisco</td>
+                <td style="color:#ea580c;font-weight:700;font-family:'DM Mono',monospace">D</td>
+                <td class="exposure" style="color:#ea580c">$59,000</td>
+                <td class="risk-tags"><span>Liquefaction zone</span><span>San Andreas Fault <8mi</span></td>
+            </tr>
+            <tr>
+                <td class="rank">#12</td>
+                <td><a href="/risk/94577">94577</a></td>
+                <td><a href="/risk/94577">San Leandro</a></td>
+                <td>Alameda</td>
+                <td style="color:#ea580c;font-weight:700;font-family:'DM Mono',monospace">D</td>
+                <td class="exposure" style="color:#ea580c">$58,000</td>
+                <td class="risk-tags"><span>Hayward Fault <2mi</span><span>FEMA flood zones</span></td>
+            </tr>
+            <tr>
+                <td class="rank">#13</td>
+                <td><a href="/risk/95134">95134</a></td>
+                <td><a href="/risk/95134">San Jose (North)</a></td>
+                <td>Santa Clara</td>
+                <td style="color:#ea580c;font-weight:700;font-family:'DM Mono',monospace">D</td>
+                <td class="exposure" style="color:#ea580c">$56,000</td>
+                <td class="risk-tags"><span>FEMA flood zone (Coyote Creek)</span><span>Calaveras Fault</span></td>
+            </tr>
+            <tr>
+                <td class="rank">#14</td>
+                <td><a href="/risk/94010">94010</a></td>
+                <td><a href="/risk/94010">Burlingame</a></td>
+                <td>San Mateo</td>
+                <td style="color:#ea580c;font-weight:700;font-family:'DM Mono',monospace">D</td>
+                <td class="exposure" style="color:#ea580c">$55,000</td>
+                <td class="risk-tags"><span>San Andreas Fault <5mi</span><span>FEMA flood zones</span></td>
+            </tr>
+            <tr>
+                <td class="rank">#15</td>
+                <td><a href="/risk/94538">94538</a></td>
+                <td><a href="/risk/94538">Fremont</a></td>
+                <td>Alameda</td>
+                <td style="color:#ea580c;font-weight:700;font-family:'DM Mono',monospace">D</td>
+                <td class="exposure" style="color:#ea580c">$54,000</td>
+                <td class="risk-tags"><span>Hayward Fault runs through</span><span>Flood zones</span></td>
+            </tr>
+            <tr>
+                <td class="rank">#16</td>
+                <td><a href="/risk/94530">94530</a></td>
+                <td><a href="/risk/94530">El Cerrito</a></td>
+                <td>Contra Costa</td>
+                <td style="color:#ca8a04;font-weight:700;font-family:'DM Mono',monospace">C</td>
+                <td class="exposure" style="color:#ca8a04">$47,000</td>
+                <td class="risk-tags"><span>Hayward Fault <1mi</span><span>Wildfire moderate</span></td>
+            </tr>
+            <tr>
+                <td class="rank">#17</td>
+                <td><a href="/risk/94611">94611</a></td>
+                <td><a href="/risk/94611">Oakland (Montclair)</a></td>
+                <td>Alameda</td>
+                <td style="color:#ca8a04;font-weight:700;font-family:'DM Mono',monospace">C</td>
+                <td class="exposure" style="color:#ca8a04">$46,000</td>
+                <td class="risk-tags"><span>Hayward Fault <2mi</span><span>Wildfire very high</span></td>
+            </tr>
+            <tr>
+                <td class="rank">#18</td>
+                <td><a href="/risk/94062">94062</a></td>
+                <td><a href="/risk/94062">Redwood City (Woodside)</a></td>
+                <td>San Mateo</td>
+                <td style="color:#ca8a04;font-weight:700;font-family:'DM Mono',monospace">C</td>
+                <td class="exposure" style="color:#ca8a04">$44,000</td>
+                <td class="risk-tags"><span>San Andreas Fault <4mi</span><span>Wildfire high</span></td>
+            </tr>
+            <tr>
+                <td class="rank">#19</td>
+                <td><a href="/risk/94920">94920</a></td>
+                <td><a href="/risk/94920">Tiburon</a></td>
+                <td>Marin</td>
+                <td style="color:#ca8a04;font-weight:700;font-family:'DM Mono',monospace">C</td>
+                <td class="exposure" style="color:#ca8a04">$43,000</td>
+                <td class="risk-tags"><span>San Andreas Fault zone</span><span>Wildfire moderate-high</span></td>
+            </tr>
+            <tr>
+                <td class="rank">#20</td>
+                <td><a href="/risk/94506">94506</a></td>
+                <td><a href="/risk/94506">Danville</a></td>
+                <td>Contra Costa</td>
+                <td style="color:#ca8a04;font-weight:700;font-family:'DM Mono',monospace">C</td>
+                <td class="exposure" style="color:#ca8a04">$41,000</td>
+                <td class="risk-tags"><span>Calaveras Fault <3mi</span><span>Wildfire high</span></td>
+            </tr>
+            <tr>
+                <td class="rank">#21</td>
+                <td><a href="/risk/95014">95014</a></td>
+                <td><a href="/risk/95014">Cupertino</a></td>
+                <td>Santa Clara</td>
+                <td style="color:#ca8a04;font-weight:700;font-family:'DM Mono',monospace">C</td>
+                <td class="exposure" style="color:#ca8a04">$35,000</td>
+                <td class="risk-tags"><span>San Andreas Fault <6mi</span><span>Wildfire moderate</span></td>
+            </tr>
+            <tr>
+                <td class="rank">#22</td>
+                <td><a href="/risk/94025">94025</a></td>
+                <td><a href="/risk/94025">Menlo Park</a></td>
+                <td>San Mateo</td>
+                <td style="color:#ca8a04;font-weight:700;font-family:'DM Mono',monospace">C</td>
+                <td class="exposure" style="color:#ca8a04">$32,000</td>
+                <td class="risk-tags"><span>San Andreas Fault <6mi</span><span>FEMA flood zones (limited)</span></td>
+            </tr>
+            <tr>
+                <td class="rank">#23</td>
+                <td><a href="/risk/94040">94040</a></td>
+                <td><a href="/risk/94040">Mountain View (South)</a></td>
+                <td>Santa Clara</td>
+                <td style="color:#16a34a;font-weight:700;font-family:'DM Mono',monospace">B</td>
+                <td class="exposure" style="color:#16a34a">$29,000</td>
+                <td class="risk-tags"><span>San Andreas Fault zone</span><span>Flood zones (limited)</span></td>
+            </tr>
+            <tr>
+                <td class="rank">#24</td>
+                <td><a href="/risk/94301">94301</a></td>
+                <td><a href="/risk/94301">Palo Alto</a></td>
+                <td>Santa Clara</td>
+                <td style="color:#16a34a;font-weight:700;font-family:'DM Mono',monospace">B</td>
+                <td class="exposure" style="color:#16a34a">$27,000</td>
+                <td class="risk-tags"><span>San Andreas Fault <7mi</span><span>Creek flood zones</span></td>
+            </tr>
+            <tr>
+                <td class="rank">#25</td>
+                <td><a href="/risk/95120">95120</a></td>
+                <td><a href="/risk/95120">San Jose (Almaden)</a></td>
+                <td>Santa Clara</td>
+                <td style="color:#16a34a;font-weight:700;font-family:'DM Mono',monospace">B</td>
+                <td class="exposure" style="color:#16a34a">$22,000</td>
+                <td class="risk-tags"><span>Wildfire moderate</span><span>20 FEMA disasters</span></td>
+            </tr>
+            </tbody>
+        </table>
+        
+        <div class="cta-section">
+            <h2>Don't see your zip code?</h2>
+            <p>Check any US address instantly. Free, no signup required.</p>
+            <a href="https://www.getofferwise.ai/risk-check" class="cta-btn">Scan an Address Free →</a>
+        </div>
+    </div>
+    
+    <div class="container">
+        <footer>
+            <p><strong>OfferWise</strong> — AI-powered property risk intelligence for homebuyers.</p>
+            <p>Data: FEMA, USGS, CAL FIRE, CGS, OpenFEMA, EPA. For informational purposes only.</p>
+        </footer>
+    </div>
+</body>
+</html>

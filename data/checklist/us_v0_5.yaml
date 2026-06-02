@@ -1,0 +1,1629 @@
+# OfferWise Internal Property Checklist — United States
+# =====================================================================
+# Scope:    NATIONAL (entire USA). Jurisdiction-agnostic national base + stacked
+#           state and municipal overlays. NOT a California product; CA and SFH are
+#           the deepest-coverage slice today, not the boundary (Commitment 2.5).
+# Version:  v0.5 (CONSOLIDATED)
+# Date:     2026-05-29
+# Status:   Consolidated master. v0.5 folds in three evidence-backed refinements
+#           surfaced by the corpus labeling pilot (one read-only NACHI member sample).
+#           Supersedes v0.4.
+#
+#  NAMING:  "CA SFH" is a RESOLVED VIEW, not this asset (national_base + ca_overlay
+#           + CA municipal_overlay, composed for one property).
+#
+# Built to: Reasoning Architecture (current v0.4), Section 3.5 (item anatomy)
+#
+# Contents: 70 fully-populated items
+#             national_base : 56   (incl. 1 added in v0.5)
+#             ca_overlay.adds: 14
+#           ca_overlay.refines: 3   |  ca_overlay.deprecated: 1
+#           municipal_overlay : 3 jurisdictions (Daly City, Portola Valley, San Jose)
+#           Compliance basis: 39 legal_requirement, 30 best_practice, 1 offerwise_judgment
+#
+# Composition (Q-5.9): national_base -> state_overlay -> municipal_overlay; add/refine,
+#   no silent delete. Grouping (Q-5.5): groups emerge from the checklist.
+#   Citations (Q-5.8): all legal_requirement items verified vs current US/CA code, May 2026
+#   (see offerwise_citation_verification_q5_8.yaml). The one v0.5 addition is best_practice.
+#
+# v0.5 CHANGES (from offerwise_corpus_labeling_pilot.yaml):
+#   1. electrical.wiring_material — description sharpened to distinguish benign
+#      service-entrance/feeder aluminum from hazardous 120V branch-circuit aluminum.
+#   2. electrical.panel_brand_safety — broadened to cover breaker incompatibility
+#      (mixed / non-listed breakers), not only known-hazard brands.
+#   3. NEW plumbing.thermal_expansion_protection — water-heater expansion control;
+#      best_practice (UPC/IPC section pending a Q-5.8 verification pass).
+#   Source: read-only NACHI member sample (Lon Henderson #1); NOT ingested (ai-train=no,
+#   R9 consent gate). The pilot informed these refinements; the report is not in the corpus.
+#
+# answer_type: numeric_years | numeric | boolean | enum | freetext | range | dollar_amount
+# importance: critical | major | supporting | informational
+# cost_impact: yes | indirect | no
+# disclosure_obligation_state: required | conditional | not_required
+# severity_when_negative: minor | moderate | major | critical
+# unanswered_implication: seller_should_disclose | specialist_required | unanswerable_from_documents | minor
+# =====================================================================
+
+VERSION: "v0.5"
+national_base:
+- id: roof.age
+  question: What is the age of the roof cover?
+  description: Years since the current roof covering was installed.
+  group: roof_exterior
+  answer_type: numeric_years
+  importance: major
+  cost_impact: indirect
+  compliance_basis:
+    basis: best_practice
+    citation: 'ASHI/NACHI SoP; collected on C.A.R. TDS Section A (Roof: Age)'
+  disclosure_obligation_state: required
+  severity_when_negative: major
+  unanswered_implication: seller_should_disclose
+  applicability:
+    jurisdictions:
+    - '*'
+    property_types:
+    - SFH
+  related_items:
+  - roof.cover_material
+  - roof.remaining_life
+  - roof.leak_evidence
+- id: roof.cover_material
+  question: What is the roof covering material?
+  description: Material class of the roof cover (composition, tile, metal, etc.).
+  group: roof_exterior
+  answer_type: enum
+  importance: supporting
+  cost_impact: indirect
+  compliance_basis:
+    basis: best_practice
+    citation: 'Collected on C.A.R. TDS Section A (Roof: Type)'
+  disclosure_obligation_state: required
+  severity_when_negative: minor
+  unanswered_implication: unanswerable_from_documents
+  applicability:
+    jurisdictions:
+    - '*'
+    property_types:
+    - SFH
+  related_items:
+  - roof.age
+  - roof.remaining_life
+- id: roof.remaining_life
+  question: What is the estimated remaining service life of the roof?
+  description: Derived estimate from age, material, and observed condition. Drives offer reserve.
+  group: roof_exterior
+  answer_type: range
+  importance: major
+  cost_impact: yes
+  compliance_basis:
+    basis: offerwise_judgment
+    reasoning: Synthesized from roof.age + roof.cover_material expected service life + inspector condition notes; no single document states it. Feeds the cost predictor at Issue level.
+  disclosure_obligation_state: not_required
+  severity_when_negative: major
+  unanswered_implication: specialist_required
+  applicability:
+    jurisdictions:
+    - '*'
+    property_types:
+    - SFH
+  related_items:
+  - roof.age
+  - roof.cover_material
+  - roof.leak_evidence
+- id: roof.leak_evidence
+  question: Is there evidence of past or active roof leaks?
+  description: Staining on roof underside, ceiling stains, prior-repair evidence indicating water entry through the roof.
+  group: roof_exterior
+  answer_type: boolean
+  importance: major
+  cost_impact: yes
+  compliance_basis:
+    basis: legal_requirement
+    citation: Material defect; C.A.R. TDS Section B (Roof) + SPQ 8.A if known. Civil Code §1102 et seq.
+  disclosure_obligation_state: required
+  severity_when_negative: major
+  unanswered_implication: seller_should_disclose
+  applicability:
+    jurisdictions:
+    - '*'
+    property_types:
+    - SFH
+  related_items:
+  - roof.remaining_life
+  - structure.water_intrusion_history
+  - roof.skylight_penetration_integrity
+- id: roof.skylight_penetration_integrity
+  question: Are roof penetrations (skylights, vents, flashings) watertight?
+  description: Integrity of skylight curbs, roof vents, and flashing details — common discrete leak points distinct from general roof wear.
+  group: roof_exterior
+  answer_type: enum
+  importance: supporting
+  cost_impact: yes
+  compliance_basis:
+    basis: best_practice
+    citation: 'ASHI/NACHI SoP; disclosable if known (TDS B / SPQ 10.A). e.g. San Vicente SPQ 10.A: pool-room skylight + south vent intrude in heavy storms.'
+  disclosure_obligation_state: required
+  severity_when_negative: moderate
+  unanswered_implication: seller_should_disclose
+  applicability:
+    jurisdictions:
+    - '*'
+    property_types:
+    - SFH
+  related_items:
+  - roof.leak_evidence
+  - structure.water_intrusion_history
+- id: exterior.sheathing_fascia_condition
+  question: Is the eave/soffit sheathing and fascia/trim sound, or is there moisture/organism damage?
+  description: Condition of roof-edge sheathing, fascia, varge rafters, and exterior trim.
+  group: roof_exterior
+  answer_type: enum
+  importance: supporting
+  cost_impact: indirect
+  compliance_basis:
+    basis: best_practice
+    citation: ASHI/NACHI SoP
+  disclosure_obligation_state: not_required
+  severity_when_negative: moderate
+  unanswered_implication: minor
+  applicability:
+    jurisdictions:
+    - '*'
+    property_types:
+    - SFH
+  related_items:
+  - roof.leak_evidence
+  - structure.water_intrusion_history
+- id: electrical.panel_brand_safety
+  question: Does the panel have a safety concern — a known-hazard brand (FPE Stab-Lok, Zinsco) OR breaker incompatibility (mixed / non-listed breakers not intended for the panel)?
+  description: 'Panel safety on two fronts: (a) known failure-prone brands with documented failure-to-trip / fire history affecting safety and insurability; and (b) mixed-brand or non-listed breakers not intended for the panel — a sibling safety concern surfaced in pilot labeling. Both affect safety and may affect insurability.'
+  group: electrical
+  answer_type: enum
+  importance: critical
+  cost_impact: yes
+  compliance_basis:
+    basis: best_practice
+    reasoning: 'SILENT-HAZARD class: documented fire/insurability risk but reads ''functional'', so structurally invisible to TDS/SPQ. OfferWise-critical (Commitment 2.2 omission case).'
+  disclosure_obligation_state: not_required
+  severity_when_negative: critical
+  unanswered_implication: specialist_required
+  applicability:
+    jurisdictions:
+    - '*'
+    property_types:
+    - SFH
+    - condo
+    - townhouse
+  related_items:
+  - electrical.wiring_material
+  - electrical.service_capacity_amps
+- id: electrical.service_capacity_amps
+  question: What is the main service amperage?
+  description: Rated service capacity (e.g., 100A / 200A). Low capacity may constrain modern loads / EV / electrification.
+  group: electrical
+  answer_type: numeric
+  importance: supporting
+  cost_impact: indirect
+  compliance_basis:
+    basis: best_practice
+    citation: ASHI/NACHI SoP
+  disclosure_obligation_state: not_required
+  severity_when_negative: minor
+  unanswered_implication: unanswerable_from_documents
+  applicability:
+    jurisdictions:
+    - '*'
+    property_types:
+    - SFH
+  related_items:
+  - electrical.panel_brand_safety
+- id: electrical.wiring_material
+  question: Is the 120V branch-circuit wiring copper, aluminum, or mixed?
+  description: 'Presence of aluminum BRANCH-CIRCUIT (120V) wiring — a fire-safety concern at connections in older homes. Service-entrance/feeder aluminum is normal and is NOT this item''s concern; only branch-circuit aluminum is flagged. The two must not be conflated (pilot-surfaced precision split: a real report noted both, benign service-entrance + hazard branch).'
+  group: electrical
+  answer_type: enum
+  importance: major
+  cost_impact: indirect
+  compliance_basis:
+    basis: best_practice
+    citation: ASHI/NACHI SoP; fire-safety concern
+  disclosure_obligation_state: not_required
+  severity_when_negative: major
+  unanswered_implication: specialist_required
+  applicability:
+    jurisdictions:
+    - '*'
+    property_types:
+    - SFH
+  related_items:
+  - electrical.panel_brand_safety
+- id: electrical.gfci_protection
+  question: Is GFCI protection present and functional in required wet locations?
+  description: GFCI presence/operation at kitchen, bath, exterior, garage receptacles.
+  group: electrical
+  answer_type: enum
+  importance: major
+  cost_impact: no
+  compliance_basis:
+    basis: best_practice
+    reasoning: Current code requires GFCI in wet locations; older homes often grandfathered, so best_practice unless local point-of-sale rules apply (then conditional legal).
+  disclosure_obligation_state: conditional
+  severity_when_negative: moderate
+  unanswered_implication: minor
+  applicability:
+    jurisdictions:
+    - '*'
+    property_types:
+    - SFH
+  related_items: []
+- id: plumbing.supply_pipe_material
+  question: What is the water supply pipe material, and is it nearing end of life?
+  description: Supply piping material (copper / galvanized / PEX / mixed) and failure indicators (encrustation, restriction).
+  group: plumbing
+  answer_type: enum
+  importance: major
+  cost_impact: yes
+  compliance_basis:
+    basis: best_practice
+    citation: ASHI/NACHI SoP
+  disclosure_obligation_state: not_required
+  severity_when_negative: major
+  unanswered_implication: specialist_required
+  applicability:
+    jurisdictions:
+    - '*'
+    property_types:
+    - SFH
+  related_items:
+  - plumbing.active_leaks
+  - plumbing.known_defect_pipe_material
+- id: plumbing.known_defect_pipe_material
+  question: Does the home contain a known-defect pipe material (e.g., polybutylene)?
+  description: Presence of pipe materials with documented failure/litigation history (polybutylene, certain PEX recalls).
+  group: plumbing
+  answer_type: enum
+  importance: major
+  cost_impact: yes
+  compliance_basis:
+    basis: legal_requirement
+    citation: SILENT-HAZARD class, but CA SPQ 8.A explicitly names polybutylene → disclosure_obligation rises to required when known. Civil Code §1102 et seq.
+  disclosure_obligation_state: required
+  severity_when_negative: major
+  unanswered_implication: specialist_required
+  applicability:
+    jurisdictions:
+    - '*'
+    property_types:
+    - SFH
+    - condo
+    - townhouse
+  related_items:
+  - plumbing.supply_pipe_material
+- id: plumbing.active_leaks
+  question: Are there active plumbing leaks?
+  description: Currently leaking supply or waste components (distinct from past/dry evidence).
+  group: plumbing
+  answer_type: boolean
+  importance: critical
+  cost_impact: yes
+  compliance_basis:
+    basis: legal_requirement
+    citation: Material defect; C.A.R. TDS Section B (Plumbing) + SPQ 8.A/10.A if known. Civil Code §1102 et seq.
+  disclosure_obligation_state: required
+  severity_when_negative: critical
+  unanswered_implication: seller_should_disclose
+  applicability:
+    jurisdictions:
+    - '*'
+    property_types:
+    - SFH
+  related_items:
+  - plumbing.supply_pipe_material
+  - structure.water_intrusion_history
+- id: plumbing.sewer_type
+  question: Is the property on public sewer or septic?
+  description: Wastewater service type. Branches into septic.* or sewer_lateral.* items.
+  group: plumbing
+  answer_type: enum
+  importance: supporting
+  cost_impact: indirect
+  compliance_basis:
+    basis: legal_requirement
+    citation: Collected on C.A.R. TDS Section A (Public Sewer System / Septic Tank)
+  disclosure_obligation_state: required
+  severity_when_negative: moderate
+  unanswered_implication: seller_should_disclose
+  applicability:
+    jurisdictions:
+    - '*'
+    property_types:
+    - SFH
+  related_items:
+  - septic.system_condition
+  - sewer.lateral_compliance
+- id: septic.system_condition
+  question: 'If on septic: type, condition, and inspection/pumping status?'
+  description: Septic/alternative-system presence, last inspection/pump, capacity adequacy. (San Vicente SPQ 8.C asks about alternative septic systems.)
+  group: plumbing
+  answer_type: enum
+  importance: major
+  cost_impact: yes
+  compliance_basis:
+    basis: best_practice
+    citation: SBSA §10 (septic regulations); local point-of-sale septic inspection rules may apply (municipal_overlay).
+  disclosure_obligation_state: conditional
+  severity_when_negative: major
+  unanswered_implication: specialist_required
+  applicability:
+    jurisdictions:
+    - '*'
+    property_types:
+    - SFH
+  related_items:
+  - plumbing.sewer_type
+- id: sewer.lateral_compliance
+  question: 'If on public sewer: is the private sewer lateral compliant (where a point-of-sale program exists)?'
+  description: Condition/compliance of the private lateral; several CA regions require point-of-sale lateral inspection/cert.
+  group: plumbing
+  answer_type: enum
+  importance: supporting
+  cost_impact: yes
+  compliance_basis:
+    basis: best_practice
+    citation: SBSA §11 (sewers and sewer laterals); specific obligation is municipal (municipal_overlay).
+  disclosure_obligation_state: conditional
+  severity_when_negative: moderate
+  unanswered_implication: specialist_required
+  applicability:
+    jurisdictions:
+    - '*'
+    property_types:
+    - SFH
+  related_items:
+  - plumbing.sewer_type
+- id: water.supply_source
+  question: What is the potable water source (public, private water company, well, spring)?
+  description: Water source; if well, branches into quality/quantity testing. (SPQ 8.A names well.)
+  group: plumbing
+  answer_type: enum
+  importance: supporting
+  cost_impact: indirect
+  compliance_basis:
+    basis: best_practice
+    citation: SBSA §12 (water and well systems)
+  disclosure_obligation_state: conditional
+  severity_when_negative: moderate
+  unanswered_implication: specialist_required
+  applicability:
+    jurisdictions:
+    - '*'
+    property_types:
+    - SFH
+  related_items: []
+- id: water_heater.age
+  question: What is the age of the water heater?
+  description: Years since install; informs replacement reserve (typical life 8-12 yrs).
+  group: plumbing
+  answer_type: numeric_years
+  importance: supporting
+  cost_impact: indirect
+  compliance_basis:
+    basis: best_practice
+    citation: ASHI/NACHI SoP
+  disclosure_obligation_state: not_required
+  severity_when_negative: moderate
+  unanswered_implication: seller_should_disclose
+  applicability:
+    jurisdictions:
+    - '*'
+    property_types:
+    - SFH
+  related_items: []
+- id: plumbing.thermal_expansion_protection
+  question: Does the water heater have thermal-expansion protection (expansion tank) where required?
+  description: Presence/absence of thermal-expansion control (expansion tank or equivalent) on the water heater. Required on closed plumbing systems (PRV / check valve / backflow preventer present); absence over-pressurizes the system and stresses the TPR valve. Older units may predate the requirement (grandfathered). Pilot-surfaced candidate item.
+  group: plumbing
+  answer_type: enum
+  importance: supporting
+  cost_impact: indirect
+  compliance_basis:
+    basis: best_practice
+    citation: Code-required on closed systems under UPC/IPC (exact section pending Q-5.8 verification); ASHI/NACHI SoP. Older installs may be grandfathered.
+  disclosure_obligation_state: not_required
+  severity_when_negative: moderate
+  unanswered_implication: specialist_required
+  applicability:
+    jurisdictions:
+    - '*'
+    property_types:
+    - SFH
+    - condo
+    - townhouse
+  related_items:
+  - water_heater.age
+  - ca.water_heater_seismic_bracing
+- id: hvac.heating_type
+  question: What is the heating system type?
+  description: Heating system class (forced-air gas, heat pump, etc.).
+  group: hvac_systems
+  answer_type: enum
+  importance: supporting
+  cost_impact: indirect
+  compliance_basis:
+    basis: legal_requirement
+    citation: Collected on C.A.R. TDS Section A (Central Heating)
+  disclosure_obligation_state: required
+  severity_when_negative: minor
+  unanswered_implication: unanswerable_from_documents
+  applicability:
+    jurisdictions:
+    - '*'
+    property_types:
+    - SFH
+  related_items:
+  - hvac.furnace_age
+  - hvac.flue_venting_integrity
+- id: hvac.furnace_age
+  question: What is the age of the furnace/heat source?
+  description: Years since install; heat exchanger life ~20-25 yrs. Drives replacement reserve.
+  group: hvac_systems
+  answer_type: numeric_years
+  importance: major
+  cost_impact: indirect
+  compliance_basis:
+    basis: best_practice
+    citation: ASHI/NACHI SoP
+  disclosure_obligation_state: not_required
+  severity_when_negative: major
+  unanswered_implication: specialist_required
+  applicability:
+    jurisdictions:
+    - '*'
+    property_types:
+    - SFH
+  related_items:
+  - hvac.heating_type
+- id: hvac.flue_venting_integrity
+  question: Is the combustion-appliance flue/venting intact (no spillage of combustion gases)?
+  description: Continuity/seal of furnace and water-heater flue venting; detachment risks CO spillage.
+  group: hvac_systems
+  answer_type: enum
+  importance: critical
+  cost_impact: no
+  compliance_basis:
+    basis: best_practice
+    reasoning: 'SILENT-HAZARD class: CO safety. Often reads ''functional'' to the forms; OfferWise-critical.'
+  disclosure_obligation_state: not_required
+  severity_when_negative: critical
+  unanswered_implication: specialist_required
+  applicability:
+    jurisdictions:
+    - '*'
+    property_types:
+    - SFH
+  related_items:
+  - safety.co_detectors
+- id: foundation.type
+  question: What is the foundation type?
+  description: Raised/crawlspace, slab-on-grade, or mixed.
+  group: foundation_structure
+  answer_type: enum
+  importance: supporting
+  cost_impact: indirect
+  compliance_basis:
+    basis: best_practice
+    citation: ASHI/NACHI SoP
+  disclosure_obligation_state: not_required
+  severity_when_negative: minor
+  unanswered_implication: unanswerable_from_documents
+  applicability:
+    jurisdictions:
+    - '*'
+    property_types:
+    - SFH
+  related_items:
+  - structure.seismic_retrofit
+  - foundation.movement_evidence
+- id: foundation.movement_evidence
+  question: Is there evidence of foundation movement, settling, or significant cracking?
+  description: Cracks >1/4in, offsets/heaving, slippage, or settling signs.
+  group: foundation_structure
+  answer_type: enum
+  importance: major
+  cost_impact: yes
+  compliance_basis:
+    basis: legal_requirement
+    citation: C.A.R. TDS Section C.7 (settling/slippage) + B (Foundation/Slab) + SPQ 8.A if known. Civil Code §1102 et seq.
+  disclosure_obligation_state: required
+  severity_when_negative: major
+  unanswered_implication: seller_should_disclose
+  applicability:
+    jurisdictions:
+    - '*'
+    property_types:
+    - SFH
+  related_items:
+  - foundation.type
+  - structure.seismic_retrofit
+  - site.drainage_grading
+- id: structure.seismic_retrofit
+  question: Is the structure seismically retrofitted (foundation bolting, cripple-wall bracing, post strapping)?
+  description: Presence of anchor bolts, cripple-wall plywood bracing, and braced support posts.
+  group: foundation_structure
+  answer_type: enum
+  importance: supporting
+  cost_impact: yes
+  compliance_basis:
+    basis: best_practice
+    citation: ASHI/NACHI SoP; seismic resilience
+  disclosure_obligation_state: not_required
+  severity_when_negative: moderate
+  unanswered_implication: specialist_required
+  applicability:
+    jurisdictions:
+    - '*'
+    property_types:
+    - SFH
+  related_items:
+  - foundation.type
+- id: structure.water_intrusion_history
+  question: Is there evidence of past water intrusion into the structure?
+  description: Dry/old stains, prior-repair evidence, floor warping indicating historic leaks (distinct from active leaks). SPQ 10.A is the canonical disclosure source.
+  group: foundation_structure
+  answer_type: enum
+  importance: major
+  cost_impact: yes
+  compliance_basis:
+    basis: legal_requirement
+    citation: C.A.R. SPQ 10.A (water intrusion, leaks, standing water, drainage) + TDS B/C if known. Civil Code §1102 et seq.
+  disclosure_obligation_state: required
+  severity_when_negative: major
+  unanswered_implication: seller_should_disclose
+  applicability:
+    jurisdictions:
+    - '*'
+    property_types:
+    - SFH
+  related_items:
+  - roof.leak_evidence
+  - plumbing.active_leaks
+  - environmental.mold_risk
+  - roof.skylight_penetration_integrity
+- id: structure.chimney_fireplace_condition
+  question: Are chimneys/fireplaces sound (no cracking, separation, flue defects)?
+  description: Masonry/metal chimney condition, firebox/flue integrity, seismic separation.
+  group: foundation_structure
+  answer_type: enum
+  importance: supporting
+  cost_impact: yes
+  compliance_basis:
+    basis: best_practice
+    citation: ASHI/NACHI SoP; SPQ 8.A names chimney/fireplace
+  disclosure_obligation_state: conditional
+  severity_when_negative: moderate
+  unanswered_implication: specialist_required
+  applicability:
+    jurisdictions:
+    - '*'
+    property_types:
+    - SFH
+  related_items:
+  - structure.seismic_retrofit
+- id: site.drainage_grading
+  question: Does site grading/drainage direct water away from the structure?
+  description: Lot grading, drainage, standing water, slope toward/away from foundation.
+  group: foundation_structure
+  answer_type: enum
+  importance: supporting
+  cost_impact: indirect
+  compliance_basis:
+    basis: best_practice
+    citation: SPQ 8.A (soil, grading, drainage); SBSA §24 (soils/geologic)
+  disclosure_obligation_state: conditional
+  severity_when_negative: moderate
+  unanswered_implication: seller_should_disclose
+  applicability:
+    jurisdictions:
+    - '*'
+    property_types:
+    - SFH
+  related_items:
+  - foundation.movement_evidence
+  - site.retaining_walls
+  - structure.water_intrusion_history
+- id: site.retaining_walls
+  question: Are retaining walls present and structurally sound?
+  description: Presence/condition of retaining walls; lean, cracking, drainage failure.
+  group: foundation_structure
+  answer_type: enum
+  importance: supporting
+  cost_impact: yes
+  compliance_basis:
+    basis: best_practice
+    citation: SPQ 8.A (retaining walls)
+  disclosure_obligation_state: conditional
+  severity_when_negative: moderate
+  unanswered_implication: specialist_required
+  applicability:
+    jurisdictions:
+    - '*'
+    property_types:
+    - SFH
+  related_items:
+  - site.drainage_grading
+- id: environmental.lead_paint_risk
+  question: Is the home pre-1978 (lead-based paint disclosure trigger)?
+  description: Construction date relative to the 1978 LBP ban; triggers federal disclosure + RRP obligations.
+  group: environmental
+  answer_type: enum
+  importance: major
+  cost_impact: indirect
+  compliance_basis:
+    basis: legal_requirement
+    citation: Federal Residential Lead-Based Paint Hazard Reduction Act (42 U.S.C. §4852d); C.A.R. LPD form. Pre-1978 housing.
+  disclosure_obligation_state: required
+  severity_when_negative: major
+  unanswered_implication: seller_should_disclose
+  applicability:
+    jurisdictions:
+    - '*'
+    property_types:
+    - SFH
+    - condo
+    - townhouse
+  related_items:
+  - environmental.asbestos_risk
+- id: environmental.asbestos_risk
+  question: Are there likely asbestos-containing materials (e.g., pre-1978 popcorn ceiling, certain substrates)?
+  description: Likelihood of ACMs based on construction era and observed materials; not a sampling determination.
+  group: environmental
+  answer_type: enum
+  importance: major
+  cost_impact: yes
+  compliance_basis:
+    basis: legal_requirement
+    citation: Known environmental hazards disclosable under C.A.R. TDS C.1 / SPQ. Civil Code §1102 et seq.
+  disclosure_obligation_state: conditional
+  severity_when_negative: major
+  unanswered_implication: specialist_required
+  applicability:
+    jurisdictions:
+    - '*'
+    property_types:
+    - SFH
+  related_items:
+  - environmental.lead_paint_risk
+- id: environmental.mold_risk
+  question: Is there evidence of mold/mildew or conditions conducive to it?
+  description: Visible mildew/mold staining and moisture conditions; not a sampling determination. SPQ 10.B is the disclosure source.
+  group: environmental
+  answer_type: enum
+  importance: supporting
+  cost_impact: indirect
+  compliance_basis:
+    basis: best_practice
+    citation: Disclosable under SPQ 10.B if known. Identification beyond home-inspection scope.
+  disclosure_obligation_state: conditional
+  severity_when_negative: moderate
+  unanswered_implication: specialist_required
+  applicability:
+    jurisdictions:
+    - '*'
+    property_types:
+    - SFH
+  related_items:
+  - structure.water_intrusion_history
+- id: environmental.death_on_property
+  question: Has a death occurred on the property within the statutory disclosure window?
+  description: Deaths on the property within the last 3 years (with the AIDS-status exclusion).
+  group: environmental
+  answer_type: boolean
+  importance: supporting
+  cost_impact: no
+  compliance_basis:
+    basis: legal_requirement
+    citation: Civil Code §1710.2 (3-year death disclosure)
+  disclosure_obligation_state: required
+  severity_when_negative: minor
+  unanswered_implication: seller_should_disclose
+  applicability:
+    jurisdictions:
+    - CA
+    property_types:
+    - '*'
+  related_items: []
+- id: safety.smoke_detectors
+  question: Are operable smoke detectors installed per requirement (each bedroom, adjacent hall, each level)?
+  description: Presence/operability of smoke alarms in required locations.
+  group: general
+  answer_type: enum
+  importance: major
+  cost_impact: no
+  compliance_basis:
+    basis: best_practice
+    citation: Broad national code; CA refines to legal_requirement (ca_overlay.refines)
+  disclosure_obligation_state: conditional
+  severity_when_negative: major
+  unanswered_implication: seller_should_disclose
+  applicability:
+    jurisdictions:
+    - '*'
+    property_types:
+    - SFH
+    - condo
+    - townhouse
+  related_items:
+  - safety.co_detectors
+- id: safety.co_detectors
+  question: Are carbon monoxide detectors present where required?
+  description: Presence of CO alarms in homes with fuel-burning appliances / attached garage.
+  group: general
+  answer_type: enum
+  importance: major
+  cost_impact: no
+  compliance_basis:
+    basis: legal_requirement
+    citation: 'Health & Safety Code §17926 (owner must install CO device in existing dwelling with fossil-fuel appliance/fireplace/attached garage; SFH deadline 2011-07-01). Device standards: §13260–13263. C.A.R. WCMD advisory.'
+  disclosure_obligation_state: conditional
+  severity_when_negative: major
+  unanswered_implication: seller_should_disclose
+  applicability:
+    jurisdictions:
+    - '*'
+    property_types:
+    - SFH
+    - condo
+    - townhouse
+  related_items:
+  - safety.smoke_detectors
+  - hvac.flue_venting_integrity
+- id: gas.line_through_wall_compliance
+  question: Are gas lines routed correctly (no flexible line passing through walls)?
+  description: Flexible gas lines through walls are a substandard/code-noncompliant install (rigid pipe required).
+  group: general
+  answer_type: boolean
+  importance: supporting
+  cost_impact: no
+  compliance_basis:
+    basis: best_practice
+    citation: Fuel-gas code; rigid pipe required through walls
+  disclosure_obligation_state: not_required
+  severity_when_negative: moderate
+  unanswered_implication: minor
+  applicability:
+    jurisdictions:
+    - '*'
+    property_types:
+    - SFH
+  related_items: []
+- id: permits.unpermitted_additions
+  question: Were additions / structural modifications / alterations made without required permits?
+  description: Permit status of observed remodels/additions. Primary evidence source = municipal permit-history crawlers (Q-5.7).
+  group: general
+  answer_type: enum
+  importance: major
+  cost_impact: indirect
+  compliance_basis:
+    basis: legal_requirement
+    citation: C.A.R. TDS C.4/C.5 + SPQ 7.A. Civil Code §1102 et seq.
+  disclosure_obligation_state: required
+  severity_when_negative: major
+  unanswered_implication: seller_should_disclose
+  applicability:
+    jurisdictions:
+    - '*'
+    property_types:
+    - SFH
+    - condo
+    - townhouse
+  related_items:
+  - adu.presence_and_permit
+  - foundation.movement_evidence
+- id: adu.presence_and_permit
+  question: Is there an ADU/in-law unit, and is it permitted with proper utilities?
+  description: ADU presence, permit/approval status, separate utilities/meters. (SPQ 8.D.)
+  group: general
+  answer_type: enum
+  importance: major
+  cost_impact: indirect
+  compliance_basis:
+    basis: legal_requirement
+    citation: C.A.R. SPQ 8.D. Civil Code §1102 et seq.; permit status via municipal records (Q-5.7).
+  disclosure_obligation_state: required
+  severity_when_negative: major
+  unanswered_implication: seller_should_disclose
+  applicability:
+    jurisdictions:
+    - '*'
+    property_types:
+    - SFH
+  related_items:
+  - permits.unpermitted_additions
+- id: legal_title.ownership_interests
+  question: Are there ownership interests beyond the disclosing seller?
+  description: Other persons/entities with an ownership interest, or undisclosed parties on title.
+  group: legal_title
+  answer_type: boolean
+  importance: major
+  cost_impact: no
+  compliance_basis:
+    basis: legal_requirement
+    citation: C.A.R. SPQ 15.A; corroborated by preliminary title report vesting.
+  disclosure_obligation_state: required
+  severity_when_negative: major
+  unanswered_implication: seller_should_disclose
+  applicability:
+    jurisdictions:
+    - '*'
+    property_types:
+    - '*'
+  related_items:
+  - legal_title.title_exceptions
+- id: legal_title.liens_and_legal_actions
+  question: Are there liens, lawsuits, NODs, bankruptcy, or government actions affecting the property?
+  description: Tax/mechanics' liens, notice of default, litigation, settlements, government hearings affecting property, HOA, or neighborhood.
+  group: legal_title
+  answer_type: boolean
+  importance: major
+  cost_impact: yes
+  compliance_basis:
+    basis: legal_requirement
+    citation: C.A.R. SPQ 15.C; preliminary title report exceptions.
+  disclosure_obligation_state: required
+  severity_when_negative: major
+  unanswered_implication: seller_should_disclose
+  applicability:
+    jurisdictions:
+    - '*'
+    property_types:
+    - '*'
+  related_items:
+  - legal_title.title_exceptions
+  - hoa.litigation_and_violations
+- id: legal_title.easements_encroachments
+  question: Are there easements, encroachments, boundary disputes, or surveys affecting the property?
+  description: 'Recorded/visible easements, encroachments, boundary uncertainty. (San Vicente SPQ 12.A: SCVWD easement on N/S boundaries; creek on north not owned.)'
+  group: legal_title
+  answer_type: enum
+  importance: major
+  cost_impact: indirect
+  compliance_basis:
+    basis: legal_requirement
+    citation: C.A.R. SPQ 12.A; preliminary title report exceptions.
+  disclosure_obligation_state: required
+  severity_when_negative: moderate
+  unanswered_implication: seller_should_disclose
+  applicability:
+    jurisdictions:
+    - '*'
+    property_types:
+    - '*'
+  related_items:
+  - legal_title.title_exceptions
+  - legal_title.shared_features_maintenance
+  - ca.flood_hazard_zone
+- id: legal_title.shared_features_maintenance
+  question: Are there shared features (party walls, fences, driveways) with maintenance/responsibility implications?
+  description: Features held/used in common with adjoining owners affecting maintenance duty or access.
+  group: legal_title
+  answer_type: boolean
+  importance: supporting
+  cost_impact: indirect
+  compliance_basis:
+    basis: legal_requirement
+    citation: C.A.R. SPQ 15.D.
+  disclosure_obligation_state: required
+  severity_when_negative: minor
+  unanswered_implication: seller_should_disclose
+  applicability:
+    jurisdictions:
+    - '*'
+    property_types:
+    - SFH
+    - townhouse
+  related_items:
+  - legal_title.easements_encroachments
+- id: legal_title.title_exceptions
+  question: What exceptions/encumbrances appear on the preliminary title report?
+  description: Vesting, easements, CC&Rs, liens, taxes, and other Schedule B exceptions from the prelim.
+  group: legal_title
+  answer_type: freetext
+  importance: major
+  cost_impact: indirect
+  compliance_basis:
+    basis: best_practice
+    citation: Preliminary title report (CLTA/ALTA); SBSA §68 (title insurance).
+  disclosure_obligation_state: not_required
+  severity_when_negative: moderate
+  unanswered_implication: unanswerable_from_documents
+  applicability:
+    jurisdictions:
+    - '*'
+    property_types:
+    - '*'
+  related_items:
+  - legal_title.liens_and_legal_actions
+  - legal_title.easements_encroachments
+  - hoa.cc_and_r_restrictions
+- id: hoa.exists
+  question: Is the property in a CID/HOA, and what authority does the HOA have over it?
+  description: HOA/CID membership, common-area co-ownership, governing-document authority. (SPQ 14.)
+  group: hoa
+  answer_type: boolean
+  importance: major
+  cost_impact: yes
+  compliance_basis:
+    basis: legal_requirement
+    citation: C.A.R. SPQ 14; CID disclosures Civil Code §4525 (Davis-Stirling document delivery).
+  disclosure_obligation_state: required
+  severity_when_negative: major
+  unanswered_implication: seller_should_disclose
+  applicability:
+    jurisdictions:
+    - '*'
+    property_types:
+    - condo
+    - townhouse
+    - SFH
+  related_items:
+  - hoa.financial_obligations
+  - hoa.cc_and_r_restrictions
+  - hoa.litigation_and_violations
+- id: hoa.financial_obligations
+  question: What are the HOA dues, special assessments, reserves, and pending increases?
+  description: Regular dues, current/pending special assessments, reserve adequacy, transfer fees.
+  group: hoa
+  answer_type: dollar_amount
+  importance: major
+  cost_impact: yes
+  compliance_basis:
+    basis: legal_requirement
+    citation: Davis-Stirling document package (Civil Code §4525); SPQ 14.E (pending dues/assessments).
+  disclosure_obligation_state: required
+  severity_when_negative: major
+  unanswered_implication: seller_should_disclose
+  applicability:
+    jurisdictions:
+    - '*'
+    property_types:
+    - condo
+    - townhouse
+    - SFH
+  related_items:
+  - hoa.exists
+- id: hoa.litigation_and_violations
+  question: Is there HOA litigation, fines, violations, or insurance-availability issues affecting the property?
+  description: Pending/threatened HOA litigation, outstanding violations/fines, master-policy insurance issues.
+  group: hoa
+  answer_type: boolean
+  importance: major
+  cost_impact: yes
+  compliance_basis:
+    basis: legal_requirement
+    citation: C.A.R. SPQ 14.E.
+  disclosure_obligation_state: required
+  severity_when_negative: major
+  unanswered_implication: seller_should_disclose
+  applicability:
+    jurisdictions:
+    - '*'
+    property_types:
+    - condo
+    - townhouse
+    - SFH
+  related_items:
+  - hoa.exists
+  - legal_title.liens_and_legal_actions
+- id: hoa.cc_and_r_restrictions
+  question: What CC&R / architectural-committee restrictions apply, and is the property compliant?
+  description: Use/improvement restrictions, architectural approval status of past work, rental/ADU restrictions.
+  group: hoa
+  answer_type: enum
+  importance: supporting
+  cost_impact: indirect
+  compliance_basis:
+    basis: legal_requirement
+    citation: C.A.R. SPQ 14.D/F; CC&Rs in governing documents / title.
+  disclosure_obligation_state: required
+  severity_when_negative: moderate
+  unanswered_implication: seller_should_disclose
+  applicability:
+    jurisdictions:
+    - '*'
+    property_types:
+    - condo
+    - townhouse
+    - SFH
+  related_items:
+  - hoa.exists
+  - legal_title.title_exceptions
+  - permits.unpermitted_additions
+- id: equipment.leased_or_liened_systems
+  question: Are any systems leased or liened (solar, water softener/purifier, alarm, propane tank)?
+  description: Leased/financed equipment serving the property that the buyer must assume or pay off. (SPQ 8.B / 6 leased-property; SBSA §5.)
+  group: general
+  answer_type: enum
+  importance: major
+  cost_impact: yes
+  compliance_basis:
+    basis: legal_requirement
+    citation: C.A.R. SPQ 8.B; lease/UCC filings via title.
+  disclosure_obligation_state: required
+  severity_when_negative: major
+  unanswered_implication: seller_should_disclose
+  applicability:
+    jurisdictions:
+    - '*'
+    property_types:
+    - '*'
+  related_items:
+  - solar.ownership_status
+- id: solar.ownership_status
+  question: Are solar panels owned, leased, PPA, or PACE-financed?
+  description: Solar ownership structure — leased/PPA/PACE materially changes assumption obligations and title (PACE = property-tax lien).
+  group: general
+  answer_type: enum
+  importance: major
+  cost_impact: yes
+  compliance_basis:
+    basis: legal_requirement
+    citation: SBSA §33 (solar / net metering); PACE lien appears on title/tax. C.A.R. form SOLAR.
+  disclosure_obligation_state: required
+  severity_when_negative: major
+  unanswered_implication: seller_should_disclose
+  applicability:
+    jurisdictions:
+    - '*'
+    property_types:
+    - SFH
+    - townhouse
+  related_items:
+  - equipment.leased_or_liened_systems
+  - legal_title.liens_and_legal_actions
+- id: pool_spa.present_and_condition
+  question: 'If a pool/spa is present: condition of shell, equipment, heater, and safety barriers?'
+  description: Pool/spa presence, leaks/cracks, equipment (pump/filter/heater) condition, and required safety drowning-prevention features. (SPQ 13.)
+  group: general
+  answer_type: enum
+  importance: supporting
+  cost_impact: yes
+  compliance_basis:
+    basis: legal_requirement
+    citation: Swimming Pool Safety Act, Health & Safety Code §115922 (two of seven drowning-prevention features); home-inspection linkage per Business & Professions Code §7195.
+  disclosure_obligation_state: conditional
+  severity_when_negative: moderate
+  unanswered_implication: specialist_required
+  applicability:
+    jurisdictions:
+    - '*'
+    property_types:
+    - SFH
+  related_items: []
+- id: insurance.claims_history_clue
+  question: Are there prior insurance claims affecting the property (CLUE history)?
+  description: Past property insurance claims (water, fire, liability) affecting insurability and premium.
+  group: general
+  answer_type: boolean
+  importance: supporting
+  cost_impact: yes
+  compliance_basis:
+    basis: legal_requirement
+    citation: C.A.R. SPQ 6.H (5-year claims); SBSA §67 (CLUE reports).
+  disclosure_obligation_state: required
+  severity_when_negative: moderate
+  unanswered_implication: seller_should_disclose
+  applicability:
+    jurisdictions:
+    - '*'
+    property_types:
+    - '*'
+  related_items:
+  - disaster.prior_relief_flood_obligation
+- id: disaster.prior_relief_flood_obligation
+  question: Did prior owners receive disaster relief conditioned on maintaining flood insurance?
+  description: Federal flood-disaster assistance can bind successors to maintain flood insurance (42 USC 5154a). (SPQ 9.)
+  group: general
+  answer_type: boolean
+  importance: supporting
+  cost_impact: yes
+  compliance_basis:
+    basis: legal_requirement
+    citation: C.A.R. SPQ 9; 42 U.S.C. §5154a.
+  disclosure_obligation_state: required
+  severity_when_negative: moderate
+  unanswered_implication: seller_should_disclose
+  applicability:
+    jurisdictions:
+    - '*'
+    property_types:
+    - '*'
+  related_items:
+  - ca.flood_hazard_zone
+  - insurance.claims_history_clue
+- id: crawlspace.vapor_barrier_moisture
+  question: Does the crawlspace have a vapor barrier over bare soil, and is moisture controlled?
+  description: Presence/condition of a ground vapor retarder over dirt crawlspace floor; chronic moisture drives rot, mold, and pest conducive conditions.
+  group: foundation_structure
+  answer_type: enum
+  importance: supporting
+  cost_impact: yes
+  compliance_basis:
+    basis: best_practice
+    citation: 'ASHI/NACHI SoP (crawlspace vapor retarder). Tina Dr 7.3.1: no vapor barrier over dirt floor (Prioritized).'
+  disclosure_obligation_state: not_required
+  severity_when_negative: moderate
+  unanswered_implication: specialist_required
+  applicability:
+    jurisdictions:
+    - '*'
+    property_types:
+    - SFH
+  related_items:
+  - foundation.type
+  - environmental.mold_risk
+  - site.drainage_grading
+- id: hvac.cooling_system_age
+  question: What is the age and condition of the cooling system (condenser/AC)?
+  description: 'Years since condenser install and operating condition; parallels furnace_age as a replacement-reserve driver. (Tina Dr: condenser est. age 9, R-410A.)'
+  group: hvac_systems
+  answer_type: numeric_years
+  importance: supporting
+  cost_impact: indirect
+  compliance_basis:
+    basis: best_practice
+    citation: ASHI/NACHI SoP
+  disclosure_obligation_state: not_required
+  severity_when_negative: moderate
+  unanswered_implication: specialist_required
+  applicability:
+    jurisdictions:
+    - '*'
+    property_types:
+    - SFH
+  related_items:
+  - hvac.heating_type
+  - hvac.furnace_age
+- id: electrical.receptacle_grounding
+  question: Are receptacles properly grounded (no ungrounded 3-prong outlets)?
+  description: Ungrounded receptacles (often 3-prong on 2-wire) are a shock/equipment hazard distinct from GFCI absence. (Tina Dr 17.2.2 ungrounded; 17.2.3 GFCI not operating.)
+  group: electrical
+  answer_type: enum
+  importance: major
+  cost_impact: indirect
+  compliance_basis:
+    basis: best_practice
+    citation: ASHI/NACHI SoP; electrical safety
+  disclosure_obligation_state: not_required
+  severity_when_negative: major
+  unanswered_implication: specialist_required
+  applicability:
+    jurisdictions:
+    - '*'
+    property_types:
+    - SFH
+  related_items:
+  - electrical.gfci_protection
+  - electrical.panel_brand_safety
+- id: kitchen.range_anti_tip
+  question: Is a free-standing range secured with an anti-tip bracket?
+  description: 'Unsecured ranges can tip under load — a child-safety hazard. (Tina Dr 5.3.1: range not fastened, called a safety hazard to children.)'
+  group: general
+  answer_type: boolean
+  importance: supporting
+  cost_impact: no
+  compliance_basis:
+    basis: best_practice
+    citation: Anti-tip bracket is a standard manufacturer/UL safety requirement for free-standing ranges.
+  disclosure_obligation_state: not_required
+  severity_when_negative: moderate
+  unanswered_implication: minor
+  applicability:
+    jurisdictions:
+    - '*'
+    property_types:
+    - SFH
+    - condo
+    - townhouse
+  related_items: []
+ca_overlay:
+  adds:
+  - id: ca.flood_hazard_zone
+    question: Is the property in a FEMA Special Flood Hazard Area (Zone A/V)?
+    description: 'FEMA-designated special flood hazard area. (San Vicente NHD: IN FEMA Flood Zone A.)'
+    group: environmental
+    answer_type: enum
+    importance: major
+    cost_impact: yes
+    compliance_basis:
+      basis: legal_requirement
+      citation: CA NHD (Civil Code §1103 et seq.); special flood hazard area per Gov Code §8589.3.
+    disclosure_obligation_state: required
+    severity_when_negative: major
+    unanswered_implication: seller_should_disclose
+    applicability:
+      jurisdictions:
+      - CA
+      property_types:
+      - '*'
+    related_items:
+    - ca.dam_inundation_zone
+    - disaster.prior_relief_flood_obligation
+  - id: ca.dam_inundation_zone
+    question: Is the property in a dam-failure inundation area?
+    description: 'Area of potential flooding on a dam-failure inundation map. (San Vicente NHD: IN dam inundation area.)'
+    group: environmental
+    answer_type: boolean
+    importance: major
+    cost_impact: indirect
+    compliance_basis:
+      basis: legal_requirement
+      citation: CA NHD (Civil Code §1103 et seq.); area of potential flooding (dam inundation) per Gov Code §8589.4.
+    disclosure_obligation_state: required
+    severity_when_negative: major
+    unanswered_implication: seller_should_disclose
+    applicability:
+      jurisdictions:
+      - CA
+      property_types:
+      - '*'
+    related_items:
+    - ca.flood_hazard_zone
+  - id: ca.fire_hazard_severity_zone
+    question: Is the property in a High or Very High Fire Hazard Severity Zone (FHSZ)?
+    description: CAL FIRE-designated FHSZ (state or local responsibility area).
+    group: roof_exterior
+    answer_type: enum
+    importance: major
+    cost_impact: yes
+    compliance_basis:
+      basis: legal_requirement
+      citation: CA NHD; disclosure per Gov Code §51183.5. Zone designated per Gov Code §51178 (state) / §51179 (local very-high).
+    disclosure_obligation_state: required
+    severity_when_negative: major
+    unanswered_implication: seller_should_disclose
+    applicability:
+      jurisdictions:
+      - CA
+      property_types:
+      - '*'
+    related_items:
+    - ca.wildland_state_responsibility_area
+    - ca.defensible_space
+    - ca.fire_hardening_disclosure
+    - roof.cover_material
+  - id: ca.wildland_state_responsibility_area
+    question: Is the property in a wildland / state-responsibility fire area (substantial forest fire risk)?
+    description: 'Wildland area with forest-fire risk; state may not provide structure fire protection. (San Vicente NHD: IN wildland-state responsibility area.)'
+    group: roof_exterior
+    answer_type: boolean
+    importance: major
+    cost_impact: indirect
+    compliance_basis:
+      basis: legal_requirement
+      citation: CA NHD; wildland-area disclosure per PRC §4136. SRA designated per PRC §4125.
+    disclosure_obligation_state: required
+    severity_when_negative: major
+    unanswered_implication: seller_should_disclose
+    applicability:
+      jurisdictions:
+      - CA
+      property_types:
+      - '*'
+    related_items:
+    - ca.fire_hazard_severity_zone
+    - ca.defensible_space
+  - id: ca.earthquake_fault_zone
+    question: Is the property in an Alquist-Priolo earthquake fault zone?
+    description: 'State-designated earthquake fault zone. (San Vicente NHD: NOT in the state fault zone, but IN a CITY fault hazard zone — see municipal_overlay.)'
+    group: foundation_structure
+    answer_type: boolean
+    importance: major
+    cost_impact: indirect
+    compliance_basis:
+      basis: legal_requirement
+      citation: CA NHD; Alquist-Priolo Earthquake Fault Zoning Act (PRC §2621 et seq.), disclosure per §2621.9.
+    disclosure_obligation_state: required
+    severity_when_negative: major
+    unanswered_implication: seller_should_disclose
+    applicability:
+      jurisdictions:
+      - CA
+      property_types:
+      - '*'
+    related_items:
+    - ca.seismic_hazard_zone
+    - structure.seismic_retrofit
+  - id: ca.seismic_hazard_zone
+    question: Is the property in a seismic hazard zone (liquefaction / earthquake-induced landslide)?
+    description: Seismic Hazard Mapping Act zone — liquefaction or landslide susceptibility.
+    group: foundation_structure
+    answer_type: enum
+    importance: major
+    cost_impact: indirect
+    compliance_basis:
+      basis: legal_requirement
+      citation: CA NHD; Seismic Hazard Mapping Act (PRC §2690 et seq.), disclosure per §2694.
+    disclosure_obligation_state: required
+    severity_when_negative: major
+    unanswered_implication: seller_should_disclose
+    applicability:
+      jurisdictions:
+      - CA
+      property_types:
+      - '*'
+    related_items:
+    - ca.earthquake_fault_zone
+    - structure.seismic_retrofit
+    - site.drainage_grading
+  - id: ca.defensible_space
+    question: Is required defensible space maintained (where applicable)?
+    description: Defensible-space clearance around the structure in fire-prone areas.
+    group: roof_exterior
+    answer_type: enum
+    importance: supporting
+    cost_impact: indirect
+    compliance_basis:
+      basis: legal_requirement
+      citation: Point-of-sale documentation per Civil Code §1102.19 (AB 38); substantive standard PRC §4291 (+ Gov Code §51182 in very-high zones).
+    disclosure_obligation_state: conditional
+    severity_when_negative: moderate
+    unanswered_implication: seller_should_disclose
+    applicability:
+      jurisdictions:
+      - CA
+      property_types:
+      - SFH
+    related_items:
+    - ca.fire_hazard_severity_zone
+  - id: ca.fire_hardening_disclosure
+    question: 'For homes in a FHSZ built before 2010: is the AB 38 fire-hardening disclosure provided?'
+    description: AB 38 requires fire-hardening / home-hardening disclosure for older homes in high/very-high FHSZ.
+    group: roof_exterior
+    answer_type: boolean
+    importance: supporting
+    cost_impact: indirect
+    compliance_basis:
+      basis: legal_requirement
+      citation: Civil Code §1102.6f (home-hardening disclosure for homes in high/very-high FHSZ built before 2010); low-cost retrofit list per Gov Code §51189.
+    disclosure_obligation_state: conditional
+    severity_when_negative: minor
+    unanswered_implication: seller_should_disclose
+    applicability:
+      jurisdictions:
+      - CA
+      property_types:
+      - SFH
+    related_items:
+    - ca.fire_hazard_severity_zone
+    - ca.defensible_space
+  - id: ca.mello_roos_cfd
+    question: Is the property subject to a Mello-Roos Community Facilities District special tax?
+    description: CFD special tax / special assessment lien affecting carrying cost.
+    group: tax_assessment
+    answer_type: dollar_amount
+    importance: major
+    cost_impact: yes
+    compliance_basis:
+      basis: legal_requirement
+      citation: Civil Code §1102.6b (Mello-Roos notice); JCP-LGS property tax report.
+    disclosure_obligation_state: required
+    severity_when_negative: moderate
+    unanswered_implication: seller_should_disclose
+    applicability:
+      jurisdictions:
+      - CA
+      property_types:
+      - '*'
+    related_items:
+    - ca.bond_1915_assessment
+    - ca.supplemental_tax
+  - id: ca.bond_1915_assessment
+    question: Is there a 1915 Improvement Bond Act assessment on the property?
+    description: 1915 Act bond assessment lien (infrastructure financing).
+    group: tax_assessment
+    answer_type: dollar_amount
+    importance: supporting
+    cost_impact: yes
+    compliance_basis:
+      basis: legal_requirement
+      citation: 1915 Improvement Bond Act assessment, disclosed under Civil Code §1102.6b (same section covering Mello-Roos/PACE).
+    disclosure_obligation_state: required
+    severity_when_negative: minor
+    unanswered_implication: seller_should_disclose
+    applicability:
+      jurisdictions:
+      - CA
+      property_types:
+      - '*'
+    related_items:
+    - ca.mello_roos_cfd
+  - id: ca.supplemental_tax
+    question: Will a supplemental property tax bill apply on reassessment at sale?
+    description: Supplemental tax from reassessment to purchase price (carrying-cost surprise for buyer).
+    group: tax_assessment
+    answer_type: dollar_amount
+    importance: supporting
+    cost_impact: yes
+    compliance_basis:
+      basis: legal_requirement
+      citation: Notice of Supplemental Property Tax Bill, Civil Code §1102.6c.
+    disclosure_obligation_state: required
+    severity_when_negative: minor
+    unanswered_implication: unanswerable_from_documents
+    applicability:
+      jurisdictions:
+      - CA
+      property_types:
+      - '*'
+    related_items:
+    - ca.mello_roos_cfd
+  - id: ca.environmental_screening
+    question: Do environmental screening hits apply (transmission pipelines, contaminated sites, oil & gas wells)?
+    description: Proximity hazards from the JCP-LGS environmental screening report.
+    group: environmental
+    answer_type: enum
+    importance: supporting
+    cost_impact: indirect
+    compliance_basis:
+      basis: best_practice
+      citation: JCP-LGS Environmental Screening Report (supplemental, not statutory NHD).
+    disclosure_obligation_state: not_required
+    severity_when_negative: moderate
+    unanswered_implication: unanswerable_from_documents
+    applicability:
+      jurisdictions:
+      - CA
+      property_types:
+      - '*'
+    related_items: []
+  - id: ca.water_heater_seismic_bracing
+    question: Is the water heater braced/anchored/strapped per CA law (strapping must encircle the tank)?
+    description: CA water-heater seismic bracing compliance; seller certifies at close of escrow.
+    group: plumbing
+    answer_type: boolean
+    importance: major
+    cost_impact: no
+    compliance_basis:
+      basis: legal_requirement
+      citation: Health & Safety Code §19211 (cited in C.A.R. TDS Section D.2).
+    disclosure_obligation_state: required
+    severity_when_negative: major
+    unanswered_implication: seller_should_disclose
+    applicability:
+      jurisdictions:
+      - CA
+      property_types:
+      - SFH
+      - condo
+      - townhouse
+    related_items:
+    - water_heater.age
+  - id: ca.water_conserving_fixtures
+    question: Is the home equipped with water-conserving plumbing fixtures as CA law requires?
+    description: CA requirement for SFHs built on/before Jan 1 1994 to have water-conserving fixtures (since Jan 1 2017). Non-compliant fixtures defined by Civil Code §1101.3.
+    group: plumbing
+    answer_type: boolean
+    importance: supporting
+    cost_impact: indirect
+    compliance_basis:
+      basis: legal_requirement
+      citation: Civil Code §1101.4 (requirement) + §1101.3 (definition, cited in SPQ 6.J); C.A.R. WCMD advisory.
+    disclosure_obligation_state: required
+    severity_when_negative: moderate
+    unanswered_implication: seller_should_disclose
+    applicability:
+      jurisdictions:
+      - CA
+      property_types:
+      - SFH
+    related_items: []
+  refines:
+  - target: safety.smoke_detectors
+    set:
+      compliance_basis:
+        basis: legal_requirement
+        citation: Health & Safety Code §13113.8 (C.A.R. TDS Section D.1; seller certifies operable smoke detectors at close)
+      disclosure_obligation_state: required
+    note: CA elevates from best_practice to seller-certified legal requirement.
+  - target: safety.co_detectors
+    set:
+      compliance_basis:
+        basis: legal_requirement
+        citation: Carbon Monoxide Poisoning Prevention Act — Health & Safety Code §13260 et seq.; C.A.R. WCMD advisory
+      disclosure_obligation_state: required
+    verify: true
+    note: CA elevates the national CO-alarm baseline to a legal requirement; section confirmed in Q-5.8 (H&S 17926).
+  - target: structure.seismic_retrofit
+    set:
+      importance: major
+      severity_when_negative: major
+    note: CA seismic exposure raises decision-relevance of retrofit status above national baseline.
+  deprecated:
+  - id: ca.nhd_natural_hazard_zones
+    status: superseded
+    superseded_by:
+    - ca.flood_hazard_zone
+    - ca.dam_inundation_zone
+    - ca.fire_hazard_severity_zone
+    - ca.wildland_state_responsibility_area
+    - ca.earthquake_fault_zone
+    - ca.seismic_hazard_zone
+    note: v0.1 composite NHD item split in v0.2 — each statutory zone has its own statute and its own IN/NOT-IN answer (San Vicente NHD confirms). Kept here (not deleted) per the no-silent-delete rule.
+municipal_overlay:
+  CA:san_mateo:daly_city:
+    adds:
+    - id: muni.daly_city_3r_report
+      question: Has the Daly City 3R (residential building record) report been obtained?
+      description: Daly City requires sellers of 1-3 unit residential property to obtain a Report of Residential Building Record.
+      group: general
+      answer_type: boolean
+      importance: major
+      cost_impact: indirect
+      compliance_basis:
+        basis: legal_requirement
+        citation: Daly City municipal point-of-sale ordinance (SBSA §87).
+      disclosure_obligation_state: required
+      severity_when_negative: moderate
+      unanswered_implication: seller_should_disclose
+      applicability:
+        jurisdictions:
+        - CA:san_mateo:daly_city
+        property_types:
+        - SFH
+        - townhouse
+      related_items:
+      - permits.unpermitted_additions
+  CA:san_mateo:portola_valley:
+    adds:
+    - id: muni.portola_valley_data_report
+      question: Has the Portola Valley residential data report been obtained (and historic-preservation status checked)?
+      description: Portola Valley requires sellers to obtain a residential data report; historic-preservation considerations apply.
+      group: general
+      answer_type: boolean
+      importance: supporting
+      cost_impact: indirect
+      compliance_basis:
+        basis: legal_requirement
+        citation: Portola Valley municipal ordinance (SBSA §92).
+      disclosure_obligation_state: required
+      severity_when_negative: minor
+      unanswered_implication: seller_should_disclose
+      applicability:
+        jurisdictions:
+        - CA:san_mateo:portola_valley
+        property_types:
+        - SFH
+      related_items: []
+  CA:santa_clara:san_jose:
+    adds: []
+    refines:
+    - target: ca.earthquake_fault_zone
+      set:
+        note: San Vicente NHD reports the property is IN a City-designated fault hazard zone even though NOT in the state Alquist-Priolo zone. San Jose maintains its own fault-hazard mapping → a municipal refinement of the state item.
+    todo: Enumerate San Jose / Santa Clara County point-of-sale and retrofit obligations (sewer lateral, energy/water, any building-record report). Do NOT assume from other cities.
+  _template_common_municipal_item_types:
+  - point_of_sale_building_record_report
+  - point_of_sale_retrofit_compliance
+  - energy_water_conservation_ordinance
+  - sewer_lateral_point_of_sale_compliance
+  - city_specific_hazard_zone
+enumeration_backlog:
+  national_base_gaps:
+  - sump_pump.presence_and_operation
+  - irrigation.sprinkler_system_condition
+  - attic.insulation_and_ventilation
+  - windows.condition_and_glazing
+  - doors.exterior_condition
+  - water_treatment.softener_purifier_condition
+  - appliances.included_condition
+  - garage.fire_separation_and_door
+  - grading.tree_root_and_vegetation_damage
+  cross_cutting_axis_candidate:
+  - decision_class: Proposed Q-5.6 axis value 'silent_hazard' for items that are critical/major importance but disclosure_obligation_state=not_required and structurally invisible to seller forms (FPE panel, polybutylene, detached flue). Recurs often enough to be first-class.
+  schema_revision_flags:
+  - answer_type enum (3.5) lacks a plain `numeric` type — needed for amperage, dues, tax amounts. Added provisionally in v0.2.
+  - applicability.jurisdictions (3.5) modeled at state granularity; municipal_overlay requires municipal paths (e.g. 'CA:county:city').
+changelog:
+- 'v0.1 (this session, prior): 30 items (26 national_base, 4 ca_overlay adds, 3 refines) from Pendleton inspection + Tina Dr TDS.'
+- 'v0.2 (this session): +~25 items from the 22580 San Vicente all-disclosures packet. New clusters: legal_title (now populated), hoa, tax_assessment, equipment/solar, pool/spa, insurance/disaster. Split the NHD composite into 6 per-statute zone items (deprecated the composite, not deleted). Added the municipal_overlay tier (Q-5.9 refinement) with Daly City / Portola Valley instances and a San Jose placeholder. Logged a ''silent_hazard'' decision_class candidate for Q-5.6 and two 3.5 schema-revision flags.'

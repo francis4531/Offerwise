@@ -1,0 +1,185 @@
+# OfferWise — TDS Field Map (C.A.R. Form TDS, Revised 6/24)
+# =====================================================================
+# Version:  v0.1
+# Date:     2026-05-29
+# Built from: a REAL executed specimen (381 Tina Dr., Hollister; DocuSign
+#   envelope B6DB4E44). Form is a scanned CCITT image — NO text layer — so the
+#   parser must treat checkbox state as an OCR/vision-extracted input, not as
+#   parsed text. This map encodes the real 6/24 layout; the specimen's verified
+#   field state is recorded at the bottom for regression.
+#
+# Structure of the C.A.R. TDS 6/24:
+#   Section A — "items checked below": presence checkboxes for appliances/systems
+#               + free-text (roof type/age, fireplace locations, exhaust fans,
+#               garage remotes count) + a single Yes/No "any not in operating
+#               condition?".
+#   Section B — defect checkboxes across building components + a free-text
+#               describe line. Each checked box = a disclosed defect.
+#   Section C — items 1-16, each a Yes/No seller-awareness question. "Yes" is the
+#               concern reading for nearly all (it discloses a problem/condition).
+#   Section D — smoke detector + water-heater-bracing compliance certifications.
+#
+# polarity_when_yes / polarity_when_present:
+#   'contradicts' = a clean property (i.e. it surfaces a concern/defect)
+#   'supports'    = a clean property (the favorable reading)
+# For Section A presence boxes, presence is usually neutral (an amenity exists);
+# only a few feed checklist items where presence/absence is decision-relevant.
+# =====================================================================
+
+form: TDS
+form_revision: "6/24"
+parser_note: >
+  Input to the parser is a field-state mapping (checkbox booleans + free-text
+  values) produced by the OCR/vision step from the scanned form. This map turns
+  that field state into pipeline field readings keyed to checklist item ids.
+
+sections:
+
+  # ── Section A: presence + a few decision-relevant items ──────────────────
+  A_presence:
+    # Most Section A boxes are amenity-presence (neutral). These specific ones
+    # carry checklist signal:
+    - field: water_heater_anchored        # via Section D.2 certification
+      maps_to: ca.water_heater_seismic_bracing
+      reading_from: section_D
+    - field: roof_type                     # free-text 'Tile'
+      maps_to: roof.cover_material
+      kind: freetext
+    - field: roof_age                      # free-text '35 (approx.)'
+      maps_to: roof.age
+      kind: freetext_numeric
+      note: "drives the roof.remaining_life computed item"
+    - field: water_conserving_fixtures
+      maps_to: NO_CHECKLIST_ITEM:water_conserving
+      polarity_when_present: supports
+    - field: smoke_detectors_present
+      maps_to: safety.smoke_detectors
+      polarity_when_present: supports
+    - field: co_devices_present
+      maps_to: safety.co_detectors
+      polarity_when_present: supports
+
+  # ── Section B: disclosed defects (each checked box = a concern) ──────────
+  B_defects:
+    - field: B_interior_walls
+      maps_to: NO_CHECKLIST_ITEM:cosmetic_interior
+      polarity_when_checked: contradicts
+    - field: B_roof
+      maps_to: roof.leak_evidence
+      polarity_when_checked: contradicts
+    - field: B_foundation
+      maps_to: foundation.movement_evidence
+      polarity_when_checked: contradicts
+    - field: B_slab
+      maps_to: foundation.movement_evidence
+      polarity_when_checked: contradicts
+    - field: B_plumbing_sewers_septics
+      maps_to: plumbing.active_leaks
+      polarity_when_checked: contradicts
+    - field: B_electrical_systems
+      maps_to: electrical.panel_brand_safety
+      polarity_when_checked: contradicts
+    - field: B_windows
+      maps_to: NO_CHECKLIST_ITEM:cosmetic_interior
+      polarity_when_checked: contradicts
+
+  # ── Section C: seller-awareness 1-16 (Yes = concern) ─────────────────────
+  C_awareness:
+    - field: C1_environmental_hazards
+      maps_to: environmental.asbestos_risk
+      polarity_when_yes: contradicts
+    - field: C3_easements_encroachments
+      maps_to: legal_title.easements_encroachments
+      polarity_when_yes: contradicts
+    - field: C4_unpermitted_additions
+      maps_to: permits.unpermitted_additions
+      polarity_when_yes: contradicts
+    - field: C5_work_not_to_code
+      maps_to: permits.unpermitted_additions
+      polarity_when_yes: contradicts
+    - field: C6_fill_soil
+      maps_to: NO_CHECKLIST_ITEM:fill_soil
+      polarity_when_yes: contradicts
+    - field: C7_settling_slippage
+      maps_to: foundation.movement_evidence
+      polarity_when_yes: contradicts
+    - field: C8_flooding_drainage
+      maps_to: site.drainage_grading
+      polarity_when_yes: contradicts
+    - field: C9_major_damage_disaster
+      maps_to: NO_CHECKLIST_ITEM:disaster_damage
+      polarity_when_yes: contradicts
+    - field: C10_zoning_violations
+      maps_to: NO_CHECKLIST_ITEM:zoning_violations
+      polarity_when_yes: contradicts
+    - field: C12_ccrs_deed_restrictions
+      maps_to: hoa.cc_and_r_restrictions
+      polarity_when_yes: contradicts
+    - field: C13_hoa
+      maps_to: hoa.exists
+      polarity_when_yes: contradicts
+    - field: C15_notices_citations
+      maps_to: NO_CHECKLIST_ITEM:notices_citations
+      polarity_when_yes: contradicts
+    - field: C16_lawsuits
+      maps_to: legal_title.liens_and_legal_actions
+      polarity_when_yes: contradicts
+
+  # ── Section D: compliance certifications ─────────────────────────────────
+  D_certifications:
+    - field: D1_smoke_detector_compliance
+      maps_to: safety.smoke_detectors
+      polarity_when_certified: supports
+    - field: D2_water_heater_braced
+      maps_to: ca.water_heater_seismic_bracing
+      polarity_when_certified: supports
+
+# =====================================================================
+# VERIFIED SPECIMEN — 381 Tina Dr (the regression fixture).
+# Field state transcribed from the real executed form (the authoritative source
+# is the page images; this PDF has no text layer).
+# =====================================================================
+specimen_381_tina_dr:
+  property: "381 Tina Dr., Hollister, CA 95023"
+  county: "San Benito"
+  disclosure_date: "2025-02-03"
+  seller_occupies: true
+  section_A_present:
+    [range, oven, microwave, dishwasher, garbage_disposal, washer_dryer_hookups,
+     rain_gutters, burglar_alarms, co_devices_present, smoke_detectors_present,
+     fire_alarm, central_heating, central_air, sprinklers, public_sewer,
+     water_softener, gazebo, garage_attached, water_heater_gas, water_supply_city,
+     gas_supply_utility, window_screens, water_conserving_fixtures]
+  section_A_freetext:
+    roof_type: "Tile"
+    roof_age: 35
+    fireplace_locations: "living/family rooms"
+    exhaust_fans: "bathrooms/kitchen"
+    garage_remotes: 2
+  section_A_not_operating: false      # "No" — all checked items operate
+  section_B_defects_checked: [B_interior_walls]
+  section_B_describe: "Holes from hanging art/tv's"
+  section_C_yes: []                   # ALL 1-16 answered No
+  section_D:
+    D1_smoke_detector_compliance: certified
+    D2_water_heater_braced: certified
+
+# What this specimen should yield through the pipeline (acceptance expectation):
+expected_claims:
+  contradicts:                        # concerns surfaced
+    - cosmetic.interior_condition     # Section B interior walls (minor: art holes)
+  supports:                           # clean / favorable readings
+    - safety.smoke_detectors
+    - safety.carbon_monoxide_detectors
+    - plumbing.water_conserving_fixtures
+    - ca.water_heater_seismic_bracing
+  freetext:
+    - {item: roof.age, value: 35}
+    - {item: roof.cover_material, value: Tile}
+notes: >
+  The seller disclosed essentially nothing wrong except cosmetic wall holes and
+  all Section C answers are No. The decision-relevant signal here is the roof:
+  Tile cover at 35 years is past typical underlayment life — a due-diligence/
+  reserve item the TDS does NOT flag (it only asks operating condition, not
+  remaining life). This is exactly the silent gap the checklist catches that the
+  form does not: a clean TDS is not a clean property.

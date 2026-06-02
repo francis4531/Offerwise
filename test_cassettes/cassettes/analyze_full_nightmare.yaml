@@ -1,0 +1,2034 @@
+interactions:
+- request:
+    body: null
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate, br
+      Connection:
+      - keep-alive
+      User-Agent:
+      - python-requests/2.31.0
+      x-api-key:
+      - <REDACTED>
+    method: GET
+    uri: https://api.rentcast.io/v1/avm/value?address=789+Nightmare+Rd%2C+Berkeley%2C+CA&compCount=10&daysOld=180&maxRadius=5
+  response:
+    body:
+      string: '{"price":1242000,"priceRangeLow":825000,"priceRangeHigh":1659000,"latitude":37.8880621,"longitude":-122.2507365,"subjectProperty":{"id":"Hill-Rd,-Berkeley,-CA-94708","formattedAddress":"Hill
+        Rd, Berkeley, CA 94708","addressLine1":"Hill Rd","addressLine2":null,"city":"Berkeley","state":"CA","stateFips":"06","zipCode":"94708","latitude":37.8880621,"longitude":-122.2507365},"comparables":[{"id":"120-Hill-Rd,-Berkeley,-CA-94708","formattedAddress":"120
+        Hill Rd, Berkeley, CA 94708","addressLine1":"120 Hill Rd","addressLine2":null,"city":"Berkeley","state":"CA","stateFips":"06","zipCode":"94708","county":"Alameda","countyFips":"001","latitude":37.887464,"longitude":-122.250629,"propertyType":"Single
+        Family","bedrooms":4,"bathrooms":3,"squareFootage":4038,"lotSize":12632,"yearBuilt":1966,"status":"Inactive","price":1895000,"listingType":"Standard","listedDate":"2026-02-18T00:00:00.000Z","removedDate":"2026-03-04T00:00:00.000Z","lastSeenDate":"2026-03-03T07:54:17.627Z","daysOnMarket":14,"distance":0.0418,"daysOld":69,"correlation":0.9972},{"id":"1221-Grizzly-Peak-Blvd,-Berkeley,-CA-94708","formattedAddress":"1221
+        Grizzly Peak Blvd, Berkeley, CA 94708","addressLine1":"1221 Grizzly Peak Blvd","addressLine2":null,"city":"Berkeley","state":"CA","stateFips":"06","zipCode":"94708","county":"Alameda","countyFips":"001","latitude":37.889339,"longitude":-122.251629,"propertyType":"Single
+        Family","bedrooms":4,"bathrooms":3.5,"squareFootage":2210,"lotSize":9349,"yearBuilt":1979,"status":"Inactive","price":1495000,"listingType":"Standard","listedDate":"2026-03-18T00:00:00.000Z","removedDate":"2026-04-15T00:00:00.000Z","lastSeenDate":"2026-04-14T09:14:20.113Z","daysOnMarket":28,"distance":0.1009,"daysOld":27,"correlation":0.9947},{"id":"1321-Grizzly-Peak-Blvd,-Berkeley,-CA-94708","formattedAddress":"1321
+        Grizzly Peak Blvd, Berkeley, CA 94708","addressLine1":"1321 Grizzly Peak Blvd","addressLine2":null,"city":"Berkeley","state":"CA","stateFips":"06","zipCode":"94708","county":"Alameda","countyFips":"001","latitude":37.886738,"longitude":-122.250544,"propertyType":"Single
+        Family","bedrooms":2,"bathrooms":2,"squareFootage":1256,"lotSize":5616,"yearBuilt":1960,"status":"Inactive","price":895000,"listingType":"Standard","listedDate":"2025-11-12T00:00:00.000Z","removedDate":"2025-11-27T00:00:00.000Z","lastSeenDate":"2025-11-26T05:18:43.330Z","daysOnMarket":15,"distance":0.0922,"daysOld":166,"correlation":0.9938},{"id":"2960-Shasta-Rd,-Berkeley,-CA-94708","formattedAddress":"2960
+        Shasta Rd, Berkeley, CA 94708","addressLine1":"2960 Shasta Rd","addressLine2":null,"city":"Berkeley","state":"CA","stateFips":"06","zipCode":"94708","county":"Alameda","countyFips":"001","latitude":37.889441,"longitude":-122.252617,"propertyType":"Single
+        Family","bedrooms":3,"bathrooms":2.5,"squareFootage":2105,"lotSize":3446,"yearBuilt":1978,"status":"Active","price":1295000,"listingType":"Standard","listedDate":"2026-05-06T00:00:00.000Z","removedDate":null,"lastSeenDate":"2026-05-10T08:31:42.715Z","daysOnMarket":5,"distance":0.1401,"daysOld":1,"correlation":0.993},{"id":"111-Fairlawn-Dr,-Berkeley,-CA-94708","formattedAddress":"111
+        Fairlawn Dr, Berkeley, CA 94708","addressLine1":"111 Fairlawn Dr","addressLine2":null,"city":"Berkeley","state":"CA","stateFips":"06","zipCode":"94708","county":"Alameda","countyFips":"001","latitude":37.886334,"longitude":-122.251432,"propertyType":"Single
+        Family","bedrooms":2,"bathrooms":2,"squareFootage":1587,"lotSize":5125,"yearBuilt":1939,"status":"Inactive","price":799000,"listingType":"Standard","listedDate":"2026-01-14T00:00:00.000Z","removedDate":"2026-01-30T00:00:00.000Z","lastSeenDate":"2026-01-29T08:30:31.187Z","daysOnMarket":16,"distance":0.1254,"daysOld":102,"correlation":0.9927},{"id":"2924-Shasta-Rd,-Berkeley,-CA-94708","formattedAddress":"2924
+        Shasta Rd, Berkeley, CA 94708","addressLine1":"2924 Shasta Rd","addressLine2":null,"city":"Berkeley","state":"CA","stateFips":"06","zipCode":"94708","county":"Alameda","countyFips":"001","latitude":37.888245,"longitude":-122.253744,"propertyType":"Single
+        Family","bedrooms":2,"bathrooms":1,"squareFootage":928,"lotSize":4816,"yearBuilt":1951,"status":"Inactive","price":995000,"listingType":"Standard","listedDate":"2026-03-19T00:00:00.000Z","removedDate":"2026-03-27T00:00:00.000Z","lastSeenDate":"2026-03-26T06:17:13.787Z","daysOnMarket":8,"distance":0.1647,"daysOld":46,"correlation":0.9913},{"id":"1188-Grizzly-Peak-Blvd,-Berkeley,-CA-94708","formattedAddress":"1188
+        Grizzly Peak Blvd, Berkeley, CA 94708","addressLine1":"1188 Grizzly Peak Blvd","addressLine2":null,"city":"Berkeley","state":"CA","stateFips":"06","zipCode":"94708","county":"Alameda","countyFips":"001","latitude":37.890382,"longitude":-122.252689,"propertyType":"Single
+        Family","bedrooms":2,"bathrooms":2,"squareFootage":1394,"lotSize":7919,"yearBuilt":1952,"status":"Active","price":1950000,"listingType":"Standard","listedDate":"2026-04-28T00:00:00.000Z","removedDate":null,"lastSeenDate":"2026-05-10T08:50:26.631Z","daysOnMarket":13,"distance":0.1926,"daysOld":1,"correlation":0.9904},{"id":"1375-Queens-Rd,-Berkeley,-CA-94708","formattedAddress":"1375
+        Queens Rd, Berkeley, CA 94708","addressLine1":"1375 Queens Rd","addressLine2":null,"city":"Berkeley","state":"CA","stateFips":"06","zipCode":"94708","county":"Alameda","countyFips":"001","latitude":37.885397,"longitude":-122.251878,"propertyType":"Land","lotSize":5401,"status":"Active","price":599000,"listingType":"Standard","listedDate":"2025-05-14T00:00:00.000Z","removedDate":null,"lastSeenDate":"2026-05-10T10:05:53.529Z","daysOnMarket":362,"distance":0.1946,"daysOld":1,"correlation":0.9903},{"id":"1185-Keeler-Ave,-Berkeley,-CA-94708","formattedAddress":"1185
+        Keeler Ave, Berkeley, CA 94708","addressLine1":"1185 Keeler Ave","addressLine2":null,"city":"Berkeley","state":"CA","stateFips":"06","zipCode":"94708","county":"Alameda","countyFips":"001","latitude":37.888967,"longitude":-122.25514,"propertyType":"Single
+        Family","bedrooms":3,"bathrooms":2.5,"squareFootage":1738,"lotSize":9180,"yearBuilt":1965,"status":"Active","price":1499000,"listingType":"Standard","listedDate":"2026-05-03T00:00:00.000Z","removedDate":null,"lastSeenDate":"2026-05-10T08:40:17.125Z","daysOnMarket":8,"distance":0.2484,"daysOld":1,"correlation":0.9876},{"id":"1183-Keeler-Ave,-Berkeley,-CA-94708","formattedAddress":"1183
+        Keeler Ave, Berkeley, CA 94708","addressLine1":"1183 Keeler Ave","addressLine2":null,"city":"Berkeley","state":"CA","stateFips":"06","zipCode":"94708","county":"Alameda","countyFips":"001","latitude":37.889073,"longitude":-122.255303,"propertyType":"Single
+        Family","bedrooms":2,"bathrooms":1.5,"squareFootage":1261,"lotSize":6720,"yearBuilt":1965,"status":"Inactive","price":995000,"listingType":"Standard","listedDate":"2026-04-15T00:00:00.000Z","removedDate":"2026-04-30T00:00:00.000Z","lastSeenDate":"2026-04-29T09:30:30.109Z","daysOnMarket":15,"distance":0.2589,"daysOld":12,"correlation":0.9869}]}'
+    headers:
+      Content-Length:
+      - '6949'
+      access-control-allow-methods:
+      - GET
+      access-control-allow-origin:
+      - '*'
+      cache-control:
+      - public, max-age=0
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Sun, 10 May 2026 21:53:23 GMT
+      server:
+      - Google Frontend
+      x-cloud-trace-context:
+      - eaaee8e144a90e96b3782679fa7979a6
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate, br
+      Connection:
+      - keep-alive
+      User-Agent:
+      - OfferWise/1.0 Property Research (contact@getofferwise.ai)
+    method: GET
+    uri: https://geocoding.geo.census.gov/geocoder/geographies/onelineaddress?address=789+Nightmare+Rd%2C+Berkeley%2C+CA&benchmark=Public_AR_Current&format=json&vintage=Current_Current
+  response:
+    body:
+      string: '{"result":{"input":{"address":{"address":"789 Nightmare Rd, Berkeley,
+        CA"},"vintage":{"isDefault":true,"id":"4","vintageName":"Current_Current","vintageDescription":"Current
+        Vintage - Current Benchmark"},"benchmark":{"isDefault":true,"benchmarkDescription":"Public
+        Address Ranges - Current Benchmark","id":"4","benchmarkName":"Public_AR_Current"}},"addressMatches":[]}}'
+    headers:
+      Cache-Control:
+      - private, no-store
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '369'
+      Content-Type:
+      - application/json
+      Date:
+      - Sun, 10 May 2026 21:53:24 GMT
+      Set-Cookie:
+      - TS0193e6a1=01283c52a462795259b3b08d5eba0052362472f9e28257ea00ac9cfc5307504ffc5ff44dfdb6ff1744709554edce844fc09b932fe9;
+        Path=/; Domain=.geocoding.geo.census.gov; Secure; HttpOnly
+      Strict-Transport-Security:
+      - max-age=31536000
+      Vary:
+      - Origin
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - DENY
+      X-XSS-Protection:
+      - 1;mode=block
+    status:
+      code: 200
+      message: ''
+- request:
+    body: null
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate, br
+      Connection:
+      - keep-alive
+      User-Agent:
+      - OfferWise/1.0 (property-research)
+      x-api-key:
+      - <REDACTED>
+    method: GET
+    uri: https://api.rentcast.io/v1/avm/value?address=789+Nightmare+Rd%2C+Berkeley%2C+CA&compCount=15&daysOld=180&maxRadius=5
+  response:
+    body:
+      string: '{"price":1257000,"priceRangeLow":769000,"priceRangeHigh":1744000,"latitude":37.8880621,"longitude":-122.2507365,"subjectProperty":{"id":"Hill-Rd,-Berkeley,-CA-94708","formattedAddress":"Hill
+        Rd, Berkeley, CA 94708","addressLine1":"Hill Rd","addressLine2":null,"city":"Berkeley","state":"CA","stateFips":"06","zipCode":"94708","latitude":37.8880621,"longitude":-122.2507365},"comparables":[{"id":"120-Hill-Rd,-Berkeley,-CA-94708","formattedAddress":"120
+        Hill Rd, Berkeley, CA 94708","addressLine1":"120 Hill Rd","addressLine2":null,"city":"Berkeley","state":"CA","stateFips":"06","zipCode":"94708","county":"Alameda","countyFips":"001","latitude":37.887464,"longitude":-122.250629,"propertyType":"Single
+        Family","bedrooms":4,"bathrooms":3,"squareFootage":4038,"lotSize":12632,"yearBuilt":1966,"status":"Inactive","price":1895000,"listingType":"Standard","listedDate":"2026-02-18T00:00:00.000Z","removedDate":"2026-03-04T00:00:00.000Z","lastSeenDate":"2026-03-03T07:54:17.627Z","daysOnMarket":14,"distance":0.0418,"daysOld":69,"correlation":0.9972},{"id":"1221-Grizzly-Peak-Blvd,-Berkeley,-CA-94708","formattedAddress":"1221
+        Grizzly Peak Blvd, Berkeley, CA 94708","addressLine1":"1221 Grizzly Peak Blvd","addressLine2":null,"city":"Berkeley","state":"CA","stateFips":"06","zipCode":"94708","county":"Alameda","countyFips":"001","latitude":37.889339,"longitude":-122.251629,"propertyType":"Single
+        Family","bedrooms":4,"bathrooms":3.5,"squareFootage":2210,"lotSize":9349,"yearBuilt":1979,"status":"Inactive","price":1495000,"listingType":"Standard","listedDate":"2026-03-18T00:00:00.000Z","removedDate":"2026-04-15T00:00:00.000Z","lastSeenDate":"2026-04-14T09:14:20.113Z","daysOnMarket":28,"distance":0.1009,"daysOld":27,"correlation":0.9947},{"id":"1321-Grizzly-Peak-Blvd,-Berkeley,-CA-94708","formattedAddress":"1321
+        Grizzly Peak Blvd, Berkeley, CA 94708","addressLine1":"1321 Grizzly Peak Blvd","addressLine2":null,"city":"Berkeley","state":"CA","stateFips":"06","zipCode":"94708","county":"Alameda","countyFips":"001","latitude":37.886738,"longitude":-122.250544,"propertyType":"Single
+        Family","bedrooms":2,"bathrooms":2,"squareFootage":1256,"lotSize":5616,"yearBuilt":1960,"status":"Inactive","price":895000,"listingType":"Standard","listedDate":"2025-11-12T00:00:00.000Z","removedDate":"2025-11-27T00:00:00.000Z","lastSeenDate":"2025-11-26T05:18:43.330Z","daysOnMarket":15,"distance":0.0922,"daysOld":166,"correlation":0.9938},{"id":"2960-Shasta-Rd,-Berkeley,-CA-94708","formattedAddress":"2960
+        Shasta Rd, Berkeley, CA 94708","addressLine1":"2960 Shasta Rd","addressLine2":null,"city":"Berkeley","state":"CA","stateFips":"06","zipCode":"94708","county":"Alameda","countyFips":"001","latitude":37.889441,"longitude":-122.252617,"propertyType":"Single
+        Family","bedrooms":3,"bathrooms":2.5,"squareFootage":2105,"lotSize":3446,"yearBuilt":1978,"status":"Active","price":1295000,"listingType":"Standard","listedDate":"2026-05-06T00:00:00.000Z","removedDate":null,"lastSeenDate":"2026-05-10T08:31:42.715Z","daysOnMarket":5,"distance":0.1401,"daysOld":1,"correlation":0.993},{"id":"111-Fairlawn-Dr,-Berkeley,-CA-94708","formattedAddress":"111
+        Fairlawn Dr, Berkeley, CA 94708","addressLine1":"111 Fairlawn Dr","addressLine2":null,"city":"Berkeley","state":"CA","stateFips":"06","zipCode":"94708","county":"Alameda","countyFips":"001","latitude":37.886334,"longitude":-122.251432,"propertyType":"Single
+        Family","bedrooms":2,"bathrooms":2,"squareFootage":1587,"lotSize":5125,"yearBuilt":1939,"status":"Inactive","price":799000,"listingType":"Standard","listedDate":"2026-01-14T00:00:00.000Z","removedDate":"2026-01-30T00:00:00.000Z","lastSeenDate":"2026-01-29T08:30:31.187Z","daysOnMarket":16,"distance":0.1254,"daysOld":102,"correlation":0.9927},{"id":"2924-Shasta-Rd,-Berkeley,-CA-94708","formattedAddress":"2924
+        Shasta Rd, Berkeley, CA 94708","addressLine1":"2924 Shasta Rd","addressLine2":null,"city":"Berkeley","state":"CA","stateFips":"06","zipCode":"94708","county":"Alameda","countyFips":"001","latitude":37.888245,"longitude":-122.253744,"propertyType":"Single
+        Family","bedrooms":2,"bathrooms":1,"squareFootage":928,"lotSize":4816,"yearBuilt":1951,"status":"Inactive","price":995000,"listingType":"Standard","listedDate":"2026-03-19T00:00:00.000Z","removedDate":"2026-03-27T00:00:00.000Z","lastSeenDate":"2026-03-26T06:17:13.787Z","daysOnMarket":8,"distance":0.1647,"daysOld":46,"correlation":0.9913},{"id":"1188-Grizzly-Peak-Blvd,-Berkeley,-CA-94708","formattedAddress":"1188
+        Grizzly Peak Blvd, Berkeley, CA 94708","addressLine1":"1188 Grizzly Peak Blvd","addressLine2":null,"city":"Berkeley","state":"CA","stateFips":"06","zipCode":"94708","county":"Alameda","countyFips":"001","latitude":37.890382,"longitude":-122.252689,"propertyType":"Single
+        Family","bedrooms":2,"bathrooms":2,"squareFootage":1394,"lotSize":7919,"yearBuilt":1952,"status":"Active","price":1950000,"listingType":"Standard","listedDate":"2026-04-28T00:00:00.000Z","removedDate":null,"lastSeenDate":"2026-05-10T08:50:26.631Z","daysOnMarket":13,"distance":0.1926,"daysOld":1,"correlation":0.9904},{"id":"1375-Queens-Rd,-Berkeley,-CA-94708","formattedAddress":"1375
+        Queens Rd, Berkeley, CA 94708","addressLine1":"1375 Queens Rd","addressLine2":null,"city":"Berkeley","state":"CA","stateFips":"06","zipCode":"94708","county":"Alameda","countyFips":"001","latitude":37.885397,"longitude":-122.251878,"propertyType":"Land","lotSize":5401,"status":"Active","price":599000,"listingType":"Standard","listedDate":"2025-05-14T00:00:00.000Z","removedDate":null,"lastSeenDate":"2026-05-10T10:05:53.529Z","daysOnMarket":362,"distance":0.1946,"daysOld":1,"correlation":0.9903},{"id":"1185-Keeler-Ave,-Berkeley,-CA-94708","formattedAddress":"1185
+        Keeler Ave, Berkeley, CA 94708","addressLine1":"1185 Keeler Ave","addressLine2":null,"city":"Berkeley","state":"CA","stateFips":"06","zipCode":"94708","county":"Alameda","countyFips":"001","latitude":37.888967,"longitude":-122.25514,"propertyType":"Single
+        Family","bedrooms":3,"bathrooms":2.5,"squareFootage":1738,"lotSize":9180,"yearBuilt":1965,"status":"Active","price":1499000,"listingType":"Standard","listedDate":"2026-05-03T00:00:00.000Z","removedDate":null,"lastSeenDate":"2026-05-10T08:40:17.125Z","daysOnMarket":8,"distance":0.2484,"daysOld":1,"correlation":0.9876},{"id":"1183-Keeler-Ave,-Berkeley,-CA-94708","formattedAddress":"1183
+        Keeler Ave, Berkeley, CA 94708","addressLine1":"1183 Keeler Ave","addressLine2":null,"city":"Berkeley","state":"CA","stateFips":"06","zipCode":"94708","county":"Alameda","countyFips":"001","latitude":37.889073,"longitude":-122.255303,"propertyType":"Single
+        Family","bedrooms":2,"bathrooms":1.5,"squareFootage":1261,"lotSize":6720,"yearBuilt":1965,"status":"Inactive","price":995000,"listingType":"Standard","listedDate":"2026-04-15T00:00:00.000Z","removedDate":"2026-04-30T00:00:00.000Z","lastSeenDate":"2026-04-29T09:30:30.109Z","daysOnMarket":15,"distance":0.2589,"daysOld":12,"correlation":0.9869},{"id":"209-Fairlawn-Dr,-Berkeley,-CA-94708","formattedAddress":"209
+        Fairlawn Dr, Berkeley, CA 94708","addressLine1":"209 Fairlawn Dr","addressLine2":null,"city":"Berkeley","state":"CA","stateFips":"06","zipCode":"94708","county":"Alameda","countyFips":"001","latitude":37.884506,"longitude":-122.250063,"propertyType":"Single
+        Family","bedrooms":3,"bathrooms":2,"squareFootage":1823,"lotSize":4848,"yearBuilt":1951,"status":"Inactive","price":995000,"listingType":"Standard","listedDate":"2026-01-29T00:00:00.000Z","removedDate":"2026-02-12T00:00:00.000Z","lastSeenDate":"2026-02-11T07:35:33.601Z","daysOnMarket":14,"distance":0.2487,"daysOld":89,"correlation":0.9867},{"id":"1170-Sterling-Ave,-Berkeley,-CA-94708","formattedAddress":"1170
+        Sterling Ave, Berkeley, CA 94708","addressLine1":"1170 Sterling Ave","addressLine2":null,"city":"Berkeley","state":"CA","stateFips":"06","zipCode":"94708","county":"Alameda","countyFips":"001","latitude":37.889442,"longitude":-122.255291,"propertyType":"Single
+        Family","bedrooms":4,"bathrooms":3,"squareFootage":2490,"lotSize":6018,"yearBuilt":1938,"status":"Active","price":2195000,"listingType":"Standard","listedDate":"2026-04-16T00:00:00.000Z","removedDate":null,"lastSeenDate":"2026-05-10T09:04:18.061Z","daysOnMarket":25,"distance":0.2663,"daysOld":1,"correlation":0.9867},{"id":"1181-Keeler-Ave,-Berkeley,-CA-94708","formattedAddress":"1181
+        Keeler Ave, Berkeley, CA 94708","addressLine1":"1181 Keeler Ave","addressLine2":null,"city":"Berkeley","state":"CA","stateFips":"06","zipCode":"94708","county":"Alameda","countyFips":"001","latitude":37.889143,"longitude":-122.255487,"propertyType":"Land","lotSize":6184,"status":"Inactive","price":350000,"listingType":"Standard","listedDate":"2026-04-16T00:00:00.000Z","removedDate":"2026-04-30T00:00:00.000Z","lastSeenDate":"2026-04-29T09:24:47.287Z","daysOnMarket":14,"distance":0.2699,"daysOld":12,"correlation":0.9864},{"id":"230-Fairlawn-Dr,-Berkeley,-CA-94708","formattedAddress":"230
+        Fairlawn Dr, Berkeley, CA 94708","addressLine1":"230 Fairlawn Dr","addressLine2":null,"city":"Berkeley","state":"CA","stateFips":"06","zipCode":"94708","county":"Alameda","countyFips":"001","latitude":37.883831,"longitude":-122.250381,"propertyType":"Single
+        Family","bedrooms":4,"bathrooms":2,"squareFootage":1436,"lotSize":5640,"yearBuilt":1954,"status":"Inactive","price":1298000,"listingType":"Standard","listedDate":"2026-05-01T00:00:00.000Z","removedDate":"2026-05-08T00:00:00.000Z","lastSeenDate":"2026-05-07T05:28:36.980Z","daysOnMarket":7,"distance":0.2933,"daysOld":4,"correlation":0.9853},{"id":"1123-Park-Hills-Rd,-Berkeley,-CA-94708","formattedAddress":"1123
+        Park Hills Rd, Berkeley, CA 94708","addressLine1":"1123 Park Hills Rd","addressLine2":null,"city":"Berkeley","state":"CA","stateFips":"06","zipCode":"94708","county":"Alameda","countyFips":"001","latitude":37.891838,"longitude":-122.252739,"propertyType":"Single
+        Family","bedrooms":5,"bathrooms":4,"squareFootage":3200,"lotSize":6930,"yearBuilt":1961,"status":"Inactive","price":1595000,"listingType":"Standard","listedDate":"2026-02-10T00:00:00.000Z","removedDate":"2026-03-03T00:00:00.000Z","lastSeenDate":"2026-03-02T08:00:00.549Z","daysOnMarket":21,"distance":0.2831,"daysOld":70,"correlation":0.9852}]}'
+    headers:
+      Content-Length:
+      - '10206'
+      access-control-allow-methods:
+      - GET
+      access-control-allow-origin:
+      - '*'
+      cache-control:
+      - public, max-age=0
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Sun, 10 May 2026 21:53:24 GMT
+      server:
+      - Google Frontend
+      x-cloud-trace-context:
+      - e9aeeaedc7d14d34c5b21c2775e609d5
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"max_tokens": 1000, "messages": [{"role": "user", "content": "You are
+      a real estate research analyst. Based on the following data gathered \nabout
+      a property, write a concise Pre-Analysis Intelligence Brief.\n\nPROPERTY: 789
+      Nightmare Rd, Berkeley, CA\nYEAR BUILT: Unknown\nESTIMATED VALUE: $1,257,000
+      if profile.estimated_value else ''Unknown''\nSQFT: Unknown\n\nDATA GATHERED:\n-
+      rentcast: {\"found\": true, \"bedrooms\": null, \"bathrooms\": null, \"sqft\":
+      null, \"year_built\": null, \"lot_size\": null, \"property_type\": null, \"estimated_value\":
+      1257000, \"assessed_value\": null, \"avm_price\": 1257000, \"avm_price_low\":
+      769000, \"avm_price_high\": 1744000, \"comparables\": [{\"address\": \"120 Hill
+      Rd, Berkeley, CA 94708\", \"price\": 1895000, \"sqft\": 4038, \"price_per_sqft\":
+      469.29, \"bedrooms\": 4, \"bathrooms\": 3.0, \"year_built\": 1966, \"lot_size\":
+      12632, \"property_type\": \"Single Family\", \"days_on_market\": 1\n\nKEY FINDINGS:\n\n\nWrite
+      a brief (3-4 paragraphs) that:\n1. Summarizes what we know about this property
+      BEFORE seeing any seller documents\n2. Identifies the top 3 things a buyer should
+      verify in the seller disclosure\n3. Flags any red flags or risk factors that
+      could affect the offer price\n4. Notes what data we could NOT find (gaps in
+      research)\n\nBe specific and actionable. Reference actual data points. No generic
+      advice."}], "model": "claude-sonnet-4-6", "temperature": 0}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate, br
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '1415'
+      Content-Type:
+      - application/json
+      Host:
+      - api.anthropic.com
+      User-Agent:
+      - Anthropic/Python 0.49.0
+      X-Stainless-Arch:
+      - x64
+      X-Stainless-Async:
+      - 'false'
+      X-Stainless-Lang:
+      - python
+      X-Stainless-OS:
+      - Linux
+      X-Stainless-Package-Version:
+      - 0.49.0
+      X-Stainless-Runtime:
+      - CPython
+      X-Stainless-Runtime-Version:
+      - 3.11.15
+      anthropic-version:
+      - '2023-06-01'
+      baggage:
+      - sentry-trace_id=f780e32bc7c04f419d8ab404a2d80dbc,sentry-sample_rand=0.295039,sentry-environment=production,sentry-public_key=bec0f097edae469b35925bf075c964d9,sentry-org_id=4511034871578624,sentry-transaction=analysis.analyze_property,sentry-sample_rate=0.1,sentry-sampled=false
+      sentry-trace:
+      - f780e32bc7c04f419d8ab404a2d80dbc-92c7715d9a53ef62-0
+      x-api-key:
+      - <REDACTED>
+      x-stainless-read-timeout:
+      - '600'
+      x-stainless-retry-count:
+      - '0'
+      x-stainless-timeout:
+      - '600'
+    method: POST
+    uri: https://api.anthropic.com/v1/messages
+  response:
+    body:
+      string: "{\"model\":\"claude-sonnet-4-6\",\"id\":\"msg_01MU2W9gctbUdjQkQsKp2y6e\",\"type\":\"message\",\"role\":\"assistant\",\"content\":[{\"type\":\"text\",\"text\":\"#
+        Pre-Analysis Intelligence Brief\\n**Property:** 789 Nightmare Rd, Berkeley,
+        CA\\n**Prepared:** Pre-Disclosure Review | Analyst: AI Research System\\n\\n---\\n\\n##
+        What We Know Going In\\n\\nRentCast confirms this property exists in their
+        database and carries an AVM estimate of **$1,257,000**, but that number deserves
+        immediate scrutiny. The confidence interval is extraordinarily wide \u2014
+        ranging from **$769,000 to $1,744,000** \u2014 a spread of nearly **$975,000**.
+        That kind of variance typically signals that the AVM model had very little
+        reliable data to work with, likely because core property attributes are missing.
+        We have **no confirmed bedroom count, bathroom count, square footage, year
+        built, lot size, or property type** from any source. In short, the algorithm
+        produced a number, but it was essentially working blind. The one comparable
+        pulled \u2014 120 Hill Rd, Berkeley (4BR/3BA, 4,038 sqft, sold at $1,895,000
+        in 1966-built home) \u2014 suggests the neighborhood can support premium pricing,
+        but we cannot meaningfully benchmark 789 Nightmare Rd against it without knowing
+        our subject property's own specs.\\n\\n---\\n\\n## Top 3 Things to Verify
+        in Seller Disclosure\\n\\n1. **Physical Property Characteristics:** Seller
+        must provide verified square footage, bedroom/bathroom count, lot size, and
+        year built. These are not minor details \u2014 they are the foundation of
+        every valuation and comp analysis. The fact that *no data source* could populate
+        these fields is unusual and warrants a direct explanation from the seller.
+        Request the original building permit records and any prior appraisals.\\n\\n2.
+        **Unpermitted Work or Non-Standard Construction:** The complete absence of
+        property type and structural data in public records could indicate the property
+        has unpermitted additions, was significantly altered, or has title/permit
+        issues that caused it to be inconsistently recorded. Ask specifically: *Has
+        any work been done without permits? Has the property's use or structure changed
+        since original construction?*\\n\\n3. **Year Built and Material Condition:**
+        With year built listed as unknown, there is no baseline for assessing deferred
+        maintenance risk, seismic retrofit status (critical in Berkeley), or lead/asbestos
+        exposure windows. Berkeley has specific **Earthquake Hazard Mitigation** ordinance
+        requirements for older homes. If this property was built pre-1980, mandatory
+        retrofit compliance and disclosure obligations apply and must be confirmed.\\n\\n---\\n\\n##
+        Red Flags & Risk Factors Affecting Offer Price\\n\\nThe **street name alone
+        \u2014 \\\"Nightmare Rd\\\" \u2014 does not appear in standard Berkeley street
+        directories**, which raises a foundational concern: verify that this address
+        is correctly recorded and legally established. An address anomaly can complicate
+        title insurance, financing, and resale. Beyond that, the AVM's $975,000 confidence
+        spread is itself a pricing red flag \u2014 it suggests this property may be
+        genuinely difficult to appraise, which means a lender's appraiser could come
+        in well below the agreed purchase price, creating a financing gap. If a buyer
+        is financing near the $1,257,000 estimate, they should be prepared for potential
+        appraisal shortfall risk of **$200,000\u2013$400,000** based on the low end
+        of the range. Additionally, Berkeley's hillside areas carry elevated **wildfire
+        and landslide exposure** \u2014 without knowing the lot characteristics, we
+        cannot assess slope, drainage, or defensible space compliance, all of which
+        affect insurability and cost.\\n\\n---\\n\\n## Critical Data Gaps\\n\\nThe
+        research returned **no assessed value** from county tax records, which is
+        atypical and suggests either a very recent transfer, an assessment appeal
+        in progress, or a data retrieval issue \u2014 all worth investigating. We
+        are missing: confirmed property type, all physical dimensions, construction
+        year, lot size, any rental history or rent roll, HOA status, and flood/fire
+        zone designation. Only **one comparable** was surfaced, which is insufficient
+        for a reliable valuation range in a market as micro-segmented as Berkeley.
+        Before any offer is submitted, a full MLS pull of 90-day Berkeley sales filtered
+        by neighborhood and property type is essential. **Do not rely on the $1,257,000
+        AVM figure for offer pricing** \u2014 treat it as a placeholder until physical
+        verification and a proper comp analysis can be completed.\\n\\n---\\n*This
+        brief reflects pre-disclosure intelligence only. All findings should be validated
+        against seller documents, county records, and physical inspection.*\"}],\"stop_reason\":\"end_turn\",\"stop_sequence\":null,\"stop_details\":null,\"usage\":{\"input_tokens\":403,\"cache_creation_input_tokens\":0,\"cache_read_input_tokens\":0,\"cache_creation\":{\"ephemeral_5m_input_tokens\":0,\"ephemeral_1h_input_tokens\":0},\"output_tokens\":987,\"service_tier\":\"standard\",\"inference_geo\":\"global\"}}"
+    headers:
+      CF-RAY:
+      - 9f9c2d322dc5054d-PDX
+      Connection:
+      - keep-alive
+      Content-Security-Policy:
+      - default-src 'none'; frame-ancestors 'none'
+      Content-Type:
+      - application/json
+      Date:
+      - Sun, 10 May 2026 21:53:50 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      X-Robots-Tag:
+      - none
+      anthropic-organization-id:
+      - b2fdc71b-2fc9-444f-8b1b-31a1a50d1ce6
+      anthropic-ratelimit-input-tokens-limit:
+      - '450000'
+      anthropic-ratelimit-input-tokens-remaining:
+      - '450000'
+      anthropic-ratelimit-input-tokens-reset:
+      - '2026-05-10T21:53:25Z'
+      anthropic-ratelimit-output-tokens-limit:
+      - '90000'
+      anthropic-ratelimit-output-tokens-remaining:
+      - '90000'
+      anthropic-ratelimit-output-tokens-reset:
+      - '2026-05-10T21:53:50Z'
+      anthropic-ratelimit-requests-limit:
+      - '1000'
+      anthropic-ratelimit-requests-remaining:
+      - '999'
+      anthropic-ratelimit-requests-reset:
+      - '2026-05-10T21:53:25Z'
+      anthropic-ratelimit-tokens-limit:
+      - '540000'
+      anthropic-ratelimit-tokens-remaining:
+      - '540000'
+      anthropic-ratelimit-tokens-reset:
+      - '2026-05-10T21:53:25Z'
+      cf-cache-status:
+      - DYNAMIC
+      content-length:
+      - '4965'
+      request-id:
+      - req_011CaudZKDAy1EbqkfyYcB6F
+      set-cookie:
+      - <REDACTED>
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      traceresponse:
+      - 00-babbe7af0a5261ec991d1b892e2d211d-1049cd576ac6688c-01
+      vary:
+      - Accept-Encoding
+      x-envoy-upstream-service-time:
+      - '25970'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"max_tokens": 1817, "messages": [{"role": "user", "content": "Fix OCR
+      errors in this real estate document. Fix character substitutions (0\u2192O,
+      5\u2192S, 1\u2192l) and spacing. Preserve all meaning. Output fixed text only,
+      no explanations.\n\nTEXT:\nREAL ESTATE TRANSFER DISCLOSURE STATEMENT\n(California
+      Civil Code Section 1102 et seq.)\nProperty Address: 456 Hidden Problem Way,
+      Sunnyvale, CA 94086\nB. Are you (Seller) aware of any significant defects/malfunctions?\nInterior
+      Walls: Yes ( )  No (X)\nCeilings: Yes ( )  No (X)\nFloors: Yes ( )  No (X)\nExterior
+      Walls: Yes ( )  No (X)\nInsulation: Yes ( )  No (X)\nRoof(s): Yes ( )  No (X)\nWindows:
+      Yes ( )  No (X)\nDoors: Yes ( )  No (X)\nFoundation: Yes ( )  No (X)\nSlab(s):
+      Yes ( )  No (X)\nDriveways: Yes ( )  No (X)\nSidewalks: Yes ( )  No (X)\nWalls/Fences:
+      Yes ( )  No (X)\nElectrical Systems: Yes ( )  No (X)\nPlumbing/Sewers/Septics:
+      Yes ( )  No (X)\nOther Structural Components: Yes ( )  No (X)\nAdditional disclosures:
+      Property is being sold in its current condition.\nNo material defects known
+      to seller.\nC. Awareness Questions:\nEnvironmental hazards: Yes ( )  No (X)\nEncroachments/easements:
+      Yes ( )  No (X)\nRoom additions without permits: Yes ( )  No (X)\nSettling/soil
+      problems: Yes ( )  No (X)\nFlooding/drainage: Yes ( )  No (X)\nMajor damage
+      (fire/earthquake/flood): Yes ( )  No (X)\nZoning violations: Yes ( )  No (X)\nNeighborhood
+      noise/nuisances: Yes ( )  No (X)\nCC&Rs: Yes ( )  No (X)\nHOA: Yes ( )  No (X)\nLawsuits:
+      Yes ( )  No (X)\nAbatement/citations: Yes ( )  No (X)\nSeller: Robert & Sarah
+      Williams\nDate: 02/18/2026"}], "model": "claude-sonnet-4-20250514"}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate, br
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '1630'
+      Content-Type:
+      - application/json
+      Host:
+      - api.anthropic.com
+      User-Agent:
+      - Anthropic/Python 0.49.0
+      X-Stainless-Arch:
+      - x64
+      X-Stainless-Async:
+      - 'false'
+      X-Stainless-Lang:
+      - python
+      X-Stainless-OS:
+      - Linux
+      X-Stainless-Package-Version:
+      - 0.49.0
+      X-Stainless-Runtime:
+      - CPython
+      X-Stainless-Runtime-Version:
+      - 3.11.15
+      anthropic-version:
+      - '2023-06-01'
+      baggage:
+      - sentry-trace_id=f780e32bc7c04f419d8ab404a2d80dbc,sentry-sample_rand=0.295039,sentry-environment=production,sentry-public_key=bec0f097edae469b35925bf075c964d9,sentry-org_id=4511034871578624,sentry-transaction=analysis.analyze_property,sentry-sample_rate=0.1,sentry-sampled=false
+      cookie:
+      - <REDACTED>
+      sentry-trace:
+      - f780e32bc7c04f419d8ab404a2d80dbc-b05f0ea0464955ee-0
+      x-api-key:
+      - <REDACTED>
+      x-stainless-read-timeout:
+      - '600'
+      x-stainless-retry-count:
+      - '0'
+      x-stainless-timeout:
+      - '600'
+    method: POST
+    uri: https://api.anthropic.com/v1/messages
+  response:
+    body:
+      string: '{"model":"claude-sonnet-4-20250514","id":"msg_01AJEmNPxBQbhvGiGh8o4D5T","type":"message","role":"assistant","content":[{"type":"text","text":"REAL
+        ESTATE TRANSFER DISCLOSURE STATEMENT\n(California Civil Code Section 1102
+        et seq.)\nProperty Address: 456 Hidden Problem Way, Sunnyvale, CA 94086\nB.
+        Are you (Seller) aware of any significant defects/malfunctions?\nInterior
+        Walls: Yes ( )  No (X)\nCeilings: Yes ( )  No (X)\nFloors: Yes ( )  No (X)\nExterior
+        Walls: Yes ( )  No (X)\nInsulation: Yes ( )  No (X)\nRoof(s): Yes ( )  No
+        (X)\nWindows: Yes ( )  No (X)\nDoors: Yes ( )  No (X)\nFoundation: Yes ( )  No
+        (X)\nSlab(s): Yes ( )  No (X)\nDriveways: Yes ( )  No (X)\nSidewalks: Yes
+        ( )  No (X)\nWalls/Fences: Yes ( )  No (X)\nElectrical Systems: Yes ( )  No
+        (X)\nPlumbing/Sewers/Septics: Yes ( )  No (X)\nOther Structural Components:
+        Yes ( )  No (X)\nAdditional disclosures: Property is being sold in its current
+        condition.\nNo material defects known to seller.\nC. Awareness Questions:\nEnvironmental
+        hazards: Yes ( )  No (X)\nEncroachments/easements: Yes ( )  No (X)\nRoom additions
+        without permits: Yes ( )  No (X)\nSettling/soil problems: Yes ( )  No (X)\nFlooding/drainage:
+        Yes ( )  No (X)\nMajor damage (fire/earthquake/flood): Yes ( )  No (X)\nZoning
+        violations: Yes ( )  No (X)\nNeighborhood noise/nuisances: Yes ( )  No (X)\nCC&Rs:
+        Yes ( )  No (X)\nHOA: Yes ( )  No (X)\nLawsuits: Yes ( )  No (X)\nAbatement/citations:
+        Yes ( )  No (X)\nSeller: Robert & Sarah Williams\nDate: 02/18/2026"}],"stop_reason":"end_turn","stop_sequence":null,"stop_details":null,"usage":{"input_tokens":569,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"cache_creation":{"ephemeral_5m_input_tokens":0,"ephemeral_1h_input_tokens":0},"output_tokens":515,"service_tier":"standard","inference_geo":"not_available"}}'
+    headers:
+      CF-RAY:
+      - 9f9c2dc99cdf8f7a-PDX
+      Connection:
+      - keep-alive
+      Content-Security-Policy:
+      - default-src 'none'; frame-ancestors 'none'
+      Content-Type:
+      - application/json
+      Date:
+      - Sun, 10 May 2026 21:53:54 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      X-Robots-Tag:
+      - none
+      anthropic-organization-id:
+      - b2fdc71b-2fc9-444f-8b1b-31a1a50d1ce6
+      anthropic-ratelimit-input-tokens-limit:
+      - '450000'
+      anthropic-ratelimit-input-tokens-remaining:
+      - '450000'
+      anthropic-ratelimit-input-tokens-reset:
+      - '2026-05-10T21:53:50Z'
+      anthropic-ratelimit-output-tokens-limit:
+      - '90000'
+      anthropic-ratelimit-output-tokens-remaining:
+      - '90000'
+      anthropic-ratelimit-output-tokens-reset:
+      - '2026-05-10T21:53:54Z'
+      anthropic-ratelimit-requests-limit:
+      - '1000'
+      anthropic-ratelimit-requests-remaining:
+      - '999'
+      anthropic-ratelimit-requests-reset:
+      - '2026-05-10T21:53:49Z'
+      anthropic-ratelimit-tokens-limit:
+      - '540000'
+      anthropic-ratelimit-tokens-remaining:
+      - '540000'
+      anthropic-ratelimit-tokens-reset:
+      - '2026-05-10T21:53:50Z'
+      cf-cache-status:
+      - DYNAMIC
+      content-length:
+      - '1811'
+      request-id:
+      - req_011Caudb6yn13arjbmAzEh3w
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      traceresponse:
+      - 00-dec96e149a19a412f1f6017f25a463c2-10a39dd88704ee3a-01
+      vary:
+      - Accept-Encoding
+      x-envoy-upstream-service-time:
+      - '5153'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"max_tokens": 2500, "messages": [{"role": "user", "content": "Fix OCR
+      errors in this real estate document. Fix character substitutions (0\u2192O,
+      5\u2192S, 1\u2192l) and spacing. Preserve all meaning. Output fixed text only,
+      no explanations.\n\nTEXT:\nHOME INSPECTION REPORT\nProperty: 456 Hidden Problem
+      Way, Sunnyvale, CA 94086\nDate: March 25, 2026\nInspector: Patricia Nguyen,
+      ASHI #189234\nCRITICAL FINDINGS SUMMARY\nCRITICAL - FOUNDATION\nSignificant
+      structural cracking in foundation. Multiple cracks exceeding 1/4 inch width
+      with vertical displacement observed on east and south walls.\nStep-cracking
+      pattern suggests differential settling. THIS IS A SAFETY CONCERN. Immediate
+      evaluation by licensed structural engineer required.\nEstimated repair: $15,000-$45,000
+      depending on remediation method (pier/beam, mudjacking, or complete section
+      replacement). NOTE: This type of\ncracking typically develops over years and
+      would be visible to property occupants.\nCRITICAL - ROOF\nActive water intrusion
+      detected in three locations. Roof is well past useful life with extensive damage:
+      missing shingles across south and west slopes,\ndeteriorated flashing at all
+      penetrations, visible daylight through roof decking in attic at two locations.
+      Active leak staining on attic insulation and ceiling\ndrywall in master bedroom
+      and hallway. Mold growth observed on attic decking in two areas (~3 sq ft total).
+      Full roof replacement required\nimmediately. Estimated cost: $18,000-$25,000.
+      Mold remediation estimated: $3,000-$8,000. NOTE: Multiple layers of roofing
+      material suggest\nprevious repairs/patches without addressing underlying issues.\nCRITICAL
+      - ELECTRICAL\nFederal Pacific Stab-Lok electrical panel identified. This panel
+      type has a documented history of breaker failure and fire risk. Panel does not
+      reliably\ntrip under overload conditions. Multiple insurance companies will
+      not insure homes with this panel. Immediate replacement required. Additionally:\nKnob-and-tube
+      wiring discovered in attic section, suggesting unpermitted addition. Estimated
+      panel replacement: $2,500-$4,000. Wiring remediation:\n$5,000-$12,000. NOTE:
+      Federal Pacific panels were common in 1960s-1980s construction but this home
+      is listed as built 2002 - suggesting the\ngarage conversion"}], "model": "claude-sonnet-4-20250514"}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate, br
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '2298'
+      Content-Type:
+      - application/json
+      Host:
+      - api.anthropic.com
+      User-Agent:
+      - Anthropic/Python 0.49.0
+      X-Stainless-Arch:
+      - x64
+      X-Stainless-Async:
+      - 'false'
+      X-Stainless-Lang:
+      - python
+      X-Stainless-OS:
+      - Linux
+      X-Stainless-Package-Version:
+      - 0.49.0
+      X-Stainless-Runtime:
+      - CPython
+      X-Stainless-Runtime-Version:
+      - 3.11.15
+      anthropic-version:
+      - '2023-06-01'
+      baggage:
+      - sentry-trace_id=f780e32bc7c04f419d8ab404a2d80dbc,sentry-sample_rand=0.295039,sentry-environment=production,sentry-public_key=bec0f097edae469b35925bf075c964d9,sentry-org_id=4511034871578624,sentry-transaction=analysis.analyze_property,sentry-sample_rate=0.1,sentry-sampled=false
+      cookie:
+      - <REDACTED>
+      sentry-trace:
+      - f780e32bc7c04f419d8ab404a2d80dbc-9675ab0eb537b010-0
+      x-api-key:
+      - <REDACTED>
+      x-stainless-read-timeout:
+      - '600'
+      x-stainless-retry-count:
+      - '0'
+      x-stainless-timeout:
+      - '600'
+    method: POST
+    uri: https://api.anthropic.com/v1/messages
+  response:
+    body:
+      string: '{"model":"claude-sonnet-4-20250514","id":"msg_01Whtp1h8Kebo9qTFMNfHpBf","type":"message","role":"assistant","content":[{"type":"text","text":"HOME
+        INSPECTION REPORT\nProperty: 456 Hidden Problem Way, Sunnyvale, CA 94086\nDate:
+        March 25, 2026\nInspector: Patricia Nguyen, ASHI #189234\nCRITICAL FINDINGS
+        SUMMARY\nCRITICAL - FOUNDATION\nSignificant structural cracking in foundation.
+        Multiple cracks exceeding 1/4 inch width with vertical displacement observed
+        on east and south walls.\nStep-cracking pattern suggests differential settling.
+        THIS IS A SAFETY CONCERN. Immediate evaluation by licensed structural engineer
+        required.\nEstimated repair: $15,000-$45,000 depending on remediation method
+        (pier/beam, mudjacking, or complete section replacement). NOTE: This type
+        of\ncracking typically develops over years and would be visible to property
+        occupants.\nCRITICAL - ROOF\nActive water intrusion detected in three locations.
+        Roof is well past useful life with extensive damage: missing shingles across
+        south and west slopes,\ndeteriorated flashing at all penetrations, visible
+        daylight through roof decking in attic at two locations. Active leak staining
+        on attic insulation and ceiling\ndrywall in master bedroom and hallway. Mold
+        growth observed on attic decking in two areas (~3 sq ft total). Full roof
+        replacement required\nimmediately. Estimated cost: $18,000-$25,000. Mold remediation
+        estimated: $3,000-$8,000. NOTE: Multiple layers of roofing material suggest\nprevious
+        repairs/patches without addressing underlying issues.\nCRITICAL - ELECTRICAL\nFederal
+        Pacific Stab-Lok electrical panel identified. This panel type has a documented
+        history of breaker failure and fire risk. Panel does not reliably\ntrip under
+        overload conditions. Multiple insurance companies will not insure homes with
+        this panel. Immediate replacement required. Additionally:\nKnob-and-tube wiring
+        discovered in attic section, suggesting unpermitted addition. Estimated panel
+        replacement: $2,500-$4,000. Wiring remediation:\n$5,000-$12,000. NOTE: Federal
+        Pacific panels were common in 1960s-1980s construction but this home is listed
+        as built 2002 - suggesting the\ngarage conversion"}],"stop_reason":"end_turn","stop_sequence":null,"stop_details":null,"usage":{"input_tokens":545,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"cache_creation":{"ephemeral_5m_input_tokens":0,"ephemeral_1h_input_tokens":0},"output_tokens":491,"service_tier":"standard","inference_geo":"not_available"}}'
+    headers:
+      CF-RAY:
+      - 9f9c2dea7b04c895-PDX
+      Connection:
+      - keep-alive
+      Content-Security-Policy:
+      - default-src 'none'; frame-ancestors 'none'
+      Content-Type:
+      - application/json
+      Date:
+      - Sun, 10 May 2026 21:53:59 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      X-Robots-Tag:
+      - none
+      anthropic-organization-id:
+      - b2fdc71b-2fc9-444f-8b1b-31a1a50d1ce6
+      anthropic-ratelimit-input-tokens-limit:
+      - '450000'
+      anthropic-ratelimit-input-tokens-remaining:
+      - '450000'
+      anthropic-ratelimit-input-tokens-reset:
+      - '2026-05-10T21:53:55Z'
+      anthropic-ratelimit-output-tokens-limit:
+      - '90000'
+      anthropic-ratelimit-output-tokens-remaining:
+      - '90000'
+      anthropic-ratelimit-output-tokens-reset:
+      - '2026-05-10T21:53:59Z'
+      anthropic-ratelimit-requests-limit:
+      - '1000'
+      anthropic-ratelimit-requests-remaining:
+      - '999'
+      anthropic-ratelimit-requests-reset:
+      - '2026-05-10T21:53:54Z'
+      anthropic-ratelimit-tokens-limit:
+      - '540000'
+      anthropic-ratelimit-tokens-remaining:
+      - '540000'
+      anthropic-ratelimit-tokens-reset:
+      - '2026-05-10T21:53:55Z'
+      cf-cache-status:
+      - DYNAMIC
+      content-length:
+      - '2479'
+      request-id:
+      - req_011CaudbVHTfp4fKyEtSrQvY
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      traceresponse:
+      - 00-6b0265f657e1c5ef395715f53f714e97-a5b7b221cf65e0ab-01
+      vary:
+      - Accept-Encoding
+      x-envoy-upstream-service-time:
+      - '4638'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"max_tokens": 4000, "messages": [{"role": "user", "content": "You are
+      a home inspection report analyst. Read this inspection report and extract every
+      defect, problem, safety concern, and item needing repair or further evaluation.\n\nCRITICAL
+      RULES:\n- Extract ONLY actual problems and defects. Do NOT include positive
+      observations, general descriptions, or normal conditions.\n- A \"recommend further
+      evaluation by a specialist\" IS a finding \u2014 the inspector is flagging something
+      they cannot fully assess.\n- Photo descriptions like [PHOTO: ...] that show
+      damage or defects should be captured as findings.\n- Be thorough \u2014 missing
+      a real finding is worse than including a borderline one.\n\nCATEGORIES (use
+      exactly one):\nfoundation_structure, roof_exterior, plumbing, electrical, hvac_systems,
+      environmental, legal_title, insurance_hoa\n\nSEVERITY LEVELS:\ncritical = structural
+      failure, active safety hazard, immediate action needed\nmajor = significant
+      defect, will worsen without repair, costly\nmoderate = needs repair but not
+      urgent, standard maintenance issue\nminor = cosmetic, low priority, monitoring
+      sufficient\n\nFor each finding, return:\n- category: one of the categories above\n-
+      severity: critical, major, moderate, or minor\n- description: clear complete
+      sentence describing the problem\n- location: where in the property (if stated
+      in the report)\n- recommendation: what should be done (from the report or your
+      assessment)\n- safety_concern: true ONLY for immediate life-safety hazards (fire
+      risk, electrocution, structural collapse, gas leak, fall hazard). Normal repair
+      items are NOT safety concerns. Most findings should be false.\n- requires_specialist:
+      true ONLY when the inspector specifically recommends a licensed specialist beyond
+      a general contractor (structural engineer, licensed electrician, environmental
+      tester). Standard \"recommend repair by qualified contractor\" is NOT a specialist
+      referral. Most findings should be false.\n- source_quote: the exact words from
+      the report (max 120 chars) that support this finding\n\nRespond with ONLY a
+      JSON object: {\"findings\": [...]}\n\nINSPECTION REPORT:\nHOME INSPECTION REPORT\nProperty:
+      456 Hidden Problem Way, Sunnyvale, CA 94086\nDate: March 25, 2026\nInspector:
+      Patricia Nguyen, ASHI #189234\nCRITICAL FINDINGS SUMMARY\nCRITICAL - FOUNDATION\nSignificant
+      structural cracking in foundation. Multiple cracks exceeding 1/4 inch width
+      with vertical displacement observed on east and south walls.\nStep-cracking
+      pattern suggests differential settling. THIS IS A SAFETY CONCERN. Immediate
+      evaluation by licensed structural engineer required.\nEstimated repair: $15,000-$45,000
+      depending on remediation method (pier/beam, mudjacking, or complete section
+      replacement). NOTE: This type of\ncracking typically develops over years and
+      would be visible to property occupants.\nCRITICAL - ROOF\nActive water intrusion
+      detected in three locations. Roof is well past useful life with extensive damage:
+      missing shingles across south and west slopes,\ndeteriorated flashing at all
+      penetrations, visible daylight through roof decking in attic at two locations.
+      Active leak staining on attic insulation and ceiling\ndrywall in master bedroom
+      and hallway. Mold growth observed on attic decking in two areas (~3 sq ft total).
+      Full roof replacement required\nimmediately. Estimated cost: $18,000-$25,000.
+      Mold remediation estimated: $3,000-$8,000. NOTE: Multiple layers of roofing
+      material suggest\nprevious repairs/patches without addressing underlying issues.\nCRITICAL
+      - ELECTRICAL\nFederal Pacific Stab-Lok electrical panel identified. This panel
+      type has a documented history of breaker failure and fire risk. Panel does not
+      reliably\ntrip under overload conditions. Multiple insurance companies will
+      not insure homes with this panel. Immediate replacement required. Additionally:\nKnob-and-tube
+      wiring discovered in attic section, suggesting unpermitted addition. Estimated
+      panel replacement: $2,500-$4,000. Wiring remediation:\n$5,000-$12,000. NOTE:
+      Federal Pacific panels were common in 1960s-1980s construction but this home
+      is listed as built 2002 - suggesting the\ngarage conversion/addition used the
+      original panel from a prior structure.\nMAJOR - PLUMBING\nMain sewer line shows
+      signs of root intrusion. Camera inspection recommended. Evidence of previous
+      plumbing leak under kitchen sink with water\ndamage to cabinet floor and subfloor.
+      Staining pattern suggests longstanding intermittent leak. Hot water recirculation
+      pump non-functional. Bathroom\n2 has low water pressure - may indicate galvanized
+      supply lines in that section. Estimated repairs: Sewer line $4,000-$8,000 if
+      root intrusion\nconfirmed. Kitchen subfloor repair $2,000-$4,000.\nMAJOR - UNPERMITTED
+      ADDITION\nConverted garage/bonus room shows clear signs of non-professional
+      construction: Drywall seams poorly taped, electrical outlets with reversed\npolarity,
+      no fire separation between converted space and main structure, single-pane windows
+      where dual-pane required. No permits found on file with\nCity of Sunnyvale for
+      this conversion. This may affect property value, insurance, and square footage
+      calculations. Cost to bring to code:\n$15,000-$30,000.\nMAJOR - DRAINAGE\nNegative
+      grade at foundation on east side. Standing water evidence (mineral deposits,
+      soil erosion) indicates water pools against foundation during\nrain. This is
+      the same wall with the worst foundation cracking. French drain or regrading
+      recommended. Estimated: $3,000-$6,000.\nMODERATE - HVAC\nFurnace is 22 years
+      old with visible rust on heat exchanger. Carbon monoxide reading at supply register
+      was 12 ppm (acceptable is <9 ppm). Further\nevaluation by HVAC professional
+      recommended. A/C condenser coils heavily corroded. System produced only 12\u00b0F
+      differential (minimum acceptable:\n15\u00b0F). Both units at end of life. Estimated
+      replacement: $8,000-$12,000 for complete HVAC system.\nESTIMATED TOTAL REPAIR
+      COSTS\nFoundation structural repair $15,000 - $45,000\nFull roof replacement
+      $18,000 - $25,000\nAttic mold remediation $3,000 - $8,000\nElectrical panel
+      replacement $2,500 - $4,000\nElectrical wiring remediation $5,000 - $12,000\nSewer
+      line repair (if confirmed) $4,000 - $8,000\nKitchen subfloor repair $2,000 -
+      $4,000\nGarage conversion to code $15,000 - $30,000\nDrainage/grading $3,000
+      - $6,000\nHVAC system replacement $8,000 - $12,000\nTOTAL ESTIMATED RANGE: $75,500
+      - $154,000\nInspector: Patricia Nguyen, ASHI #189234\nDate: 03/25/2026"}], "model":
+      "claude-sonnet-4-20250514"}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate, br
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '6512'
+      Content-Type:
+      - application/json
+      Host:
+      - api.anthropic.com
+      User-Agent:
+      - Anthropic/Python 0.49.0
+      X-Stainless-Arch:
+      - x64
+      X-Stainless-Async:
+      - 'false'
+      X-Stainless-Lang:
+      - python
+      X-Stainless-OS:
+      - Linux
+      X-Stainless-Package-Version:
+      - 0.49.0
+      X-Stainless-Runtime:
+      - CPython
+      X-Stainless-Runtime-Version:
+      - 3.11.15
+      anthropic-version:
+      - '2023-06-01'
+      baggage:
+      - sentry-trace_id=f780e32bc7c04f419d8ab404a2d80dbc,sentry-sample_rand=0.295039,sentry-environment=production,sentry-public_key=bec0f097edae469b35925bf075c964d9,sentry-org_id=4511034871578624,sentry-transaction=analysis.analyze_property,sentry-sample_rate=0.1,sentry-sampled=false
+      sentry-trace:
+      - f780e32bc7c04f419d8ab404a2d80dbc-afbfd61438d486f9-0
+      x-api-key:
+      - <REDACTED>
+      x-stainless-read-timeout:
+      - '600'
+      x-stainless-retry-count:
+      - '0'
+      x-stainless-timeout:
+      - '600'
+    method: POST
+    uri: https://api.anthropic.com/v1/messages
+  response:
+    body:
+      string: "{\"model\":\"claude-sonnet-4-20250514\",\"id\":\"msg_013JbDGT6skff6Hko4xmUqAd\",\"type\":\"message\",\"role\":\"assistant\",\"content\":[{\"type\":\"text\",\"text\":\"```json\\n{\\n
+        \ \\\"findings\\\": [\\n    {\\n      \\\"category\\\": \\\"foundation_structure\\\",\\n
+        \     \\\"severity\\\": \\\"critical\\\",\\n      \\\"description\\\": \\\"Significant
+        structural cracking in foundation with multiple cracks exceeding 1/4 inch
+        width and vertical displacement on east and south walls.\\\",\\n      \\\"location\\\":
+        \\\"east and south foundation walls\\\",\\n      \\\"recommendation\\\": \\\"Immediate
+        evaluation by licensed structural engineer required\\\",\\n      \\\"safety_concern\\\":
+        true,\\n      \\\"requires_specialist\\\": true,\\n      \\\"source_quote\\\":
+        \\\"Significant structural cracking in foundation. Multiple cracks exceeding
+        1/4 inch width with vertical displacement\\\"\\n    },\\n    {\\n      \\\"category\\\":
+        \\\"foundation_structure\\\",\\n      \\\"severity\\\": \\\"critical\\\",\\n
+        \     \\\"description\\\": \\\"Step-cracking pattern suggests differential
+        settling in foundation.\\\",\\n      \\\"location\\\": \\\"foundation\\\",\\n
+        \     \\\"recommendation\\\": \\\"Structural engineer evaluation and repair\\\",\\n
+        \     \\\"safety_concern\\\": true,\\n      \\\"requires_specialist\\\": true,\\n
+        \     \\\"source_quote\\\": \\\"Step-cracking pattern suggests differential
+        settling. THIS IS A SAFETY CONCERN.\\\"\\n    },\\n    {\\n      \\\"category\\\":
+        \\\"roof_exterior\\\",\\n      \\\"severity\\\": \\\"critical\\\",\\n      \\\"description\\\":
+        \\\"Active water intrusion detected in three locations with roof well past
+        useful life.\\\",\\n      \\\"location\\\": \\\"three locations on roof\\\",\\n
+        \     \\\"recommendation\\\": \\\"Full roof replacement required immediately\\\",\\n
+        \     \\\"safety_concern\\\": false,\\n      \\\"requires_specialist\\\":
+        false,\\n      \\\"source_quote\\\": \\\"Active water intrusion detected in
+        three locations. Roof is well past useful life\\\"\\n    },\\n    {\\n      \\\"category\\\":
+        \\\"roof_exterior\\\",\\n      \\\"severity\\\": \\\"critical\\\",\\n      \\\"description\\\":
+        \\\"Missing shingles across south and west slopes with deteriorated flashing
+        at all penetrations.\\\",\\n      \\\"location\\\": \\\"south and west roof
+        slopes\\\",\\n      \\\"recommendation\\\": \\\"Full roof replacement\\\",\\n
+        \     \\\"safety_concern\\\": false,\\n      \\\"requires_specialist\\\":
+        false,\\n      \\\"source_quote\\\": \\\"missing shingles across south and
+        west slopes, deteriorated flashing at all penetrations\\\"\\n    },\\n    {\\n
+        \     \\\"category\\\": \\\"roof_exterior\\\",\\n      \\\"severity\\\": \\\"critical\\\",\\n
+        \     \\\"description\\\": \\\"Visible daylight through roof decking in attic
+        at two locations.\\\",\\n      \\\"location\\\": \\\"attic - two locations\\\",\\n
+        \     \\\"recommendation\\\": \\\"Full roof replacement\\\",\\n      \\\"safety_concern\\\":
+        false,\\n      \\\"requires_specialist\\\": false,\\n      \\\"source_quote\\\":
+        \\\"visible daylight through roof decking in attic at two locations\\\"\\n
+        \   },\\n    {\\n      \\\"category\\\": \\\"roof_exterior\\\",\\n      \\\"severity\\\":
+        \\\"major\\\",\\n      \\\"description\\\": \\\"Active leak staining on attic
+        insulation and ceiling drywall in master bedroom and hallway.\\\",\\n      \\\"location\\\":
+        \\\"master bedroom and hallway ceilings, attic insulation\\\",\\n      \\\"recommendation\\\":
+        \\\"Roof replacement and interior repair\\\",\\n      \\\"safety_concern\\\":
+        false,\\n      \\\"requires_specialist\\\": false,\\n      \\\"source_quote\\\":
+        \\\"Active leak staining on attic insulation and ceiling drywall in master
+        bedroom and hallway\\\"\\n    },\\n    {\\n      \\\"category\\\": \\\"environmental\\\",\\n
+        \     \\\"severity\\\": \\\"major\\\",\\n      \\\"description\\\": \\\"Mold
+        growth observed on attic decking in two areas (~3 sq ft total).\\\",\\n      \\\"location\\\":
+        \\\"attic decking - two areas\\\",\\n      \\\"recommendation\\\": \\\"Mold
+        remediation required\\\",\\n      \\\"safety_concern\\\": false,\\n      \\\"requires_specialist\\\":
+        false,\\n      \\\"source_quote\\\": \\\"Mold growth observed on attic decking
+        in two areas (~3 sq ft total)\\\"\\n    },\\n    {\\n      \\\"category\\\":
+        \\\"electrical\\\",\\n      \\\"severity\\\": \\\"critical\\\",\\n      \\\"description\\\":
+        \\\"Federal Pacific Stab-Lok electrical panel has documented history of breaker
+        failure and fire risk, does not reliably trip under overload conditions.\\\",\\n
+        \     \\\"location\\\": \\\"electrical panel\\\",\\n      \\\"recommendation\\\":
+        \\\"Immediate replacement required\\\",\\n      \\\"safety_concern\\\": true,\\n
+        \     \\\"requires_specialist\\\": false,\\n      \\\"source_quote\\\": \\\"Federal
+        Pacific Stab-Lok electrical panel. This panel type has a documented history
+        of breaker failure and fire risk\\\"\\n    },\\n    {\\n      \\\"category\\\":
+        \\\"electrical\\\",\\n      \\\"severity\\\": \\\"major\\\",\\n      \\\"description\\\":
+        \\\"Knob-and-tube wiring discovered in attic section, suggesting unpermitted
+        addition.\\\",\\n      \\\"location\\\": \\\"attic section\\\",\\n      \\\"recommendation\\\":
+        \\\"Wiring remediation required\\\",\\n      \\\"safety_concern\\\": false,\\n
+        \     \\\"requires_specialist\\\": false,\\n      \\\"source_quote\\\": \\\"Knob-and-tube
+        wiring discovered in attic section, suggesting unpermitted addition\\\"\\n
+        \   },\\n    {\\n      \\\"category\\\": \\\"plumbing\\\",\\n      \\\"severity\\\":
+        \\\"major\\\",\\n      \\\"description\\\": \\\"Main sewer line shows signs
+        of root intrusion.\\\",\\n      \\\"location\\\": \\\"main sewer line\\\",\\n
+        \     \\\"recommendation\\\": \\\"Camera inspection recommended\\\",\\n      \\\"safety_concern\\\":
+        false,\\n      \\\"requires_specialist\\\": true,\\n      \\\"source_quote\\\":
+        \\\"Main sewer line shows signs of root intrusion. Camera inspection recommended.\\\"\\n
+        \   },\\n    {\\n      \\\"category\\\": \\\"plumbing\\\",\\n      \\\"severity\\\":
+        \\\"major\\\",\\n      \\\"description\\\": \\\"Evidence of previous plumbing
+        leak under kitchen sink with water damage to cabinet floor and subfloor.\\\",\\n
+        \     \\\"location\\\": \\\"under kitchen sink\\\",\\n      \\\"recommendation\\\":
+        \\\"Subfloor repair required\\\",\\n      \\\"safety_concern\\\": false,\\n
+        \     \\\"requires_specialist\\\": false,\\n      \\\"source_quote\\\": \\\"Evidence
+        of previous plumbing leak under kitchen sink with water damage to cabinet
+        floor and subfloor\\\"\\n    },\\n    {\\n      \\\"category\\\": \\\"plumbing\\\",\\n
+        \     \\\"severity\\\": \\\"moderate\\\",\\n      \\\"description\\\": \\\"Hot
+        water recirculation pump non-functional.\\\",\\n      \\\"location\\\": \\\"hot
+        water system\\\",\\n      \\\"recommendation\\\": \\\"Repair or replace pump\\\",\\n
+        \     \\\"safety_concern\\\": false,\\n      \\\"requires_specialist\\\":
+        false,\\n      \\\"source_quote\\\": \\\"Hot water recirculation pump non-functional\\\"\\n
+        \   },\\n    {\\n      \\\"category\\\": \\\"plumbing\\\",\\n      \\\"severity\\\":
+        \\\"moderate\\\",\\n      \\\"description\\\": \\\"Bathroom 2 has low water
+        pressure - may indicate galvanized supply lines in that section.\\\",\\n      \\\"location\\\":
+        \\\"Bathroom 2\\\",\\n      \\\"recommendation\\\": \\\"Investigate and replace
+        supply lines if needed\\\",\\n      \\\"safety_concern\\\": false,\\n      \\\"requires_specialist\\\":
+        false,\\n      \\\"source_quote\\\": \\\"Bathroom 2 has low water pressure
+        - may indicate galvanized supply lines\\\"\\n    },\\n    {\\n      \\\"category\\\":
+        \\\"legal_title\\\",\\n      \\\"severity\\\": \\\"major\\\",\\n      \\\"description\\\":
+        \\\"Converted garage/bonus room shows clear signs of non-professional construction
+        with no permits found on file with City of Sunnyvale.\\\",\\n      \\\"location\\\":
+        \\\"converted garage/bonus room\\\",\\n      \\\"recommendation\\\": \\\"Bring
+        conversion to code or obtain proper permits\\\",\\n      \\\"safety_concern\\\":
+        false,\\n      \\\"requires_specialist\\\": false,\\n      \\\"source_quote\\\":
+        \\\"No permits found on file with City of Sunnyvale for this conversion\\\"\\n
+        \   },\\n    {\\n      \\\"category\\\": \\\"foundation_structure\\\",\\n
+        \     \\\"severity\\\": \\\"major\\\",\\n      \\\"description\\\": \\\"Drywall
+        seams poorly taped in converted garage space.\\\",\\n      \\\"location\\\":
+        \\\"converted garage/bonus room\\\",\\n      \\\"recommendation\\\": \\\"Professional
+        repair required\\\",\\n      \\\"safety_concern\\\": false,\\n      \\\"requires_specialist\\\":
+        false,\\n      \\\"source_quote\\\": \\\"Converted garage/bonus room shows
+        clear signs of non-professional construction: Drywall seams poorly taped\\\"\\n
+        \   },\\n    {\\n      \\\"category\\\": \\\"electrical\\\",\\n      \\\"severity\\\":
+        \\\"major\\\",\\n      \\\"description\\\": \\\"Electrical outlets with reversed
+        polarity in converted garage space.\\\",\\n      \\\"location\\\": \\\"converted
+        garage/bonus room\\\",\\n      \\\"recommendation\\\": \\\"Electrical repair
+        by qualified electrician\\\",\\n      \\\"safety_concern\\\": false,\\n      \\\"requires_specialist\\\":
+        false,\\n      \\\"source_quote\\\": \\\"electrical outlets with reversed
+        polarity\\\"\\n    },\\n    {\\n      \\\"category\\\": \\\"foundation_structure\\\",\\n
+        \     \\\"severity\\\": \\\"major\\\",\\n      \\\"description\\\": \\\"No
+        fire separation between converted space and main structure.\\\",\\n      \\\"location\\\":
+        \\\"converted garage/bonus room\\\",\\n      \\\"recommendation\\\": \\\"Install
+        proper fire separation to meet code\\\",\\n      \\\"safety_concern\\\": true,\\n
+        \     \\\"requires_specialist\\\": false,\\n      \\\"source_quote\\\": \\\"no
+        fire separation between converted space and main structure\\\"\\n    },\\n
+        \   {\\n      \\\"category\\\": \\\"foundation_structure\\\",\\n      \\\"severity\\\":
+        \\\"moderate\\\",\\n      \\\"description\\\": \\\"Single-pane windows where
+        dual-pane required in converted garage space.\\\",\\n      \\\"location\\\":
+        \\\"converted garage/bonus room\\\",\\n      \\\"recommendation\\\": \\\"Replace
+        with dual-pane windows to meet code\\\",\\n      \\\"safety_concern\\\": false,\\n
+        \     \\\"requires_specialist\\\": false,\\n      \\\"source_quote\\\": \\\"single-pane
+        windows where dual-pane required\\\"\\n    },\\n    {\\n      \\\"category\\\":
+        \\\"foundation_structure\\\",\\n      \\\"severity\\\": \\\"major\\\",\\n
+        \     \\\"description\\\": \\\"Negative grade at foundation on east side with
+        standing water evidence (mineral deposits, soil erosion) indicating water
+        pools against foundation during rain.\\\",\\n      \\\"location\\\": \\\"east
+        side foundation\\\",\\n      \\\"recommendation\\\": \\\"French drain or regrading
+        recommended\\\",\\n      \\\"safety_concern\\\": false,\\n      \\\"requires_specialist\\\":
+        false,\\n      \\\"source_quote\\\": \\\"Negative grade at foundation on east
+        side. Standing water evidence indicates water pools against foundation\\\"\\n
+        \   },\\n    {\\n      \\\"category\\\": \\\"hvac_systems\\\",\\n      \\\"severity\\\":
+        \\\"moderate\\\",\\n      \\\"description\\\": \\\"Furnace is 22 years old
+        with visible rust on heat exchanger and carbon monoxide reading at supply
+        register was 12 ppm (acceptable is <9 ppm).\\\",\\n      \\\"location\\\":
+        \\\"furnace/heat exchanger\\\",\\n      \\\"recommendation\\\": \\\"Further
+        evaluation by HVAC professional recommended\\\",\\n      \\\"safety_concern\\\":
+        true,\\n      \\\"requires_specialist\\\": true,\\n      \\\"source_quote\\\":
+        \\\"Furnace is 22 years old with visible rust on heat exchanger. Carbon monoxide
+        reading was 12 ppm (acceptable is <9 ppm)\\\"\\n    },\\n    {\\n      \\\"category\\\":
+        \\\"hvac_systems\\\",\\n      \\\"severity\\\": \\\"moderate\\\",\\n      \\\"description\\\":
+        \\\"A/C condenser coils heavily corroded with system producing only 12\xB0F
+        differential (minimum acceptable: 15\xB0F).\\\",\\n      \\\"location\\\":
+        \\\"A/C condenser unit\\\",\\n      \\\"recommendation\\\": \\\"HVAC system
+        replacement recommended\\\",\\n      \\\"safety_concern\\\": false,\\n      \\\"requires_specialist\\\":
+        false,\\n      \\\"source_quote\\\": \\\"A/C condenser coils heavily corroded.
+        System produced only 12\xB0F differential (minimum acceptable: 15\xB0F)\\\"\\n
+        \   }\\n  ]\\n}\\n```\"}],\"stop_reason\":\"end_turn\",\"stop_sequence\":null,\"stop_details\":null,\"usage\":{\"input_tokens\":1585,\"cache_creation_input_tokens\":0,\"cache_read_input_tokens\":0,\"cache_creation\":{\"ephemeral_5m_input_tokens\":0,\"ephemeral_1h_input_tokens\":0},\"output_tokens\":2527,\"service_tier\":\"standard\",\"inference_geo\":\"not_available\"}}"
+    headers:
+      CF-RAY:
+      - 9f9c2e086ed60ccf-PDX
+      Connection:
+      - keep-alive
+      Content-Security-Policy:
+      - default-src 'none'; frame-ancestors 'none'
+      Content-Type:
+      - application/json
+      Date:
+      - Sun, 10 May 2026 21:54:24 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      X-Robots-Tag:
+      - none
+      anthropic-organization-id:
+      - b2fdc71b-2fc9-444f-8b1b-31a1a50d1ce6
+      anthropic-ratelimit-input-tokens-limit:
+      - '450000'
+      anthropic-ratelimit-input-tokens-remaining:
+      - '449000'
+      anthropic-ratelimit-input-tokens-reset:
+      - '2026-05-10T21:54:00Z'
+      anthropic-ratelimit-output-tokens-limit:
+      - '90000'
+      anthropic-ratelimit-output-tokens-remaining:
+      - '90000'
+      anthropic-ratelimit-output-tokens-reset:
+      - '2026-05-10T21:54:24Z'
+      anthropic-ratelimit-requests-limit:
+      - '1000'
+      anthropic-ratelimit-requests-remaining:
+      - '999'
+      anthropic-ratelimit-requests-reset:
+      - '2026-05-10T21:53:59Z'
+      anthropic-ratelimit-tokens-limit:
+      - '540000'
+      anthropic-ratelimit-tokens-remaining:
+      - '539000'
+      anthropic-ratelimit-tokens-reset:
+      - '2026-05-10T21:54:00Z'
+      cf-cache-status:
+      - DYNAMIC
+      content-length:
+      - '11275'
+      request-id:
+      - req_011CaudbqnVnJx9Cjj6FzFpt
+      set-cookie:
+      - <REDACTED>
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      traceresponse:
+      - 00-e5a3da2b6144f36054183782088dcb0c-d3890ae9bc739348-01
+      vary:
+      - Accept-Encoding
+      x-envoy-upstream-service-time:
+      - '25164'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"max_tokens": 1000, "messages": [{"role": "user", "content": "Verify if
+      this finding is supported by the source document.\n\nFINDING: \"Mold remediation
+      estimated: $3,000-$8,000.\"\n\nSOURCE:\nHOME INSPECTION REPORT\nProperty: 456
+      Hidden Problem Way, Sunnyvale, CA 94086\nDate: March 25, 2026\nInspector: Patricia
+      Nguyen, ASHI #189234\nCRITICAL FINDINGS SUMMARY\nCRITICAL - FOUNDATION\nSignificant
+      structural cracking in foundation. Multiple cracks exceeding 1/4 inch width
+      with vertical displacement observed on east and south walls.\nStep-cracking
+      pattern suggests differential settling. THIS IS A SAFETY CONCERN. Immediate
+      evaluation by licensed structural engineer required.\nEstimated repair: $15,000-$45,000
+      depending on remediation method (pier/beam, mudjacking, or complete section
+      replacement). NOTE: This type of\ncracking typically develops over years and
+      would be visible to property occupants.\nCRITICAL - ROOF\nActive water intrusion
+      detected in three locations. Roof is well past useful life with extensive damage:
+      missing shingles across south and west slopes,\ndeteriorated flashing at all
+      penetrations, visible daylight through roof decking in attic at two locations.
+      Active leak staining on attic insulation and ceiling\ndrywall in maste\n\nDetermine:
+      \"supported\" (clear evidence), \"unsupported\" (contradicts or not mentioned),
+      or \"uncertain\" (unclear).\n\nReturn ONLY JSON:\n{\n    \"verdict\": \"supported|unsupported|uncertain\",\n    \"confidence\":
+      0.0-1.0,\n    \"evidence_quotes\": [\"quote 1\", \"quote 2\"],\n    \"explanation\":
+      \"brief reason\"\n}"}], "model": "claude-sonnet-4-20250514"}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate, br
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '1617'
+      Content-Type:
+      - application/json
+      Host:
+      - api.anthropic.com
+      User-Agent:
+      - Anthropic/Python 0.49.0
+      X-Stainless-Arch:
+      - x64
+      X-Stainless-Async:
+      - 'false'
+      X-Stainless-Lang:
+      - python
+      X-Stainless-OS:
+      - Linux
+      X-Stainless-Package-Version:
+      - 0.49.0
+      X-Stainless-Runtime:
+      - CPython
+      X-Stainless-Runtime-Version:
+      - 3.11.15
+      anthropic-version:
+      - '2023-06-01'
+      baggage:
+      - sentry-trace_id=f780e32bc7c04f419d8ab404a2d80dbc,sentry-sample_rand=0.295039,sentry-environment=production,sentry-public_key=bec0f097edae469b35925bf075c964d9,sentry-org_id=4511034871578624,sentry-transaction=analysis.analyze_property,sentry-sample_rate=0.1,sentry-sampled=false
+      cookie:
+      - <REDACTED>
+      sentry-trace:
+      - f780e32bc7c04f419d8ab404a2d80dbc-890d84ac24cf89f3-0
+      x-api-key:
+      - <REDACTED>
+      x-stainless-read-timeout:
+      - '600'
+      x-stainless-retry-count:
+      - '0'
+      x-stainless-timeout:
+      - '600'
+    method: POST
+    uri: https://api.anthropic.com/v1/messages
+  response:
+    body:
+      string: '{"model":"claude-sonnet-4-20250514","id":"msg_01HkKWTZWveukBAZwXnG5M2n","type":"message","role":"assistant","content":[{"type":"text","text":"{\n    \"verdict\":
+        \"unsupported\",\n    \"confidence\": 1.0,\n    \"evidence_quotes\": [],\n    \"explanation\":
+        \"The source document does not mention mold or mold remediation anywhere in
+        the provided text. Only foundation and roof issues are discussed with their
+        respective cost estimates.\"\n}"}],"stop_reason":"end_turn","stop_sequence":null,"stop_details":null,"usage":{"input_tokens":392,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"cache_creation":{"ephemeral_5m_input_tokens":0,"ephemeral_1h_input_tokens":0},"output_tokens":72,"service_tier":"standard","inference_geo":"not_available"}}'
+    headers:
+      CF-RAY:
+      - 9f9c2ed6cf0e5ef5-PDX
+      Connection:
+      - keep-alive
+      Content-Security-Policy:
+      - default-src 'none'; frame-ancestors 'none'
+      Content-Type:
+      - application/json
+      Date:
+      - Sun, 10 May 2026 21:54:34 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      X-Robots-Tag:
+      - none
+      anthropic-organization-id:
+      - b2fdc71b-2fc9-444f-8b1b-31a1a50d1ce6
+      anthropic-ratelimit-input-tokens-limit:
+      - '450000'
+      anthropic-ratelimit-input-tokens-remaining:
+      - '450000'
+      anthropic-ratelimit-input-tokens-reset:
+      - '2026-05-10T21:54:33Z'
+      anthropic-ratelimit-output-tokens-limit:
+      - '90000'
+      anthropic-ratelimit-output-tokens-remaining:
+      - '90000'
+      anthropic-ratelimit-output-tokens-reset:
+      - '2026-05-10T21:54:34Z'
+      anthropic-ratelimit-requests-limit:
+      - '1000'
+      anthropic-ratelimit-requests-remaining:
+      - '999'
+      anthropic-ratelimit-requests-reset:
+      - '2026-05-10T21:54:32Z'
+      anthropic-ratelimit-tokens-limit:
+      - '540000'
+      anthropic-ratelimit-tokens-remaining:
+      - '540000'
+      anthropic-ratelimit-tokens-reset:
+      - '2026-05-10T21:54:33Z'
+      cf-cache-status:
+      - DYNAMIC
+      content-length:
+      - '755'
+      request-id:
+      - req_011CaudeGwe83XzmVHBW1MF1
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      traceresponse:
+      - 00-13a42d7ec3b3e01f8c742e964ad17463-c5e3e21d4120648a-01
+      vary:
+      - Accept-Encoding
+      x-envoy-upstream-service-time:
+      - '2580'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"max_tokens": 3000, "messages": [{"role": "user", "content": "Analyze
+      these seller disclosure vs inspection discrepancies. Each issue was detected
+      by comparing the actual text of both documents.\n\nSTRICT RULES:\n- Base your
+      severity rating ONLY on what the documents actually state\n- Do NOT infer additional
+      issues beyond what is listed below\n- Your explanation must reference the specific
+      discrepancy shown\n- Confidence should be lower (0.3-0.6) if the discrepancy
+      could be a matter of interpretation\n- If inspector_found includes [PHOTO: ...]
+      descriptions, factor the photographic evidence into your severity rating.\n  A
+      photo showing active damage (e.g., mold, standing water, structural failure)
+      should increase severity.\n\nDiscrepancies found:\n[\n  {\n    \"id\": \"C1\",\n    \"type\":
+      \"contradiction\",\n    \"seller_said\": \"Electrical Systems:\",\n    \"inspector_found\":
+      \"Federal Pacific Stab-Lok electrical panel has documented history of breaker
+      failure and fire risk, does not reliably trip under overload conditions.\",\n    \"category\":
+      \"electrical\"\n  },\n  {\n    \"id\": \"C2\",\n    \"type\": \"contradiction\",\n    \"seller_said\":
+      \"Electrical Systems:\",\n    \"inspector_found\": \"Knob-and-tube wiring discovered
+      in attic section, suggesting unpermitted addition.\",\n    \"category\": \"electrical\"\n  },\n  {\n    \"id\":
+      \"C3\",\n    \"type\": \"contradiction\",\n    \"seller_said\": \"Electrical
+      Systems:\",\n    \"inspector_found\": \"Electrical outlets with reversed polarity
+      in converted garage space.\",\n    \"category\": \"electrical\"\n  },\n  {\n    \"id\":
+      \"C4\",\n    \"type\": \"contradiction\",\n    \"seller_said\": \"Plumbing/Sewers/Septics:\",\n    \"inspector_found\":
+      \"Active water intrusion detected in three locations with roof well past useful
+      life.\",\n    \"category\": \"plumbing\"\n  },\n  {\n    \"id\": \"C5\",\n    \"type\":
+      \"contradiction\",\n    \"seller_said\": \"Plumbing/Sewers/Septics:\",\n    \"inspector_found\":
+      \"Active leak staining on attic insulation and ceiling drywall in master bedroom
+      and hallway.\",\n    \"category\": \"plumbing\"\n  },\n  {\n    \"id\": \"C6\",\n    \"type\":
+      \"contradiction\",\n    \"seller_said\": \"Plumbing/Sewers/Septics:\",\n    \"inspector_found\":
+      \"Main sewer line shows signs of root intrusion.\",\n    \"category\": \"plumbing\"\n  },\n  {\n    \"id\":
+      \"C7\",\n    \"type\": \"contradiction\",\n    \"seller_said\": \"Plumbing/Sewers/Septics:\",\n    \"inspector_found\":
+      \"Evidence of previous plumbing leak under kitchen sink with water damage to
+      cabinet floor and subfloor.\",\n    \"category\": \"plumbing\"\n  },\n  {\n    \"id\":
+      \"C8\",\n    \"type\": \"contradiction\",\n    \"seller_said\": \"Plumbing/Sewers/Septics:\",\n    \"inspector_found\":
+      \"Hot water recirculation pump non-functional.\",\n    \"category\": \"plumbing\"\n  },\n  {\n    \"id\":
+      \"C9\",\n    \"type\": \"contradiction\",\n    \"seller_said\": \"Other Structural
+      Components:\",\n    \"inspector_found\": \"Significant structural cracking in
+      foundation with multiple cracks exceeding 1/4 inch width and vertical displacement
+      on east and south walls.\",\n    \"category\": \"foundation\"\n  },\n  {\n    \"id\":
+      \"C10\",\n    \"type\": \"contradiction\",\n    \"seller_said\": \"Other Structural
+      Components:\",\n    \"inspector_found\": \"Step-cracking pattern suggests differential
+      settling in foundation.\",\n    \"category\": \"foundation\"\n  },\n  {\n    \"id\":
+      \"C11\",\n    \"type\": \"contradiction\",\n    \"seller_said\": \"Other Structural
+      Components:\",\n    \"inspector_found\": \"Drywall seams poorly taped in converted
+      garage space.\",\n    \"category\": \"foundation\"\n  },\n  {\n    \"id\": \"C12\",\n    \"type\":
+      \"contradiction\",\n    \"seller_said\": \"Other Structural Components:\",\n    \"inspector_found\":
+      \"No fire separation between converted space and main structure.\",\n    \"category\":
+      \"foundation\"\n  },\n  {\n    \"id\": \"C13\",\n    \"type\": \"contradiction\",\n    \"seller_said\":
+      \"Other Structural Components:\",\n    \"inspector_found\": \"Single-pane windows
+      where dual-pane required in converted garage space.\",\n    \"category\": \"foundation\"\n  },\n  {\n    \"id\":
+      \"C14\",\n    \"type\": \"contradiction\",\n    \"seller_said\": \"Major damage
+      (fire/earthquake/flood):\",\n    \"inspector_found\": \"Evidence of previous
+      plumbing leak under kitchen sink with water damage to cabinet floor and subfloor.\",\n    \"category\":
+      \"other\"\n  },\n  {\n    \"id\": \"U1\",\n    \"type\": \"undisclosed\",\n    \"seller_said\":
+      \"Not disclosed\",\n    \"inspector_found\": \"Missing shingles across south
+      and west slopes with deteriorated flashing at all penetrations.\",\n    \"category\":
+      \"roof_exterior\"\n  },\n  {\n    \"id\": \"U2\",\n    \"type\": \"undisclosed\",\n    \"seller_said\":
+      \"Not disclosed\",\n    \"inspector_found\": \"Visible daylight through roof
+      decking in attic at two locations.\",\n    \"category\": \"roof_exterior\"\n  },\n  {\n    \"id\":
+      \"U3\",\n    \"type\": \"undisclosed\",\n    \"seller_said\": \"Not disclosed\",\n    \"inspector_found\":
+      \"Mold growth observed on attic decking in two areas (~3 sq ft total).\",\n    \"category\":
+      \"environmental\"\n  },\n  {\n    \"id\": \"U4\",\n    \"type\": \"undisclosed\",\n    \"seller_said\":
+      \"Not disclosed\",\n    \"inspector_found\": \"Converted garage/bonus room shows
+      clear signs of non-professional construction with no permits found on file with
+      City of Sunnyvale.\",\n    \"category\": \"legal_title\"\n  },\n  {\n    \"id\":
+      \"U5\",\n    \"type\": \"undisclosed\",\n    \"seller_said\": \"Not disclosed\",\n    \"inspector_found\":
+      \"Furnace is 22 years old with visible rust on heat exchanger and carbon monoxide
+      reading at supply register was 12 ppm (acceptable is <9 ppm).\",\n    \"category\":
+      \"hvac_systems\"\n  },\n  {\n    \"id\": \"U6\",\n    \"type\": \"undisclosed\",\n    \"seller_said\":
+      \"Not disclosed\",\n    \"inspector_found\": \"A/C condenser coils heavily corroded
+      with system producing only 12\\u00b0F differential (minimum acceptable: 15\\u00b0F).\",\n    \"category\":
+      \"hvac_systems\"\n  },\n  {\n    \"id\": \"U7\",\n    \"type\": \"undisclosed\",\n    \"seller_said\":
+      \"Not disclosed\",\n    \"inspector_found\": \"cracking typically develops over
+      years and would be visible to property occupants.\",\n    \"category\": \"hvac_systems\"\n  },\n  {\n    \"id\":
+      \"U8\",\n    \"type\": \"undisclosed\",\n    \"seller_said\": \"Not disclosed\",\n    \"inspector_found\":
+      \"Mold remediation estimated: $3,000-$8,000.\",\n    \"category\": \"environmental\"\n  },\n  {\n    \"id\":
+      \"U9\",\n    \"type\": \"undisclosed\",\n    \"seller_said\": \"Not disclosed\",\n    \"inspector_found\":
+      \"Attic mold remediation $3,000 - $8,000.\",\n    \"category\": \"environmental\"\n  }\n]\n\nFor
+      EACH issue, provide:\n1. severity: critical|major|moderate|minor\n2. explanation:
+      Why this matters (1 sentence, referencing the specific discrepancy)\n3. confidence:
+      0.0-1.0\n\nAlso provide:\n4. transparency_score: 0-100 (based ONLY on the discrepancies
+      above, not speculation)\n5. summary: 2-3 sentence executive summary (cite specific
+      findings only)\n\nRespond in JSON:\n{\n  \"issues\": [\n    {\"id\": \"C1\",
+      \"severity\": \"major\", \"explanation\": \"...\", \"confidence\": 0.9},\n    ...\n  ],\n  \"transparency_score\":
+      75,\n  \"summary\": \"...\"\n}"}], "model": "claude-sonnet-4-20250514", "temperature":
+      0}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate, br
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '7465'
+      Content-Type:
+      - application/json
+      Host:
+      - api.anthropic.com
+      User-Agent:
+      - Anthropic/Python 0.49.0
+      X-Stainless-Arch:
+      - x64
+      X-Stainless-Async:
+      - 'false'
+      X-Stainless-Lang:
+      - python
+      X-Stainless-OS:
+      - Linux
+      X-Stainless-Package-Version:
+      - 0.49.0
+      X-Stainless-Runtime:
+      - CPython
+      X-Stainless-Runtime-Version:
+      - 3.11.15
+      anthropic-version:
+      - '2023-06-01'
+      baggage:
+      - sentry-trace_id=f780e32bc7c04f419d8ab404a2d80dbc,sentry-sample_rand=0.295039,sentry-environment=production,sentry-public_key=bec0f097edae469b35925bf075c964d9,sentry-org_id=4511034871578624,sentry-transaction=analysis.analyze_property,sentry-sample_rate=0.1,sentry-sampled=false
+      cookie:
+      - <REDACTED>
+      sentry-trace:
+      - f780e32bc7c04f419d8ab404a2d80dbc-a6e9dbef3029f634-0
+      x-api-key:
+      - <REDACTED>
+      x-stainless-read-timeout:
+      - '600'
+      x-stainless-retry-count:
+      - '0'
+      x-stainless-timeout:
+      - '600'
+    method: POST
+    uri: https://api.anthropic.com/v1/messages
+  response:
+    body:
+      string: '{"model":"claude-sonnet-4-20250514","id":"msg_01WmC65JMMYpHJEJJrjw76NH","type":"message","role":"assistant","content":[{"type":"text","text":"```json\n{\n  \"issues\":
+        [\n    {\"id\": \"C1\", \"severity\": \"critical\", \"explanation\": \"Federal
+        Pacific Stab-Lok panels have documented fire risks and breaker failure issues,
+        creating serious safety hazards that contradict the seller''s electrical system
+        disclosure.\", \"confidence\": 0.95},\n    {\"id\": \"C2\", \"severity\":
+        \"major\", \"explanation\": \"Knob-and-tube wiring is outdated and potentially
+        dangerous electrical infrastructure that contradicts the seller''s electrical
+        system disclosure.\", \"confidence\": 0.9},\n    {\"id\": \"C3\", \"severity\":
+        \"moderate\", \"explanation\": \"Reversed polarity outlets create safety risks
+        and code violations that contradict the seller''s electrical system disclosure.\",
+        \"confidence\": 0.85},\n    {\"id\": \"C4\", \"severity\": \"major\", \"explanation\":
+        \"Active water intrusion in three locations with an aged roof represents ongoing
+        structural damage that contradicts the seller''s plumbing disclosure.\", \"confidence\":
+        0.9},\n    {\"id\": \"C5\", \"severity\": \"major\", \"explanation\": \"Active
+        leak staining on insulation and drywall indicates current water damage that
+        contradicts the seller''s plumbing disclosure.\", \"confidence\": 0.9},\n    {\"id\":
+        \"C6\", \"severity\": \"moderate\", \"explanation\": \"Root intrusion in the
+        main sewer line can cause backups and expensive repairs, contradicting the
+        seller''s plumbing disclosure.\", \"confidence\": 0.8},\n    {\"id\": \"C7\",
+        \"severity\": \"moderate\", \"explanation\": \"Previous water damage to cabinet
+        and subfloor indicates past plumbing issues that contradict the seller''s
+        plumbing disclosure.\", \"confidence\": 0.85},\n    {\"id\": \"C8\", \"severity\":
+        \"minor\", \"explanation\": \"Non-functional hot water recirculation pump
+        is a mechanical issue that contradicts the seller''s plumbing disclosure.\",
+        \"confidence\": 0.8},\n    {\"id\": \"C9\", \"severity\": \"critical\", \"explanation\":
+        \"Foundation cracks exceeding 1/4 inch with vertical displacement indicate
+        serious structural problems that contradict the seller''s structural disclosure.\",
+        \"confidence\": 0.95},\n    {\"id\": \"C10\", \"severity\": \"major\", \"explanation\":
+        \"Step-cracking patterns suggesting differential settling indicate ongoing
+        foundation issues that contradict the seller''s structural disclosure.\",
+        \"confidence\": 0.9},\n    {\"id\": \"C11\", \"severity\": \"minor\", \"explanation\":
+        \"Poor drywall taping in converted space indicates construction quality issues
+        that contradict the seller''s structural disclosure.\", \"confidence\": 0.7},\n    {\"id\":
+        \"C12\", \"severity\": \"major\", \"explanation\": \"Missing fire separation
+        between converted space and main structure creates serious safety code violations
+        that contradict the seller''s structural disclosure.\", \"confidence\": 0.9},\n    {\"id\":
+        \"C13\", \"severity\": \"moderate\", \"explanation\": \"Single-pane windows
+        where dual-pane required indicates code compliance issues that contradict
+        the seller''s structural disclosure.\", \"confidence\": 0.8},\n    {\"id\":
+        \"C14\", \"severity\": \"moderate\", \"explanation\": \"Water damage to cabinet
+        and subfloor from previous plumbing leak contradicts the seller''s disclosure
+        of no major damage.\", \"confidence\": 0.85},\n    {\"id\": \"U1\", \"severity\":
+        \"major\", \"explanation\": \"Missing shingles and deteriorated flashing represent
+        significant roof damage that was not disclosed by the seller.\", \"confidence\":
+        0.9},\n    {\"id\": \"U2\", \"severity\": \"major\", \"explanation\": \"Visible
+        daylight through roof decking indicates structural roof failure that was not
+        disclosed by the seller.\", \"confidence\": 0.95},\n    {\"id\": \"U3\", \"severity\":
+        \"major\", \"explanation\": \"Mold growth on attic decking creates health
+        hazards and indicates moisture problems that were not disclosed by the seller.\",
+        \"confidence\": 0.9},\n    {\"id\": \"U4\", \"severity\": \"critical\", \"explanation\":
+        \"Unpermitted garage conversion creates legal compliance issues and potential
+        habitability problems that were not disclosed by the seller.\", \"confidence\":
+        0.95},\n    {\"id\": \"U5\", \"severity\": \"major\", \"explanation\": \"Aged
+        furnace with rust and elevated carbon monoxide readings creates safety hazards
+        that were not disclosed by the seller.\", \"confidence\": 0.9},\n    {\"id\":
+        \"U6\", \"severity\": \"moderate\", \"explanation\": \"Corroded A/C condenser
+        with inadequate cooling performance indicates system failure that was not
+        disclosed by the seller.\", \"confidence\": 0.85},\n    {\"id\": \"U7\", \"severity\":
+        \"moderate\", \"explanation\": \"Foundation cracking that develops over years
+        and would be visible to occupants suggests the seller should have been aware
+        of this issue.\", \"confidence\": 0.6},\n    {\"id\": \"U8\", \"severity\":
+        \"major\", \"explanation\": \"Mold remediation costs of $3,000-$8,000 indicate
+        significant environmental issues that were not disclosed by the seller.\",
+        \"confidence\": 0.9},\n    {\"id\": \"U9\", \"severity\": \"major\", \"explanation\":
+        \"Attic mold remediation costs of $3,000-$8,000 indicate significant environmental
+        problems that were not disclosed by the seller.\", \"confidence\": 0.9}\n  ],\n  \"transparency_score\":
+        15,\n  \"summary\": \"The seller failed to disclose numerous critical issues
+        including dangerous Federal Pacific electrical panels, unpermitted garage
+        conversion, foundation cracks exceeding 1/4 inch, active water intrusion,
+        and mold growth. Multiple safety hazards were contradicted or omitted from
+        disclosures, including fire risks from electrical systems, carbon monoxide
+        issues from the furnace, and missing fire separation in converted spaces.
+        The extensive list of undisclosed structural, electrical, plumbing, and environmental
+        problems suggests very poor transparency from the seller.\",\n}\n```"}],"stop_reason":"end_turn","stop_sequence":null,"stop_details":null,"usage":{"input_tokens":2051,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"cache_creation":{"ephemeral_5m_input_tokens":0,"ephemeral_1h_input_tokens":0},"output_tokens":1341,"service_tier":"standard","inference_geo":"not_available"}}'
+    headers:
+      CF-RAY:
+      - 9f9c2ee7987fff07-PDX
+      Connection:
+      - keep-alive
+      Content-Security-Policy:
+      - default-src 'none'; frame-ancestors 'none'
+      Content-Type:
+      - application/json
+      Date:
+      - Sun, 10 May 2026 21:54:53 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      X-Robots-Tag:
+      - none
+      anthropic-organization-id:
+      - b2fdc71b-2fc9-444f-8b1b-31a1a50d1ce6
+      anthropic-ratelimit-input-tokens-limit:
+      - '450000'
+      anthropic-ratelimit-input-tokens-remaining:
+      - '449000'
+      anthropic-ratelimit-input-tokens-reset:
+      - '2026-05-10T21:54:35Z'
+      anthropic-ratelimit-output-tokens-limit:
+      - '90000'
+      anthropic-ratelimit-output-tokens-remaining:
+      - '90000'
+      anthropic-ratelimit-output-tokens-reset:
+      - '2026-05-10T21:54:53Z'
+      anthropic-ratelimit-requests-limit:
+      - '1000'
+      anthropic-ratelimit-requests-remaining:
+      - '999'
+      anthropic-ratelimit-requests-reset:
+      - '2026-05-10T21:54:34Z'
+      anthropic-ratelimit-tokens-limit:
+      - '540000'
+      anthropic-ratelimit-tokens-remaining:
+      - '539000'
+      anthropic-ratelimit-tokens-reset:
+      - '2026-05-10T21:54:35Z'
+      cf-cache-status:
+      - DYNAMIC
+      content-length:
+      - '6306'
+      request-id:
+      - req_011CaudeURhYu2xt8yXuw9VW
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      traceresponse:
+      - 00-52eb6e6493a71e637f56c6ca3ce50baa-bc23161c0980d2b8-01
+      vary:
+      - Accept-Encoding
+      x-envoy-upstream-service-time:
+      - '18441'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"max_tokens": 4000, "messages": [{"role": "user", "content": "You are
+      analyzing a real estate transaction. Compare these two documents and identify
+      CONTRADICTIONS \u2014 places where the seller''s disclosure says one thing but
+      the inspection report says something different.\n\nFocus on:\n1. Direct contradictions
+      (seller says no problem, inspector found a problem)\n2. Omissions (seller didn''t
+      mention something the inspector flagged as significant)\n3. Minimizations (seller
+      acknowledged an issue but understated its severity)\n4. Timeline inconsistencies
+      (seller''s dates don''t match the condition observed)\n\nFor each contradiction,
+      provide:\n- disclosure_claim: what the seller said or didn''t say (quote or
+      paraphrase)\n- inspection_finding: what the inspector found (quote or paraphrase)\n-
+      category: one of [foundation, roof, plumbing, electrical, hvac, water_damage,
+      pest, environmental, permits, general]\n- severity: high (could affect transaction),
+      medium (negotiation leverage), low (minor discrepancy)\n- explanation: one sentence
+      explaining why this matters to the buyer\n\nRespond ONLY with JSON: {\"contradictions\":
+      [...]}\n\nIf there are no contradictions, return {\"contradictions\": []}\n\nSELLER
+      DISCLOSURE:\nREAL ESTATE TRANSFER DISCLOSURE STATEMENT\n(California Civil Code
+      Section 1102 et seq.)\nProperty Address: 456 Hidden Problem Way, Sunnyvale,
+      CA 94086\nB. Are you (Seller) aware of any significant defects/malfunctions?\nInterior
+      Walls: Yes ( )  No (X)\nCeilings: Yes ( )  No (X)\nFloors: Yes ( )  No (X)\nExterior
+      Walls: Yes ( )  No (X)\nInsulation: Yes ( )  No (X)\nRoof(s): Yes ( )  No (X)\nWindows:
+      Yes ( )  No (X)\nDoors: Yes ( )  No (X)\nFoundation: Yes ( )  No (X)\nSlab(s):
+      Yes ( )  No (X)\nDriveways: Yes ( )  No (X)\nSidewalks: Yes ( )  No (X)\nWalls/Fences:
+      Yes ( )  No (X)\nElectrical Systems: Yes ( )  No (X)\nPlumbing/Sewers/Septics:
+      Yes ( )  No (X)\nOther Structural Components: Yes ( )  No (X)\nAdditional disclosures:
+      Property is being sold in its current condition.\nNo material defects known
+      to seller.\nC. Awareness Questions:\nEnvironmental hazards: Yes ( )  No (X)\nEncroachments/easements:
+      Yes ( )  No (X)\nRoom additions without permits: Yes ( )  No (X)\nSettling/soil
+      problems: Yes ( )  No (X)\nFlooding/drainage: Yes ( )  No (X)\nMajor damage
+      (fire/earthquake/flood): Yes ( )  No (X)\nZoning violations: Yes ( )  No (X)\nNeighborhood
+      noise/nuisances: Yes ( )  No (X)\nCC&Rs: Yes ( )  No (X)\nHOA: Yes ( )  No (X)\nLawsuits:
+      Yes ( )  No (X)\nAbatement/citations: Yes ( )  No (X)\nSeller: Robert & Sarah
+      Williams\nDate: 02/18/2026\n\nINSPECTION REPORT:\nHOME INSPECTION REPORT\nProperty:
+      456 Hidden Problem Way, Sunnyvale, CA 94086\nDate: March 25, 2026\nInspector:
+      Patricia Nguyen, ASHI #189234\nCRITICAL FINDINGS SUMMARY\nCRITICAL - FOUNDATION\nSignificant
+      structural cracking in foundation. Multiple cracks exceeding 1/4 inch width
+      with vertical displacement observed on east and south walls.\nStep-cracking
+      pattern suggests differential settling. THIS IS A SAFETY CONCERN. Immediate
+      evaluation by licensed structural engineer required.\nEstimated repair: $15,000-$45,000
+      depending on remediation method (pier/beam, mudjacking, or complete section
+      replacement). NOTE: This type of\ncracking typically develops over years and
+      would be visible to property occupants.\nCRITICAL - ROOF\nActive water intrusion
+      detected in three locations. Roof is well past useful life with extensive damage:
+      missing shingles across south and west slopes,\ndeteriorated flashing at all
+      penetrations, visible daylight through roof decking in attic at two locations.
+      Active leak staining on attic insulation and ceiling\ndrywall in master bedroom
+      and hallway. Mold growth observed on attic decking in two areas (~3 sq ft total).
+      Full roof replacement required\nimmediately. Estimated cost: $18,000-$25,000.
+      Mold remediation estimated: $3,000-$8,000. NOTE: Multiple layers of roofing
+      material suggest\nprevious repairs/patches without addressing underlying issues.\nCRITICAL
+      - ELECTRICAL\nFederal Pacific Stab-Lok electrical panel identified. This panel
+      type has a documented history of breaker failure and fire risk. Panel does not
+      reliably\ntrip under overload conditions. Multiple insurance companies will
+      not insure homes with this panel. Immediate replacement required. Additionally:\nKnob-and-tube
+      wiring discovered in attic section, suggesting unpermitted addition. Estimated
+      panel replacement: $2,500-$4,000. Wiring remediation:\n$5,000-$12,000. NOTE:
+      Federal Pacific panels were common in 1960s-1980s construction but this home
+      is listed as built 2002 - suggesting the\ngarage conversion/addition used the
+      original panel from a prior structure.\nMAJOR - PLUMBING\nMain sewer line shows
+      signs of root intrusion. Camera inspection recommended. Evidence of previous
+      plumbing leak under kitchen sink with water\ndamage to cabinet floor and subfloor.
+      Staining pattern suggests longstanding intermittent leak. Hot water recirculation
+      pump non-functional. Bathroom\n2 has low water pressure - may indicate galvanized
+      supply lines in that section. Estimated repairs: Sewer line $4,000-$8,000 if
+      root intrusion\nconfirmed. Kitchen subfloor repair $2,000-$4,000.\nMAJOR - UNPERMITTED
+      ADDITION\nConverted garage/bonus room shows clear signs of non-professional
+      construction: Drywall seams poorly taped, electrical outlets with reversed\npolarity,
+      no fire separation between converted space and main structure, single-pane windows
+      where dual-pane required. No permits found on file with\nCity of Sunnyvale for
+      this conversion. This may affect property value, insurance, and square footage
+      calculations. Cost to bring to code:\n$15,000-$30,000.\nMAJOR - DRAINAGE\nNegative
+      grade at foundation on east side. Standing water evidence (mineral deposits,
+      soil erosion) indicates water pools against foundation during\nrain. This is
+      the same wall with the worst foundation cracking. French drain or regrading
+      recommended. Estimated: $3,000-$6,000.\nMODERATE - HVAC\nFurnace is 22 years
+      old with visible rust on heat exchanger. Carbon monoxide reading at supply register
+      was 12 ppm (acceptable is <9 ppm). Further\nevaluation by HVAC professional
+      recommended. A/C condenser coils heavily corroded. System produced only 12\u00b0F
+      differential (minimum acceptable:\n15\u00b0F). Both units at end of life. Estimated
+      replacement: $8,000-$12,000 for complete HVAC system.\nESTIMATED TOTAL REPAIR
+      COSTS\nFoundation structural repair $15,000 - $45,000\nFull roof replacement
+      $18,000 - $25,000\nAttic mold remediation $3,000 - $8,000\nElectrical panel
+      replacement $2,500 - $4,000\nElectrical wiring remediation $5,000 - $12,000\nSewer
+      line repair (if confirmed) $4,000 - $8,000\nKitchen subfloor repair $2,000 -
+      $4,000\nGarage conversion to code $15,000 - $30,000\nDrainage/grading $3,000
+      - $6,000\nHVAC system replacement $8,000 - $12,000\nTOTAL ESTIMATED RANGE: $75,500
+      - $154,000\nInspector: Patricia Nguyen, ASHI #189234\nDate: 03/25/2026"}], "model":
+      "claude-sonnet-4-20250514", "system": "You are a property analysis expert. Respond
+      only in valid JSON."}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate, br
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '7052'
+      Content-Type:
+      - application/json
+      Host:
+      - api.anthropic.com
+      User-Agent:
+      - Anthropic/Python 0.49.0
+      X-Stainless-Arch:
+      - x64
+      X-Stainless-Async:
+      - 'false'
+      X-Stainless-Lang:
+      - python
+      X-Stainless-OS:
+      - Linux
+      X-Stainless-Package-Version:
+      - 0.49.0
+      X-Stainless-Runtime:
+      - CPython
+      X-Stainless-Runtime-Version:
+      - 3.11.15
+      anthropic-version:
+      - '2023-06-01'
+      baggage:
+      - sentry-trace_id=f780e32bc7c04f419d8ab404a2d80dbc,sentry-sample_rand=0.295039,sentry-environment=production,sentry-public_key=bec0f097edae469b35925bf075c964d9,sentry-org_id=4511034871578624,sentry-transaction=analysis.analyze_property,sentry-sample_rate=0.1,sentry-sampled=false
+      sentry-trace:
+      - f780e32bc7c04f419d8ab404a2d80dbc-b11ed6ca161f257f-0
+      x-api-key:
+      - <REDACTED>
+      x-stainless-read-timeout:
+      - '600'
+      x-stainless-retry-count:
+      - '0'
+      x-stainless-timeout:
+      - '600'
+    method: POST
+    uri: https://api.anthropic.com/v1/messages
+  response:
+    body:
+      string: '{"model":"claude-sonnet-4-20250514","id":"msg_016MicieSLAm2B2G53gWZbUg","type":"message","role":"assistant","content":[{"type":"text","text":"```json\n{\n  \"contradictions\":
+        [\n    {\n      \"disclosure_claim\": \"Seller marked ''No'' for Foundation
+        defects/malfunctions\",\n      \"inspection_finding\": \"Significant structural
+        cracking in foundation with multiple cracks exceeding 1/4 inch width and vertical
+        displacement, described as developing over years and visible to occupants\",\n      \"category\":
+        \"foundation\",\n      \"severity\": \"high\",\n      \"explanation\": \"Major
+        foundation damage that would be obvious to residents was not disclosed, creating
+        potential safety and financial liability.\"\n    },\n    {\n      \"disclosure_claim\":
+        \"Seller marked ''No'' for Roof defects/malfunctions\",\n      \"inspection_finding\":
+        \"Active water intrusion in three locations, roof past useful life with extensive
+        damage, visible daylight through roof decking, and mold growth in attic\",\n      \"category\":
+        \"roof\",\n      \"severity\": \"high\",\n      \"explanation\": \"Critical
+        roof failure with active leaks and mold would be apparent to occupants but
+        was not disclosed.\"\n    },\n    {\n      \"disclosure_claim\": \"Seller
+        marked ''No'' for Electrical Systems defects/malfunctions\",\n      \"inspection_finding\":
+        \"Federal Pacific Stab-Lok panel with documented fire risk and knob-and-tube
+        wiring in unpermitted addition\",\n      \"category\": \"electrical\",\n      \"severity\":
+        \"high\",\n      \"explanation\": \"Dangerous electrical panel type that insurance
+        companies refuse to cover represents a significant safety and insurability
+        issue.\"\n    },\n    {\n      \"disclosure_claim\": \"Seller marked ''No''
+        for Plumbing/Sewers/Septics defects/malfunctions\",\n      \"inspection_finding\":
+        \"Root intrusion in main sewer line and evidence of longstanding intermittent
+        leak under kitchen sink with water damage\",\n      \"category\": \"plumbing\",\n      \"severity\":
+        \"medium\",\n      \"explanation\": \"Chronic plumbing issues with visible
+        water damage would have been known to occupants but were not disclosed.\"\n    },\n    {\n      \"disclosure_claim\":
+        \"Seller marked ''No'' for Room additions without permits\",\n      \"inspection_finding\":
+        \"Converted garage/bonus room with clear signs of non-professional construction
+        and no permits on file with City of Sunnyvale\",\n      \"category\": \"permits\",\n      \"severity\":
+        \"high\",\n      \"explanation\": \"Unpermitted addition affects property
+        value, insurance, and legal square footage calculations.\"\n    },\n    {\n      \"disclosure_claim\":
+        \"Seller marked ''No'' for Settling/soil problems\",\n      \"inspection_finding\":
+        \"Foundation cracking with step-cracking pattern suggesting differential settling
+        and negative grade causing water pooling\",\n      \"category\": \"foundation\",\n      \"severity\":
+        \"high\",\n      \"explanation\": \"Differential settling is a serious soil/structural
+        issue that directly contradicts the seller''s disclosure.\"\n    },\n    {\n      \"disclosure_claim\":
+        \"Seller marked ''No'' for Flooding/drainage problems\",\n      \"inspection_finding\":
+        \"Standing water evidence with mineral deposits and soil erosion showing water
+        pools against foundation during rain\",\n      \"category\": \"water_damage\",\n      \"severity\":
+        \"medium\",\n      \"explanation\": \"Chronic drainage problems would be apparent
+        to residents after rain events but were not disclosed.\"\n    },\n    {\n      \"disclosure_claim\":
+        \"Seller stated ''No material defects known to seller''\",\n      \"inspection_finding\":
+        \"Inspector found $75,500-$154,000 in critical and major repair needs across
+        multiple building systems\",\n      \"category\": \"general\",\n      \"severity\":
+        \"high\",\n      \"explanation\": \"The extensive list of major defects directly
+        contradicts the seller''s claim of no known material defects.\"\n    }\n  ]\n}\n```"}],"stop_reason":"end_turn","stop_sequence":null,"stop_details":null,"usage":{"input_tokens":1935,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"cache_creation":{"ephemeral_5m_input_tokens":0,"ephemeral_1h_input_tokens":0},"output_tokens":874,"service_tier":"standard","inference_geo":"not_available"}}'
+    headers:
+      CF-RAY:
+      - 9f9c2fcb6aea8b90-PDX
+      Connection:
+      - keep-alive
+      Content-Security-Policy:
+      - default-src 'none'; frame-ancestors 'none'
+      Content-Type:
+      - application/json
+      Date:
+      - Sun, 10 May 2026 21:55:25 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      X-Robots-Tag:
+      - none
+      anthropic-organization-id:
+      - b2fdc71b-2fc9-444f-8b1b-31a1a50d1ce6
+      anthropic-ratelimit-input-tokens-limit:
+      - '450000'
+      anthropic-ratelimit-input-tokens-remaining:
+      - '449000'
+      anthropic-ratelimit-input-tokens-reset:
+      - '2026-05-10T21:55:12Z'
+      anthropic-ratelimit-output-tokens-limit:
+      - '90000'
+      anthropic-ratelimit-output-tokens-remaining:
+      - '90000'
+      anthropic-ratelimit-output-tokens-reset:
+      - '2026-05-10T21:55:24Z'
+      anthropic-ratelimit-requests-limit:
+      - '1000'
+      anthropic-ratelimit-requests-remaining:
+      - '999'
+      anthropic-ratelimit-requests-reset:
+      - '2026-05-10T21:55:11Z'
+      anthropic-ratelimit-tokens-limit:
+      - '540000'
+      anthropic-ratelimit-tokens-remaining:
+      - '539000'
+      anthropic-ratelimit-tokens-reset:
+      - '2026-05-10T21:55:12Z'
+      cf-cache-status:
+      - DYNAMIC
+      content-length:
+      - '4276'
+      request-id:
+      - req_011CaudhAFPeHcihR4QdZUeH
+      set-cookie:
+      - <REDACTED>
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      traceresponse:
+      - 00-9a95c74321f63089c29921a912d3c209-8f654cf3bcf9a792-01
+      vary:
+      - Accept-Encoding
+      x-envoy-upstream-service-time:
+      - '13847'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"max_tokens": 2000, "messages": [{"role": "user", "content": "You are
+      a residential construction cost estimator. For each inspection finding below,
+      assess whether the rule-based severity classification is accurate based on the
+      actual description.\n\nProperty context: ZIP unknown\n\nFor each finding, provide:\n-
+      id: the finding id (integer)\n- original_severity: what it was classified as\n-
+      adjusted_severity: what it should be (critical/major/moderate/minor) \u2014
+      keep the same if the classification is correct\n- cost_multiplier: a float between
+      0.5 and 2.0 adjusting the baseline cost range\n  1.0 = baseline is accurate\n  0.5
+      = baseline overstates (e.g., cosmetic crack classified as moderate)\n  1.5 =
+      baseline understates (e.g., description indicates worse condition than severity
+      suggests)\n  2.0 = significantly understated (e.g., \"moderate\" finding that
+      actually needs major repair)\n- context_notes: brief explanation of adjustment
+      (or \"accurate\" if no change)\n\nRespond ONLY with JSON: {\"adjustments\":
+      [...]}\n\nFINDINGS:\n[\n  {\n    \"id\": 0,\n    \"category\": \"foundation_structure\",\n    \"severity\":
+      \"critical\",\n    \"description\": \"Significant structural cracking in foundation
+      with multiple cracks exceeding 1/4 inch width and vertical displacement on east
+      and south walls.\"\n  },\n  {\n    \"id\": 1,\n    \"category\": \"foundation_structure\",\n    \"severity\":
+      \"critical\",\n    \"description\": \"Step-cracking pattern suggests differential
+      settling in foundation.\"\n  },\n  {\n    \"id\": 2,\n    \"category\": \"roof_exterior\",\n    \"severity\":
+      \"critical\",\n    \"description\": \"Active water intrusion detected in three
+      locations with roof well past useful life.\"\n  },\n  {\n    \"id\": 3,\n    \"category\":
+      \"roof_exterior\",\n    \"severity\": \"critical\",\n    \"description\": \"Missing
+      shingles across south and west slopes with deteriorated flashing at all penetrations.\"\n  },\n  {\n    \"id\":
+      4,\n    \"category\": \"roof_exterior\",\n    \"severity\": \"critical\",\n    \"description\":
+      \"Visible daylight through roof decking in attic at two locations.\"\n  },\n  {\n    \"id\":
+      5,\n    \"category\": \"roof_exterior\",\n    \"severity\": \"major\",\n    \"description\":
+      \"Active leak staining on attic insulation and ceiling drywall in master bedroom
+      and hallway.\"\n  },\n  {\n    \"id\": 6,\n    \"category\": \"environmental\",\n    \"severity\":
+      \"major\",\n    \"description\": \"Mold growth observed on attic decking in
+      two areas (~3 sq ft total).\"\n  },\n  {\n    \"id\": 7,\n    \"category\":
+      \"electrical\",\n    \"severity\": \"critical\",\n    \"description\": \"Federal
+      Pacific Stab-Lok electrical panel has documented history of breaker failure
+      and fire risk, does not reliably trip under overload conditions.\"\n  },\n  {\n    \"id\":
+      8,\n    \"category\": \"electrical\",\n    \"severity\": \"major\",\n    \"description\":
+      \"Knob-and-tube wiring discovered in attic section, suggesting unpermitted addition.\"\n  },\n  {\n    \"id\":
+      9,\n    \"category\": \"plumbing\",\n    \"severity\": \"major\",\n    \"description\":
+      \"Main sewer line shows signs of root intrusion.\"\n  },\n  {\n    \"id\": 10,\n    \"category\":
+      \"plumbing\",\n    \"severity\": \"major\",\n    \"description\": \"Evidence
+      of previous plumbing leak under kitchen sink with water damage to cabinet floor
+      and subfloor.\"\n  },\n  {\n    \"id\": 11,\n    \"category\": \"plumbing\",\n    \"severity\":
+      \"moderate\",\n    \"description\": \"Hot water recirculation pump non-functional.\"\n  },\n  {\n    \"id\":
+      12,\n    \"category\": \"plumbing\",\n    \"severity\": \"moderate\",\n    \"description\":
+      \"Bathroom 2 has low water pressure - may indicate galvanized supply lines in
+      that section.\"\n  },\n  {\n    \"id\": 13,\n    \"category\": \"legal_title\",\n    \"severity\":
+      \"major\",\n    \"description\": \"Converted garage/bonus room shows clear signs
+      of non-professional construction with no permits found on file with City of
+      Sunnyvale.\"\n  },\n  {\n    \"id\": 14,\n    \"category\": \"foundation_structure\",\n    \"severity\":
+      \"major\",\n    \"description\": \"Drywall seams poorly taped in converted garage
+      space.\"\n  },\n  {\n    \"id\": 15,\n    \"category\": \"electrical\",\n    \"severity\":
+      \"major\",\n    \"description\": \"Electrical outlets with reversed polarity
+      in converted garage space.\"\n  },\n  {\n    \"id\": 16,\n    \"category\":
+      \"foundation_structure\",\n    \"severity\": \"major\",\n    \"description\":
+      \"No fire separation between converted space and main structure.\"\n  },\n  {\n    \"id\":
+      17,\n    \"category\": \"foundation_structure\",\n    \"severity\": \"moderate\",\n    \"description\":
+      \"Single-pane windows where dual-pane required in converted garage space.\"\n  },\n  {\n    \"id\":
+      18,\n    \"category\": \"foundation_structure\",\n    \"severity\": \"major\",\n    \"description\":
+      \"Negative grade at foundation on east side with standing water evidence (mineral
+      deposits, soil erosion) indicating water pools against foundation during rain.\"\n  },\n  {\n    \"id\":
+      19,\n    \"category\": \"hvac_systems\",\n    \"severity\": \"moderate\",\n    \"description\":
+      \"Furnace is 22 years old with visible rust on heat exchanger and carbon monoxide
+      reading at supply register was 12 ppm (acceptable is <9 ppm).\"\n  }\n]"}],
+      "model": "claude-sonnet-4-20250514", "system": "You are a property analysis
+      expert. Respond only in valid JSON."}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate, br
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '5449'
+      Content-Type:
+      - application/json
+      Host:
+      - api.anthropic.com
+      User-Agent:
+      - Anthropic/Python 0.49.0
+      X-Stainless-Arch:
+      - x64
+      X-Stainless-Async:
+      - 'false'
+      X-Stainless-Lang:
+      - python
+      X-Stainless-OS:
+      - Linux
+      X-Stainless-Package-Version:
+      - 0.49.0
+      X-Stainless-Runtime:
+      - CPython
+      X-Stainless-Runtime-Version:
+      - 3.11.15
+      anthropic-version:
+      - '2023-06-01'
+      baggage:
+      - sentry-trace_id=f780e32bc7c04f419d8ab404a2d80dbc,sentry-sample_rand=0.295039,sentry-environment=production,sentry-public_key=bec0f097edae469b35925bf075c964d9,sentry-org_id=4511034871578624,sentry-transaction=analysis.analyze_property,sentry-sample_rate=0.1,sentry-sampled=false
+      sentry-trace:
+      - f780e32bc7c04f419d8ab404a2d80dbc-b14bb2176d09232b-0
+      x-api-key:
+      - <REDACTED>
+      x-stainless-read-timeout:
+      - '600'
+      x-stainless-retry-count:
+      - '0'
+      x-stainless-timeout:
+      - '600'
+    method: POST
+    uri: https://api.anthropic.com/v1/messages
+  response:
+    body:
+      string: '{"model":"claude-sonnet-4-20250514","id":"msg_019TyaFwUSiL8AZHfDWpu5MX","type":"message","role":"assistant","content":[{"type":"text","text":"```json\n{\n  \"adjustments\":
+        [\n    {\n      \"id\": 0,\n      \"original_severity\": \"critical\",\n      \"adjusted_severity\":
+        \"critical\",\n      \"cost_multiplier\": 1.0,\n      \"context_notes\": \"accurate
+        - significant structural cracking with displacement warrants critical severity\"\n    },\n    {\n      \"id\":
+        1,\n      \"original_severity\": \"critical\",\n      \"adjusted_severity\":
+        \"critical\",\n      \"cost_multiplier\": 1.0,\n      \"context_notes\": \"accurate
+        - differential settling patterns indicate serious foundation issues\"\n    },\n    {\n      \"id\":
+        2,\n      \"original_severity\": \"critical\",\n      \"adjusted_severity\":
+        \"critical\",\n      \"cost_multiplier\": 1.0,\n      \"context_notes\": \"accurate
+        - active water intrusion with end-of-life roof requires immediate attention\"\n    },\n    {\n      \"id\":
+        3,\n      \"original_severity\": \"critical\",\n      \"adjusted_severity\":
+        \"critical\",\n      \"cost_multiplier\": 1.0,\n      \"context_notes\": \"accurate
+        - missing shingles and deteriorated flashing create immediate weather exposure\"\n    },\n    {\n      \"id\":
+        4,\n      \"original_severity\": \"critical\",\n      \"adjusted_severity\":
+        \"critical\",\n      \"cost_multiplier\": 1.0,\n      \"context_notes\": \"accurate
+        - visible daylight through roof decking indicates complete structural failure\"\n    },\n    {\n      \"id\":
+        5,\n      \"original_severity\": \"major\",\n      \"adjusted_severity\":
+        \"critical\",\n      \"cost_multiplier\": 1.5,\n      \"context_notes\": \"upgraded
+        - active leaks with interior damage require immediate repair to prevent further
+        deterioration\"\n    },\n    {\n      \"id\": 6,\n      \"original_severity\":
+        \"major\",\n      \"adjusted_severity\": \"major\",\n      \"cost_multiplier\":
+        1.0,\n      \"context_notes\": \"accurate - limited mold growth (3 sq ft)
+        warrants major but not critical classification\"\n    },\n    {\n      \"id\":
+        7,\n      \"original_severity\": \"critical\",\n      \"adjusted_severity\":
+        \"critical\",\n      \"cost_multiplier\": 1.0,\n      \"context_notes\": \"accurate
+        - Federal Pacific panels pose documented fire hazard requiring immediate replacement\"\n    },\n    {\n      \"id\":
+        8,\n      \"original_severity\": \"major\",\n      \"adjusted_severity\":
+        \"critical\",\n      \"cost_multiplier\": 1.5,\n      \"context_notes\": \"upgraded
+        - knob-and-tube wiring poses serious fire risk and suggests unpermitted work\"\n    },\n    {\n      \"id\":
+        9,\n      \"original_severity\": \"major\",\n      \"adjusted_severity\":
+        \"major\",\n      \"cost_multiplier\": 1.0,\n      \"context_notes\": \"accurate
+        - sewer line root intrusion is significant but not immediately critical\"\n    },\n    {\n      \"id\":
+        10,\n      \"original_severity\": \"major\",\n      \"adjusted_severity\":
+        \"major\",\n      \"cost_multiplier\": 1.0,\n      \"context_notes\": \"accurate
+        - previous water damage to structural elements warrants major classification\"\n    },\n    {\n      \"id\":
+        11,\n      \"original_severity\": \"moderate\",\n      \"adjusted_severity\":
+        \"minor\",\n      \"cost_multiplier\": 0.7,\n      \"context_notes\": \"downgraded
+        - non-functional recirculation pump is convenience issue, not structural or
+        safety\"\n    },\n    {\n      \"id\": 12,\n      \"original_severity\": \"moderate\",\n      \"adjusted_severity\":
+        \"moderate\",\n      \"cost_multiplier\": 1.0,\n      \"context_notes\": \"accurate
+        - low pressure suggesting galvanized lines is moderate plumbing issue\"\n    },\n    {\n      \"id\":
+        13,\n      \"original_severity\": \"major\",\n      \"adjusted_severity\":
+        \"major\",\n      \"cost_multiplier\": 1.0,\n      \"context_notes\": \"accurate
+        - unpermitted construction creates legal and safety compliance issues\"\n    },\n    {\n      \"id\":
+        14,\n      \"original_severity\": \"major\",\n      \"adjusted_severity\":
+        \"minor\",\n      \"cost_multiplier\": 0.5,\n      \"context_notes\": \"downgraded
+        - poor drywall taping is cosmetic, not structural or safety issue\"\n    },\n    {\n      \"id\":
+        15,\n      \"original_severity\": \"major\",\n      \"adjusted_severity\":
+        \"major\",\n      \"cost_multiplier\": 1.0,\n      \"context_notes\": \"accurate
+        - reversed polarity poses shock hazard and indicates poor electrical work\"\n    },\n    {\n      \"id\":
+        16,\n      \"original_severity\": \"major\",\n      \"adjusted_severity\":
+        \"critical\",\n      \"cost_multiplier\": 1.5,\n      \"context_notes\": \"upgraded
+        - lack of fire separation poses serious life safety hazard\"\n    },\n    {\n      \"id\":
+        17,\n      \"original_severity\": \"moderate\",\n      \"adjusted_severity\":
+        \"moderate\",\n      \"cost_multiplier\": 1.0,\n      \"context_notes\": \"accurate
+        - code compliance issue but not safety-critical\"\n    },\n    {\n      \"id\":
+        18,\n      \"original_severity\": \"major\",\n      \"adjusted_severity\":
+        \"major\",\n      \"cost_multiplier\": 1.0,\n      \"context_notes\": \"accurate
+        - negative grade with water pooling threatens foundation integrity\"\n    },\n    {\n      \"id\":
+        19,\n      \"original_severity\": \"moderate\",\n      \"adjusted_severity\":
+        \"major\",\n      \"cost_multiplier\": 1.3,\n      \"context_notes\": \"upgraded
+        - elevated CO levels with aging heat exchanger pose health and safety risk\"\n    }\n  ]\n}\n```"}],"stop_reason":"end_turn","stop_sequence":null,"stop_details":null,"usage":{"input_tokens":1410,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"cache_creation":{"ephemeral_5m_input_tokens":0,"ephemeral_1h_input_tokens":0},"output_tokens":1427,"service_tier":"standard","inference_geo":"not_available"}}'
+    headers:
+      CF-RAY:
+      - 9f9c3022ac1a58d9-PDX
+      Connection:
+      - keep-alive
+      Content-Security-Policy:
+      - default-src 'none'; frame-ancestors 'none'
+      Content-Type:
+      - application/json
+      Date:
+      - Sun, 10 May 2026 21:55:41 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      X-Robots-Tag:
+      - none
+      anthropic-organization-id:
+      - b2fdc71b-2fc9-444f-8b1b-31a1a50d1ce6
+      anthropic-ratelimit-input-tokens-limit:
+      - '450000'
+      anthropic-ratelimit-input-tokens-remaining:
+      - '449000'
+      anthropic-ratelimit-input-tokens-reset:
+      - '2026-05-10T21:55:26Z'
+      anthropic-ratelimit-output-tokens-limit:
+      - '90000'
+      anthropic-ratelimit-output-tokens-remaining:
+      - '90000'
+      anthropic-ratelimit-output-tokens-reset:
+      - '2026-05-10T21:55:42Z'
+      anthropic-ratelimit-requests-limit:
+      - '1000'
+      anthropic-ratelimit-requests-remaining:
+      - '999'
+      anthropic-ratelimit-requests-reset:
+      - '2026-05-10T21:55:25Z'
+      anthropic-ratelimit-tokens-limit:
+      - '540000'
+      anthropic-ratelimit-tokens-remaining:
+      - '539000'
+      anthropic-ratelimit-tokens-reset:
+      - '2026-05-10T21:55:26Z'
+      cf-cache-status:
+      - DYNAMIC
+      content-length:
+      - '5797'
+      request-id:
+      - req_011CaudiBzM3VJ432horAQSw
+      set-cookie:
+      - <REDACTED>
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      traceresponse:
+      - 00-867e08421e020585f0b62566c014e720-487dd0313f7b42bc-01
+      vary:
+      - Accept-Encoding
+      x-envoy-upstream-service-time:
+      - '16694'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"from": "OfferWise <noreply@getofferwise.ai>", "to": ["cassette_recorder_cassette_15f3e725@e2e-cassette.test.example.com"],
+      "subject": "Your Analysis is Ready: 789 Nightmare Rd, Berkeley, CA...", "html":
+      "\n<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta
+      name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <meta
+      http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n    <title>OfferWise</title>\n    <!--[if
+      mso]>\n    <style type=\"text/css\">\n        table {border-collapse: collapse;}\n        .button
+      {padding: 12px 24px !important;}\n    </style>\n    <![endif]-->\n</head>\n<body
+      style=\"margin: 0; padding: 0; background-color: #0f172a; font-family: -apple-system,
+      BlinkMacSystemFont, ''Segoe UI'', Roboto, ''Helvetica Neue'', Arial, sans-serif;\">\n    <!--
+      Preview text -->\n    <div style=\"display: none; max-height: 0; overflow: hidden;\">\n        Analysis
+      ready for 789 Nightmare Rd, Berkeley, CA - OfferScore 60\n    </div>\n    \n    <!--
+      Email wrapper -->\n    <table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\"
+      border=\"0\" width=\"100%\" style=\"background-color: #0f172a;\">\n        <tr>\n            <td
+      align=\"center\" style=\"padding: 40px 20px;\">\n                <!-- Content
+      container -->\n                <table role=\"presentation\" cellspacing=\"0\"
+      cellpadding=\"0\" border=\"0\" width=\"600\" style=\"max-width: 600px; background-color:
+      #1e293b; border-radius: 16px; overflow: hidden; box-shadow: 0 20px 40px rgba(0,
+      0, 0, 0.3);\">\n                    \n                    <!-- Header -->\n                    <tr>\n                        <td
+      style=\"background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%); padding:
+      32px 40px; text-align: center;\">\n                            <h1 style=\"margin:
+      0; color: #ffffff; font-size: 28px; font-weight: 800; letter-spacing: -0.5px;\">\n                                OfferWise\n                            </h1>\n                        </td>\n                    </tr>\n                    \n                    <!--
+      Body -->\n                    <tr>\n                        <td style=\"padding:
+      40px;\">\n                            \n        <h2 style=\"margin: 0 0 16px
+      0; color: #f8fafc; font-size: 24px; font-weight: 700;\">\n            Your Analysis
+      is Ready! \ud83d\udcca\n        </h2>\n        \n        <p style=\"margin:
+      0 0 8px 0; color: #94a3b8; font-size: 14px;\">\n            Property Address\n        </p>\n        <p
+      style=\"margin: 0 0 24px 0; color: #f8fafc; font-size: 18px; font-weight: 600;\">\n            789
+      Nightmare Rd, Berkeley, CA\n        </p>\n        \n        <!-- Results Summary
+      -->\n        <table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\"
+      border=\"0\" width=\"100%\" style=\"margin: 24px 0;\">\n            <tr>\n                <td
+      width=\"50%\" style=\"padding-right: 8px;\">\n                    <div style=\"background:
+      rgba(15, 23, 42, 0.6); border-radius: 12px; border: 1px solid rgba(255, 255,
+      255, 0.1); padding: 20px; text-align: center;\">\n                        <div
+      style=\"font-size: 14px; color: #94a3b8; margin-bottom: 8px;\">OfferScore\u2122</div>\n                        <div
+      style=\"font-size: 36px; font-weight: 800; color: #3b82f6;\">60</div>\n                        <div
+      style=\"font-size: 13px; color: #3b82f6;\">Good</div>\n                    </div>\n                </td>\n                <td
+      width=\"50%\" style=\"padding-left: 8px;\">\n                    <div style=\"background:
+      rgba(15, 23, 42, 0.6); border-radius: 12px; border: 1px solid rgba(255, 255,
+      255, 0.1); padding: 20px; text-align: center;\">\n                        <div
+      style=\"font-size: 14px; color: #94a3b8; margin-bottom: 8px;\">Recommended Offer</div>\n                        <div
+      style=\"font-size: 36px; font-weight: 800; color: #10b981;\">$663,500</div>\n                        <div
+      style=\"font-size: 13px; color: #94a3b8;\">Save $236,500 vs asking</div>\n                    </div>\n                </td>\n            </tr>\n        </table>\n        \n        <table
+      role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\"
+      style=\"background-color: rgba(59, 130, 246, 0.1); border-radius: 12px; border:
+      1px solid rgba(59, 130, 246, 0.3); margin: 24px 0;\">\n            <tr>\n                <td
+      style=\"padding: 20px;\">\n                    <table role=\"presentation\"
+      cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\">\n                        <tr>\n                            <td
+      style=\"color: #94a3b8; font-size: 14px;\">Asking Price</td>\n                            <td
+      align=\"right\" style=\"color: #f8fafc; font-size: 16px;\">$900,000</td>\n                        </tr>\n                        <tr>\n                            <td
+      style=\"color: #60a5fa; font-size: 14px; font-weight: 600; padding-top: 8px;\">Recommended
+      Offer</td>\n                            <td align=\"right\" style=\"color: #60a5fa;
+      font-size: 18px; font-weight: 700; padding-top: 8px;\">$663,500</td>\n                        </tr>\n                    </table>\n                </td>\n            </tr>\n        </table>\n        \n        <p
+      style=\"margin: 0 0 8px 0; color: #cbd5e1; font-size: 16px; line-height: 1.6;\">\n            Your
+      full report includes Risk DNA\u2122, Seller Transparency Report\u2122, and negotiation
+      talking points.\n        </p>\n        \n        \n    <table role=\"presentation\"
+      cellspacing=\"0\" cellpadding=\"0\" border=\"0\" style=\"margin: 24px auto;\">\n        <tr>\n            <td
+      style=\"background-color: #3b82f6; border-radius: 8px;\">\n                <a
+      href=\"https://www.getofferwise.ai/app?analysis=548\" target=\"_blank\" style=\"display:
+      inline-block; padding: 14px 32px; color: #ffffff; text-decoration: none; font-weight:
+      600; font-size: 16px;\">\n                    View Full Report \u2192\n                </a>\n            </td>\n        </tr>\n    </table>\n    \n        \n        <table
+      role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\"\n               style=\"background:rgba(239,68,68,0.08);border:1px
+      solid rgba(239,68,68,0.2);border-radius:10px;margin:20px 0 0;\">\n          <tr><td
+      style=\"padding:16px 20px;\">\n            <p style=\"margin:0 0 4px;color:#ef4444;font-size:13px;font-weight:700;\">\ud83d\udcc4
+      Next: Draft your repair addendum</p>\n            <p style=\"margin:0 0 10px;color:#94a3b8;font-size:12px;line-height:1.5;\">\n              Claude
+      will write your formal Request for Repair from these findings \u2014 state-aware,
+      clause by clause.\n            </p>\n            <a href=\"https://www.getofferwise.ai/app?analysis=548&action=addendum&utm_source=analysis_email&utm_medium=email\"\n               style=\"display:inline-block;padding:10px
+      20px;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);color:#fca5a5;text-decoration:none;font-weight:700;font-size:13px;border-radius:8px;\">\n              Draft
+      repair addendum \u2192\n            </a>\n          </td></tr>\n        </table>\n        \n        <table
+      role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\"\n               style=\"background:rgba(249,115,22,0.08);border:1px
+      solid rgba(249,115,22,0.2);border-radius:10px;margin:12px 0 0;\">\n          <tr><td
+      style=\"padding:14px 20px;\">\n            <p style=\"margin:0;color:#94a3b8;font-size:12px;line-height:1.5;\">\n              \ud83d\udcb0
+      <strong style=\"color:#f97316;\">Refer a buyer</strong> \u2014 share your link
+      and you both get a free analysis.\n              <a href=\"https://www.getofferwise.ai/settings?tab=referrals\"
+      style=\"color:#f97316;\">Get your link \u2192</a>\n            </p>\n          </td></tr>\n        </table>\n    \n                        </td>\n                    </tr>\n                    \n                    <!--
+      Footer -->\n                    <tr>\n                        <td style=\"background-color:
+      #0f172a; padding: 24px 40px; text-align: center; border-top: 1px solid rgba(255,
+      255, 255, 0.1);\">\n                            <p style=\"margin: 0 0 8px 0;
+      color: #64748b; font-size: 13px;\">\n                                \u00a9
+      2026 OfferWise. All rights reserved.\n                            </p>\n                            <p
+      style=\"margin: 0; color: #64748b; font-size: 13px;\">\n                                <a
+      href=\"https://www.getofferwise.ai/privacy\" style=\"color: #60a5fa; text-decoration:
+      none;\">Privacy</a>\n                                &nbsp;\u00b7&nbsp;\n                                <a
+      href=\"https://www.getofferwise.ai/terms\" style=\"color: #60a5fa; text-decoration:
+      none;\">Terms</a>\n                                &nbsp;\u00b7&nbsp;\n                                <a
+      href=\"mailto:support@getofferwise.ai\" style=\"color: #60a5fa; text-decoration:
+      none;\">Support</a>\n                            </p>\n                        </td>\n                    </tr>\n                    \n                </table>\n            </td>\n        </tr>\n    </table>\n</body>\n</html>\n"}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate, br
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '9128'
+      Content-Type:
+      - application/json
+      User-Agent:
+      - resend-python:2.0.0
+      authorization:
+      - <REDACTED>
+    method: POST
+    uri: https://api.resend.com/emails
+  response:
+    body:
+      string: '{"id":"f464f1bd-6a2f-494f-b9c1-3819d1b62941"}'
+    headers:
+      CF-RAY:
+      - 9f9c308d6a769935-PDX
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '45'
+      Content-Type:
+      - application/json
+      Date:
+      - Sun, 10 May 2026 21:55:42 GMT
+      Server:
+      - cloudflare
+      cf-cache-status:
+      - DYNAMIC
+      ratelimit-limit:
+      - '5'
+      ratelimit-policy:
+      - 5;w=1
+      ratelimit-remaining:
+      - '4'
+      ratelimit-reset:
+      - '1'
+      x-resend-daily-quota:
+      - '116'
+      x-resend-monthly-quota:
+      - '263'
+    status:
+      code: 200
+      message: OK
+version: 1

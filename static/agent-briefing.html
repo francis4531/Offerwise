@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Property Briefing — OfferWise</title>
+<style>
+:root {
+  --bg:#060d1a; --surface:#0f1e35; --surface2:#162032;
+  --border:rgba(255,255,255,.08);
+  --text:#f1f5f9; --muted:#94a3b8; --dim:#64748b;
+  --fire1:#f97316; --fire2:#f59e0b; --green:#22c55e; --blue:#60a5fa; --red:#ef4444;
+}
+* { box-sizing:border-box; }
+body {
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  min-height:100vh;
+  line-height:1.55;
+}
+.wrap {
+  max-width:780px;
+  margin:0 auto;
+  padding:32px 24px 80px;
+}
+.loading {
+  text-align:center;
+  padding:80px 20px;
+  color:var(--muted);
+  font-size:14px;
+}
+.error-box {
+  background:rgba(239,68,68,.06);
+  border:1px solid rgba(239,68,68,.2);
+  border-radius:10px;
+  padding:24px;
+  color:#fca5a5;
+  text-align:center;
+  font-size:14px;
+}
+
+/* ===== Agent header ===== */
+.agent-header {
+  border-bottom:1px solid var(--border);
+  padding-bottom:24px;
+  margin-bottom:32px;
+}
+.agent-name {
+  font-size:28px;
+  font-weight:800;
+  color:var(--text);
+  margin:0 0 4px;
+  letter-spacing:-0.01em;
+}
+.agent-biz {
+  font-size:15px;
+  color:var(--muted);
+  margin:0 0 18px;
+}
+.briefing-title {
+  font-size:13px;
+  text-transform:uppercase;
+  letter-spacing:0.08em;
+  color:var(--fire1);
+  margin:0 0 8px;
+  font-weight:700;
+}
+.briefing-for {
+  font-size:18px;
+  color:var(--text);
+  margin:0;
+  font-weight:600;
+}
+.briefing-meta {
+  font-size:12px;
+  color:var(--dim);
+  margin-top:6px;
+}
+
+/* ===== Agent commentary ===== */
+.commentary-block {
+  background:var(--surface);
+  border-left:3px solid var(--fire1);
+  padding:20px 24px;
+  margin:0 0 36px;
+  border-radius:0 10px 10px 0;
+  /* v5.88.81: contain overflow at the block level too. Even if a
+     child text element somehow escapes word-break (e.g., an inline
+     element with white-space:pre), the block won't push the rest
+     of the page sideways. */
+  max-width:100%;
+  overflow-wrap:anywhere;
+}
+.commentary-label {
+  font-size:11px;
+  text-transform:uppercase;
+  letter-spacing:0.09em;
+  color:var(--muted);
+  font-weight:700;
+  margin-bottom:10px;
+}
+.commentary-text {
+  font-size:15.5px;
+  color:var(--text);
+  white-space:pre-wrap;
+  font-style:italic;
+  line-height:1.7;
+  /* v5.88.81: prevent a pathological commentary (e.g., one giant
+     unbroken string with no spaces) from blowing out the layout
+     and causing horizontal scroll. `overflow-wrap:anywhere` lets the
+     browser break long unbroken strings at arbitrary points; the
+     `word-break:break-word` fallback covers older browsers. The
+     existing `white-space:pre-wrap` is preserved so legitimate
+     line breaks in the agent's commentary still render. */
+  overflow-wrap:anywhere;
+  word-break:break-word;
+}
+
+/* ===== Section heading style ===== */
+.section {
+  margin:36px 0;
+}
+.section-label {
+  font-size:11px;
+  text-transform:uppercase;
+  letter-spacing:0.09em;
+  color:var(--muted);
+  font-weight:700;
+  margin-bottom:6px;
+}
+.section-title {
+  font-size:22px;
+  font-weight:700;
+  color:var(--text);
+  margin:0 0 16px;
+  letter-spacing:-0.005em;
+}
+
+/* ===== Repair section ===== */
+.repair-total {
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:24px;
+  margin-bottom:24px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:16px;
+}
+.repair-total-label {
+  font-size:12px;
+  text-transform:uppercase;
+  letter-spacing:0.07em;
+  color:var(--muted);
+  font-weight:700;
+  margin-bottom:4px;
+}
+.repair-total-range {
+  font-size:32px;
+  font-weight:800;
+  color:var(--fire1);
+  letter-spacing:-0.02em;
+}
+.repair-total-note {
+  font-size:13px;
+  color:var(--muted);
+  max-width:340px;
+}
+.category-list {
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+.category-item {
+  background:var(--surface2);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:16px 18px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:14px;
+  flex-wrap:wrap;
+}
+.category-name {
+  font-size:14px;
+  font-weight:700;
+  color:var(--text);
+  text-transform:capitalize;
+}
+.category-range {
+  font-size:14px;
+  font-weight:700;
+  color:var(--text);
+  font-variant-numeric:tabular-nums;
+  white-space:nowrap;
+}
+.no-findings {
+  color:var(--muted);
+  font-size:14px;
+  padding:16px 0;
+  font-style:italic;
+}
+
+/* v5.88.87 D: request-quote button + modal for high-cost categories */
+.cat-quote-btn {
+  background:transparent;
+  border:1px solid rgba(96,165,250,.35);
+  color:var(--blue);
+  font-size:11px;
+  font-weight:600;
+  padding:5px 10px;
+  border-radius:6px;
+  cursor:pointer;
+  font-family:inherit;
+  transition:background .12s, border-color .12s;
+  white-space:nowrap;
+}
+.cat-quote-btn:hover { background:rgba(96,165,250,.08); border-color:var(--blue); }
+.cat-quote-btn:disabled { opacity:.6; cursor:default; }
+.category-item .right-col {
+  display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+}
+.quote-modal-backdrop {
+  display:none;
+  position:fixed; inset:0;
+  background:rgba(0,0,0,.65);
+  z-index:1000;
+  align-items:center; justify-content:center;
+  padding:20px;
+}
+.quote-modal-backdrop.show { display:flex; }
+.quote-modal {
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:24px;
+  max-width:440px; width:100%;
+  box-shadow:0 24px 64px rgba(0,0,0,.4);
+}
+.quote-modal h3 { margin:0 0 6px; font-size:18px; font-weight:700; }
+.quote-modal .sub { font-size:12.5px; color:var(--muted); margin-bottom:16px; line-height:1.5; }
+.quote-modal label { display:block; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.05em; color:var(--dim); margin-bottom:5px; margin-top:12px; }
+.quote-modal input, .quote-modal select, .quote-modal textarea {
+  width:100%;
+  background:var(--surface2);
+  border:1px solid var(--border);
+  border-radius:7px;
+  padding:9px 11px;
+  color:var(--text);
+  font-size:13px;
+  font-family:inherit;
+  outline:none;
+}
+.quote-modal input:focus, .quote-modal select:focus, .quote-modal textarea:focus { border-color:var(--blue); }
+.quote-modal textarea { resize:vertical; min-height:60px; }
+.quote-modal .actions { display:flex; gap:10px; margin-top:18px; }
+.quote-modal .actions button { flex:1; padding:10px; border-radius:7px; font-weight:700; font-size:13px; cursor:pointer; font-family:inherit; border:none; }
+.quote-modal .actions .cancel { background:rgba(255,255,255,.06); color:var(--text); }
+.quote-modal .actions .submit { background:linear-gradient(90deg,var(--blue),#3b82f6); color:white; }
+.quote-modal .actions button:disabled { opacity:.6; cursor:default; }
+.quote-modal .status { margin-top:12px; font-size:12px; color:var(--muted); }
+.quote-modal .status.ok { color:var(--green); }
+.quote-modal .status.err { color:#fca5a5; }
+.analysis-error {
+  background:rgba(239,68,68,.05);
+  border:1px solid rgba(239,68,68,.2);
+  border-radius:10px;
+  padding:18px 22px;
+  color:#fca5a5;
+  font-size:14px;
+}
+
+/* ===== Offer strategy scenarios ===== */
+.scenario-list {
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+}
+.scenario {
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:20px 22px;
+}
+.scenario-header {
+  display:flex;
+  justify-content:space-between;
+  align-items:baseline;
+  gap:16px;
+  margin-bottom:8px;
+  flex-wrap:wrap;
+}
+.scenario-label {
+  font-size:11px;
+  text-transform:uppercase;
+  letter-spacing:0.09em;
+  color:var(--muted);
+  font-weight:700;
+}
+.scenario-price {
+  font-size:24px;
+  font-weight:800;
+  color:var(--text);
+  letter-spacing:-0.01em;
+  font-variant-numeric:tabular-nums;
+}
+.scenario-price.opening { color:var(--green); }
+.scenario-price.walkup { color:var(--blue); }
+.scenario-price.walkaway { color:var(--fire1); }
+/* v5.88.78 R4: seller-side scenarios (Counter > Hold > Concede).
+   Counter is the strongest position (green = good for seller),
+   Hold is the defensive middle (blue), Concede is the floor where
+   the seller is giving ground (orange = caution). */
+.scenario-price.counter { color:var(--green); }
+.scenario-price.hold { color:var(--blue); }
+.scenario-price.concede { color:var(--fire1); }
+.scenario-rationale {
+  font-size:14px;
+  color:var(--muted);
+  line-height:1.55;
+  margin:0;
+}
+
+/* ===== Bottom line ===== */
+.bottom-line-block {
+  background:linear-gradient(135deg, rgba(249,115,22,.08), rgba(245,158,11,.04));
+  border:1px solid rgba(249,115,22,.2);
+  border-radius:12px;
+  padding:24px 26px;
+  margin-top:14px;
+}
+.bottom-line-label {
+  font-size:11px;
+  text-transform:uppercase;
+  letter-spacing:0.09em;
+  color:var(--fire1);
+  font-weight:700;
+  margin-bottom:10px;
+}
+.bottom-line-text {
+  font-size:16.5px;
+  color:var(--text);
+  line-height:1.65;
+  margin:0;
+  font-weight:500;
+}
+
+/* ===== Disclaimer (v5.88.79) ===== */
+.disclaimer-block {
+  margin-top:48px;
+  padding:18px 22px;
+  background:rgba(255,255,255,.02);
+  border:1px solid var(--border);
+  border-radius:10px;
+  font-size:11.5px;
+  line-height:1.6;
+  color:var(--muted);
+}
+.disclaimer-label {
+  font-size:10px;
+  text-transform:uppercase;
+  letter-spacing:0.09em;
+  color:var(--dim);
+  font-weight:700;
+  margin-bottom:8px;
+}
+.disclaimer-text {
+  margin:0;
+}
+.disclaimer-text a {
+  color:var(--muted);
+  text-decoration:underline;
+  text-decoration-color:rgba(148,163,184,.4);
+}
+.disclaimer-text a:hover {
+  color:var(--text);
+  text-decoration-color:var(--text);
+}
+
+/* ===== Buyer-mention (v5.88.80) — subtle, P.S.-style ===== */
+.buyer-mention {
+  margin-top:24px;
+  text-align:center;
+  font-size:12px;
+  color:var(--dim);
+  line-height:1.55;
+}
+.buyer-mention a {
+  color:var(--muted);
+  text-decoration:underline;
+  text-decoration-color:rgba(148,163,184,.35);
+  text-underline-offset:2px;
+}
+.buyer-mention a:hover {
+  color:var(--text);
+  text-decoration-color:var(--text);
+}
+
+/* ===== Footer ===== */
+footer {
+  margin-top:60px;
+  padding-top:20px;
+  border-top:1px solid var(--border);
+  text-align:center;
+  font-size:11px;
+  color:var(--dim);
+}
+footer a {
+  color:var(--dim);
+  text-decoration:none;
+  border-bottom:1px dotted var(--dim);
+}
+footer a:hover { color:var(--muted); }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div id="loading" class="loading">Loading briefing…</div>
+
+  <div id="content" style="display:none;">
+    <!-- Agent header -->
+    <header class="agent-header">
+      <h1 class="agent-name" id="agent-name">—</h1>
+      <p class="agent-biz" id="agent-biz">—</p>
+      <p class="briefing-title">Property Briefing</p>
+      <p class="briefing-for" id="briefing-for">—</p>
+      <p class="briefing-meta" id="briefing-meta"></p>
+    </header>
+
+    <!-- Agent's commentary -->
+    <div class="commentary-block">
+      <div class="commentary-label">From your agent</div>
+      <div class="commentary-text" id="commentary-text">—</div>
+    </div>
+
+    <!-- Repair section -->
+    <div class="section">
+      <div class="section-label">Section 1</div>
+      <h2 class="section-title">Repair cost overview</h2>
+      <div id="repair-section">
+        <div class="loading">Loading repair findings…</div>
+      </div>
+    </div>
+
+    <!-- v5.88.77 R3: Offer strategy section. Renders only when the
+         briefing has offer_strategy data (analysis OK, LLM call
+         succeeded or fallback produced output). The section title
+         flips based on representing side: "Offer strategy" for buyer-
+         side, "Negotiation strategy" for seller-side. -->
+    <div class="section" id="strategy-section" style="display:none;">
+      <div class="section-label">Section 2</div>
+      <h2 class="section-title" id="strategy-section-title">Offer strategy</h2>
+      <div id="strategy-list">
+        <div class="loading">Loading strategy…</div>
+      </div>
+    </div>
+
+    <!-- v5.88.77 R3: Bottom line — the agent's voice, summarizing
+         everything above. Hidden when bottom_line is null. -->
+    <div class="section" id="bottom-line-section" style="display:none;">
+      <div class="bottom-line-block">
+        <div class="bottom-line-label">Bottom line</div>
+        <p class="bottom-line-text" id="bottom-line-text"></p>
+      </div>
+    </div>
+
+    <!-- v5.88.79: Disclaimer block — protects OfferWise + the agent.
+         The briefing makes specific cost and offer-price claims, plus
+         renders the agent's commentary as their professional opinion.
+         Without a clear disclaimer, OfferWise could be on the hook for
+         "professional advice" claims, and the agent could face issues
+         if a buyer or seller treats the briefing's numbers as guarantees.
+
+         The text covers three areas: cost estimates aren't bids, the
+         strategy is a starting point not financial/legal advice, and
+         parts of the analysis are AI-generated. Links to the full
+         disclaimer page for the comprehensive version. -->
+    <div class="disclaimer-block">
+      <div class="disclaimer-label">Important — please read</div>
+      <p class="disclaimer-text">
+        Repair cost estimates in this briefing are ranges based on documented inspection findings and regional cost data — they are not contractor bids. Actual costs vary by scope, contractor, materials, and timing. The offer strategy is a starting point informed by the inspection findings and your stated context, not a guarantee of outcome. This briefing does not constitute legal, financial, or professional real estate advice; consult licensed professionals before making transaction decisions. Parts of this analysis were generated with AI assistance and may contain errors — verify material claims independently. See the <a href="/disclaimer" target="_blank" rel="noopener">full disclaimer</a> for details.
+      </p>
+    </div>
+
+    <!-- v5.88.80: subtle buyer-side mention. Sits below the disclaimer
+         and above the OfferWise footer line. Single sentence, no CTA
+         button, no salesy verbs. Speaks to a use case that doesn't
+         compete with the agent's role (touring properties solo). The
+         agent design partners explicitly approved this — provided it
+         stayed "elegant and subtle." utm tags let us measure how many
+         buyers click through from a briefing without analytics
+         shenanigans on the page itself. -->
+    <div class="buyer-mention">
+      OfferWise also offers a free buyer-side analysis — useful when you're <a href="https://www.getofferwise.ai/?utm_source=briefing&amp;utm_medium=share-page&amp;utm_campaign=buyer-mention" target="_blank" rel="noopener">touring on your own</a>.
+    </div>
+
+    <footer>
+      <div>Data and cost intelligence: <a href="https://www.getofferwise.ai" target="_blank" rel="noopener">OfferWise AI</a></div>
+      <div id="footer-date" style="margin-top:4px;"></div>
+    </footer>
+  </div>
+
+  <div id="error" style="display:none;">
+    <div class="error-box">
+      <strong>This briefing could not be loaded.</strong>
+      <div style="margin-top:8px;font-size:13px;color:var(--muted);">
+        It may have been deleted, or the link may be invalid. Please check with the agent who sent you this link.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- v5.88.87 D: contractor quote request modal. Opens when the buyer
+     clicks "Request quote" on a high-cost repair category. Form fields
+     are minimal — email, optional phone, optional timing. The repair
+     category is captured from the button that opened the modal. -->
+<div id="quote-modal-backdrop" class="quote-modal-backdrop">
+  <div class="quote-modal" role="dialog" aria-modal="true" aria-labelledby="quote-modal-title">
+    <h3 id="quote-modal-title">Get quotes from local contractors</h3>
+    <div class="sub" id="quote-modal-sub">We'll route your request to licensed contractors in your area. No charge for the lead.</div>
+
+    <label for="qm-email">Your email</label>
+    <input type="email" id="qm-email" placeholder="you@example.com" autocomplete="email" required>
+
+    <label for="qm-phone">Phone (optional)</label>
+    <input type="tel" id="qm-phone" placeholder="(555) 123-4567" autocomplete="tel">
+
+    <label for="qm-name">Your name (optional)</label>
+    <input type="text" id="qm-name" placeholder="Your name" autocomplete="name">
+
+    <label for="qm-timing">When do you need this?</label>
+    <select id="qm-timing">
+      <option value="this_week">This week</option>
+      <option value="asap">ASAP</option>
+      <option value="just_exploring">Just exploring</option>
+    </select>
+
+    <label for="qm-notes">Anything else? (optional)</label>
+    <textarea id="qm-notes" rows="2" placeholder="Specific issues, access info, etc."></textarea>
+
+    <div class="status" id="qm-status"></div>
+
+    <div class="actions">
+      <button type="button" class="cancel" onclick="closeQuoteModal()">Cancel</button>
+      <button type="button" class="submit" id="qm-submit">Send request</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  'use strict';
+
+  // Extract the token from /agent-briefing/<token>. Defensive against
+  // trailing slashes, query strings, or hash fragments.
+  function extractToken() {
+    var path = window.location.pathname || '';
+    var m = path.match(/\/agent-briefing\/([A-Za-z0-9_-]+)/);
+    return m ? m[1] : '';
+  }
+
+  function fmtMoney(n) {
+    if (n == null || isNaN(n)) return '—';
+    var v = Math.round(Number(n));
+    if (v >= 1000) return '$' + v.toLocaleString('en-US');
+    return '$' + v;
+  }
+
+  function escapeHtml(s) {
+    if (s == null) return '';
+    return String(s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function renderRepair(analysis) {
+    var container = document.getElementById('repair-section');
+    if (!analysis) {
+      container.innerHTML = '<div class="analysis-error">' +
+        'The repair analysis did not complete for this briefing. Ask your agent to regenerate it.' +
+        '</div>';
+      return;
+    }
+    var risk = analysis.risk_score || {};
+    var totalLow = risk.total_repair_cost_low || 0;
+    var totalHigh = risk.total_repair_cost_high || 0;
+    var categories = (risk.category_scores || [])
+      .filter(function(c) {
+        return (c.estimated_cost_low || 0) > 0 || (c.estimated_cost_high || 0) > 0;
+      })
+      .map(function(c) {
+        var cat = c.category;
+        if (cat && typeof cat === 'object') cat = cat.value || cat;
+        return {
+          name: String(cat || 'other'),
+          low: c.estimated_cost_low || 0,
+          high: c.estimated_cost_high || 0,
+        };
+      })
+      .sort(function(a, b) { return (b.high || 0) - (a.high || 0); });
+
+    var totalHtml = '<div class="repair-total">' +
+      '<div>' +
+        '<div class="repair-total-label">Estimated repair budget</div>' +
+        '<div class="repair-total-range">' + fmtMoney(totalLow) + ' – ' + fmtMoney(totalHigh) + '</div>' +
+      '</div>' +
+      '<div class="repair-total-note">Range reflects low- and high-cost scenarios across all findings. Actual costs vary by contractor, scope, and timing.</div>' +
+    '</div>';
+
+    var listHtml = '';
+    if (categories.length) {
+      listHtml = '<div class="category-list">' +
+        categories.map(function(c) {
+          // v5.88.87 D: surface a "Request quote" button on categories
+          // worth at least $1000 (otherwise contractor lead is below the
+          // contractor's bid floor and wastes everyone's time).
+          var showQuote = (c.high || 0) >= 1000;
+          var btn = showQuote
+            ? '<button class="cat-quote-btn" data-cat="' + escapeHtml(c.name) +
+              '" data-low="' + (c.low || 0) + '" data-high="' + (c.high || 0) +
+              '">Request quote</button>'
+            : '';
+          return '<div class="category-item">' +
+            '<div class="category-name">' + escapeHtml(c.name.replace(/_/g, ' ')) + '</div>' +
+            '<div class="right-col">' +
+              '<div class="category-range">' + fmtMoney(c.low) + ' – ' + fmtMoney(c.high) + '</div>' +
+              btn +
+            '</div>' +
+          '</div>';
+        }).join('') +
+      '</div>';
+    } else {
+      listHtml = '<div class="no-findings">No itemized findings produced a cost estimate.</div>';
+    }
+
+    container.innerHTML = totalHtml + listHtml;
+
+    // v5.88.87 D: wire request-quote buttons after innerHTML is set
+    Array.prototype.forEach.call(container.querySelectorAll('.cat-quote-btn'), function(btn) {
+      btn.addEventListener('click', function() {
+        var cat = btn.getAttribute('data-cat') || '';
+        var low = btn.getAttribute('data-low') || '';
+        var high = btn.getAttribute('data-high') || '';
+        openQuoteModal(cat, low, high);
+      });
+    });
+  }
+
+  // v5.88.77 R3: render the offer strategy scenarios. Hidden if no
+  // strategy is available (analysis failed, or list price missing on
+  // seller-side).
+  // v5.88.78 R4: seller-side scenarios use different labels (Counter /
+  // Hold / Concede) and different color classes. Detect via the `side`
+  // field in the strategy payload.
+  function renderStrategy(offerStrategy) {
+    var section = document.getElementById('strategy-section');
+    var list = document.getElementById('strategy-list');
+    if (!offerStrategy || !offerStrategy.scenarios || !offerStrategy.scenarios.length) {
+      section.style.display = 'none';
+      return;
+    }
+    section.style.display = '';
+    var scenarios = offerStrategy.scenarios.slice(0, 3);
+    var side = offerStrategy.side === 'seller' ? 'seller' : 'buyer';
+    // v5.88.78 R4: title flips based on side.
+    var titleEl = document.getElementById('strategy-section-title');
+    if (titleEl) {
+      titleEl.textContent = (side === 'seller') ? 'Negotiation strategy' : 'Offer strategy';
+    }
+    // Position-based color classes. Server enforces ordering, so
+    // position is reliable.
+    var classByIndex = (side === 'seller')
+      ? ['counter', 'hold', 'concede']
+      : ['opening', 'walkup', 'walkaway'];
+    list.innerHTML = '<div class="scenario-list">' +
+      scenarios.map(function(s, idx) {
+        var cls = classByIndex[idx] || '';
+        return '<div class="scenario">' +
+          '<div class="scenario-header">' +
+            '<div class="scenario-label">' + escapeHtml(s.label || '') + '</div>' +
+            '<div class="scenario-price ' + cls + '">' + fmtMoney(s.price) + '</div>' +
+          '</div>' +
+          '<p class="scenario-rationale">' + escapeHtml(s.rationale || '') + '</p>' +
+        '</div>';
+      }).join('') +
+    '</div>';
+  }
+
+  // v5.88.77 R3: bottom-line summary in the agent's voice.
+  function renderBottomLine(text) {
+    var section = document.getElementById('bottom-line-section');
+    if (!text || !String(text).trim()) {
+      section.style.display = 'none';
+      return;
+    }
+    section.style.display = '';
+    document.getElementById('bottom-line-text').textContent = String(text).trim();
+  }
+
+  function renderBriefing(data) {
+    document.getElementById('agent-name').textContent =
+      data.agent_name || 'Your Agent';
+    var biz = data.agent_business || '';
+    document.getElementById('agent-biz').textContent = biz || ' ';
+    if (!biz) document.getElementById('agent-biz').style.display = 'none';
+
+    // Header line: "for [Client] · [Address]"
+    var parts = [];
+    if (data.client_name) parts.push('for ' + data.client_name);
+    if (data.property_address) parts.push(data.property_address);
+    document.getElementById('briefing-for').textContent = parts.join(' · ') || ' ';
+
+    // Date
+    var d = data.created_at ? new Date(data.created_at) : null;
+    if (d && !isNaN(d.getTime())) {
+      var s = d.toLocaleDateString('en-US', { month:'long', day:'numeric', year:'numeric' });
+      document.getElementById('briefing-meta').textContent = 'Prepared ' + s;
+      document.getElementById('footer-date').textContent = s;
+    }
+
+    // Commentary
+    document.getElementById('commentary-text').textContent =
+      data.agent_commentary || '';
+
+    // Repair section
+    renderRepair(data.analysis);
+
+    // v5.88.77 R3: offer strategy + bottom line
+    renderStrategy(data.offer_strategy);
+    renderBottomLine(data.bottom_line);
+
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('content').style.display = 'block';
+  }
+
+  function showError() {
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('error').style.display = 'block';
+  }
+
+  var token = extractToken();
+  if (!token) { showError(); return; }
+
+  // v5.88.87 D: quote-request modal. Defined here so `token` is in closure;
+  // exposed on window so HTML onclick handlers can find them and so the
+  // button click handlers attached in renderRepair can call openQuoteModal.
+  var qmCurrentCategory = null;
+  var qmCurrentLow = null;
+  var qmCurrentHigh = null;
+
+  function openQuoteModal(category, low, high) {
+    qmCurrentCategory = category || '';
+    qmCurrentLow = low || '';
+    qmCurrentHigh = high || '';
+    var humanCat = (category || '').replace(/_/g, ' ');
+    var subEl = document.getElementById('quote-modal-sub');
+    if (subEl) {
+      subEl.textContent =
+        humanCat
+          ? 'We\'ll route a quote request for ' + humanCat +
+            ' work at this property to licensed contractors in your area. No charge for the lead.'
+          : 'We\'ll route your request to licensed contractors in your area. No charge for the lead.';
+    }
+    var statusEl = document.getElementById('qm-status');
+    if (statusEl) { statusEl.textContent = ''; statusEl.className = 'status'; }
+    var submitBtn = document.getElementById('qm-submit');
+    if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Send request'; }
+    document.getElementById('quote-modal-backdrop').classList.add('show');
+    // Focus email field for typed entry
+    setTimeout(function() {
+      var em = document.getElementById('qm-email');
+      if (em) em.focus();
+    }, 50);
+  }
+
+  function closeQuoteModal() {
+    document.getElementById('quote-modal-backdrop').classList.remove('show');
+  }
+
+  // Backdrop click closes the modal (but not clicks inside the modal itself)
+  var backdrop = document.getElementById('quote-modal-backdrop');
+  if (backdrop) {
+    backdrop.addEventListener('click', function(e) {
+      if (e.target === backdrop) closeQuoteModal();
+    });
+  }
+
+  // Submit handler
+  var submitBtn = document.getElementById('qm-submit');
+  if (submitBtn) {
+    submitBtn.addEventListener('click', function() {
+      var email = (document.getElementById('qm-email').value || '').trim();
+      var phone = (document.getElementById('qm-phone').value || '').trim();
+      var name  = (document.getElementById('qm-name').value || '').trim();
+      var timing= document.getElementById('qm-timing').value || 'this_week';
+      var notes = (document.getElementById('qm-notes').value || '').trim();
+
+      var statusEl = document.getElementById('qm-status');
+      function setStatus(msg, cls) {
+        statusEl.textContent = msg;
+        statusEl.className = 'status ' + (cls || '');
+      }
+
+      if (!email || email.indexOf('@') < 0) {
+        setStatus('Please enter a valid email so the contractor can reach you.', 'err');
+        return;
+      }
+
+      var costStr = '';
+      if (qmCurrentLow && qmCurrentHigh) {
+        try {
+          costStr = fmtMoney(parseFloat(qmCurrentLow)) + ' – ' + fmtMoney(parseFloat(qmCurrentHigh));
+        } catch(_e) { costStr = ''; }
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Sending…';
+      setStatus('');
+
+      fetch('/api/contractor-lead/public', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          share_token: token,
+          source_type: 'briefing',
+          user_email: email,
+          user_phone: phone,
+          user_name: name,
+          repair_system: qmCurrentCategory,
+          cost_estimate: costStr,
+          issue_description: notes,
+          contact_timing: timing,
+        }),
+      })
+      .then(function(r) { return r.json().then(function(j) { return { ok: r.ok, body: j }; }); })
+      .then(function(res) {
+        if (!res.ok || !res.body || !res.body.success) {
+          var msg = (res.body && res.body.error) || 'Something went wrong. Please try again.';
+          setStatus(msg, 'err');
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Send request';
+          return;
+        }
+        setStatus(res.body.message || 'Request submitted — a contractor will reach out soon.', 'ok');
+        submitBtn.textContent = 'Sent ✓';
+        // Auto-close after 2 seconds
+        setTimeout(closeQuoteModal, 2000);
+      })
+      .catch(function(e) {
+        console.error('quote submit failed', e);
+        setStatus('Network error. Please try again.', 'err');
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Send request';
+      });
+    });
+  }
+
+  // Expose to window so the inline button click handlers in renderRepair
+  // can find openQuoteModal (renderRepair attaches addEventListener inside
+  // the same IIFE, so it actually has direct closure access — but exposing
+  // gives us flexibility for any future inline onclick="" needs).
+  window.openQuoteModal = openQuoteModal;
+  window.closeQuoteModal = closeQuoteModal;
+
+  fetch('/api/agent/briefing/public/' + encodeURIComponent(token), {
+    credentials: 'include',
+  })
+  .then(function(r) {
+    if (!r.ok) throw new Error('http ' + r.status);
+    return r.json();
+  })
+  .then(renderBriefing)
+  .catch(function(e) {
+    console.error('[agent-briefing] load failed:', e);
+    showError();
+  });
+})();
+</script>
+
+</body>
+</html>

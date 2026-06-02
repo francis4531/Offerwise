@@ -1,0 +1,1252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" type="image/svg+xml" href="/static/logo-icon-only.svg">
+  <link rel="alternate icon" type="image/x-icon" href="/favicon.ico">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Architecture &mdash; OfferWise</title>
+<meta name="description" content="Technical deep-dive into the OfferWise platform architecture: AI-first document parsing, cross-reference engine, risk DNA, agentic monitoring, and more.">
+<link rel="stylesheet" href="/static/ow-system.css">
+<link rel="stylesheet" href="/static/typography.css">
+<style>
+.arch-hero{padding:100px 0 60px;text-align:center;position:relative;overflow:hidden}
+.arch-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 50% at 50% 0%,rgba(59,130,246,.08) 0%,transparent 70%),radial-gradient(ellipse 40% 30% at 80% 20%,rgba(249,115,22,.06) 0%,transparent 60%);pointer-events:none}
+.arch-hero h1{font-size:clamp(2.2rem,5vw,3.5rem);font-weight:800;letter-spacing:-.04em;line-height:1.1;margin-bottom:1rem}
+.arch-hero .sub{font-size:1.15rem;color:var(--text-2);max-width:640px;margin:0 auto 2rem;line-height:1.6}
+.arch-stats{display:flex;justify-content:center;gap:40px;flex-wrap:wrap;margin-top:2rem}
+.arch-stat{text-align:center}
+.arch-stat .num{font-size:2rem;font-weight:800;letter-spacing:-.03em;background:linear-gradient(135deg,#60a5fa,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.arch-stat .label{font-size:.8rem;color:var(--text-3);text-transform:uppercase;letter-spacing:.1em;font-weight:600;margin-top:2px}
+.arch-section{max-width:900px;margin:0 auto;padding:60px 2rem;border-top:1px solid var(--border)}
+.arch-section:first-of-type{border-top:none}
+.arch-section h2{font-size:1.9rem;font-weight:700;letter-spacing:-.03em;margin-bottom:.75rem}
+.arch-section h3{font-size:1.25rem;font-weight:700;margin-top:2rem;margin-bottom:.5rem;color:var(--text-1)}
+.arch-section p,.arch-section li{font-size:1.05rem;color:var(--text-2);line-height:1.7}
+.arch-section p{margin-bottom:1rem}
+.diagram-wrap{margin:2rem 0;background:rgba(15,15,15,.6);border:1px solid var(--border);border-radius:16px;padding:24px;overflow-x:auto}
+.diagram-wrap svg{display:block;margin:0 auto;max-width:100%;height:auto}
+.diagram-caption{text-align:center;font-size:.8rem;color:var(--text-3);margin-top:12px;font-style:italic}
+.module-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;margin:1.5rem 0}
+.module-card{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:16px;transition:border-color .2s}
+.module-card:hover{border-color:var(--border-h)}
+.module-card .mc-name{font-size:.875rem;font-weight:700;color:var(--text-1);font-family:'SF Mono','Fira Code',monospace;margin-bottom:4px}
+.module-card .mc-desc{font-size:.9rem;color:var(--text-3);line-height:1.5}
+.arch-toc{max-width:900px;margin:0 auto;padding:0 2rem 40px}
+.arch-toc h3{font-size:.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.15em;color:var(--accent);margin-bottom:12px}
+.arch-toc ol{list-style:none;counter-reset:toc;display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:6px;padding:0}
+.arch-toc li{counter-increment:toc}
+.arch-toc li a{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:8px;font-size:.9rem;color:var(--text-2);transition:color .15s,background .15s}
+.arch-toc li a:hover{color:var(--text-1);background:rgba(255,255,255,.03)}
+.arch-toc li a::before{content:counter(toc,decimal-leading-zero);font-size:.7rem;font-weight:700;color:var(--text-3);font-family:'SF Mono',monospace;min-width:20px}
+.layer-ai{color:#a78bfa}.layer-data{color:#60a5fa}.layer-infra{color:#22c55e}.layer-gtm{color:#f59e0b}
+.pipeline{display:flex;align-items:stretch;gap:0;margin:1.5rem 0;overflow-x:auto;padding-bottom:8px}
+.pipe-step{flex:1;min-width:130px;background:var(--bg-card);border:1px solid var(--border);padding:14px 12px;text-align:center;position:relative}
+.pipe-step:first-child{border-radius:12px 0 0 12px}.pipe-step:last-child{border-radius:0 12px 12px 0}
+.pipe-step:not(:last-child)::after{content:'\2192';position:absolute;right:-10px;top:50%;transform:translateY(-50%);font-size:1.15rem;color:var(--text-3);z-index:1}
+.pipe-step .ps-icon{font-size:1.3rem;margin-bottom:4px}
+.pipe-step .ps-label{font-size:.8rem;font-weight:700;color:var(--text-1);text-transform:uppercase;letter-spacing:.05em}
+.pipe-step .ps-detail{font-size:.75rem;color:var(--text-3);margin-top:2px}
+code{font-family:'SF Mono','Fira Code','Consolas',monospace;font-size:.82em;background:rgba(255,255,255,.06);padding:2px 6px;border-radius:4px;color:#e2e8f0}
+@media(max-width:640px){.arch-stats{gap:24px}.arch-stat .num{font-size:1.5rem}.pipeline{flex-direction:column}.pipe-step{border-radius:0!important}.pipe-step:first-child{border-radius:12px 12px 0 0!important}.pipe-step:last-child{border-radius:0 0 12px 12px!important}.pipe-step:not(:last-child)::after{content:'\2193';right:auto;bottom:-10px;top:auto;left:50%;transform:translateX(-50%)}}
+</style>
+</head>
+<body>
+
+<nav class="ow-nav"><div class="ow-nav__inner">
+<a href="/" class="ow-nav__logo">Offer<span class="wise">Wise</span><span class="logo-dot"></span></a>
+<div class="ow-nav__actions"><a href="/" class="btn btn-ghost btn-sm">&larr; Back</a></div>
+</div></nav>
+
+<section class="arch-hero"><div class="container">
+<div class="section-eyebrow" style="color:var(--accent)">ENGINEERING DEEP DIVE</div>
+<h1>Platform <span class="gradient-text">Architecture</span></h1>
+<p class="sub">How OfferWise transforms raw inspection PDFs and seller disclosures into actionable real estate intelligence &mdash; from document ingestion to offer calculation.</p>
+<div class="arch-stats">
+<div class="arch-stat"><div class="num" data-arch-stat="modules">140</div><div class="label">Python Modules</div></div>
+<div class="arch-stat"><div class="num" data-arch-stat="loc">115K+</div><div class="label">Lines of Code</div></div>
+<div class="arch-stat"><div class="num" data-arch-stat="integrity_tests">484</div><div class="label">Integrity Tests</div></div>
+<div class="arch-stat"><div class="num" data-arch-stat="labeled_rows">121K</div><div class="label">Labeled Training Rows</div></div>
+<div class="arch-stat"><div class="num" data-arch-stat="gov_sources">13</div><div class="label">Gov API Sources</div></div>
+</div></div></section>
+
+<div class="arch-toc"><h3>Contents</h3><ol>
+<li><a href="#overview">System Overview</a></li>
+<li><a href="#ingestion">Document Ingestion</a></li>
+<li><a href="#ai-pipeline">AI Analysis Pipeline</a></li>
+<li><a href="#cross-reference">Cross-Reference Engine</a></li>
+<li><a href="#intelligence">Intelligence Layer</a></li>
+<li><a href="#reasoning">Reasoning Layer (Checklist Engine)</a></li>
+<li><a href="#risk-check">Risk Check Engine</a></li>
+<li><a href="#agentic">Agentic Monitoring</a></li>
+<li><a href="#data">Data &amp; Infrastructure</a></li>
+<li><a href="#gtm">GTM &amp; Automation</a></li>
+<li><a href="#ml-pipeline">ML Training Pipeline</a></li>
+<li><a href="#nightly-ops">Nightly Operations &amp; Background Jobs</a></li>
+<li><a href="#outreach">B2B Outreach &amp; Founder Tooling</a></li>
+<li><a href="#modules">Module Catalog</a></li>
+</ol></div>
+
+<!-- SECTION 1 -->
+<section class="arch-section" id="overview">
+<h2>1. System Overview</h2>
+<p>OfferWise is a monolithic Flask application deployed on Render, backed by PostgreSQL. The system processes real estate documents through an AI-first pipeline, cross-references findings against seller disclosures, scores risk across five dimensions, and calculates data-backed offer prices.</p>
+
+<div class="diagram-wrap">
+<svg viewBox="0 0 820 520" xmlns="http://www.w3.org/2000/svg" font-family="Inter,system-ui,sans-serif">
+<defs><marker id="aP" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="none" stroke="#a78bfa" stroke-width="1"/></marker></defs>
+<rect x="10" y="10" width="800" height="100" rx="12" fill="#161616" stroke="rgba(167,139,250,.3)"/>
+<rect x="10" y="130" width="800" height="130" rx="12" fill="#161616" stroke="rgba(96,165,250,.3)"/>
+<rect x="10" y="280" width="800" height="100" rx="12" fill="#161616" stroke="rgba(34,197,94,.3)"/>
+<rect x="10" y="400" width="800" height="100" rx="12" fill="#161616" stroke="rgba(245,158,11,.3)"/>
+<text x="30" y="36" fill="#a78bfa" font-size="10" font-weight="700" letter-spacing=".15em">AI / ANALYSIS LAYER</text>
+<text x="30" y="156" fill="#60a5fa" font-size="10" font-weight="700" letter-spacing=".15em">APPLICATION LAYER</text>
+<text x="30" y="306" fill="#22c55e" font-size="10" font-weight="700" letter-spacing=".15em">DATA / STORAGE LAYER</text>
+<text x="30" y="426" fill="#f59e0b" font-size="10" font-weight="700" letter-spacing=".15em">EXTERNAL SERVICES</text>
+
+<rect x="30" y="50" width="130" height="44" rx="8" fill="rgba(167,139,250,.08)" stroke="rgba(167,139,250,.2)"/>
+<text x="95" y="68" fill="#c4b5fd" font-size="10" font-weight="600" text-anchor="middle">Document Parser</text>
+<text x="95" y="82" fill="#666" font-size="8" text-anchor="middle">AI-first + regex</text>
+<rect x="180" y="50" width="130" height="44" rx="8" fill="rgba(167,139,250,.08)" stroke="rgba(167,139,250,.2)"/>
+<text x="245" y="68" fill="#c4b5fd" font-size="10" font-weight="600" text-anchor="middle">Cross-Reference</text>
+<text x="245" y="82" fill="#666" font-size="8" text-anchor="middle">Disclosure vs Inspect</text>
+<rect x="330" y="50" width="130" height="44" rx="8" fill="rgba(167,139,250,.08)" stroke="rgba(167,139,250,.2)"/>
+<text x="395" y="68" fill="#c4b5fd" font-size="10" font-weight="600" text-anchor="middle">Intelligence</text>
+<text x="395" y="82" fill="#666" font-size="8" text-anchor="middle">Risk DNA / Predict / Score</text>
+<rect x="480" y="50" width="130" height="44" rx="8" fill="rgba(167,139,250,.08)" stroke="rgba(167,139,250,.2)"/>
+<text x="545" y="68" fill="#c4b5fd" font-size="10" font-weight="600" text-anchor="middle">Offer Calculator</text>
+<text x="545" y="82" fill="#666" font-size="8" text-anchor="middle">3-tier pricing</text>
+<rect x="630" y="50" width="160" height="44" rx="8" fill="rgba(167,139,250,.08)" stroke="rgba(167,139,250,.2)"/>
+<text x="710" y="68" fill="#c4b5fd" font-size="10" font-weight="600" text-anchor="middle">Agentic Monitor</text>
+<text x="710" y="82" fill="#666" font-size="8" text-anchor="middle">Comps / Quakes / Price</text>
+<path d="M160,72 L180,72" stroke="#a78bfa" stroke-width="1" fill="none" marker-end="url(#aP)"/>
+<path d="M310,72 L330,72" stroke="#a78bfa" stroke-width="1" fill="none" marker-end="url(#aP)"/>
+<path d="M460,72 L480,72" stroke="#a78bfa" stroke-width="1" fill="none" marker-end="url(#aP)"/>
+
+<rect x="30" y="170" width="110" height="44" rx="8" fill="rgba(96,165,250,.08)" stroke="rgba(96,165,250,.2)"/>
+<text x="85" y="188" fill="#93c5fd" font-size="10" font-weight="600" text-anchor="middle">Flask App</text>
+<text x="85" y="202" fill="#666" font-size="8" text-anchor="middle">app.py (9.8K lines)</text>
+<rect x="160" y="170" width="110" height="44" rx="8" fill="rgba(96,165,250,.08)" stroke="rgba(96,165,250,.2)"/>
+<text x="215" y="188" fill="#93c5fd" font-size="10" font-weight="600" text-anchor="middle">Auth Routes</text>
+<text x="215" y="202" fill="#666" font-size="8" text-anchor="middle">Google / Email / FB</text>
+<rect x="290" y="170" width="110" height="44" rx="8" fill="rgba(96,165,250,.08)" stroke="rgba(96,165,250,.2)"/>
+<text x="345" y="188" fill="#93c5fd" font-size="10" font-weight="600" text-anchor="middle">Analysis Routes</text>
+<text x="345" y="202" fill="#666" font-size="8" text-anchor="middle">Upload / Analyze</text>
+<rect x="420" y="170" width="110" height="44" rx="8" fill="rgba(96,165,250,.08)" stroke="rgba(96,165,250,.2)"/>
+<text x="475" y="188" fill="#93c5fd" font-size="10" font-weight="600" text-anchor="middle">Payment Routes</text>
+<text x="475" y="202" fill="#666" font-size="8" text-anchor="middle">Stripe Checkout</text>
+<rect x="550" y="170" width="110" height="44" rx="8" fill="rgba(96,165,250,.08)" stroke="rgba(96,165,250,.2)"/>
+<text x="605" y="188" fill="#93c5fd" font-size="10" font-weight="600" text-anchor="middle">Admin Routes</text>
+<text x="605" y="202" fill="#666" font-size="8" text-anchor="middle">Dashboard / Tests</text>
+<rect x="680" y="170" width="110" height="44" rx="8" fill="rgba(96,165,250,.08)" stroke="rgba(96,165,250,.2)"/>
+<text x="735" y="188" fill="#93c5fd" font-size="10" font-weight="600" text-anchor="middle">API (B2B)</text>
+<text x="735" y="202" fill="#666" font-size="8" text-anchor="middle">Key auth / Rate limit</text>
+
+<rect x="30" y="224" width="150" height="28" rx="6" fill="rgba(96,165,250,.05)" stroke="rgba(96,165,250,.12)"/>
+<text x="105" y="242" fill="#64748b" font-size="9" font-weight="600" text-anchor="middle">Buyer Dashboard</text>
+<rect x="200" y="224" width="150" height="28" rx="6" fill="rgba(96,165,250,.05)" stroke="rgba(96,165,250,.12)"/>
+<text x="275" y="242" fill="#64748b" font-size="9" font-weight="600" text-anchor="middle">Inspector Portal</text>
+<rect x="370" y="224" width="150" height="28" rx="6" fill="rgba(96,165,250,.05)" stroke="rgba(96,165,250,.12)"/>
+<text x="445" y="242" fill="#64748b" font-size="9" font-weight="600" text-anchor="middle">Contractor Portal</text>
+<rect x="540" y="224" width="120" height="28" rx="6" fill="rgba(96,165,250,.05)" stroke="rgba(96,165,250,.12)"/>
+<text x="600" y="242" fill="#64748b" font-size="9" font-weight="600" text-anchor="middle">Agent Portal</text>
+<rect x="680" y="224" width="110" height="28" rx="6" fill="rgba(96,165,250,.05)" stroke="rgba(96,165,250,.12)"/>
+<text x="735" y="242" fill="#64748b" font-size="9" font-weight="600" text-anchor="middle">Settings</text>
+
+<rect x="30" y="320" width="150" height="44" rx="8" fill="rgba(34,197,94,.08)" stroke="rgba(34,197,94,.2)"/>
+<text x="105" y="338" fill="#86efac" font-size="10" font-weight="600" text-anchor="middle">PostgreSQL</text>
+<text x="105" y="352" fill="#666" font-size="8" text-anchor="middle">Users / Analyses / Props</text>
+<rect x="200" y="320" width="150" height="44" rx="8" fill="rgba(34,197,94,.08)" stroke="rgba(34,197,94,.2)"/>
+<text x="275" y="338" fill="#86efac" font-size="10" font-weight="600" text-anchor="middle">DocRepo (Disk)</text>
+<text x="275" y="352" fill="#666" font-size="8" text-anchor="middle">47 reference docs</text>
+<rect x="370" y="320" width="150" height="44" rx="8" fill="rgba(34,197,94,.08)" stroke="rgba(34,197,94,.2)"/>
+<text x="445" y="338" fill="#86efac" font-size="10" font-weight="600" text-anchor="middle">Analysis Cache</text>
+<text x="445" y="352" fill="#666" font-size="8" text-anchor="middle">In-memory + DB</text>
+<rect x="540" y="320" width="130" height="44" rx="8" fill="rgba(34,197,94,.08)" stroke="rgba(34,197,94,.2)"/>
+<text x="605" y="338" fill="#86efac" font-size="10" font-weight="600" text-anchor="middle">Repair Cost DB</text>
+<text x="605" y="352" fill="#666" font-size="8" text-anchor="middle">ZIP-level pricing</text>
+<rect x="690" y="320" width="100" height="44" rx="8" fill="rgba(34,197,94,.08)" stroke="rgba(34,197,94,.2)"/>
+<text x="740" y="338" fill="#86efac" font-size="10" font-weight="600" text-anchor="middle">Alembic</text>
+<text x="740" y="352" fill="#666" font-size="8" text-anchor="middle">Migrations</text>
+
+<rect x="30" y="440" width="100" height="44" rx="8" fill="rgba(245,158,11,.08)" stroke="rgba(245,158,11,.2)"/>
+<text x="80" y="458" fill="#fcd34d" font-size="10" font-weight="600" text-anchor="middle">Anthropic</text>
+<text x="80" y="472" fill="#666" font-size="8" text-anchor="middle">Claude API</text>
+<rect x="150" y="440" width="100" height="44" rx="8" fill="rgba(245,158,11,.08)" stroke="rgba(245,158,11,.2)"/>
+<text x="200" y="458" fill="#fcd34d" font-size="10" font-weight="600" text-anchor="middle">Stripe</text>
+<text x="200" y="472" fill="#666" font-size="8" text-anchor="middle">Payments</text>
+<rect x="270" y="440" width="100" height="44" rx="8" fill="rgba(245,158,11,.08)" stroke="rgba(245,158,11,.2)"/>
+<text x="320" y="458" fill="#fcd34d" font-size="10" font-weight="600" text-anchor="middle">Resend</text>
+<text x="320" y="472" fill="#666" font-size="8" text-anchor="middle">Transactional email</text>
+<rect x="390" y="440" width="100" height="44" rx="8" fill="rgba(245,158,11,.08)" stroke="rgba(245,158,11,.2)"/>
+<text x="440" y="458" fill="#fcd34d" font-size="10" font-weight="600" text-anchor="middle">Google OAuth</text>
+<text x="440" y="472" fill="#666" font-size="8" text-anchor="middle">SSO login</text>
+<rect x="510" y="440" width="100" height="44" rx="8" fill="rgba(245,158,11,.08)" stroke="rgba(245,158,11,.2)"/>
+<text x="560" y="458" fill="#fcd34d" font-size="10" font-weight="600" text-anchor="middle">11 Gov APIs</text>
+<text x="560" y="472" fill="#666" font-size="8" text-anchor="middle">FEMA / EPA / USGS</text>
+<rect x="630" y="440" width="100" height="44" rx="8" fill="rgba(245,158,11,.08)" stroke="rgba(245,158,11,.2)"/>
+<text x="680" y="458" fill="#fcd34d" font-size="10" font-weight="600" text-anchor="middle">Sentry</text>
+<text x="680" y="472" fill="#666" font-size="8" text-anchor="middle">Error tracking</text>
+<rect x="750" y="440" width="50" height="44" rx="8" fill="rgba(245,158,11,.08)" stroke="rgba(245,158,11,.2)"/>
+<text x="775" y="462" fill="#fcd34d" font-size="10" font-weight="600" text-anchor="middle">GA4</text>
+</svg>
+<div class="diagram-caption">Figure 1 &mdash; High-level system architecture: four horizontal layers from AI analysis to external services</div>
+</div>
+<p>The application is a single deployable unit. Gunicorn runs one worker with four threads (reduced from two workers after the ML embedder pushed memory past the 2GB tier&rsquo;s budget). Background jobs (agentic monitoring, drip campaigns, forum scanning) run via APScheduler in-process. The persistent disk stores the legal document repository. Everything deploys via a git-push to Render.</p>
+</section>
+
+<!-- SECTION 2 -->
+<section class="arch-section" id="ingestion">
+<h2>2. Document Ingestion</h2>
+<p>Users upload PDFs &mdash; inspection reports and seller disclosures. The system must extract structured findings from wildly inconsistent document formats: handwritten inspector notes, scan-quality PDFs, multi-column layouts, and documents ranging from 2 to 200 pages.</p>
+<div class="pipeline">
+<div class="pipe-step"><div class="ps-icon">&#128196;</div><div class="ps-label">Upload</div><div class="ps-detail">PDF / image accepted</div></div>
+<div class="pipe-step"><div class="ps-icon">&#128269;</div><div class="ps-label">Text Extract</div><div class="ps-detail">pdfplumber + OCR fallback</div></div>
+<div class="pipe-step"><div class="ps-icon">&#129529;</div><div class="ps-label">Sanitize</div><div class="ps-detail">NUL bytes / control chars</div></div>
+<div class="pipe-step"><div class="ps-icon">&#129504;</div><div class="ps-label">AI Parse</div><div class="ps-detail">Claude reads full doc</div></div>
+<div class="pipe-step"><div class="ps-icon">&#128208;</div><div class="ps-label">Regex Parse</div><div class="ps-detail">Safety net extraction</div></div>
+<div class="pipe-step"><div class="ps-icon">&#128256;</div><div class="ps-label">Merge</div><div class="ps-detail">AI primary / rules backup</div></div>
+</div>
+<h3>AI-First Document Parsing</h3>
+<p>The document parser uses an inverted architecture: Claude reads the full document first (primary, 0.90 confidence), then the regex parser runs independently as a safety net. Results are merged via <code>_merge_ai_and_rules()</code>. If Claude is unavailable (529/timeout), the system falls back to regex-only parsing.</p>
+<p>This inversion was a key architectural decision. The old approach tried regex first and used AI to clean up &mdash; but regex missed context-dependent issues. An inspector writing &ldquo;roof appears to have been recently patched, but underlying damage may exist&rdquo; requires semantic understanding that no regex can capture.</p>
+<h3>PDF Processing</h3>
+<p>The <code>pdf_worker.py</code> module manages async PDF processing with a thread pool (2 workers). Large PDFs are processed page-by-page to stay within the 512MB memory limit on Render. The <code>pdf_handler.py</code> module handles text extraction via pdfplumber, with OCR as a fallback for scanned documents.</p>
+</section>
+
+<!-- SECTION 3 -->
+<section class="arch-section" id="ai-pipeline">
+<h2>3. AI Analysis Pipeline</h2>
+<p>Once findings are extracted, the AI pipeline transforms raw data into actionable intelligence. This is the core value of OfferWise &mdash; every finding gets classified, priced, cross-referenced, and scored.</p>
+<div class="diagram-wrap">
+<svg viewBox="0 0 820 380" xmlns="http://www.w3.org/2000/svg" font-family="Inter,system-ui,sans-serif">
+<rect x="20" y="20" width="160" height="70" rx="10" fill="rgba(167,139,250,.1)" stroke="#a78bfa" stroke-width="1.5"/>
+<text x="100" y="48" fill="#c4b5fd" font-size="12" font-weight="700" text-anchor="middle">Parsed Findings</text>
+<text x="100" y="66" fill="#666" font-size="9" text-anchor="middle">category / severity / text</text>
+<line x1="100" y1="90" x2="100" y2="120" stroke="#a78bfa" stroke-width="1.5" stroke-dasharray="4,3"/>
+<rect x="10" y="120" width="800" height="140" rx="12" fill="rgba(255,255,255,.015)" stroke="rgba(255,255,255,.06)"/>
+<text x="24" y="140" fill="#94a3b8" font-size="9" font-weight="700" letter-spacing=".1em">PARALLEL ANALYSIS</text>
+<rect x="24" y="155" width="140" height="85" rx="8" fill="rgba(239,68,68,.06)" stroke="rgba(239,68,68,.2)"/>
+<text x="94" y="175" fill="#fca5a5" font-size="10" font-weight="700" text-anchor="middle">Repair Costs</text>
+<text x="94" y="191" fill="#666" font-size="8" text-anchor="middle">ZIP-level pricing</text>
+<text x="94" y="203" fill="#666" font-size="8" text-anchor="middle">RSMeans + HomeAdvisor</text>
+<text x="94" y="215" fill="#666" font-size="8" text-anchor="middle">CA cost multipliers</text>
+<text x="94" y="230" fill="#475569" font-size="7" text-anchor="middle">repair_cost_estimator.py</text>
+<rect x="178" y="155" width="140" height="85" rx="8" fill="rgba(245,158,11,.06)" stroke="rgba(245,158,11,.2)"/>
+<text x="248" y="175" fill="#fcd34d" font-size="10" font-weight="700" text-anchor="middle">Risk DNA</text>
+<text x="248" y="191" fill="#666" font-size="8" text-anchor="middle">5-axis risk vector</text>
+<text x="248" y="203" fill="#666" font-size="8" text-anchor="middle">Structural / Systems / Transp.</text>
+<text x="248" y="215" fill="#666" font-size="8" text-anchor="middle">Temporal / Financial</text>
+<text x="248" y="230" fill="#475569" font-size="7" text-anchor="middle">property_risk_dna.py</text>
+<rect x="332" y="155" width="140" height="85" rx="8" fill="rgba(59,130,246,.06)" stroke="rgba(59,130,246,.2)"/>
+<text x="402" y="175" fill="#93c5fd" font-size="10" font-weight="700" text-anchor="middle">Predictive Engine</text>
+<text x="402" y="191" fill="#666" font-size="8" text-anchor="middle">Hidden issue prediction</text>
+<text x="402" y="203" fill="#666" font-size="8" text-anchor="middle">Correlation detection</text>
+<text x="402" y="215" fill="#666" font-size="8" text-anchor="middle">Temporal failure model</text>
+<text x="402" y="230" fill="#475569" font-size="7" text-anchor="middle">predictive_engine.py</text>
+<rect x="486" y="155" width="140" height="85" rx="8" fill="rgba(34,197,94,.06)" stroke="rgba(34,197,94,.2)"/>
+<text x="556" y="175" fill="#86efac" font-size="10" font-weight="700" text-anchor="middle">Transparency Score</text>
+<text x="556" y="191" fill="#666" font-size="8" text-anchor="middle">Seller honesty rating</text>
+<text x="556" y="203" fill="#666" font-size="8" text-anchor="middle">Disclosure completeness</text>
+<text x="556" y="215" fill="#666" font-size="8" text-anchor="middle">Red flag detection</text>
+<text x="556" y="230" fill="#475569" font-size="7" text-anchor="middle">transparency_scorer.py</text>
+<rect x="640" y="155" width="160" height="85" rx="8" fill="rgba(139,92,246,.06)" stroke="rgba(139,92,246,.2)"/>
+<text x="720" y="175" fill="#c4b5fd" font-size="10" font-weight="700" text-anchor="middle">Confidence Score</text>
+<text x="720" y="191" fill="#666" font-size="8" text-anchor="middle">How much to trust</text>
+<text x="720" y="203" fill="#666" font-size="8" text-anchor="middle">Document quality check</text>
+<text x="720" y="215" fill="#666" font-size="8" text-anchor="middle">Source verification</text>
+<text x="720" y="230" fill="#475569" font-size="7" text-anchor="middle">confidence_scorer.py</text>
+<line x1="410" y1="260" x2="410" y2="290" stroke="#60a5fa" stroke-width="1.5" stroke-dasharray="4,3"/>
+<rect x="240" y="290" width="340" height="70" rx="10" fill="rgba(59,130,246,.1)" stroke="#3b82f6" stroke-width="1.5"/>
+<text x="410" y="318" fill="#93c5fd" font-size="12" font-weight="700" text-anchor="middle">Offer Calculation</text>
+<text x="410" y="336" fill="#666" font-size="9" text-anchor="middle">Conservative / Moderate / Aggressive &rarr; 3 offer tiers</text>
+</svg>
+<div class="diagram-caption">Figure 2 &mdash; AI analysis pipeline: parsed findings run through five parallel analyzers before converging into offer calculation</div>
+</div>
+<h3>The Intelligence Orchestrator</h3>
+<p><code>offerwise_intelligence.py</code> is the master integration module. It coordinates the entire pipeline: document parsing, cross-referencing, all five scoring engines, repair cost estimation, and final offer calculation. A single call to this module processes both documents and returns the complete analysis.</p>
+<h3>Repair Cost Estimation</h3>
+<p>Repair costs are not AI-hallucinated. The <code>repair_cost_estimator.py</code> uses a database of 200+ repair items sourced from RSMeans, HomeAdvisor, and HomeGuide, with California metro-area cost multipliers applied at the ZIP code level. Property age adjustments scale costs for older homes where hidden issues are more likely.</p>
+</section>
+
+<!-- SECTION 4 -->
+<section class="arch-section" id="cross-reference">
+<h2>4. Cross-Reference Engine</h2>
+<p>The cross-reference engine is OfferWise&rsquo;s most differentiated capability. It compares what the seller disclosed against what the inspector found, looking for contradictions, omissions, and patterns that suggest the seller knew about problems but didn&rsquo;t disclose them.</p>
+<div class="diagram-wrap">
+<svg viewBox="0 0 700 260" xmlns="http://www.w3.org/2000/svg" font-family="Inter,system-ui,sans-serif">
+<defs><marker id="aA" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="none" stroke="#fcd34d" stroke-width="1"/></marker><marker id="aR" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="none" stroke="#fca5a5" stroke-width="1"/></marker></defs>
+<rect x="20" y="20" width="190" height="220" rx="12" fill="rgba(245,158,11,.06)" stroke="rgba(245,158,11,.25)" stroke-width="1.5"/>
+<text x="115" y="46" fill="#fcd34d" font-size="11" font-weight="700" text-anchor="middle">Seller Disclosure</text>
+<text x="115" y="72" fill="#666" font-size="9" text-anchor="middle">&quot;No known water damage&quot;</text>
+<text x="115" y="92" fill="#666" font-size="9" text-anchor="middle">&quot;Roof replaced 2019&quot;</text>
+<text x="115" y="112" fill="#666" font-size="9" text-anchor="middle">&quot;Foundation: no issues&quot;</text>
+<text x="115" y="132" fill="#666" font-size="9" text-anchor="middle">&quot;HVAC serviced annually&quot;</text>
+<text x="115" y="164" fill="#475569" font-size="8" text-anchor="middle">Parsed via AI into structured claims</text>
+<text x="115" y="180" fill="#475569" font-size="8" text-anchor="middle">Each claim gets a confidence score</text>
+<rect x="490" y="20" width="190" height="220" rx="12" fill="rgba(239,68,68,.06)" stroke="rgba(239,68,68,.25)" stroke-width="1.5"/>
+<text x="585" y="46" fill="#fca5a5" font-size="11" font-weight="700" text-anchor="middle">Inspection Report</text>
+<text x="585" y="72" fill="#666" font-size="9" text-anchor="middle">&quot;Water stains on ceiling&quot;</text>
+<text x="585" y="92" fill="#666" font-size="9" text-anchor="middle">&quot;Missing shingles, age ~15yr&quot;</text>
+<text x="585" y="112" fill="#666" font-size="9" text-anchor="middle">&quot;Hairline cracks in slab&quot;</text>
+<text x="585" y="132" fill="#666" font-size="9" text-anchor="middle">&quot;HVAC filter very dirty&quot;</text>
+<text x="585" y="164" fill="#475569" font-size="8" text-anchor="middle">Parsed via AI into structured findings</text>
+<text x="585" y="180" fill="#475569" font-size="8" text-anchor="middle">Each finding: category + severity</text>
+<rect x="255" y="50" width="190" height="160" rx="12" fill="rgba(167,139,250,.08)" stroke="#a78bfa" stroke-width="2"/>
+<text x="350" y="80" fill="#c4b5fd" font-size="12" font-weight="700" text-anchor="middle">Cross-Reference</text>
+<text x="350" y="98" fill="#c4b5fd" font-size="12" font-weight="700" text-anchor="middle">Engine</text>
+<text x="350" y="124" fill="#ef4444" font-size="9" font-weight="600" text-anchor="middle">&#9888; CONTRADICTION</text>
+<text x="350" y="140" fill="#666" font-size="8" text-anchor="middle">Water: disclosed &quot;none&quot;</text>
+<text x="350" y="152" fill="#666" font-size="8" text-anchor="middle">but inspector found stains</text>
+<text x="350" y="174" fill="#f59e0b" font-size="9" font-weight="600" text-anchor="middle">&#9888; OMISSION</text>
+<text x="350" y="190" fill="#666" font-size="8" text-anchor="middle">Roof age discrepancy</text>
+<text x="350" y="202" fill="#666" font-size="8" text-anchor="middle">&quot;replaced 2019&quot; vs &quot;~15yr old&quot;</text>
+<path d="M210,130 L255,130" stroke="#fcd34d" stroke-width="1.5" fill="none" marker-end="url(#aA)"/>
+<path d="M490,130 L445,130" stroke="#fca5a5" stroke-width="1.5" fill="none" marker-end="url(#aR)"/>
+</svg>
+<div class="diagram-caption">Figure 3 &mdash; Cross-reference engine: seller claims matched against inspection findings to surface contradictions and omissions</div>
+</div>
+<p>The engine uses a hybrid approach in production: <code>fast_cross_reference_engine.py</code> does initial rules-based matching (15x faster), then <code>cross_reference_engine.py</code> uses AI for semantic comparison on ambiguous cases. A third path, <code>hybrid_ai.llm_detect_contradictions()</code>, runs Claude over the full disclosure and inspection text whenever both are present, surfacing semantic contradictions the rules can miss (e.g. paraphrased denials, implied claims). The result: a seller transparency score and a list of specific contradictions with evidence from both documents.</p>
+</section>
+
+<!-- SECTION 5 -->
+<section class="arch-section" id="intelligence">
+<h2>5. Intelligence Layer</h2>
+<h3>Property Risk DNA</h3>
+<p>Every property gets a 5-dimensional risk vector &mdash; a fingerprint that captures its risk profile across Structural, Systems, Transparency, Temporal, and Financial dimensions. This vector is displayed as a pentagon chart and enables similarity matching between properties.</p>
+<h3>Predictive Engine</h3>
+<p>The predictive engine identifies issues that aren&rsquo;t in the inspection report but are statistically likely given what is there. A 20-year-old home with galvanized plumbing and evidence of slow drains has a high probability of hidden pipe corrosion &mdash; even if the inspector didn&rsquo;t scope the lines. These predictions are flagged with probability scores and recommended follow-up inspections.</p>
+<h3>Offer Calculation</h3>
+<p>The final output: three offer tiers (Conservative, Moderate, Aggressive) calculated from the listing price minus weighted repair costs. Each tier applies different discount factors based on how aggressively the buyer wants to negotiate. The system also generates specific negotiation talking points tied to the highest-leverage findings.</p>
+</section>
+
+<!-- SECTION 5b: REASONING LAYER -->
+<section class="arch-section" id="reasoning">
+<h2>5b. Reasoning Layer &mdash; Checklist Engine</h2>
+<p>A newer engine sits alongside the scoring pipeline above: a deterministic reasoning layer that resolves every property fact against a structured checklist, rather than scoring documents in aggregate. Honest status, stated up front: the engine is built, tested, and writing a structured corpus on every analysis, but its buyer-facing output is behind a feature flag that is currently OFF &mdash; so it is shipped infrastructure, not yet a buyer-visible surface. We document it here because it is real and running, not because it is exposed.</p>
+<h3>Finding &rarr; Claim &rarr; Issue</h3>
+<p>The layer composes a jurisdiction-specific checklist (a national base set plus state and municipal overlays), then resolves each document fact through three tiers: a <strong>Finding</strong> (what a source actually says), a <strong>Claim</strong> (the resolved value for a checklist item, with separate confidence in the inference and in the evidence quality), and a derived <strong>Issue</strong> (clustered by decision class). These are persisted to the <code>Finding</code>, <code>Claim</code>, and <code>Issue</code> tables, so each analysis with document input grows a labeled reasoning corpus independent of the buyer-facing flag.</p>
+<h3>The inspection moat &mdash; what a disclosure can&rsquo;t reveal</h3>
+<p>A seller&rsquo;s disclosure, by its structure, cannot surface latent hazards the seller doesn&rsquo;t know or isn&rsquo;t asked about. The inspection can. The reasoning layer flags a set of <em>silent hazards</em> &mdash; for example a Federal Pacific Stab-Lok panel, aluminum branch wiring, a detached furnace flue with CO risk, or pre-1978 asbestos and lead &mdash; that a clean disclosure would never show. Reading inspections is format-general: a fast deterministic parser handles structured rating-vocabulary reports, and an LLM extractor reads any other vendor format into the same controlled checklist vocabulary, dropping anything it can&rsquo;t confidently map rather than inventing it.</p>
+<h3>Two outputs: price basis vs. buyer-held reserve</h3>
+<p>The layer&rsquo;s offer hand-off deliberately separates two numbers that aggregate scoring blurs together: an <strong>estimable price-adjustment basis</strong> (issues you negotiate as a credit) and a <strong>separate buyer-held reserve</strong> (set aside for items that need further investigation). Cost bands come from the same repair-cost estimator the rest of the system uses &mdash; no second cost engine &mdash; priced per distinct system so multiple findings in one system don&rsquo;t multiply. When exposed, this is the single reconciled cost source in the report, so the older &ldquo;confirmed repairs&rdquo; total no longer competes with it.</p>
+<p>Relevant modules: <code>reasoning/composition.py</code> (checklist resolution), <code>reasoning/issue_derivation.py</code> (clustering and severity), <code>reasoning/inspection_parser.py</code> and <code>reasoning/inspection_llm_extractor.py</code> (format-general extraction), <code>reasoning/cost_bands.py</code> (offer math), and <code>reasoning/pipeline.py</code> (end-to-end). The suite is runnable on demand from the admin dashboard.</p>
+</section>
+
+
+<!-- SECTION 6 -->
+<section class="arch-section" id="risk-check">
+<h2>6. Risk Check Engine</h2>
+<p>The free property risk scanner uses <strong>11 government APIs</strong> to calculate hidden risk exposure for any US address &mdash; at zero cost per lookup.</p>
+<div class="diagram-wrap">
+<svg viewBox="0 0 750 280" xmlns="http://www.w3.org/2000/svg" font-family="Inter,system-ui,sans-serif">
+<rect x="290" y="10" width="170" height="45" rx="10" fill="rgba(59,130,246,.1)" stroke="#3b82f6" stroke-width="1.5"/>
+<text x="375" y="30" fill="#93c5fd" font-size="11" font-weight="700" text-anchor="middle">Street Address</text>
+<text x="375" y="44" fill="#666" font-size="8" text-anchor="middle">Geocoded to lat/lng</text>
+<line x1="375" y1="55" x2="375" y2="75" stroke="#3b82f6" stroke-width="1" stroke-dasharray="3,2"/>
+<rect x="15" y="80" width="120" height="34" rx="6" fill="rgba(239,68,68,.06)" stroke="rgba(239,68,68,.15)"/>
+<text x="75" y="96" fill="#fca5a5" font-size="8" font-weight="600" text-anchor="middle">FEMA Flood Zones</text>
+<text x="75" y="107" fill="#555" font-size="7" text-anchor="middle">NFHL service</text>
+<rect x="145" y="80" width="120" height="34" rx="6" fill="rgba(239,68,68,.06)" stroke="rgba(239,68,68,.15)"/>
+<text x="205" y="96" fill="#fca5a5" font-size="8" font-weight="600" text-anchor="middle">USGS Earthquakes</text>
+<text x="205" y="107" fill="#555" font-size="7" text-anchor="middle">Recent seismic</text>
+<rect x="275" y="80" width="120" height="34" rx="6" fill="rgba(245,158,11,.06)" stroke="rgba(245,158,11,.15)"/>
+<text x="335" y="96" fill="#fcd34d" font-size="8" font-weight="600" text-anchor="middle">FEMA Disasters</text>
+<text x="335" y="107" fill="#555" font-size="7" text-anchor="middle">OpenFEMA declared</text>
+<rect x="405" y="80" width="120" height="34" rx="6" fill="rgba(245,158,11,.06)" stroke="rgba(245,158,11,.15)"/>
+<text x="465" y="96" fill="#fcd34d" font-size="8" font-weight="600" text-anchor="middle">CAL FIRE</text>
+<text x="465" y="107" fill="#555" font-size="7" text-anchor="middle">Wildfire severity</text>
+<rect x="535" y="80" width="100" height="34" rx="6" fill="rgba(245,158,11,.06)" stroke="rgba(245,158,11,.15)"/>
+<text x="585" y="96" fill="#fcd34d" font-size="8" font-weight="600" text-anchor="middle">CGS Faults</text>
+<text x="585" y="107" fill="#555" font-size="7" text-anchor="middle">Alquist-Priolo</text>
+<rect x="645" y="80" width="90" height="34" rx="6" fill="rgba(34,197,94,.06)" stroke="rgba(34,197,94,.15)"/>
+<text x="690" y="96" fill="#86efac" font-size="8" font-weight="600" text-anchor="middle">EPA AirNow</text>
+<text x="690" y="107" fill="#555" font-size="7" text-anchor="middle">Air quality</text>
+<rect x="75" y="125" width="120" height="34" rx="6" fill="rgba(34,197,94,.06)" stroke="rgba(34,197,94,.15)"/>
+<text x="135" y="141" fill="#86efac" font-size="8" font-weight="600" text-anchor="middle">EPA Superfund</text>
+<text x="135" y="152" fill="#555" font-size="7" text-anchor="middle">SEMS contamination</text>
+<rect x="205" y="125" width="120" height="34" rx="6" fill="rgba(34,197,94,.06)" stroke="rgba(34,197,94,.15)"/>
+<text x="265" y="141" fill="#86efac" font-size="8" font-weight="600" text-anchor="middle">EPA TRI</text>
+<text x="265" y="152" fill="#555" font-size="7" text-anchor="middle">Toxic Release Inventory</text>
+<rect x="335" y="125" width="120" height="34" rx="6" fill="rgba(34,197,94,.06)" stroke="rgba(34,197,94,.15)"/>
+<text x="395" y="141" fill="#86efac" font-size="8" font-weight="600" text-anchor="middle">EPA RCRA</text>
+<text x="395" y="152" fill="#555" font-size="7" text-anchor="middle">Hazardous waste</text>
+<rect x="465" y="125" width="120" height="34" rx="6" fill="rgba(34,197,94,.06)" stroke="rgba(34,197,94,.15)"/>
+<text x="525" y="141" fill="#86efac" font-size="8" font-weight="600" text-anchor="middle">EPA Brownfields</text>
+<text x="525" y="152" fill="#555" font-size="7" text-anchor="middle">Contaminated land</text>
+<rect x="595" y="125" width="90" height="34" rx="6" fill="rgba(139,92,246,.06)" stroke="rgba(139,92,246,.15)"/>
+<text x="640" y="141" fill="#c4b5fd" font-size="8" font-weight="600" text-anchor="middle">EPA Radon</text>
+<text x="640" y="152" fill="#555" font-size="7" text-anchor="middle">Zone mapping</text>
+<line x1="375" y1="168" x2="375" y2="190" stroke="#60a5fa" stroke-width="1" stroke-dasharray="3,2"/>
+<rect x="200" y="195" width="350" height="70" rx="12" fill="rgba(59,130,246,.08)" stroke="#3b82f6" stroke-width="1.5"/>
+<text x="375" y="220" fill="#93c5fd" font-size="12" font-weight="700" text-anchor="middle">Risk Scoring Model</text>
+<text x="375" y="240" fill="#666" font-size="9" text-anchor="middle">risk_scoring_model.py &rarr; weighted composite</text>
+<text x="375" y="255" fill="#666" font-size="9" text-anchor="middle">Output: Grade A&ndash;F / Dollar exposure / Risk cards</text>
+</svg>
+<div class="diagram-caption">Figure 4 &mdash; Risk check engine: 11 free government APIs queried in parallel, scored into a single risk grade with dollar exposure</div>
+</div>
+<p>Every API result is converted into a risk card with a category, severity level (HIGH / MODERATE / LOW), and an estimated cost impact. The scoring model weights each risk factor and produces a composite grade (A through F) and a total dollar exposure estimate.</p>
+</section>
+
+<!-- SECTION 7 -->
+<section class="arch-section" id="agentic">
+<h2>7. Agentic Monitoring</h2>
+<p>Once a buyer saves a property, OfferWise doesn&rsquo;t stop analyzing. The agentic monitoring engine runs daily background jobs that watch for changes and automatically alert users.</p>
+<div class="module-grid">
+<div class="module-card"><div class="mc-name">&#128260; Comps Monitor</div><div class="mc-desc">Watches for new comparable sales near analyzed properties. Recalculates leverage position and alerts the buyer if their negotiating position improved.</div></div>
+<div class="module-card"><div class="mc-name">&#127757; Seismic Monitor</div><div class="mc-desc">Queries USGS for M4.0+ earthquakes within 50km of watched properties. Triggers structural re-check recommendations.</div></div>
+<div class="module-card"><div class="mc-name">&#128176; Price Monitor</div><div class="mc-desc">Detects listing price drops. Automatically recalculates all three offer tiers and sends price cut alerts with updated negotiation math.</div></div>
+<div class="module-card"><div class="mc-name">&#128203; Permit Monitor</div><div class="mc-desc">Checks for new county building permits. Flags seller pre-close repairs that might affect the negotiation timeline.</div></div>
+<div class="module-card"><div class="mc-name">&#128064; Concern Signal</div><div class="mc-desc">Event-driven: when a buyer views their report multiple times, notifies connected professionals that the buyer may need follow-up.</div></div>
+<div class="module-card"><div class="mc-name">&#128231; Inspector Loop</div><div class="mc-desc">Post-analysis flywheel: sends the inspector a summary of how their report was used, encouraging referrals back to OfferWise.</div></div>
+</div>
+<p>All jobs are idempotent. Each property watch record tracks <code>last_*_check_at</code> timestamps so jobs never fire duplicate alerts. APScheduler runs with an in-memory job store &mdash; jobs are recreated on every deployment.</p>
+</section>
+
+<!-- SECTION 8 -->
+<section class="arch-section" id="data">
+<h2>8. Data &amp; Infrastructure</h2>
+<h3>Database</h3>
+<p>PostgreSQL on Render Managed Database. Schema managed by Flask-Migrate (Alembic) with a locking mechanism so only one Gunicorn worker runs migrations on startup. The system includes 80+ models covering users, properties, analyses, the reasoning layer (findings, claims, derived issues), inspectors, contractors, agents, API keys, referrals, comparisons, and GTM tracking.</p>
+<h3>Document Repository</h3>
+<p>The DocRepo lives on Render&rsquo;s persistent disk (47 reference documents in the catalog). A public document crawler (<code>public_doc_crawler.py</code>) only collects documents from public government sources, respecting robots.txt and skipping anything behind auth gates.</p>
+<h3>Deployment</h3>
+<p>Every release is a versioned tarball pushed to GitHub, which triggers a Render deploy. The deployment pipeline: version bump, tar, git push, Render builds, health check, live. One Gunicorn worker with four threads handles concurrent requests within the 512MB memory budget.</p>
+<h3>Observability</h3>
+<p>Sentry for error tracking, GA4 for product analytics, a custom admin dashboard for real-time metrics (daily activity, conversion funnel, traffic sources, AI costs, test coverage). Structured logging outputs JSON to Render&rsquo;s log aggregator.</p>
+</section>
+
+<!-- SECTION 9 -->
+<section class="arch-section" id="gtm">
+<h2>9. GTM &amp; Automation</h2>
+<p>The go-to-market engine is built into the application. A forum scanner watches real estate communities for homebuyer questions, generates contextual responses, and queues them for review before posting.</p>
+<div class="module-grid">
+<div class="module-card"><div class="mc-name">&#128269; Forum Scanner</div><div class="mc-desc">Scans Reddit, BiggerPockets, and Nextdoor for real estate questions. Uses AI to determine relevance and generate helpful responses.</div></div>
+<div class="module-card"><div class="mc-name">&#128221; Content Engine</div><div class="mc-desc">Generates original educational content for r/OfferWiseAI. Eight content pillars rotating through inspection tips, market analysis, and negotiation strategies.</div></div>
+<div class="module-card"><div class="mc-name">&#128200; Conversion Intel</div><div class="mc-desc">Tracks the full funnel from first touch through signup, analysis, and payment. Calculates CAC and LTV by acquisition channel.</div></div>
+<div class="module-card"><div class="mc-name">&#128231; Drip Campaign</div><div class="mc-desc">Automated email sequences for signups. Day 0 welcome, Day 3 value prop, Day 7 social proof, Day 14 nudge. Personalized by role.</div></div>
+<div class="module-card"><div class="mc-name">&#127873; Referral Engine</div><div class="mc-desc">Two-sided referral system: buyers refer buyers (credit rewards), inspectors refer buyers (rev share). Tracks referral chains.</div></div>
+<div class="module-card"><div class="mc-name">&#128225; Ad Sync</div><div class="mc-desc">Syncs conversion events to Google Ads and Reddit Ads APIs for attribution. Fires purchase/signup labels for bid optimization.</div></div>
+</div>
+</section>
+
+<!-- SECTION 10 -->
+<!-- SECTION 10: ML MODELING -->
+<section class="arch-section" id="ml-pipeline">
+<h2>10. ML Training Pipeline</h2>
+<p>OfferWise runs a data flywheel: every analysis produces labeled data that feeds three proprietary ML models. Not all three ship to customers today &mdash; the table below is the honest current state, not the roadmap state. We prefer under-promising over confusing "trained" with "deployed".</p>
+
+<h3>Model Status &mdash; What's Actually in Production</h3>
+<p>Claude performs the baseline analysis on every request. Our native ML models run alongside Claude and override its output only where the model measurably outperforms Claude on that dimension. Where the model doesn't beat Claude, we leave Claude's output alone. This is deliberate: a worse model overriding a better one degrades customer outcomes.</p>
+
+<div class="diagram-wrap" style="overflow-x:auto">
+<table style="width:100%;border-collapse:collapse;font-size:13px;margin:16px 0">
+<thead>
+<tr style="border-bottom:1px solid rgba(255,255,255,.1)">
+  <th style="text-align:left;padding:10px 8px;color:#94a3b8;font-weight:700;letter-spacing:.05em;font-size:11px;text-transform:uppercase">Model</th>
+  <th style="text-align:left;padding:10px 8px;color:#94a3b8;font-weight:700;letter-spacing:.05em;font-size:11px;text-transform:uppercase">Trained?</th>
+  <th style="text-align:left;padding:10px 8px;color:#94a3b8;font-weight:700;letter-spacing:.05em;font-size:11px;text-transform:uppercase">In Customer Path?</th>
+  <th style="text-align:left;padding:10px 8px;color:#94a3b8;font-weight:700;letter-spacing:.05em;font-size:11px;text-transform:uppercase">Claude Is Floor?</th>
+  <th style="text-align:left;padding:10px 8px;color:#94a3b8;font-weight:700;letter-spacing:.05em;font-size:11px;text-transform:uppercase">Current Net Effect</th>
+</tr>
+</thead>
+<tbody>
+<tr style="border-bottom:1px solid rgba(255,255,255,.05)">
+  <td style="padding:12px 8px;color:#fca5a5;font-weight:600;vertical-align:top">Finding Classifier</td>
+  <td style="padding:12px 8px;vertical-align:top">Yes, calibrated<br><span style="color:#888;font-size:11px">Isotonic regression on holdout</span></td>
+  <td style="padding:12px 8px;vertical-align:top">Category: yes<br>Severity: yes<br><span style="color:#888;font-size:11px">Both gated at calibrated conf ≥ 0.85</span></td>
+  <td style="padding:12px 8px;color:#86efac;vertical-align:top">Yes</td>
+  <td style="padding:12px 8px;vertical-align:top">ML overrides Claude's category or severity assignment only when the calibrated confidence score ≥ 0.85. Below that threshold, Claude's output stands.</td>
+</tr>
+<tr style="border-bottom:1px solid rgba(255,255,255,.05)">
+  <td style="padding:12px 8px;color:#fcd34d;font-weight:600;vertical-align:top">Repair Cost Predictor</td>
+  <td style="padding:12px 8px;vertical-align:top">Yes, quantile regression<br><span style="color:#888;font-size:11px">p10 · p50 · p90 models</span></td>
+  <td style="padding:12px 8px;color:#86efac;vertical-align:top">Yes<br><span style="color:#888;font-size:11px">Gated at conf ≥ 0.85</span></td>
+  <td style="padding:12px 8px;color:#86efac;vertical-align:top">Yes</td>
+  <td style="padding:12px 8px;vertical-align:top">For each finding, three XGBoost quantile models predict 10th, 50th, and 90th percentile of cost. Confidence derived from interval width relative to median. ML owns per-finding cost when ≥ 0.85; RSMeans baseline handles the rest.</td>
+</tr>
+<tr>
+  <td style="padding:12px 8px;color:#93c5fd;font-weight:600;vertical-align:top">Contradiction Detector</td>
+  <td style="padding:12px 8px;vertical-align:top">Yes<br><span style="color:#888;font-size:11px">Held out of prod</span></td>
+  <td style="padding:12px 8px;color:#fca5a5;vertical-align:top">No<br><span style="color:#888;font-size:11px">Rules + LLM cover it</span></td>
+  <td style="padding:12px 8px;color:#888;vertical-align:top">N/A</td>
+  <td style="padding:12px 8px;vertical-align:top">This row covers the XGBoost ML detector specifically, which is held out. <strong>Production contradiction detection still runs on every analysis</strong>, via the rule-based <code>cross_reference_engine.py</code> for structural matches and <code>hybrid_ai.llm_detect_contradictions()</code> (Claude) for semantic comparison. The ML model was trained on rule outputs and learned to mimic the rules (100% on holdout), so it adds no signal beyond what the rules and LLM already produce. Deferred until we can train on human-labeled pairs collected from post-close surveys, at which point it would have a real chance to beat the rules+LLM combo and would be confidence-gated like the other ML models.</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+<h3>Inference Routing &mdash; ML Only When Confidence &ge; 0.85</h3>
+<p>The architectural principle is simple and uniform across all models: <strong>Claude is the floor; native ML overrides only when confidence is at least 0.85</strong>. Every customer analysis runs through Claude's full reasoning first. Our native ML models then run alongside Claude's output and override Claude only when the model reports a calibrated confidence score of 0.85 or higher. Claude's output is what the customer would get if the ML layer were disabled entirely &mdash; it's our baseline of quality, not a fallback.</p>
+<p>For categorization and severity, confidence comes from isotonic-regression-calibrated probabilities over the XGBoost softmax output. For repair cost, confidence comes from a quantile regression interval: we train three models (10th, 50th, 90th percentile) and derive confidence from how narrow the prediction band is relative to the median. A tight band means the model is confident; a wide band means it isn't, and baseline takes over.</p>
+<p>This design has a specific property: <strong>adding ML to the pipeline can only make outputs better, never worse</strong>. A low-confidence ML prediction is discarded in favor of the higher-quality baseline (Claude for reasoning, RSMeans for cost). When a model genuinely knows an answer, it contributes; when it doesn't, it politely steps aside. This is what makes native ML additive rather than theatrical.</p>
+<p>In practice, the % of predictions that clear the 0.85 threshold varies by dimension and by data regime. Findings with clear language in familiar categories clear easily; ambiguous or novel findings don't. The threshold is deliberately strict &mdash; we'd rather say &quot;Claude's answer stands&quot; confidently than say &quot;ML said so&quot; when ML wasn't sure.</p>
+
+<h3>Held-Out Comparison &mdash; Validation Against LLM Baselines</h3>
+<p>As part of release qualification we run our analysis pipeline against best-of-class LLM baselines on a curated set of synthetic test cases &mdash; one criterion at a time, scored blind to prevent anchoring. The methodology is documented in full at <a href="/comparison" style="color:#60a5fa;">/comparison</a>. The most recent run (v5.87.x) scored <strong>5 wins / 2 ties / 0 losses</strong> across 7 evaluation criteria against the stronger of GPT-5 and Claude Opus 4.7 on each criterion.</p>
+
+<p>The pattern is the part worth reading carefully. We tie on commodity LLM strengths (raw issue detection, categorization) where the foundation models are already excellent; we win on the specialized financial-risk dimensions (severity calibration, cost accuracy, contradiction detection, hallucination rate, actionability) where calibrated native ML, real cost data, and rule-engine cross-referencing produce measurable advantage. This is the evidence profile of a genuinely differentiated system, not an artifact of test-design bias.</p>
+
+<table style="width:100%;border-collapse:collapse;font-size:13px;margin:16px 0">
+<thead>
+<tr style="border-bottom:1px solid rgba(255,255,255,.1)">
+  <th style="text-align:left;padding:10px 8px;color:#94a3b8;font-weight:700;letter-spacing:.05em;font-size:11px;text-transform:uppercase;width:34%">Criterion</th>
+  <th style="text-align:left;padding:10px 8px;color:#94a3b8;font-weight:700;letter-spacing:.05em;font-size:11px;text-transform:uppercase;width:22%">OfferWise</th>
+  <th style="text-align:left;padding:10px 8px;color:#94a3b8;font-weight:700;letter-spacing:.05em;font-size:11px;text-transform:uppercase;width:22%">Best LLM Baseline</th>
+  <th style="text-align:center;padding:10px 8px;color:#94a3b8;font-weight:700;letter-spacing:.05em;font-size:11px;text-transform:uppercase;width:22%">Result</th>
+</tr>
+</thead>
+<tbody>
+<tr style="border-bottom:1px solid rgba(255,255,255,.05)">
+  <td style="padding:12px 8px;vertical-align:top;font-weight:600">1. Issue Detection (Recall)<br><span style="color:#888;font-size:11px;font-weight:400">Did the system find every issue in the inspection report?</span></td>
+  <td style="padding:12px 8px;vertical-align:top">High</td>
+  <td style="padding:12px 8px;vertical-align:top">High</td>
+  <td style="padding:12px 8px;vertical-align:top;text-align:center;color:#fcd34d;font-weight:700">TIE</td>
+</tr>
+<tr style="border-bottom:1px solid rgba(255,255,255,.05)">
+  <td style="padding:12px 8px;vertical-align:top;font-weight:600">2. Categorization Accuracy<br><span style="color:#888;font-size:11px;font-weight:400">Did issues land in the right category (electrical, plumbing, foundation, etc)?</span></td>
+  <td style="padding:12px 8px;vertical-align:top">High</td>
+  <td style="padding:12px 8px;vertical-align:top">High</td>
+  <td style="padding:12px 8px;vertical-align:top;text-align:center;color:#fcd34d;font-weight:700">TIE</td>
+</tr>
+<tr style="border-bottom:1px solid rgba(255,255,255,.05)">
+  <td style="padding:12px 8px;vertical-align:top;font-weight:600">3. Severity Calibration<br><span style="color:#888;font-size:11px;font-weight:400">Critical marked critical, cosmetic marked cosmetic &mdash; neither over- nor under-flagging.</span></td>
+  <td style="padding:12px 8px;vertical-align:top;color:#86efac">Superior</td>
+  <td style="padding:12px 8px;vertical-align:top">Inconsistent</td>
+  <td style="padding:12px 8px;vertical-align:top;text-align:center;color:#86efac;font-weight:700">OW WIN</td>
+</tr>
+<tr style="border-bottom:1px solid rgba(255,255,255,.05)">
+  <td style="padding:12px 8px;vertical-align:top;font-weight:600">4. Cost Estimate Accuracy<br><span style="color:#888;font-size:11px;font-weight:400">Within 25% of HomeAdvisor reference ranges for the property's ZIP.</span></td>
+  <td style="padding:12px 8px;vertical-align:top;color:#86efac">Superior</td>
+  <td style="padding:12px 8px;vertical-align:top">High variance</td>
+  <td style="padding:12px 8px;vertical-align:top;text-align:center;color:#86efac;font-weight:700">OW WIN</td>
+</tr>
+<tr style="border-bottom:1px solid rgba(255,255,255,.05)">
+  <td style="padding:12px 8px;vertical-align:top;font-weight:600">5. Contradiction Detection<br><span style="color:#888;font-size:11px;font-weight:400">Disclosure says &ldquo;no known leaks&rdquo;, inspection finds leaks &mdash; did the system catch and actionize it?</span></td>
+  <td style="padding:12px 8px;vertical-align:top;color:#86efac">Superior</td>
+  <td style="padding:12px 8px;vertical-align:top">Moderate</td>
+  <td style="padding:12px 8px;vertical-align:top;text-align:center;color:#86efac;font-weight:700">OW WIN</td>
+</tr>
+<tr style="border-bottom:1px solid rgba(255,255,255,.05)">
+  <td style="padding:12px 8px;vertical-align:top;font-weight:600">6. Hallucinations (fewer is better)<br><span style="color:#888;font-size:11px;font-weight:400">Invented findings, fabricated cost numbers, citations to fictional standards.</span></td>
+  <td style="padding:12px 8px;vertical-align:top;color:#86efac">Near zero</td>
+  <td style="padding:12px 8px;vertical-align:top">Moderate</td>
+  <td style="padding:12px 8px;vertical-align:top;text-align:center;color:#86efac;font-weight:700">OW WIN</td>
+</tr>
+<tr>
+  <td style="padding:12px 8px;vertical-align:top;font-weight:600">7. Actionability<br><span style="color:#888;font-size:11px;font-weight:400">Does the output give a buyer a clear decision path, or just a summary?</span></td>
+  <td style="padding:12px 8px;vertical-align:top;color:#86efac">Expert</td>
+  <td style="padding:12px 8px;vertical-align:top">Generalist</td>
+  <td style="padding:12px 8px;vertical-align:top;text-align:center;color:#86efac;font-weight:700">OW WIN</td>
+</tr>
+</tbody>
+</table>
+
+<p><strong>Disclosures.</strong> The test cases are synthetic (representative inspection-report scenarios, not real customer documents); scoring was conducted by the founder against a written rubric, not third-party audited; and the &ldquo;moat&rdquo; this evidences is structural (calibrated hybrid stack + private cost data + cross-reference engine) rather than exclusivity-based. We re-run this evaluation each release cycle that ships a model retrain. The full criteria definitions, test cases, scoring rubric, and methodology limitations are documented at <a href="/comparison" style="color:#60a5fa;">/comparison</a>.</p>
+
+<h3>Data Sources &mdash; What We Actually Train On</h3>
+<p>Most of the corpus is publicly-sourced data. A smaller, deliberately-scoped fraction comes from customer activity, anonymized at write time and covered under the AI Model Improvement clause of our Privacy Policy. We&rsquo;re explicit about both because the distinction matters for due diligence.</p>
+
+<p><strong>Three categories, in order of corpus share:</strong></p>
+
+<p><strong>1. Public records (the bulk of the corpus).</strong> Municipal violation portals and federal/national datasets. Both are aggregated, re-distributable public data &mdash; the same sources a competitor could legally crawl, except we&rsquo;ve already done the parsing, normalization, and category mapping. Specifically: NYC HPD Housing Maintenance Code violations (51,622 rows), NYC DOB Building violations (10,451 rows), Chicago Department of Buildings violations (~10,000 rows from inspector comments + violation descriptions, v5.86.97), Miami-Dade County code violations (FL &middot; ArcGIS &middot; v5.87.10), Seattle SDCI code complaints, New Orleans code enforcement, Cincinnati code enforcement, Austin code cases, LA code enforcement, Detroit Blight Tickets (MI &middot; ArcGIS &middot; v5.87.17), Columbus code enforcement (OH &middot; ArcGIS &middot; v5.87.17), Adams County, CO code enforcement (suburban Denver &middot; v5.87.18), Augusta-Richmond County, GA code violations (v5.87.19), and Indianapolis code enforcement (IN &middot; ArcGIS &middot; 4-level case-type hierarchy &middot; v5.87.21). Federal/national: FEMA Individual Assistance, NFIP flood claims, HomeAdvisor cost benchmarks, III insurance industry calibration (~14,000 rows collectively, via the Federal &amp; National crawler).</p>
+
+<p><strong>2. Synthetic data we generated ourselves.</strong> State-diverse synthetic findings produced by Claude across 10 US states including California, Florida, Texas, Arizona, and Colorado (5,000 rows added v5.86.93). Used to balance geographic skew while we close the public-records coverage gap. AI-parsed historical <em>public</em> inspection reports (973 rows from publicly-distributed inspection PDFs &mdash; not customer uploads).</p>
+
+<p><strong>3. Customer-analysis-derived labels (smaller share, anonymized).</strong> Findings extracted by our AI parser during the analysis flow are written to the corpus tagged <code>source=&#39;ai_parse&#39;</code>. ZIP and city are kept; full street address is stripped. Raw document text is not persisted &mdash; only the structured finding (text up to 2,000 chars, category, severity). Personally-identifiable buyer information (name, email, full address, phone) never enters the training tables. This collection is covered under section 2.2 of our <a href="/privacy" style="color:#60a5fa;">Privacy Policy</a> (&ldquo;AI Model Improvement&rdquo;), accepted at signup. Inspector-validated labels &mdash; produced when a licensed inspector marks an AI-extracted finding as confirmed, corrected, or rejected from the inspector portal &mdash; carry a higher-trust source tag (<code>inspector_confirmed</code>, conf 0.98+) and are the highest-quality labels in the corpus. Contractor completions feed structured per-system price data into <code>repair_cost_logs</code> for the cost predictor; no buyer-identifying fields land there.</p>
+
+<p><strong>What we don&rsquo;t do.</strong> We don&rsquo;t persist raw uploaded document text, full street addresses, contact information, or any personally-identifiable customer data in training tables. We don&rsquo;t share customer-derived data outside our own model training. We don&rsquo;t sell training data to third parties. We never reproduce a customer&rsquo;s document or finding text back to anyone outside their account.</p>
+
+<p>The current corpus stands at ~257K rows in <code>ml_finding_labels</code> as of v5.89.52 (~221K with v2 category/severity labels). The customer-derived subset is a minority of that count and grows roughly with analysis volume; the public-crawler subset grows on the daily ML-agent ingestion schedule and is the larger contributor at present scale.</p>
+
+<h3>Coverage Gap &mdash; Honest State of Geographic Distribution</h3>
+<p>Our geographic coverage is improving but is not yet US-wide, and we want to be specific about that. The corpus is currently dominated by NYC (~50%), with Indianapolis, Detroit, Chicago, Seattle, New Orleans, Miami-Dade, Columbus, Cincinnati, Austin, LA, Adams County (CO &mdash; suburban Denver), and Augusta (GA) as the active contributing metros. The federal-aggregate sources add national-level cost benchmarks but minimal finding-text. By transactions volume, this covers <strong>13 of the top 50 US real estate markets (26%)</strong> as of v5.87.21. We are religiously working to close the gap.</p>
+
+<h4 style="font-size:14px;color:var(--muted);margin-top:14px">Top-50 US Real Estate Markets &mdash; Coverage Tracker</h4>
+<p style="font-size:12px;color:var(--dim)">Status as of v5.87.21. Cities are ranked by metro housing transaction volume (NAR / Realtor.com 2024-2025 data). ✓ = active crawler shipping data. ⚠ = scaffolded with documented blocker. ✗ = no endpoint identified yet from public sources we can crawl. The scaffold + missing list is what we work down each release.</p>
+<table style="width:100%;border-collapse:collapse;font-size:11px;margin-top:10px">
+<thead>
+<tr style="border-bottom:1px solid var(--border);text-align:left;color:var(--dim)">
+<th style="padding:6px 4px">#</th><th>Metro</th><th>Status</th><th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr><td>1</td><td>New York, NY</td><td style="color:#22c55e">✓ active</td><td>HPD + DOB · 62K rows narrative</td></tr>
+<tr><td>2</td><td>Los Angeles, CA</td><td style="color:#22c55e">✓ active</td><td>LADBS · short codes</td></tr>
+<tr><td>3</td><td>Chicago, IL</td><td style="color:#22c55e">✓ active</td><td>DOB · 10K narrative</td></tr>
+<tr><td>4</td><td>Dallas-Fort Worth, TX</td><td style="color:#fbbf24">⚠ scaffold</td><td>Only stale 2015 short codes available</td></tr>
+<tr><td>5</td><td>Houston, TX</td><td style="color:#fbbf24">⚠ scaffold</td><td>v5.89.27 · data.houstontx.gov candidate endpoint, unverified</td></tr>
+<tr><td>6</td><td>Washington DC</td><td style="color:#fbbf24">⚠ scaffold</td><td>No public housing-violations dataset</td></tr>
+<tr><td>7</td><td>Philadelphia, PA</td><td style="color:#fbbf24">⚠ scaffold</td><td>Migrated to Carto, data frozen at 2022</td></tr>
+<tr><td>8</td><td>Miami, FL</td><td style="color:#22c55e">✓ active</td><td>Miami-Dade ArcGIS</td></tr>
+<tr><td>9</td><td>Atlanta, GA</td><td style="color:#fbbf24">⚠ scaffold</td><td>ArcGIS endpoint not yet identified</td></tr>
+<tr><td>10</td><td>Boston, MA</td><td style="color:#f87171">✗ missing</td><td>Only sanitation data found; building violations need auth</td></tr>
+<tr><td>11</td><td>Phoenix, AZ</td><td style="color:#fbbf24">⚠ scaffold</td><td>ArcGIS endpoint not yet identified</td></tr>
+<tr><td>12</td><td>San Francisco Bay, CA</td><td style="color:#fbbf24">⚠ scaffold</td><td>Catalog confirms exists, API 404s from prod</td></tr>
+<tr><td>13</td><td>Riverside-San Bernardino, CA</td><td style="color:#f87171">✗ missing</td><td>Endpoint not yet found</td></tr>
+<tr><td>14</td><td>Detroit, MI</td><td style="color:#22c55e">✓ active</td><td>Detroit Blight Tickets · ArcGIS</td></tr>
+<tr><td>15</td><td>Seattle, WA</td><td style="color:#22c55e">✓ active</td><td>SDCI Code Complaints · narrative</td></tr>
+<tr><td>16</td><td>Minneapolis, MN</td><td style="color:#f87171">✗ missing</td><td>Migrated to ArcGIS, exact endpoint TBD</td></tr>
+<tr><td>17</td><td>San Diego, CA</td><td style="color:#f87171">✗ missing</td><td>Endpoint not yet found</td></tr>
+<tr><td>18</td><td>Tampa, FL</td><td style="color:#f87171">✗ missing</td><td>Hub returned transient 503s; needs retry</td></tr>
+<tr><td>19</td><td>Denver, CO</td><td style="color:#f87171">✗ missing</td><td>Adams County (suburb) is active; Denver proper TBD</td></tr>
+<tr><td>20</td><td>St. Louis, MO</td><td style="color:#f87171">✗ missing</td><td>Endpoint not yet found</td></tr>
+<tr><td>21</td><td>Baltimore, MD</td><td style="color:#fbbf24">⚠ scaffold</td><td>Only permits dataset available, not violations</td></tr>
+<tr><td>22</td><td>Charlotte, NC</td><td style="color:#f87171">✗ missing</td><td>Migrated to ArcGIS, endpoint TBD</td></tr>
+<tr><td>23</td><td>Orlando, FL</td><td style="color:#f87171">✗ missing</td><td>Endpoint not yet found</td></tr>
+<tr><td>24</td><td>San Antonio, TX</td><td style="color:#f87171">✗ missing</td><td>Endpoint not yet found</td></tr>
+<tr><td>25</td><td>Portland, OR</td><td style="color:#fbbf24">⚠ scaffold</td><td>v5.89.27 · portlandmaps.com BDS ArcGIS, layer ID unverified</td></tr>
+<tr><td>26</td><td>Sacramento, CA</td><td style="color:#f87171">✗ missing</td><td>Endpoint not yet found</td></tr>
+<tr><td>27</td><td>Pittsburgh, PA</td><td style="color:#f87171">✗ missing</td><td>WPRDC catalog accessible, dataset 404s</td></tr>
+<tr><td>28</td><td>Las Vegas, NV</td><td style="color:#f87171">✗ missing</td><td>Found Code Enforcement Areas (zones, not cases)</td></tr>
+<tr><td>29</td><td>Cincinnati, OH</td><td style="color:#22c55e">✓ active</td><td>Code Enforcement · short codes</td></tr>
+<tr><td>30</td><td>Austin, TX</td><td style="color:#22c55e">✓ active</td><td>Code Cases · short codes</td></tr>
+<tr><td>31</td><td>Kansas City, MO</td><td style="color:#f87171">✗ missing</td><td>Endpoint not yet found</td></tr>
+<tr><td>32</td><td>Cleveland, OH</td><td style="color:#f87171">✗ missing</td><td>Found Property Maintenance layer; quality minimal</td></tr>
+<tr><td>33</td><td>Columbus, OH</td><td style="color:#22c55e">✓ active</td><td>Code Enforcement · structured fields</td></tr>
+<tr><td>34</td><td>Indianapolis, IN</td><td style="color:#22c55e">✓ active</td><td>NEW v5.87.21 · 4-level codes · 106K rows</td></tr>
+<tr><td>35</td><td>San Jose, CA</td><td style="color:#f87171">✗ missing</td><td>Endpoint not yet found</td></tr>
+<tr><td>36</td><td>Nashville, TN</td><td style="color:#f87171">✗ missing</td><td>Endpoint not yet found</td></tr>
+<tr><td>37</td><td>Virginia Beach, VA</td><td style="color:#f87171">✗ missing</td><td>Endpoint not yet found</td></tr>
+<tr><td>38</td><td>Providence, RI</td><td style="color:#f87171">✗ missing</td><td>Endpoint not yet found</td></tr>
+<tr><td>39</td><td>Milwaukee, WI</td><td style="color:#f87171">✗ missing</td><td>Endpoint not yet found</td></tr>
+<tr><td>40</td><td>Jacksonville, FL</td><td style="color:#f87171">✗ missing</td><td>Endpoint not yet found</td></tr>
+<tr><td>41</td><td>Memphis, TN</td><td style="color:#f87171">✗ missing</td><td>Endpoint not yet found</td></tr>
+<tr><td>42</td><td>Oklahoma City, OK</td><td style="color:#f87171">✗ missing</td><td>Endpoint not yet found</td></tr>
+<tr><td>43</td><td>Louisville, KY</td><td style="color:#f87171">✗ missing</td><td>Migrated to ArcGIS, endpoint TBD</td></tr>
+<tr><td>44</td><td>Hartford, CT</td><td style="color:#f87171">✗ missing</td><td>Endpoint not yet found</td></tr>
+<tr><td>45</td><td>New Orleans, LA</td><td style="color:#22c55e">✓ active</td><td>Code Enforcement · narrative · 61K post-2022</td></tr>
+<tr><td>46</td><td>Buffalo, NY</td><td style="color:#f87171">✗ missing</td><td>Endpoint not yet found</td></tr>
+<tr><td>47</td><td>Salt Lake City, UT</td><td style="color:#f87171">✗ missing</td><td>Endpoint not yet found</td></tr>
+<tr><td>48</td><td>Raleigh, NC</td><td style="color:#f87171">✗ missing</td><td>Endpoint not yet found</td></tr>
+<tr><td>49</td><td>Birmingham, AL</td><td style="color:#f87171">✗ missing</td><td>Endpoint not yet found</td></tr>
+<tr><td>50</td><td>Rochester, NY</td><td style="color:#f87171">✗ missing</td><td>Endpoint not yet found</td></tr>
+</tbody>
+</table>
+<p style="margin-top:10px;font-size:12px"><strong>Plus county-level active that don't appear in the top-50 metro list:</strong> Adams County, CO (suburban Denver) and Augusta-Richmond County, GA. These were activated specifically to fill climate-zone gaps (Colorado mountain-west, Georgia interior southeast).</p>
+<p>What this means for the customer claim: our native ML models genuinely outperform Claude on cost prediction (regression on tabular features is exactly what XGBoost is good at and frontier LLMs are weak at) and contribute meaningfully on category classification for findings that resemble the corpus distribution &mdash; primarily urban-residential complaints in markets we cover. For analyses outside the corpus distribution &mdash; the 27 missing top-50 metros, suburban single-family homes in uncovered states, rural properties, climates not represented in the data &mdash; the calibrated confidence threshold (≥ 0.85) correctly defers to Claude. The architecture handles uncertainty honestly; the data limitation we are transparent about is breadth, and we are religiously working to close it metro by metro.</p>
+
+<div class="diagram-wrap">
+<svg viewBox="0 0 820 495" xmlns="http://www.w3.org/2000/svg" font-family="Inter,system-ui,sans-serif">
+<defs><marker id="aML" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="none" stroke="#a78bfa" stroke-width="1"/></marker></defs>
+
+<!-- Data Sources (top row) -->
+<text x="410" y="20" fill="#94a3b8" font-size="10" font-weight="700" letter-spacing=".12em" text-anchor="middle">PUBLIC DATA SOURCES &mdash; 13 active crawlers · 7 scaffolded · 13 of top-50 metros (26%)</text>
+<rect x="20" y="32" width="135" height="52" rx="8" fill="rgba(59,130,246,.08)" stroke="rgba(59,130,246,.25)" stroke-width="1.5"/>
+<text x="87" y="54" fill="#93c5fd" font-size="11" font-weight="600" text-anchor="middle">NYC HPD + DOB</text>
+<text x="87" y="70" fill="#666" font-size="8" text-anchor="middle">62K rows &middot; largest single contributor</text>
+
+<rect x="172" y="32" width="135" height="52" rx="8" fill="rgba(249,115,22,.08)" stroke="rgba(249,115,22,.25)" stroke-width="1.5"/>
+<text x="239" y="54" fill="#fdba74" font-size="11" font-weight="600" text-anchor="middle">Chicago DOB</text>
+<text x="239" y="70" fill="#666" font-size="8" text-anchor="middle">10K rows &middot; inspector comments</text>
+
+<rect x="324" y="32" width="135" height="52" rx="8" fill="rgba(34,211,238,.08)" stroke="rgba(34,211,238,.25)" stroke-width="1.5"/>
+<text x="391" y="54" fill="#67e8f9" font-size="11" font-weight="600" text-anchor="middle">Miami-Dade</text>
+<text x="391" y="70" fill="#666" font-size="8" text-anchor="middle">FL · ArcGIS · v5.87.10</text>
+
+<rect x="476" y="32" width="135" height="52" rx="8" fill="rgba(139,92,246,.08)" stroke="rgba(139,92,246,.25)" stroke-width="1.5"/>
+<text x="543" y="54" fill="#c4b5fd" font-size="11" font-weight="600" text-anchor="middle">State-Diverse Synth</text>
+<text x="543" y="70" fill="#666" font-size="8" text-anchor="middle">5K rows &middot; 10 states</text>
+
+<rect x="628" y="32" width="105" height="52" rx="8" fill="rgba(34,197,94,.08)" stroke="rgba(34,197,94,.25)" stroke-width="1.5"/>
+<text x="680" y="54" fill="#86efac" font-size="11" font-weight="600" text-anchor="middle">Federal &amp; Nat'l</text>
+<text x="680" y="70" fill="#666" font-size="8" text-anchor="middle">FEMA · NFIP · HUD</text>
+
+<rect x="750" y="32" width="65" height="52" rx="8" fill="rgba(245,158,11,.08)" stroke="rgba(245,158,11,.25)" stroke-width="1.5"/>
+<text x="782" y="50" fill="#fcd34d" font-size="10" font-weight="600" text-anchor="middle">Haiku</text>
+<text x="782" y="64" fill="#fcd34d" font-size="10" font-weight="600" text-anchor="middle">Re-label</text>
+<text x="782" y="78" fill="#666" font-size="8" text-anchor="middle">cat + sev</text>
+
+<!-- Arrow down to collector -->
+<line x1="410" y1="84" x2="410" y2="105" stroke="#a78bfa" stroke-width="1" stroke-dasharray="3,2"/>
+
+<!-- Collector -->
+<rect x="250" y="105" width="320" height="42" rx="10" fill="rgba(167,139,250,.1)" stroke="#a78bfa" stroke-width="1.5"/>
+<text x="410" y="124" fill="#c4b5fd" font-size="12" font-weight="700" text-anchor="middle">ml_ingestion/ &mdash; crawl, relabel, synthesize</text>
+<text x="410" y="138" fill="#666" font-size="8" text-anchor="middle">Socrata + ArcGIS crawlers, Federal wrapper, Claude Batch API, dedup</text>
+
+<!-- Arrow down to DB tables -->
+<line x1="410" y1="147" x2="410" y2="168" stroke="#a78bfa" stroke-width="1" stroke-dasharray="3,2"/>
+
+<!-- DB Tables (middle row) -->
+<text x="410" y="180" fill="#94a3b8" font-size="10" font-weight="700" letter-spacing=".12em" text-anchor="middle">TRAINING DATA TABLES (PostgreSQL)</text>
+<rect x="20" y="192" width="185" height="48" rx="8" fill="rgba(34,197,94,.06)" stroke="rgba(34,197,94,.2)"/>
+<text x="112" y="212" fill="#86efac" font-size="10" font-weight="600" text-anchor="middle">ml_finding_labels</text>
+<text x="112" y="228" fill="#666" font-size="8" text-anchor="middle">~257K rows &middot; text + category + severity</text>
+
+<rect x="220" y="192" width="185" height="48" rx="8" fill="rgba(34,197,94,.06)" stroke="rgba(34,197,94,.2)"/>
+<text x="312" y="212" fill="#86efac" font-size="10" font-weight="600" text-anchor="middle">ml_contradiction_pairs</text>
+<text x="312" y="228" fill="#666" font-size="8" text-anchor="middle">~800 rows &middot; seller claim + finding</text>
+
+<rect x="420" y="192" width="185" height="48" rx="8" fill="rgba(34,197,94,.06)" stroke="rgba(34,197,94,.2)"/>
+<text x="512" y="212" fill="#86efac" font-size="10" font-weight="600" text-anchor="middle">ml_cost_data</text>
+<text x="512" y="228" fill="#666" font-size="8" text-anchor="middle">finding + ZIP + cost range</text>
+
+<rect x="620" y="192" width="185" height="48" rx="8" fill="rgba(34,197,94,.06)" stroke="rgba(34,197,94,.2)"/>
+<text x="712" y="212" fill="#86efac" font-size="10" font-weight="600" text-anchor="middle">ml_cooccurrence_buckets</text>
+<text x="712" y="228" fill="#666" font-size="8" text-anchor="middle">finding sets per analysis</text>
+
+<!-- Arrow down to augmentation -->
+<line x1="410" y1="250" x2="410" y2="330" stroke="#c4b5fd" stroke-width="1" stroke-dasharray="3,2"/>
+
+<!-- Trained Models (bottom section) -->
+<text x="410" y="342" fill="#94a3b8" font-size="10" font-weight="700" letter-spacing=".12em" text-anchor="middle">TRAINED MODELS (XGBoost + Sentence Embeddings &rarr; .xgb/.pkl)</text>
+
+<rect x="75" y="354" width="210" height="75" rx="8" fill="rgba(239,68,68,.06)" stroke="rgba(239,68,68,.2)"/>
+<text x="180" y="374" fill="#fca5a5" font-size="10" font-weight="700" text-anchor="middle">Finding Classifier</text>
+<text x="180" y="390" fill="#666" font-size="8" text-anchor="middle">text &rarr; category + severity</text>
+<text x="180" y="402" fill="#666" font-size="8" text-anchor="middle">Isotonic calibration on holdout</text>
+<text x="180" y="420" fill="#86efac" font-size="8" font-weight="600" text-anchor="middle">LIVE &mdash; gated at conf &ge; 0.85</text>
+
+<rect x="305" y="354" width="210" height="75" rx="8" fill="rgba(245,158,11,.06)" stroke="rgba(245,158,11,.2)"/>
+<text x="410" y="374" fill="#fcd34d" font-size="10" font-weight="700" text-anchor="middle">Repair Cost Predictor</text>
+<text x="410" y="390" fill="#666" font-size="8" text-anchor="middle">text + ZIP + price &rarr; p10/p50/p90</text>
+<text x="410" y="402" fill="#666" font-size="8" text-anchor="middle">Quantile regression, interval-based conf</text>
+<text x="410" y="420" fill="#86efac" font-size="8" font-weight="600" text-anchor="middle">LIVE &mdash; gated at conf &ge; 0.85</text>
+
+<rect x="535" y="354" width="210" height="75" rx="8" fill="rgba(59,130,246,.06)" stroke="rgba(59,130,246,.2)"/>
+<text x="640" y="374" fill="#93c5fd" font-size="10" font-weight="700" text-anchor="middle">Contradiction Detector</text>
+<text x="640" y="390" fill="#666" font-size="8" text-anchor="middle">seller claim + finding &rarr; label</text>
+<text x="640" y="402" fill="#666" font-size="8" text-anchor="middle">Trained on rule-engine output</text>
+<text x="640" y="420" fill="#fbbf24" font-size="8" font-weight="600" text-anchor="middle">HELD &mdash; mimics rules, not deployed</text>
+
+<!-- Deployment note -->
+<rect x="100" y="448" width="620" height="35" rx="8" fill="rgba(255,255,255,.02)" stroke="rgba(255,255,255,.06)"/>
+<text x="410" y="462" fill="#94a3b8" font-size="9" text-anchor="middle">Inference: sentence-transformers (all-MiniLM-L6-v2, 384-dim) + XGBoost &rarr; ~2MB models, sub-ms latency, no GPU</text>
+<text x="410" y="476" fill="#666" font-size="8" text-anchor="middle">All predictions gated at calibrated confidence &ge; 0.85 (v5.87.0). Below threshold, Claude/baseline stands.</text>
+</svg>
+<div class="diagram-caption">Figure 5 &mdash; ML pipeline: two models live in the customer path, one held back pending better training data. Three crawlers active (NYC + Chicago + Miami-Dade + federal aggregates); 11 city scaffolds awaiting verification before they can run. Coverage is currently average and we're explicit about that &mdash; the architecture is sound, the breadth of geographic data is the work in progress.</div>
+</div>
+
+<h3>Server-Side Training Pipeline</h3>
+<p>Training runs as isolated subprocesses on the Render 2GB Standard tier. A single orchestrator process spawns three sequential subprocesses &mdash; finding_classifier, contradiction_detector, cost_predictor &mdash; communicating via JSON state files in <code>/var/data/docrepo/.ml_jobs/</code>. Each subprocess runs with <code>OFFERWISE_TRAINING_SUBPROCESS=1</code> so it skips the APScheduler import path (preventing duplicate cron registration) but still initializes ML inference. A heartbeat thread in the gunicorn worker touches the state file every 20 seconds to distinguish live jobs from crashed ones.</p>
+<p>Memory management is the binding constraint on a 2GB plan. Sentence-transformer forward passes produce transient torch activation memory that dwarfs the output embedding matrix. The finding classifier streams the corpus with column-only queries via <code>with_entities</code> and <code>yield_per</code> batches of 2000 to avoid materializing the full label table as ORM objects (v5.86.99 OOM fix, originally written when the corpus was ~121K rows). Encoding happens in 500-row chunks with <code>batch_size=32</code> and explicit <code>gc.collect()</code> between chunks. The training sample itself is capped at 10,000 rows with severity-stratified sampling within category (v5.86.92). Full training runs complete in ~15 minutes with memory peaks around 1.6GB.</p>
+
+<h3>Model Architecture</h3>
+<p>All three models share a common pattern: sentence embeddings (all-MiniLM-L6-v2, 384 dimensions) fed into XGBoost classifiers (finding category, finding severity, contradiction detection) or a regressor (repair cost). The finding classifier is technically two XGBoost models sharing a single embedding step. The repair cost predictor concatenates the 384-dim text embedding with 22 structured features (one-hot encoded category, one-hot encoded severity, normalized ZIP, normalized sale price) and trains on log-scaled cost targets to handle the natural right-skew of repair costs. Models are ~2MB each, run with sub-millisecond latency on CPU, and require no GPU.</p>
+
+<h3>Training Workflow</h3>
+<p>One click. The admin dashboard Train Models card spawns the orchestrator subprocess; the frontend polls <code>/api/admin/ml-train-status</code> every 3 seconds and renders a live training console with per-stage timestamps, full sklearn classification reports, distribution histograms, and inference test results. The poll loop is hardened against transient 502 responses during heavy sklearn work (v5.86.95) so a single bad HTTP response doesn't orphan the UI. When training completes, the XGBoost model files and LabelEncoders are written to <code>models/</code> inside the container; the next web worker restart picks them up.</p>
+
+<h3>Public Data Crawlers</h3>
+<p>Geographic diversity is the known gap and the primary area of active expansion. The <code>ml_ingestion/socrata_crawler.py</code> base class handles any municipal portal running on Socrata (SODA 2.1 API), and the parallel <code>ml_ingestion/arcgis_crawler.py</code> base class (added v5.87.9) handles ArcGIS-backed portals (Esri REST FeatureServer/MapServer). A registry of city-specific subclasses lets the admin UI populate crawler options dynamically, and both crawler shapes share the same activation gate: each subclass carries a <code>STATUS</code> flag where <code>active</code> means dataset coordinates have been verified against the live API and <code>scaffold</code> means the class is correctly structured but coordinates need verification. The Federal &amp; National data crawler joins the registry as a third active entry, wrapping the older <code>cost_data_crawler.py</code> module so HomeAdvisor, FEMA, NFIP, and HUD inspection scores are crawled through the same admin UI as municipal sources.</p>
+<p>As of v5.87.21, the registry holds twenty entries and thirteen are active: Chicago, Federal &amp; National, Seattle, New Orleans, Cincinnati, Austin, LA, Miami-Dade County (FL · ArcGIS), Detroit Blight Tickets (MI · ArcGIS), Columbus (OH · ArcGIS), Adams County (CO · ArcGIS &mdash; suburban Denver, narrative quality), Augusta-Richmond County (GA · ArcGIS &mdash; small but high text quality per row), and <strong>Indianapolis (IN · ArcGIS &mdash; 106K rows since 2022 with structured 4-level case-type hierarchy)</strong>. Seven scaffolded entries (Philadelphia, San Francisco, Baltimore, DC, Dallas, Phoenix, Atlanta) have specific blockers documented per class. A "Crawl All Active" admin action runs every active crawler sequentially in one click. The <code>/api/admin/ml-crawl-verify</code> endpoint hits any registry entry's live dataset URL from production and reports verdict + sample fields, replacing the manual curl-and-eyeball verification dance with a single button. Both Socrata and ArcGIS shapes are supported by the verifier; the federal data wrapper is not auto-verifiable (it has no single dataset URL) but its underlying behavior has been operational since v5.86.93.</p>
+
+<h4 style="font-size:14px;color:var(--muted);margin-top:14px">Persistent Crawl Queue (v5.87.22)</h4>
+<p>The first version of "Crawl All Active" iterated cities in a Python daemon thread that held the city list in memory. If the Render worker recycled mid-run &mdash; deploy restart, OOM kill, idle timeout &mdash; the thread evaporated and any cities it hadn't yet started were lost. The user saw "Chicago stuck for hours" while the coordinator was actually dead, with no resumption mechanism. v5.87.22 replaced this with a persistent queue: when "Crawl All Active" is clicked, every active crawler is enqueued upfront as an <code>MLIngestionJob</code> row with <code>status='queued'</code>, then a separate drain worker picks the oldest queued row, atomically transitions it to <code>running</code>, executes the crawler, and loops to the next. If the worker dies, the queued rows persist in Postgres and a fresh drain call resumes from where it left off. Two operator endpoints support this directly: <code>POST /api/admin/ml-resume-queue</code> spawns a new drain worker against any queued rows, and <code>POST /api/admin/ml-clear-queue</code> cancels queued (not-yet-started) rows when an operator wants to start fresh. The same release also added a composite btree index <code>ix_ml_finding_labels_dedup</code> on <code>(finding_text, source_version)</code>: the per-row dedup query in <code>SocrataCrawler._add_unlabeled_finding</code> was a full table scan against the ~91K-row labels table, which made each city take 25-30 minutes &mdash; roughly the same magnitude as the worker idle timeout. With the index, dedup is a btree probe and city crawls drop to ~3-6 minutes each.</p>
+<p>Honest acknowledgment: "force-fail" on a hung running crawler does not actually kill the underlying Python thread &mdash; there is no portable way to interrupt a thread from outside in CPython. Force-fail marks the database row as <code>failed</code> and (in v5.87.25 and later) auto-spawns a fresh drain worker that picks up the next queued job. The original stuck thread keeps running uselessly until it completes or the worker process recycles, but its work is invisible: the queued cities drain on the new worker thread without waiting for it. A cleaner solution &mdash; a thread-safe stop signal that the crawler periodically polls and bails out cleanly &mdash; is on the roadmap but not yet shipped. For the current operational scale (one Render worker, ~13 cities, occasional force-fail), the imperfect solution is operationally acceptable.</p>
+<p>HUD's Real Estate Assessment Center (REAC) inspection narratives were investigated as a national data source in v5.87.10 and ruled out: REAC scores are publicly available (already pulled by the federal crawler) but the per-finding inspector text is not exposed via any public API and would require FOIA. The honest research findings are documented in <code>ml_ingestion/HUD_REAC_RESEARCH_NOTE.py</code>. Better substitutes for national coverage &mdash; AHS (American Housing Survey) microdata from Census, and CourtListener disclosure dispute filings &mdash; are candidate next targets. Scaffolding for CKAN-backed portals (needed for Boston) is not yet built. No customer data is ever crawled.</p>
+
+<h3>Data Portability &mdash; Backups + Audit Trail</h3>
+<p>The dataset itself is the strategic asset, and it's kept portable. The admin dashboard includes an on-demand snapshot feature that exports all ML tables as CSVs inside a single zip file, with a JSON manifest listing row counts and a plain-text README. Snapshots live at <code>/var/data/docrepo/ml_snapshots/</code> on the Render persistent disk (separate from the Postgres data) and can be downloaded to local machine as insurance against Postgres loss. This satisfies four goals simultaneously: disaster recovery, portability across systems, inspectability in Excel or pandas, and productization as a deliverable artifact.</p>
+</section>
+
+<!-- SECTION 11 -->
+<section class="arch-section" id="nightly-ops">
+<h2>11. Nightly Operations &amp; Background Jobs</h2>
+<p>OfferWise's product surface is the buyer-facing analysis flow, but most of the value-creation actually happens at night, when no humans are watching. Fifteen scheduled jobs run via APScheduler in the gunicorn worker process. Some run every fifteen minutes, some every six hours, some at fixed clock times overnight. The most consequential is the 03:00 ML training agent that retrains all three production models on whatever new data the crawlers brought in during the previous twenty-four hours, validates the new models against the held-out comparison suite, rolls back automatically on regression, and ships the artifacts to the persistent disk where the inference path picks them up on the next request. This section documents what runs, when it runs, and what to do when something goes wrong.</p>
+
+<h3>Schedule of Background Jobs</h3>
+<p>Every job below registers via <code>scheduler.add_job</code> in <code>app.py</code> or <code>agentic_monitor.py</code>. APScheduler uses an in-memory job store, so jobs are recreated on every deployment. <code>replace_existing=True</code> on every registration prevents duplicate cron entries when gunicorn workers restart. Times are UTC because Render runs UTC; convert to your local time mentally.</p>
+
+<table style="width:100%;border-collapse:collapse;font-size:13px;margin:16px 0">
+<thead>
+<tr style="border-bottom:2px solid var(--surface3); text-align:left">
+  <th style="padding:8px;color:#94a3b8">Time (UTC)</th>
+  <th style="padding:8px;color:#94a3b8">Job ID</th>
+  <th style="padding:8px;color:#94a3b8">Cadence</th>
+  <th style="padding:8px;color:#94a3b8">Purpose</th>
+  <th style="padding:8px;color:#94a3b8">Module</th>
+</tr>
+</thead>
+<tbody>
+<tr style="border-bottom:1px solid var(--border)">
+  <td style="padding:6px"><code>:00, :15, :30, :45</code></td><td style="padding:6px"><code>drip</code></td><td style="padding:6px">15min</td>
+  <td style="padding:6px">Drip campaign mailer (welcome + 4 follow-ups)</td><td style="padding:6px"><code>drip_campaign.py</code></td>
+</tr>
+<tr style="border-bottom:1px solid var(--border)">
+  <td style="padding:6px"><code>hourly</code></td><td style="padding:6px"><code>reddit</code></td><td style="padding:6px">1hr</td>
+  <td style="padding:6px">Reddit OAuth comment + post poller; replies queued for review</td><td style="padding:6px"><code>reddit_poster.py</code></td>
+</tr>
+<tr style="border-bottom:1px solid var(--border)">
+  <td style="padding:6px"><code>every 6h</code></td><td style="padding:6px"><code>ads_sync</code></td><td style="padding:6px">6hr</td>
+  <td style="padding:6px">Google Ads + Reddit Ads spend sync, per-day fetch (v5.87.76)</td><td style="padding:6px"><code>reddit_ads_sync.py</code></td>
+</tr>
+<tr style="border-bottom:1px solid var(--border)">
+  <td style="padding:6px"><code>every 6h</code></td><td style="padding:6px"><code>forum_scan</code></td><td style="padding:6px">6hr</td>
+  <td style="padding:6px">Forum + community scout for buyer-intent signals</td><td style="padding:6px"><code>forum_scanner.py</code></td>
+</tr>
+<tr style="border-bottom:1px solid var(--border)">
+  <td style="padding:6px"><code>02:00</code></td><td style="padding:6px"><code>lead_expiry</code></td><td style="padding:6px">daily</td>
+  <td style="padding:6px">Expire stale leads (no engagement &gt; 90 days)</td><td style="padding:6px"><code>lead_expiry_job</code></td>
+</tr>
+<tr style="border-bottom:2px solid var(--blue); background:rgba(59,130,246,0.05)">
+  <td style="padding:6px"><strong>03:00</strong></td><td style="padding:6px"><code>ml_agent</code></td><td style="padding:6px">daily</td>
+  <td style="padding:6px"><strong>ML training agent: crawl &rarr; train &rarr; validate &rarr; rollback or promote</strong></td><td style="padding:6px"><code>app.py:_ml_agent_job</code></td>
+</tr>
+<tr style="border-bottom:1px solid var(--border)">
+  <td style="padding:6px"><code>03:30</code></td><td style="padding:6px"><code>discovery_crawler</code></td><td style="padding:6px">daily</td>
+  <td style="padding:6px">B2B prospect discovery (Hunter &rarr; Snov fallback) + research + drafts</td><td style="padding:6px"><code>discovery_crawler.py</code></td>
+</tr>
+<tr style="border-bottom:1px solid var(--border)">
+  <td style="padding:6px"><code>06:45</code></td><td style="padding:6px"><code>agentic_deadlines</code></td><td style="padding:6px">daily</td>
+  <td style="padding:6px">Inspection-contingency deadline monitor (alert at T-3 days)</td><td style="padding:6px"><code>agentic_monitor.py</code></td>
+</tr>
+<tr style="border-bottom:1px solid var(--border)">
+  <td style="padding:6px"><code>07:00</code></td><td style="padding:6px"><code>agentic_comps</code></td><td style="padding:6px">daily</td>
+  <td style="padding:6px">Comp price monitoring on watchlisted properties (RentCast)</td><td style="padding:6px"><code>agentic_monitor.py</code></td>
+</tr>
+<tr style="border-bottom:1px solid var(--border)">
+  <td style="padding:6px"><code>07:00</code></td><td style="padding:6px"><code>content_gen</code></td><td style="padding:6px">daily</td>
+  <td style="padding:6px">Content generation for blog/SEO surface</td><td style="padding:6px"><code>content_generator.py</code></td>
+</tr>
+<tr style="border-bottom:1px solid var(--border)">
+  <td style="padding:6px"><code>07:15</code></td><td style="padding:6px"><code>agentic_earthquake</code></td><td style="padding:6px">daily</td>
+  <td style="padding:6px">Earthquake-risk alert (USGS feed; auto-pin to active watchlists)</td><td style="padding:6px"><code>agentic_monitor.py</code></td>
+</tr>
+<tr style="border-bottom:1px solid var(--border)">
+  <td style="padding:6px"><code>07:30</code></td><td style="padding:6px"><code>agentic_price</code></td><td style="padding:6px">daily</td>
+  <td style="padding:6px">Property price-drop monitor on watchlists</td><td style="padding:6px"><code>agentic_monitor.py</code></td>
+</tr>
+<tr style="border-bottom:1px solid var(--border)">
+  <td style="padding:6px"><code>07:30</code></td><td style="padding:6px"><code>social_gen</code></td><td style="padding:6px">daily</td>
+  <td style="padding:6px">Social media post queue (LinkedIn / X)</td><td style="padding:6px"><code>social_generator.py</code></td>
+</tr>
+<tr style="border-bottom:1px solid var(--border)">
+  <td style="padding:6px"><code>07:45</code></td><td style="padding:6px"><code>agentic_permit</code></td><td style="padding:6px">daily</td>
+  <td style="padding:6px">Permit-activity monitor on watchlisted properties (separate from v5.87.82 inline lookups)</td><td style="padding:6px"><code>agentic_monitor.py</code></td>
+</tr>
+<tr style="border-bottom:1px solid var(--border)">
+  <td style="padding:6px"><code>10:00</code></td><td style="padding:6px"><code>ml_survey</code></td><td style="padding:6px">daily</td>
+  <td style="padding:6px">Post-close survey reminder (collect human-labeled training signal)</td><td style="padding:6px"><code>app.py:_survey_job</code></td>
+</tr>
+<tr>
+  <td style="padding:6px"><code>Mon 08:00</code></td><td style="padding:6px"><code>funnel_alert</code></td><td style="padding:6px">weekly</td>
+  <td style="padding:6px">Funnel-health alert (weekly active users, conversion deltas, error rates)</td><td style="padding:6px"><code>funnel_alert_job</code></td>
+</tr>
+</tbody>
+</table>
+
+<p>Two operational details worth making explicit. <strong>First</strong>: every job is wrapped by <code>_safe_add_job</code> in <code>app.py</code>. If one job's registration throws (missing import, missing env var, library version skew), the other fourteen still register cleanly. The error gets logged but the scheduler keeps starting. This was added after a single broken job once silently took down all background processing for two days in v5.86.x. <strong>Second</strong>: APScheduler runs <em>inside</em> the gunicorn worker process. With Render's two-worker configuration, both workers register the same jobs but APScheduler's <code>replace_existing=True</code> means only the most recent registration survives. In practice this means jobs run roughly twice as often as configured during the worker-restart window of a deploy &mdash; tolerable for idempotent jobs (every job here is idempotent by design) but worth knowing if you ever inspect logs and see a job appear to fire twice.</p>
+
+<h3>The 03:00 ML Training Agent &mdash; Phase by Phase</h3>
+<p>This is the most consequential automated process OfferWise runs. It executes five phases sequentially, with regression-guard logic that auto-rolls-back any model that gets significantly worse than the prior trained version. The agent is fully autonomous: no human approval is required between phases, and the entire run including crawl, train, validate, and promote completes in approximately 8&ndash;12 minutes on the Render 2GB Standard tier. Concrete numbers from the latest production run are at the end of this section.</p>
+
+<div class="diagram-caption" style="margin:16px 0;font-size:13px"><strong>Figure 11.1 &mdash; Nightly ML training agent flow</strong></div>
+
+<svg viewBox="0 0 820 540" style="width:100%;max-width:820px;display:block;margin:8px auto 16px;background:var(--surface);border-radius:10px;border:1px solid var(--border)">
+  <defs>
+    <marker id="aTip" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#60a5fa"/>
+    </marker>
+    <marker id="aTipRed" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#ef4444"/>
+    </marker>
+  </defs>
+
+  <text x="410" y="28" fill="#94a3b8" font-size="13" font-weight="700" text-anchor="middle" letter-spacing=".1em">03:00 UTC ML TRAINING AGENT (autonomous, ~8–12 min)</text>
+
+  <g transform="translate(40, 60)">
+    <rect width="160" height="76" rx="8" fill="#1a2a42" stroke="#3b82f6" stroke-width="1.5"/>
+    <text x="80" y="22" fill="#60a5fa" font-size="10" font-weight="700" text-anchor="middle" letter-spacing=".1em">PHASE 1</text>
+    <text x="80" y="42" fill="#f1f5f9" font-size="13" font-weight="600" text-anchor="middle">Crawl</text>
+    <text x="80" y="60" fill="#94a3b8" font-size="10" text-anchor="middle">Public sources</text>
+  </g>
+
+  <g transform="translate(220, 60)">
+    <rect width="160" height="76" rx="8" fill="#1a2a42" stroke="#3b82f6" stroke-width="1.5"/>
+    <text x="80" y="22" fill="#60a5fa" font-size="10" font-weight="700" text-anchor="middle" letter-spacing=".1em">PHASE 2</text>
+    <text x="80" y="42" fill="#f1f5f9" font-size="13" font-weight="600" text-anchor="middle">Sufficiency Check</text>
+    <text x="80" y="60" fill="#94a3b8" font-size="10" text-anchor="middle">+100 findings OR 7d stale</text>
+  </g>
+
+  <g transform="translate(400, 60)">
+    <rect width="160" height="76" rx="8" fill="#1a2a42" stroke="#3b82f6" stroke-width="1.5"/>
+    <text x="80" y="22" fill="#60a5fa" font-size="10" font-weight="700" text-anchor="middle" letter-spacing=".1em">PHASE 3</text>
+    <text x="80" y="42" fill="#f1f5f9" font-size="13" font-weight="600" text-anchor="middle">Backup Models</text>
+    <text x="80" y="60" fill="#94a3b8" font-size="10" text-anchor="middle">/models → /models_backup</text>
+  </g>
+
+  <g transform="translate(580, 60)">
+    <rect width="200" height="76" rx="8" fill="#1a2a42" stroke="#3b82f6" stroke-width="1.5"/>
+    <text x="100" y="22" fill="#60a5fa" font-size="10" font-weight="700" text-anchor="middle" letter-spacing=".1em">PHASE 4</text>
+    <text x="100" y="42" fill="#f1f5f9" font-size="13" font-weight="600" text-anchor="middle">Train (3 models)</text>
+    <text x="100" y="60" fill="#94a3b8" font-size="10" text-anchor="middle">subprocess, sequential</text>
+  </g>
+
+  <line x1="200" y1="98" x2="220" y2="98" stroke="#60a5fa" stroke-width="2" marker-end="url(#aTip)"/>
+  <line x1="380" y1="98" x2="400" y2="98" stroke="#60a5fa" stroke-width="2" marker-end="url(#aTip)"/>
+  <line x1="560" y1="98" x2="580" y2="98" stroke="#60a5fa" stroke-width="2" marker-end="url(#aTip)"/>
+
+  <g transform="translate(290, 200)">
+    <rect width="240" height="76" rx="8" fill="#1a2a42" stroke="#3b82f6" stroke-width="1.5"/>
+    <text x="120" y="22" fill="#60a5fa" font-size="10" font-weight="700" text-anchor="middle" letter-spacing=".1em">PHASE 5</text>
+    <text x="120" y="42" fill="#f1f5f9" font-size="13" font-weight="600" text-anchor="middle">Validate</text>
+    <text x="120" y="60" fill="#94a3b8" font-size="10" text-anchor="middle">cd_acc &gt;= old &#8722; 3, fc_acc &gt;= old &#8722; 5</text>
+  </g>
+
+  <line x1="680" y1="136" x2="500" y2="200" stroke="#60a5fa" stroke-width="2" marker-end="url(#aTip)"/>
+
+  <g transform="translate(40, 340)">
+    <rect width="280" height="120" rx="8" fill="rgba(34,197,94,0.08)" stroke="#22c55e" stroke-width="1.5"/>
+    <text x="140" y="22" fill="#22c55e" font-size="10" font-weight="700" text-anchor="middle" letter-spacing=".1em">PROMOTED</text>
+    <text x="140" y="46" fill="#f1f5f9" font-size="13" font-weight="600" text-anchor="middle">New models live</text>
+    <text x="140" y="68" fill="#94a3b8" font-size="11" text-anchor="middle">/models/finding_classifier.xgb</text>
+    <text x="140" y="84" fill="#94a3b8" font-size="11" text-anchor="middle">/models/contradiction_detector.xgb</text>
+    <text x="140" y="100" fill="#94a3b8" font-size="11" text-anchor="middle">/models/cost_predictor.xgb</text>
+  </g>
+
+  <g transform="translate(500, 340)">
+    <rect width="280" height="120" rx="8" fill="rgba(239,68,68,0.08)" stroke="#ef4444" stroke-width="1.5"/>
+    <text x="140" y="22" fill="#ef4444" font-size="10" font-weight="700" text-anchor="middle" letter-spacing=".1em">ROLLED BACK</text>
+    <text x="140" y="46" fill="#f1f5f9" font-size="13" font-weight="600" text-anchor="middle">Restore prior models</text>
+    <text x="140" y="68" fill="#94a3b8" font-size="11" text-anchor="middle">/models_backup → /models</text>
+    <text x="140" y="88" fill="#94a3b8" font-size="11" text-anchor="middle">MLAgentRun.rolled_back = true</text>
+    <text x="140" y="104" fill="#94a3b8" font-size="11" text-anchor="middle">MLAgentRun.rollback_reason</text>
+  </g>
+
+  <line x1="370" y1="276" x2="180" y2="340" stroke="#22c55e" stroke-width="2" marker-end="url(#aTip)"/>
+  <text x="240" y="305" fill="#22c55e" font-size="11" font-weight="600">no regression</text>
+
+  <line x1="450" y1="276" x2="640" y2="340" stroke="#ef4444" stroke-width="2" marker-end="url(#aTipRed)"/>
+  <text x="560" y="305" fill="#ef4444" font-size="11" font-weight="600">regression detected</text>
+
+  <text x="410" y="500" fill="#666" font-size="10" text-anchor="middle">Every run logged to MLAgentRun (Postgres) with phase-by-phase agent_log</text>
+  <text x="410" y="516" fill="#666" font-size="10" text-anchor="middle">Inference path picks up new artifacts on the next request — no restart needed</text>
+</svg>
+
+<p><strong>Phase 1 &mdash; Crawl.</strong> Calls <code>cost_data_crawler.collect_all_external_cost_data()</code> with bounded limits (<code>permit_limit=300</code>, <code>violation_limit=2000</code>) to keep memory under the Render 2GB ceiling. Pulls fresh rows from public data sources, hashes each row's content with SHA-256, and dedupes against existing <code>MLCostData</code> rows. Only genuinely new rows persist. Typical run adds 0&ndash;500 new cost records depending on how active the upstream sources were that day. The bulk-load + Python-set dedup pattern (added v5.87.36) replaced what was a per-row SELECT against the cost-data table; it cuts crawl phase from ~8 minutes to under 60 seconds at current corpus size.</p>
+
+<p><strong>Phase 2 &mdash; Data sufficiency check.</strong> Counts the current corpus size in <code>MLFindingLabel</code>, <code>MLContradictionPair</code>, and <code>MLCostData</code>. Compares against the last successful training run via the <code>MLTrainingRun</code> table. Decision tree:</p>
+<ul style="margin:8px 0 12px 24px">
+<li>If no prior run exists: train (first time).</li>
+<li>If last training was &ge; 7 days ago: train regardless of delta. This keeps the model fresh even when crawlers run dry for a week (e.g. holiday weeks when municipal portals don't post).</li>
+<li>Otherwise: train only if &ge; 100 new findings OR &ge; 50 new cost records. The thresholds were bumped from +5 / +10 (v5.87.34) to +100 / +50 (v5.87.35) after operational data showed retraining on tiny deltas wasted the 2GB memory budget without measurable model improvement.</li>
+</ul>
+<p>Skip outcomes are recorded in <code>MLAgentRun.skipped_reason</code> with the precise threshold delta. Manual triggers from the admin "Run Now" button bypass Phase 2 entirely; the threshold logic only gates the scheduled 03:00 cron path.</p>
+
+<p><strong>Phase 3 &mdash; Backup.</strong> The current <code>/models</code> directory (containing <code>finding_classifier.xgb</code>, <code>contradiction_detector.xgb</code>, <code>cost_predictor.xgb</code>, plus the embedder pickle files) is copied to <code>/models_backup</code>. If anything goes wrong in Phase 4 or Phase 5, the backup is restored verbatim. Backups are throwaway &mdash; only the most recent prior model is kept. There is no longer a model history beyond N=1.</p>
+
+<p><strong>Phase 4 &mdash; Train.</strong> The agent calls <code>admin_routes._execute_training</code> which spawns a subprocess with <code>OFFERWISE_TRAINING_SUBPROCESS=1</code> in its environment. The subprocess flag does two important things: (a) it skips APScheduler import so the subprocess doesn't accidentally register duplicate cron jobs, and (b) it still initializes ML inference (loads the <code>sentence-transformers/all-MiniLM-L6-v2</code> embedder, ~85MB peak memory) because <code>_execute_training</code> needs the embedder to vectorize finding text before XGBoost training. Each of the three models trains sequentially in the same subprocess, communicating progress to the parent via JSON state files in <code>/var/data/docrepo/.ml_jobs/</code>. A heartbeat thread in the gunicorn worker touches the state file every 20 seconds; if no heartbeat shows up for &gt; 60 seconds, the parent assumes the subprocess crashed and surfaces the failure. Training results &mdash; finding-classifier accuracy, contradiction-detector accuracy, repair-cost R<sup>2</sup> &mdash; are extracted from the returned dict and stored on the <code>MLAgentRun</code> row.</p>
+
+<p><strong>Phase 5 &mdash; Validate.</strong> Two regression checks run if a previous training run exists:</p>
+<ul style="margin:8px 0 12px 24px">
+<li><strong>Contradiction detector accuracy:</strong> if new accuracy is &gt; 3 percentage points below the prior run, treat as regression and roll back.</li>
+<li><strong>Finding classifier category accuracy:</strong> if new accuracy is &gt; 5 percentage points below the prior run, treat as regression and roll back.</li>
+</ul>
+<p>The asymmetry reflects what each model does. Contradiction detection is high-stakes per-call (a wrong "no contradiction" verdict misleads the buyer), so we tolerate less drift. Finding classification is one input among many in the cost calculation pipeline, so a few percent drift is more recoverable. The thresholds are conservative on purpose &mdash; we'd rather skip a noisy daily improvement than promote a model that's slightly worse and silently degrade buyer-facing analyses.</p>
+
+<p>If regression triggers, <code>/models_backup</code> is moved back to <code>/models</code>, the run row is marked <code>rolled_back=true</code> with a human-readable <code>rollback_reason</code>, and the agent exits cleanly. The next morning, a fresh agent run will retry; if the regression was caused by a transient data quality issue (e.g. a contaminated batch from a city portal that fixed itself overnight), it self-resolves. If regression persists for &ge; 3 consecutive nights, that's an operator alert and a real signal to look at the training data.</p>
+
+<h3>Why a 30-Minute Gap Between 03:00 and 03:30</h3>
+<p>The discovery crawler at 03:30 was deliberately offset from the ML agent by half an hour. Both are heavy: the ML agent peaks above 1.5GB during embedder + XGBoost training; the discovery crawler holds the prospect catalog plus Hunter API responses in memory. On the Render 2GB Standard tier, running them concurrently has caused OOM-kill restarts that lost both jobs' progress. The 30-minute gap is empirically sufficient: the ML agent's heaviest phase (Phase 4 training) typically completes by 03:08&ndash;03:12, and the embedder + model-loading allocations have been freed by 03:25, leaving comfortable headroom when the discovery crawler kicks off at 03:30.</p>
+
+<h3>What Gets Retrained Every Night, On What Data</h3>
+<p>Three models retrain. The data pipeline they consume is the same in all three cases (the corpus tables in Postgres), but each model uses a different subset.</p>
+<table style="width:100%;border-collapse:collapse;font-size:13px;margin:16px 0">
+<thead>
+<tr style="border-bottom:2px solid var(--surface3); text-align:left">
+  <th style="padding:8px;color:#94a3b8">Model</th>
+  <th style="padding:8px;color:#94a3b8">Artifact</th>
+  <th style="padding:8px;color:#94a3b8">Trains on</th>
+  <th style="padding:8px;color:#94a3b8">In production?</th>
+</tr>
+</thead>
+<tbody>
+<tr style="border-bottom:1px solid var(--border)">
+  <td style="padding:6px"><strong>Finding Classifier</strong></td>
+  <td style="padding:6px"><code>finding_classifier.xgb</code></td>
+  <td style="padding:6px"><code>MLFindingLabel</code> (<strong>~257K rows</strong>)</td>
+  <td style="padding:6px;color:#22c55e">Yes &mdash; confidence &ge; 0.85 gates</td>
+</tr>
+<tr style="border-bottom:1px solid var(--border)">
+  <td style="padding:6px"><strong>Cost Predictor</strong></td>
+  <td style="padding:6px"><code>cost_predictor.xgb</code></td>
+  <td style="padding:6px"><code>MLCostData</code> (<strong>~111K rows</strong>)</td>
+  <td style="padding:6px;color:#22c55e">Yes &mdash; ZIP-level repair-cost grounding</td>
+</tr>
+<tr>
+  <td style="padding:6px"><strong>Contradiction Detector</strong></td>
+  <td style="padding:6px"><code>contradiction_detector.xgb</code></td>
+  <td style="padding:6px"><code>MLContradictionPair</code> (rule-derived)</td>
+  <td style="padding:6px;color:#fca5a5">Held out &mdash; rules + LLM cover prod</td>
+</tr>
+</tbody>
+</table>
+
+<p>The Contradiction Detector trains every night even though it isn't currently in the inference path. The reason is operational: holding the model out of production didn't mean stopping its training cadence. When/if we shift to ML-backed contradiction detection (after we accumulate enough human-labeled pairs from post-close surveys), the model will already be on a current-data baseline rather than rebuilding from cold. Production contradiction detection runs via <code>cross_reference_engine.py</code> for rules and <code>hybrid_ai.llm_detect_contradictions()</code> for semantic comparison &mdash; see Section 4 and Section 10 for the rationale.</p>
+
+<h3>Inference Path Picks Up New Models Without a Restart</h3>
+<p>This is a small but operationally important detail. The ML inference path in <code>ml_inference.py</code> stat-checks the <code>/models/*.xgb</code> file mtime on each call. If the mtime is newer than the in-memory model's load timestamp, the new artifact is reloaded transparently. This means the 03:00 training run's promoted models start serving traffic on the very next analysis request after promotion completes, without a gunicorn restart and without any operator action. The same pattern applies after a manual training trigger from the admin UI.</p>
+
+<h3>Real Numbers from Recent Production Runs</h3>
+<p>Snapshot as of v5.87.85. The corpus and ML-agent operational numbers below are <strong>live-pulled from the database</strong> on each page load (cached server-side for 5 minutes). Items without the live badge are descriptive ranges based on operational pattern in the code.</p>
+<ul style="margin:8px 0 12px 24px" data-arch-real-numbers>
+<li><strong>Corpus size:</strong> <span data-arch-stat="corpus_summary">~121K rows in <code>MLFindingLabel</code>, ~111K rows in <code>MLCostData</code>, ~14K rows in <code>MLContradictionPair</code></span>. <span data-arch-live-badge style="display:none;font-size:10px;font-weight:600;letter-spacing:1px;padding:1px 6px;border-radius:4px;background:rgba(34,197,94,0.12);color:#22c55e;margin-left:6px">LIVE</span></li>
+<li><strong>Phase 1 (crawl) duration:</strong> 35&ndash;75 seconds. Adds 50&ndash;500 new cost records on a typical night, sometimes zero on holiday weeks when municipal portals are quiet.</li>
+<li><strong>Phase 4 (training) duration:</strong> 6&ndash;9 minutes for all three models combined. Finding Classifier is the slowest (~3-4 min); Cost Predictor ~2-3 min; Contradiction Detector ~1-2 min.</li>
+<li><strong>Total agent run time, end to end:</strong> <span data-arch-stat="avg_duration_str">8&ndash;12 minutes</span>. The 30-minute window before the 03:30 discovery crawler is plenty. <span data-arch-live-badge style="display:none;font-size:10px;font-weight:600;letter-spacing:1px;padding:1px 6px;border-radius:4px;background:rgba(34,197,94,0.12);color:#22c55e;margin-left:6px">LIVE</span></li>
+<li><strong>Memory peak:</strong> ~1.6GB during Phase 4 (embedder + XGBoost + parent gunicorn baseline). Render 2GB Standard tier handles this with ~400MB headroom.</li>
+<li><strong>Skip rate:</strong> <span data-arch-stat="skip_rate_str">Approximately 25&ndash;40% of nights</span> skip Phase 4 entirely under the +100/+50 threshold. The 7-day staleness override fires roughly weekly on quiet stretches and ensures no model goes more than a week without a refresh. <span data-arch-live-badge style="display:none;font-size:10px;font-weight:600;letter-spacing:1px;padding:1px 6px;border-radius:4px;background:rgba(34,197,94,0.12);color:#22c55e;margin-left:6px">LIVE</span></li>
+<li><strong>Rollback rate:</strong> <span data-arch-stat="rollback_rate_str">&lt; 5% of trained nights</span> trigger automatic rollback. When they do, the cause is usually a contaminated batch from one specific data source &mdash; the next night's run usually trains successfully. <span data-arch-live-badge style="display:none;font-size:10px;font-weight:600;letter-spacing:1px;padding:1px 6px;border-radius:4px;background:rgba(34,197,94,0.12);color:#22c55e;margin-left:6px">LIVE</span></li>
+<li><strong>Inference latency impact:</strong> A retrained Finding Classifier loads in ~120ms on first call after promotion, then sub-millisecond per inference call. Buyers never notice the model swap.</li>
+<li data-arch-stat-row="last_run" style="display:none"><strong>Last successful training run:</strong> <span data-arch-stat="last_successful_at"></span> &middot; <span data-arch-stat="run_window_summary"></span> <span data-arch-live-badge style="display:none;font-size:10px;font-weight:600;letter-spacing:1px;padding:1px 6px;border-radius:4px;background:rgba(34,197,94,0.12);color:#22c55e;margin-left:6px">LIVE</span></li>
+</ul>
+<p>Every nightly run is recorded in the <code>MLAgentRun</code> table with the full <code>agent_log</code> as JSON, so an operator can always answer the question "what did the model do last night?" by querying <code>SELECT * FROM ml_agent_run ORDER BY created_at DESC LIMIT 7;</code> in the admin shell.</p>
+
+</section>
+
+<!-- SECTION 12 -->
+<section class="arch-section" id="outreach">
+<h2>12. B2B Outreach &amp; Founder Tooling</h2>
+<p>OfferWise is bootstrapped without a sales team. The founder runs all B2B partnership outreach personally &mdash; renovation lenders, insurtechs, brokerages, title companies, fintech, and iBuyers who could become channel partners or integration targets. The Outreach subsystem is the toolset that makes that work feasible at one-person scale: discovering decision-makers, generating personalized emails grounded in current company news, sending via a deliverability-friendly transactional path, and tracking what comes back. None of this is product-facing &mdash; it lives behind admin auth at <code>/admin?admin_key=...</code>.</p>
+
+<h3>Multi-Provider Discovery Orchestrator</h3>
+<p>Decision-maker discovery uses a fallback chain rather than a single vendor lock-in. <code>prospect_research_service.discover_prospects()</code> tries Hunter (primary), then Apollo (configured via <code>APOLLO_API_KEY</code> when present, code preserved server-side regardless), then Snov (tertiary, OAuth2 + async two-step API). Each provider is wrapped in its own service module with a credit-floor check that refuses to call when the provider is below threshold, preserving the last few credits for explicit user-driven calls rather than burning them on bulk operations. Provider tiers (free or paid) are configured per-deployment via API keys; the orchestrator code is unchanged whether a key represents a free-tier or paid-tier account. The orchestrator returns a normalized prospect shape regardless of which provider answered, plus a <code>source</code> field so the UI can show "via snov" attribution.</p>
+<p>Snov in particular required nontrivial integration: its v2 domain-search API is async (POST <code>/start</code> returns a <code>task_hash</code>, then poll <code>/result/{hash}</code> until <code>status=completed</code>), the <code>task_hash</code> lives at <code>meta.task_hash</code> rather than the obvious <code>data.task_hash</code>, the start endpoint returns HTTP 202 Accepted (not 200), the balance endpoint returns the credit count as a string ("50.00") not an integer, and the data list occasionally contains string entries rather than dicts. All five gotchas required real-world response inspection to find &mdash; the official docs were ambiguous on every one. Defensive parsing now handles each.</p>
+
+<h3>Pluggable Email Verifier</h3>
+<p>Email verification is decoupled from the Hunter free-tier budget so verification doesn't compete with discovery for the same 75-credit pool. <code>verifier_service.py</code> abstracts three backends behind a unified interface (<code>account_info</code>, <code>verify_email</code>, <code>verify_emails_batch</code>) selected at runtime via the <code>VERIFIER_PROVIDER</code> env var: <strong>MillionVerifier</strong> ($3.50 per 1,000 paid, free 100/month, default), <strong>ZeroBounce</strong> ($7.50 per 1,000 paid, free 100/month), and <strong>Hunter</strong> as legacy fallback. The <code>safe_to_send</code> derivation is intentionally conservative across all backends &mdash; deliverable AND score &ge; 70 &mdash; so risky/catch-all/disposable addresses are filtered out regardless of provider. Switching providers is a Render env var edit; no code change.</p>
+
+<h3>Research &amp; Draft Pipeline</h3>
+<p>Once a prospect is in the system, the Research &amp; Draft pipeline (<code>prospect_research_service.research_company_focus</code> and <code>draft_email</code>) generates a personalized outbound email per contact. Stage 1: Anthropic web_search tool with <code>max_uses=3</code> reads the company's current strategic focus &mdash; recent funding rounds, named acquisitions, leadership changes, public commentary on industry topics. Stage 2: Claude generates an email referencing that current research (not stale company-overview boilerplate) in the founder's voice. The draft is saved as <code>OutreachContact.draft_subject</code> + <code>draft_body</code>; sending happens only after manual review through the admin UI. Cost: ~$0.03 per prospect in Anthropic credits.</p>
+
+<h3>Discovery Queue &amp; Nightly Crawler</h3>
+<p>Synchronous discovery (founder clicks "Discover" and waits 5-15 seconds) wastes attention and produces empty results from companies Snov doesn't have. The nightly crawler shifts discovery to a 3:30am background job that processes a queue of domains and produces drafts for review the next morning. <code>DiscoveryQueueItem</code> is the queue table; <code>discovery_crawler.py</code> is the worker. Items can be queued manually (founder types a domain and clicks "Queue for tonight") or by autopilot top-up (when the pending count is below <code>DISCOVERY_CRAWL_NIGHTLY_CAP</code>, autopilot fills the queue from a curated catalog of ~50 top players across six wedges, rotating to avoid stacking the queue with a single wedge).</p>
+<p>State machine: <code>pending → running → completed</code> on success (with <code>prospects_found_count</code> + <code>drafts_generated_count</code>), <code>running → pending</code> on retryable error (incremented attempt counter, retries up to <code>DISCOVERY_CRAWL_MAX_ATTEMPTS</code>), <code>running → pending</code> on credit-floor &mdash; a "deferred" state that does NOT increment attempts so the retry budget is preserved for genuine failures. The 30-minute gap from the 3:00am ML training agent prevents the two heaviest nightly jobs from contending for the 512MB Render memory budget.</p>
+<p>Level 2 automation (per founder spec): the crawler doesn't only discover; it also auto-runs the Research &amp; Draft pipeline on the new contacts. By 4am most nights there are 3-5 prospects with personalized drafts ready in the prospect list. The founder reviews and sends in the morning &mdash; one click per email. Level 3 (auto-send) is intentionally not implemented; review-before-send is the policy.</p>
+
+<h3>Single-Screen Prospect List UI</h3>
+<p>The admin Outreach view is one screen, not a four-tab interface. Three add-prospect modes (by domain via discovery, paste a list, add one manually) live in a single Add Prospects card. Below it: filter chips (All / New / Drafted / Sent / Replied) with live counts, a bulk action bar that appears when rows are checked (Research+draft, Send drafts, Delete), the prospect list with per-row icons that change by status (🔬 research, 📝 review draft, 📧 send, 💬 mark replied), and collapsible Engagement and Discovery Queue panels at the bottom. The curated quick-pick chips populate the domain field on click for fast operational entry.</p>
+
+<h3>Founder Tunables</h3>
+<div class="module-grid">
+<div class="module-card"><div class="mc-name">DISCOVERY_CRAWL_NIGHTLY_CAP</div><div class="mc-desc">Items processed per nightly run. Default 5. Set to 0 to pause the crawler without disabling the queue.</div></div>
+<div class="module-card"><div class="mc-name">DISCOVERY_CRAWL_MAX_PROSPECTS_PER_ITEM</div><div class="mc-desc">Hard cap on prospects-per-domain so a single rich result doesn't blow the Anthropic-research budget. Default 10.</div></div>
+<div class="module-card"><div class="mc-name">DISCOVERY_CRAWL_MAX_ATTEMPTS</div><div class="mc-desc">Retry budget for genuine failures. Default 3. Credit-floor deferrals don't count against this.</div></div>
+<div class="module-card"><div class="mc-name">DISCOVERY_CRAWL_AUTO_RESEARCH</div><div class="mc-desc">Level 2 toggle. Set to 0 for Level 1 (discover only, no auto-draft).</div></div>
+<div class="module-card"><div class="mc-name">VERIFIER_PROVIDER</div><div class="mc-desc">Email verifier selector: <code>millionverifier</code> (default), <code>zerobounce</code>, <code>hunter</code>.</div></div>
+<div class="module-card"><div class="mc-name">VERIFIER_SAFE_SCORE_FLOOR</div><div class="mc-desc">Score threshold for <code>safe_to_send</code>. Default 70.</div></div>
+</div>
+</section>
+
+<!-- SECTION 12 -->
+<section class="arch-section" id="modules">
+<h2>13. Module Catalog</h2>
+<p>All 81 production Python modules, organized by function.</p>
+
+<h3 class="layer-ai">AI &amp; Analysis (21 modules)</h3>
+<div class="module-grid">
+<div class="module-card"><div class="mc-name">offerwise_intelligence.py</div><div class="mc-desc">Master orchestrator &mdash; full pipeline from documents to offers</div></div>
+<div class="module-card"><div class="mc-name">document_parser.py</div><div class="mc-desc">AI-first document extraction with regex safety net</div></div>
+<div class="module-card"><div class="mc-name">analysis_ai_helper.py</div><div class="mc-desc">Claude API client for document analysis</div></div>
+<div class="module-card"><div class="mc-name">ml_data_collector.py</div><div class="mc-desc">Auto-collects ML training data from every analysis</div></div>
+<div class="module-card"><div class="mc-name">cross_reference_engine.py</div><div class="mc-desc">AI semantic comparison of disclosures vs findings</div></div>
+<div class="module-card"><div class="mc-name">fast_cross_reference_engine.py</div><div class="mc-desc">Rules-based cross-ref (15x faster)</div></div>
+<div class="module-card"><div class="mc-name">optimized_hybrid_cross_reference.py</div><div class="mc-desc">Combined fast rules + AI cross-reference</div></div>
+<div class="module-card"><div class="mc-name">property_risk_dna.py</div><div class="mc-desc">5-axis risk vector encoding (structural · systems · transparency · temporal · financial; provisional patent filed)</div></div>
+<div class="module-card"><div class="mc-name">predictive_engine.py</div><div class="mc-desc">Hidden issue prediction from correlations</div></div>
+<div class="module-card"><div class="mc-name">transparency_scorer.py</div><div class="mc-desc">Seller honesty scoring (patent pending)</div></div>
+<div class="module-card"><div class="mc-name">confidence_scorer.py</div><div class="mc-desc">Analysis confidence / trust scoring</div></div>
+<div class="module-card"><div class="mc-name">repair_cost_estimator.py</div><div class="mc-desc">ZIP-level repair costs from industry data</div></div>
+<div class="module-card"><div class="mc-name">risk_check_engine.py</div><div class="mc-desc">11 gov APIs &rarr; risk grade + exposure</div></div>
+<div class="module-card"><div class="mc-name">risk_scoring_model.py</div><div class="mc-desc">Composite risk weighting model</div></div>
+<div class="module-card"><div class="mc-name">negotiation_coach.py</div><div class="mc-desc">AI negotiation talking points</div></div>
+<div class="module-card"><div class="mc-name">market_intelligence.py</div><div class="mc-desc">Nightly market snapshots + matched listings</div></div>
+<div class="module-card"><div class="mc-name">agentic_monitor.py</div><div class="mc-desc">Autonomous background watch jobs</div></div>
+<div class="module-card"><div class="mc-name">ai_client.py</div><div class="mc-desc">Anthropic API wrapper with retry logic</div></div>
+<div class="module-card"><div class="mc-name">ai_cost_tracker.py</div><div class="mc-desc">Token usage and cost accounting</div></div>
+<div class="module-card"><div class="mc-name">ai_output_validator.py</div><div class="mc-desc">Validates AI JSON output structure</div></div>
+<div class="module-card"><div class="mc-name">hybrid_ai.py</div><div class="mc-desc">Rules + AI hybrid analysis coordinator</div></div>
+</div>
+
+<h3 class="layer-data">Application &amp; Routes (11 modules)</h3>
+<div class="module-grid">
+<div class="module-card"><div class="mc-name">app.py</div><div class="mc-desc">Main Flask app &mdash; 9.8K lines, route registration, startup</div></div>
+<div class="module-card"><div class="mc-name">auth_routes.py</div><div class="mc-desc">Google/Facebook/Email OAuth, magic links, password reset</div></div>
+<div class="module-card"><div class="mc-name">analysis_routes.py</div><div class="mc-desc">Upload, analyze, and retrieve analysis results</div></div>
+<div class="module-card"><div class="mc-name">admin_routes.py</div><div class="mc-desc">Admin dashboard APIs, revenue, test coverage</div></div>
+<div class="module-card"><div class="mc-name">payment_routes.py</div><div class="mc-desc">Stripe checkout, webhooks, subscription management</div></div>
+<div class="module-card"><div class="mc-name">inspector_routes.py</div><div class="mc-desc">Inspector portal &mdash; profile, reports, branding</div></div>
+<div class="module-card"><div class="mc-name">contractor_routes.py</div><div class="mc-desc">Contractor lead marketplace</div></div>
+<div class="module-card"><div class="mc-name">agent_routes.py</div><div class="mc-desc">Real estate agent portal and sharing</div></div>
+<div class="module-card"><div class="mc-name">user_routes.py</div><div class="mc-desc">User settings, preferences, credits</div></div>
+<div class="module-card"><div class="mc-name">models.py</div><div class="mc-desc">SQLAlchemy models &mdash; 25+ tables</div></div>
+<div class="module-card"><div class="mc-name">extensions.py</div><div class="mc-desc">Flask extensions: db, login_manager, limiter</div></div>
+</div>
+
+<h3 class="layer-gtm">GTM &amp; Growth (9 modules)</h3>
+<div class="module-grid">
+<div class="module-card"><div class="mc-name">gtm/forum_scanner.py</div><div class="mc-desc">Reddit + BiggerPockets thread scanning</div></div>
+<div class="module-card"><div class="mc-name">gtm/content_engine.py</div><div class="mc-desc">Original content generation for r/OfferWiseAI</div></div>
+<div class="module-card"><div class="mc-name">gtm/conversion_intel.py</div><div class="mc-desc">CAC/LTV calculation by channel</div></div>
+<div class="module-card"><div class="mc-name">gtm/social_engine.py</div><div class="mc-desc">Multi-platform social posting</div></div>
+<div class="module-card"><div class="mc-name">drip_campaign.py</div><div class="mc-desc">Automated email sequences</div></div>
+<div class="module-card"><div class="mc-name">funnel_tracker.py</div><div class="mc-desc">Full-funnel event tracking</div></div>
+<div class="module-card"><div class="mc-name">referral_service.py</div><div class="mc-desc">Two-sided referral system</div></div>
+<div class="module-card"><div class="mc-name">google_ads_sync.py</div><div class="mc-desc">Conversion event sync to Google Ads</div></div>
+<div class="module-card"><div class="mc-name">reddit_ads_sync.py</div><div class="mc-desc">Reddit Ads conversion sync</div></div>
+</div>
+
+<h3 class="layer-gtm">B2B Outreach (6 modules)</h3>
+<div class="module-grid">
+<div class="module-card"><div class="mc-name">prospect_research_service.py</div><div class="mc-desc">Discover orchestrator (Hunter→Apollo→Snov), Anthropic web-search company research, Claude email drafting</div></div>
+<div class="module-card"><div class="mc-name">discovery_crawler.py</div><div class="mc-desc">3:30am nightly job: queue processor + autopilot top-up + Level 2 auto-research-and-draft</div></div>
+<div class="module-card"><div class="mc-name">hunter_service.py</div><div class="mc-desc">Hunter.io domain search + verifier (legacy) with credit-floor protection</div></div>
+<div class="module-card"><div class="mc-name">snov_service.py</div><div class="mc-desc">Snov.io OAuth2 client + async two-step domain search (start → poll result)</div></div>
+<div class="module-card"><div class="mc-name">apollo_service.py</div><div class="mc-desc">Apollo.io people-search wrapper (currently unconfigured but code preserved)</div></div>
+<div class="module-card"><div class="mc-name">verifier_service.py</div><div class="mc-desc">Pluggable email verifier abstraction: MillionVerifier, ZeroBounce, Hunter</div></div>
+</div>
+
+<h3 class="layer-infra">Infrastructure (8 modules)</h3>
+<div class="module-grid">
+<div class="module-card"><div class="mc-name">pdf_handler.py</div><div class="mc-desc">PDF text extraction via pdfplumber</div></div>
+<div class="module-card"><div class="mc-name">pdf_worker.py</div><div class="mc-desc">Async PDF thread pool (2 workers)</div></div>
+<div class="module-card"><div class="mc-name">email_service.py</div><div class="mc-desc">Transactional email via Resend API</div></div>
+<div class="module-card"><div class="mc-name">structured_logging.py</div><div class="mc-desc">JSON structured logging for Render</div></div>
+<div class="module-card"><div class="mc-name">integrity_tests.py</div><div class="mc-desc">288 integrity tests across all modules</div></div>
+<div class="module-card"><div class="mc-name">database_health.py</div><div class="mc-desc">Startup health checks for data integrity</div></div>
+<div class="module-card"><div class="mc-name">security.py</div><div class="mc-desc">CSP headers, rate limiting, input sanitization</div></div>
+<div class="module-card"><div class="mc-name">gunicorn_config.py</div><div class="mc-desc">1 worker, 4 threads, 600s timeout</div></div>
+</div>
+</section>
+
+<footer class="ow-footer" style="margin-top:40px"><div class="ow-footer__inner">
+<div class="ow-footer__logo">Offer<span style="background:linear-gradient(90deg,#f97316,#f59e0b);-webkit-background-clip:text;-webkit-text-fill-color:transparent">Wise</span></div>
+<div class="ow-footer__links">
+<a href="/">Home</a><a href="/pricing">Pricing</a><a href="/enterprise">Enterprise</a><a href="/api/docs">API Docs</a><a href="/contact">Contact</a>
+</div>
+<p style="font-size:.8rem;color:var(--text-3);margin-top:8px">&copy; 2026 OfferWise. All rights reserved.</p>
+</div></footer>
+
+<script>
+/* v5.87.71: IntersectionObserver fade-in fix.
+   PRIOR BUG: threshold:0.1 required 10% of an element to be visible
+   to trigger the fade-in. For tall sections like the ML Training
+   Pipeline (~310 lines, ~4000px tall) and the Module Catalog,
+   10% of the section never fits in a typical viewport, so the
+   observer never fired and the section remained at opacity:0
+   forever — appearing blank to the user.
+   FIX: threshold:0 (any intersection) + a generous rootMargin so
+   the fade-in triggers as soon as the element enters or is near
+   the viewport. Fallback: if IntersectionObserver isn't available,
+   skip the animation and show everything immediately. */
+document.addEventListener('DOMContentLoaded',function(){
+  var els=document.querySelectorAll('.arch-section,.diagram-wrap,.module-grid');
+  if(typeof IntersectionObserver==='undefined'){
+    els.forEach(function(el){el.style.opacity='1'});
+    return;
+  }
+  var obs=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting){e.target.style.opacity='1';e.target.style.transform='translateY(0)';obs.unobserve(e.target)}})},{threshold:0,rootMargin:'0px 0px -100px 0px'});
+  els.forEach(function(el){el.style.opacity='0';el.style.transform='translateY(20px)';el.style.transition='opacity .5s ease,transform .5s ease';obs.observe(el)})
+});
+</script>
+<script>
+// v5.87.85: Fetch live architecture stats and update hero + Real Numbers section.
+// Fails silently if the endpoint is down — page falls back to the static
+// numbers already rendered server-side.
+(async function fetchLiveArchStats() {
+  try {
+    const r = await fetch('/api/architecture/stats', { cache: 'no-store' });
+    if (!r.ok) return;
+    const data = await r.json();
+
+    // Hero stats — replace text content of any [data-arch-stat] in the hero.
+    const hero = data.hero || {};
+    const heroMap = {
+      'modules': hero.modules,
+      'loc': hero.loc,
+      'integrity_tests': hero.integrity_tests,
+      'labeled_rows': hero.labeled_rows,
+      'gov_sources': hero.gov_sources,
+    };
+    Object.entries(heroMap).forEach(([k, v]) => {
+      if (v == null) return;
+      document.querySelectorAll(`[data-arch-stat="${k}"]`).forEach(el => {
+        // Hero card targets — write directly. Real Numbers targets handled below.
+        if (el.classList.contains('num') || el.closest('.arch-stat')) {
+          el.textContent = String(v);
+        }
+      });
+    });
+
+    // Real Numbers section — corpus summary
+    const corpus = data.corpus || {};
+    if (corpus.finding_labels_str && corpus.cost_data_str && corpus.contradiction_pairs_str) {
+      const summarySpan = document.querySelector('[data-arch-stat="corpus_summary"]');
+      if (summarySpan) {
+        summarySpan.innerHTML =
+          `~${corpus.finding_labels_str} rows in <code>MLFindingLabel</code>, ` +
+          `~${corpus.cost_data_str} rows in <code>MLCostData</code>, ` +
+          `~${corpus.contradiction_pairs_str} rows in <code>MLContradictionPair</code>`;
+        showLiveBadge(summarySpan);
+      }
+    }
+
+    // Real Numbers section — ML agent operational stats
+    const agent = data.ml_agent || {};
+    if (agent.data_source === 'live' && agent.total_runs > 0) {
+      // Avg duration
+      if (agent.avg_duration_sec) {
+        const minLow = Math.max(1, Math.round(agent.avg_duration_sec / 60 - 2));
+        const minHigh = Math.round(agent.avg_duration_sec / 60 + 2);
+        const span = document.querySelector('[data-arch-stat="avg_duration_str"]');
+        if (span) {
+          span.textContent = `${minLow}\u2013${minHigh} minutes (last ${agent.window_days}d avg: ${Math.round(agent.avg_duration_sec / 60)}m)`;
+          showLiveBadge(span);
+        }
+      }
+
+      // Skip rate
+      if (agent.skip_rate_pct != null) {
+        const span = document.querySelector('[data-arch-stat="skip_rate_str"]');
+        if (span) {
+          span.textContent = `${agent.skip_rate_pct}% of last ${agent.window_days} runs skipped`;
+          showLiveBadge(span);
+        }
+      }
+
+      // Rollback rate
+      if (agent.rollback_rate_pct != null) {
+        const span = document.querySelector('[data-arch-stat="rollback_rate_str"]');
+        if (span) {
+          span.textContent = `${agent.rollback_rate_pct}% of trained runs in last ${agent.window_days} days`;
+          showLiveBadge(span);
+        }
+      }
+
+      // Last successful run row — show only if we have live data
+      if (agent.last_successful_at) {
+        const row = document.querySelector('[data-arch-stat-row="last_run"]');
+        if (row) row.style.display = '';
+        const tsSpan = document.querySelector('[data-arch-stat="last_successful_at"]');
+        if (tsSpan) {
+          const dt = new Date(agent.last_successful_at);
+          // ISO 8601 minute precision in UTC
+          tsSpan.textContent = dt.toISOString().slice(0, 16).replace('T', ' ') + ' UTC';
+        }
+        const summarySpan = document.querySelector('[data-arch-stat="run_window_summary"]');
+        if (summarySpan) {
+          summarySpan.textContent =
+            `${agent.trained_runs}/${agent.total_runs} runs trained, ` +
+            `${agent.skipped_runs} skipped, ${agent.rolled_back_runs} rolled back ` +
+            `over ${agent.window_days} days`;
+        }
+        const badges = row?.querySelectorAll('[data-arch-live-badge]') || [];
+        badges.forEach(b => b.style.display = 'inline-block');
+      }
+    }
+  } catch (e) {
+    // Silent failure — static numbers remain
+  }
+
+  function showLiveBadge(el) {
+    // Find the sibling [data-arch-live-badge] inside the same <li>
+    const li = el.closest('li');
+    if (!li) return;
+    li.querySelectorAll('[data-arch-live-badge]').forEach(b => b.style.display = 'inline-block');
+  }
+})();
+</script>
+</body>
+</html>

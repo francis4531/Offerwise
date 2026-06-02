@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Label Audit · OfferWise Admin</title>
+<meta name="robots" content="noindex,nofollow">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0b1220; --bg2:#111827; --bg3:#1f2937;
+    --line:#1f2937; --line2:#374151;
+    --txt:#f3f4f6; --body:#cbd5e1; --gray:#9ca3af; --dim:#6b7280;
+    --accent:#f97316; --gold:#f59e0b;
+    --green:#22c55e; --red:#ef4444; --amber:#fcd34d; --blue:#60a5fa;
+    --mono:ui-monospace,SFMono-Regular,Menlo,monospace;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--txt);font-size:14px;line-height:1.55;}
+  a{color:var(--gold);text-decoration:none;}
+  .topbar{padding:14px 22px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;background:#0b1220;position:sticky;top:0;z-index:5;}
+  .topbar h1{font-size:16px;font-weight:700;margin:0;letter-spacing:-.01em;}
+  .topbar h1 .label{color:var(--accent);}
+  .progress{display:flex;gap:14px;align-items:center;font-size:12px;color:var(--gray);}
+  .progress strong{color:var(--txt);}
+  .progress-bar{width:160px;height:5px;background:var(--bg3);border-radius:3px;overflow:hidden;}
+  .progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--gold));transition:width .3s;}
+
+  .wrap{max-width:920px;margin:0 auto;padding:24px 22px;}
+
+  .card{background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:22px;margin-bottom:18px;}
+
+  .pair-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
+  .pair-tag{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);}
+  .pair-tag .sep{color:var(--gray);margin:0 8px;}
+  .confidence{font-family:var(--mono);font-size:11px;color:var(--gray);}
+  .confidence strong{color:var(--txt);}
+
+  .finding-text{background:#050810;border:1px solid var(--line);border-radius:8px;padding:18px 20px;font-size:15px;line-height:1.65;color:var(--body);margin-bottom:18px;font-family:Georgia,serif;}
+  .finding-meta{font-size:11px;color:var(--dim);margin-bottom:8px;font-family:var(--mono);}
+
+  .label-compare{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:6px;}
+  .label-side{padding:14px 16px;border-radius:8px;background:var(--bg3);border:1px solid var(--line2);}
+  .label-side h3{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gray);margin:0 0 8px;}
+  .label-side .cat{font-size:16px;font-weight:700;color:var(--txt);margin-bottom:3px;letter-spacing:-.01em;}
+  .label-side .sev{font-size:13px;color:var(--body);font-weight:500;}
+  .label-side.original{border-color:var(--blue);}
+  .label-side.predicted{border-color:var(--accent);}
+  .same-marker{text-align:center;font-size:11px;color:var(--gray);font-style:italic;margin-bottom:14px;}
+
+  .verdicts{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px;margin-bottom:14px;}
+  .verdict-btn{background:var(--bg3);border:1.5px solid var(--line2);color:var(--body);padding:12px 16px;border-radius:8px;cursor:pointer;font-family:inherit;font-size:13px;text-align:left;display:flex;align-items:flex-start;gap:12px;transition:all .15s;}
+  .verdict-btn:hover{border-color:var(--accent);background:#1a2333;}
+  .verdict-btn .key{flex-shrink:0;width:28px;height:28px;border-radius:6px;background:var(--bg2);border:1px solid var(--line2);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-weight:700;color:var(--accent);font-size:13px;}
+  .verdict-btn .desc{flex:1;}
+  .verdict-btn strong{display:block;color:var(--txt);margin-bottom:2px;font-size:13px;font-weight:600;}
+  .verdict-btn .sub{font-size:11px;color:var(--gray);}
+  .verdict-btn.destructive{border-color:rgba(252,211,77,.25);}
+  .verdict-btn.destructive strong::after{content:" ⚠";color:var(--amber);}
+
+  /* Suggested-category input (verdict 4) */
+  .suggested-input{display:none;margin-top:10px;padding:14px 16px;background:var(--bg3);border:1px solid var(--line2);border-radius:8px;}
+  .suggested-input.active{display:block;}
+  .suggested-input label{display:block;font-size:11px;color:var(--gray);font-weight:600;letter-spacing:.05em;text-transform:uppercase;margin-bottom:6px;}
+  .suggested-input input{width:100%;background:var(--bg);border:1px solid var(--line2);color:var(--txt);font-family:inherit;font-size:14px;padding:9px 12px;border-radius:5px;outline:none;}
+  .suggested-input input:focus{border-color:var(--accent);}
+  .suggested-input .hint{font-size:11px;color:var(--dim);margin-top:6px;}
+
+  .footbar{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--gray);padding-top:14px;border-top:1px solid var(--line);}
+  .footbar .keys{font-family:var(--mono);}
+  .footbar .keys b{color:var(--txt);background:var(--bg3);padding:1px 5px;border-radius:3px;margin:0 2px;}
+
+  /* Similar sidebar */
+  .similar{margin-top:14px;padding:14px 18px;background:rgba(96,165,250,.04);border-left:3px solid var(--blue);border-radius:0 8px 8px 0;display:none;}
+  .similar.show{display:block;}
+  .similar h3{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--blue);margin:0 0 10px;}
+  .similar-item{margin-bottom:10px;font-size:12px;color:var(--body);line-height:1.5;}
+  .similar-item:last-child{margin-bottom:0;}
+  .similar-item .lbl{display:inline-block;font-family:var(--mono);font-size:10px;color:var(--gray);margin-right:6px;}
+
+  /* Confirmation modal */
+  .modal-back{position:fixed;inset:0;background:rgba(0,0,0,.65);display:none;align-items:center;justify-content:center;z-index:100;}
+  .modal-back.show{display:flex;}
+  .modal{background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:28px;max-width:480px;width:90%;}
+  .modal h2{font-size:18px;font-weight:700;margin:0 0 12px;color:var(--amber);}
+  .modal p{color:var(--body);font-size:14px;line-height:1.6;margin:0 0 12px;}
+  .modal .change-box{background:var(--bg3);border:1px solid var(--line2);padding:12px 14px;border-radius:7px;margin:12px 0;font-family:var(--mono);font-size:12px;color:var(--body);}
+  .modal-actions{display:flex;gap:10px;margin-top:18px;justify-content:flex-end;}
+  .btn{padding:9px 18px;border-radius:6px;border:1px solid;font-weight:600;font-size:13px;cursor:pointer;font-family:inherit;}
+  .btn.confirm{background:var(--amber);border-color:var(--amber);color:#1f1500;}
+  .btn.confirm:hover{filter:brightness(1.1);}
+  .btn.cancel{background:transparent;border-color:var(--line2);color:var(--body);}
+  .btn.cancel:hover{background:var(--bg3);}
+
+  /* Empty / done state */
+  .empty{text-align:center;padding:60px 24px;color:var(--gray);}
+  .empty .ico{font-size:48px;margin-bottom:16px;}
+  .empty h2{font-size:20px;color:var(--txt);margin:0 0 8px;}
+  .empty p{font-size:14px;line-height:1.6;}
+  .empty a.go-report{display:inline-block;margin-top:20px;background:linear-gradient(90deg,var(--accent),var(--gold));color:white;padding:11px 24px;border-radius:6px;font-weight:600;font-size:13px;}
+
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--bg2);border:1px solid var(--green);color:var(--green);padding:11px 22px;border-radius:8px;font-weight:600;font-size:13px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:50;}
+  .toast.show{opacity:1;}
+  .toast.warn{border-color:var(--amber);color:var(--amber);}
+  .toast.err{border-color:var(--red);color:var(--red);}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <h1>🔍 Label <span class="label">Audit</span></h1>
+  <div class="progress">
+    <span><strong id="audited-count">0</strong> of <strong id="total-count">—</strong> audited</span>
+    <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0"></div></div>
+    <a href="/admin/labels/audit/report?admin_key=__ADMIN_KEY__" id="report-link" style="font-size:12px;color:var(--gray)">Report ↗</a>
+  </div>
+</div>
+
+<div class="wrap" id="main">
+  <div class="card" id="loading">
+    <p style="color:var(--gray);text-align:center;padding:40px 0">Loading audit queue…</p>
+  </div>
+</div>
+
+<!-- Confirmation modal -->
+<div class="modal-back" id="modal-back">
+  <div class="modal">
+    <h2 id="modal-title">Confirm change</h2>
+    <p id="modal-body"></p>
+    <div class="change-box" id="modal-change"></div>
+    <div class="modal-actions">
+      <button class="btn cancel" onclick="cancelConfirm()">Cancel</button>
+      <button class="btn confirm" onclick="proceedConfirm()" id="confirm-btn">Yes, apply</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const ADMIN_KEY = new URLSearchParams(window.location.search).get('admin_key') || '';
+let _currentRow = null;
+let _currentBatch = null;
+let _pendingVerdict = null;
+let _suggestedActiveFor = null;  // null or queue_id when verdict 4 typed
+
+// Replace placeholder in report link
+document.getElementById('report-link').href =
+  '/admin/labels/audit/report?admin_key=' + encodeURIComponent(ADMIN_KEY);
+
+function _esc(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function toast(msg, kind) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show' + (kind ? ' ' + kind : '');
+  setTimeout(() => t.classList.remove('show'), 1800);
+}
+
+function renderRow(queueRow, similar, batch) {
+  _currentRow = queueRow;
+  _currentBatch = batch;
+  updateProgress(batch);
+
+  if (!queueRow) {
+    document.getElementById('main').innerHTML = `
+      <div class="empty">
+        <div class="ico">✅</div>
+        <h2>Batch complete</h2>
+        <p>You've audited all ${batch ? batch.total_in_batch : 0} findings in this batch. Open the report to see the aggregate verdict.</p>
+        <a class="go-report" href="/admin/labels/audit/report?admin_key=${encodeURIComponent(ADMIN_KEY)}">Open the report →</a>
+      </div>`;
+    return;
+  }
+
+  const cf = queueRow.queue_type === 'category' ? queueRow.confidence_category :
+             queueRow.queue_type === 'severity' ? queueRow.confidence_severity :
+             (queueRow.confidence_category || queueRow.confidence_severity);
+  const confDisplay = cf !== null && cf !== undefined ? (cf * 100).toFixed(0) + '%' : '—';
+  const confKind = cf >= 0.85 ? 'high' : cf >= 0.5 ? 'medium' : 'low';
+
+  // Determine which fields differ
+  const catSame = queueRow.original_category === queueRow.predicted_category;
+  const sevSame = queueRow.original_severity === queueRow.predicted_severity;
+  let diffNote = '';
+  if (catSame && !sevSame) diffNote = '<div class="same-marker">Category matches; disagreement is on severity</div>';
+  else if (!catSame && sevSame) diffNote = '<div class="same-marker">Severity matches; disagreement is on category</div>';
+
+  const similarHTML = (similar || []).map(s => `
+    <div class="similar-item">
+      <span class="lbl">[${_esc(s.original_category)}/${_esc(s.original_severity)}]</span>
+      ${_esc(s.text)}
+    </div>`).join('');
+
+  document.getElementById('main').innerHTML = `
+    <div class="card">
+      <div class="pair-header">
+        <div class="pair-tag">${_esc(queueRow.queue_type)} ${queueRow.queue_type === 'high_conf' ? '· high-confidence wrong' : ''}<span class="sep">·</span>${_esc(queueRow.confusion_pair)}</div>
+        <div class="confidence">Confidence: <strong>${confDisplay}</strong> (${confKind})</div>
+      </div>
+      <div class="finding-meta">finding #${queueRow.finding_id} · queue #${queueRow.id}</div>
+      <div class="finding-text">${_esc(queueRow.text_snippet)}</div>
+
+      <div class="label-compare">
+        <div class="label-side original">
+          <h3>Original label</h3>
+          <div class="cat">${_esc(queueRow.original_category) || '<span style="color:var(--dim)">—</span>'}</div>
+          <div class="sev">severity: ${_esc(queueRow.original_severity)}</div>
+        </div>
+        <div class="label-side predicted">
+          <h3>Model predicted</h3>
+          <div class="cat">${_esc(queueRow.predicted_category) || '<span style="color:var(--dim)">—</span>'}</div>
+          <div class="sev">severity: ${_esc(queueRow.predicted_severity)}</div>
+        </div>
+      </div>
+      ${diffNote}
+
+      <div class="verdicts">
+        <button class="verdict-btn" onclick="pickVerdict('original_correct')">
+          <div class="key">1</div>
+          <div class="desc"><strong>Original is correct</strong><div class="sub">Model was wrong. Label stays. (genuine model error)</div></div>
+        </button>
+        <button class="verdict-btn destructive" onclick="pickVerdict('predicted_correct')">
+          <div class="key">2</div>
+          <div class="desc"><strong>Model is correct</strong><div class="sub">Label was wrong. Corpus row will be updated. (label-pipeline bug)</div></div>
+        </button>
+        <button class="verdict-btn" onclick="pickVerdict('both_defensible')">
+          <div class="key">3</div>
+          <div class="desc"><strong>Both defensible</strong><div class="sub">Taxonomy ambiguity. No corpus change.</div></div>
+        </button>
+        <button class="verdict-btn" onclick="pickVerdict('neither_correct')">
+          <div class="key">4</div>
+          <div class="desc"><strong>Neither — need new category</strong><div class="sub">Suggest a category below. Corpus gets a hint, taxonomy redesign in next release.</div></div>
+        </button>
+        <button class="verdict-btn destructive" onclick="pickVerdict('junk')">
+          <div class="key">5</div>
+          <div class="desc"><strong>Junk — shouldn't be in corpus</strong><div class="sub">Marks excluded_from_training. Future training skips this row.</div></div>
+        </button>
+      </div>
+
+      <div class="suggested-input" id="suggested-input">
+        <label>Suggested category name</label>
+        <input type="text" id="suggested-text" maxlength="100" placeholder="e.g. safety, building_envelope, code_compliance">
+        <div class="hint">Will be recorded for v5.89.43 taxonomy redesign. Press Enter to submit.</div>
+      </div>
+
+      <div class="footbar">
+        <div class="keys">
+          <b>1-5</b> verdict <b>·</b> <b>?</b> show similar <b>·</b> <b>b</b> undo last <b>·</b> <b>n</b> needs-review
+        </div>
+        <div>finding #${queueRow.finding_id}</div>
+      </div>
+
+      <div class="similar" id="similar">
+        <h3>Similar findings in this confusion pair</h3>
+        ${similar && similar.length ? similarHTML : '<div style="color:var(--dim);font-size:12px;font-style:italic">No other findings in this pair this batch.</div>'}
+      </div>
+    </div>`;
+}
+
+function updateProgress(batch) {
+  if (!batch) return;
+  document.getElementById('audited-count').textContent = batch.audited_in_batch;
+  document.getElementById('total-count').textContent = batch.total_in_batch;
+  const pct = batch.total_in_batch > 0 ? (batch.audited_in_batch / batch.total_in_batch * 100) : 0;
+  document.getElementById('progress-fill').style.width = pct + '%';
+}
+
+async function loadNext() {
+  document.getElementById('main').innerHTML = `<div class="card"><p style="color:var(--gray);text-align:center;padding:40px 0">Loading…</p></div>`;
+  try {
+    const r = await fetch('/api/admin/labels/audit/next?admin_key=' + encodeURIComponent(ADMIN_KEY));
+    const d = await r.json();
+    if (!d.ok) throw new Error(d.error || 'failed');
+    renderRow(d.queue_row, d.similar, d.batch);
+  } catch (e) {
+    document.getElementById('main').innerHTML = `
+      <div class="card"><p style="color:var(--red)">Failed to load: ${_esc(e.message)}</p></div>`;
+  }
+}
+
+function pickVerdict(verdict) {
+  // Verdict 4 expects a suggested-category input
+  if (verdict === 'neither_correct') {
+    const box = document.getElementById('suggested-input');
+    box.classList.add('active');
+    _suggestedActiveFor = _currentRow ? _currentRow.id : null;
+    document.getElementById('suggested-text').focus();
+    return;
+  }
+
+  // Verdicts 2 and 5 are destructive — confirm every time per memory rule
+  if (verdict === 'predicted_correct' || verdict === 'junk') {
+    showConfirmModal(verdict);
+    return;
+  }
+
+  // Verdicts 1 and 3 commit immediately
+  submitDecision(verdict, '');
+}
+
+function showConfirmModal(verdict) {
+  if (!_currentRow) return;
+  _pendingVerdict = verdict;
+  const row = _currentRow;
+  const isJunk = verdict === 'junk';
+
+  document.getElementById('modal-title').textContent = isJunk
+    ? '⚠ Exclude from training?'
+    : '⚠ Update corpus label?';
+
+  if (isJunk) {
+    document.getElementById('modal-body').textContent =
+      `This will mark finding #${row.finding_id} as excluded_from_training. Future training runs will skip it. You can undo with 'b'.`;
+    document.getElementById('modal-change').innerHTML =
+      `excluded_from_training: <strong style="color:var(--amber)">false → true</strong>`;
+  } else {
+    const isCat = row.queue_type === 'category';
+    document.getElementById('modal-body').textContent =
+      `This will change the ${isCat ? 'category' : 'severity'} label on finding #${row.finding_id} in the corpus. Future training will use the new value. You can undo with 'b'.`;
+    if (isCat) {
+      document.getElementById('modal-change').innerHTML =
+        `category: <strong style="color:var(--blue)">${_esc(row.original_category)}</strong> → <strong style="color:var(--accent)">${_esc(row.predicted_category)}</strong>`;
+    } else {
+      document.getElementById('modal-change').innerHTML =
+        `severity: <strong style="color:var(--blue)">${_esc(row.original_severity)}</strong> → <strong style="color:var(--accent)">${_esc(row.predicted_severity)}</strong>`;
+    }
+  }
+
+  document.getElementById('modal-back').classList.add('show');
+  document.getElementById('confirm-btn').focus();
+}
+
+function proceedConfirm() {
+  document.getElementById('modal-back').classList.remove('show');
+  if (_pendingVerdict) {
+    submitDecision(_pendingVerdict, '');
+    _pendingVerdict = null;
+  }
+}
+
+function cancelConfirm() {
+  document.getElementById('modal-back').classList.remove('show');
+  _pendingVerdict = null;
+}
+
+async function submitDecision(verdict, suggestedCategory, notes) {
+  if (!_currentRow) return;
+
+  const payload = {
+    queue_id: _currentRow.id,
+    verdict: verdict,
+    suggested_category: suggestedCategory || '',
+    notes: notes || '',
+    needs_review: false,
+  };
+
+  try {
+    const r = await fetch('/api/admin/labels/audit/decide?admin_key=' + encodeURIComponent(ADMIN_KEY), {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(payload),
+    });
+    const d = await r.json();
+    if (!d.ok) {
+      toast(d.error || 'decision failed', 'err');
+      return;
+    }
+    const verdictLabels = {
+      'original_correct': 'Model error noted',
+      'predicted_correct': 'Corpus updated',
+      'both_defensible': 'Ambiguity noted',
+      'neither_correct': 'Category suggested',
+      'junk': 'Marked junk',
+    };
+    toast(verdictLabels[verdict] || 'Recorded', d.corpus_changed ? 'warn' : '');
+    renderRow(d.queue_row, d.similar, d.batch);
+    _suggestedActiveFor = null;
+    const box = document.getElementById('suggested-input');
+    if (box) box.classList.remove('active');
+  } catch (e) {
+    toast('Network error: ' + e.message, 'err');
+  }
+}
+
+async function undo() {
+  try {
+    const r = await fetch('/api/admin/labels/audit/undo?admin_key=' + encodeURIComponent(ADMIN_KEY), {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({}),
+    });
+    const d = await r.json();
+    if (!d.ok) {
+      toast(d.error || 'undo failed', 'err');
+      return;
+    }
+    toast('Undone' + (d.corpus_was_changed ? ' (corpus rolled back)' : ''), 'warn');
+    loadNext();
+  } catch (e) {
+    toast('Network error: ' + e.message, 'err');
+  }
+}
+
+// Keyboard handler
+document.addEventListener('keydown', function(ev) {
+  // Modal open: only Enter/Esc handled
+  if (document.getElementById('modal-back').classList.contains('show')) {
+    if (ev.key === 'Enter') { ev.preventDefault(); proceedConfirm(); }
+    if (ev.key === 'Escape') { ev.preventDefault(); cancelConfirm(); }
+    return;
+  }
+
+  // Suggested-category input has focus: Enter submits
+  if (document.activeElement && document.activeElement.id === 'suggested-text') {
+    if (ev.key === 'Enter') {
+      ev.preventDefault();
+      const val = document.getElementById('suggested-text').value.trim();
+      if (val.length === 0) {
+        toast('Type a suggested category, or press Esc to cancel', 'warn');
+        return;
+      }
+      submitDecision('neither_correct', val, '');
+    }
+    if (ev.key === 'Escape') {
+      document.getElementById('suggested-input').classList.remove('active');
+      document.getElementById('suggested-text').value = '';
+      _suggestedActiveFor = null;
+    }
+    return;
+  }
+
+  if (!_currentRow) return;
+  switch (ev.key) {
+    case '1': pickVerdict('original_correct'); break;
+    case '2': pickVerdict('predicted_correct'); break;
+    case '3': pickVerdict('both_defensible'); break;
+    case '4': pickVerdict('neither_correct'); break;
+    case '5': pickVerdict('junk'); break;
+    case '?': case '/':
+      document.getElementById('similar').classList.toggle('show');
+      break;
+    case 'b': case 'B':
+      undo();
+      break;
+    case 'n': case 'N':
+      // needs-review: mark current as needs_review + skip
+      submitDecisionWithFlag(true);
+      break;
+    default: return;
+  }
+  ev.preventDefault();
+});
+
+async function submitDecisionWithFlag(needsReview) {
+  // shortcut: original_correct + needs_review flag set
+  if (!_currentRow) return;
+  try {
+    const r = await fetch('/api/admin/labels/audit/decide?admin_key=' + encodeURIComponent(ADMIN_KEY), {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        queue_id: _currentRow.id,
+        verdict: 'original_correct',
+        suggested_category: '',
+        notes: 'Flagged for human review',
+        needs_review: true,
+      }),
+    });
+    const d = await r.json();
+    if (!d.ok) { toast(d.error || 'failed', 'err'); return; }
+    toast('Flagged for review', 'warn');
+    renderRow(d.queue_row, d.similar, d.batch);
+  } catch (e) {
+    toast('Network error: ' + e.message, 'err');
+  }
+}
+
+// Boot
+loadNext();
+</script>
+</body>
+</html>

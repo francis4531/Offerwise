@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>OfferWise — Pitch Q&amp;A</title>
+<meta name="description" content="Comprehensive answers to common investor and partner questions about OfferWise — the buyer disclosure analysis platform.">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0b1220; --bg2:#111827; --bg3:#1f2937;
+    --line:#1f2937; --line2:#374151;
+    --txt:#f3f4f6; --body:#cbd5e1; --gray:#9ca3af; --dim:#6b7280;
+    --accent:#f97316; --gold:#f59e0b; --green:#22c55e;
+    --gl:#fde68a;
+    --mono:ui-monospace,SFMono-Regular,Menlo,monospace;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:'DM Sans',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--txt);font-size:16px;line-height:1.65;-webkit-font-smoothing:antialiased;}
+  a{color:var(--gold);text-decoration:none;border-bottom:1px solid rgba(245,158,11,.3);}
+  a:hover{color:var(--accent);border-bottom-color:var(--accent);}
+
+  /* Top bar */
+  .topbar{position:sticky;top:0;z-index:50;background:rgba(11,18,32,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding:14px 22px;display:flex;justify-content:space-between;align-items:center;}
+  .brand{font-weight:800;letter-spacing:-.01em;font-size:15px;}
+  .brand a{color:var(--txt);border:0;}
+  .brand .ai{color:var(--accent);}
+  .topnav{display:flex;gap:18px;font-size:13px;color:var(--gray);}
+  .topnav a{color:var(--gray);border:0;}
+  .topnav a:hover{color:var(--txt);}
+  @media (max-width:640px){.topnav{display:none;}}
+
+  /* Hero */
+  .hero{max-width:880px;margin:0 auto;padding:64px 22px 36px;}
+  .eyebrow{font-size:.7rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);margin-bottom:14px;}
+  h1{font-size:clamp(2rem,5vw,3.2rem);font-weight:800;line-height:1.05;letter-spacing:-.025em;margin:0 0 18px;}
+  h1 span{color:var(--accent);}
+  .sub{font-size:1.1rem;color:var(--body);max-width:680px;line-height:1.7;margin:0 0 20px;}
+  .note{font-size:.85rem;color:var(--gray);line-height:1.7;border-left:2px solid rgba(249,115,22,.4);padding:14px 18px;background:rgba(249,115,22,.04);border-radius:0 6px 6px 0;max-width:640px;margin-top:18px;}
+  .note strong{color:var(--gl);}
+
+  /* TOC */
+  .toc{max-width:880px;margin:24px auto 0;padding:0 22px;}
+  .toc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:20px 0;}
+  .toc-grid a{display:block;padding:6px 4px;color:var(--gray);font-size:.85rem;line-height:1.5;border:0;}
+  .toc-grid a:hover{color:var(--txt);}
+  .toc-grid .toc-n{color:var(--accent);font-weight:600;display:inline-block;width:24px;font-size:.75rem;}
+
+  /* Sections */
+  .qa{max-width:880px;margin:0 auto;padding:0 22px;}
+  .q{padding:32px 0;border-bottom:1px solid var(--line);}
+  .q:last-child{border-bottom:0;}
+  .q-num{font-size:.7rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);margin-bottom:8px;display:flex;align-items:center;gap:14px;}
+  .q-anchors{display:flex;align-items:center;gap:10px;font-weight:500;letter-spacing:.05em;text-transform:none;margin-left:auto;}
+  .q-link{color:var(--dim);font-family:var(--mono);font-size:.75rem;border:0;text-decoration:none;transition:color .15s;}
+  .q-link:hover{color:var(--accent);border:0;}
+  .q-copy{background:transparent;border:1px solid var(--line2);color:var(--gray);font-size:.7rem;font-family:'DM Sans',sans-serif;font-weight:500;padding:3px 9px;border-radius:4px;cursor:pointer;letter-spacing:.05em;transition:all .15s;display:inline-flex;align-items:center;gap:5px;}
+  .q-copy:hover{background:var(--bg2);border-color:var(--accent);color:var(--txt);}
+  .q-copy.copied{background:rgba(34,197,94,.08);border-color:var(--green);color:var(--green);}
+  .q-copy svg{width:11px;height:11px;}
+  .q-h{font-size:1.35rem;font-weight:700;line-height:1.3;margin:0 0 16px;color:var(--txt);letter-spacing:-.01em;}
+  .q-body{color:var(--body);}
+  .q-body p{margin:0 0 12px;}
+  .q-body p:last-child{margin-bottom:0;}
+  .q-body strong{color:var(--txt);}
+  .q-body em{color:var(--gl);font-style:normal;}
+  .q-body ul{margin:0 0 14px;padding-left:20px;}
+  .q-body li{margin-bottom:8px;}
+  .q-body li::marker{color:var(--accent);}
+
+  /* Spec rows for short Q&A */
+  .spec{display:grid;grid-template-columns:160px 1fr;gap:14px 22px;padding:14px 0;border-bottom:1px solid var(--line);}
+  .spec-k{color:var(--gray);font-size:.85rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;}
+  .spec-v{color:var(--body);font-size:.95rem;}
+  @media (max-width:520px){
+    .spec{grid-template-columns:1fr;gap:6px;}
+  }
+
+  /* Code/data callout */
+  .data{background:rgba(34,197,94,.04);border:1px solid rgba(34,197,94,.18);border-radius:8px;padding:14px 18px;margin:14px 0;font-family:var(--mono);font-size:.82rem;color:var(--body);line-height:1.7;}
+  .data strong{color:var(--green);font-weight:600;}
+
+  /* Closing */
+  .close{text-align:center;padding:64px 22px 80px;color:var(--gray);max-width:680px;margin:0 auto;}
+  .close p{margin:0 0 12px;font-size:.9rem;}
+  .close .stamp{font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;color:var(--dim);margin-top:24px;}
+  .close a{color:var(--accent);border:0;font-weight:600;}
+
+  /* Print-friendly */
+  @media print{
+    body{background:#fff;color:#000;}
+    .topbar,.toc{display:none;}
+    .q,.spec{border-color:#ccc;}
+    a{color:#000;border:0;}
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand"><a href="/">OfferWise<span class="ai">™</span></a></div>
+  <div class="topnav">
+    <a href="/about">About</a>
+    <a href="/thesis">Thesis</a>
+    <a href="/comparison">vs. LLMs</a>
+    <a href="/architecture">Architecture</a>
+  </div>
+</div>
+
+<div class="hero">
+  <div class="eyebrow">Pitch Q&amp;A · For investors and partners</div>
+  <h1>Detailed answers,<br><span>in our own words.</span></h1>
+  <p class="sub">
+    A consolidated set of answers to the questions investors, accelerators, and serious partners typically ask. We publish these openly so the conversation can move past the basics when we sit down.
+  </p>
+  <div class="note">
+    <strong>Note on status:</strong> We are not actively raising capital today. This page exists because we&rsquo;ve been asked the same thoughtful questions enough times that publishing a structured answer respects everyone&rsquo;s time. We expect to open conversations after reaching the milestone described in our <a href="/thesis">investment thesis</a>.
+  </div>
+</div>
+
+<nav class="toc" aria-label="Table of contents">
+  <div class="toc-grid">
+    <a href="#q22"><span class="toc-n">22</span>Product</a>
+    <a href="#q23"><span class="toc-n">23</span>Problem</a>
+    <a href="#q24"><span class="toc-n">24</span>Why we care</a>
+    <a href="#q25"><span class="toc-n">25</span>Mission &amp; values</a>
+    <a href="#q26"><span class="toc-n">26</span>Customers</a>
+    <a href="#q27"><span class="toc-n">27</span>Competitors</a>
+    <a href="#q28"><span class="toc-n">28</span>Why us</a>
+    <a href="#q29"><span class="toc-n">29</span>Team qualifications</a>
+    <a href="#q30"><span class="toc-n">30</span>Business model</a>
+    <a href="#q31"><span class="toc-n">31</span>Key metrics</a>
+    <a href="#q32"><span class="toc-n">32</span>Market size</a>
+    <a href="#q33"><span class="toc-n">33</span>Traction</a>
+    <a href="#q34"><span class="toc-n">34</span>Scale &amp; GTM</a>
+    <a href="#q35"><span class="toc-n">35</span>IP protection</a>
+    <a href="#q36"><span class="toc-n">36</span>Sustainable advantage</a>
+    <a href="#q37"><span class="toc-n">37</span>Hiring needs</a>
+    <a href="#q38"><span class="toc-n">38</span>Capital raised</a>
+    <a href="#q39"><span class="toc-n">39</span>Investors</a>
+    <a href="#q41"><span class="toc-n">41</span>Anything else</a>
+  </div>
+</nav>
+
+<div class="qa">
+
+<!-- Q22 -->
+<section class="q" id="q22">
+  <div class="q-num">
+    <span class="q-anchors">
+      <a class="q-link" href="#q22" title="Permalink to this question">#q22</a>
+      <button class="q-copy" type="button" onclick="copyAnchor(this, 'q22')" title="Copy link to this answer">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M4 1.5A1.5 1.5 0 0 1 5.5 0h6A1.5 1.5 0 0 1 13 1.5v9a1.5 1.5 0 0 1-1.5 1.5H10v1.5A1.5 1.5 0 0 1 8.5 15H1.5A1.5 1.5 0 0 1 0 13.5v-9A1.5 1.5 0 0 1 1.5 3H4V1.5zM5 3h3.5A1.5 1.5 0 0 1 10 4.5V11h1.5a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5h-6a.5.5 0 0 0-.5.5V3zM1 4.5v9a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5h-7a.5.5 0 0 0-.5.5z"/></svg>
+        Copy link
+      </button>
+    </span>
+  </div>
+  <h2 class="q-h">Please describe your product or service.</h2>
+  <div class="q-body">
+    <p>OfferWise is a buyer disclosure analysis platform for residential real estate.</p>
+    <p>When a buyer goes under contract on a home, they receive 50&ndash;200 pages of seller-side documents: prior inspection reports, repair history, neighborhood hazard reports, HOA records, and structural notes. Most buyers skim it, miss critical issues, and either overpay or end up with surprise repairs after closing.</p>
+    <p>OfferWise reads the entire packet in under 90 seconds and produces a concrete negotiation strategy: a calibrated offer range, a prioritized list of repair items the buyer should ask the seller to address, a hidden-issue reserve estimate, and a confidence-scored <em>Property Risk DNA</em> fingerprint that compares the home to similar properties.</p>
+    <p>The system is built on a proprietary ML pipeline trained on a corpus of <strong>255,000+ real disclosure findings</strong> sourced from municipal code-enforcement and permit databases &mdash; not a wrapped LLM. The trained corpus is the moat. <em>Risk DNA scoring</em>, <em>contradiction detection</em> between seller claims and inspector findings, and calibrated repair-cost intervals are differentiators a general-purpose LLM cannot replicate.</p>
+  </div>
+</section>
+
+<!-- Q23 -->
+<section class="q" id="q23">
+  <div class="q-num">
+    <span class="q-anchors">
+      <a class="q-link" href="#q23" title="Permalink to this question">#q23</a>
+      <button class="q-copy" type="button" onclick="copyAnchor(this, 'q23')" title="Copy link to this answer">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M4 1.5A1.5 1.5 0 0 1 5.5 0h6A1.5 1.5 0 0 1 13 1.5v9a1.5 1.5 0 0 1-1.5 1.5H10v1.5A1.5 1.5 0 0 1 8.5 15H1.5A1.5 1.5 0 0 1 0 13.5v-9A1.5 1.5 0 0 1 1.5 3H4V1.5zM5 3h3.5A1.5 1.5 0 0 1 10 4.5V11h1.5a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5h-6a.5.5 0 0 0-.5.5V3zM1 4.5v9a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5h-7a.5.5 0 0 0-.5.5z"/></svg>
+        Copy link
+      </button>
+    </span>
+  </div>
+  <h2 class="q-h">What problem are you solving?</h2>
+  <div class="q-body">
+    <p>The American residential real estate transaction has a structural information asymmetry that has never been solved at scale.</p>
+    <p>Five million American families per year make the largest financial decision of their lives in roughly 72 hours, using documents they were never trained to read. The seller knows what they&rsquo;re hiding. The buyer doesn&rsquo;t know what to look for. The buyer&rsquo;s agent is paid on commission, only after the deal closes &mdash; not aligned with telling the buyer to walk away. The inspector generates a 60-page PDF and disappears. No one&rsquo;s job is to translate the documents into a defensible offer number.</p>
+    <p>The result is a market where buyers systematically overpay, miss material defects, and discover problems after closing &mdash; problems that the disclosure packet had warned them about, in language they couldn&rsquo;t parse.</p>
+    <p>We&rsquo;re building the missing layer: the structured analysis that turns the disclosure packet into negotiation leverage.</p>
+  </div>
+</section>
+
+<!-- Q24 -->
+<section class="q" id="q24">
+  <div class="q-num">
+    <span class="q-anchors">
+      <a class="q-link" href="#q24" title="Permalink to this question">#q24</a>
+      <button class="q-copy" type="button" onclick="copyAnchor(this, 'q24')" title="Copy link to this answer">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M4 1.5A1.5 1.5 0 0 1 5.5 0h6A1.5 1.5 0 0 1 13 1.5v9a1.5 1.5 0 0 1-1.5 1.5H10v1.5A1.5 1.5 0 0 1 8.5 15H1.5A1.5 1.5 0 0 1 0 13.5v-9A1.5 1.5 0 0 1 1.5 3H4V1.5zM5 3h3.5A1.5 1.5 0 0 1 10 4.5V11h1.5a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5h-6a.5.5 0 0 0-.5.5V3zM1 4.5v9a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5h-7a.5.5 0 0 0-.5.5z"/></svg>
+        Copy link
+      </button>
+    </span>
+  </div>
+  <h2 class="q-h">Why is your team passionate about solving this problem?</h2>
+  <div class="q-body">
+    <p>The founder has personally bought four homes over the last fifteen years. In every transaction, the disclosure packet contained material information that took weeks to fully understand &mdash; long after the offer was already in. Twice, that information would have changed the offer price. Once, it would have prevented the offer entirely.</p>
+    <p>This isn&rsquo;t a market we discovered through research. It&rsquo;s a problem we lived through. The product we built is the product we wished existed each time we sat at a kitchen table on a Sunday afternoon, holding 80 pages of inspection findings and trying to figure out what they meant for our offer.</p>
+    <p>Every paying buyer reinforces a simple belief: people will pay for honest, structured intelligence at the moment of the biggest financial decision of their lives.</p>
+  </div>
+</section>
+
+<!-- Q25 -->
+<section class="q" id="q25">
+  <div class="q-num">
+    <span class="q-anchors">
+      <a class="q-link" href="#q25" title="Permalink to this question">#q25</a>
+      <button class="q-copy" type="button" onclick="copyAnchor(this, 'q25')" title="Copy link to this answer">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M4 1.5A1.5 1.5 0 0 1 5.5 0h6A1.5 1.5 0 0 1 13 1.5v9a1.5 1.5 0 0 1-1.5 1.5H10v1.5A1.5 1.5 0 0 1 8.5 15H1.5A1.5 1.5 0 0 1 0 13.5v-9A1.5 1.5 0 0 1 1.5 3H4V1.5zM5 3h3.5A1.5 1.5 0 0 1 10 4.5V11h1.5a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5h-6a.5.5 0 0 0-.5.5V3zM1 4.5v9a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5h-7a.5.5 0 0 0-.5.5z"/></svg>
+        Copy link
+      </button>
+    </span>
+  </div>
+  <h2 class="q-h">What is your venture&rsquo;s mission statement? What do you see as your company&rsquo;s core values?</h2>
+  <div class="q-body">
+    <p><strong>Mission:</strong> Give every American homebuyer the intelligence a Wall Street acquirer would have on the same property.</p>
+    <p><strong>Core values:</strong></p>
+    <ul>
+      <li><strong>Customer-honesty over upsell.</strong> If the analysis says walk away, we say walk away. Our incentives are the buyer&rsquo;s, not the agent&rsquo;s, not the seller&rsquo;s, not the transaction&rsquo;s.</li>
+      <li><strong>Defensible data over confident guessing.</strong> Every number we display can be traced to a source. We publish confidence intervals, not point estimates dressed as certainty.</li>
+      <li><strong>Build the moat in public.</strong> Our <a href="/architecture">architecture page</a> and <a href="/comparison">head-to-head comparison</a> against frontier LLMs are public because the work speaks louder than the marketing.</li>
+      <li><strong>Earn the conversation before asking for capital.</strong> We&rsquo;re not raising on slides. We&rsquo;re building a working product with paying customers first.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- Q26 -->
+<section class="q" id="q26">
+  <div class="q-num">
+    <span class="q-anchors">
+      <a class="q-link" href="#q26" title="Permalink to this question">#q26</a>
+      <button class="q-copy" type="button" onclick="copyAnchor(this, 'q26')" title="Copy link to this answer">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M4 1.5A1.5 1.5 0 0 1 5.5 0h6A1.5 1.5 0 0 1 13 1.5v9a1.5 1.5 0 0 1-1.5 1.5H10v1.5A1.5 1.5 0 0 1 8.5 15H1.5A1.5 1.5 0 0 1 0 13.5v-9A1.5 1.5 0 0 1 1.5 3H4V1.5zM5 3h3.5A1.5 1.5 0 0 1 10 4.5V11h1.5a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5h-6a.5.5 0 0 0-.5.5V3zM1 4.5v9a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5h-7a.5.5 0 0 0-.5.5z"/></svg>
+        Copy link
+      </button>
+    </span>
+  </div>
+  <h2 class="q-h">Who are your customers?</h2>
+  <div class="q-body">
+    <p><strong>Primary (today):</strong> California homebuyers in the $400K&ndash;$2M range who are actively under contract or in the offer-preparation phase. These are buyers who have already engaged an agent and ordered an inspection &mdash; they&rsquo;re not browsing, they&rsquo;re deciding.</p>
+    <p><strong>Adjacent (currently selling into):</strong></p>
+    <ul>
+      <li><strong>Home inspectors</strong> who want to differentiate from the Yelp checkbox-inspector race-to-the-bottom by offering OfferWise-enriched reports.</li>
+      <li><strong>Buyer&rsquo;s agents</strong> at independent and smaller brokerages who use OfferWise to deliver a higher-quality client experience than the major franchises.</li>
+      <li><strong>Repair contractors</strong> who receive qualified leads through the system when buyers identify repair scope they need quoted.</li>
+    </ul>
+    <p><strong>At scale (12&ndash;24 months):</strong> The same audiences nationally, plus enterprise relationships with iBuyer operations and digital-mortgage lenders who need a structured-data layer for the disclosure packet across their volume.</p>
+  </div>
+</section>
+
+<!-- Q27 -->
+<section class="q" id="q27">
+  <div class="q-num">
+    <span class="q-anchors">
+      <a class="q-link" href="#q27" title="Permalink to this question">#q27</a>
+      <button class="q-copy" type="button" onclick="copyAnchor(this, 'q27')" title="Copy link to this answer">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M4 1.5A1.5 1.5 0 0 1 5.5 0h6A1.5 1.5 0 0 1 13 1.5v9a1.5 1.5 0 0 1-1.5 1.5H10v1.5A1.5 1.5 0 0 1 8.5 15H1.5A1.5 1.5 0 0 1 0 13.5v-9A1.5 1.5 0 0 1 1.5 3H4V1.5zM5 3h3.5A1.5 1.5 0 0 1 10 4.5V11h1.5a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5h-6a.5.5 0 0 0-.5.5V3zM1 4.5v9a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5h-7a.5.5 0 0 0-.5.5z"/></svg>
+        Copy link
+      </button>
+    </span>
+  </div>
+  <h2 class="q-h">Who are your competitors? <span style="color:var(--gray);font-weight:400;font-size:.85em;">(now and at scale)</span></h2>
+  <div class="q-body">
+    <p><strong>Today &mdash; direct competitors:</strong> Effectively none. No company currently offers a structured disclosure-analysis product for the buyer with a calibrated offer recommendation. The closest substitutes are general-purpose LLMs (GPT-5, Claude Opus) that a sophisticated buyer might use to read their disclosure packet &mdash; an approach that fails on cost calibration, contradiction detection, and cross-property similarity. We benchmark publicly against this substitute on our <a href="/comparison">comparison page</a>.</p>
+    <p><strong>Today &mdash; indirect substitutes:</strong></p>
+    <ul>
+      <li><strong>Zillow&rsquo;s Zestimate / Redfin Estimate</strong> &mdash; AVMs that give a price but no analysis of what the property&rsquo;s documents actually say.</li>
+      <li><strong>HouseCanary, Quantarium</strong> &mdash; B2B AVM and risk-modeling providers selling to institutional buyers, not consumers.</li>
+      <li><strong>Disclosures.io, Glide</strong> &mdash; document portals that distribute the disclosure packet but don&rsquo;t analyze it.</li>
+    </ul>
+    <p><strong>At scale &mdash; likely emergent competitors:</strong> Zillow and Redfin will likely add ML-driven disclosure analysis when the category proves viable. Their advantage is distribution; their disadvantage is alignment (they&rsquo;re paid by the transaction, not the buyer). LLM platforms (OpenAI, Anthropic) may eventually offer thin disclosure-analysis features. Our moat against both is the trained corpus and the customer-aligned product design.</p>
+  </div>
+</section>
+
+<!-- Q28 -->
+<section class="q" id="q28">
+  <div class="q-num">
+    <span class="q-anchors">
+      <a class="q-link" href="#q28" title="Permalink to this question">#q28</a>
+      <button class="q-copy" type="button" onclick="copyAnchor(this, 'q28')" title="Copy link to this answer">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M4 1.5A1.5 1.5 0 0 1 5.5 0h6A1.5 1.5 0 0 1 13 1.5v9a1.5 1.5 0 0 1-1.5 1.5H10v1.5A1.5 1.5 0 0 1 8.5 15H1.5A1.5 1.5 0 0 1 0 13.5v-9A1.5 1.5 0 0 1 1.5 3H4V1.5zM5 3h3.5A1.5 1.5 0 0 1 10 4.5V11h1.5a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5h-6a.5.5 0 0 0-.5.5V3zM1 4.5v9a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5h-7a.5.5 0 0 0-.5.5z"/></svg>
+        Copy link
+      </button>
+    </span>
+  </div>
+  <h2 class="q-h">Why should customers use your product instead of a competitor&rsquo;s?</h2>
+  <div class="q-body">
+    <p>Three differentiators a wrapped-LLM substitute cannot match:</p>
+    <ul>
+      <li><strong>A trained corpus, not a generic model.</strong> Our pipeline learns from 255,000+ real disclosure findings across thirteen metropolitan code-enforcement databases. A generic LLM has no opinion about whether a Federal Pacific Stab-Lok panel is a deal-breaker. Our system has seen 1,200 of them in real inspection reports and knows.</li>
+      <li><strong>Calibrated confidence, not false certainty.</strong> Repair-cost estimates come with <em>p10/p50/p90</em> intervals, and we publicly track how often the actual cost lands inside the interval (currently around 80%). An LLM can&rsquo;t tell you when it&rsquo;s guessing.</li>
+      <li><strong>Cross-cutting reasoning the LLM doesn&rsquo;t natively do.</strong> The system cross-references every seller claim against every inspector finding to surface contradictions, computes a 5-axis Property Risk DNA vector that enables similarity-matching across properties, and runs daily background monitoring after the initial analysis. None of these come from a single LLM call.</li>
+    </ul>
+    <p>Against major-portal AVMs (Zillow, Redfin): we&rsquo;re aligned with the buyer, not the transaction. We will recommend walking away. They will not.</p>
+  </div>
+</section>
+
+<!-- Q29 -->
+<section class="q" id="q29">
+  <div class="q-num">
+    <span class="q-anchors">
+      <a class="q-link" href="#q29" title="Permalink to this question">#q29</a>
+      <button class="q-copy" type="button" onclick="copyAnchor(this, 'q29')" title="Copy link to this answer">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M4 1.5A1.5 1.5 0 0 1 5.5 0h6A1.5 1.5 0 0 1 13 1.5v9a1.5 1.5 0 0 1-1.5 1.5H10v1.5A1.5 1.5 0 0 1 8.5 15H1.5A1.5 1.5 0 0 1 0 13.5v-9A1.5 1.5 0 0 1 1.5 3H4V1.5zM5 3h3.5A1.5 1.5 0 0 1 10 4.5V11h1.5a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5h-6a.5.5 0 0 0-.5.5V3zM1 4.5v9a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5h-7a.5.5 0 0 0-.5.5z"/></svg>
+        Copy link
+      </button>
+    </span>
+  </div>
+  <h2 class="q-h">Team qualifications and relevant background.</h2>
+  <div class="q-body">
+    <p><strong>Founder:</strong> Francis &mdash; Director of Product Management at Cisco/Webex. Fifteen-plus years building enterprise communication and collaboration platforms at scale. Multiple successful product launches into competitive markets. Strong product-engineering bridge: ships code, runs the ML pipeline, and writes the customer-facing copy directly.</p>
+    <p><strong>Strategic framework:</strong> The product is grounded in the Chris Rowen Startup Bootcamp framework &mdash; the same methodology used by senior operators in scaling Cisco&rsquo;s acquisitions. We use it as our internal scorecard, not marketing material.</p>
+    <p><strong>Relevant lived experience:</strong> Four personal real estate transactions across multiple markets. Every product decision is grounded in a moment the founder remembers needing this exact intelligence.</p>
+    <p>See <em>Question 37</em> for the skills we are actively building toward.</p>
+  </div>
+</section>
+
+<!-- Q30 -->
+<section class="q" id="q30">
+  <div class="q-num">
+    <span class="q-anchors">
+      <a class="q-link" href="#q30" title="Permalink to this question">#q30</a>
+      <button class="q-copy" type="button" onclick="copyAnchor(this, 'q30')" title="Copy link to this answer">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M4 1.5A1.5 1.5 0 0 1 5.5 0h6A1.5 1.5 0 0 1 13 1.5v9a1.5 1.5 0 0 1-1.5 1.5H10v1.5A1.5 1.5 0 0 1 8.5 15H1.5A1.5 1.5 0 0 1 0 13.5v-9A1.5 1.5 0 0 1 1.5 3H4V1.5zM5 3h3.5A1.5 1.5 0 0 1 10 4.5V11h1.5a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5h-6a.5.5 0 0 0-.5.5V3zM1 4.5v9a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5h-7a.5.5 0 0 0-.5.5z"/></svg>
+        Copy link
+      </button>
+    </span>
+  </div>
+  <h2 class="q-h">Business model and revenue sources.</h2>
+  <div class="q-body">
+    <p>OfferWise operates a multi-sided subscription model with usage-based API on top.</p>
+    <div class="spec"><div class="spec-k">Buyers</div><div class="spec-v">$9 / $19 / $49 per month (Starter / Pro / Unlimited). The vast majority of buyers run 1&ndash;3 analyses during their search and convert primarily on Starter.</div></div>
+    <div class="spec"><div class="spec-k">Inspectors</div><div class="spec-v">Subscription tier for branded, OfferWise-enriched inspection reports. Inspectors who white-label the analysis upgrade their average revenue per inspection and differentiate against checkbox competitors.</div></div>
+    <div class="spec"><div class="spec-k">Contractors</div><div class="spec-v">$49 / $99 / $499 per month (Starter / Pro / Enterprise) for qualified lead access. Contractors pay for direct introductions to buyers who have identified repair scope through the analysis.</div></div>
+    <div class="spec"><div class="spec-k">API</div><div class="spec-v">$99+ per month, usage-priced. Designed for partner integrations: brokerages, inspection software vendors, iBuyer back-offices, digital-mortgage workflows.</div></div>
+    <div class="spec"><div class="spec-k">Future</div><div class="spec-v">Insurance referral fees (the analysis surfaces real risk; an insurance partner could offer right-priced coverage at the moment of decision) and warranty leads (similar mechanic, different vertical).</div></div>
+    <p>The strategic shape: <em>buyers fund the cash flow, inspectors fund the distribution, contractors fund the margin, API funds the scale.</em></p>
+  </div>
+</section>
+
+<!-- Q31 -->
+<section class="q" id="q31">
+  <div class="q-num">
+    <span class="q-anchors">
+      <a class="q-link" href="#q31" title="Permalink to this question">#q31</a>
+      <button class="q-copy" type="button" onclick="copyAnchor(this, 'q31')" title="Copy link to this answer">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M4 1.5A1.5 1.5 0 0 1 5.5 0h6A1.5 1.5 0 0 1 13 1.5v9a1.5 1.5 0 0 1-1.5 1.5H10v1.5A1.5 1.5 0 0 1 8.5 15H1.5A1.5 1.5 0 0 1 0 13.5v-9A1.5 1.5 0 0 1 1.5 3H4V1.5zM5 3h3.5A1.5 1.5 0 0 1 10 4.5V11h1.5a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5h-6a.5.5 0 0 0-.5.5V3zM1 4.5v9a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5h-7a.5.5 0 0 0-.5.5z"/></svg>
+        Copy link
+      </button>
+    </span>
+  </div>
+  <h2 class="q-h">Key metrics and measurement.</h2>
+  <div class="q-body">
+    <p>We track in roughly this order of importance:</p>
+    <ul>
+      <li><strong>Weekly paying customers</strong> &mdash; the only metric that matters for whether we&rsquo;ve found product-market fit. Measured nightly from Stripe.</li>
+      <li><strong>Analyses per active customer</strong> &mdash; the leading indicator of value. Buyers who run 3+ analyses are converting into Pro and Unlimited tiers. Measured from the analysis table.</li>
+      <li><strong>Cost-interval calibration</strong> &mdash; what percentage of actual repair costs land inside the predicted [p10, p90] interval. We track this against an internal target of 80%. Measured in the training pipeline on held-out test sets.</li>
+      <li><strong>Contradiction-detection precision</strong> &mdash; when we flag a contradiction between a seller claim and an inspector finding, is the contradiction real? Currently around 97%. Measured against a manually-labeled test set.</li>
+      <li><strong>NPS / referral rate</strong> &mdash; the strongest signal that the product delivered emotional value, not just analytical value.</li>
+      <li><strong>Time-to-first-analysis after signup</strong> &mdash; activation. Buyers who don&rsquo;t run an analysis in their first session almost never return.</li>
+    </ul>
+    <p>All operational metrics are surfaced on the admin dashboard. Model-quality metrics persist in the database after every training run for trend analysis.</p>
+  </div>
+</section>
+
+<!-- Q32 -->
+<section class="q" id="q32">
+  <div class="q-num">
+    <span class="q-anchors">
+      <a class="q-link" href="#q32" title="Permalink to this question">#q32</a>
+      <button class="q-copy" type="button" onclick="copyAnchor(this, 'q32')" title="Copy link to this answer">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M4 1.5A1.5 1.5 0 0 1 5.5 0h6A1.5 1.5 0 0 1 13 1.5v9a1.5 1.5 0 0 1-1.5 1.5H10v1.5A1.5 1.5 0 0 1 8.5 15H1.5A1.5 1.5 0 0 1 0 13.5v-9A1.5 1.5 0 0 1 1.5 3H4V1.5zM5 3h3.5A1.5 1.5 0 0 1 10 4.5V11h1.5a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5h-6a.5.5 0 0 0-.5.5V3zM1 4.5v9a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5h-7a.5.5 0 0 0-.5.5z"/></svg>
+        Copy link
+      </button>
+    </span>
+  </div>
+  <h2 class="q-h">Market size.</h2>
+  <div class="q-body">
+    <p><strong>Total Addressable Market:</strong> The US residential real estate transaction is a $2.8 trillion annual market by transaction value, with 5+ million homes changing hands every year at a median sale price of approximately $420,000 (NAR).</p>
+    <p><strong>Serviceable Addressable Market (buyer-side analysis):</strong> Even at modest penetration &mdash; assume 10% of the 5M annual buyers eventually use a structured disclosure analysis at $30 average revenue per transaction &mdash; that&rsquo;s a $1.5 billion annual buyer-side opportunity.</p>
+    <p><strong>Serviceable Obtainable Market (multi-sided):</strong> Buyer subscriptions are the entry point. Inspectors (50K+ active, paying $50&ndash;200/month for branded reports), contractors (paying for qualified leads), and API partners (brokerages, iBuyers, digital mortgage) multiply revenue per transaction. The realistic 5-year SOM is in the low hundreds of millions of dollars annually, before insurance and warranty extensions.</p>
+    <p>The market is large and uncontested. The largest existing players (Zillow, Redfin) operate on the AVM/marketing side and aren&rsquo;t structurally aligned with the buyer-decision moment we serve.</p>
+  </div>
+</section>
+
+<!-- Q33 -->
+<section class="q" id="q33">
+  <div class="q-num">
+    <span class="q-anchors">
+      <a class="q-link" href="#q33" title="Permalink to this question">#q33</a>
+      <button class="q-copy" type="button" onclick="copyAnchor(this, 'q33')" title="Copy link to this answer">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M4 1.5A1.5 1.5 0 0 1 5.5 0h6A1.5 1.5 0 0 1 13 1.5v9a1.5 1.5 0 0 1-1.5 1.5H10v1.5A1.5 1.5 0 0 1 8.5 15H1.5A1.5 1.5 0 0 1 0 13.5v-9A1.5 1.5 0 0 1 1.5 3H4V1.5zM5 3h3.5A1.5 1.5 0 0 1 10 4.5V11h1.5a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5h-6a.5.5 0 0 0-.5.5V3zM1 4.5v9a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5h-7a.5.5 0 0 0-.5.5z"/></svg>
+        Copy link
+      </button>
+    </span>
+  </div>
+  <h2 class="q-h">Traction data.</h2>
+  <div class="q-body">
+    <p>We are deliberately pre-revenue at scale and have set an explicit milestone gate before opening conversations with capital partners. See <em>Question 38</em>.</p>
+    <p><strong>What we have built so far (verifiable):</strong></p>
+    <ul>
+      <li><strong>255,000+ labeled training findings</strong> in a proprietary corpus, sourced from 13 active municipal code-enforcement and permit databases across the top 50 US metros. Growing weekly.</li>
+      <li><strong>Three production ML models</strong> in active training, measured against a held-out test set (post-relabel training run, v5.89.52): a multi-label finding classifier at <strong>85.8% category accuracy</strong> and <strong>66.4% severity accuracy</strong>; a contradiction detector at <strong>97.1% accuracy</strong> on cross-document inspection; a cost predictor with <strong>R&sup2;=0.82</strong>, <strong>MAE $1,915</strong>, and calibrated p10/p50/p90 intervals. The models override Claude only when confidence clears 0.85 &mdash; current ceiling on category classification, intentional design floor on severity until corpus volume warrants tighter calibration.</li>
+      <li><strong>Full disclosure-to-offer pipeline</strong> deployed and serving real California homebuyer traffic.</li>
+      <li><strong>Active marketing channels:</strong> Google Ads targeting California homebuyers; Reddit native posts targeting homebuying communities.</li>
+      <li><strong>Active outreach</strong> to B2B partners in the iBuyer and digital-mortgage segments.</li>
+    </ul>
+    <p>Specific revenue and customer-count numbers are shared in direct conversations under NDA.</p>
+  </div>
+</section>
+
+<!-- Q34 -->
+<section class="q" id="q34">
+  <div class="q-num">
+    <span class="q-anchors">
+      <a class="q-link" href="#q34" title="Permalink to this question">#q34</a>
+      <button class="q-copy" type="button" onclick="copyAnchor(this, 'q34')" title="Copy link to this answer">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M4 1.5A1.5 1.5 0 0 1 5.5 0h6A1.5 1.5 0 0 1 13 1.5v9a1.5 1.5 0 0 1-1.5 1.5H10v1.5A1.5 1.5 0 0 1 8.5 15H1.5A1.5 1.5 0 0 1 0 13.5v-9A1.5 1.5 0 0 1 1.5 3H4V1.5zM5 3h3.5A1.5 1.5 0 0 1 10 4.5V11h1.5a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5h-6a.5.5 0 0 0-.5.5V3zM1 4.5v9a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5h-7a.5.5 0 0 0-.5.5z"/></svg>
+        Copy link
+      </button>
+    </span>
+  </div>
+  <h2 class="q-h">Scaling, sales &amp; marketing strategy, CAC.</h2>
+  <div class="q-body">
+    <p><strong>Buyer acquisition (B2C):</strong> Buyers are in-market for a very short window (typically 30&ndash;90 days from first showing to closing) and search with extreme intent during that window. Google Ads targeting buyer-specific keywords convert at a fundamentally different rate than awareness-stage advertising. Reddit native engagement in r/RealEstate, r/FirstTimeHomeBuyer, and metro-specific subreddits supplements paid acquisition with credibility-building content.</p>
+    <p><strong>Partner-led scale (B2B):</strong> Inspectors and agents have a built-in audience: every buyer they serve. A successful inspector partnership distributes OfferWise to dozens of buyers per month at near-zero marginal CAC. We&rsquo;re actively building these relationships, starting in California.</p>
+    <p><strong>API-led scale (enterprise):</strong> The same analysis pipeline is sold as an API to brokerages, iBuyers, and digital-mortgage companies. One enterprise integration distributes the product to thousands of transactions per month.</p>
+    <p><strong>CAC and payback:</strong> We expect blended CAC in the low double-digits for B2C and effectively zero for partner-distributed acquisition. With a $9&ndash;$49 monthly subscription and average buyer using the product for 2&ndash;3 months during their home search, payback is typically inside the first transaction. The B2B and API tiers carry materially higher LTV with comparable acquisition cost via founder-led outbound.</p>
+  </div>
+</section>
+
+<!-- Q35 -->
+<section class="q" id="q35">
+  <div class="q-num">
+    <span class="q-anchors">
+      <a class="q-link" href="#q35" title="Permalink to this question">#q35</a>
+      <button class="q-copy" type="button" onclick="copyAnchor(this, 'q35')" title="Copy link to this answer">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M4 1.5A1.5 1.5 0 0 1 5.5 0h6A1.5 1.5 0 0 1 13 1.5v9a1.5 1.5 0 0 1-1.5 1.5H10v1.5A1.5 1.5 0 0 1 8.5 15H1.5A1.5 1.5 0 0 1 0 13.5v-9A1.5 1.5 0 0 1 1.5 3H4V1.5zM5 3h3.5A1.5 1.5 0 0 1 10 4.5V11h1.5a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5h-6a.5.5 0 0 0-.5.5V3zM1 4.5v9a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5h-7a.5.5 0 0 0-.5.5z"/></svg>
+        Copy link
+      </button>
+    </span>
+  </div>
+  <h2 class="q-h">IP protection and unique advantages.</h2>
+  <div class="q-body">
+    <ul>
+      <li><strong>Provisional patent applications filed</strong> for the underlying methodologies behind <em>OfferScore&trade;</em>, <em>Property Risk DNA&trade;</em>, and the <em>Seller Transparency Report&trade;</em>. The provisional filings establish priority dates while the system is hardened toward non-provisional filing.</li>
+      <li><strong>Trademark-pending marks:</strong> OfferScore&trade;, Property Risk DNA&trade;, Seller Transparency Report&trade;, OfferWatch&trade;.</li>
+      <li><strong>Trade-secret training corpus.</strong> The 255,000+ row labeled corpus, the v2 relabeling system, the contradiction-pair generation pipeline, and the city-by-city crawler infrastructure are all internal know-how that took roughly fifteen months of focused work to build. Reproducing it from scratch would take a well-funded competitor 12&ndash;18 months minimum.</li>
+      <li><strong>Architectural know-how.</strong> The five-axis Risk DNA design, the calibrated confidence intervals via isotonic regression, the per-city crawler abstraction across 13 active municipal portals, the cooperative-cancellation orchestration of the training pipeline, and the disclosure-vs-inspection contradiction model trained on labeled pairs &mdash; all documented internally and not in the public LLM training set.</li>
+      <li><strong>Data network effects.</strong> Every property analyzed produces additional labeled findings that feed back into the next training cycle. The corpus grew 4&times; over the past year through this loop. A new entrant starts at zero and has no easy way to bootstrap.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- Q36 -->
+<section class="q" id="q36">
+  <div class="q-num">
+    <span class="q-anchors">
+      <a class="q-link" href="#q36" title="Permalink to this question">#q36</a>
+      <button class="q-copy" type="button" onclick="copyAnchor(this, 'q36')" title="Copy link to this answer">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M4 1.5A1.5 1.5 0 0 1 5.5 0h6A1.5 1.5 0 0 1 13 1.5v9a1.5 1.5 0 0 1-1.5 1.5H10v1.5A1.5 1.5 0 0 1 8.5 15H1.5A1.5 1.5 0 0 1 0 13.5v-9A1.5 1.5 0 0 1 1.5 3H4V1.5zM5 3h3.5A1.5 1.5 0 0 1 10 4.5V11h1.5a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5h-6a.5.5 0 0 0-.5.5V3zM1 4.5v9a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5h-7a.5.5 0 0 0-.5.5z"/></svg>
+        Copy link
+      </button>
+    </span>
+  </div>
+  <h2 class="q-h">Sustainable competitive advantage and barriers to entry.</h2>
+  <div class="q-body">
+    <p>Four compounding moats:</p>
+    <ul>
+      <li><strong>Data moat.</strong> Every analysis a buyer runs adds labeled data to the corpus (with consent). Every contractor quote received against a finding produces ground-truth repair cost. Every disputed finding produces a high-signal label. A competitor starting today is fifteen months behind, and the gap widens every week.</li>
+      <li><strong>Multi-sided network.</strong> Buyers attract inspectors (more reports to enrich). Inspectors attract buyers (better reports for buyers). Contractors attract buyers (cost transparency). API partners attract all three. None of the participants can recreate the network alone.</li>
+      <li><strong>Alignment moat.</strong> Zillow and Redfin are paid by the transaction. OfferWise is paid by the buyer to <em>question</em> the transaction. They cannot pivot to our position without alienating their existing revenue. This is a structural barrier no funding round solves.</li>
+      <li><strong>Trust moat.</strong> Buyers verify our calibrated confidence claims against the actual repair quotes they receive. A competitor with louder marketing but uncalibrated estimates loses on the first transaction. Trust compounds.</li>
+    </ul>
+    <p>Plus the IP described in <em>Question 35</em>.</p>
+  </div>
+</section>
+
+<!-- Q37 -->
+<section class="q" id="q37">
+  <div class="q-num">
+    <span class="q-anchors">
+      <a class="q-link" href="#q37" title="Permalink to this question">#q37</a>
+      <button class="q-copy" type="button" onclick="copyAnchor(this, 'q37')" title="Copy link to this answer">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M4 1.5A1.5 1.5 0 0 1 5.5 0h6A1.5 1.5 0 0 1 13 1.5v9a1.5 1.5 0 0 1-1.5 1.5H10v1.5A1.5 1.5 0 0 1 8.5 15H1.5A1.5 1.5 0 0 1 0 13.5v-9A1.5 1.5 0 0 1 1.5 3H4V1.5zM5 3h3.5A1.5 1.5 0 0 1 10 4.5V11h1.5a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5h-6a.5.5 0 0 0-.5.5V3zM1 4.5v9a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5h-7a.5.5 0 0 0-.5.5z"/></svg>
+        Copy link
+      </button>
+    </span>
+  </div>
+  <h2 class="q-h">Skills and expertise we&rsquo;re adding to the team.</h2>
+  <div class="q-body">
+    <p>In rough priority order:</p>
+    <ul>
+      <li><strong>Growth marketing leader</strong> &mdash; specifically B2C performance marketing with experience in high-intent, low-search-volume niches. We&rsquo;ve validated channels; we need someone who can scale them.</li>
+      <li><strong>B2B partnership lead</strong> &mdash; selling into inspectors, mid-sized brokerages, and digital-mortgage operations. Founder-led for now; this person scales it.</li>
+      <li><strong>Senior ML engineer</strong> &mdash; second person on the training pipeline, focused on real-world accuracy measurement and the synthetic-data generation work that closes the corpus-to-customer-text gap.</li>
+      <li><strong>Customer success / product analyst</strong> &mdash; the person who reads every cancellation, every refund request, every NPS detractor comment and translates patterns into product changes.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- Q38 -->
+<section class="q" id="q38">
+  <div class="q-num">
+    <span class="q-anchors">
+      <a class="q-link" href="#q38" title="Permalink to this question">#q38</a>
+      <button class="q-copy" type="button" onclick="copyAnchor(this, 'q38')" title="Copy link to this answer">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M4 1.5A1.5 1.5 0 0 1 5.5 0h6A1.5 1.5 0 0 1 13 1.5v9a1.5 1.5 0 0 1-1.5 1.5H10v1.5A1.5 1.5 0 0 1 8.5 15H1.5A1.5 1.5 0 0 1 0 13.5v-9A1.5 1.5 0 0 1 1.5 3H4V1.5zM5 3h3.5A1.5 1.5 0 0 1 10 4.5V11h1.5a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5h-6a.5.5 0 0 0-.5.5V3zM1 4.5v9a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5h-7a.5.5 0 0 0-.5.5z"/></svg>
+        Copy link
+      </button>
+    </span>
+  </div>
+  <h2 class="q-h">Capital raised to date.</h2>
+  <div class="q-body">
+    <p>We are bootstrapped. The founder has self-funded the engineering, infrastructure, ML training compute, and customer acquisition through commercial product development.</p>
+    <p>This is intentional. As stated in our <a href="/thesis">investment thesis</a>, we believe the strongest signal a founder can send to an investor is not a pitch deck &mdash; it is a working product with paying customers who chose to come back. We are building that signal first.</p>
+  </div>
+</section>
+
+<!-- Q39 -->
+<section class="q" id="q39">
+  <div class="q-num">
+    <span class="q-anchors">
+      <a class="q-link" href="#q39" title="Permalink to this question">#q39</a>
+      <button class="q-copy" type="button" onclick="copyAnchor(this, 'q39')" title="Copy link to this answer">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M4 1.5A1.5 1.5 0 0 1 5.5 0h6A1.5 1.5 0 0 1 13 1.5v9a1.5 1.5 0 0 1-1.5 1.5H10v1.5A1.5 1.5 0 0 1 8.5 15H1.5A1.5 1.5 0 0 1 0 13.5v-9A1.5 1.5 0 0 1 1.5 3H4V1.5zM5 3h3.5A1.5 1.5 0 0 1 10 4.5V11h1.5a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5h-6a.5.5 0 0 0-.5.5V3zM1 4.5v9a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5h-7a.5.5 0 0 0-.5.5z"/></svg>
+        Copy link
+      </button>
+    </span>
+  </div>
+  <h2 class="q-h">From whom have you raised the capital?</h2>
+  <div class="q-body">
+    <p>Self-funded. No external capital to date.</p>
+  </div>
+</section>
+
+<!-- Q41 -->
+<section class="q" id="q41">
+  <div class="q-num">
+    <span class="q-anchors">
+      <a class="q-link" href="#q41" title="Permalink to this question">#q41</a>
+      <button class="q-copy" type="button" onclick="copyAnchor(this, 'q41')" title="Copy link to this answer">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M4 1.5A1.5 1.5 0 0 1 5.5 0h6A1.5 1.5 0 0 1 13 1.5v9a1.5 1.5 0 0 1-1.5 1.5H10v1.5A1.5 1.5 0 0 1 8.5 15H1.5A1.5 1.5 0 0 1 0 13.5v-9A1.5 1.5 0 0 1 1.5 3H4V1.5zM5 3h3.5A1.5 1.5 0 0 1 10 4.5V11h1.5a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5h-6a.5.5 0 0 0-.5.5V3zM1 4.5v9a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5h-7a.5.5 0 0 0-.5.5z"/></svg>
+        Copy link
+      </button>
+    </span>
+  </div>
+  <h2 class="q-h">Anything else.</h2>
+  <div class="q-body">
+    <p>Three things we think are worth knowing about how we work:</p>
+    <ul>
+      <li><strong>We publish what we build.</strong> Our <a href="/architecture">architecture page</a>, <a href="/comparison">head-to-head LLM comparison</a>, and the disclosure analysis itself are publicly verifiable. We&rsquo;d rather lose the marketing race by being too transparent than win it by being vague.</li>
+      <li><strong>We&rsquo;re explicit about the gate.</strong> 1,000 paying customers before we open a serious capital conversation. The number is not arbitrary &mdash; it&rsquo;s the inflection where the unit economics, the marketing channels, and the product-market fit are all simultaneously evidenced rather than asserted.</li>
+      <li><strong>We&rsquo;re building for the buyer first.</strong> Every product decision flows from one question: would the buyer thank us for this? When that question conflicts with the path of fastest revenue growth, we choose the buyer. That decision compounds into the trust moat.</li>
+    </ul>
+    <p>If something on this page raises a question we haven&rsquo;t answered, the best contact is <a href="mailto:hello@getofferwise.ai">hello@getofferwise.ai</a>.</p>
+  </div>
+</section>
+
+</div>
+
+<div class="close">
+  <p><strong>OfferWise&trade;</strong> &middot; getofferwise.ai</p>
+  <p>Trademarks pending &middot; Provisional patents filed &middot; Not an offer to sell securities</p>
+  <p class="stamp">&copy; 2026 OfferWise AI</p>
+  <p style="margin-top:18px;"><a href="/thesis">Read the investment thesis</a> &nbsp;·&nbsp; <a href="/comparison">See the LLM comparison</a> &nbsp;·&nbsp; <a href="/architecture">Architecture deep-dive</a></p>
+</div>
+
+<script>
+function copyAnchor(btn, qid) {
+  // Build absolute URL pointing to this answer
+  var url = window.location.origin + window.location.pathname + '#' + qid;
+
+  function showCopied() {
+    var originalLabel = btn.querySelector('svg').nextSibling.textContent;
+    btn.classList.add('copied');
+    // Replace the text after the SVG with "Copied!"
+    // The text node sits after the SVG element
+    var textNodes = Array.from(btn.childNodes).filter(function(n) { return n.nodeType === 3; });
+    var lastText = textNodes[textNodes.length - 1];
+    if (lastText) {
+      var saved = lastText.textContent;
+      lastText.textContent = ' Copied!';
+      setTimeout(function() {
+        lastText.textContent = saved;
+        btn.classList.remove('copied');
+      }, 1500);
+    } else {
+      setTimeout(function() { btn.classList.remove('copied'); }, 1500);
+    }
+  }
+
+  // Modern path: Clipboard API
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(url).then(showCopied).catch(function() {
+      fallbackCopy(url, showCopied);
+    });
+  } else {
+    fallbackCopy(url, showCopied);
+  }
+}
+
+function fallbackCopy(text, onSuccess) {
+  var ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.position = 'fixed';
+  ta.style.left = '-9999px';
+  document.body.appendChild(ta);
+  ta.select();
+  try {
+    document.execCommand('copy');
+    onSuccess();
+  } catch (e) {
+    // Last resort: prompt the user with the URL
+    window.prompt('Copy this link:', text);
+  }
+  document.body.removeChild(ta);
+}
+</script>
+
+</body>
+</html>

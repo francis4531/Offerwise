@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OfferWise — What is the seller not telling you?</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700&family=Inter+Tight:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
+  :root{
+    --bg:#0c0f17; --bg2:#11151f; --card:#161b27; --line:#26303f;
+    --text:#eef2f8; --soft:#9aa6bb; --faint:#647088;
+    --accent:#ff6b35; --accent-2:#ffa552; --good:#43c08a; --blue:#5b9dff; --red:#ef5a5a;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--bg);color:var(--text);font-family:'Inter Tight',system-ui,sans-serif;
+    line-height:1.5;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+  body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+    background:radial-gradient(900px 500px at 50% -8%,rgba(255,107,53,.13),transparent 60%),
+               radial-gradient(700px 500px at 85% 110%,rgba(91,157,255,.08),transparent 55%);}
+  .wrap{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:0 24px}
+  nav{display:flex;align-items:center;justify-content:space-between;max-width:900px;margin:0 auto;padding:22px 24px;position:relative;z-index:2}
+  .logo{font-family:'Fraunces',serif;font-weight:600;font-size:1.35rem;letter-spacing:-.01em}
+  .logo b{color:var(--accent)}
+  .nav-right{display:flex;align-items:center;gap:26px;font-size:.92rem;color:var(--soft)}
+  .nav-right a{color:var(--soft);text-decoration:none}
+  .nav-login{color:var(--text)!important;font-weight:500}
+
+  .hero{text-align:center;padding:5rem 0 1rem}
+  .eyebrow{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.18em;
+    text-transform:uppercase;color:var(--accent-2);margin-bottom:1.4rem}
+  h1{font-family:'Fraunces',serif;font-weight:600;font-size:clamp(2.3rem,5.6vw,3.7rem);
+    line-height:1.03;letter-spacing:-.02em;margin-bottom:1rem}
+  h1 .stroke{color:var(--accent)}
+  .sub{font-size:1.15rem;color:var(--soft);max-width:30em;margin:0 auto 2.3rem}
+
+  .prompt{max-width:640px;margin:0 auto;background:var(--card);border:1px solid var(--line);
+    border-radius:18px;padding:10px 10px 10px 20px;display:flex;align-items:center;gap:12px;
+    box-shadow:0 24px 60px -20px rgba(0,0,0,.6);transition:border-color .2s,box-shadow .2s}
+  .prompt:focus-within{border-color:var(--accent);box-shadow:0 24px 70px -18px rgba(255,107,53,.25)}
+  .prompt .pin{color:var(--faint);font-size:1.2rem}
+  .prompt input{flex:1;background:none;border:none;outline:none;color:var(--text);
+    font-family:'Inter Tight';font-size:1.06rem;padding:12px 0}
+  .prompt input::placeholder{color:var(--faint)}
+  .prompt button{background:var(--accent);color:#1a0f08;border:none;border-radius:12px;
+    padding:13px 22px;font-family:'Inter Tight';font-weight:600;font-size:1rem;cursor:pointer;
+    transition:transform .12s,background .2s}
+  .prompt button:hover{background:var(--accent-2);transform:translateY(-1px)}
+  .prompt button:disabled{opacity:.55;cursor:wait;transform:none}
+  .nocard{margin-top:1.5rem;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.06em;color:var(--faint)}
+  .nocard b{color:var(--good)}
+  .alt{margin-top:1rem;font-size:.92rem;color:var(--faint)}
+  .alt a{color:var(--soft);text-decoration:none;border-bottom:1px dotted var(--line)}
+
+  .result{max-width:640px;margin:2rem auto 0;text-align:left}
+  .rcard{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:1.6rem}
+  .rhead{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin-bottom:1rem}
+  .big{font-family:'Fraunces',serif;font-weight:600;font-size:2rem;letter-spacing:-.02em;line-height:1}
+  .big .grade{font-size:1.1rem;color:var(--accent-2);margin-left:10px}
+  .bigsub{color:var(--soft);font-size:.95rem;margin:.4rem 0 1.2rem}
+  .rrow{display:flex;justify-content:space-between;align-items:baseline;padding:.6rem 0;border-top:1px solid var(--line);font-size:.93rem}
+  .rrow .k{color:var(--soft);display:flex;gap:8px;align-items:center}
+  .rrow .v{font-family:'IBM Plex Mono',monospace;color:var(--text)}
+  .rrow .v.neg{color:var(--accent-2)}
+  .gate{margin-top:1.2rem;padding:1.1rem 1.3rem;background:rgba(255,107,53,.07);border:1px solid rgba(255,107,53,.3);border-radius:10px;text-align:center}
+  .gate p{font-size:.95rem;color:var(--soft);margin-bottom:.8rem}
+  .gate a{display:inline-block;background:var(--accent);color:#1a0f08;text-decoration:none;font-weight:600;padding:11px 22px;border-radius:10px;font-size:.95rem}
+  .loading{text-align:center;color:var(--faint);font-family:'IBM Plex Mono',monospace;font-size:12px;padding:2rem}
+  .err{text-align:center;color:var(--red);font-size:.92rem;padding:1rem}
+
+  .pros{margin:4rem 0 0;text-align:center;padding:1.4rem;border:1px dashed var(--line);border-radius:12px}
+  .pros span{color:var(--faint);font-size:.9rem}
+  .pros a{color:var(--soft);text-decoration:none;border-bottom:1px solid var(--line);margin:0 4px}
+  .trust{text-align:center;margin:3rem 0 0;font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.1em;color:var(--faint);text-transform:uppercase}
+  footer{margin-top:4rem;border-top:1px solid var(--line);padding:2rem 0 4rem;text-align:center;
+    font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--faint);letter-spacing:.05em}
+  @media (max-width:600px){.prompt{flex-direction:column;align-items:stretch;padding:14px}}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">Offer<b>Wise</b></div>
+  <div class="nav-right"><a href="/sample-analysis" target="_blank">Sample report</a><a href="/#professionals">For professionals</a><a href="/login" class="nav-login">Log in</a></div>
+</nav>
+
+<div class="wrap">
+  <section class="hero">
+    <div class="eyebrow">Before you make an offer</div>
+    <h1>What is the seller <span class="stroke">not telling you?</span></h1>
+    <p class="sub">Type an address. Get a real read in seconds — no account, no card. Sign up only if you want the full report.</p>
+
+    <div class="prompt">
+      <span class="pin">📍</span>
+      <input id="addr" type="text" placeholder="Paste a property address…  e.g. 123 Main St, San Jose, CA 95148" onkeydown="if(event.key==='Enter')runCheck()" />
+      <button id="go" onclick="runCheck()">Check free →</button>
+    </div>
+    <div class="nocard">NO ACCOUNT · <b>NO CARD</b> · RESULTS FIRST</div>
+    <div class="alt">Have the disclosure or inspection PDF? <a href="/login?signup">Upload it for the full analysis →</a></div>
+  </section>
+
+
+  <section class="pros" id="professionals">
+    <span>Inspector, agent, lender, or appraiser?
+      <a href="/for-inspectors">Inspectors</a><a href="/for-agents">Agents</a><a href="/for-contractors">Contractors</a><a href="/enterprise">Enterprise&nbsp;API</a></span>
+  </section>
+  <div class="trust">Trained on real disclosures &amp; inspections · benchmarked vs leading AI models</div>
+  <footer>OFFERWISE™ · INFORMATIONAL — NOT LEGAL OR FINANCIAL ADVICE</footer>
+</div>
+
+<script>
+function runCheck(){
+  var addr = document.getElementById('addr').value.trim();
+  if(addr.length < 5){
+    document.getElementById('addr').focus();
+    document.getElementById('addr').placeholder = 'Please enter a full address with city and state…';
+    return;
+  }
+  // Send to the real risk-check results page (same destination as the main home).
+  // That page reads ?address= and renders the full polished result.
+  window.location.href = '/risk-check?address=' + encodeURIComponent(addr);
+}
+</script>
+</body>
+</html>

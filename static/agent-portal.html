@@ -1,0 +1,1601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent Portal — OfferWise AI</title>
+<link rel="icon" type="image/svg+xml" href="/static/logo-icon-only.svg">
+  <link rel="alternate icon" type="image/x-icon" href="/favicon.ico">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg:#060d1a; --surface:#0f1e35; --surface2:#162032;
+  --border:rgba(255,255,255,.08); --border2:rgba(255,255,255,.05);
+  --text:#f1f5f9; --muted:#94a3b8; --dim:#64748b;
+  --fire1:#f97316; --fire2:#f59e0b; --green:#22c55e; --blue:#60a5fa; --red:#ef4444;
+}
+body { background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; min-height:100vh; }
+nav { display:flex; align-items:center; justify-content:space-between; padding:14px 32px; border-bottom:1px solid var(--border); background:rgba(6,13,26,.98); }
+.nav-logo { font-size:1.2rem; font-weight:900; color:var(--text); text-decoration:none; }
+.nav-logo .wise { background:linear-gradient(90deg,var(--fire1),var(--fire2)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.nav-right { display:flex; align-items:center; gap:16px; }
+.nav-badge { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--fire1); background:rgba(249,115,22,.1); border:1px solid rgba(249,115,22,.25); padding:4px 10px; border-radius:6px; }
+.role-switcher { position:relative; }
+.role-switcher-btn { display:flex;align-items:center;gap:6px;padding:5px 10px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;transition:all .15s;white-space:nowrap;font-family:inherit; }
+.role-switcher-btn:hover { border-color:rgba(249,115,22,.4);color:var(--fire1); }
+.role-switcher-menu { position:absolute;top:calc(100% + 8px);right:0;background:var(--surface);border:1px solid var(--border);border-radius:12px;min-width:220px;box-shadow:0 10px 40px rgba(0,0,0,.5);z-index:9999;display:none;padding:6px; }
+.role-switcher-menu.open { display:block; }
+.role-switcher-item { display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border-radius:8px;text-decoration:none;transition:background .12s; }
+.role-switcher-item:hover { background:rgba(255,255,255,.04); }
+.role-switcher-item.current { background:rgba(249,115,22,.08);border:1px solid rgba(249,115,22,.15); }
+.ri-icon { font-size:1.1rem;flex-shrink:0;margin-top:1px; }
+.ri-label { font-size:13px;font-weight:700;color:var(--text); }
+.ri-badge { font-size:11px;color:var(--dim);margin-top:2px; }
+.layout { display:grid; grid-template-columns:240px 1fr; min-height:calc(100vh - 53px); }
+.sidebar { border-right:1px solid var(--border); padding:24px 16px; }
+.sidebar-item { display:flex; align-items:center; gap:10px; padding:9px 10px; border-radius:8px; font-size:13px; font-weight:600; color:var(--muted); cursor:pointer; transition:all .15s; text-decoration:none; margin-bottom:2px; }
+.sidebar-item:hover { background:rgba(255,255,255,.04); color:var(--text); }
+.sidebar-item.active { background:rgba(249,115,22,.1); color:var(--fire1); }
+.sidebar-label { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:var(--dim); margin-bottom:8px; padding:0 8px; }
+.sidebar-section { margin-bottom:28px; }
+.quota-box { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:14px; margin-top:8px; }
+.quota-bar { height:6px; background:rgba(255,255,255,.06); border-radius:3px; overflow:hidden; margin-bottom:6px; margin-top:4px; }
+.quota-fill { height:100%; background:linear-gradient(90deg,var(--fire1),var(--fire2)); border-radius:3px; }
+.main { padding:32px; }
+.page { display:none; }
+.page.active { display:block; }
+.stats-row { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; margin-bottom:24px; }
+.stat-card { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:16px; }
+.stat-label { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--dim); margin-bottom:6px; }
+.stat-val { font-size:1.8rem; font-weight:800; letter-spacing:-.02em; }
+.stat-sub { font-size:11px; color:var(--muted); margin-top:2px; }
+.section-hdr { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
+.section-hdr h2 { font-size:16px; font-weight:700; }
+.btn-fire { background:linear-gradient(90deg,var(--fire1),var(--fire2)); color:white; border:none; padding:10px 20px; border-radius:8px; font-weight:700; font-size:13px; cursor:pointer; font-family:inherit; }
+.btn-ghost { background:transparent; color:var(--muted); border:1px solid var(--border); padding:8px 16px; border-radius:8px; font-weight:600; font-size:13px; cursor:pointer; font-family:inherit; }
+.btn-ghost:hover { border-color:rgba(255,255,255,.2); color:var(--text); }
+.share-form { background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:28px; max-width:680px; }
+.form-group { margin-bottom:18px; }
+.form-group label { display:block; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--dim); margin-bottom:7px; }
+.form-group input, .form-group textarea { width:100%; background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:10px 14px; color:var(--text); font-size:14px; font-family:inherit; outline:none; transition:border-color .15s; resize:vertical; }
+.form-group input:focus, .form-group textarea:focus { border-color:rgba(249,115,22,.5); }
+.form-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.form-hint { font-size:11px; color:var(--dim); margin-top:5px; }
+.submit-btn { width:100%; padding:14px; background:linear-gradient(90deg,var(--fire1),var(--fire2)); border:none; border-radius:10px; color:white; font-size:16px; font-weight:700; cursor:pointer; font-family:inherit; margin-top:8px; }
+.submit-btn:disabled { opacity:.6; cursor:not-allowed; }
+.result-card { background:rgba(34,197,94,.05); border:1px solid rgba(34,197,94,.2); border-radius:14px; padding:24px; max-width:680px; margin-top:20px; display:none; }
+.result-card h3 { font-size:15px; font-weight:700; margin-bottom:12px; }
+.share-url-box { background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:12px 14px; font-family:monospace; font-size:13px; color:var(--blue); word-break:break-all; margin-bottom:12px; }
+.result-actions { display:flex; gap:10px; flex-wrap:wrap; }
+.result-actions button { padding:10px 18px; border-radius:8px; font-weight:700; font-size:13px; cursor:pointer; font-family:inherit; border:none; }
+.shares-table { background:var(--surface); border:1px solid var(--border); border-radius:14px; overflow:hidden; }
+.table-hdr { display:grid; grid-template-columns:2fr 1fr 1fr 80px 120px; gap:8px; padding:10px 16px; background:var(--surface2); border-bottom:1px solid var(--border); font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--dim); }
+.table-row { display:grid; grid-template-columns:2fr 1fr 1fr 80px 120px; gap:8px; padding:14px 16px; border-bottom:1px solid var(--border2); align-items:center; }
+.table-row:last-child { border-bottom:none; }
+.table-row:hover { background:rgba(255,255,255,.02); }
+.status-pill { display:inline-block; padding:2px 8px; border-radius:4px; font-size:10px; font-weight:700; text-transform:uppercase; }
+.copy-btn { font-size:11px; font-weight:700; padding:4px 10px; border-radius:6px; border:1px solid var(--border); background:transparent; color:var(--muted); cursor:pointer; font-family:inherit; }
+.copy-btn:hover { border-color:rgba(249,115,22,.4); color:var(--fire1); }
+.email-btn { font-size:10px; font-weight:700; padding:4px 8px; border-radius:5px; border:1px solid rgba(249,115,22,.2); background:rgba(249,115,22,.08); color:var(--fire1); cursor:pointer; font-family:inherit; }
+.empty { text-align:center; padding:48px 24px; color:var(--dim); }
+.empty .icon { font-size:2.5rem; margin-bottom:12px; }
+.avatar-btn { width:34px; height:34px; border-radius:50%; background:linear-gradient(135deg,var(--fire1),var(--fire2)); color:white; font-weight:800; font-size:14px; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+.dropdown { position:relative; }
+.dropdown-menu { position:absolute; right:0; top:42px; background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:6px; min-width:160px; z-index:100; display:none; }
+.dropdown-menu.open { display:block; }
+.dropdown-menu a { display:block; padding:8px 12px; font-size:13px; color:var(--muted); text-decoration:none; border-radius:6px; }
+.dropdown-menu a:hover { background:rgba(255,255,255,.04); color:var(--text); }
+.onboard-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:24px; }
+.onboard-card { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:20px; }
+.onboard-card .oc-icon { font-size:1.5rem; margin-bottom:10px; }
+.onboard-card h3 { font-size:14px; font-weight:700; margin-bottom:6px; }
+.onboard-card p { font-size:12px; color:var(--muted); line-height:1.5; }
+.onboard-card .oc-num { font-size:10px; font-weight:700; color:var(--fire1); text-transform:uppercase; letter-spacing:.08em; margin-bottom:8px; }
+@media (max-width:768px) { .layout { grid-template-columns:1fr; } .sidebar { display:none; } .table-hdr,.table-row { grid-template-columns:2fr 1fr 100px; } .table-hdr > *:nth-child(2), .table-row > *:nth-child(2) { display:none; } }
+
+    @media (max-width: 768px) {
+      .layout { grid-template-columns: 1fr !important; }
+      .sidebar { display: none; }
+      .sidebar.open { display: block !important; position: fixed; inset: 0; z-index: 300; background: var(--bg); overflow-y: auto; padding: 20px 16px; }
+      .mobile-nav-toggle { display: flex; align-items: center; gap: 8px; margin-bottom: 20px; padding: 9px 14px; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; font-size: 13px; font-weight: 600; color: var(--text); cursor: pointer; }
+      .main { padding: 16px !important; }
+      input, select { font-size: 16px !important; }
+      .btn, button { min-height: 44px; }
+      .stats-row { grid-template-columns: 1fr 1fr !important; gap: 8px; }
+      .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+      table { min-width: 500px; }
+    }
+    @media (max-width: 480px) {
+      .stats-row { grid-template-columns: 1fr !important; }
+    }
+    @media (min-width: 769px) { .mobile-nav-toggle { display: none !important; } }
+    
+/* ── MOBILE RESPONSIVE PATCH ── */
+
+@media (max-width: 768px) {
+  .stats-grid,
+  .metrics-grid { grid-template-columns: 1fr 1fr !important; gap: 0.75rem !important; }
+  .portal-header { flex-wrap: wrap; gap: 0.5rem; }
+  .table-wrap { overflow-x: auto !important; -webkit-overflow-scrolling: touch; }
+  table { min-width: 500px; }
+  .buyer-cards { grid-template-columns: 1fr !important; }
+}
+@media (max-width: 480px) {
+  .stats-grid { grid-template-columns: 1fr !important; }
+  button, .btn { min-height: 44px !important; font-size: 15px !important; }
+  input, select { font-size: 16px !important; }
+  .send-form { flex-direction: column !important; gap: 0.75rem !important; }
+  .send-form input { width: 100% !important; }
+}
+
+</style>
+    <!-- Reddit Pixel Base Code -->
+    <script>
+    !function(w,d){if(!w.rdt){var p=w.rdt=function(){p.sendEvent?p.sendEvent.apply(p,arguments):p.queue.push(arguments)};p.queue=[];var t=d.createElement('script');t.src='https://www.redditstatic.com/ads/pixel.js';t.async=!0;var s=d.getElementsByTagName('script')[0];s.parentNode.insertBefore(t,s)}}(window,document);
+    rdt('init','a2_ihx65g62d5n6',{optOut:false,useDecimalCurrencyValues:true,signalsMode:'all'});
+    rdt('track','PageVisit');
+    </script>
+    <!-- End Reddit Pixel -->
+</head>
+<body>
+<nav>
+  <a href="/" class="nav-logo">Offer<span class="wise">Wise</span> AI</a>
+  <div class="nav-right">
+    <span class="nav-badge">Agent Portal</span>
+    <!-- Role switcher — shown when user has multiple roles -->
+    <div id="role-switcher" style="display:none;" class="role-switcher">
+      <button class="role-switcher-btn" onclick="toggleRoleSwitcher()" id="role-switcher-btn">
+        <span id="role-switcher-icon">🏡</span>
+        <span id="role-switcher-label">Agent Portal</span>
+        <span style="font-size:9px;opacity:.6;">▾</span>
+      </button>
+      <div class="role-switcher-menu" id="role-switcher-menu"></div>
+    </div>
+    <div class="dropdown" id="avatar-dropdown">
+      <button class="avatar-btn" id="avatar-btn" onclick="toggleDropdown()">F</button>
+      <div class="dropdown-menu" id="dropdown-menu">
+        <a href="/settings">← My Account</a>
+        <a href="/logout">Log out</a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <a class="sidebar-item active" onclick="showPage('overview')" href="#">📊 Overview</a>
+      <!-- v5.88.75: New Briefing is the primary action. Legacy "Share
+           Analysis" is demoted below — kept working for existing users
+           but no longer the headline. -->
+      <a class="sidebar-item" onclick="showPage('new-briefing')" href="#">✨ New Briefing</a>
+      <a class="sidebar-item" onclick="showPage('all-shares')" href="#">📋 All Shares</a>
+      <a class="sidebar-item" onclick="showPage('profile')" href="#">👤 My Profile</a>
+      <a class="sidebar-item" onclick="showPage('my-link')" href="#" id="sidebar-my-link">🔗 My Personal Link</a>
+      <a class="sidebar-item" onclick="showPage('new-share')" href="#" style="opacity:0.6;font-size:13px;">↪ Legacy share (link only)</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Usage</div>
+      <div class="quota-box">
+        <div style="font-size:11px;color:var(--dim);">Monthly shares</div>
+        <div class="quota-bar"><div class="quota-fill" id="quota-fill" style="width:0%"></div></div>
+        <div style="font-size:12px;font-weight:700;" id="quota-text">Loading...</div>
+      </div>
+    </div>
+    <div class="sidebar-section">
+      <a class="sidebar-item" onclick="showPage('alerts')" href="#">🔭 OfferWatch™ <span id="alerts-badge" style="display:none;background:#ef4444;color:white;font-size:9px;font-weight:700;padding:1px 6px;border-radius:8px;margin-left:4px;vertical-align:middle;"></span></a>
+      <a class="sidebar-item" onclick="showPage('subscription')" href="#">💳 Subscription</a>
+      <a class="sidebar-item" href="/for-agents" target="_blank">💬 Get Help</a>
+    </div>
+  </aside>
+
+  <main class="main">
+
+    <!-- OVERVIEW -->
+    <div class="page active" id="page-overview">
+      <div style="margin-bottom:24px;">
+        <!-- v5.88.74: agent name is JS-populated from agentData.agent_name
+             in updateGreeting() once /api/agent/profile resolves. The
+             default "Agent" stays as a sane fallback in the rare case
+             where the profile fetch fails or hasn't returned yet. -->
+        <h1 style="font-size:22px;font-weight:800;margin-bottom:4px;">Good to see you, <span id="agent-greeting-name">Agent</span>.</h1>
+        <p style="color:var(--muted);font-size:14px;">Share property analyses with buyer clients — branded with your name.</p>
+      </div>
+
+      <!-- Onboarding — shown only when 0 shares -->
+      <div id="onboard-panel" style="display:none;margin-bottom:24px;">
+        <div style="font-size:13px;font-weight:700;color:var(--fire1);text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px;">How a Briefing Works</div>
+        <div class="onboard-grid">
+          <div class="onboard-card"><div class="oc-num">Step 1</div><div class="oc-icon">📄</div><h3>Upload the PDF</h3><p>Drop in the inspection or disclosure your client received. OfferWise extracts the findings.</p></div>
+          <div class="onboard-card"><div class="oc-num">Step 2</div><div class="oc-icon">✍️</div><h3>Write your commentary</h3><p>Two or three sentences in your voice — what your client should know about this property. This is what makes the briefing yours.</p></div>
+          <div class="onboard-card"><div class="oc-num">Step 3</div><div class="oc-icon">📊</div><h3>Briefing generates in 90 seconds</h3><p>Repair cost overview, three-scenario offer strategy, your bottom-line take. Headlined with your name and brokerage.</p></div>
+          <div class="onboard-card"><div class="oc-num">Step 4</div><div class="oc-icon">✉️</div><h3>One-click send</h3><p>Email comes from your domain; replies route to you. You see when the client opens it.</p></div>
+        </div>
+        <button class="btn-fire" onclick="showPage('new-briefing')">Create Your First Briefing →</button>
+      </div>
+
+      <div class="stats-row" id="stats-row">
+        <div class="stat-card"><div class="stat-label">Briefings created</div><div class="stat-val" id="stat-shares">—</div><div class="stat-sub">all time</div></div>
+        <div class="stat-card"><div class="stat-label">Clients viewed</div><div class="stat-val" id="stat-viewed">—</div><div class="stat-sub">opened the briefing</div></div>
+        <div class="stat-card"><div class="stat-label">Clients sent to</div><div class="stat-val" id="stat-registered">—</div><div class="stat-sub">via OfferWise</div></div>
+        <div class="stat-card"><div class="stat-label">Closed deals</div><div class="stat-val" id="stat-converted" style="color:var(--green);">—</div><div class="stat-sub">reported by client</div></div>
+        <div class="stat-card"><div class="stat-label">This month</div><div class="stat-val" id="stat-month">—</div><div class="stat-sub">briefings used</div></div>
+      </div>
+
+      <div class="section-hdr">
+        <h2>Recent Briefings</h2>
+        <button class="btn-fire" onclick="showPage('new-briefing')">+ New Briefing</button>
+      </div>
+      <div id="recent-shares-container"></div>
+
+      <!-- Attribution panel -->
+      <div id="impact-panel" style="display:none;background:rgba(34,197,94,.05);border:1px solid rgba(34,197,94,.15);border-radius:14px;padding:20px 24px;margin-top:20px;">
+        <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--green);margin-bottom:10px;">Your Impact</div>
+        <p style="font-size:13px;color:var(--muted);line-height:1.6;" id="impact-text"></p>
+      </div>
+    </div>
+
+    <!-- NEW SHARE -->
+    <div class="page" style="display:none" id="page-new-share">
+      <div style="margin-bottom:24px;">
+        <h1 style="font-size:22px;font-weight:800;margin-bottom:4px;">Share an Analysis</h1>
+        <p style="color:var(--muted);font-size:14px;">Enter the property your buyer is considering. They'll get a branded link to run their free analysis.</p>
+      </div>
+      <div class="share-form">
+        <div class="form-group">
+          <label>Property Address *</label>
+          <input type="text" id="f-address" placeholder="123 Main St, Austin TX 78701" required>
+          <div class="form-hint">Full street address including city and state.</div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Listing Price</label>
+            <input type="number" id="f-price" placeholder="450000" min="0">
+          </div>
+          <div class="form-group">
+            <label>Buyer Email <span style="color:#ef4444">*</span></label>
+            <input type="email" id="f-buyer-email" placeholder="buyer@email.com" required>
+            <div class="form-hint">Required — we'll email them the link directly.</div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Buyer Name <span style="color:#ef4444">*</span></label>
+          <input type="text" id="f-buyer-name" placeholder="Sarah Johnson">
+        </div>
+        <div class="form-group">
+          <label>Your Notes for the Buyer (optional)</label>
+          <textarea id="f-notes" rows="3" placeholder="e.g. This property has a newer roof (2021) but the HVAC is original. Seller is motivated — listed 45 days. Good bones, needs cosmetic work."></textarea>
+          <div class="form-hint">Your notes appear in the branded report. Personal context from you — not from the AI.</div>
+        </div>
+        <button class="submit-btn" id="share-btn" onclick="createShare()">Generate Shareable Link →</button>
+      </div>
+      <div class="result-card" id="share-result">
+        <h3>✅ Analysis link ready!</h3>
+        <div class="share-url-box" id="share-url-display"></div>
+        <div id="email-sent-note" style="font-size:12px;color:var(--green);margin-bottom:12px;display:none;">✉️ Email sent to buyer automatically.</div>
+        <div style="margin-bottom:16px;">
+          <label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--dim);margin-bottom:6px;display:block;">Or send to a different email</label>
+          <div style="display:flex;gap:8px;">
+            <input type="email" id="manual-email" placeholder="buyer@email.com" style="flex:1;padding:9px 13px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;outline:none;font-family:inherit;">
+            <button onclick="sendManualEmail()" style="padding:9px 18px;background:linear-gradient(135deg,var(--fire1),var(--fire2));color:white;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;font-family:inherit;">✉️ Send</button>
+          </div>
+        </div>
+        <div class="result-actions">
+          <button onclick="copyShareLink()" style="background:rgba(249,115,22,.15);color:var(--fire1);">📋 Copy Link</button>
+          <button onclick="openShare()" style="background:rgba(96,165,250,.15);color:var(--blue);">👁 Preview</button>
+          <button onclick="resetShareForm()" style="background:rgba(255,255,255,.07);color:var(--muted);">+ New Share</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- v5.88.75: NEW BRIEFING — primary product flow for agents.
+         Distinct from "Share Analysis" (legacy). Inputs:
+           - property address
+           - buyer or seller representation
+           - inspection / disclosure PDF upload
+           - buyer budget tiers (if representing buyer)
+           - agent's commentary (REQUIRED, min 100 chars)
+           - optional client name + email
+         Output: at R1, just a confirmation that the inputs are saved.
+         R2+ adds the full briefing rendering. -->
+    <div class="page" style="display:none" id="page-new-briefing">
+      <div style="margin-bottom:24px;">
+        <h1 style="font-size:22px;font-weight:800;margin-bottom:4px;">New Briefing</h1>
+        <p style="color:var(--muted);font-size:14px;">A one-page briefing your client will read in their voice — yours. Repair costs, offer strategy, and your professional commentary, in 90 seconds.</p>
+      </div>
+      <div class="share-form">
+
+        <!-- Side selector -->
+        <div class="form-group">
+          <label>I represent the <span style="color:#ef4444">*</span></label>
+          <div style="display:flex;gap:10px;">
+            <label style="flex:1;display:flex;align-items:center;gap:8px;padding:12px 14px;background:var(--bg);border:1px solid var(--border);border-radius:8px;cursor:pointer;">
+              <input type="radio" name="rep-side" id="rep-buyer" value="buyer" checked>
+              <span style="font-size:13px;font-weight:600;">Buyer</span>
+            </label>
+            <label style="flex:1;display:flex;align-items:center;gap:8px;padding:12px 14px;background:var(--bg);border:1px solid var(--border);border-radius:8px;cursor:pointer;">
+              <input type="radio" name="rep-side" id="rep-seller" value="seller">
+              <span style="font-size:13px;font-weight:600;">Seller</span>
+            </label>
+          </div>
+          <div class="form-hint">Buyer flow uses repair costs + their budget to recommend an offer. Seller flow uses repair findings to defend asking price and counter buyer credit requests.</div>
+        </div>
+
+        <!-- Property -->
+        <div class="form-group">
+          <label>Property address <span style="color:#ef4444">*</span></label>
+          <input type="text" id="bf-address" placeholder="22580 San Vicente Avenue, Cupertino CA 95014" required>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Listing price (optional)</label>
+            <input type="number" id="bf-price" placeholder="1250000" min="0">
+          </div>
+          <div class="form-group">
+            <label>Client name (optional)</label>
+            <input type="text" id="bf-client-name" placeholder="Sarah Chen">
+            <div class="form-hint">Appears in the briefing header.</div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Client email (optional)</label>
+          <input type="email" id="bf-client-email" placeholder="sarah@email.com">
+          <div class="form-hint">Used only if you choose to send the briefing through OfferWise. Leave blank if you'll send the link yourself.</div>
+        </div>
+
+        <!-- PDF upload -->
+        <div class="form-group">
+          <label>Inspection or disclosure PDF <span style="color:#ef4444">*</span></label>
+          <div id="bf-pdf-drop" onclick="document.getElementById('bf-pdf-input').click()"
+            style="border:2px dashed rgba(249,115,22,.3);border-radius:10px;padding:24px;text-align:center;cursor:pointer;transition:all .15s;background:rgba(249,115,22,.03);"
+            ondragover="event.preventDefault();this.style.borderColor='#f97316';"
+            ondragleave="this.style.borderColor='rgba(249,115,22,.3)';"
+            ondrop="handleBriefingPdfDrop(event);">
+            <div style="font-size:1.8rem;margin-bottom:8px;">📄</div>
+            <div style="font-size:14px;font-weight:600;color:var(--text);">Drop PDF here or click to browse</div>
+            <div style="font-size:12px;color:var(--muted);margin-top:4px;">Inspection report, seller disclosure package, or both combined.</div>
+            <input type="file" id="bf-pdf-input" accept=".pdf" style="display:none;" onchange="handleBriefingPdfSelect(this)">
+          </div>
+          <div id="bf-pdf-status" style="margin-top:8px;font-size:12px;display:none;"></div>
+        </div>
+
+        <!-- Budget tiers — visible only when buyer-side -->
+        <div id="bf-budget-section">
+          <div class="form-group">
+            <label>Your buyer's budget tiers <span style="color:#ef4444">*</span></label>
+            <div class="form-hint" style="margin-bottom:8px;">All three required. They drive the offer strategy.</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
+              <div>
+                <label style="font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);">Qualified up to</label>
+                <input type="number" id="bf-budget-qualified" placeholder="1300000" min="0">
+              </div>
+              <div>
+                <label style="font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);">Comfortable up to</label>
+                <input type="number" id="bf-budget-comfortable" placeholder="1200000" min="0">
+              </div>
+              <div>
+                <label style="font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);">Prefers at or below</label>
+                <input type="number" id="bf-budget-preferred" placeholder="1100000" min="0">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Agent commentary — REQUIRED -->
+        <div class="form-group">
+          <label>Your commentary <span style="color:#ef4444">*</span></label>
+          <textarea id="bf-commentary" rows="5" placeholder="Required, min 100 chars. Examples: Seller listed 60 days ago at $1.25M, motivated. Best-condition house I've shown in this ZIP this month. Buyer's top contender so far. We need to decide by Friday."></textarea>
+          <div class="form-hint">Required. Your client is paying for your judgment, not just data. 3-4 sentences about the property, the seller's situation, or your read on the deal. This appears at the top of the briefing in your voice.</div>
+          <div id="bf-commentary-counter" style="font-size:11px;color:var(--muted);margin-top:4px;text-align:right;">0 / 100 min</div>
+        </div>
+
+        <button class="submit-btn" id="bf-submit-btn" onclick="createBriefing()">Create Briefing →</button>
+      </div>
+
+      <div class="result-card" id="bf-result">
+        <h3 id="bf-result-headline">✅ Briefing ready.</h3>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:14px;" id="bf-result-subline">
+          Your briefing has been generated. Open it to review, or copy the link to share with your client.
+        </p>
+        <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px;">Shareable link</div>
+        <div id="bf-result-url" style="font-family:monospace;font-size:13px;color:var(--text);margin-bottom:14px;word-break:break-all;background:var(--bg);padding:10px 12px;border-radius:6px;border:1px solid var(--border);"></div>
+        <div class="result-actions">
+          <button id="bf-result-view-btn" onclick="viewBriefing()" style="background:rgba(249,115,22,.15);color:var(--fire1);">👁 Open briefing</button>
+          <button id="bf-result-copy-btn" onclick="copyBriefingLink(this)" style="background:rgba(96,165,250,.15);color:var(--blue);">📋 Copy link</button>
+          <button id="bf-result-send-btn" onclick="openSendModal()" style="background:rgba(34,197,94,.15);color:var(--green);">✉️ Send to client</button>
+          <button onclick="resetBriefingForm()" style="background:rgba(255,255,255,.07);color:var(--muted);">+ New Briefing</button>
+        </div>
+        <div id="bf-send-status" style="display:none;margin-top:14px;padding:10px 14px;border-radius:8px;font-size:13px;"></div>
+      </div>
+
+      <!-- v5.88.78 R4: Send-to-client modal. Opens when the agent
+           clicks "Send to client". Pre-fills to/subject/message with
+           sensible defaults the agent can edit before sending. The
+           server appends the share URL to the body automatically so
+           the agent can't accidentally send a message without the
+           link. -->
+      <div id="bf-send-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;align-items:center;justify-content:center;padding:20px;">
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;max-width:520px;width:100%;padding:28px;max-height:90vh;overflow-y:auto;">
+          <h3 style="margin:0 0 4px;font-size:18px;font-weight:700;color:var(--text);">Send briefing to client</h3>
+          <p style="margin:0 0 18px;font-size:13px;color:var(--muted);">The shareable link is added to the message automatically. The email is sent from your domain with replies going to your inbox.</p>
+
+          <div class="form-group">
+            <label>To <span style="color:#ef4444">*</span></label>
+            <input type="email" id="bf-send-to" placeholder="client@email.com">
+          </div>
+
+          <div class="form-group">
+            <label>Subject</label>
+            <input type="text" id="bf-send-subject" placeholder="Your briefing — [property]">
+          </div>
+
+          <div class="form-group">
+            <label>Message</label>
+            <textarea id="bf-send-message" rows="6" placeholder="Hi,&#10;&#10;I put together a quick briefing on the property — repair cost estimate, offer strategy, and my thinking on the deal..."></textarea>
+            <div class="form-hint">The link to the briefing is added automatically below your message.</div>
+          </div>
+
+          <div style="display:flex;gap:10px;margin-top:20px;justify-content:flex-end;">
+            <button onclick="closeSendModal()" style="background:rgba(255,255,255,.07);color:var(--muted);padding:10px 18px;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;">Cancel</button>
+            <button id="bf-send-confirm-btn" onclick="sendBriefingToClient()" style="background:var(--green);color:#0a1d12;padding:10px 18px;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;">Send →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ALL SHARES -->
+    <div class="page" style="display:none" id="page-all-shares">
+      <div class="section-hdr">
+        <h2>All Briefings &amp; Shares</h2>
+        <button class="btn-fire" onclick="showPage('new-briefing')">+ New Briefing</button>
+      </div>
+      <div id="all-shares-container"></div>
+    </div>
+
+    <!-- PROFILE -->
+    <div class="page" style="display:none" id="page-profile">
+      <h1 style="font-size:22px;font-weight:800;margin-bottom:20px;">My Profile</h1>
+      <div class="share-form" style="max-width:500px;">
+        <div class="form-group"><label>Your Full Name</label><input type="text" id="p-name"></div>
+        <div class="form-group"><label>Brokerage</label><input type="text" id="p-biz"></div>
+        <div class="form-group"><label>State License #</label><input type="text" id="p-lic"></div>
+        <div class="form-group"><label>License State</label><input type="text" id="p-state" maxlength="2" placeholder="e.g. TX"></div>
+        <div class="form-group"><label>Phone</label><input type="tel" id="p-phone"></div>
+        <div class="form-group"><label>Website</label><input type="url" id="p-website"></div>
+        <div class="form-group"><label>Service Areas</label><input type="text" id="p-areas" placeholder="Austin TX, Round Rock TX"></div>
+        <button class="submit-btn" onclick="saveProfile()">Save Profile</button>
+        <div id="profile-saved" style="display:none;color:var(--green);font-size:13px;margin-top:10px;">✅ Profile saved.</div>
+      </div>
+    </div>
+
+    <!-- SUBSCRIPTION PAGE -->
+    <div class="page" style="display:none" id="page-subscription">
+      <div style="margin-bottom:24px;"><h1 style="font-size:22px;font-weight:800;margin-bottom:4px;">Subscription</h1><p style="color:var(--muted);font-size:14px;">Your current plan and upgrade options.</p></div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px;max-width:520px;margin-bottom:20px;">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--dim);margin-bottom:12px;">Current Plan</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+          <div><div id="agent-plan-name" style="font-size:20px;font-weight:800;">Loading...</div><div id="agent-plan-detail" style="font-size:13px;color:var(--muted);margin-top:4px;"></div></div>
+          <div id="agent-plan-badge" style="padding:5px 14px;border-radius:20px;font-size:12px;font-weight:700;"></div>
+        </div>
+      </div>
+      <div id="agent-upgrade-section" style="max-width:520px;"></div>
+    </div>
+
+
+    <!-- ALERTS PAGE -->
+    <div class="page" style="display:none" id="page-alerts">
+      <div class="page-header" style="margin-bottom:24px;">
+        <h1 style="font-size:22px;font-weight:800;margin-bottom:10px;">🔭 OfferWatch™</h1>
+        <p style="font-size:13px;color:var(--muted);line-height:1.7;max-width:600px;">Every analysis you share with a buyer client automatically starts a 45-day background watch on that property — no setup required. Each morning at 7am PT, OfferWatch scans for new comparable sales, permit filings, price drops, and nearby seismic events. You’re alerted the moment your client opens the report, and again whenever the market shifts in their favour.</p>
+      </div>
+      
+      <!-- How it works strip -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:28px;">
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;">
+          <div style="font-size:1.3rem;margin-bottom:6px;">👁️</div>
+          <div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:3px;">Buyer signal</div>
+          <div style="font-size:11px;color:var(--dim);">Real-time alert when your client opens the shared analysis — call them now</div>
+        </div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;">
+          <div style="font-size:1.3rem;margin-bottom:6px;">📊</div>
+          <div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:3px;">New comps</div>
+          <div style="font-size:11px;color:var(--dim);">Comparable sales that shift your client's negotiating position</div>
+        </div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;">
+          <div style="font-size:1.3rem;margin-bottom:6px;">💰</div>
+          <div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:3px;">Price drop</div>
+          <div style="font-size:11px;color:var(--dim);">Seller blinks — updated offer math sent to you before your client notices</div>
+        </div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;">
+          <div style="font-size:1.3rem;margin-bottom:6px;">🔨</div>
+          <div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:3px;">Permit filings</div>
+          <div style="font-size:11px;color:var(--dim);">Seller pulling permits mid-escrow — undisclosed repair red flag</div>
+        </div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;">
+          <div style="font-size:1.3rem;margin-bottom:6px;">🌍</div>
+          <div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:3px;">Seismic events</div>
+          <div style="font-size:11px;color:var(--dim);">M4.0+ earthquake near property — structural contingency may apply</div>
+        </div>
+      </div>
+
+      <!-- Active watches -->
+      <div style="margin-bottom:24px;">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--dim);margin-bottom:10px;">Properties Being Monitored</div>
+        <div id="pro-watches-container">
+          <div style="color:var(--muted);font-size:13px;padding:14px;background:var(--surface);border:1px solid var(--border);border-radius:10px;">No active watches yet. Every analysis share you send starts a 45-day property watch.</div>
+        </div>
+      </div>
+
+      <!-- Alert feed -->
+      <div>
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--dim);margin-bottom:10px;">Recent Alerts</div>
+        <div id="pro-alerts-container">
+          <div style="color:var(--muted);font-size:13px;padding:14px;background:var(--surface);border:1px solid var(--border);border-radius:10px;">No alerts yet. OfferWatch monitors every property you've shared with clients. You'll also get a real-time signal the moment a buyer opens your report. Check back here — or watch your inbox.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- My Personal Link page -->
+    <div class="page" style="display:none" id="page-my-link">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px">
+          <div>
+            <h1 style="font-size:22px;font-weight:800;margin-bottom:4px">🔗 Your Personal Link</h1>
+            <p style="color:var(--muted);font-size:14px;max-width:560px">One link. Put it everywhere. Every buyer who clicks it gets a free co-branded analysis — your name at the top, OfferWise doing the work.</p>
+          </div>
+        </div>
+
+        <!-- Link display card -->
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px;margin-bottom:16px">
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:10px">Your link</div>
+          <div style="display:flex;gap:10px;align-items:center;margin-bottom:20px;flex-wrap:wrap">
+            <div id="my-link-display" style="flex:1;min-width:200px;padding:12px 16px;background:#0a0f1a;border:1px solid var(--border);border-radius:8px;font-family:monospace;font-size:14px;color:var(--fire1);word-break:break-all">Loading...</div>
+            <button onclick="copyMyLink()" id="copy-link-btn" style="padding:11px 18px;background:rgba(249,115,22,0.1);border:1px solid rgba(249,115,22,0.3);border-radius:8px;font-size:13px;font-weight:700;color:var(--fire1);cursor:pointer;font-family:inherit;white-space:nowrap">📋 Copy</button>
+          </div>
+          <div style="display:flex;gap:24px;align-items:flex-start;flex-wrap:wrap">
+            <div>
+              <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:8px">QR Code</div>
+              <div id="qr-container" style="width:96px;height:96px;background:white;border-radius:8px;overflow:hidden;padding:4px;display:flex;align-items:center;justify-content:center">
+                <span style="font-size:10px;color:#999">Loading…</span>
+              </div>
+              <a id="qr-download" href="#" download="offerwise-agent-qr.png" style="display:block;margin-top:6px;font-size:11px;color:var(--muted);text-decoration:none">⬇ Download</a>
+            </div>
+            <div style="flex:1;min-width:180px">
+              <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:8px">Put it everywhere</div>
+              <ul style="list-style:none;font-size:13px;color:var(--muted);line-height:2">
+                <li>📧 &nbsp;Email signature</li>
+                <li>📱 &nbsp;Text to buyers after every showing</li>
+                <li>🌐 &nbsp;Zillow / Realtor.com bio</li>
+                <li>📄 &nbsp;Business cards (print the QR)</li>
+                <li>💬 &nbsp;Buyer consultation packets</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Customize slug -->
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px;margin-bottom:16px">
+          <div style="font-size:14px;font-weight:700;margin-bottom:4px">Customize your URL</div>
+          <div style="font-size:13px;color:var(--muted);margin-bottom:14px">Make it memorable.</div>
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+            <span style="font-size:13px;color:var(--muted);white-space:nowrap;font-family:monospace">getofferwise.ai/a/</span>
+            <input type="text" id="slug-input" placeholder="your-name-realty"
+              style="flex:1;min-width:160px;padding:10px 13px;background:#0a0f1a;border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:monospace;font-size:14px;outline:none">
+            <button onclick="saveSlug()" style="padding:10px 20px;background:linear-gradient(90deg,var(--fire1),var(--fire2));border:none;border-radius:8px;font-size:13px;font-weight:700;color:white;cursor:pointer;font-family:inherit">Save</button>
+          </div>
+          <div id="slug-status" style="font-size:12px;margin-top:8px;color:var(--muted)"></div>
+          <div style="font-size:11px;color:var(--dim);margin-top:6px">Lowercase letters, numbers, and hyphens only. Min 3 characters.</div>
+        </div>
+
+        <!-- Preview -->
+        <div style="background:linear-gradient(135deg,rgba(249,115,22,0.06),rgba(245,158,11,0.04));border:1px solid rgba(249,115,22,0.15);border-radius:16px;padding:24px">
+          <div style="font-size:13px;font-weight:700;color:var(--fire1);margin-bottom:6px">What your buyers see</div>
+          <div style="font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:12px">A co-branded page with your name at the top. They enter their email and go straight to OfferWise — one free analysis on us. Every buyer you send becomes a trackable referral.</div>
+          <a id="preview-link" href="#" target="_blank" style="font-size:13px;font-weight:700;color:var(--fire1);text-decoration:none">Preview your page →</a>
+        </div>
+      </div>
+
+    </main>
+</div>
+
+<script>
+var agentData = null;
+var sharesData = [];
+// v5.88.82: dashboard now shows briefings (the v0 product), not legacy
+// shares. The legacy share data is still fetched + kept in sharesData
+// for the sidebar "Legacy share (link only)" view, but the main
+// dashboard/Recent Briefings table reads from briefingsData.
+var briefingsData = [];
+var lastShareUrl = '';
+var lastShareToken = '';
+
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => { p.classList.remove('active'); p.style.display = 'none'; });
+  document.querySelectorAll('.sidebar-item').forEach(s => s.classList.remove('active'));
+  var el = document.getElementById('page-' + name);
+  if (el) { el.classList.add('active'); el.style.display = 'block'; }
+  window.scrollTo(0, 0);
+  var items = document.querySelectorAll('.sidebar-item');
+  items.forEach(function(item) {
+    if (item.getAttribute('onclick') && item.getAttribute('onclick').includes("'" + name + "'")) {
+      item.classList.add('active');
+    }
+  });
+  if (name === 'all-shares') renderAllShares();
+  if (name === 'subscription') renderAgentSubscription();
+  if (name === 'my-link') loadMyLink();
+  if (name === 'alerts') loadAlertsPage();
+  if (name === 'profile') loadProfile();
+}
+
+function toggleDropdown() {
+  document.getElementById('dropdown-menu').classList.toggle('open');
+}
+document.addEventListener('click', function(e) {
+  var dd = document.getElementById('avatar-dropdown');
+  if (dd && !dd.contains(e.target)) document.getElementById('dropdown-menu').classList.remove('open');
+});
+
+function renderAgentSubscription() {
+  var d = agentData || {};
+  var isPro = d.plan === 'agent_pro';
+  var nameEl = document.getElementById('agent-plan-name');
+  var detailEl = document.getElementById('agent-plan-detail');
+  var badgeEl = document.getElementById('agent-plan-badge');
+  var upEl = document.getElementById('agent-upgrade-section');
+  if (nameEl) nameEl.textContent = isPro ? 'Agent Pro ⭐' : 'Free Plan';
+  if (detailEl) detailEl.textContent = isPro ? 'Unlimited shares · Custom branding · Priority support' : '10 analyses per month · Standard branding';
+  if (badgeEl) { badgeEl.textContent = isPro ? 'Active' : 'Free'; badgeEl.style.background = isPro ? 'rgba(34,197,94,.12)' : 'rgba(255,255,255,.06)'; badgeEl.style.color = isPro ? '#22c55e' : '#94a3b8'; badgeEl.style.border = isPro ? '1px solid rgba(34,197,94,.25)' : '1px solid rgba(255,255,255,.08)'; }
+  if (!upEl) return;
+  if (isPro) {
+    upEl.innerHTML = '<div style="display:flex;gap:10px;flex-wrap:wrap;"><button onclick="openBillingPortal()" style="padding:11px 20px;background:rgba(96,165,250,.1);color:#60a5fa;border:1px solid rgba(96,165,250,.25);border-radius:9px;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit;">⚙️ Manage Billing</button><a href="/for-agents" target="_blank" style="padding:11px 20px;background:rgba(255,255,255,.05);color:var(--muted);border:1px solid var(--border);border-radius:9px;font-weight:600;font-size:13px;text-decoration:none;display:inline-flex;align-items:center;">View Plan Details ↗</a></div>';
+  } else {
+    upEl.innerHTML = '<div style="margin-bottom:14px;font-size:14px;font-weight:700;">Pro tier — coming soon</div><div style="background:linear-gradient(135deg,rgba(34,197,94,.08),rgba(22,163,74,.04));border:1px solid rgba(34,197,94,.25);border-radius:14px;padding:24px;"><div style="font-size:24px;font-weight:900;margin-bottom:4px;">$29<span style="font-size:14px;font-weight:500;color:var(--muted);">/mo</span></div><div style="font-size:12px;color:var(--muted);margin-bottom:14px;">Free tier (10 briefings/month) is currently the only live plan. Pro lifts the quota and adds custom brokerage branding + CSV export. Not live yet — join the waitlist and we will reach out when Pro ships.</div><ul style="list-style:none;display:flex;flex-direction:column;gap:7px;margin:16px 0;font-size:13px;color:var(--muted);"><li>✓ Unlimited briefings per month</li><li>✓ Custom brokerage colors and logo on briefings</li><li>✓ CSV export of briefing history</li><li>✓ Priority support</li></ul><a href="/for-agents#pricing" style="display:block;text-align:center;padding:13px;background:linear-gradient(90deg,#22c55e,#16a34a);border-radius:10px;color:white;font-size:15px;font-weight:700;text-decoration:none;margin-top:8px;">Join the Pro Waitlist →</a></div>';
+  }
+}
+
+async function openBillingPortal() {
+  try {
+    var res = await fetch('/api/billing-portal', { method: 'POST', credentials: 'include' });
+    var data = await res.json();
+    if (data.url) window.location.href = data.url;
+    else alert(data.error || 'Could not open billing portal. Please contact support.');
+  } catch(e) { alert('Something went wrong. Please try again.'); }
+}
+
+var _myLinkData = null;
+
+async function loadMyLink() {
+  if (_myLinkData) { renderMyLink(_myLinkData); return; }
+  try {
+    const r = await fetch('/api/agent/my-link', {credentials:'include'});
+    const d = await r.json();
+    _myLinkData = d;
+    renderMyLink(d);
+  } catch(e) {
+    document.getElementById('my-link-display').textContent = 'Error loading link.';
+  }
+}
+
+function renderMyLink(d) {
+  const url = d.url || '';
+  const slug = d.slug || '';
+  const display = document.getElementById('my-link-display');
+  if (display) display.textContent = url;
+  const slugInput = document.getElementById('slug-input');
+  if (slugInput) slugInput.value = slug;
+  const preview = document.getElementById('preview-link');
+  if (preview && url) { preview.href = url; }
+  // Generate QR — wait for library to load if needed
+  if (url) {
+    function generateQR() {
+      var container = document.getElementById('qr-container');
+      if (!container) return;
+      container.innerHTML = '';
+      try {
+        new QRCode(container, {
+          text: url,
+          width: 88, height: 88,
+          colorDark: '#000000', colorLight: '#ffffff',
+          correctLevel: QRCode.CorrectLevel.M
+        });
+        // Give QRCode a moment to render the canvas/img, then wire download
+        setTimeout(function() {
+          var img = container.querySelector('img');
+          var cvs = container.querySelector('canvas');
+          var dl = document.getElementById('qr-download');
+          if (dl) {
+            if (cvs) dl.href = cvs.toDataURL('image/png');
+            else if (img) dl.href = img.src;
+          }
+        }, 200);
+      } catch(e) {
+        container.innerHTML = '<span style="font-size:10px;color:#999">QR unavailable</span>';
+      }
+    }
+    if (typeof QRCode !== 'undefined') {
+      generateQR();
+    } else {
+      // Library not loaded yet — wait for it
+      var qrInterval = setInterval(function() {
+        if (typeof QRCode !== 'undefined') {
+          clearInterval(qrInterval);
+          generateQR();
+        }
+      }, 100);
+      setTimeout(function() { clearInterval(qrInterval); }, 5000);
+    }
+  }
+}
+
+function copyMyLink() {
+  const display = document.getElementById('my-link-display');
+  if (!display) return;
+  navigator.clipboard.writeText(display.textContent).then(() => {
+    const btn = document.getElementById('copy-link-btn');
+    if (btn) { btn.textContent = '✅ Copied!'; setTimeout(() => btn.textContent = '📋 Copy', 2000); }
+  });
+}
+
+async function saveSlug() {
+  const input = document.getElementById('slug-input');
+  const status = document.getElementById('slug-status');
+  const slug = (input.value || '').trim().toLowerCase().replace(/[^a-z0-9-]/g, '');
+  if (slug.length < 3) { status.textContent = 'Must be at least 3 characters.'; status.style.color = '#ef4444'; return; }
+  input.value = slug;
+  try {
+    const r = await fetch('/api/agent/my-link', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      credentials: 'include', body: JSON.stringify({slug})
+    });
+    const d = await r.json();
+    if (d.error) { status.textContent = d.error; status.style.color = '#ef4444'; return; }
+    _myLinkData = {...(_myLinkData||{}), ...d};
+    renderMyLink(_myLinkData);
+    status.textContent = '✅ Saved! Your link is live.'; status.style.color = 'var(--green)';
+    setTimeout(() => status.textContent = '', 3000);
+  } catch(e) { status.textContent = 'Error saving. Try again.'; status.style.color = '#ef4444'; }
+}
+
+async function loadData() {
+  try {
+    // v5.88.82: fetch briefings alongside legacy shares. Both endpoints
+    // are scoped to the current agent. The dashboard's main table reads
+    // briefingsData; legacy sharesData is kept for the sidebar's
+    // "Legacy share" view.
+    var [profRes, sharesRes, briefingsRes] = await Promise.all([
+      fetch('/api/agent/profile', { credentials:'include' }),
+      fetch('/api/agent/shares', { credentials:'include' }),
+      fetch('/api/agent/briefings', { credentials:'include' }),
+    ]);
+    if (profRes.status === 401 || profRes.status === 403) {
+      window.location.href = '/login?next=/agent-portal'; return;
+    }
+    agentData = profRes.ok ? await profRes.json() : {};
+    if (!agentData.registered) {
+      window.location.href = '/agent-onboarding'; return;
+    }
+    var sharesJson = sharesRes.ok ? await sharesRes.json() : { shares: [] };
+    sharesData = sharesJson.shares || [];
+    var briefingsJson = briefingsRes.ok ? await briefingsRes.json() : { briefings: [] };
+    briefingsData = briefingsJson.briefings || [];
+    renderOverview();
+    updateQuota();
+    updateAvatar();
+    updateGreeting();
+  } catch(e) { console.error('[AgentPortal]', e); }
+}
+
+function updateAvatar() {
+  var initial = (agentData.agent_name || agentData.name || agentData.email || 'A').charAt(0).toUpperCase();
+  document.getElementById('avatar-btn').textContent = initial;
+}
+
+// v5.88.74: render the agent's first name (or full name as fallback) in
+// the dashboard greeting. Previously the greeting was hard-coded to the
+// literal word "Agent" — every agent who signed up and put their name
+// in their profile was still greeted as "Agent", which made the product
+// feel like it didn't know them. Profile data is already fetched at
+// boot via /api/agent/profile (same call that populates the avatar);
+// this function just plugs it into the greeting span.
+function updateGreeting() {
+  var el = document.getElementById('agent-greeting-name');
+  if (!el) return;
+  var fullName = (agentData.agent_name || agentData.name || '').trim();
+  if (!fullName) return;  // keep the "Agent" fallback if name is empty
+  // Use first name only — "Good to see you, John." reads better than
+  // "Good to see you, John Smith." for a casual greeting.
+  var firstName = fullName.split(/\s+/)[0];
+  // Defensive: very long single-word "names" (e.g., a pasted email)
+  // would look weird. Cap at 32 chars and fall back to "Agent".
+  if (!firstName || firstName.length > 32) return;
+  el.textContent = firstName;
+}
+
+function updateQuota() {
+  var used = agentData.monthly_used || 0;
+  var quota = agentData.monthly_quota || 10;
+  var pct = quota === -1 ? 100 : Math.min(100, Math.round(used / quota * 100));
+  document.getElementById('quota-fill').style.width = pct + '%';
+  document.getElementById('quota-text').textContent = quota === -1 ? 'Unlimited' : (used + ' / ' + quota + ' used');
+}
+
+function renderOverview() {
+  // v5.88.83: stat cards now read from briefingsData (the live product).
+  // - Briefings created: count of briefings
+  // - Clients viewed: count of briefings with client_viewed_at set
+  // - Clients sent to: count of briefings with sent_to_client_at set
+  // - Closed deals: 0 for now (PostCloseSurvey not yet wired to briefings)
+  // - This month: agent.monthly_used (briefings + legacy shares both
+  //   increment this; that's correct since it's a quota counter)
+  var totalBriefings = briefingsData.length;
+  var briefingsViewed = briefingsData.filter(b => b.client_viewed_at).length;
+  var briefingsSent = briefingsData.filter(b => b.sent_to_client_at).length;
+  document.getElementById('stat-shares').textContent    = totalBriefings;
+  document.getElementById('stat-viewed').textContent    = briefingsViewed;
+  document.getElementById('stat-registered').textContent= briefingsSent;
+  document.getElementById('stat-converted').textContent = 0;  // closed-deal tracking is roadmap
+  document.getElementById('stat-month').textContent     = agentData.monthly_used || 0;
+
+  // Recent Briefings table — uses briefingsData (the v0 product).
+  if (!briefingsData.length) {
+    document.getElementById('onboard-panel').style.display = 'block';
+    document.getElementById('recent-shares-container').innerHTML = '';
+  } else {
+    document.getElementById('onboard-panel').style.display = 'none';
+    var recent = briefingsData.slice(0, 6);
+    renderBriefingsTable(recent, 'recent-shares-container');
+  }
+
+  // v5.88.83: impact panel — briefing-centric. Hidden if no briefings yet.
+  if (briefingsData.length > 0) {
+    var totalViewed = briefingsData.filter(b => b.client_viewed_at).length;
+    var totalSent = briefingsData.filter(b => b.sent_to_client_at).length;
+    var viewRate = Math.round(totalViewed / briefingsData.length * 100);
+    var panel = document.getElementById('impact-panel');
+    panel.style.display = 'block';
+    var clientWord = (totalViewed === 1) ? 'client' : 'clients';
+    document.getElementById('impact-text').textContent =
+      'You have created ' + briefingsData.length + ' briefing' + (briefingsData.length === 1 ? '' : 's') +
+      ', sent ' + totalSent + ' to clients, and ' + totalViewed + ' ' + clientWord +
+      ' have opened theirs. View rate: ' + viewRate + '%.';
+  }
+}
+
+// v5.88.82: render the briefings table. Different from
+// renderSharesTable: briefings have client_name (not buyer_email), a
+// different status model (draft/sent/viewed), and link to
+// /agent-briefing/<token> (not /agent-report/<token>). Actions: View,
+// Copy link, Send (opens the send modal targeting this specific
+// briefing).
+function renderBriefingsTable(briefings, containerId) {
+  var container = document.getElementById(containerId);
+  if (!briefings.length) {
+    container.innerHTML = '<div class="empty"><div class="icon">📋</div><p>No briefings yet.<br>Create your first briefing to get started.</p></div>';
+    return;
+  }
+  function escAttr(s) {
+    return String(s || '').replace(/[\\'"<>&]/g, function(c) {
+      return { '\\':'\\\\', "'":"\\'", '"':'&quot;', '<':'&lt;', '>':'&gt;', '&':'&amp;' }[c];
+    });
+  }
+  function escHtml(s) {
+    return String(s == null ? '' : s).replace(/[<>&]/g, function(c) {
+      return { '<':'&lt;', '>':'&gt;', '&':'&amp;' }[c];
+    });
+  }
+  container.innerHTML = '<div class="shares-table">' +
+    '<div class="table-hdr"><div>Property / Client</div><div>Date</div><div>Status</div><div>Views</div><div>Actions</div></div>' +
+    briefings.map(function(b) {
+      // Status precedence: viewed > sent > draft
+      var status, statusColor;
+      if (b.client_viewed_at) {
+        status = 'viewed'; statusColor = '#f59e0b';
+      } else if (b.sent_to_client_at) {
+        status = 'sent'; statusColor = '#60a5fa';
+      } else {
+        status = 'draft'; statusColor = '#64748b';
+      }
+      var dateStr = b.created_at ? new Date(b.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric'}) : '—';
+      var clientLabel = b.client_name || b.client_email || 'No client info';
+      var representingBadge = b.representing === 'seller' ? ' · Seller' : '';
+      return '<div class="table-row">' +
+        '<div><div style="font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + escHtml(b.property_address || '—') + '</div>' +
+        '<div style="font-size:11px;color:var(--dim);">' + escHtml(clientLabel) + escHtml(representingBadge) + '</div></div>' +
+        '<div style="font-size:12px;color:var(--muted);">' + dateStr + '</div>' +
+        '<div><span class="status-pill" style="background:' + statusColor + '22;color:' + statusColor + ';">' + status + '</span></div>' +
+        '<div style="font-size:13px;">' + (b.view_count || 0) + '</div>' +
+        '<div style="display:flex;gap:5px;align-items:center;">' +
+        '<a href="/agent-briefing/' + escAttr(b.share_token) + '" target="_blank" style="padding:4px 8px;background:rgba(249,115,22,.12);color:var(--fire1);border:1px solid rgba(249,115,22,.3);border-radius:5px;font-size:10px;font-weight:700;text-decoration:none;">View</a>' +
+        '<button class="copy-btn" onclick="copyLink(\'' + escAttr(b.share_url) + '\',this)">Copy</button>' +
+        '<button class="email-btn" onclick="openSendModalForBriefing(' + b.id + ',\'' + escAttr(b.property_address) + '\',\'' + escAttr(b.client_name) + '\',\'' + escAttr(b.client_email) + '\')">✉️</button>' +
+        '</div></div>';
+    }).join('') + '</div>';
+}
+
+function renderSharesTable(shares, containerId) {
+  var container = document.getElementById(containerId);
+  if (!shares.length) {
+    container.innerHTML = '<div class="empty"><div class="icon">📋</div><p>No shares yet.<br>Share your first analysis to get started.</p></div>';
+    return;
+  }
+  container.innerHTML = '<div class="shares-table">' +
+    '<div class="table-hdr"><div>Property / Buyer</div><div>Date</div><div>Status</div><div>Views</div><div>Actions</div></div>' +
+    shares.map(function(s) {
+      var status = s.buyer_converted ? 'subscribed' : s.buyer_registered ? 'registered' : s.buyer_viewed_at ? 'viewed' : 'sent';
+      var statusColor = { subscribed:'#22c55e', registered:'#60a5fa', viewed:'#f59e0b', sent:'#64748b' }[status] || '#64748b';
+      var dateStr = s.created_at ? new Date(s.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric'}) : '—';
+      return '<div class="table-row">' +
+        '<div><div style="font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + (s.property_address || '—') + '</div>' +
+        '<div style="font-size:11px;color:var(--dim);">' + (s.buyer_name || s.buyer_email || 'No buyer info') + '</div></div>' +
+        '<div style="font-size:12px;color:var(--muted);">' + dateStr + '</div>' +
+        '<div><span class="status-pill" style="background:' + statusColor + '22;color:' + statusColor + ';">' + status + '</span></div>' +
+        '<div style="font-size:13px;">' + (s.view_count || 0) + '</div>' +
+        '<div style="display:flex;gap:5px;align-items:center;">' +
+        '<a href="/agent-report/' + s.share_token + '" target="_blank" style="padding:4px 8px;background:rgba(249,115,22,.12);color:var(--fire1);border:1px solid rgba(249,115,22,.3);border-radius:5px;font-size:10px;font-weight:700;text-decoration:none;">View</a>' +
+        '<button class="copy-btn" onclick="copyLink(\'' + s.share_url + '\',this)">Copy</button>' +
+        '<button class="email-btn" onclick="emailShareLink(\'' + s.share_url + '\',\'' + (s.property_address||'').replace(/'/g,"\\'") + '\',\'' + (s.buyer_name||'').replace(/'/g,"\\'") + '\')">✉️</button>' +
+        '</div></div>';
+    }).join('') + '</div>';
+}
+
+function renderAllShares() {
+  // v5.88.82: this page is titled "All Briefings & Shares". Render
+  // briefings first (the v0 product), then legacy shares as a separate
+  // section below. If there are no legacy shares, that section is hidden.
+  var container = document.getElementById('all-shares-container');
+  var html = '';
+
+  if (briefingsData.length) {
+    html += '<h3 style="font-size:14px;font-weight:700;color:var(--text);margin:0 0 12px;">Briefings</h3>';
+    html += '<div id="all-briefings-inner"></div>';
+  } else {
+    html += '<div class="empty"><div class="icon">📋</div><p>No briefings yet.<br>Create your first briefing to get started.</p></div>';
+  }
+
+  if (sharesData.length) {
+    html += '<h3 style="font-size:14px;font-weight:700;color:var(--text);margin:32px 0 12px;">Legacy shares</h3>';
+    html += '<div id="all-legacy-shares-inner"></div>';
+  }
+
+  container.innerHTML = html;
+
+  if (briefingsData.length) {
+    renderBriefingsTable(briefingsData, 'all-briefings-inner');
+  }
+  if (sharesData.length) {
+    renderSharesTable(sharesData, 'all-legacy-shares-inner');
+  }
+}
+
+async function createShare() {
+  var btn = document.getElementById('share-btn');
+  var address = document.getElementById('f-address').value.trim();
+  if (!address) { alert('Please enter a property address.'); return; }
+  var buyerEmail = document.getElementById('f-buyer-email').value.trim();
+  if (!buyerEmail || !buyerEmail.includes('@')) { alert('Please enter the buyer\'s email address — this is how they receive the link.'); return; }
+  var buyerName = document.getElementById('f-buyer-name').value.trim();
+  if (!buyerName) { alert('Please enter the buyer\'s name — it appears on their report.'); return; }
+  btn.disabled = true; btn.textContent = 'Creating...';
+  try {
+    var res = await fetch('/api/agent/share', {
+      method:'POST', headers:{'Content-Type':'application/json'}, credentials:'include',
+      body: JSON.stringify({
+        property_address: address,
+        property_price: document.getElementById('f-price').value || 0,
+        buyer_name:  document.getElementById('f-buyer-name').value.trim(),
+        buyer_email: document.getElementById('f-buyer-email').value.trim(),
+        notes: document.getElementById('f-notes').value.trim(),
+      })
+    });
+    var data = await res.json();
+    if (data.success) {
+      lastShareUrl   = data.share_url;
+      lastShareToken = data.share_token;
+      document.getElementById('share-url-display').textContent = data.share_url;
+      document.getElementById('share-result').style.display = 'block';
+      if (data.buyer_emailed) document.getElementById('email-sent-note').style.display = 'block';
+      document.getElementById('share-result').scrollIntoView({ behavior:'smooth' });
+      loadData();
+    } else {
+      alert(data.error || data.message || 'Failed to create share.');
+    }
+  } catch(e) { alert('Something went wrong. Please try again.'); }
+  btn.disabled = false; btn.textContent = 'Generate Shareable Link →';
+}
+
+function copyShareLink() {
+  navigator.clipboard.writeText(lastShareUrl).then(function() {
+    var b = document.querySelector('.result-actions button');
+    b.textContent = '✅ Copied!';
+    setTimeout(function(){ b.textContent = '📋 Copy Link'; }, 2000);
+  });
+}
+
+function openShare() {
+  if (lastShareToken) window.open('/agent-report/' + lastShareToken, '_blank');
+}
+
+function resetShareForm() {
+  ['f-address','f-price','f-buyer-email','f-buyer-name','f-notes'].forEach(function(id){ document.getElementById(id).value = ''; });
+  document.getElementById('share-result').style.display = 'none';
+  document.getElementById('email-sent-note').style.display = 'none';
+}
+
+// ────────────────────────────────────────────────────────────────
+// v5.88.75 — Agent Briefing v0 (Release 1)
+// Inputs: side, address, PDF, budget (buyer-side only),
+// commentary (required, min 100 chars). Submits to /api/agent/briefing.
+// ────────────────────────────────────────────────────────────────
+
+// PDF state for the briefing form. Kept separate from any future
+// inspector-style upload state — this is briefing-only.
+var briefingPdfText = '';
+var briefingPdfFilename = '';
+// v5.88.76 R2: most recent briefing's share URL — used by the View/Copy
+// buttons on the result card after a successful create.
+var lastBriefingShareUrl = '';
+// v5.88.78 R4: most recent briefing's ID + cached client name/email
+// from the form, for the send-to-client modal.
+var lastBriefingId = null;
+var lastBriefingClientEmail = '';
+var lastBriefingClientName = '';
+var lastBriefingPropertyAddress = '';
+
+function viewBriefing() {
+  if (!lastBriefingShareUrl) return;
+  window.open(lastBriefingShareUrl, '_blank', 'noopener');
+}
+
+function copyBriefingLink(btn) {
+  if (!lastBriefingShareUrl) return;
+  navigator.clipboard.writeText(lastBriefingShareUrl).then(function() {
+    var orig = btn.textContent;
+    btn.textContent = '✅ Copied';
+    setTimeout(function() { btn.textContent = orig; }, 1500);
+  }, function() {
+    // Clipboard write blocked — fall back to prompt.
+    window.prompt('Copy this link:', lastBriefingShareUrl);
+  });
+}
+
+// v5.88.78 R4: send-to-client modal helpers.
+function openSendModal() {
+  if (!lastBriefingId) return;
+  // Pre-fill from the form's earlier inputs.
+  document.getElementById('bf-send-to').value = lastBriefingClientEmail || '';
+  var addr = lastBriefingPropertyAddress || 'the property';
+  document.getElementById('bf-send-subject').value = 'Your briefing — ' + addr;
+  var firstName = lastBriefingClientName ? lastBriefingClientName.split(/\s+/)[0] : '';
+  var greeting = firstName ? ('Hi ' + firstName + ',') : 'Hi,';
+  document.getElementById('bf-send-message').value =
+    greeting + '\n\n' +
+    'I put together a quick briefing on ' + addr + ' — repair cost estimate, ' +
+    'offer strategy, and my thinking on the deal.\n\n' +
+    'Take a look when you have a few minutes.';
+  // Hide any prior status message.
+  var status = document.getElementById('bf-send-status');
+  if (status) status.style.display = 'none';
+  // Show modal.
+  var modal = document.getElementById('bf-send-modal');
+  modal.style.display = 'flex';
+}
+
+// v5.88.82: open the send modal from a briefing-table row. Sets the
+// briefing-target state vars so the existing sendBriefingToClient()
+// function (which reads lastBriefingId) sends to the right briefing.
+// Called from the ✉️ button in the Recent Briefings / All Briefings
+// table rows.
+function openSendModalForBriefing(briefingId, propertyAddress, clientName, clientEmail) {
+  lastBriefingId = briefingId;
+  lastBriefingPropertyAddress = propertyAddress || '';
+  lastBriefingClientName = clientName || '';
+  lastBriefingClientEmail = clientEmail || '';
+  openSendModal();
+}
+
+function closeSendModal() {
+  document.getElementById('bf-send-modal').style.display = 'none';
+}
+
+async function sendBriefingToClient() {
+  if (!lastBriefingId) { alert('No briefing selected.'); return; }
+  var to = (document.getElementById('bf-send-to').value || '').trim();
+  if (!to || !to.includes('@')) {
+    alert('Please enter a valid client email.');
+    return;
+  }
+  var subject = (document.getElementById('bf-send-subject').value || '').trim();
+  var message = (document.getElementById('bf-send-message').value || '').trim();
+
+  var btn = document.getElementById('bf-send-confirm-btn');
+  var origText = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = 'Sending...';
+
+  try {
+    var res = await fetch('/api/agent/briefing/' + lastBriefingId + '/send', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      credentials: 'include',
+      body: JSON.stringify({
+        to_email: to,
+        subject: subject || undefined,
+        message: message || undefined,
+      }),
+    });
+    var d = await res.json();
+    btn.disabled = false; btn.textContent = origText;
+    if (!res.ok) {
+      // Show error inside the modal so the agent doesn't lose what they typed.
+      alert(d.error || 'Could not send.');
+      return;
+    }
+    // Close modal, surface success on the result card.
+    closeSendModal();
+    var status = document.getElementById('bf-send-status');
+    if (status) {
+      status.style.display = 'block';
+      status.style.background = 'rgba(34,197,94,.1)';
+      status.style.border = '1px solid rgba(34,197,94,.25)';
+      status.style.color = 'var(--green)';
+      status.textContent = '✅ Sent to ' + (d.to || to) + '. Replies will go to your inbox.';
+    }
+    // Re-label the Send button so re-sends require confirmation.
+    var sendBtn = document.getElementById('bf-result-send-btn');
+    if (sendBtn) sendBtn.textContent = '✉️ Send again';
+  } catch (e) {
+    btn.disabled = false; btn.textContent = origText;
+    alert('Network error — please try again.');
+  }
+}
+
+// Side-toggle: hide/show the budget section based on buyer/seller radio.
+// Wire on first interaction; safe to call multiple times.
+function wireBriefingSideToggle() {
+  var buyer = document.getElementById('rep-buyer');
+  var seller = document.getElementById('rep-seller');
+  var budgetSection = document.getElementById('bf-budget-section');
+  if (!buyer || !seller || !budgetSection) return;
+  function update() {
+    budgetSection.style.display = buyer.checked ? '' : 'none';
+  }
+  buyer.addEventListener('change', update);
+  seller.addEventListener('change', update);
+  update();
+}
+
+// Commentary character counter. Visual feedback so the agent knows
+// when they've hit the 100-char minimum.
+function wireBriefingCommentaryCounter() {
+  var ta = document.getElementById('bf-commentary');
+  var counter = document.getElementById('bf-commentary-counter');
+  if (!ta || !counter) return;
+  ta.addEventListener('input', function() {
+    var n = ta.value.length;
+    counter.textContent = n + ' / 100 min';
+    counter.style.color = (n >= 100) ? 'var(--green)' : 'var(--muted)';
+  });
+}
+
+// PDF drop + select handlers. Uploads to /api/agent/extract-pdf,
+// stashes the extracted text in briefingPdfText, and shows status.
+// v5.88.79: client-side guard — reject anything that isn't a PDF
+// before posting. Avoids confusing 400s in the console when the
+// agent drops a folder or a non-PDF file.
+function _isLikelyPdf(f) {
+  if (!f || !f.name) return false;
+  if (f.size === 0) return false;  // folders / empty drops
+  var name = (f.name || '').toLowerCase();
+  var type = (f.type || '').toLowerCase();
+  return name.endsWith('.pdf') || type === 'application/pdf';
+}
+
+function handleBriefingPdfDrop(ev) {
+  ev.preventDefault();
+  var dropZone = document.getElementById('bf-pdf-drop');
+  if (dropZone) dropZone.style.borderColor = 'rgba(249,115,22,.3)';
+  var f = ev.dataTransfer && ev.dataTransfer.files && ev.dataTransfer.files[0];
+  if (!f) return;
+  if (!_isLikelyPdf(f)) {
+    var status = document.getElementById('bf-pdf-status');
+    if (status) {
+      status.style.display = 'block';
+      status.style.color = '#ef4444';
+      status.textContent = '⚠️ Please drop a PDF file (.pdf). The briefing needs a text-based inspection or disclosure report.';
+    }
+    return;
+  }
+  uploadBriefingPdf(f);
+}
+
+function handleBriefingPdfSelect(input) {
+  var f = input.files && input.files[0];
+  if (!f) return;
+  if (!_isLikelyPdf(f)) {
+    var status = document.getElementById('bf-pdf-status');
+    if (status) {
+      status.style.display = 'block';
+      status.style.color = '#ef4444';
+      status.textContent = '⚠️ Please choose a PDF file (.pdf).';
+    }
+    return;
+  }
+  uploadBriefingPdf(f);
+}
+
+async function uploadBriefingPdf(file) {
+  var status = document.getElementById('bf-pdf-status');
+  status.style.display = 'block';
+  status.style.color = 'var(--muted)';
+  status.textContent = '⏳ Extracting text from PDF...';
+  try {
+    var fd = new FormData();
+    fd.append('pdf', file);
+    var res = await fetch('/api/agent/extract-pdf', {
+      method: 'POST',
+      credentials: 'include',
+      body: fd,
+    });
+    var d = await res.json();
+    if (!res.ok) {
+      status.style.color = '#ef4444';
+      status.textContent = '⚠️ ' + (d.error || 'Could not extract PDF.');
+      briefingPdfText = '';
+      briefingPdfFilename = '';
+      return;
+    }
+    briefingPdfText = d.text || '';
+    briefingPdfFilename = d.filename || file.name || '';
+    status.style.color = 'var(--green)';
+    status.textContent = '✅ Extracted ' + (d.char_count || 0) + ' chars from ' + (d.page_count || 0) + ' pages';
+  } catch (e) {
+    status.style.color = '#ef4444';
+    status.textContent = '⚠️ Network error — please try again.';
+    briefingPdfText = '';
+    briefingPdfFilename = '';
+  }
+}
+
+async function createBriefing() {
+  var btn = document.getElementById('bf-submit-btn');
+  var origText = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = 'Creating...';
+
+  // Gather inputs.
+  var representing = document.getElementById('rep-buyer').checked ? 'buyer' : 'seller';
+  var address = (document.getElementById('bf-address').value || '').trim();
+  var price = parseFloat(document.getElementById('bf-price').value || 0) || 0;
+  var clientName = (document.getElementById('bf-client-name').value || '').trim();
+  var clientEmail = (document.getElementById('bf-client-email').value || '').trim();
+  var commentary = (document.getElementById('bf-commentary').value || '').trim();
+
+  // Client-side guards. Mirror server-side rules so the user gets
+  // immediate feedback rather than a round-trip.
+  if (!address) { alert('Property address is required.'); btn.disabled = false; btn.textContent = origText; return; }
+  if (!briefingPdfText || briefingPdfText.length < 200) {
+    alert('Please upload a PDF first — the briefing needs the inspection or disclosure report content.');
+    btn.disabled = false; btn.textContent = origText; return;
+  }
+  if (commentary.length < 100) {
+    alert('Your commentary is required and must be at least 100 characters. Your client is paying for your judgment, not just data.');
+    btn.disabled = false; btn.textContent = origText; return;
+  }
+
+  var body = {
+    representing: representing,
+    property_address: address,
+    property_price: price || undefined,
+    client_name: clientName || undefined,
+    client_email: clientEmail || undefined,
+    inspection_text: briefingPdfText,
+    inspection_pdf_filename: briefingPdfFilename || undefined,
+    agent_commentary: commentary,
+  };
+
+  if (representing === 'buyer') {
+    var bq = parseFloat(document.getElementById('bf-budget-qualified').value || 0) || 0;
+    var bc = parseFloat(document.getElementById('bf-budget-comfortable').value || 0) || 0;
+    var bp = parseFloat(document.getElementById('bf-budget-preferred').value || 0) || 0;
+    if (!(bq > 0 && bc > 0 && bp > 0)) {
+      alert("Your buyer's budget tiers are required (qualified, comfortable, preferred). The offer strategy needs them.");
+      btn.disabled = false; btn.textContent = origText; return;
+    }
+    body.budget_qualified = bq;
+    body.budget_comfortable = bc;
+    body.budget_preferred = bp;
+  }
+
+  try {
+    var res = await fetch('/api/agent/briefing', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      credentials: 'include',
+      body: JSON.stringify(body),
+    });
+    var d = await res.json();
+    if (!res.ok) {
+      alert(d.error || 'Could not create briefing.');
+      btn.disabled = false; btn.textContent = origText; return;
+    }
+    // Success — show result card with share URL + view/copy/send actions.
+    var url = d.share_url || '';
+    lastBriefingShareUrl = url;
+    // v5.88.78 R4: cache briefing id + client info for the send modal.
+    lastBriefingId = d.briefing_id || null;
+    lastBriefingClientEmail = clientEmail;
+    lastBriefingClientName = clientName;
+    lastBriefingPropertyAddress = address;
+    document.getElementById('bf-result-url').textContent = url;
+    // Reset send-related state for the new briefing.
+    var sendBtn = document.getElementById('bf-result-send-btn');
+    if (sendBtn) sendBtn.textContent = '✉️ Send to client';
+    var sendStatus = document.getElementById('bf-send-status');
+    if (sendStatus) sendStatus.style.display = 'none';
+
+    // Reflect analysis status in the headline/subline. If analysis
+    // didn't complete, the briefing still exists but the repair
+    // section will show an error state on the share page.
+    var headline = document.getElementById('bf-result-headline');
+    var subline = document.getElementById('bf-result-subline');
+    if (d.analysis_ok === false) {
+      headline.textContent = '⚠️ Briefing saved (analysis incomplete)';
+      subline.textContent = 'The briefing was saved with your commentary, but the repair analysis didn\'t complete. Open the briefing to see what rendered.';
+    } else {
+      headline.textContent = '✅ Briefing ready.';
+      subline.textContent = 'Your briefing has been generated. Open it to review, or copy the link to share with your client.';
+    }
+
+    document.getElementById('bf-result').style.display = 'block';
+    // v5.88.81: keep the Create Briefing button DISABLED after success.
+    // Previously this line re-enabled it (`btn.disabled = false`), which
+    // meant a second click would create a duplicate briefing for the same
+    // property — burning quota and producing two of the same. The correct
+    // behavior is: the button is "done" until the agent explicitly starts
+    // a new briefing via the "+ New Briefing" button on the result card,
+    // which calls resetBriefingForm() and re-enables this button.
+    btn.disabled = true;
+    btn.textContent = '✓ Briefing created';
+    // v5.88.82: refresh dashboard data so the new briefing shows on the
+    // overview + all-shares tables. Was previously calling
+    // `loadInitialData` which doesn't exist — silently failed via the
+    // `typeof === 'function'` guard, which is why created briefings
+    // never appeared in the dashboard until a manual page reload. The
+    // correct function is `loadData()`.
+    if (typeof loadData === 'function') loadData();
+  } catch (e) {
+    alert('Network error — please try again.');
+    btn.disabled = false; btn.textContent = origText;
+  }
+}
+
+function resetBriefingForm() {
+  ['bf-address','bf-price','bf-client-name','bf-client-email','bf-commentary',
+   'bf-budget-qualified','bf-budget-comfortable','bf-budget-preferred'].forEach(function(id){
+    var el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  document.getElementById('rep-buyer').checked = true;
+  document.getElementById('rep-seller').checked = false;
+  // Re-show budget section (since buyer is default).
+  var budgetSection = document.getElementById('bf-budget-section');
+  if (budgetSection) budgetSection.style.display = '';
+  // Clear PDF state + status.
+  briefingPdfText = '';
+  briefingPdfFilename = '';
+  var status = document.getElementById('bf-pdf-status');
+  if (status) status.style.display = 'none';
+  var input = document.getElementById('bf-pdf-input');
+  if (input) input.value = '';
+  // Reset counter.
+  var counter = document.getElementById('bf-commentary-counter');
+  if (counter) {
+    counter.textContent = '0 / 100 min';
+    counter.style.color = 'var(--muted)';
+  }
+  // Clear share URL state.
+  lastBriefingShareUrl = '';
+  // v5.88.78 R4: clear briefing id + client info + send state.
+  lastBriefingId = null;
+  lastBriefingClientEmail = '';
+  lastBriefingClientName = '';
+  lastBriefingPropertyAddress = '';
+  var urlEl = document.getElementById('bf-result-url');
+  if (urlEl) urlEl.textContent = '';
+  var sendBtn = document.getElementById('bf-result-send-btn');
+  if (sendBtn) sendBtn.textContent = '✉️ Send to client';
+  var sendStatus = document.getElementById('bf-send-status');
+  if (sendStatus) sendStatus.style.display = 'none';
+  document.getElementById('bf-result').style.display = 'none';
+  // v5.88.81: re-enable the Create Briefing button + restore label.
+  // After a successful create, the button is left in a "✓ Briefing
+  // created" disabled state so the agent can't accidentally double-submit
+  // and create a duplicate. "+ New Briefing" calls this reset, which
+  // returns the button to its ready state for the next briefing.
+  var submitBtn = document.getElementById('bf-submit-btn');
+  if (submitBtn) {
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Create Briefing →';
+  }
+}
+
+// Wire the side toggle + counter once on DOM ready. Safe if called
+// repeatedly (event listeners are idempotent through the same fn).
+document.addEventListener('DOMContentLoaded', function() {
+  wireBriefingSideToggle();
+  wireBriefingCommentaryCounter();
+});
+
+function sendManualEmail() {
+  var email = document.getElementById('manual-email').value.trim();
+  if (!email || !email.includes('@')) { alert('Please enter a valid email address.'); return; }
+  var subject = encodeURIComponent('Your property analysis — ' + (document.getElementById('f-address').value.trim() || 'property'));
+  var body = encodeURIComponent('Hi,\\n\\nI have prepared an OfferWise property analysis for you.\\n\\nView your analysis here:\\n' + lastShareUrl + '\\n\\nLet me know if you have any questions.');
+  window.open('mailto:' + encodeURIComponent(email) + '?subject=' + subject + '&body=' + body, '_blank');
+  document.getElementById('manual-email').value = '';
+}
+
+function copyLink(url, btn) {
+  navigator.clipboard.writeText(url).then(function() {
+    btn.textContent = '✅'; setTimeout(function(){ btn.textContent = 'Copy'; }, 1500);
+  });
+}
+
+function emailShareLink(url, address, buyerName) {
+  var subject = encodeURIComponent('Your property analysis' + (address ? ' — ' + address : ''));
+  var greeting = buyerName ? 'Hi ' + buyerName + ',' : 'Hi,';
+  var body = encodeURIComponent(greeting + '\\n\\nI have prepared an OfferWise property analysis for you.' +
+    (address ? '\\n\\nProperty: ' + address : '') +
+    '\\n\\nView your analysis here:\\n' + url +
+    '\\n\\nLet me know if you have any questions.');
+  window.open('mailto:?subject=' + subject + '&body=' + body, '_blank');
+}
+
+async function loadProfile() {
+  if (!agentData) return;
+  document.getElementById('p-name').value    = agentData.agent_name || '';
+  document.getElementById('p-biz').value     = agentData.business_name || '';
+  document.getElementById('p-lic').value     = agentData.license_number || '';
+  document.getElementById('p-state').value   = agentData.license_state || '';
+  document.getElementById('p-phone').value   = agentData.phone || '';
+  document.getElementById('p-website').value = agentData.website || '';
+  document.getElementById('p-areas').value   = agentData.service_areas || '';
+}
+
+async function saveProfile() {
+  var res = await fetch('/api/agent/profile', {
+    method:'POST', headers:{'Content-Type':'application/json'}, credentials:'include',
+    body: JSON.stringify({
+      agent_name:    document.getElementById('p-name').value.trim(),
+      business_name: document.getElementById('p-biz').value.trim(),
+      license_number:document.getElementById('p-lic').value.trim(),
+      license_state: document.getElementById('p-state').value.trim().toUpperCase().slice(0,2),
+      phone:         document.getElementById('p-phone').value.trim(),
+      website:       document.getElementById('p-website').value.trim(),
+      service_areas: document.getElementById('p-areas').value.trim(),
+    })
+  });
+  if (res.ok) {
+    var saved = document.getElementById('profile-saved');
+    saved.style.display = 'block';
+    setTimeout(function(){ saved.style.display = 'none'; }, 3000);
+    loadData();
+  }
+}
+
+document.addEventListener('DOMContentLoaded', loadData);
+</script>
+
+<script>
+(function() {
+  async function loadRoles() {
+    try {
+      var res = await fetch('/api/user/roles', { credentials: 'include' });
+      if (!res.ok) return;
+      var data = await res.json();
+      var roles = data.roles || [];
+      if (roles.length <= 1) return;
+      var switcher = document.getElementById('role-switcher');
+      if (!switcher) return;
+      switcher.style.display = 'block';
+      var menu  = document.getElementById('role-switcher-menu');
+      var icon  = document.getElementById('role-switcher-icon');
+      var label = document.getElementById('role-switcher-label');
+      var currentRole = roles.find(function(r) { return window.location.pathname.startsWith(r.url); });
+      if (currentRole && icon)  icon.textContent  = currentRole.icon;
+      if (currentRole && label) label.textContent = currentRole.label;
+      var html = '';
+      roles.forEach(function(r) {
+        var isCurrent = currentRole && r.role === currentRole.role;
+        html += '<a href="' + r.url + '" class="role-switcher-item ' + (isCurrent ? 'current' : '') + '">' +
+          '<div class="ri-icon">' + r.icon + '</div>' +
+          '<div><div class="ri-label">' + r.label +
+            (isCurrent ? ' <span style="font-size:10px;color:#f97316;">← here</span>' : '') +
+          '</div><div class="ri-badge">' + r.badge + '</div></div></a>';
+      });
+      if (menu) menu.innerHTML = html;
+    } catch(e) { /* silent */ }
+  }
+  window.toggleRoleSwitcher = function() {
+    var menu = document.getElementById('role-switcher-menu');
+    if (menu) menu.classList.toggle('open');
+  };
+  document.addEventListener('click', function(e) {
+    var sw = document.getElementById('role-switcher');
+    if (sw && !sw.contains(e.target)) {
+      var menu = document.getElementById('role-switcher-menu');
+      if (menu) menu.classList.remove('open');
+    }
+  });
+  loadRoles();
+})();
+
+async function loadAlertsPage() {
+  // Watches
+  try {
+    var wr = await fetch('/api/watches', { credentials: 'include' });
+    var wd = wr.ok ? await wr.json() : { watches: [] };
+    var wc = document.getElementById('pro-watches-container');
+    if (wc) {
+      if (!wd.watches || !wd.watches.length) {
+        wc.innerHTML = '<div style="color:var(--muted);font-size:13px;padding:14px 16px;background:var(--surface);border:1px solid var(--border);border-radius:10px;">No watches yet. Every time you share an analysis with a buyer client, OfferWatch automatically starts monitoring that property for 45 days. Send your next share and it will appear here — no setup required.</div>';
+      } else {
+        wc.innerHTML = wd.watches.map(function(w) {
+          var daysLeft = w.expires_at ? Math.max(0, Math.round((new Date(w.expires_at) - Date.now()) / 86400000)) : '?';
+          return '<div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 16px;margin-bottom:6px;display:flex;align-items:center;justify-content:space-between;gap:12px;">' +
+            '<div><div style="font-weight:700;font-size:13px;">🔭 ' + (w.address || '—') + '</div>' +
+            '<div style="font-size:11px;color:var(--dim);margin-top:2px;">' + daysLeft + ' days remaining' + (w.asking_price ? ' · ' + "$" + Math.round(w.asking_price/1000) + "K asking" : '') + '</div></div>' +
+            '<span style="font-size:10px;font-weight:700;padding:3px 8px;border-radius:4px;background:rgba(34,197,94,.1);color:#22c55e;border:1px solid rgba(34,197,94,.2);">● Watching</span>' +
+          '</div>';
+        }).join('');
+      }
+    }
+  } catch(e) { console.error('Watches load error', e); }
+
+  // Alerts
+  try {
+    var ar = await fetch('/api/alerts?limit=20', { credentials: 'include' });
+    var ad = ar.ok ? await ar.json() : { alerts: [] };
+    var ac = document.getElementById('pro-alerts-container');
+    if (ac) {
+      if (!ad.alerts || !ad.alerts.length) {
+        ac.innerHTML = '<div style="color:var(--muted);font-size:13px;padding:14px 16px;background:var(--surface);border:1px solid var(--border);border-radius:10px;">No alerts yet. OfferWatch monitors every property you\'ve shared with clients. You\'ll get a signal the moment a buyer opens your report, and a market alert every morning if anything changes.</div>';
+      } else {
+        var sev = { critical:'#ef4444', warning:'#f59e0b', info:'#60a5fa' };
+        var icons = { new_comp:'📊', price_drop:'💰', earthquake:'🌍', new_permit:'🔨', buyer_concern:'👁️', market_intel:'🔔' };
+        ac.innerHTML = ad.alerts.map(function(a) {
+          var color = sev[a.severity] || '#94a3b8';
+          var icon = icons[a.alert_type] || '🔔';
+          var timeStr = a.created_at ? new Date(a.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}) : '';
+          return '<div style="background:var(--surface);border:1px solid var(--border);border-left:3px solid ' + color + ';border-radius:10px;padding:14px 16px;margin-bottom:8px;">' +
+            '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;">' +
+              '<div style="font-weight:700;font-size:13px;">' + icon + ' ' + (a.title || 'Alert') + '</div>' +
+              '<span style="font-size:10px;color:var(--dim);white-space:nowrap;">' + timeStr + '</span>' +
+            '</div>' +
+            (a.body ? '<div style="font-size:12px;color:var(--muted);margin-top:5px;line-height:1.5;">' + a.body.replace(/<[^>]+>/g,'').slice(0,200) + '</div>' : '') +
+          '</div>';
+        }).join('');
+
+        // Update badge
+        var unread = ad.alerts.filter(function(a){ return !a.read_at; }).length;
+        var badge = document.getElementById('alerts-badge');
+        if (badge && unread > 0) { badge.textContent = unread; badge.style.display = 'inline'; }
+      }
+    }
+  } catch(e) { console.error('Alerts load error', e); }
+}
+
+// Load badge count on portal init
+(function() {
+  fetch('/api/alerts?limit=5', { credentials: 'include' }).then(function(r){ return r.json(); }).then(function(d){
+    var unread = (d.alerts || []).filter(function(a){ return !a.read_at; }).length;
+    var badge = document.getElementById('alerts-badge');
+    if (badge && unread > 0) { badge.textContent = unread; badge.style.display = 'inline'; }
+  }).catch(function(){});
+})();
+</script>
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+</body>
+</html>

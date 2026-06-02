@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Audit Report · OfferWise Admin</title>
+<meta name="robots" content="noindex,nofollow">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0b1220; --bg2:#111827; --bg3:#1f2937;
+    --line:#1f2937; --line2:#374151;
+    --txt:#f3f4f6; --body:#cbd5e1; --gray:#9ca3af; --dim:#6b7280;
+    --accent:#f97316; --gold:#f59e0b;
+    --green:#22c55e; --red:#ef4444; --amber:#fcd34d; --blue:#60a5fa;
+    --purple:#a78bfa;
+    --mono:ui-monospace,SFMono-Regular,Menlo,monospace;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--txt);font-size:14px;line-height:1.55;}
+  a{color:var(--gold);text-decoration:none;}
+  a:hover{color:var(--accent);}
+
+  .topbar{padding:14px 22px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;background:#0b1220;}
+  .topbar h1{font-size:16px;font-weight:700;margin:0;letter-spacing:-.01em;}
+  .topbar h1 .label{color:var(--accent);}
+  .topbar .progress{font-size:12px;color:var(--gray);}
+  .topbar .progress strong{color:var(--txt);}
+
+  .wrap{max-width:1100px;margin:0 auto;padding:24px 22px;}
+
+  .card{background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:22px;margin-bottom:18px;}
+  .card h2{font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--gray);margin:0 0 16px;}
+  .card h2 .count{color:var(--txt);font-weight:600;font-size:13px;text-transform:none;letter-spacing:0;margin-left:8px;}
+
+  .verdicts-grid{display:grid;gap:10px;}
+  .verdict-row{display:grid;grid-template-columns:200px 1fr 90px;align-items:center;gap:14px;font-size:13px;}
+  .verdict-row .name{color:var(--body);font-weight:600;}
+  .verdict-row .pct{color:var(--gray);text-align:right;font-family:var(--mono);font-size:12px;}
+  .verdict-row .bar{height:18px;background:var(--bg3);border-radius:4px;overflow:hidden;}
+  .verdict-row .fill{height:100%;transition:width .3s;}
+  .verdict-row.original_correct .fill{background:var(--blue);}
+  .verdict-row.predicted_correct .fill{background:var(--amber);}
+  .verdict-row.both_defensible .fill{background:var(--purple);}
+  .verdict-row.neither_correct .fill{background:var(--accent);}
+  .verdict-row.junk .fill{background:var(--red);}
+  .verdict-meaning{font-size:11px;color:var(--dim);margin-top:14px;padding-top:14px;border-top:1px solid var(--line);line-height:1.7;}
+  .verdict-meaning strong{color:var(--body);}
+
+  .confusion-table{width:100%;border-collapse:collapse;font-size:13px;}
+  .confusion-table th{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--gray);font-weight:600;padding:8px 10px;text-align:left;border-bottom:1px solid var(--line2);}
+  .confusion-table td{padding:9px 10px;border-bottom:1px solid var(--line);color:var(--body);vertical-align:top;}
+  .confusion-table .pair{font-family:var(--mono);color:var(--txt);font-size:12px;}
+  .confusion-table .total{font-family:var(--mono);text-align:right;color:var(--txt);font-weight:600;}
+  .verdict-mini{display:inline-block;font-size:10px;padding:2px 6px;border-radius:3px;margin-right:4px;font-family:var(--mono);}
+  .verdict-mini.original_correct{background:rgba(96,165,250,.15);color:var(--blue);}
+  .verdict-mini.predicted_correct{background:rgba(252,211,77,.15);color:var(--amber);}
+  .verdict-mini.both_defensible{background:rgba(167,139,250,.15);color:var(--purple);}
+  .verdict-mini.neither_correct{background:rgba(249,115,22,.15);color:var(--accent);}
+  .verdict-mini.junk{background:rgba(239,68,68,.15);color:var(--red);}
+
+  .suggested-list{display:grid;gap:8px;}
+  .suggested-item{display:grid;grid-template-columns:1fr 80px;align-items:center;gap:10px;padding:9px 14px;background:var(--bg3);border:1px solid var(--line2);border-radius:6px;}
+  .suggested-item .name{color:var(--txt);font-weight:500;font-family:var(--mono);font-size:13px;}
+  .suggested-item .count{text-align:right;color:var(--accent);font-weight:700;font-family:var(--mono);font-size:13px;}
+
+  .empty{text-align:center;padding:60px 24px;color:var(--gray);}
+  .empty .ico{font-size:48px;margin-bottom:16px;}
+  .empty h2{font-size:20px;color:var(--txt);margin:0 0 8px;}
+
+  .interpretation{background:linear-gradient(180deg, rgba(249,115,22,.06), transparent);border-left:3px solid var(--accent);padding:14px 18px;border-radius:0 8px 8px 0;font-size:13px;color:var(--body);line-height:1.65;margin-top:14px;}
+  .interpretation strong{color:var(--txt);}
+
+  .back-link{display:inline-block;margin-bottom:14px;font-size:12px;color:var(--gray);}
+  .back-link:hover{color:var(--accent);}
+
+  /* v5.89.45: batch switcher */
+  .batch-switcher .batch-list{display:grid;gap:8px;}
+  .batch-row{padding:10px 14px;background:var(--bg3);border:1px solid var(--line2);border-radius:6px;cursor:pointer;transition:all .15s;}
+  .batch-row:hover{border-color:var(--accent);background:#1a2333;}
+  .batch-row.current{border-color:var(--accent);background:rgba(249,115,22,.08);cursor:default;}
+  .batch-row.current:hover{background:rgba(249,115,22,.08);}
+  .batch-id{font-family:var(--mono);font-size:12px;color:var(--txt);font-weight:500;margin-bottom:4px;}
+  .current-marker{font-size:10px;color:var(--accent);font-weight:600;letter-spacing:.05em;text-transform:uppercase;padding:1px 5px;background:rgba(249,115,22,.15);border-radius:3px;margin-left:6px;}
+  .batch-meta{display:flex;gap:14px;font-size:11px;color:var(--gray);}
+  .batch-decisions{color:var(--accent);font-weight:600;}
+  .batch-queue{color:var(--gray);}
+  .batch-date{color:var(--dim);margin-left:auto;}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <h1>📊 Audit <span class="label">Report</span></h1>
+  <div class="progress" id="header-progress">Loading…</div>
+</div>
+
+<div class="wrap" id="main">
+  <p style="color:var(--gray);text-align:center;padding:60px 0">Loading audit report…</p>
+</div>
+
+<script>
+const ADMIN_KEY = new URLSearchParams(window.location.search).get('admin_key') || '';
+
+function _esc(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+const VERDICT_LABELS = {
+  'original_correct':  'Original correct (model error)',
+  'predicted_correct': 'Predicted correct (label-pipeline bug)',
+  'both_defensible':   'Both defensible (taxonomy ambiguity)',
+  'neither_correct':   'Neither correct (need new category)',
+  'junk':              'Junk (exclude from corpus)',
+};
+
+const VERDICT_ORDER = ['original_correct', 'predicted_correct', 'both_defensible', 'neither_correct', 'junk'];
+
+function renderBatchSwitcher(data) {
+  const batches = data.available_batches || [];
+  if (batches.length <= 1) return '';  // No switcher needed for single batch
+  const current = data.training_job_id;
+  let rows = '';
+  for (const b of batches) {
+    const isCurrent = b.training_job_id === current;
+    const shortId = (b.training_job_id || '').slice(0, 14);
+    const queuedDate = b.queued_at ? new Date(b.queued_at).toLocaleString() : '—';
+    rows +=
+      '<div class="batch-row' + (isCurrent ? ' current' : '') + '" ' +
+      (isCurrent ? '' : 'onclick="switchBatch(\'' + _esc(b.training_job_id) + '\')"') + '>' +
+        '<div class="batch-id">' + _esc(shortId) + '&hellip;' +
+          (isCurrent ? ' <span class="current-marker">viewing</span>' : '') +
+        '</div>' +
+        '<div class="batch-meta">' +
+          '<span class="batch-decisions">' + b.decision_count + ' decisions</span>' +
+          '<span class="batch-queue">' + b.queue_total + ' queued</span>' +
+          '<span class="batch-date">' + _esc(queuedDate) + '</span>' +
+        '</div>' +
+      '</div>';
+  }
+  return '<div class="card batch-switcher">' +
+    '<h2>Available batches <span class="count">' + batches.length + ' total</span></h2>' +
+    '<p style="color:var(--gray);font-size:12px;margin:0 0 14px">Each training run produces an audit batch. Click a different batch to view its decisions.</p>' +
+    '<div class="batch-list">' + rows + '</div>' +
+  '</div>';
+}
+
+function switchBatch(jobId) {
+  const params = new URLSearchParams(window.location.search);
+  params.set('training_job_id', jobId);
+  window.location.search = params.toString();
+}
+
+function renderReport(data) {
+  document.getElementById('header-progress').innerHTML =
+    '<strong>' + data.total_audited + '</strong> of <strong>' + data.total_in_batch + '</strong> audited';
+
+  const totalAudited = data.total_audited || 0;
+
+  if (totalAudited === 0) {
+    document.getElementById('main').innerHTML =
+      '<a class="back-link" href="/admin/labels/audit?admin_key=' + encodeURIComponent(ADMIN_KEY) + '">&larr; Back to audit</a>' +
+      '<div class="empty"><div class="ico">📋</div><h2>No decisions yet</h2>' +
+      '<p>Audit some findings first. This page summarizes results once you have made at least one decision.</p></div>';
+    return;
+  }
+
+  const vd = data.verdict_distribution || {};
+  let verdictRows = '';
+  for (const v of VERDICT_ORDER) {
+    const count = vd[v] || 0;
+    const pct = totalAudited > 0 ? (count / totalAudited * 100) : 0;
+    verdictRows +=
+      '<div class="verdict-row ' + v + '">' +
+        '<div class="name">' + _esc(VERDICT_LABELS[v]) + '</div>' +
+        '<div class="bar"><div class="fill" style="width:' + pct.toFixed(1) + '%"></div></div>' +
+        '<div class="pct">' + count + ' &middot; ' + pct.toFixed(0) + '%</div>' +
+      '</div>';
+  }
+
+  let maxV = null, maxC = 0;
+  for (const v of VERDICT_ORDER) {
+    if ((vd[v] || 0) > maxC) { maxC = vd[v]; maxV = v; }
+  }
+  let interpretation = '';
+  if (maxC > 0) {
+    const dominantPct = (maxC / totalAudited * 100).toFixed(0);
+    const interps = {
+      'original_correct': '<strong>Dominant pattern: genuine model errors</strong> (' + dominantPct + '%). The model is wrong more than the labels are. v5.89.43 should focus on model capacity — more training data, better features, or larger embedder. The labels themselves are mostly sound.',
+      'predicted_correct': '<strong>Dominant pattern: label-pipeline bug</strong> (' + dominantPct + '%). The model is right more often than the labels. The relabeler is producing wrong labels at scale. v5.89.43 should fix the relabel logic, regenerate labels, then retrain. The model is better than its 83.5% suggests.',
+      'both_defensible': '<strong>Dominant pattern: taxonomy ambiguity</strong> (' + dominantPct + '%). The 7-category split has fuzzy boundaries. v5.89.43 should redesign categories — either merge ambiguous ones, or add explicit boundary rules. Model performance ceiling is artificially capped by category overlap.',
+      'neither_correct': '<strong>Dominant pattern: taxonomy gaps</strong> (' + dominantPct + '%). The current categories do not cover what is in the corpus. v5.89.43 should add new categories (see "Top suggested" panel below), regenerate labels, then retrain.',
+      'junk': '<strong>Dominant pattern: corpus quality</strong> (' + dominantPct + '%). A significant fraction of "errors" are findings that should not be in the corpus. v5.89.43 should improve crawler filters. Future training will use the cleaner remaining corpus.',
+    };
+    interpretation = '<div class="interpretation">' + (interps[maxV] || '') + '</div>';
+  }
+
+  const cb = data.confusion_breakdown || [];
+  let confusionRows = '';
+  for (const row of cb) {
+    let badges = '';
+    const entries = Object.entries(row.verdicts).sort(function(a, b) { return b[1] - a[1]; });
+    for (const e of entries) {
+      badges += '<span class="verdict-mini ' + e[0] + '">' + _esc(e[0].split('_')[0]) + ':' + e[1] + '</span>';
+    }
+    confusionRows +=
+      '<tr><td class="pair">' + _esc(row.pair) + '</td>' +
+      '<td class="total">' + row.total + '</td>' +
+      '<td>' + badges + '</td></tr>';
+  }
+
+  const sn = data.suggested_new_categories || [];
+  let suggestedHTML = '';
+  if (sn.length) {
+    for (const s of sn) {
+      suggestedHTML +=
+        '<div class="suggested-item">' +
+          '<div class="name">' + _esc(s.suggested) + '</div>' +
+          '<div class="count">&times;' + s.count + '</div>' +
+        '</div>';
+    }
+  } else {
+    suggestedHTML = '<div style="color:var(--dim);font-style:italic;padding:14px 0">No category suggestions yet. Use verdict 4 ("Neither") during audit to suggest new categories.</div>';
+  }
+
+  document.getElementById('main').innerHTML =
+    '<a class="back-link" href="/admin/labels/audit?admin_key=' + encodeURIComponent(ADMIN_KEY) + '">&larr; Back to audit</a>' +
+    renderBatchSwitcher(data) +
+    '<div class="card">' +
+      '<h2>Verdict distribution <span class="count">' + totalAudited + ' decisions</span></h2>' +
+      '<div class="verdicts-grid">' + verdictRows + '</div>' +
+      interpretation +
+      '<div class="verdict-meaning">' +
+        'Each verdict maps to a different fix in v5.89.43. ' +
+        '<strong>Original</strong> &rarr; model needs work. ' +
+        '<strong>Predicted</strong> &rarr; relabel pipeline broken. ' +
+        '<strong>Both</strong> &rarr; taxonomy fuzzy. ' +
+        '<strong>Neither</strong> &rarr; taxonomy incomplete. ' +
+        '<strong>Junk</strong> &rarr; crawler filters need work.' +
+      '</div>' +
+    '</div>' +
+    '<div class="card">' +
+      '<h2>Confusion-pair breakdown <span class="count">' + cb.length + ' pairs</span></h2>' +
+      (cb.length === 0 ? '<div style="color:var(--dim);font-style:italic">No pairs yet.</div>' :
+        '<table class="confusion-table">' +
+          '<thead><tr><th>Pair</th><th style="text-align:right">Total</th><th>Verdicts</th></tr></thead>' +
+          '<tbody>' + confusionRows + '</tbody>' +
+        '</table>') +
+    '</div>' +
+    '<div class="card">' +
+      '<h2>Top suggested new categories <span class="count">' + sn.length + ' unique</span></h2>' +
+      '<p style="color:var(--gray);font-size:12px;margin:0 0 14px">From verdict 4 ("Neither correct") decisions. Most-suggested are candidates for v5.89.43 taxonomy expansion.</p>' +
+      '<div class="suggested-list">' + suggestedHTML + '</div>' +
+    '</div>' +
+    '<div class="card" style="background:transparent;border-style:dashed;">' +
+      '<h2>Other counters</h2>' +
+      '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;font-size:13px;">' +
+        '<div>' +
+          '<div style="color:var(--gray);font-size:11px;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Needs review</div>' +
+          '<div style="font-size:20px;font-weight:700;color:var(--amber);font-family:var(--mono)">' + (data.needs_review_count || 0) + '</div>' +
+          '<div style="color:var(--dim);font-size:11px;margin-top:2px">Flagged with n during audit</div>' +
+        '</div>' +
+        '<div>' +
+          '<div style="color:var(--gray);font-size:11px;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Corpus changes</div>' +
+          '<div style="font-size:20px;font-weight:700;color:var(--accent);font-family:var(--mono)">' + (data.corpus_changes_count || 0) + '</div>' +
+          '<div style="color:var(--dim);font-size:11px;margin-top:2px">Verdicts 2, 4, 5 with mutations</div>' +
+        '</div>' +
+        '<div>' +
+          '<div style="color:var(--gray);font-size:11px;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Batch ID</div>' +
+          '<div style="font-size:11px;color:var(--body);font-family:var(--mono);overflow:hidden;text-overflow:ellipsis;">' + _esc((data.training_job_id || '—').slice(0, 14)) + '&hellip;</div>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+}
+
+async function loadReport() {
+  try {
+    // v5.89.45: forward training_job_id from URL params so batch switcher works
+    const urlParams = new URLSearchParams(window.location.search);
+    const jobParam = urlParams.get('training_job_id') || '';
+    const apiUrl = '/api/admin/labels/audit/report-data?admin_key=' + encodeURIComponent(ADMIN_KEY) +
+                   (jobParam ? '&training_job_id=' + encodeURIComponent(jobParam) : '');
+    const r = await fetch(apiUrl);
+    const d = await r.json();
+    if (!d.ok) throw new Error(d.error || 'failed');
+    if (!d.has_data) {
+      document.getElementById('main').innerHTML =
+        '<div class="empty"><div class="ico">⏳</div><h2>No audit data yet</h2>' +
+        '<p>Run a training cycle to populate the audit queue. Then go audit some findings.</p>' +
+        '<p style="margin-top:16px;font-size:13px">' + _esc(d.message || '') + '</p></div>';
+      document.getElementById('header-progress').textContent = '—';
+      return;
+    }
+    renderReport(d);
+  } catch (e) {
+    document.getElementById('main').innerHTML =
+      '<p style="color:var(--red);text-align:center;padding:40px 0">Failed to load report: ' + _esc(e.message) + '</p>';
+  }
+}
+
+loadReport();
+</script>
+</body>
+</html>

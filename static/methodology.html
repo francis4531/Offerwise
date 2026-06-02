@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>The OfferWise methodology — How we analyze California disclosures</title>
+<meta name="description" content="The data, the models, and the methodology behind OfferWise. 257,000+ labeled findings, 13 active municipal portals, and a contradiction model trained on 1,324 disclosure-vs-inspection pairs.">
+<link rel="canonical" href="https://www.getofferwise.ai/methodology">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://www.getofferwise.ai/methodology">
+<meta property="og:title" content="The OfferWise methodology — How we analyze California disclosures">
+<meta property="og:description" content="The data, the models, and the methodology behind OfferWise. 257,000+ labeled findings, 13 active municipal portals, and a contradiction model trained on 1,324 disclosure-vs-inspection pairs.">
+<meta property="og:image" content="https://www.getofferwise.ai/logo-1024.svg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="The OfferWise methodology — How we analyze California disclosures">
+<meta name="twitter:description" content="The data, the models, and the methodology behind OfferWise.">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0b1220; --bg2:#111827; --bg3:#1f2937;
+    --line:#1f2937; --line2:#374151;
+    --txt:#f3f4f6; --body:#cbd5e1; --gray:#9ca3af; --dim:#6b7280;
+    --accent:#f97316; --gold:#f59e0b; --green:#22c55e;
+    --gl:#fde68a;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:'DM Sans',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--txt);font-size:16px;line-height:1.65;-webkit-font-smoothing:antialiased;}
+  a{color:var(--gold);text-decoration:none;border-bottom:1px solid rgba(245,158,11,.3);}
+  a:hover{color:var(--accent);border-bottom-color:var(--accent);}
+
+  .topbar{position:sticky;top:0;z-index:50;background:rgba(11,18,32,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding:14px 22px;display:flex;justify-content:space-between;align-items:center;}
+  .brand{font-weight:800;letter-spacing:-.01em;font-size:15px;}
+  .brand a{color:var(--txt);border:0;}
+  .brand .ai{color:var(--accent);}
+  .topnav{display:flex;gap:18px;font-size:13px;color:var(--gray);}
+  .topnav a{color:var(--gray);border:0;}
+  .topnav a:hover{color:var(--txt);}
+  @media (max-width:640px){.topnav{display:none;}}
+
+  .hero{max-width:880px;margin:0 auto;padding:64px 22px 48px;}
+  .eyebrow{font-size:.7rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);margin-bottom:14px;}
+  h1{font-size:clamp(2rem,5.5vw,3.4rem);font-weight:800;line-height:1.05;letter-spacing:-.025em;margin:0 0 22px;}
+  h1 span{color:var(--accent);}
+  .lead{font-size:1.15rem;color:var(--body);max-width:680px;line-height:1.7;margin:0;}
+
+  .section{max-width:880px;margin:0 auto;padding:36px 22px;border-top:1px solid var(--line);}
+  .sec-num{font-size:.7rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);margin-bottom:10px;display:flex;align-items:center;gap:10px;}
+  .sec-num::before{content:"";width:24px;height:1px;background:var(--accent);}
+  .disp{font-size:clamp(1.6rem,3.5vw,2.2rem);font-weight:700;line-height:1.15;letter-spacing:-.015em;margin:0 0 18px;}
+  .disp span{color:var(--accent);}
+
+  .body p{margin:0 0 14px;color:var(--body);}
+  .body p:last-child{margin-bottom:0;}
+  .body strong{color:var(--txt);}
+  .body em{color:var(--gl);font-style:normal;}
+  .body ul{margin:0 0 14px;padding-left:20px;}
+  .body li{margin-bottom:10px;color:var(--body);}
+  .body li::marker{color:var(--accent);}
+  .body li strong{color:var(--txt);}
+
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin:20px 0 6px;}
+  .stat{background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:18px 16px;}
+  .stat .n{font-size:1.8rem;font-weight:800;color:var(--accent);letter-spacing:-.02em;line-height:1;}
+  .stat .l{font-size:.78rem;color:var(--gray);margin-top:6px;letter-spacing:.02em;}
+
+  .callout{background:var(--bg2);border:1px solid var(--line2);border-left:3px solid var(--accent);border-radius:0 8px 8px 0;padding:16px 20px;margin:18px 0;}
+  .callout p{margin:0;color:var(--body);font-size:.95rem;}
+
+  .cta{max-width:880px;margin:30px auto 60px;padding:36px 22px;text-align:center;border-top:1px solid var(--line);}
+  .cta .h{font-size:1.4rem;font-weight:700;margin:0 0 10px;color:var(--txt);}
+  .cta .p{color:var(--gray);margin:0 0 22px;font-size:.95rem;}
+  .btn{display:inline-block;background:var(--accent);color:#fff;font-weight:700;padding:14px 28px;border-radius:999px;border:0;font-size:1rem;letter-spacing:.01em;}
+  .btn:hover{background:var(--gold);}
+
+  footer{max-width:880px;margin:0 auto;padding:24px 22px 60px;border-top:1px solid var(--line);font-size:.85rem;color:var(--dim);display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;}
+  footer a{color:var(--gray);border:0;}
+  footer a:hover{color:var(--txt);}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand"><a href="/">OfferWise<span class="ai">™</span></a></div>
+  <div class="topnav">
+    <a href="/about">About</a>
+    <a href="/methodology">Methodology</a>
+    <a href="/pricing">Pricing</a>
+    <a href="/login">Sign in</a>
+  </div>
+</div>
+
+<section class="hero">
+  <div class="eyebrow">Methodology</div>
+  <h1>How we turn 50 pages of paperwork into <span>an offer strategy</span>.</h1>
+  <p class="lead">OfferWise is built on a proprietary ML pipeline trained on real California disclosure findings. Here's what's in the corpus, how the models work, and what they can and can't do.</p>
+</section>
+
+<section class="section">
+  <div class="sec-num">01 — The corpus</div>
+  <h2 class="disp">What we trained on.</h2>
+  <div class="body">
+    <p>Every prediction OfferWise makes leans on a labeled training corpus. We didn't scrape a generic real estate dataset — we built ours from the ground up, focused on the California buyer.</p>
+
+    <div class="stats">
+      <div class="stat"><div class="n">257,804</div><div class="l">Labeled findings</div></div>
+      <div class="stat"><div class="n">1,324</div><div class="l">Contradiction pairs</div></div>
+      <div class="stat"><div class="n">13</div><div class="l">Active municipal portals</div></div>
+      <div class="stat"><div class="n">40</div><div class="l">Finding-category baskets</div></div>
+    </div>
+
+    <p>The corpus combines three data sources:</p>
+
+    <ul>
+      <li><strong>Public-records crawls</strong> from 13 California municipal portals — permit history, code violations, NFIP flood claims, tax records. Refreshed on a rolling schedule.</li>
+      <li><strong>Inspection report findings</strong> labeled with category, severity, and repair cost ranges. These are extracted text findings — not scraped from third-party report providers — annotated against a fixed schema of 40 finding-category baskets.</li>
+      <li><strong>Disclosure-vs-inspection contradiction pairs</strong> — 1,324 hand-labeled cases where what the seller disclosed and what the inspector found don't agree. This is the dataset behind our contradiction model.</li>
+    </ul>
+
+    <div class="callout">
+      <p>We do not buy or scrape inspection reports from any third-party provider. Findings in the corpus come from publicly available documents, code-enforcement records, and user-uploaded reports analyzed with the user's permission.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="sec-num">02 — The models</div>
+  <h2 class="disp">What runs on every analysis.</h2>
+  <div class="body">
+    <p>An OfferWise analysis is not a single model. It's a pipeline of specialized models, each doing one job well. The result is then synthesized into the buyer report.</p>
+
+    <ul>
+      <li><strong>Category classifier.</strong> Sorts each finding into one of 40 baskets (roof, foundation, plumbing, electrical, etc.). Built on sentence-transformer embeddings + XGBoost.</li>
+      <li><strong>Severity ranker.</strong> Predicts how serious each finding is on a calibrated scale, accounting for inspector phrasing patterns (inspectors tend to underrate or overrate consistently).</li>
+      <li><strong>Repair-cost estimator.</strong> Predicts the dollar cost range for the finding, calibrated by region and home age. Outputs confidence intervals, not point estimates.</li>
+      <li><strong>Contradiction detector.</strong> Compares every disclosure claim against every inspection finding to surface mismatches.</li>
+      <li><strong>Public-records cross-reference.</strong> Pulls permits, code violations, NFIP claims, and assessor records for the property and matches them against the inspection and disclosure.</li>
+      <li><strong>Property similarity profile.</strong> Encodes the property as a high-dimensional vector so the system can find comparable homes in the corpus and ground predictions in actual comparable data.</li>
+    </ul>
+
+    <p>Each model is trained separately and evaluated against held-out portions of the corpus. We don't ask a single language model to do everything — and we don't trust a single language model with any of it.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="sec-num">03 — What we measure</div>
+  <h2 class="disp">Honest accuracy numbers.</h2>
+  <div class="body">
+    <p>These are the numbers from our most recent training cycle, measured on held-out data:</p>
+
+    <div class="stats">
+      <div class="stat"><div class="n">85.8%</div><div class="l">Category accuracy</div></div>
+      <div class="stat"><div class="n">0.82</div><div class="l">Cost R² (MAE $1,915)</div></div>
+      <div class="stat"><div class="n">97.1%</div><div class="l">Contradiction precision</div></div>
+      <div class="stat"><div class="n">65.4%</div><div class="l">Severity accuracy</div></div>
+    </div>
+
+    <p>The numbers we are most proud of, and the numbers we are honest about:</p>
+
+    <ul>
+      <li><strong>Category accuracy at 85.8%</strong> means roughly 1 in 7 findings ends up in the wrong category at first pass. We surface these to the buyer with category-confidence indicators so they know which findings to double-check.</li>
+      <li><strong>Cost estimation MAE of $1,915</strong> means our typical repair-cost estimate is within ~$2,000 of the true value. For a $30,000 roof, that's tight. For a $500 caulking fix, the error band is proportionally larger.</li>
+      <li><strong>Contradiction precision at 97.1%</strong> means when our model flags a disclosure-vs-inspection mismatch, it is almost always real. We tune this model to favor precision over recall — we'd rather miss some real contradictions than cry wolf.</li>
+      <li><strong>Severity accuracy at 65.4%</strong> is our weakest model. Severity is genuinely subjective — a "moderate" foundation crack means different things to different inspectors. We use this as a sanity check rather than a primary input to the offer math.</li>
+    </ul>
+
+    <div class="callout">
+      <p>We retrain the corpus on a rolling schedule. As more properties are analyzed, the training data grows and accuracy compounds. The numbers above reflect the most recent training cycle.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="sec-num">04 — What we don't do</div>
+  <h2 class="disp">Honest limitations.</h2>
+  <div class="body">
+    <p>OfferWise is a strong tool for what it does. We try to be clear about what it doesn't do.</p>
+
+    <ul>
+      <li><strong>We are not licensed inspectors.</strong> We don't replace a physical home inspection. We make the report you already have more useful.</li>
+      <li><strong>We are not lawyers, agents, or contractors.</strong> Our cost estimates and findings are inputs to your decision, not legal advice or contractor quotes.</li>
+      <li><strong>Vision-based image analysis is partial.</strong> When inspection PDFs require visual extraction (scanned reports, image-heavy documents), our system describes embedded photos in detail. Most modern text-extractable PDFs bypass this path — image analysis on every report is on the roadmap, not the current default.</li>
+      <li><strong>We are strongest in California.</strong> The corpus is California-focused. Out-of-state analyses run on the same models but with less locality-specific training data. National coverage is growing.</li>
+      <li><strong>Predictions, not certainty.</strong> Every output is a probability or a range. We try to be calibrated, not confident. Use our reports as the start of your due diligence, not the end of it.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="cta">
+  <div class="h">Run an analysis on a real property.</div>
+  <div class="p">Free to try. No credit card required.</div>
+  <a class="btn" href="/login?signup">Analyze a Property →</a>
+</section>
+
+<footer>
+  <div>© 2026 OfferWise™ · <a href="/terms">Terms</a> · <a href="/privacy">Privacy</a></div>
+  <div><a href="/about">About</a> · <a href="/pricing">Pricing</a> · <a href="/contact">Contact</a></div>
+</footer>
+
+</body>
+</html>

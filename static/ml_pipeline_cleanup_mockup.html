@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>ML Pipeline cleanup — scope mockups (v5.89.53)</title>
+<style>
+  :root{
+    --bg:#0b1220; --bg2:#111827; --bg3:#1f2937;
+    --line:#1f2937; --line2:#374151;
+    --txt:#f3f4f6; --body:#cbd5e1; --gray:#9ca3af; --dim:#6b7280;
+    --accent:#f97316; --gold:#f59e0b;
+    --green:#22c55e; --red:#ef4444; --amber:#fcd34d; --blue:#60a5fa;
+    --purple:#a78bfa;
+    --mono:ui-monospace,SFMono-Regular,Menlo,monospace;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--txt);font-size:13px;line-height:1.5;padding:24px 32px;}
+  h1{margin:0 0 6px;font-size:22px;font-weight:700;}
+  .sub{color:var(--gray);font-size:13px;margin-bottom:24px;}
+
+  .three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:22px;}
+
+  .scope{background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:18px;}
+  .scope h2{margin:0 0 4px;font-size:14px;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);font-weight:700;}
+  .scope .tagline{font-size:11px;color:var(--gray);margin-bottom:16px;line-height:1.5;}
+
+  /* mock pipeline shell */
+  .mlsec{background:var(--bg3);border:1px solid var(--line);border-radius:8px;padding:12px 14px;margin-bottom:10px;}
+  .mlsec-num{color:var(--purple);font-weight:700;margin-right:6px;}
+  .mlsec-title{font-size:13px;font-weight:700;margin-bottom:6px;}
+  .mlsec-desc{font-size:11px;color:var(--gray);}
+
+  .primary-btn{
+    margin-top:8px;padding:10px 14px;background:linear-gradient(90deg,#059669,#047857);
+    color:white;border-radius:5px;font-size:12px;font-weight:700;display:inline-block;
+  }
+  .primary-btn.train{background:linear-gradient(90deg,var(--accent),var(--gold));}
+  .primary-btn.full{width:100%;text-align:center;}
+
+  /* advanced drawer */
+  .advanced{background:#0f172a;border:1px dashed var(--line2);border-radius:6px;padding:12px;margin-top:12px;}
+  .advanced .head{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--dim);margin-bottom:10px;}
+
+  /* sub-cards */
+  .card{background:var(--bg2);border:1px solid var(--line);border-radius:5px;padding:7px 11px;margin-bottom:6px;font-size:12px;display:flex;align-items:center;justify-content:space-between;gap:8px;}
+  .card .title{font-weight:600;}
+  .card .meta{font-size:10px;color:var(--gray);font-family:var(--mono);}
+
+  .card.removed{opacity:.32;text-decoration:line-through;background:rgba(239,68,68,.06);border-color:rgba(239,68,68,.2);}
+  .card.moved{background:rgba(96,165,250,.06);border-color:rgba(96,165,250,.25);}
+  .card.moved .meta{color:var(--blue);font-weight:600;}
+
+  .moved-target{background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.25);border-radius:5px;padding:7px 11px;font-size:11px;color:var(--green);margin-top:8px;display:flex;justify-content:space-between;align-items:center;}
+
+  .delta{margin-top:14px;padding:10px 12px;background:rgba(252,211,77,.05);border-left:3px solid var(--amber);font-size:11px;line-height:1.55;border-radius:0 5px 5px 0;}
+  .delta b{color:var(--txt);}
+
+  /* sidebar mockup */
+  .sidebar{background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:22px;}
+  .sidebar h3{margin:0 0 8px;font-size:12px;color:var(--gray);letter-spacing:.06em;text-transform:uppercase;font-weight:700;}
+  .sb-item{padding:5px 10px;font-size:12px;color:var(--body);}
+  .sb-item.active{background:rgba(249,115,22,.1);color:var(--accent);border-radius:4px;}
+
+  .legend{display:flex;gap:18px;font-size:11px;color:var(--gray);margin-bottom:18px;flex-wrap:wrap;}
+  .swatch{display:inline-block;width:10px;height:10px;border-radius:2px;vertical-align:middle;margin-right:5px;}
+  .swatch.red{background:rgba(239,68,68,.5);}
+  .swatch.blue{background:rgba(96,165,250,.5);}
+  .swatch.green{background:rgba(34,197,94,.5);}
+</style>
+</head>
+<body>
+
+<h1>ML Pipeline cleanup — what each scope changes</h1>
+<div class="sub">Current state on left, scope A in middle, scope B on right. Items struck through are removed; blue items are relocated.</div>
+
+<div class="legend">
+  <span><span class="swatch red"></span> Removed</span>
+  <span><span class="swatch blue"></span> Moved away from this page</span>
+  <span><span class="swatch green"></span> Arrives here from somewhere else</span>
+</div>
+
+<div class="three-col">
+
+  <!-- CURRENT -->
+  <div class="scope">
+    <h2>Current (v5.89.52)</h2>
+    <div class="tagline">Today's layout. 3 top sections + 11-card Advanced drawer.</div>
+
+    <div class="mlsec">
+      <div class="mlsec-title"><span class="mlsec-num">1.</span> What we have</div>
+      <div class="mlsec-desc">Live corpus stats · last training · current model state</div>
+    </div>
+
+    <div class="mlsec">
+      <div class="mlsec-title"><span class="mlsec-num">2.</span> Get more data</div>
+      <div class="mlsec-desc">Two primary actions: crawl + relabel</div>
+      <div class="primary-btn full">🌍 Crawl All Active Cities</div>
+      <div style="margin-top:6px;font-size:10px;color:var(--gray)">Re-label moved to <span style="color:var(--accent)">🏷️ Labeling</span> (v5.89.51)</div>
+    </div>
+
+    <div class="mlsec">
+      <div class="mlsec-title"><span class="mlsec-num">3.</span> Train and monitor</div>
+      <div class="mlsec-desc">Use the data — rebuild models, track outcomes</div>
+      <div class="primary-btn train full">🧠 Train Now</div>
+    </div>
+
+    <div class="advanced">
+      <div class="head">▶ Advanced — 11 sub-cards</div>
+      <div class="card"><span class="title">📊 Data Sources</span><span class="meta">corpus by source_version</span></div>
+      <div class="card"><span class="title">🔬 Corpus Composition</span><span class="meta">category × severity</span></div>
+      <div class="card"><span class="title">📸 Metrics Snapshots</span><span class="meta">before/after corpus state</span></div>
+      <div class="card"><span class="title">🏛 Per-City Crawl Tools</span><span class="meta">verify · discover · single city</span></div>
+      <div class="card"><span class="title">🔄 Filtered Re-label</span><span class="meta">substring-scoped relabel</span></div>
+      <div class="card"><span class="title">🌎 State-Diverse Synthesis</span><span class="meta">synthetic data via Haiku</span></div>
+      <div class="card"><span class="title">📈 Training History</span><span class="meta">past MLTrainingRun rows</span></div>
+      <div class="card"><span class="title">🩺 Diagnostics</span><span class="meta">integrity checks</span></div>
+      <div class="card"><span class="title">💾 Backups</span><span class="meta">DB snapshots</span></div>
+      <div class="card"><span class="title">🤖 Agent Activity</span><span class="meta">nightly 3am · LIVE</span></div>
+      <div class="card"><span class="title">🧪 Class Augmentation</span><span class="meta">manual aug button</span></div>
+    </div>
+  </div>
+
+  <!-- SCOPE A -->
+  <div class="scope">
+    <h2>Scope A — remove only</h2>
+    <div class="tagline">Drop 2 redundant cards. No relocations. Lowest risk.</div>
+
+    <div class="mlsec">
+      <div class="mlsec-title"><span class="mlsec-num">1.</span> What we have</div>
+      <div class="mlsec-desc">Live corpus stats · last training · current model state</div>
+    </div>
+
+    <div class="mlsec">
+      <div class="mlsec-title"><span class="mlsec-num">2.</span> Get more data</div>
+      <div class="mlsec-desc">Two primary actions: crawl + relabel</div>
+      <div class="primary-btn full">🌍 Crawl All Active Cities</div>
+      <div style="margin-top:6px;font-size:10px;color:var(--gray)">Re-label moved to <span style="color:var(--accent)">🏷️ Labeling</span></div>
+    </div>
+
+    <div class="mlsec">
+      <div class="mlsec-title"><span class="mlsec-num">3.</span> Train and monitor</div>
+      <div class="mlsec-desc">Use the data — rebuild models, track outcomes</div>
+      <div class="primary-btn train full">🧠 Train Now</div>
+    </div>
+
+    <div class="advanced">
+      <div class="head">▶ Advanced — 9 sub-cards (was 11)</div>
+      <div class="card"><span class="title">📊 Data Sources</span><span class="meta">corpus by source_version</span></div>
+      <div class="card"><span class="title">🔬 Corpus Composition</span><span class="meta">category × severity</span></div>
+      <div class="card"><span class="title">📸 Metrics Snapshots</span><span class="meta">before/after corpus state</span></div>
+      <div class="card"><span class="title">🏛 Per-City Crawl Tools</span><span class="meta">verify · discover · single city</span></div>
+      <div class="card removed"><span class="title">🔄 Filtered Re-label</span><span class="meta">redundant w/ /admin/labels/initial</span></div>
+      <div class="card"><span class="title">🌎 State-Diverse Synthesis</span><span class="meta">synthetic data via Haiku</span></div>
+      <div class="card"><span class="title">📈 Training History</span><span class="meta">past MLTrainingRun rows</span></div>
+      <div class="card"><span class="title">🩺 Diagnostics</span><span class="meta">integrity checks</span></div>
+      <div class="card"><span class="title">💾 Backups</span><span class="meta">DB snapshots</span></div>
+      <div class="card"><span class="title">🤖 Agent Activity</span><span class="meta">nightly 3am · LIVE</span></div>
+      <div class="card removed"><span class="title">🧪 Class Augmentation</span><span class="meta">dup of training auto-aug</span></div>
+    </div>
+
+    <div class="delta">
+      <b>Δ from current:</b><br>
+      • Removes Filtered Re-label (already on Labeling hub)<br>
+      • Removes Class Augmentation (training auto-aug does it)<br>
+      • Drawer goes from 11 → 9 cards
+    </div>
+  </div>
+
+  <!-- SCOPE B -->
+  <div class="scope">
+    <h2>Scope B — remove + move</h2>
+    <div class="tagline">Drop 2 redundant, move 2 to better homes. More cleanup, more invasive.</div>
+
+    <div class="mlsec">
+      <div class="mlsec-title"><span class="mlsec-num">1.</span> What we have</div>
+      <div class="mlsec-desc">Live corpus stats · last training · current model state</div>
+    </div>
+
+    <div class="mlsec">
+      <div class="mlsec-title"><span class="mlsec-num">2.</span> Get more data</div>
+      <div class="mlsec-desc">Two primary actions: crawl + relabel</div>
+      <div class="primary-btn full">🌍 Crawl All Active Cities</div>
+    </div>
+
+    <div class="mlsec">
+      <div class="mlsec-title"><span class="mlsec-num">3.</span> Train and monitor</div>
+      <div class="mlsec-desc">Train Now + Training History inline</div>
+      <div class="primary-btn train full">🧠 Train Now</div>
+      <div class="moved-target">
+        <span><b>📈 Training History</b> arrives here</span>
+        <span style="font-family:var(--mono);font-size:10px">from Advanced</span>
+      </div>
+    </div>
+
+    <div class="advanced">
+      <div class="head">▶ Advanced — 7 sub-cards (was 11)</div>
+      <div class="card"><span class="title">📊 Data Sources</span><span class="meta">corpus by source_version</span></div>
+      <div class="card"><span class="title">🔬 Corpus Composition</span><span class="meta">category × severity</span></div>
+      <div class="card moved"><span class="title">📸 Metrics Snapshots</span><span class="meta">→ moved to /admin/relabel</span></div>
+      <div class="card"><span class="title">🏛 Per-City Crawl Tools</span><span class="meta">verify · discover · single city</span></div>
+      <div class="card removed"><span class="title">🔄 Filtered Re-label</span><span class="meta">redundant</span></div>
+      <div class="card"><span class="title">🌎 State-Diverse Synthesis</span><span class="meta">synthetic data via Haiku</span></div>
+      <div class="card moved"><span class="title">📈 Training History</span><span class="meta">→ moved to ML Training</span></div>
+      <div class="card"><span class="title">🩺 Diagnostics</span><span class="meta">integrity checks</span></div>
+      <div class="card"><span class="title">💾 Backups</span><span class="meta">DB snapshots</span></div>
+      <div class="card"><span class="title">🤖 Agent Activity</span><span class="meta">nightly 3am · LIVE</span></div>
+      <div class="card removed"><span class="title">🧪 Class Augmentation</span><span class="meta">dup of training auto-aug</span></div>
+    </div>
+
+    <div class="delta">
+      <b>Δ from Scope A:</b><br>
+      • Training History moves out of Advanced, lives on the ML Training page directly (where you'd naturally look for it)<br>
+      • Metrics Snapshots moves to /admin/relabel (where snapshots before/after a relabel are most useful)<br>
+      • Drawer goes from 11 → 7 cards<br>
+      • <b>More invasive</b>: each move requires JS state coordination + page-load timing
+    </div>
+  </div>
+
+</div>
+
+<div style="margin-top:32px;padding:14px 18px;background:var(--bg2);border:1px solid var(--line);border-radius:8px;color:var(--gray);font-size:12px;">
+  <b style="color:var(--txt)">Honest read:</b> Scope A is safe and quick (~15 min after pitch.html + architecture.html). Scope B is more thorough but slower (~45 min) and risks new bugs in the moved-card endpoints. <b style="color:var(--txt)">Since you said "stop the labeling/training cycles", the relocations don't urgently change daily behavior</b> — Training History and Metrics Snapshots still work where they are. The relocations are quality-of-life, not correctness.
+</div>
+
+</body>
+</html>

@@ -1,0 +1,2695 @@
+interactions:
+- request:
+    body: null
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate, br
+      Connection:
+      - keep-alive
+      User-Agent:
+      - python-requests/2.31.0
+      x-api-key:
+      - <REDACTED>
+    method: GET
+    uri: https://api.rentcast.io/v1/avm/value?address=456+Clean+Disclosure+St%2C+Oakland%2C+CA&compCount=10&daysOld=180&maxRadius=5
+  response:
+    body:
+      string: '{"price":382000,"priceRangeLow":282000,"priceRangeHigh":483000,"latitude":37.8043514,"longitude":-122.2711639,"subjectProperty":{"latitude":37.8043514,"longitude":-122.2711639},"comparables":[{"id":"330-13th-St,-Unit-1A,-Oakland,-CA-94612","formattedAddress":"330
+        13th St, Unit 1A, Oakland, CA 94612","addressLine1":"330 13th St","addressLine2":"Unit
+        1A","city":"Oakland","state":"CA","stateFips":"06","zipCode":"94612","county":"Alameda","countyFips":"001","latitude":37.802691,"longitude":-122.268593,"propertyType":"Condo","bedrooms":1,"bathrooms":1.5,"squareFootage":1296,"lotSize":4959,"yearBuilt":1914,"status":"Active","price":449000,"listingType":"Standard","listedDate":"2026-04-09T00:00:00.000Z","removedDate":null,"lastSeenDate":"2026-05-10T09:09:33.200Z","daysOnMarket":32,"distance":0.1815,"daysOld":1,"correlation":0.9909},{"id":"330-13th-St,-Unit-5C,-Oakland,-CA-94612","formattedAddress":"330
+        13th St, Unit 5C, Oakland, CA 94612","addressLine1":"330 13th St","addressLine2":"Unit
+        5C","city":"Oakland","state":"CA","stateFips":"06","zipCode":"94612","county":"Alameda","countyFips":"001","latitude":37.802691,"longitude":-122.268593,"propertyType":"Condo","bedrooms":1,"bathrooms":1.5,"squareFootage":992,"lotSize":4959,"yearBuilt":1914,"status":"Inactive","price":450000,"listingType":"Standard","listedDate":"2026-01-15T00:00:00.000Z","removedDate":"2026-02-25T00:00:00.000Z","lastSeenDate":"2026-02-24T08:59:16.786Z","daysOnMarket":41,"distance":0.1815,"daysOld":76,"correlation":0.9902},{"id":"989-Franklin-St,-Apt-621,-Oakland,-CA-94607","formattedAddress":"989
+        Franklin St, Apt 621, Oakland, CA 94607","addressLine1":"989 Franklin St","addressLine2":"Apt
+        621","city":"Oakland","state":"CA","stateFips":"06","zipCode":"94607","county":"Alameda","countyFips":"001","latitude":37.801157,"longitude":-122.271988,"propertyType":"Condo","bedrooms":1,"bathrooms":1,"squareFootage":524,"lotSize":1899,"yearBuilt":2004,"status":"Active","price":299000,"listingType":"Standard","listedDate":"2026-03-18T00:00:00.000Z","removedDate":null,"lastSeenDate":"2026-05-10T09:38:24.195Z","daysOnMarket":54,"distance":0.2255,"daysOld":1,"correlation":0.9887},{"id":"1755-Broadway,-Apt-45,-Oakland,-CA-94612","formattedAddress":"1755
+        Broadway, Apt 45, Oakland, CA 94612","addressLine1":"1755 Broadway","addressLine2":"Apt
+        45","city":"Oakland","state":"CA","stateFips":"06","zipCode":"94612","county":"Alameda","countyFips":"001","latitude":37.807564,"longitude":-122.269677,"propertyType":"Condo","bedrooms":2,"bathrooms":2,"squareFootage":1241,"lotSize":8059,"yearBuilt":1920,"status":"Inactive","price":600000,"listingType":"Standard","listedDate":"2026-02-27T00:00:00.000Z","removedDate":"2026-03-20T00:00:00.000Z","lastSeenDate":"2026-03-19T08:22:44.994Z","daysOnMarket":21,"distance":0.2366,"daysOld":53,"correlation":0.9877},{"id":"1511-Jefferson-St,-Unit-109,-Oakland,-CA-94612","formattedAddress":"1511
+        Jefferson St, Unit 109, Oakland, CA 94612","addressLine1":"1511 Jefferson
+        St","addressLine2":"Unit 109","city":"Oakland","state":"CA","stateFips":"06","zipCode":"94612","county":"Alameda","countyFips":"001","latitude":37.806866,"longitude":-122.274516,"propertyType":"Condo","bedrooms":1,"bathrooms":1,"squareFootage":861,"yearBuilt":2007,"status":"Active","price":389888,"listingType":"Standard","listedDate":"2026-03-05T00:00:00.000Z","removedDate":null,"lastSeenDate":"2026-05-10T09:46:43.965Z","daysOnMarket":67,"distance":0.2526,"daysOld":1,"correlation":0.9874},{"id":"1511-Jefferson-St,-Unit-313,-Oakland,-CA-94612","formattedAddress":"1511
+        Jefferson St, Unit 313, Oakland, CA 94612","addressLine1":"1511 Jefferson
+        St","addressLine2":"Unit 313","city":"Oakland","state":"CA","stateFips":"06","zipCode":"94612","county":"Alameda","countyFips":"001","latitude":37.806866,"longitude":-122.274516,"propertyType":"Condo","bedrooms":1,"bathrooms":1,"squareFootage":752,"lotSize":24738,"yearBuilt":2007,"status":"Active","price":398000,"listingType":"Standard","listedDate":"2026-04-10T00:00:00.000Z","removedDate":null,"lastSeenDate":"2026-05-10T09:09:33.172Z","daysOnMarket":31,"distance":0.2526,"daysOld":1,"correlation":0.9874},{"id":"988-Franklin-St,-Apt-601,-Oakland,-CA-94607","formattedAddress":"988
+        Franklin St, Apt 601, Oakland, CA 94607","addressLine1":"988 Franklin St","addressLine2":"Apt
+        601","city":"Oakland","state":"CA","stateFips":"06","zipCode":"94607","county":"Alameda","countyFips":"001","latitude":37.800675,"longitude":-122.271225,"propertyType":"Condo","bedrooms":2,"bathrooms":2,"squareFootage":750,"lotSize":98010,"yearBuilt":1993,"status":"Active","price":425000,"listingType":"Standard","listedDate":"2026-03-14T00:00:00.000Z","removedDate":null,"lastSeenDate":"2026-05-10T09:46:43.883Z","daysOnMarket":58,"distance":0.2543,"daysOld":1,"correlation":0.9873},{"id":"989-Webster-St,-Apt-450,-Oakland,-CA-94607","formattedAddress":"989
+        Webster St, Apt 450, Oakland, CA 94607","addressLine1":"989 Webster St","addressLine2":"Apt
+        450","city":"Oakland","state":"CA","stateFips":"06","zipCode":"94607","county":"Alameda","countyFips":"001","latitude":37.800675,"longitude":-122.271225,"propertyType":"Condo","bedrooms":2,"bathrooms":2,"squareFootage":821,"lotSize":98010,"yearBuilt":1993,"status":"Inactive","price":325000,"listingType":"Standard","listedDate":"2026-02-25T00:00:00.000Z","removedDate":"2026-04-26T00:00:00.000Z","lastSeenDate":"2026-04-25T09:40:40.315Z","daysOnMarket":60,"distance":0.2543,"daysOld":16,"correlation":0.9871},{"id":"989-Webster-St,-Apt-443,-Oakland,-CA-94607","formattedAddress":"989
+        Webster St, Apt 443, Oakland, CA 94607","addressLine1":"989 Webster St","addressLine2":"Apt
+        443","city":"Oakland","state":"CA","stateFips":"06","zipCode":"94607","county":"Alameda","countyFips":"001","latitude":37.800674,"longitude":-122.271225,"propertyType":"Condo","bedrooms":1,"bathrooms":1,"squareFootage":559,"yearBuilt":1993,"status":"Inactive","price":199000,"listingType":"Standard","listedDate":"2026-03-12T00:00:00.000Z","removedDate":"2026-04-21T00:00:00.000Z","lastSeenDate":"2026-04-20T10:24:38.099Z","daysOnMarket":40,"distance":0.2544,"daysOld":21,"correlation":0.9871},{"id":"988-Franklin-St,-Apt-707,-Oakland,-CA-94607","formattedAddress":"988
+        Franklin St, Apt 707, Oakland, CA 94607","addressLine1":"988 Franklin St","addressLine2":"Apt
+        707","city":"Oakland","state":"CA","stateFips":"06","zipCode":"94607","county":"Alameda","countyFips":"001","latitude":37.800675,"longitude":-122.271225,"propertyType":"Condo","bedrooms":1,"bathrooms":1,"squareFootage":615,"lotSize":98010,"yearBuilt":1993,"status":"Inactive","price":288000,"listingType":"Standard","listedDate":"2026-02-12T00:00:00.000Z","removedDate":"2026-04-11T00:00:00.000Z","lastSeenDate":"2026-04-10T09:06:42.821Z","daysOnMarket":58,"distance":0.2543,"daysOld":31,"correlation":0.987}]}'
+    headers:
+      Content-Length:
+      - '6816'
+      access-control-allow-methods:
+      - GET
+      access-control-allow-origin:
+      - '*'
+      cache-control:
+      - public, max-age=0
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Sun, 10 May 2026 21:51:09 GMT
+      server:
+      - Google Frontend
+      x-cloud-trace-context:
+      - 7e1a5ac2d2ef8e4b4f1371021a205e22
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate, br
+      Connection:
+      - keep-alive
+      User-Agent:
+      - OfferWise/1.0 Property Research (contact@getofferwise.ai)
+    method: GET
+    uri: https://geocoding.geo.census.gov/geocoder/geographies/onelineaddress?address=456+Clean+Disclosure+St%2C+Oakland%2C+CA&benchmark=Public_AR_Current&format=json&vintage=Current_Current
+  response:
+    body:
+      string: '{"result":{"input":{"address":{"address":"456 Clean Disclosure St,
+        Oakland, CA"},"vintage":{"isDefault":true,"id":"4","vintageName":"Current_Current","vintageDescription":"Current
+        Vintage - Current Benchmark"},"benchmark":{"isDefault":true,"benchmarkDescription":"Public
+        Address Ranges - Current Benchmark","id":"4","benchmarkName":"Public_AR_Current"}},"addressMatches":[]}}'
+    headers:
+      Cache-Control:
+      - private, no-store
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '375'
+      Content-Type:
+      - application/json
+      Date:
+      - Sun, 10 May 2026 21:51:09 GMT
+      Set-Cookie:
+      - TS0193e6a1=01283c52a482f72ee2c9546a979ae581f57f0eab1090a217a1897ef5b0734bda7070c1805c7ac5b3df9304fbab5de22a9bf9ab156b;
+        Path=/; Domain=.geocoding.geo.census.gov; Secure; HttpOnly
+      Strict-Transport-Security:
+      - max-age=31536000
+      Vary:
+      - Origin
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - DENY
+      X-XSS-Protection:
+      - 1;mode=block
+    status:
+      code: 200
+      message: ''
+- request:
+    body: null
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate, br
+      Connection:
+      - keep-alive
+      User-Agent:
+      - OfferWise/1.0 (property-research)
+      x-api-key:
+      - <REDACTED>
+    method: GET
+    uri: https://api.rentcast.io/v1/avm/value?address=456+Clean+Disclosure+St%2C+Oakland%2C+CA&compCount=15&daysOld=180&maxRadius=5
+  response:
+    body:
+      string: '{"price":388000,"priceRangeLow":280000,"priceRangeHigh":496000,"latitude":37.8043514,"longitude":-122.2711639,"subjectProperty":{"latitude":37.8043514,"longitude":-122.2711639},"comparables":[{"id":"330-13th-St,-Unit-1A,-Oakland,-CA-94612","formattedAddress":"330
+        13th St, Unit 1A, Oakland, CA 94612","addressLine1":"330 13th St","addressLine2":"Unit
+        1A","city":"Oakland","state":"CA","stateFips":"06","zipCode":"94612","county":"Alameda","countyFips":"001","latitude":37.802691,"longitude":-122.268593,"propertyType":"Condo","bedrooms":1,"bathrooms":1.5,"squareFootage":1296,"lotSize":4959,"yearBuilt":1914,"status":"Active","price":449000,"listingType":"Standard","listedDate":"2026-04-09T00:00:00.000Z","removedDate":null,"lastSeenDate":"2026-05-10T09:09:33.200Z","daysOnMarket":32,"distance":0.1815,"daysOld":1,"correlation":0.9909},{"id":"330-13th-St,-Unit-5C,-Oakland,-CA-94612","formattedAddress":"330
+        13th St, Unit 5C, Oakland, CA 94612","addressLine1":"330 13th St","addressLine2":"Unit
+        5C","city":"Oakland","state":"CA","stateFips":"06","zipCode":"94612","county":"Alameda","countyFips":"001","latitude":37.802691,"longitude":-122.268593,"propertyType":"Condo","bedrooms":1,"bathrooms":1.5,"squareFootage":992,"lotSize":4959,"yearBuilt":1914,"status":"Inactive","price":450000,"listingType":"Standard","listedDate":"2026-01-15T00:00:00.000Z","removedDate":"2026-02-25T00:00:00.000Z","lastSeenDate":"2026-02-24T08:59:16.786Z","daysOnMarket":41,"distance":0.1815,"daysOld":76,"correlation":0.9902},{"id":"989-Franklin-St,-Apt-621,-Oakland,-CA-94607","formattedAddress":"989
+        Franklin St, Apt 621, Oakland, CA 94607","addressLine1":"989 Franklin St","addressLine2":"Apt
+        621","city":"Oakland","state":"CA","stateFips":"06","zipCode":"94607","county":"Alameda","countyFips":"001","latitude":37.801157,"longitude":-122.271988,"propertyType":"Condo","bedrooms":1,"bathrooms":1,"squareFootage":524,"lotSize":1899,"yearBuilt":2004,"status":"Active","price":299000,"listingType":"Standard","listedDate":"2026-03-18T00:00:00.000Z","removedDate":null,"lastSeenDate":"2026-05-10T09:38:24.195Z","daysOnMarket":54,"distance":0.2255,"daysOld":1,"correlation":0.9887},{"id":"1755-Broadway,-Apt-45,-Oakland,-CA-94612","formattedAddress":"1755
+        Broadway, Apt 45, Oakland, CA 94612","addressLine1":"1755 Broadway","addressLine2":"Apt
+        45","city":"Oakland","state":"CA","stateFips":"06","zipCode":"94612","county":"Alameda","countyFips":"001","latitude":37.807564,"longitude":-122.269677,"propertyType":"Condo","bedrooms":2,"bathrooms":2,"squareFootage":1241,"lotSize":8059,"yearBuilt":1920,"status":"Inactive","price":600000,"listingType":"Standard","listedDate":"2026-02-27T00:00:00.000Z","removedDate":"2026-03-20T00:00:00.000Z","lastSeenDate":"2026-03-19T08:22:44.994Z","daysOnMarket":21,"distance":0.2366,"daysOld":53,"correlation":0.9877},{"id":"1511-Jefferson-St,-Unit-109,-Oakland,-CA-94612","formattedAddress":"1511
+        Jefferson St, Unit 109, Oakland, CA 94612","addressLine1":"1511 Jefferson
+        St","addressLine2":"Unit 109","city":"Oakland","state":"CA","stateFips":"06","zipCode":"94612","county":"Alameda","countyFips":"001","latitude":37.806866,"longitude":-122.274516,"propertyType":"Condo","bedrooms":1,"bathrooms":1,"squareFootage":861,"yearBuilt":2007,"status":"Active","price":389888,"listingType":"Standard","listedDate":"2026-03-05T00:00:00.000Z","removedDate":null,"lastSeenDate":"2026-05-10T09:46:43.965Z","daysOnMarket":67,"distance":0.2526,"daysOld":1,"correlation":0.9874},{"id":"1511-Jefferson-St,-Unit-313,-Oakland,-CA-94612","formattedAddress":"1511
+        Jefferson St, Unit 313, Oakland, CA 94612","addressLine1":"1511 Jefferson
+        St","addressLine2":"Unit 313","city":"Oakland","state":"CA","stateFips":"06","zipCode":"94612","county":"Alameda","countyFips":"001","latitude":37.806866,"longitude":-122.274516,"propertyType":"Condo","bedrooms":1,"bathrooms":1,"squareFootage":752,"lotSize":24738,"yearBuilt":2007,"status":"Active","price":398000,"listingType":"Standard","listedDate":"2026-04-10T00:00:00.000Z","removedDate":null,"lastSeenDate":"2026-05-10T09:09:33.172Z","daysOnMarket":31,"distance":0.2526,"daysOld":1,"correlation":0.9874},{"id":"988-Franklin-St,-Apt-601,-Oakland,-CA-94607","formattedAddress":"988
+        Franklin St, Apt 601, Oakland, CA 94607","addressLine1":"988 Franklin St","addressLine2":"Apt
+        601","city":"Oakland","state":"CA","stateFips":"06","zipCode":"94607","county":"Alameda","countyFips":"001","latitude":37.800675,"longitude":-122.271225,"propertyType":"Condo","bedrooms":2,"bathrooms":2,"squareFootage":750,"lotSize":98010,"yearBuilt":1993,"status":"Active","price":425000,"listingType":"Standard","listedDate":"2026-03-14T00:00:00.000Z","removedDate":null,"lastSeenDate":"2026-05-10T09:46:43.883Z","daysOnMarket":58,"distance":0.2543,"daysOld":1,"correlation":0.9873},{"id":"989-Webster-St,-Apt-450,-Oakland,-CA-94607","formattedAddress":"989
+        Webster St, Apt 450, Oakland, CA 94607","addressLine1":"989 Webster St","addressLine2":"Apt
+        450","city":"Oakland","state":"CA","stateFips":"06","zipCode":"94607","county":"Alameda","countyFips":"001","latitude":37.800675,"longitude":-122.271225,"propertyType":"Condo","bedrooms":2,"bathrooms":2,"squareFootage":821,"lotSize":98010,"yearBuilt":1993,"status":"Inactive","price":325000,"listingType":"Standard","listedDate":"2026-02-25T00:00:00.000Z","removedDate":"2026-04-26T00:00:00.000Z","lastSeenDate":"2026-04-25T09:40:40.315Z","daysOnMarket":60,"distance":0.2543,"daysOld":16,"correlation":0.9871},{"id":"989-Webster-St,-Apt-443,-Oakland,-CA-94607","formattedAddress":"989
+        Webster St, Apt 443, Oakland, CA 94607","addressLine1":"989 Webster St","addressLine2":"Apt
+        443","city":"Oakland","state":"CA","stateFips":"06","zipCode":"94607","county":"Alameda","countyFips":"001","latitude":37.800674,"longitude":-122.271225,"propertyType":"Condo","bedrooms":1,"bathrooms":1,"squareFootage":559,"yearBuilt":1993,"status":"Inactive","price":199000,"listingType":"Standard","listedDate":"2026-03-12T00:00:00.000Z","removedDate":"2026-04-21T00:00:00.000Z","lastSeenDate":"2026-04-20T10:24:38.099Z","daysOnMarket":40,"distance":0.2544,"daysOld":21,"correlation":0.9871},{"id":"988-Franklin-St,-Apt-707,-Oakland,-CA-94607","formattedAddress":"988
+        Franklin St, Apt 707, Oakland, CA 94607","addressLine1":"988 Franklin St","addressLine2":"Apt
+        707","city":"Oakland","state":"CA","stateFips":"06","zipCode":"94607","county":"Alameda","countyFips":"001","latitude":37.800675,"longitude":-122.271225,"propertyType":"Condo","bedrooms":1,"bathrooms":1,"squareFootage":615,"lotSize":98010,"yearBuilt":1993,"status":"Inactive","price":288000,"listingType":"Standard","listedDate":"2026-02-12T00:00:00.000Z","removedDate":"2026-04-11T00:00:00.000Z","lastSeenDate":"2026-04-10T09:06:42.821Z","daysOnMarket":58,"distance":0.2543,"daysOld":31,"correlation":0.987},{"id":"1511-Jefferson-St,-Unit-TH11,-Oakland,-CA-94612","formattedAddress":"1511
+        Jefferson St, Unit TH11, Oakland, CA 94612","addressLine1":"1511 Jefferson
+        St","addressLine2":"Unit TH11","city":"Oakland","state":"CA","stateFips":"06","zipCode":"94612","county":"Alameda","countyFips":"001","latitude":37.806866,"longitude":-122.274516,"propertyType":"Condo","bedrooms":2,"bathrooms":2.5,"squareFootage":1277,"lotSize":24829,"yearBuilt":2007,"status":"Inactive","price":589000,"listingType":"Standard","listedDate":"2026-01-06T00:00:00.000Z","removedDate":"2026-03-22T00:00:00.000Z","lastSeenDate":"2026-03-21T10:32:17.591Z","daysOnMarket":75,"distance":0.2526,"daysOld":51,"correlation":0.9869},{"id":"988-Franklin-St,-Apt-710,-Oakland,-CA-94607","formattedAddress":"988
+        Franklin St, Apt 710, Oakland, CA 94607","addressLine1":"988 Franklin St","addressLine2":"Apt
+        710","city":"Oakland","state":"CA","stateFips":"06","zipCode":"94607","county":"Alameda","countyFips":"001","latitude":37.800675,"longitude":-122.271225,"propertyType":"Condo","bedrooms":1,"bathrooms":1,"squareFootage":563,"yearBuilt":1993,"status":"Inactive","price":299000,"listingType":"Standard","listedDate":"2026-01-14T00:00:00.000Z","removedDate":"2026-03-22T00:00:00.000Z","lastSeenDate":"2026-03-21T10:17:32.099Z","daysOnMarket":67,"distance":0.2543,"daysOld":51,"correlation":0.9868},{"id":"989-Webster-St,-Apt-546,-Oakland,-CA-94607","formattedAddress":"989
+        Webster St, Apt 546, Oakland, CA 94607","addressLine1":"989 Webster St","addressLine2":"Apt
+        546","city":"Oakland","state":"CA","stateFips":"06","zipCode":"94607","county":"Alameda","countyFips":"001","latitude":37.80051,"longitude":-122.270763,"propertyType":"Condo","bedrooms":2,"bathrooms":2,"squareFootage":807,"yearBuilt":1993,"status":"Active","price":330000,"listingType":"Standard","listedDate":"2026-01-09T00:00:00.000Z","removedDate":null,"lastSeenDate":"2026-05-10T10:04:21.148Z","daysOnMarket":122,"distance":0.2666,"daysOld":1,"correlation":0.9867},{"id":"1755-Broadway,-Apt-56,-Oakland,-CA-94612","formattedAddress":"1755
+        Broadway, Apt 56, Oakland, CA 94612","addressLine1":"1755 Broadway","addressLine2":"Apt
+        56","city":"Oakland","state":"CA","stateFips":"06","zipCode":"94612","county":"Alameda","countyFips":"001","latitude":37.807564,"longitude":-122.269677,"propertyType":"Condo","bedrooms":1,"bathrooms":1,"squareFootage":977,"yearBuilt":1920,"status":"Inactive","price":499000,"listingType":"Standard","listedDate":"2025-09-17T00:00:00.000Z","removedDate":"2025-12-02T00:00:00.000Z","lastSeenDate":"2025-12-01T09:32:11.398Z","daysOnMarket":76,"distance":0.2366,"daysOld":161,"correlation":0.9866},{"id":"988-Franklin-St,-Apt-302,-Oakland,-CA-94607","formattedAddress":"988
+        Franklin St, Apt 302, Oakland, CA 94607","addressLine1":"988 Franklin St","addressLine2":"Apt
+        302","city":"Oakland","state":"CA","stateFips":"06","zipCode":"94607","county":"Alameda","countyFips":"001","latitude":37.800675,"longitude":-122.271225,"propertyType":"Condo","bedrooms":1,"bathrooms":1,"squareFootage":588,"yearBuilt":1993,"status":"Inactive","price":280000,"listingType":"Standard","listedDate":"2025-11-16T00:00:00.000Z","removedDate":"2026-02-22T00:00:00.000Z","lastSeenDate":"2026-02-21T08:55:50.693Z","daysOnMarket":98,"distance":0.2543,"daysOld":79,"correlation":0.9865}]}'
+    headers:
+      Content-Length:
+      - '10131'
+      access-control-allow-methods:
+      - GET
+      access-control-allow-origin:
+      - '*'
+      cache-control:
+      - public, max-age=0
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Sun, 10 May 2026 21:51:09 GMT
+      server:
+      - Google Frontend
+      x-cloud-trace-context:
+      - 6cfc11f3776ce99e79b1e1ebf4bfe9d6
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"max_tokens": 1000, "messages": [{"role": "user", "content": "You are
+      a real estate research analyst. Based on the following data gathered \nabout
+      a property, write a concise Pre-Analysis Intelligence Brief.\n\nPROPERTY: 456
+      Clean Disclosure St, Oakland, CA\nYEAR BUILT: Unknown\nESTIMATED VALUE: $388,000
+      if profile.estimated_value else ''Unknown''\nSQFT: Unknown\n\nDATA GATHERED:\n-
+      rentcast: {\"found\": true, \"bedrooms\": null, \"bathrooms\": null, \"sqft\":
+      null, \"year_built\": null, \"lot_size\": null, \"property_type\": null, \"estimated_value\":
+      388000, \"assessed_value\": null, \"avm_price\": 388000, \"avm_price_low\":
+      280000, \"avm_price_high\": 496000, \"comparables\": [{\"address\": \"330 13th
+      St, Unit 1A, Oakland, CA 94612\", \"price\": 449000, \"sqft\": 1296, \"price_per_sqft\":
+      346.45, \"bedrooms\": 1, \"bathrooms\": 1.5, \"year_built\": 1914, \"lot_size\":
+      4959, \"property_type\": \"Condo\", \"days_on_market\": 32, \"d\n\nKEY FINDINGS:\n\n\nWrite
+      a brief (3-4 paragraphs) that:\n1. Summarizes what we know about this property
+      BEFORE seeing any seller documents\n2. Identifies the top 3 things a buyer should
+      verify in the seller disclosure\n3. Flags any red flags or risk factors that
+      could affect the offer price\n4. Notes what data we could NOT find (gaps in
+      research)\n\nBe specific and actionable. Reference actual data points. No generic
+      advice."}], "model": "claude-sonnet-4-6", "temperature": 0}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate, br
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '1420'
+      Content-Type:
+      - application/json
+      Host:
+      - api.anthropic.com
+      User-Agent:
+      - Anthropic/Python 0.49.0
+      X-Stainless-Arch:
+      - x64
+      X-Stainless-Async:
+      - 'false'
+      X-Stainless-Lang:
+      - python
+      X-Stainless-OS:
+      - Linux
+      X-Stainless-Package-Version:
+      - 0.49.0
+      X-Stainless-Runtime:
+      - CPython
+      X-Stainless-Runtime-Version:
+      - 3.11.15
+      anthropic-version:
+      - '2023-06-01'
+      baggage:
+      - sentry-trace_id=bf9b7005a16f4f30b9c14788af095ef0,sentry-sample_rand=0.659207,sentry-environment=production,sentry-public_key=bec0f097edae469b35925bf075c964d9,sentry-org_id=4511034871578624,sentry-transaction=analysis.analyze_property,sentry-sample_rate=0.1,sentry-sampled=false
+      sentry-trace:
+      - bf9b7005a16f4f30b9c14788af095ef0-8c880956d88a3865-0
+      x-api-key:
+      - <REDACTED>
+      x-stainless-read-timeout:
+      - '600'
+      x-stainless-retry-count:
+      - '0'
+      x-stainless-timeout:
+      - '600'
+    method: POST
+    uri: https://api.anthropic.com/v1/messages
+  response:
+    body:
+      string: "{\"model\":\"claude-sonnet-4-6\",\"id\":\"msg_01GgNLpudpmRAYC1tQKythBW\",\"type\":\"message\",\"role\":\"assistant\",\"content\":[{\"type\":\"text\",\"text\":\"#
+        Pre-Analysis Intelligence Brief\\n**Property:** 456 Clean Disclosure St, Oakland,
+        CA\\n**Prepared:** Pre-Disclosure Review | Status: Awaiting Seller Documents\\n\\n---\\n\\n##
+        What We Know Before Seeing Seller Documents\\n\\nThe AVM (Automated Valuation
+        Model) via RentCast places this property at **$388,000**, but the confidence
+        interval is notably wide \u2014 ranging from **$280,000 to $496,000**, a spread
+        of **$216,000**. That kind of range typically signals limited comparable sales
+        data, unusual property characteristics, or significant condition variability
+        in the immediate area. The single comparable surfaced in the dataset \u2014
+        **330 13th St, Unit 1A** (a 1,296 sq ft condo, 1 bed/1.5 bath, built 1914,
+        sold at $449,000 or **$346/sq ft**) \u2014 suggests the surrounding market
+        skews toward older, smaller condo-style units. Notably, that comp sat on market
+        for **32 days**, which is slightly elevated for Oakland's core market and
+        may indicate softening buyer demand at this price point.\\n\\n## Top 3 Things
+        to Verify in the Seller Disclosure\\n\\n1. **Property Type and Unit Configuration:**
+        RentCast returned **null values for bedrooms, bathrooms, square footage, property
+        type, and year built** \u2014 every structural data field is missing. Before
+        any offer is written, the seller disclosure must confirm whether this is a
+        condo, TIC, single-family, or multi-unit property, as that determination alone
+        could shift valuation by 10\u201320% and dramatically affect financing eligibility.\\n2.
+        **Age of Property and Deferred Maintenance History:** With year built unknown
+        and the closest comp dating to **1914**, there is a real possibility this
+        property carries pre-war construction. The disclosure should be scrutinized
+        for roof age, foundation type, plumbing material (galvanized vs. copper),
+        and any history of seismic retrofitting \u2014 all high-cost risk items in
+        Oakland's older housing stock.\\n3. **HOA Status, Liens, and Assessed Value:**
+        The assessed value came back **null**, which is unusual and warrants explanation.
+        Buyers should demand a current tax bill, confirm whether any Mello-Roos or
+        special assessments apply, and verify there are no outstanding liens or code
+        violations on record with the City of Oakland.\\n\\n## Red Flags and Risk
+        Factors Affecting Offer Price\\n\\nThe **$216,000 AVM spread** is the single
+        biggest red flag in this dataset \u2014 it tells us the model lacks confidence,
+        which means a buyer relying on the $388,000 midpoint without independent verification
+        is taking on meaningful valuation risk. If the property is closer to the **$280,000
+        floor**, an offer at ask would represent an immediate **~$108,000 overpayment
+        relative to supportable value**. Additionally, the absence of lot size, square
+        footage, and property type data makes it impossible to calculate a price-per-square-foot
+        benchmark against the one available comp ($346/sq ft). Until square footage
+        is confirmed, no credible price-per-foot analysis can be run, and the offer
+        price should be treated as **provisional**.\\n\\n## Critical Data Gaps\\n\\nThis
+        brief is operating with significant blind spots. The following data was **not
+        retrievable** and must be sourced before finalizing any offer strategy: square
+        footage, bedroom/bathroom count, year built, lot size, property type, assessed
+        value, and any rental or income history. Additionally, only **one comparable
+        transaction** was returned \u2014 an insufficient sample for reliable valuation.
+        A full MLS pull, Alameda County Assessor record review, and physical inspection
+        are non-negotiable next steps. Do not treat the $388,000 AVM figure as validated
+        until structural data gaps are closed.\\n\\n---\\n*This brief reflects pre-disclosure
+        intelligence only. Findings should be revisited upon receipt of seller documents,
+        inspection reports, and title search.*\"}],\"stop_reason\":\"end_turn\",\"stop_sequence\":null,\"stop_details\":null,\"usage\":{\"input_tokens\":406,\"cache_creation_input_tokens\":0,\"cache_read_input_tokens\":0,\"cache_creation\":{\"ephemeral_5m_input_tokens\":0,\"ephemeral_1h_input_tokens\":0},\"output_tokens\":878,\"service_tier\":\"standard\",\"inference_geo\":\"global\"}}"
+    headers:
+      CF-RAY:
+      - 9f9c29e7c8cac8da-PDX
+      Connection:
+      - keep-alive
+      Content-Security-Policy:
+      - default-src 'none'; frame-ancestors 'none'
+      Content-Type:
+      - application/json
+      Date:
+      - Sun, 10 May 2026 21:51:31 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      X-Robots-Tag:
+      - none
+      anthropic-organization-id:
+      - b2fdc71b-2fc9-444f-8b1b-31a1a50d1ce6
+      anthropic-ratelimit-input-tokens-limit:
+      - '450000'
+      anthropic-ratelimit-input-tokens-remaining:
+      - '450000'
+      anthropic-ratelimit-input-tokens-reset:
+      - '2026-05-10T21:51:10Z'
+      anthropic-ratelimit-output-tokens-limit:
+      - '90000'
+      anthropic-ratelimit-output-tokens-remaining:
+      - '90000'
+      anthropic-ratelimit-output-tokens-reset:
+      - '2026-05-10T21:51:31Z'
+      anthropic-ratelimit-requests-limit:
+      - '1000'
+      anthropic-ratelimit-requests-remaining:
+      - '999'
+      anthropic-ratelimit-requests-reset:
+      - '2026-05-10T21:51:10Z'
+      anthropic-ratelimit-tokens-limit:
+      - '540000'
+      anthropic-ratelimit-tokens-remaining:
+      - '540000'
+      anthropic-ratelimit-tokens-reset:
+      - '2026-05-10T21:51:10Z'
+      cf-cache-status:
+      - DYNAMIC
+      content-length:
+      - '4240'
+      request-id:
+      - req_011CaudPNyNCsk5vMTD7kn2G
+      set-cookie:
+      - <REDACTED>
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      traceresponse:
+      - 00-d168d1070b1284027cbda5479f0573f0-be8654820239e34b-01
+      vary:
+      - Accept-Encoding
+      x-envoy-upstream-service-time:
+      - '21318'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"max_tokens": 2500, "messages": [{"role": "user", "content": "Fix OCR
+      errors in this real estate document. Fix character substitutions (0\u2192O,
+      5\u2192S, 1\u2192l) and spacing. Preserve all meaning. Output fixed text only,
+      no explanations.\n\nTEXT:\nREAL ESTATE TRANSFER DISCLOSURE STATEMENT\n(California
+      Civil Code Section 1102 et seq.)\nTHIS STATEMENT IS A DISCLOSURE OF THE CONDITION
+      OF THE ABOVE DESCRIBED PROPERTY IN COMPLIANCE\nWITH SECTION 1102 OF THE CIVIL
+      CODE AS OF THE DATE SIGNED BY THE TRANSFEROR.\nProperty Address: 2847 Winfield
+      Blvd, San Jose, CA 95128\nCity: San Jose    County: Santa Clara    Zip: 95128\nI.
+      COORDINATION WITH OTHER DISCLOSURE FORMS\nThis Real Property Transfer Disclosure
+      Statement is made pursuant to Section 1102 of the Civil Code. Other statutes
+      require\ndisclosures, depending upon the details of the particular real estate
+      transaction.\nII. SELLER''S INFORMATION\nA. The subject property has the following
+      items:\n[X] Range/Oven [X] Dishwasher [X] Garbage Disposal\n[X] Washer/Dryer
+      Hookups [X] Rain Gutters [ ] Burglar Alarm\n[X] Smoke Detector(s) [X] Fire Alarm
+      [X] Carbon Monoxide Device(s)\n[ ] TV Antenna [ ] Satellite Dish [ ] Intercom\n[X]
+      Central Heating [X] Central Air Conditioning [ ] Evaporator Cooler(s)\n[ ] Wall/Window
+      Air Conditioni [X] Fireplace(s) [X] Gas Starter\n[X] Garage: Attached [X] Garage:
+      Door Opener(s) [X] Number Remote Controls: 2\n[ ] Pool [ ] Spa/Hot Tub [ ] Child
+      Resistant Barrier fo\n[X] Patio/Decking [ ] Built-in Barbecue [ ] Solar Panels
+      (owned)\n[X] Water Heater: Gas [ ] Water Softener (owned) [ ] Security Gate(s)\n[X]
+      Automatic Garage Door Open [ ] Sump Pump [X] 220 Volt Wiring in Garage\nExhaust
+      Fan(s) in: [X] Kitchen [X] Bathroom(s)\nGas Supply: [X] Utility  Electricity:
+      [X] Utility  Water: [X] City\nSewer: [X] City  Window Screens: [X] Full  Roof
+      Type: Composition Shingle, Age: ~18 yrs\nB. Are you (Seller) aware of any significant
+      defects/malfunctions in any of the following?\nInterior Walls: Yes (X)  No (
+      )\n   Detail: Minor cracks in living room wall near window. Cosmetic only.\nCeilings:
+      Yes ( )  No (X)\nFloors: Yes ( )  No (X)\nExterior Walls: Yes ( )  No (X)\nInsulation:
+      Yes ( )  No (X)\nRoof(s): Yes (X)  No ( )\n   Detail: Composition shingle, 18
+      years old. Some granule loss noted"}], "model": "claude-sonnet-4-20250514"}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate, br
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '2310'
+      Content-Type:
+      - application/json
+      Host:
+      - api.anthropic.com
+      User-Agent:
+      - Anthropic/Python 0.49.0
+      X-Stainless-Arch:
+      - x64
+      X-Stainless-Async:
+      - 'false'
+      X-Stainless-Lang:
+      - python
+      X-Stainless-OS:
+      - Linux
+      X-Stainless-Package-Version:
+      - 0.49.0
+      X-Stainless-Runtime:
+      - CPython
+      X-Stainless-Runtime-Version:
+      - 3.11.15
+      anthropic-version:
+      - '2023-06-01'
+      baggage:
+      - sentry-trace_id=bf9b7005a16f4f30b9c14788af095ef0,sentry-sample_rand=0.659207,sentry-environment=production,sentry-public_key=bec0f097edae469b35925bf075c964d9,sentry-org_id=4511034871578624,sentry-transaction=analysis.analyze_property,sentry-sample_rate=0.1,sentry-sampled=false
+      cookie:
+      - <REDACTED>
+      sentry-trace:
+      - bf9b7005a16f4f30b9c14788af095ef0-8616bdd84861e490-0
+      x-api-key:
+      - <REDACTED>
+      x-stainless-read-timeout:
+      - '600'
+      x-stainless-retry-count:
+      - '0'
+      x-stainless-timeout:
+      - '600'
+    method: POST
+    uri: https://api.anthropic.com/v1/messages
+  response:
+    body:
+      string: '{"model":"claude-sonnet-4-20250514","id":"msg_017BjoCtY958D1vvNVmvZxtx","type":"message","role":"assistant","content":[{"type":"text","text":"REAL
+        ESTATE TRANSFER DISCLOSURE STATEMENT\n(California Civil Code Section 1102
+        et seq.)\nTHIS STATEMENT IS A DISCLOSURE OF THE CONDITION OF THE ABOVE DESCRIBED
+        PROPERTY IN COMPLIANCE\nWITH SECTION 1102 OF THE CIVIL CODE AS OF THE DATE
+        SIGNED BY THE TRANSFEROR.\nProperty Address: 2847 Winfield Blvd, San Jose,
+        CA 95128\nCity: San Jose    County: Santa Clara    Zip: 95128\nI. COORDINATION
+        WITH OTHER DISCLOSURE FORMS\nThis Real Property Transfer Disclosure Statement
+        is made pursuant to Section 1102 of the Civil Code. Other statutes require\ndisclosures,
+        depending upon the details of the particular real estate transaction.\nII.
+        SELLER''S INFORMATION\nA. The subject property has the following items:\n[X]
+        Range/Oven [X] Dishwasher [X] Garbage Disposal\n[X] Washer/Dryer Hookups [X]
+        Rain Gutters [ ] Burglar Alarm\n[X] Smoke Detector(s) [X] Fire Alarm [X] Carbon
+        Monoxide Device(s)\n[ ] TV Antenna [ ] Satellite Dish [ ] Intercom\n[X] Central
+        Heating [X] Central Air Conditioning [ ] Evaporator Cooler(s)\n[ ] Wall/Window
+        Air Conditioning [X] Fireplace(s) [X] Gas Starter\n[X] Garage: Attached [X]
+        Garage: Door Opener(s) [X] Number Remote Controls: 2\n[ ] Pool [ ] Spa/Hot
+        Tub [ ] Child Resistant Barrier for\n[X] Patio/Decking [ ] Built-in Barbecue
+        [ ] Solar Panels (owned)\n[X] Water Heater: Gas [ ] Water Softener (owned)
+        [ ] Security Gate(s)\n[X] Automatic Garage Door Opener [ ] Sump Pump [X] 220
+        Volt Wiring in Garage\nExhaust Fan(s) in: [X] Kitchen [X] Bathroom(s)\nGas
+        Supply: [X] Utility  Electricity: [X] Utility  Water: [X] City\nSewer: [X]
+        City  Window Screens: [X] Full  Roof Type: Composition Shingle, Age: ~18 yrs\nB.
+        Are you (Seller) aware of any significant defects/malfunctions in any of the
+        following?\nInterior Walls: Yes (X)  No ( )\n   Detail: Minor cracks in living
+        room wall near window. Cosmetic only.\nCeilings: Yes ( )  No (X)\nFloors:
+        Yes ( )  No (X)\nExterior Walls: Yes ( )  No (X)\nInsulation: Yes ( )  No
+        (X)\nRoof(s): Yes (X)  No ( )\n   Detail: Composition shingle, 18 years old.
+        Some granule loss noted"}],"stop_reason":"end_turn","stop_sequence":null,"stop_details":null,"usage":{"input_tokens":752,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"cache_creation":{"ephemeral_5m_input_tokens":0,"ephemeral_1h_input_tokens":0},"output_tokens":698,"service_tier":"standard","inference_geo":"not_available"}}'
+    headers:
+      CF-RAY:
+      - 9f9c2a6de8a90055-PDX
+      Connection:
+      - keep-alive
+      Content-Security-Policy:
+      - default-src 'none'; frame-ancestors 'none'
+      Content-Type:
+      - application/json
+      Date:
+      - Sun, 10 May 2026 21:51:37 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      X-Robots-Tag:
+      - none
+      anthropic-organization-id:
+      - b2fdc71b-2fc9-444f-8b1b-31a1a50d1ce6
+      anthropic-ratelimit-input-tokens-limit:
+      - '450000'
+      anthropic-ratelimit-input-tokens-remaining:
+      - '450000'
+      anthropic-ratelimit-input-tokens-reset:
+      - '2026-05-10T21:51:32Z'
+      anthropic-ratelimit-output-tokens-limit:
+      - '90000'
+      anthropic-ratelimit-output-tokens-remaining:
+      - '89000'
+      anthropic-ratelimit-output-tokens-reset:
+      - '2026-05-10T21:51:38Z'
+      anthropic-ratelimit-requests-limit:
+      - '1000'
+      anthropic-ratelimit-requests-remaining:
+      - '999'
+      anthropic-ratelimit-requests-reset:
+      - '2026-05-10T21:51:31Z'
+      anthropic-ratelimit-tokens-limit:
+      - '540000'
+      anthropic-ratelimit-tokens-remaining:
+      - '539000'
+      anthropic-ratelimit-tokens-reset:
+      - '2026-05-10T21:51:32Z'
+      cf-cache-status:
+      - DYNAMIC
+      content-length:
+      - '2496'
+      request-id:
+      - req_011CaudQxgvVyC2UwRn4piSH
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      traceresponse:
+      - 00-6fe4ccac1a0a240056002086cd82514f-2d978d0f4c4f12ef-01
+      vary:
+      - Accept-Encoding
+      x-envoy-upstream-service-time:
+      - '6413'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"max_tokens": 2500, "messages": [{"role": "user", "content": "Fix OCR
+      errors in this real estate document. Fix character substitutions (0\u2192O,
+      5\u2192S, 1\u2192l) and spacing. Preserve all meaning. Output fixed text only,
+      no explanations.\n\nTEXT:\nHOME INSPECTION REPORT\nProperty: 2847 Winfield Blvd,
+      San Jose, CA 95128\nInspection Date: March 21, 2026\nReport #: INS-2025-04281\nPrepared
+      for: David & Maria Santos\nPrepared by: Robert Anderson, ASHI Certified Inspector
+      #247891\nAnderson Home Inspections, LLC\nLicense #HI-2019-04872  |  (408) 555-0147\nNOTICE:
+      This report is the exclusive property of Anderson Home Inspections, LLC and
+      the client(s) named above. Use by any\nunauthorized persons is prohibited. This
+      inspection was performed in accordance with the Standards of Practice of the
+      American\nSociety of Home Inspectors (ASHI).\nEXECUTIVE SUMMARY\nThis single-family
+      residence was built in 2006 and contains approximately 1,847 square feet of
+      living space. The property features 3\nbedrooms, 2.5 bathrooms, an attached
+      2-car garage, and a landscaped rear yard. The home is served by city water and
+      sewer,\nnatural gas, and 200 amp electrical service.\nSUMMARY OF SIGNIFICANT
+      FINDINGS:\n[SAFETY] Exposed wiring junction box in garage lacks cover plate.
+      Repair immediately.\n[SAFETY] Absence of GFCI protection at two exterior outlets.
+      Upgrade recommended.\n[MAJOR] Roof composition shingles show significant granule
+      loss and curling on south-facing slope. Estimated remaining life\n2-4 years.
+      Budget for replacement ($12,000-$18,000).\n[MAJOR] Evidence of past moisture
+      intrusion at master bedroom ceiling. Stain is dry and appears inactive but source
+      should be\nconfirmed. Possible flashing or roof-related.\n[MAJOR] HVAC condenser
+      unit (18 years old) showing corrosion on condenser coils. Functional but nearing
+      end of useful life.\nBudget for replacement ($4,000-$7,000).\n[MODERATE] Hairline
+      crack in foundation east wall, approximately 3 feet horizontal. Appears cosmetic/settling.
+      Monitor for changes.\nIf crack widens, consult structural engineer.\n[MODERATE]
+      Two garage outlets tested open ground. Repair needed for safety.\n[MODERATE]
+      Kitchen faucet has slow drip. Washer replacement needed (~$150).\n[MINOR] Driveway
+      hairline crack near garage apron. Se"}], "model": "claude-sonnet-4-20250514"}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate, br
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '2305'
+      Content-Type:
+      - application/json
+      Host:
+      - api.anthropic.com
+      User-Agent:
+      - Anthropic/Python 0.49.0
+      X-Stainless-Arch:
+      - x64
+      X-Stainless-Async:
+      - 'false'
+      X-Stainless-Lang:
+      - python
+      X-Stainless-OS:
+      - Linux
+      X-Stainless-Package-Version:
+      - 0.49.0
+      X-Stainless-Runtime:
+      - CPython
+      X-Stainless-Runtime-Version:
+      - 3.11.15
+      anthropic-version:
+      - '2023-06-01'
+      baggage:
+      - sentry-trace_id=bf9b7005a16f4f30b9c14788af095ef0,sentry-sample_rand=0.659207,sentry-environment=production,sentry-public_key=bec0f097edae469b35925bf075c964d9,sentry-org_id=4511034871578624,sentry-transaction=analysis.analyze_property,sentry-sample_rate=0.1,sentry-sampled=false
+      cookie:
+      - <REDACTED>
+      sentry-trace:
+      - bf9b7005a16f4f30b9c14788af095ef0-b6b225fc680c68dd-0
+      x-api-key:
+      - <REDACTED>
+      x-stainless-read-timeout:
+      - '600'
+      x-stainless-retry-count:
+      - '0'
+      x-stainless-timeout:
+      - '600'
+    method: POST
+    uri: https://api.anthropic.com/v1/messages
+  response:
+    body:
+      string: '{"model":"claude-sonnet-4-20250514","id":"msg_014iXfAiej9EWmT4RVXR4jiH","type":"message","role":"assistant","content":[{"type":"text","text":"HOME
+        INSPECTION REPORT\nProperty: 2847 Winfield Blvd, San Jose, CA 95128\nInspection
+        Date: March 21, 2026\nReport #: INS-2025-04281\nPrepared for: David & Maria
+        Santos\nPrepared by: Robert Anderson, ASHI Certified Inspector #247891\nAnderson
+        Home Inspections, LLC\nLicense #HI-2019-04872  |  (408) 555-0147\nNOTICE:
+        This report is the exclusive property of Anderson Home Inspections, LLC and
+        the client(s) named above. Use by any\nunauthorized persons is prohibited.
+        This inspection was performed in accordance with the Standards of Practice
+        of the American\nSociety of Home Inspectors (ASHI).\nEXECUTIVE SUMMARY\nThis
+        single-family residence was built in 2006 and contains approximately 1,847
+        square feet of living space. The property features 3\nbedrooms, 2.5 bathrooms,
+        an attached 2-car garage, and a landscaped rear yard. The home is served by
+        city water and sewer,\nnatural gas, and 200 amp electrical service.\nSUMMARY
+        OF SIGNIFICANT FINDINGS:\n[SAFETY] Exposed wiring junction box in garage lacks
+        cover plate. Repair immediately.\n[SAFETY] Absence of GFCI protection at two
+        exterior outlets. Upgrade recommended.\n[MAJOR] Roof composition shingles
+        show significant granule loss and curling on south-facing slope. Estimated
+        remaining life\n2-4 years. Budget for replacement ($12,000-$18,000).\n[MAJOR]
+        Evidence of past moisture intrusion at master bedroom ceiling. Stain is dry
+        and appears inactive but source should be\nconfirmed. Possible flashing or
+        roof-related.\n[MAJOR] HVAC condenser unit (18 years old) showing corrosion
+        on condenser coils. Functional but nearing end of useful life.\nBudget for
+        replacement ($4,000-$7,000).\n[MODERATE] Hairline crack in foundation east
+        wall, approximately 3 feet horizontal. Appears cosmetic/settling. Monitor
+        for changes.\nIf crack widens, consult structural engineer.\n[MODERATE] Two
+        garage outlets tested open ground. Repair needed for safety.\n[MODERATE] Kitchen
+        faucet has slow drip. Washer replacement needed (~$150).\n[MINOR] Driveway
+        hairline crack near garage apron. Se"}],"stop_reason":"end_turn","stop_sequence":null,"stop_details":null,"usage":{"input_tokens":608,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"cache_creation":{"ephemeral_5m_input_tokens":0,"ephemeral_1h_input_tokens":0},"output_tokens":554,"service_tier":"standard","inference_geo":"not_available"}}'
+    headers:
+      CF-RAY:
+      - 9f9c2a96bed08ce4-PDX
+      Connection:
+      - keep-alive
+      Content-Security-Policy:
+      - default-src 'none'; frame-ancestors 'none'
+      Content-Type:
+      - application/json
+      Date:
+      - Sun, 10 May 2026 21:51:43 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      X-Robots-Tag:
+      - none
+      anthropic-organization-id:
+      - b2fdc71b-2fc9-444f-8b1b-31a1a50d1ce6
+      anthropic-ratelimit-input-tokens-limit:
+      - '450000'
+      anthropic-ratelimit-input-tokens-remaining:
+      - '450000'
+      anthropic-ratelimit-input-tokens-reset:
+      - '2026-05-10T21:51:39Z'
+      anthropic-ratelimit-output-tokens-limit:
+      - '90000'
+      anthropic-ratelimit-output-tokens-remaining:
+      - '90000'
+      anthropic-ratelimit-output-tokens-reset:
+      - '2026-05-10T21:51:43Z'
+      anthropic-ratelimit-requests-limit:
+      - '1000'
+      anthropic-ratelimit-requests-remaining:
+      - '999'
+      anthropic-ratelimit-requests-reset:
+      - '2026-05-10T21:51:38Z'
+      anthropic-ratelimit-tokens-limit:
+      - '540000'
+      anthropic-ratelimit-tokens-remaining:
+      - '540000'
+      anthropic-ratelimit-tokens-reset:
+      - '2026-05-10T21:51:39Z'
+      cf-cache-status:
+      - DYNAMIC
+      content-length:
+      - '2486'
+      request-id:
+      - req_011CaudRSaxiYPhcgb7GkYYR
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      traceresponse:
+      - 00-6d4503267a6427550a9e19ccfb2d9fb6-0a9355229eb7e920-01
+      vary:
+      - Accept-Encoding
+      x-envoy-upstream-service-time:
+      - '5148'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"max_tokens": 4000, "messages": [{"role": "user", "content": "You are
+      a home inspection report analyst. Read this inspection report and extract every
+      defect, problem, safety concern, and item needing repair or further evaluation.\n\nCRITICAL
+      RULES:\n- Extract ONLY actual problems and defects. Do NOT include positive
+      observations, general descriptions, or normal conditions.\n- A \"recommend further
+      evaluation by a specialist\" IS a finding \u2014 the inspector is flagging something
+      they cannot fully assess.\n- Photo descriptions like [PHOTO: ...] that show
+      damage or defects should be captured as findings.\n- Be thorough \u2014 missing
+      a real finding is worse than including a borderline one.\n\nCATEGORIES (use
+      exactly one):\nfoundation_structure, roof_exterior, plumbing, electrical, hvac_systems,
+      environmental, legal_title, insurance_hoa\n\nSEVERITY LEVELS:\ncritical = structural
+      failure, active safety hazard, immediate action needed\nmajor = significant
+      defect, will worsen without repair, costly\nmoderate = needs repair but not
+      urgent, standard maintenance issue\nminor = cosmetic, low priority, monitoring
+      sufficient\n\nFor each finding, return:\n- category: one of the categories above\n-
+      severity: critical, major, moderate, or minor\n- description: clear complete
+      sentence describing the problem\n- location: where in the property (if stated
+      in the report)\n- recommendation: what should be done (from the report or your
+      assessment)\n- safety_concern: true ONLY for immediate life-safety hazards (fire
+      risk, electrocution, structural collapse, gas leak, fall hazard). Normal repair
+      items are NOT safety concerns. Most findings should be false.\n- requires_specialist:
+      true ONLY when the inspector specifically recommends a licensed specialist beyond
+      a general contractor (structural engineer, licensed electrician, environmental
+      tester). Standard \"recommend repair by qualified contractor\" is NOT a specialist
+      referral. Most findings should be false.\n- source_quote: the exact words from
+      the report (max 120 chars) that support this finding\n\nRespond with ONLY a
+      JSON object: {\"findings\": [...]}\n\nINSPECTION REPORT:\nHOME INSPECTION REPORT\nProperty:
+      2847 Winfield Blvd, San Jose, CA 95128\nInspection Date: March 21, 2026\nReport
+      #: INS-2025-04281\nPrepared for: David & Maria Santos\nPrepared by: Robert Anderson,
+      ASHI Certified Inspector #247891\nAnderson Home Inspections, LLC\nLicense #HI-2019-04872  |  (408)
+      555-0147\nNOTICE: This report is the exclusive property of Anderson Home Inspections,
+      LLC and the client(s) named above. Use by any\nunauthorized persons is prohibited.
+      This inspection was performed in accordance with the Standards of Practice of
+      the American\nSociety of Home Inspectors (ASHI).\nEXECUTIVE SUMMARY\nThis single-family
+      residence was built in 2006 and contains approximately 1,847 square feet of
+      living space. The property features 3\nbedrooms, 2.5 bathrooms, an attached
+      2-car garage, and a landscaped rear yard. The home is served by city water and
+      sewer,\nnatural gas, and 200 amp electrical service.\nSUMMARY OF SIGNIFICANT
+      FINDINGS:\n[SAFETY] Exposed wiring junction box in garage lacks cover plate.
+      Repair immediately.\n[SAFETY] Absence of GFCI protection at two exterior outlets.
+      Upgrade recommended.\n[MAJOR] Roof composition shingles show significant granule
+      loss and curling on south-facing slope. Estimated remaining life\n2-4 years.
+      Budget for replacement ($12,000-$18,000).\n[MAJOR] Evidence of past moisture
+      intrusion at master bedroom ceiling. Stain is dry and appears inactive but source
+      should be\nconfirmed. Possible flashing or roof-related.\n[MAJOR] HVAC condenser
+      unit (18 years old) showing corrosion on condenser coils. Functional but nearing
+      end of useful life.\nBudget for replacement ($4,000-$7,000).\n[MODERATE] Hairline
+      crack in foundation east wall, approximately 3 feet horizontal. Appears cosmetic/settling.
+      Monitor for changes.\nIf crack widens, consult structural engineer.\n[MODERATE]
+      Two garage outlets tested open ground. Repair needed for safety.\n[MODERATE]
+      Kitchen faucet has slow drip. Washer replacement needed (~$150).\n[MINOR] Driveway
+      hairline crack near garage apron. Seal to prevent water infiltration.\n[MINOR]
+      Caulking deteriorated at multiple window frames. Recaulk for weatherproofing.\n[MINOR]
+      Fence post at rear property line shows wood rot at base. Replace before failure.\nROOFING\nType:
+      Composition shingle (architectural)\nAge: Approximately 18 years (original to
+      construction)\nCondition: DEFICIENT - Significant granule loss observed on south-facing
+      slope. Multiple areas of curling and lifting\nshingles. Ridge cap appears intact.
+      Flashing at chimney and vent pipes shows minor deterioration.\nGutters and downspouts
+      functional with minor debris accumulation.\nEstimated Remaining Life: 2-4 years\nEstimated
+      Replacement Cost: $12,000-$18,000 for complete re-roof\nRecommendation: Obtain
+      quotes from licensed roofing contractors. Plan for replacement within 2-3 years.
+      Monitor for any\nactive leaks, especially at flashing points.\nEXTERIOR\nSiding:
+      Fiber cement (HardiePlank). Good condition overall. Minor paint touch-up needed
+      at north wall.\nTrim: Wood trim at eaves. No visible rot or damage.\nWindows:
+      Dual-pane vinyl. Functional. Caulking deteriorated at 4 window frames - recaulk
+      recommended.\nDoors: Front entry: fiberglass, good condition. Sliding glass:
+      aluminum frame, tracks need cleaning, rollers\nfunctional.\nDriveway: Concrete.
+      Hairline crack near garage apron (~4 feet long). Cosmetic. Seal to prevent water
+      infiltration.\nWalkways: Concrete front walkway. Good condition, no trip hazards.\nFence:
+      Wood privacy fence. Generally good. One post at rear shows wood rot at base
+      - replace.\nGrading/Drainage: Positive grade away from foundation on 3 sides.
+      East side appears level - monitor during rain.\nFOUNDATION/STRUCTURE\nType:
+      Concrete perimeter foundation with slab-on-grade\nCondition: MARGINAL - Hairline
+      horizontal crack on east wall exterior, approximately 3 feet long. Crack width
+      is less\nthan 1/8 inch and appears consistent with normal settling. No displacement
+      or vertical offset observed.\nInterior inspection shows no corresponding cracks.\nCrawl
+      Space: N/A - slab-on-grade construction\nRecommendation: Monitor crack width
+      seasonally. Mark endpoints with pencil and date. If crack widens beyond 1/4
+      inch or\nshows vertical displacement, consult a licensed structural engineer.
+      Estimated cost for engineer\nevaluation: $400-$600.\nELECTRICAL\nPanel: 200
+      amp main panel in garage. Square D brand. All breakers labeled. No double-tapped
+      breakers.\nWiring Type: Copper throughout (Romex NM-B). Appropriate for 2006
+      construction.\nOutlets/Switches: Tested representative sampling. Two garage
+      outlets showed open ground - repair needed. All GFCI\noutlets in kitchen and
+      bathrooms tested and functioning.\nDeficiency: SAFETY: Exposed junction box
+      in garage ceiling lacks cover plate. Must be repaired immediately.\nEstimated
+      cost: $50-$100.\nDeficiency: SAFETY: Two exterior outlets lack GFCI protection.
+      Current code requires GFCI for all exterior outlets.\nEstimated cost: $150-$300
+      for electrician upgrade.\nPLUMBING\nSupply Lines: Copper main. PEX distribution
+      (typical for 2006 construction). Good condition.\nDrain Lines: ABS drain/waste/vent.
+      Functional. All drains tested, no slow drains detected.\nWater Heater: AO Smith
+      50-gallon gas water heater. Installed 2020 (sticker confirms). Properly strapped
+      per CA\nrequirements. T&P valve present and discharge pipe properly routed.\nFixtures:
+      Kitchen faucet: Slow drip from spout when off. Likely needs washer replacement
+      ($100-$150). All other\nfixtures functional with adequate flow and drainage.\nHose
+      Bibs: Two exterior hose bibs tested. Functional, no visible leaks.\nHVAC\nHeating:
+      Lennox forced-air gas furnace. Approximately 18 years old (original). Functional
+      at time of inspection.\nFilter was dirty - recommend replacement.\nCooling:
+      Lennox split system A/C. Condenser unit 18 years old. Condenser coils show corrosion.
+      Unit produced\n17\u00b0F temperature differential at registers (acceptable range:
+      15-20\u00b0F). Functional but nearing end of\nuseful life.\nEstimated Remaining
+      Life: 2-5 years for both furnace and condenser\nEstimated Replacement Cost:
+      $4,000-$7,000 for A/C condenser; $3,000-$5,000 for furnace; $7,000-$11,000 for
+      complete system\nreplacement\nDuctwork: Flex duct in attic. Connections appear
+      secure. Minor compression at one run - may reduce airflow to\nmaster bedroom.\nThermostat:
+      Nest programmable thermostat. Functional.\nINTERIOR\nWalls/Ceilings: Generally
+      good condition. Minor cracks in living room wall near window (cosmetic/settling).
+      Water stain\non master bedroom ceiling approximately 2 feet in diameter. Stain
+      appears dry and inactive. No moisture\ndetected with meter at time of inspection.
+      Source should be confirmed - may be related to roof flashing\ndeterioration
+      noted above.\nFloors: Hardwood in living areas (good condition). Tile in bathrooms
+      and kitchen (good condition). Carpet in\nbedrooms (fair condition, normal wear).\nKitchen:
+      Appliances tested: Range, oven, dishwasher, garbage disposal, microwave - all
+      functional. Countertops:\ngranite, good condition. Cabinets: wood, good condition,
+      soft-close hinges.\nBathrooms: Master bath: Tile shower, no visible grout issues.
+      Exhaust fan functional. Hall bath: Tub/shower combo.\nFunctional. Caulk at tub/tile
+      junction needs refreshing.\nATTIC\nAccess: Pull-down stair in hallway. Attic
+      accessed and inspected.\nInsulation: Blown fiberglass, approximately R-30 (adequate
+      for CA Zone 4).\nVentilation: Ridge vent and soffit vents. Appears adequate.\nObservations:
+      No visible signs of active leaks, rodent activity, or mold. Roof decking appears
+      dry and sound from\ninterior.\nGARAGE\nType: Attached 2-car garage with automatic
+      door openers (2 remotes)\nCondition: Good overall. Auto-reverse on door openers
+      tested and functional.\nFire Separation: Fire-rated drywall appears intact between
+      garage and living space. Self-closing door to house present\nand functional.\nDeficiency:
+      Junction box on ceiling missing cover plate (SAFETY - noted above). Two outlets
+      open ground (noted in\nElectrical section).\nLIMITATIONS AND DISCLAIMERS\nThis
+      inspection is a visual examination of the readily accessible areas of the property
+      at the time of the inspection. The inspection is not technically\nexhaustive.
+      Areas that were inaccessible, concealed, or obstructed were not inspected. This
+      report does not include inspection of: swimming\npools/spas, outbuildings, underground
+      systems, environmental hazards (asbestos, lead, mold, radon), pest/wood-destroying
+      organisms, or geological\nconditions.\nEstimated repair costs are provided as
+      general guidance only and are based on typical contractor pricing in the San
+      Jose, CA metropolitan area as of\nthe inspection date. Actual costs may vary.
+      Obtain professional estimates before making purchasing decisions.\nThis report
+      is not a guarantee or warranty, expressed or implied, regarding the condition
+      of the property. The inspector assumes no liability for\nconditions that develop
+      after the inspection date.\nInspector: Robert Anderson, ASHI #247891\nDate:
+      03/21/2026\nAnderson Home Inspections, LLC"}], "model": "claude-sonnet-4-20250514"}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate, br
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '11260'
+      Content-Type:
+      - application/json
+      Host:
+      - api.anthropic.com
+      User-Agent:
+      - Anthropic/Python 0.49.0
+      X-Stainless-Arch:
+      - x64
+      X-Stainless-Async:
+      - 'false'
+      X-Stainless-Lang:
+      - python
+      X-Stainless-OS:
+      - Linux
+      X-Stainless-Package-Version:
+      - 0.49.0
+      X-Stainless-Runtime:
+      - CPython
+      X-Stainless-Runtime-Version:
+      - 3.11.15
+      anthropic-version:
+      - '2023-06-01'
+      baggage:
+      - sentry-trace_id=bf9b7005a16f4f30b9c14788af095ef0,sentry-sample_rand=0.659207,sentry-environment=production,sentry-public_key=bec0f097edae469b35925bf075c964d9,sentry-org_id=4511034871578624,sentry-transaction=analysis.analyze_property,sentry-sample_rate=0.1,sentry-sampled=false
+      sentry-trace:
+      - bf9b7005a16f4f30b9c14788af095ef0-9c26b0849921c60a-0
+      x-api-key:
+      - <REDACTED>
+      x-stainless-read-timeout:
+      - '600'
+      x-stainless-retry-count:
+      - '0'
+      x-stainless-timeout:
+      - '600'
+    method: POST
+    uri: https://api.anthropic.com/v1/messages
+  response:
+    body:
+      string: '{"model":"claude-sonnet-4-20250514","id":"msg_01MaAA2TNgA4C2mhYEvXzqKx","type":"message","role":"assistant","content":[{"type":"text","text":"```json\n{\n  \"findings\":
+        [\n    {\n      \"category\": \"electrical\",\n      \"severity\": \"critical\",\n      \"description\":
+        \"Exposed wiring junction box in garage lacks cover plate.\",\n      \"location\":
+        \"garage ceiling\",\n      \"recommendation\": \"Must be repaired immediately\",\n      \"safety_concern\":
+        true,\n      \"requires_specialist\": false,\n      \"source_quote\": \"Exposed
+        junction box in garage ceiling lacks cover plate. Must be repaired immediately.\"\n    },\n    {\n      \"category\":
+        \"electrical\",\n      \"severity\": \"major\",\n      \"description\": \"Two
+        exterior outlets lack GFCI protection.\",\n      \"location\": \"exterior\",\n      \"recommendation\":
+        \"Upgrade recommended for safety\",\n      \"safety_concern\": true,\n      \"requires_specialist\":
+        false,\n      \"source_quote\": \"Two exterior outlets lack GFCI protection.
+        Current code requires GFCI for all exterior outlets.\"\n    },\n    {\n      \"category\":
+        \"roof_exterior\",\n      \"severity\": \"major\",\n      \"description\":
+        \"Roof composition shingles show significant granule loss and curling on south-facing
+        slope.\",\n      \"location\": \"south-facing slope\",\n      \"recommendation\":
+        \"Plan for replacement within 2-3 years\",\n      \"safety_concern\": false,\n      \"requires_specialist\":
+        false,\n      \"source_quote\": \"Significant granule loss observed on south-facing
+        slope. Multiple areas of curling and lifting shingles.\"\n    },\n    {\n      \"category\":
+        \"roof_exterior\",\n      \"severity\": \"major\",\n      \"description\":
+        \"Evidence of past moisture intrusion at master bedroom ceiling with water
+        stain.\",\n      \"location\": \"master bedroom ceiling\",\n      \"recommendation\":
+        \"Source should be confirmed, may be related to roof flashing\",\n      \"safety_concern\":
+        false,\n      \"requires_specialist\": false,\n      \"source_quote\": \"Water
+        stain on master bedroom ceiling approximately 2 feet in diameter. Source should
+        be confirmed\"\n    },\n    {\n      \"category\": \"hvac_systems\",\n      \"severity\":
+        \"major\",\n      \"description\": \"HVAC condenser unit showing corrosion
+        on condenser coils, nearing end of useful life.\",\n      \"location\": \"exterior
+        condenser unit\",\n      \"recommendation\": \"Budget for replacement within
+        2-5 years\",\n      \"safety_concern\": false,\n      \"requires_specialist\":
+        false,\n      \"source_quote\": \"Condenser coils show corrosion. Functional
+        but nearing end of useful life.\"\n    },\n    {\n      \"category\": \"foundation_structure\",\n      \"severity\":
+        \"moderate\",\n      \"description\": \"Hairline crack in foundation east
+        wall, approximately 3 feet horizontal.\",\n      \"location\": \"east wall
+        exterior foundation\",\n      \"recommendation\": \"Monitor for changes, consult
+        structural engineer if crack widens\",\n      \"safety_concern\": false,\n      \"requires_specialist\":
+        true,\n      \"source_quote\": \"If crack widens beyond 1/4 inch or shows
+        vertical displacement, consult a licensed structural engineer.\"\n    },\n    {\n      \"category\":
+        \"electrical\",\n      \"severity\": \"moderate\",\n      \"description\":
+        \"Two garage outlets tested open ground.\",\n      \"location\": \"garage\",\n      \"recommendation\":
+        \"Repair needed for safety\",\n      \"safety_concern\": false,\n      \"requires_specialist\":
+        false,\n      \"source_quote\": \"Two garage outlets showed open ground -
+        repair needed.\"\n    },\n    {\n      \"category\": \"plumbing\",\n      \"severity\":
+        \"moderate\",\n      \"description\": \"Kitchen faucet has slow drip from
+        spout when off.\",\n      \"location\": \"kitchen\",\n      \"recommendation\":
+        \"Washer replacement needed\",\n      \"safety_concern\": false,\n      \"requires_specialist\":
+        false,\n      \"source_quote\": \"Kitchen faucet: Slow drip from spout when
+        off. Likely needs washer replacement\"\n    },\n    {\n      \"category\":
+        \"roof_exterior\",\n      \"severity\": \"minor\",\n      \"description\":
+        \"Flashing at chimney and vent pipes shows minor deterioration.\",\n      \"location\":
+        \"chimney and vent pipes\",\n      \"recommendation\": \"Monitor and repair
+        as needed\",\n      \"safety_concern\": false,\n      \"requires_specialist\":
+        false,\n      \"source_quote\": \"Flashing at chimney and vent pipes shows
+        minor deterioration.\"\n    },\n    {\n      \"category\": \"roof_exterior\",\n      \"severity\":
+        \"minor\",\n      \"description\": \"Driveway hairline crack near garage apron
+        approximately 4 feet long.\",\n      \"location\": \"driveway near garage
+        apron\",\n      \"recommendation\": \"Seal to prevent water infiltration\",\n      \"safety_concern\":
+        false,\n      \"requires_specialist\": false,\n      \"source_quote\": \"Hairline
+        crack near garage apron (~4 feet long). Seal to prevent water infiltration.\"\n    },\n    {\n      \"category\":
+        \"roof_exterior\",\n      \"severity\": \"minor\",\n      \"description\":
+        \"Caulking deteriorated at 4 window frames.\",\n      \"location\": \"window
+        frames\",\n      \"recommendation\": \"Recaulk for weatherproofing\",\n      \"safety_concern\":
+        false,\n      \"requires_specialist\": false,\n      \"source_quote\": \"Caulking
+        deteriorated at 4 window frames - recaulk recommended.\"\n    },\n    {\n      \"category\":
+        \"roof_exterior\",\n      \"severity\": \"minor\",\n      \"description\":
+        \"Fence post at rear property line shows wood rot at base.\",\n      \"location\":
+        \"rear property line fence\",\n      \"recommendation\": \"Replace before
+        failure\",\n      \"safety_concern\": false,\n      \"requires_specialist\":
+        false,\n      \"source_quote\": \"One post at rear shows wood rot at base
+        - replace.\"\n    },\n    {\n      \"category\": \"roof_exterior\",\n      \"severity\":
+        \"minor\",\n      \"description\": \"Minor paint touch-up needed at north
+        wall siding.\",\n      \"location\": \"north wall\",\n      \"recommendation\":
+        \"Touch-up painting\",\n      \"safety_concern\": false,\n      \"requires_specialist\":
+        false,\n      \"source_quote\": \"Minor paint touch-up needed at north wall.\"\n    },\n    {\n      \"category\":
+        \"hvac_systems\",\n      \"severity\": \"minor\",\n      \"description\":
+        \"Furnace filter was dirty.\",\n      \"location\": \"furnace\",\n      \"recommendation\":
+        \"Replace filter\",\n      \"safety_concern\": false,\n      \"requires_specialist\":
+        false,\n      \"source_quote\": \"Filter was dirty - recommend replacement.\"\n    },\n    {\n      \"category\":
+        \"hvac_systems\",\n      \"severity\": \"minor\",\n      \"description\":
+        \"Minor compression at one ductwork run may reduce airflow to master bedroom.\",\n      \"location\":
+        \"attic ductwork to master bedroom\",\n      \"recommendation\": \"Repair
+        compressed duct\",\n      \"safety_concern\": false,\n      \"requires_specialist\":
+        false,\n      \"source_quote\": \"Minor compression at one run - may reduce
+        airflow to master bedroom.\"\n    }\n  ]\n}\n```"}],"stop_reason":"end_turn","stop_sequence":null,"stop_details":null,"usage":{"input_tokens":2832,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"cache_creation":{"ephemeral_5m_input_tokens":0,"ephemeral_1h_input_tokens":0},"output_tokens":1683,"service_tier":"standard","inference_geo":"not_available"}}'
+    headers:
+      CF-RAY:
+      - 9f9c2ab7cfcd5939-PDX
+      Connection:
+      - keep-alive
+      Content-Security-Policy:
+      - default-src 'none'; frame-ancestors 'none'
+      Content-Type:
+      - application/json
+      Date:
+      - Sun, 10 May 2026 21:52:00 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      X-Robots-Tag:
+      - none
+      anthropic-organization-id:
+      - b2fdc71b-2fc9-444f-8b1b-31a1a50d1ce6
+      anthropic-ratelimit-input-tokens-limit:
+      - '450000'
+      anthropic-ratelimit-input-tokens-remaining:
+      - '449000'
+      anthropic-ratelimit-input-tokens-reset:
+      - '2026-05-10T21:51:44Z'
+      anthropic-ratelimit-output-tokens-limit:
+      - '90000'
+      anthropic-ratelimit-output-tokens-remaining:
+      - '89000'
+      anthropic-ratelimit-output-tokens-reset:
+      - '2026-05-10T21:52:00Z'
+      anthropic-ratelimit-requests-limit:
+      - '1000'
+      anthropic-ratelimit-requests-remaining:
+      - '999'
+      anthropic-ratelimit-requests-reset:
+      - '2026-05-10T21:51:43Z'
+      anthropic-ratelimit-tokens-limit:
+      - '540000'
+      anthropic-ratelimit-tokens-remaining:
+      - '538000'
+      anthropic-ratelimit-tokens-reset:
+      - '2026-05-10T21:51:44Z'
+      cf-cache-status:
+      - DYNAMIC
+      content-length:
+      - '7419'
+      request-id:
+      - req_011CaudRqGDqMkFRYbYwaecU
+      set-cookie:
+      - <REDACTED>
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      traceresponse:
+      - 00-df36d21fcc599616e5b0d4ea4ef8dfb3-23a2ec00c8a88281-01
+      vary:
+      - Accept-Encoding
+      x-envoy-upstream-service-time:
+      - '17164'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"max_tokens": 1000, "messages": [{"role": "user", "content": "Verify if
+      this finding is supported by the source document.\n\nFINDING: \"Exposed wiring
+      junction box in garage lacks cover plate.\"\n\nSOURCE:\nHOME INSPECTION REPORT\nProperty:
+      2847 Winfield Blvd, San Jose, CA 95128\nInspection Date: March 21, 2026\nReport
+      #: INS-2025-04281\nPrepared for: David & Maria Santos\nPrepared by: Robert Anderson,
+      ASHI Certified Inspector #247891\nAnderson Home Inspections, LLC\nLicense #HI-2019-04872  |  (408)
+      555-0147\nNOTICE: This report is the exclusive property of Anderson Home Inspections,
+      LLC and the client(s) named above. Use by any\nunauthorized persons is prohibited.
+      This inspection was performed in accordance with the Standards of Practice of
+      the American\nSociety of Home Inspectors (ASHI).\nEXECUTIVE SUMMARY\nThis single-family
+      residence was built in 2006 and contains approximately 1,847 square feet of
+      living space. The property features 3\nbedrooms, 2.5 bathrooms, an attached
+      2-car garage, and a landscaped rear yard. The home is served by city water and\n\nDetermine:
+      \"supported\" (clear evidence), \"unsupported\" (contradicts or not mentioned),
+      or \"uncertain\" (unclear).\n\nReturn ONLY JSON:\n{\n    \"verdict\": \"supported|unsupported|uncertain\",\n    \"confidence\":
+      0.0-1.0,\n    \"evidence_quotes\": [\"quote 1\", \"quote 2\"],\n    \"explanation\":
+      \"brief reason\"\n}"}], "model": "claude-sonnet-4-20250514"}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate, br
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '1431'
+      Content-Type:
+      - application/json
+      Host:
+      - api.anthropic.com
+      User-Agent:
+      - Anthropic/Python 0.49.0
+      X-Stainless-Arch:
+      - x64
+      X-Stainless-Async:
+      - 'false'
+      X-Stainless-Lang:
+      - python
+      X-Stainless-OS:
+      - Linux
+      X-Stainless-Package-Version:
+      - 0.49.0
+      X-Stainless-Runtime:
+      - CPython
+      X-Stainless-Runtime-Version:
+      - 3.11.15
+      anthropic-version:
+      - '2023-06-01'
+      baggage:
+      - sentry-trace_id=bf9b7005a16f4f30b9c14788af095ef0,sentry-sample_rand=0.659207,sentry-environment=production,sentry-public_key=bec0f097edae469b35925bf075c964d9,sentry-org_id=4511034871578624,sentry-transaction=analysis.analyze_property,sentry-sample_rate=0.1,sentry-sampled=false
+      cookie:
+      - <REDACTED>
+      sentry-trace:
+      - bf9b7005a16f4f30b9c14788af095ef0-ab45c760a0734a34-0
+      x-api-key:
+      - <REDACTED>
+      x-stainless-read-timeout:
+      - '600'
+      x-stainless-retry-count:
+      - '0'
+      x-stainless-timeout:
+      - '600'
+    method: POST
+    uri: https://api.anthropic.com/v1/messages
+  response:
+    body:
+      string: '{"model":"claude-sonnet-4-20250514","id":"msg_01Xc5ouZsQypcqqP9TJC1ENS","type":"message","role":"assistant","content":[{"type":"text","text":"{\n    \"verdict\":
+        \"unsupported\",\n    \"confidence\": 0.9,\n    \"evidence_quotes\": [],\n    \"explanation\":
+        \"The finding about an exposed wiring junction box in the garage is not mentioned
+        anywhere in the provided source document excerpt, which only contains basic
+        property information and header details.\"\n}"}],"stop_reason":"end_turn","stop_sequence":null,"stop_details":null,"usage":{"input_tokens":376,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"cache_creation":{"ephemeral_5m_input_tokens":0,"ephemeral_1h_input_tokens":0},"output_tokens":73,"service_tier":"standard","inference_geo":"not_available"}}'
+    headers:
+      CF-RAY:
+      - 9f9c2b540bb2aee3-PDX
+      Connection:
+      - keep-alive
+      Content-Security-Policy:
+      - default-src 'none'; frame-ancestors 'none'
+      Content-Type:
+      - application/json
+      Date:
+      - Sun, 10 May 2026 21:52:10 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      X-Robots-Tag:
+      - none
+      anthropic-organization-id:
+      - b2fdc71b-2fc9-444f-8b1b-31a1a50d1ce6
+      anthropic-ratelimit-input-tokens-limit:
+      - '450000'
+      anthropic-ratelimit-input-tokens-remaining:
+      - '450000'
+      anthropic-ratelimit-input-tokens-reset:
+      - '2026-05-10T21:52:09Z'
+      anthropic-ratelimit-output-tokens-limit:
+      - '90000'
+      anthropic-ratelimit-output-tokens-remaining:
+      - '90000'
+      anthropic-ratelimit-output-tokens-reset:
+      - '2026-05-10T21:52:10Z'
+      anthropic-ratelimit-requests-limit:
+      - '1000'
+      anthropic-ratelimit-requests-remaining:
+      - '999'
+      anthropic-ratelimit-requests-reset:
+      - '2026-05-10T21:52:08Z'
+      anthropic-ratelimit-tokens-limit:
+      - '540000'
+      anthropic-ratelimit-tokens-remaining:
+      - '540000'
+      anthropic-ratelimit-tokens-reset:
+      - '2026-05-10T21:52:09Z'
+      cf-cache-status:
+      - DYNAMIC
+      content-length:
+      - '775'
+      request-id:
+      - req_011CaudTg6sADNigiBChjtgU
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      traceresponse:
+      - 00-eb65788a011ebe51efa877db23ffbba5-3ea44c010a7e2027-01
+      vary:
+      - Accept-Encoding
+      x-envoy-upstream-service-time:
+      - '2141'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"max_tokens": 3000, "messages": [{"role": "user", "content": "Analyze
+      these seller disclosure vs inspection discrepancies. Each issue was detected
+      by comparing the actual text of both documents.\n\nSTRICT RULES:\n- Base your
+      severity rating ONLY on what the documents actually state\n- Do NOT infer additional
+      issues beyond what is listed below\n- Your explanation must reference the specific
+      discrepancy shown\n- Confidence should be lower (0.3-0.6) if the discrepancy
+      could be a matter of interpretation\n- If inspector_found includes [PHOTO: ...]
+      descriptions, factor the photographic evidence into your severity rating.\n  A
+      photo showing active damage (e.g., mold, standing water, structural failure)
+      should increase severity.\n\nDiscrepancies found:\n[\n  {\n    \"id\": \"C1\",\n    \"type\":
+      \"contradiction\",\n    \"seller_said\": \"Other Structural Components:\",\n    \"inspector_found\":
+      \"Hairline crack in foundation east wall, approximately 3 feet horizontal.\",\n    \"category\":
+      \"foundation\"\n  },\n  {\n    \"id\": \"C2\",\n    \"type\": \"contradiction\",\n    \"seller_said\":
+      \"Other Structural Components:\",\n    \"inspector_found\": \"Driveway hairline
+      crack near garage apron approximately 4 feet long.\",\n    \"category\": \"foundation\"\n  },\n  {\n    \"id\":
+      \"C3\",\n    \"type\": \"contradiction\",\n    \"seller_said\": \"Other Structural
+      Components:\",\n    \"inspector_found\": \"If crack widens, consult structural
+      engineer.\",\n    \"category\": \"foundation\"\n  },\n  {\n    \"id\": \"C4\",\n    \"type\":
+      \"contradiction\",\n    \"seller_said\": \"Other Structural Components:\",\n    \"inspector_found\":
+      \"Repair needed for safety.\",\n    \"category\": \"foundation\"\n  },\n  {\n    \"id\":
+      \"C5\",\n    \"type\": \"contradiction\",\n    \"seller_said\": \"Other Structural
+      Components:\",\n    \"inspector_found\": \"active leaks, especially at flashing
+      points.\",\n    \"category\": \"foundation\"\n  },\n  {\n    \"id\": \"C6\",\n    \"type\":
+      \"contradiction\",\n    \"seller_said\": \"5. Room additions, structural modifications,
+      or other alterations or repairs not in compliance with building codes\",\n    \"inspector_found\":
+      \"Hairline crack in foundation east wall, approximately 3 feet horizontal.\",\n    \"category\":
+      \"foundation\"\n  },\n  {\n    \"id\": \"C7\",\n    \"type\": \"contradiction\",\n    \"seller_said\":
+      \"5. Room additions, structural modifications, or other alterations or repairs
+      not in compliance with building codes\",\n    \"inspector_found\": \"Driveway
+      hairline crack near garage apron approximately 4 feet long.\",\n    \"category\":
+      \"foundation\"\n  },\n  {\n    \"id\": \"C8\",\n    \"type\": \"contradiction\",\n    \"seller_said\":
+      \"5. Room additions, structural modifications, or other alterations or repairs
+      not in compliance with building codes\",\n    \"inspector_found\": \"If crack
+      widens, consult structural engineer.\",\n    \"category\": \"foundation\"\n  },\n  {\n    \"id\":
+      \"C9\",\n    \"type\": \"contradiction\",\n    \"seller_said\": \"5. Room additions,
+      structural modifications, or other alterations or repairs not in compliance
+      with building codes\",\n    \"inspector_found\": \"Repair needed for safety.\",\n    \"category\":
+      \"foundation\"\n  },\n  {\n    \"id\": \"C10\",\n    \"type\": \"contradiction\",\n    \"seller_said\":
+      \"5. Room additions, structural modifications, or other alterations or repairs
+      not in compliance with building codes\",\n    \"inspector_found\": \"active
+      leaks, especially at flashing points.\",\n    \"category\": \"foundation\"\n  },\n  {\n    \"id\":
+      \"C11\",\n    \"type\": \"contradiction\",\n    \"seller_said\": \"lead-based
+      paint, mold, fuel or chemical storage tanks\",\n    \"inspector_found\": \"Evidence
+      of past moisture intrusion at master bedroom ceiling with water stain.\",\n    \"category\":
+      \"other\"\n  },\n  {\n    \"id\": \"C12\",\n    \"type\": \"contradiction\",\n    \"seller_said\":
+      \"lead-based paint, mold, fuel or chemical storage tanks\",\n    \"inspector_found\":
+      \"Stain is dry and appears inactive but source should be.\",\n    \"category\":
+      \"other\"\n  },\n  {\n    \"id\": \"C13\",\n    \"type\": \"contradiction\",\n    \"seller_said\":
+      \"lead-based paint, mold, fuel or chemical storage tanks\",\n    \"inspector_found\":
+      \"Stain appears dry and inactive.\",\n    \"category\": \"other\"\n  },\n  {\n    \"id\":
+      \"C14\",\n    \"type\": \"contradiction\",\n    \"seller_said\": \"lead-based
+      paint, mold, fuel or chemical storage tanks\",\n    \"inspector_found\": \"pools/spas,
+      outbuildings, underground systems, environmental hazards (asbestos, lead, mold,
+      radon), pest/wood-destroying organisms, or geological.\",\n    \"category\":
+      \"other\"\n  },\n  {\n    \"id\": \"C15\",\n    \"type\": \"contradiction\",\n    \"seller_said\":
+      \"7. Any settling from any cause, or slippage, sliding, or other soil problems\",\n    \"inspector_found\":
+      \"Hairline crack in foundation east wall, approximately 3 feet horizontal.\",\n    \"category\":
+      \"other\"\n  },\n  {\n    \"id\": \"C16\",\n    \"type\": \"contradiction\",\n    \"seller_said\":
+      \"7. Any settling from any cause, or slippage, sliding, or other soil problems\",\n    \"inspector_found\":
+      \"Driveway hairline crack near garage apron approximately 4 feet long.\",\n    \"category\":
+      \"other\"\n  },\n  {\n    \"id\": \"C17\",\n    \"type\": \"contradiction\",\n    \"seller_said\":
+      \"7. Any settling from any cause, or slippage, sliding, or other soil problems\",\n    \"inspector_found\":
+      \"If crack widens, consult structural engineer.\",\n    \"category\": \"other\"\n  },\n  {\n    \"id\":
+      \"C18\",\n    \"type\": \"contradiction\",\n    \"seller_said\": \"7. Any settling
+      from any cause, or slippage, sliding, or other soil problems\",\n    \"inspector_found\":
+      \"Repair needed for safety.\",\n    \"category\": \"other\"\n  },\n  {\n    \"id\":
+      \"C19\",\n    \"type\": \"contradiction\",\n    \"seller_said\": \"7. Any settling
+      from any cause, or slippage, sliding, or other soil problems\",\n    \"inspector_found\":
+      \"active leaks, especially at flashing points.\",\n    \"category\": \"other\"\n  },\n  {\n    \"id\":
+      \"C20\",\n    \"type\": \"contradiction\",\n    \"seller_said\": \"Electrical
+      Systems:\",\n    \"inspector_found\": \"Exposed wiring junction box in garage
+      lacks cover plate.\",\n    \"category\": \"electrical\"\n  },\n  {\n    \"id\":
+      \"C21\",\n    \"type\": \"contradiction\",\n    \"seller_said\": \"Electrical
+      Systems:\",\n    \"inspector_found\": \"Two exterior outlets lack GFCI protection.\",\n    \"category\":
+      \"electrical\"\n  },\n  {\n    \"id\": \"C22\",\n    \"type\": \"contradiction\",\n    \"seller_said\":
+      \"Electrical Systems:\",\n    \"inspector_found\": \"Two garage outlets tested
+      open ground.\",\n    \"category\": \"electrical\"\n  },\n  {\n    \"id\": \"C23\",\n    \"type\":
+      \"contradiction\",\n    \"seller_said\": \"Plumbing/Sewers/Septics:\",\n    \"inspector_found\":
+      \"Evidence of past moisture intrusion at master bedroom ceiling with water stain.\",\n    \"category\":
+      \"plumbing\"\n  },\n  {\n    \"id\": \"C24\",\n    \"type\": \"contradiction\",\n    \"seller_said\":
+      \"Plumbing/Sewers/Septics:\",\n    \"inspector_found\": \"Kitchen faucet has
+      slow drip from spout when off.\",\n    \"category\": \"plumbing\"\n  },\n  {\n    \"id\":
+      \"C25\",\n    \"type\": \"contradiction\",\n    \"seller_said\": \"Plumbing/Sewers/Septics:\",\n    \"inspector_found\":
+      \"Fence post at rear property line shows wood rot at base.\",\n    \"category\":
+      \"plumbing\"\n  },\n  {\n    \"id\": \"U1\",\n    \"type\": \"undisclosed\",\n    \"seller_said\":
+      \"Not disclosed\",\n    \"inspector_found\": \"Roof composition shingles show
+      significant granule loss and curling on south-facing slope.\",\n    \"category\":
+      \"roof_exterior\"\n  },\n  {\n    \"id\": \"U2\",\n    \"type\": \"undisclosed\",\n    \"seller_said\":
+      \"Not disclosed\",\n    \"inspector_found\": \"HVAC condenser unit showing corrosion
+      on condenser coils, nearing end of useful life.\",\n    \"category\": \"hvac_systems\"\n  },\n  {\n    \"id\":
+      \"U3\",\n    \"type\": \"undisclosed\",\n    \"seller_said\": \"Not disclosed\",\n    \"inspector_found\":
+      \"Flashing at chimney and vent pipes shows minor deterioration.\",\n    \"category\":
+      \"roof_exterior\"\n  },\n  {\n    \"id\": \"U4\",\n    \"type\": \"undisclosed\",\n    \"seller_said\":
+      \"Not disclosed\",\n    \"inspector_found\": \"Caulking deteriorated at 4 window
+      frames.\",\n    \"category\": \"roof_exterior\"\n  },\n  {\n    \"id\": \"U5\",\n    \"type\":
+      \"undisclosed\",\n    \"seller_said\": \"Not disclosed\",\n    \"inspector_found\":
+      \"Minor paint touch-up needed at north wall siding.\",\n    \"category\": \"roof_exterior\"\n  },\n  {\n    \"id\":
+      \"U6\",\n    \"type\": \"undisclosed\",\n    \"seller_said\": \"Not disclosed\",\n    \"inspector_found\":
+      \"Furnace filter was dirty.\",\n    \"category\": \"hvac_systems\"\n  },\n  {\n    \"id\":
+      \"U7\",\n    \"type\": \"undisclosed\",\n    \"seller_said\": \"Not disclosed\",\n    \"inspector_found\":
+      \"Minor compression at one ductwork run may reduce airflow to master bedroom.\",\n    \"category\":
+      \"hvac_systems\"\n  },\n  {\n    \"id\": \"U8\",\n    \"type\": \"undisclosed\",\n    \"seller_said\":
+      \"Not disclosed\",\n    \"inspector_found\": \"Replace before failure.\",\n    \"category\":
+      \"hvac_systems\"\n  },\n  {\n    \"id\": \"U9\",\n    \"type\": \"undisclosed\",\n    \"seller_said\":
+      \"Not disclosed\",\n    \"inspector_found\": \"cracks in living room wall near
+      window (cosmetic/settling).\",\n    \"category\": \"hvac_systems\"\n  }\n]\n\nFor
+      EACH issue, provide:\n1. severity: critical|major|moderate|minor\n2. explanation:
+      Why this matters (1 sentence, referencing the specific discrepancy)\n3. confidence:
+      0.0-1.0\n\nAlso provide:\n4. transparency_score: 0-100 (based ONLY on the discrepancies
+      above, not speculation)\n5. summary: 2-3 sentence executive summary (cite specific
+      findings only)\n\nRespond in JSON:\n{\n  \"issues\": [\n    {\"id\": \"C1\",
+      \"severity\": \"major\", \"explanation\": \"...\", \"confidence\": 0.9},\n    ...\n  ],\n  \"transparency_score\":
+      75,\n  \"summary\": \"...\"\n}"}], "model": "claude-sonnet-4-20250514", "temperature":
+      0}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate, br
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '10239'
+      Content-Type:
+      - application/json
+      Host:
+      - api.anthropic.com
+      User-Agent:
+      - Anthropic/Python 0.49.0
+      X-Stainless-Arch:
+      - x64
+      X-Stainless-Async:
+      - 'false'
+      X-Stainless-Lang:
+      - python
+      X-Stainless-OS:
+      - Linux
+      X-Stainless-Package-Version:
+      - 0.49.0
+      X-Stainless-Runtime:
+      - CPython
+      X-Stainless-Runtime-Version:
+      - 3.11.15
+      anthropic-version:
+      - '2023-06-01'
+      baggage:
+      - sentry-trace_id=bf9b7005a16f4f30b9c14788af095ef0,sentry-sample_rand=0.659207,sentry-environment=production,sentry-public_key=bec0f097edae469b35925bf075c964d9,sentry-org_id=4511034871578624,sentry-transaction=analysis.analyze_property,sentry-sample_rate=0.1,sentry-sampled=false
+      sentry-trace:
+      - bf9b7005a16f4f30b9c14788af095ef0-b5851daf1bd6d8b9-0
+      x-api-key:
+      - <REDACTED>
+      x-stainless-read-timeout:
+      - '600'
+      x-stainless-retry-count:
+      - '0'
+      x-stainless-timeout:
+      - '600'
+    method: POST
+    uri: https://api.anthropic.com/v1/messages
+  response:
+    body:
+      string: '{"model":"claude-sonnet-4-20250514","id":"msg_01ViqeTuLQ4YiR548VUDbLYa","type":"message","role":"assistant","content":[{"type":"text","text":"```json\n{\n  \"issues\":
+        [\n    {\"id\": \"C1\", \"severity\": \"moderate\", \"explanation\": \"Seller
+        did not disclose a 3-foot horizontal hairline crack in the foundation east
+        wall under structural components.\", \"confidence\": 0.8},\n    {\"id\": \"C2\",
+        \"severity\": \"minor\", \"explanation\": \"Seller did not disclose a 4-foot
+        hairline crack in the driveway near garage apron under structural components.\",
+        \"confidence\": 0.7},\n    {\"id\": \"C3\", \"severity\": \"moderate\", \"explanation\":
+        \"Inspector''s recommendation to consult a structural engineer if the crack
+        widens suggests potential structural concern not disclosed by seller.\", \"confidence\":
+        0.6},\n    {\"id\": \"C4\", \"severity\": \"major\", \"explanation\": \"Inspector
+        states repair is needed for safety, indicating a safety issue not disclosed
+        under structural components.\", \"confidence\": 0.8},\n    {\"id\": \"C5\",
+        \"severity\": \"major\", \"explanation\": \"Active leaks at flashing points
+        represent ongoing water intrusion issues not disclosed under structural components.\",
+        \"confidence\": 0.9},\n    {\"id\": \"C6\", \"severity\": \"moderate\", \"explanation\":
+        \"Foundation crack was not disclosed under building code compliance section,
+        though it may indicate structural issues.\", \"confidence\": 0.6},\n    {\"id\":
+        \"C7\", \"severity\": \"minor\", \"explanation\": \"Driveway crack was not
+        disclosed under building code compliance, though this is primarily cosmetic.\",
+        \"confidence\": 0.5},\n    {\"id\": \"C8\", \"severity\": \"moderate\", \"explanation\":
+        \"Potential need for structural engineer consultation was not disclosed under
+        building code compliance.\", \"confidence\": 0.6},\n    {\"id\": \"C9\", \"severity\":
+        \"major\", \"explanation\": \"Safety repair requirement was not disclosed
+        under building code compliance section.\", \"confidence\": 0.8},\n    {\"id\":
+        \"C10\", \"severity\": \"major\", \"explanation\": \"Active leaks were not
+        disclosed under building code compliance, representing ongoing structural
+        water damage.\", \"confidence\": 0.9},\n    {\"id\": \"C11\", \"severity\":
+        \"moderate\", \"explanation\": \"Past moisture intrusion with water staining
+        was not disclosed under environmental hazards section that covers mold risks.\",
+        \"confidence\": 0.7},\n    {\"id\": \"C12\", \"severity\": \"moderate\", \"explanation\":
+        \"Inspector notes the stain source should be investigated, but this concern
+        was not disclosed under environmental hazards.\", \"confidence\": 0.6},\n    {\"id\":
+        \"C13\", \"severity\": \"minor\", \"explanation\": \"Dry, inactive water stain
+        was not disclosed under environmental hazards, though it appears resolved.\",
+        \"confidence\": 0.5},\n    {\"id\": \"C14\", \"severity\": \"minor\", \"explanation\":
+        \"General inspector disclaimer about environmental hazards contradicts seller''s
+        environmental hazard disclosures.\", \"confidence\": 0.4},\n    {\"id\": \"C15\",
+        \"severity\": \"moderate\", \"explanation\": \"Foundation crack was not disclosed
+        under soil problems/settling section, though it could indicate settling issues.\",
+        \"confidence\": 0.7},\n    {\"id\": \"C16\", \"severity\": \"minor\", \"explanation\":
+        \"Driveway crack was not disclosed under settling/soil problems, though it''s
+        likely cosmetic.\", \"confidence\": 0.5},\n    {\"id\": \"C17\", \"severity\":
+        \"moderate\", \"explanation\": \"Potential structural engineer consultation
+        need was not disclosed under settling/soil problems.\", \"confidence\": 0.6},\n    {\"id\":
+        \"C18\", \"severity\": \"major\", \"explanation\": \"Safety repair requirement
+        was not disclosed under settling/soil problems section.\", \"confidence\":
+        0.8},\n    {\"id\": \"C19\", \"severity\": \"major\", \"explanation\": \"Active
+        leaks were not disclosed under settling/soil problems, representing ongoing
+        structural issues.\", \"confidence\": 0.9},\n    {\"id\": \"C20\", \"severity\":
+        \"moderate\", \"explanation\": \"Exposed electrical junction box without cover
+        plate in garage was not disclosed under electrical systems.\", \"confidence\":
+        0.8},\n    {\"id\": \"C21\", \"severity\": \"moderate\", \"explanation\":
+        \"Two exterior outlets lacking required GFCI protection were not disclosed
+        under electrical systems.\", \"confidence\": 0.8},\n    {\"id\": \"C22\",
+        \"severity\": \"moderate\", \"explanation\": \"Two garage outlets with open
+        ground (safety hazard) were not disclosed under electrical systems.\", \"confidence\":
+        0.8},\n    {\"id\": \"C23\", \"severity\": \"moderate\", \"explanation\":
+        \"Past moisture intrusion evidence with water staining was not disclosed under
+        plumbing systems.\", \"confidence\": 0.7},\n    {\"id\": \"C24\", \"severity\":
+        \"minor\", \"explanation\": \"Kitchen faucet with slow drip was not disclosed
+        under plumbing systems.\", \"confidence\": 0.8},\n    {\"id\": \"C25\", \"severity\":
+        \"minor\", \"explanation\": \"Wood rot at fence post base was incorrectly
+        categorized under plumbing rather than exterior/structural.\", \"confidence\":
+        0.6},\n    {\"id\": \"U1\", \"severity\": \"major\", \"explanation\": \"Significant
+        roof deterioration with granule loss and curling shingles was not disclosed.\",
+        \"confidence\": 0.9},\n    {\"id\": \"U2\", \"severity\": \"major\", \"explanation\":
+        \"HVAC condenser unit nearing end of useful life with corroded coils was not
+        disclosed.\", \"confidence\": 0.9},\n    {\"id\": \"U3\", \"severity\": \"moderate\",
+        \"explanation\": \"Deteriorating flashing at chimney and vent pipes was not
+        disclosed.\", \"confidence\": 0.7},\n    {\"id\": \"U4\", \"severity\": \"minor\",
+        \"explanation\": \"Deteriorated caulking at four window frames was not disclosed.\",
+        \"confidence\": 0.7},\n    {\"id\": \"U5\", \"severity\": \"minor\", \"explanation\":
+        \"Minor paint touch-up needed at north wall siding was not disclosed.\", \"confidence\":
+        0.6},\n    {\"id\": \"U6\", \"severity\": \"minor\", \"explanation\": \"Dirty
+        furnace filter was not disclosed, though this is routine maintenance.\", \"confidence\":
+        0.5},\n    {\"id\": \"U7\", \"severity\": \"minor\", \"explanation\": \"Minor
+        ductwork compression affecting airflow to master bedroom was not disclosed.\",
+        \"confidence\": 0.6},\n    {\"id\": \"U8\", \"severity\": \"moderate\", \"explanation\":
+        \"Inspector recommendation to replace before failure suggests undisclosed
+        equipment nearing end of life.\", \"confidence\": 0.6},\n    {\"id\": \"U9\",
+        \"severity\": \"minor\", \"explanation\": \"Cosmetic wall cracks near window
+        from settling were not disclosed.\", \"confidence\": 0.6}\n  ],\n  \"transparency_score\":
+        25,\n  \"summary\": \"The seller failed to disclose numerous significant issues
+        including active leaks at flashing points, safety-required repairs, major
+        roof deterioration with granule loss and curling, and an HVAC system nearing
+        end of useful life. Multiple electrical safety hazards were also undisclosed,
+        including exposed wiring, missing GFCI protection, and open ground outlets.
+        The pattern of undisclosed major systems issues and safety concerns indicates
+        poor transparency in the seller disclosure.\",\n}\n```"}],"stop_reason":"end_turn","stop_sequence":null,"stop_details":null,"usage":{"input_tokens":2794,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"cache_creation":{"ephemeral_5m_input_tokens":0,"ephemeral_1h_input_tokens":0},"output_tokens":1664,"service_tier":"standard","inference_geo":"not_available"}}'
+    headers:
+      CF-RAY:
+      - 9f9c2b620a0b962a-PDX
+      Connection:
+      - keep-alive
+      Content-Security-Policy:
+      - default-src 'none'; frame-ancestors 'none'
+      Content-Type:
+      - application/json
+      Date:
+      - Sun, 10 May 2026 21:52:34 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      X-Robots-Tag:
+      - none
+      anthropic-organization-id:
+      - b2fdc71b-2fc9-444f-8b1b-31a1a50d1ce6
+      anthropic-ratelimit-input-tokens-limit:
+      - '450000'
+      anthropic-ratelimit-input-tokens-remaining:
+      - '449000'
+      anthropic-ratelimit-input-tokens-reset:
+      - '2026-05-10T21:52:13Z'
+      anthropic-ratelimit-output-tokens-limit:
+      - '90000'
+      anthropic-ratelimit-output-tokens-remaining:
+      - '89000'
+      anthropic-ratelimit-output-tokens-reset:
+      - '2026-05-10T21:52:35Z'
+      anthropic-ratelimit-requests-limit:
+      - '1000'
+      anthropic-ratelimit-requests-remaining:
+      - '999'
+      anthropic-ratelimit-requests-reset:
+      - '2026-05-10T21:52:10Z'
+      anthropic-ratelimit-tokens-limit:
+      - '540000'
+      anthropic-ratelimit-tokens-remaining:
+      - '538000'
+      anthropic-ratelimit-tokens-reset:
+      - '2026-05-10T21:52:13Z'
+      cf-cache-status:
+      - DYNAMIC
+      content-length:
+      - '7521'
+      request-id:
+      - req_011CaudTqhpFLoeVGEBxDUHW
+      set-cookie:
+      - <REDACTED>
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      traceresponse:
+      - 00-dccc3750dc3c1363686a73d80a5da40c-d0c66947bc43b9ba-01
+      vary:
+      - Accept-Encoding
+      x-envoy-upstream-service-time:
+      - '24036'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"max_tokens": 2000, "messages": [{"role": "user", "content": "You are
+      an expert real estate analyst cross-referencing a seller''s disclosure against
+      independent government records.\n\nASKING PRICE: $750,000\n\n=== GOVERNMENT
+      & PUBLIC RECORDS ===\nESTIMATED VALUE (AVM): $388,000\n\n=== SELLER''S DISCLOSURE
+      (excerpt) ===\nREAL ESTATE TRANSFER DISCLOSURE STATEMENT\n(California Civil
+      Code Section 1102 et seq.)\nTHIS STATEMENT IS A DISCLOSURE OF THE CONDITION
+      OF THE ABOVE DESCRIBED PROPERTY IN COMPLIANCE\nWITH SECTION 1102 OF THE CIVIL
+      CODE AS OF THE DATE SIGNED BY THE TRANSFEROR.\nProperty Address: 2847 Winfield
+      Blvd, San Jose, CA 95128\nCity: San Jose    County: Santa Clara    Zip: 95128\nI.
+      COORDINATION WITH OTHER DISCLOSURE FORMS\nThis Real Property Transfer Disclosure
+      Statement is made pursuant to Section 1102 of the Civil Code. Other statutes
+      require\ndisclosures, depending upon the details of the particular real estate
+      transaction.\nII. SELLER''S INFORMATION\nA. The subject property has the following
+      items:\n[X] Range/Oven [X] Dishwasher [X] Garbage Disposal\n[X] Washer/Dryer
+      Hookups [X] Rain Gutters [ ] Burglar Alarm\n[X] Smoke Detector(s) [X] Fire Alarm
+      [X] Carbon Monoxide Device(s)\n[ ] TV Antenna [ ] Satellite Dish [ ] Intercom\n[X]
+      Central Heating [X] Central Air Conditioning [ ] Evaporator Cooler(s)\n[ ] Wall/Window
+      Air Conditioning [X] Fireplace(s) [X] Gas Starter\n[X] Garage: Attached [X]
+      Garage: Door Opener(s) [X] Number Remote Controls: 2\n[ ] Pool [ ] Spa/Hot Tub
+      [ ] Child Resistant Barrier for\n[X] Patio/Decking [ ] Built-in Barbecue [ ]
+      Solar Panels (owned)\n[X] Water Heater: Gas [ ] Water Softener (owned) [ ] Security
+      Gate(s)\n[X] Automatic Garage Door Opener [ ] Sump Pump [X] 220 Volt Wiring
+      in Garage\nExhaust Fan(s) in: [X] Kitchen [X] Bathroom(s)\nGas Supply: [X] Utility  Electricity:
+      [X] Utility  Water: [X] City\nSewer: [X] City  Window Screens: [X] Full  Roof
+      Type: Composition Shingle, Age: ~18 yrs\nB. Are you (Seller) aware of any significant
+      defects/malfunctions in any of the following?\nInterior Walls: Yes (X)  No (
+      )\n   Detail: Minor cracks in living room wall near window. Cosmetic only.\nCeilings:
+      Yes ( )  No (X)\nFloors: Yes ( )  No (X)\nExterior Walls: Yes ( )  No (X)\nInsulation:
+      Yes ( )  No (X)\nRoof(s): Yes (X)  No ( )\n   Detail: Composition shingle, 18
+      years old. Some granule loss noted. No leaks observed.\nWindows: Yes ( )  No
+      (X)\nDoors: Yes ( )  No (X)\nFoundation: Yes ( )  No (X)\nSlab(s): Yes ( )  No
+      (X)\nDriveways: Yes (X)  No ( )\n   Detail: Hairline crack in driveway near
+      garage. Does not affect use.\nSidewalks: Yes ( )  No (X)\nWalls/Fences: Yes
+      ( )  No (X)\nElectrical Systems: Yes ( )  No (X)\nPlumbing/Sewers/Septics: Yes
+      ( )  No (X)\nOther Structural Components: Yes ( )  No (X)\nAdditional Seller
+      disclosures:\nRoof was patched in 2021 after winter storm. Patch was done by
+      licensed contractor (receipt available). HVAC unit serviced annually - last
+      service\nAugust 2024. Water heater replaced in 2020 (50 gallon, gas). Garage
+      door opener replaced in 2022. Kitchen remodeled in 2019 with permits pulled\nfrom
+      City of San Jose. Bathroom updated in 2021 - no permits were pulled for cosmetic
+      updates only (tile, fixtures, vanity).\nC. Are you (Seller) aware of any of
+      the following:\n1. Substances, materials, or products which may be an environmental
+      hazard such as, but not limit\n\n=== INSPECTION REPORT (excerpt) ===\nHOME INSPECTION
+      REPORT\nProperty: 2847 Winfield Blvd, San Jose, CA 95128\nInspection Date: March
+      21, 2026\nReport #: INS-2025-04281\nPrepared for: David & Maria Santos\nPrepared
+      by: Robert Anderson, ASHI Certified Inspector #247891\nAnderson Home Inspections,
+      LLC\nLicense #HI-2019-04872  |  (408) 555-0147\nNOTICE: This report is the exclusive
+      property of Anderson Home Inspections, LLC and the client(s) named above. Use
+      by any\nunauthorized persons is prohibited. This inspection was performed in
+      accordance with the Standards of Practice of the American\nSociety of Home Inspectors
+      (ASHI).\nEXECUTIVE SUMMARY\nThis single-family residence was built in 2006 and
+      contains approximately 1,847 square feet of living space. The property features
+      3\nbedrooms, 2.5 bathrooms, an attached 2-car garage, and a landscaped rear
+      yard. The home is served by city water and sewer,\nnatural gas, and 200 amp
+      electrical service.\nSUMMARY OF SIGNIFICANT FINDINGS:\n[SAFETY] Exposed wiring
+      junction box in garage lacks cover plate. Repair immediately.\n[SAFETY] Absence
+      of GFCI protection at two exterior outlets. Upgrade recommended.\n[MAJOR] Roof
+      composition shingles show significant granule loss and curling on south-facing
+      slope. Estimated remaining life\n2-4 years. Budget for replacement ($12,000-$18,000).\n[MAJOR]
+      Evidence of past moisture intrusion at master bedroom ceiling. Stain is dry
+      and appears inactive but source should be\nconfirmed. Possible flashing or roof-related.\n[MAJOR]
+      HVAC condenser unit (18 years old) showing corrosion on condenser coils. Functional
+      but nearing end of useful life.\nBudget for replacement ($4,000-$7,000).\n[MODERATE]
+      Hairline crack in foundation east wall, approximately 3 feet horizontal. Appears
+      cosmetic/settling. Monitor for changes.\nIf crack widens, consult structural
+      engineer.\n[MODERATE] Two garage outlets tested open ground. Repair needed for
+      safety.\n[MODERATE] Kitchen faucet has slow drip. Washer replacement needed
+      (~$150).\n[MINOR] Driveway hairline crack near garage apron. Seal to prevent
+      water infiltration.\n[MINOR] Caulking deteriorated at multiple window frames.
+      Recaulk for weatherproofing.\n[MINOR] Fence post at rear property line shows
+      wood rot at base. Replace before failure.\nROOFING\nType: Composition shingle
+      (architectural)\nAge: Approximately 18 years (original to construction)\nCondition:
+      DEFICIENT - Significant granule loss observed on south-facing slope. Multiple
+      areas of curling and lifting\nshingles. Ridge cap appears intact. Flashing at
+      chimney and vent pipes shows minor deterioration.\nGutters and downspouts functional
+      with minor debris accumulation.\nEstimated Remaining Life: 2-4 years\nEstimated
+      Replacement Cost: $12,000-$18,000 for complete re-roof\nRecommendation: Obtain
+      quotes from licensed roofing contractors. Plan for replacement within 2-3 years.
+      Monitor for any\nactive leaks, especially at flashing points.\nEXTERIOR\nSiding:
+      Fiber cement (HardiePlank). Good condition overall. Minor paint touch-up needed
+      at north wall.\nTrim: Wood trim at eaves. \n\nTASK: Identify where the seller''s
+      disclosure contradicts, omits, or is inconsistent with the government records
+      above. Focus on material findings that would affect a buyer''s decision.\n\nFor
+      each finding, assess:\n1. Did the seller explicitly deny something that government
+      data contradicts?\n2. Did the seller omit material information that government
+      records reveal?\n3. Does the asking price make sense relative to area data?\n4.
+      Are there environmental or hazard risks the seller didn''t address?\n\nReturn
+      ONLY a JSON array. Each item:\n{\n  \"type\": \"contradiction|omission|context\",\n  \"severity\":
+      \"high|medium|info\",\n  \"title\": \"Brief headline (under 80 chars)\",\n  \"detail\":
+      \"2-3 sentence explanation of what the government data shows vs what the seller
+      said or didn''t say. Be specific.\",\n  \"source\": \"The government data source
+      (e.g., FEMA NFHL, USGS, US Census ACS, CAL FIRE, EPA AirNow)\",\n  \"category\":
+      \"water_damage|structural|environmental|financial|safety\"\n}\n\nRules:\n- Only
+      flag MATERIAL issues. Don''t flag minor or speculative items.\n- \"contradiction\"
+      = seller explicitly said something that government data disproves\n- \"omission\"
+      = seller failed to mention something material that government data reveals\n-
+      \"context\" = government data provides useful context (not necessarily seller''s
+      fault)\n- If the seller''s disclosure is honest and consistent with records,
+      return an empty array []\n- Maximum 5 findings. Quality over quantity.\n- Be
+      precise about what the seller said vs what the data shows."}], "model": "claude-sonnet-4-20250514"}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate, br
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '8043'
+      Content-Type:
+      - application/json
+      Host:
+      - api.anthropic.com
+      User-Agent:
+      - Anthropic/Python 0.49.0
+      X-Stainless-Arch:
+      - x64
+      X-Stainless-Async:
+      - 'false'
+      X-Stainless-Lang:
+      - python
+      X-Stainless-OS:
+      - Linux
+      X-Stainless-Package-Version:
+      - 0.49.0
+      X-Stainless-Runtime:
+      - CPython
+      X-Stainless-Runtime-Version:
+      - 3.11.15
+      anthropic-version:
+      - '2023-06-01'
+      baggage:
+      - sentry-trace_id=bf9b7005a16f4f30b9c14788af095ef0,sentry-sample_rand=0.659207,sentry-environment=production,sentry-public_key=bec0f097edae469b35925bf075c964d9,sentry-org_id=4511034871578624,sentry-transaction=analysis.analyze_property,sentry-sample_rate=0.1,sentry-sampled=false
+      cookie:
+      - <REDACTED>
+      sentry-trace:
+      - bf9b7005a16f4f30b9c14788af095ef0-a80d6460bcabd2b8-0
+      x-api-key:
+      - <REDACTED>
+      x-stainless-read-timeout:
+      - '600'
+      x-stainless-retry-count:
+      - '0'
+      x-stainless-timeout:
+      - '600'
+    method: POST
+    uri: https://api.anthropic.com/v1/messages
+  response:
+    body:
+      string: '{"model":"claude-sonnet-4-20250514","id":"msg_01E63shvJ8oeTQQAYAXXyenV","type":"message","role":"assistant","content":[{"type":"text","text":"```json\n[\n  {\n    \"type\":
+        \"omission\",\n    \"severity\": \"high\",\n    \"title\": \"Major roof deterioration
+        and moisture intrusion not disclosed\",\n    \"detail\": \"The seller only
+        disclosed ''some granule loss'' with ''no leaks observed'' but the inspection
+        reveals significant granule loss, curling shingles, and evidence of past moisture
+        intrusion at the master bedroom ceiling. The roof requires replacement within
+        2-4 years at a cost of $12,000-$18,000.\",\n    \"source\": \"Professional
+        Home Inspection Report\",\n    \"category\": \"structural\"\n  },\n  {\n    \"type\":
+        \"omission\",\n    \"severity\": \"high\",\n    \"title\": \"Safety hazards
+        in electrical systems not disclosed\",\n    \"detail\": \"The seller indicated
+        no defects in electrical systems, but the inspection found exposed wiring
+        junction box in garage, absence of GFCI protection at exterior outlets, and
+        open ground connections. These are immediate safety concerns requiring repair.\",\n    \"source\":
+        \"Professional Home Inspection Report\",\n    \"category\": \"safety\"\n  },\n  {\n    \"type\":
+        \"omission\",\n    \"severity\": \"medium\",\n    \"title\": \"Foundation
+        crack not disclosed despite being visible\",\n    \"detail\": \"The seller
+        disclosed no foundation defects, but the inspection found a 3-foot horizontal
+        hairline crack in the east foundation wall. While potentially cosmetic, this
+        is a material condition that should have been disclosed for buyer awareness.\",\n    \"source\":
+        \"Professional Home Inspection Report\",\n    \"category\": \"structural\"\n  },\n  {\n    \"type\":
+        \"context\",\n    \"severity\": \"high\",\n    \"title\": \"Asking price significantly
+        exceeds estimated market value\",\n    \"detail\": \"The asking price of $750,000
+        is 93% higher than the AVM estimate of $388,000. This substantial premium
+        suggests either major improvements not captured in public records or potential
+        overpricing that buyers should investigate further.\",\n    \"source\": \"Government
+        AVM (Automated Valuation Model)\",\n    \"category\": \"financial\"\n  }\n]\n```"}],"stop_reason":"end_turn","stop_sequence":null,"stop_details":null,"usage":{"input_tokens":2301,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"cache_creation":{"ephemeral_5m_input_tokens":0,"ephemeral_1h_input_tokens":0},"output_tokens":485,"service_tier":"standard","inference_geo":"not_available"}}'
+    headers:
+      CF-RAY:
+      - 9f9c2bf98e36fc1e-PDX
+      Connection:
+      - keep-alive
+      Content-Security-Policy:
+      - default-src 'none'; frame-ancestors 'none'
+      Content-Type:
+      - application/json
+      Date:
+      - Sun, 10 May 2026 21:52:45 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      X-Robots-Tag:
+      - none
+      anthropic-organization-id:
+      - b2fdc71b-2fc9-444f-8b1b-31a1a50d1ce6
+      anthropic-ratelimit-input-tokens-limit:
+      - '450000'
+      anthropic-ratelimit-input-tokens-remaining:
+      - '449000'
+      anthropic-ratelimit-input-tokens-reset:
+      - '2026-05-10T21:52:37Z'
+      anthropic-ratelimit-output-tokens-limit:
+      - '90000'
+      anthropic-ratelimit-output-tokens-remaining:
+      - '90000'
+      anthropic-ratelimit-output-tokens-reset:
+      - '2026-05-10T21:52:45Z'
+      anthropic-ratelimit-requests-limit:
+      - '1000'
+      anthropic-ratelimit-requests-remaining:
+      - '999'
+      anthropic-ratelimit-requests-reset:
+      - '2026-05-10T21:52:35Z'
+      anthropic-ratelimit-tokens-limit:
+      - '540000'
+      anthropic-ratelimit-tokens-remaining:
+      - '539000'
+      anthropic-ratelimit-tokens-reset:
+      - '2026-05-10T21:52:37Z'
+      cf-cache-status:
+      - DYNAMIC
+      content-length:
+      - '2536'
+      request-id:
+      - req_011CaudVdUR8XscFyWQxj1f2
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      traceresponse:
+      - 00-e609333fbefe3535ce1712964db26fbc-9d9f476b9c86cd04-01
+      vary:
+      - Accept-Encoding
+      x-envoy-upstream-service-time:
+      - '10236'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"max_tokens": 4000, "messages": [{"role": "user", "content": "Analyze
+      this home inspection report text. Extract ONLY actual problems, defects, safety
+      concerns, and items needing repair or further evaluation.\n\nDo NOT include:\n-
+      Positive observations (\"in good condition\", \"functioning properly\")\n- General
+      descriptions of systems\n- Informational notes that aren''t problems\n- Maintenance
+      recommendations that aren''t defects\n\nFor each finding, provide:\n- category:
+      one of [foundation, roof, plumbing, electrical, hvac, water_damage, pest, environmental,
+      safety, permits, general]\n- severity: one of [critical, major, moderate, minor]\n  critical
+      = structural failure, active safety hazard, immediate action needed\n  major
+      = significant defect, will worsen, costly repair\n  moderate = needs repair
+      but not urgent, standard maintenance item\n  minor = cosmetic, low priority,
+      monitoring sufficient\n- description: clear one-sentence description of the
+      problem\n- location: where in the property (if stated)\n- raw_excerpt: the exact
+      text from the report (max 100 chars)\n- safety_concern: true if this is a life/safety
+      issue\n- requires_specialist: true if the inspector recommends further evaluation\n\nRespond
+      ONLY with a JSON object: {\"findings\": [...]}\n\nINSPECTION REPORT TEXT:\nHOME
+      INSPECTION REPORT\nProperty: 2847 Winfield Blvd, San Jose, CA 95128\nInspection
+      Date: March 21, 2026\nReport #: INS-2025-04281\nPrepared for: David & Maria
+      Santos\nPrepared by: Robert Anderson, ASHI Certified Inspector #247891\nAnderson
+      Home Inspections, LLC\nLicense #HI-2019-04872  |  (408) 555-0147\nNOTICE: This
+      report is the exclusive property of Anderson Home Inspections, LLC and the client(s)
+      named above. Use by any\nunauthorized persons is prohibited. This inspection
+      was performed in accordance with the Standards of Practice of the American\nSociety
+      of Home Inspectors (ASHI).\nEXECUTIVE SUMMARY\nThis single-family residence
+      was built in 2006 and contains approximately 1,847 square feet of living space.
+      The property features 3\nbedrooms, 2.5 bathrooms, an attached 2-car garage,
+      and a landscaped rear yard. The home is served by city water and sewer,\nnatural
+      gas, and 200 amp electrical service.\nSUMMARY OF SIGNIFICANT FINDINGS:\n[SAFETY]
+      Exposed wiring junction box in garage lacks cover plate. Repair immediately.\n[SAFETY]
+      Absence of GFCI protection at two exterior outlets. Upgrade recommended.\n[MAJOR]
+      Roof composition shingles show significant granule loss and curling on south-facing
+      slope. Estimated remaining life\n2-4 years. Budget for replacement ($12,000-$18,000).\n[MAJOR]
+      Evidence of past moisture intrusion at master bedroom ceiling. Stain is dry
+      and appears inactive but source should be\nconfirmed. Possible flashing or roof-related.\n[MAJOR]
+      HVAC condenser unit (18 years old) showing corrosion on condenser coils. Functional
+      but nearing end of useful life.\nBudget for replacement ($4,000-$7,000).\n[MODERATE]
+      Hairline crack in foundation east wall, approximately 3 feet horizontal. Appears
+      cosmetic/settling. Monitor for changes.\nIf crack widens, consult structural
+      engineer.\n[MODERATE] Two garage outlets tested open ground. Repair needed for
+      safety.\n[MODERATE] Kitchen faucet has slow drip. Washer replacement needed
+      (~$150).\n[MINOR] Driveway hairline crack near garage apron. Seal to prevent
+      water infiltration.\n[MINOR] Caulking deteriorated at multiple window frames.
+      Recaulk for weatherproofing.\n[MINOR] Fence post at rear property line shows
+      wood rot at base. Replace before failure.\nROOFING\nType: Composition shingle
+      (architectural)\nAge: Approximately 18 years (original to construction)\nCondition:
+      DEFICIENT - Significant granule loss observed on south-facing slope. Multiple
+      areas of curling and lifting\nshingles. Ridge cap appears intact. Flashing at
+      chimney and vent pipes shows minor deterioration.\nGutters and downspouts functional
+      with minor debris accumulation.\nEstimated Remaining Life: 2-4 years\nEstimated
+      Replacement Cost: $12,000-$18,000 for complete re-roof\nRecommendation: Obtain
+      quotes from licensed roofing contractors. Plan for replacement within 2-3 years.
+      Monitor for any\nactive leaks, especially at flashing points.\nEXTERIOR\nSiding:
+      Fiber cement (HardiePlank). Good condition overall. Minor paint touch-up needed
+      at north wall.\nTrim: Wood trim at eaves. No visible rot or damage.\nWindows:
+      Dual-pane vinyl. Functional. Caulking deteriorated at 4 window frames - recaulk
+      recommended.\nDoors: Front entry: fiberglass, good condition. Sliding glass:
+      aluminum frame, tracks need cleaning, rollers\nfunctional.\nDriveway: Concrete.
+      Hairline crack near garage apron (~4 feet long). Cosmetic. Seal to prevent water
+      infiltration.\nWalkways: Concrete front walkway. Good condition, no trip hazards.\nFence:
+      Wood privacy fence. Generally good. One post at rear shows wood rot at base
+      - replace.\nGrading/Drainage: Positive grade away from foundation on 3 sides.
+      East side appears level - monitor during rain.\nFOUNDATION/STRUCTURE\nType:
+      Concrete perimeter foundation with slab-on-grade\nCondition: MARGINAL - Hairline
+      horizontal crack on east wall exterior, approximately 3 feet long. Crack width
+      is less\nthan 1/8 inch and appears consistent with normal settling. No displacement
+      or vertical offset observed.\nInterior inspection shows no corresponding cracks.\nCrawl
+      Space: N/A - slab-on-grade construction\nRecommendation: Monitor crack width
+      seasonally. Mark endpoints with pencil and date. If crack widens beyond 1/4
+      inch or\nshows vertical displacement, consult a licensed structural engineer.
+      Estimated cost for engineer\nevaluation: $400-$600.\nELECTRICAL\nPanel: 200
+      amp main panel in garage. Square D brand. All breakers labeled. No double-tapped
+      breakers.\nWiring Type: Copper throughout (Romex NM-B). Appropriate for 2006
+      construction.\nOutlets/Switches: Tested representative sampling. Two garage
+      outlets showed open ground - repair needed. All GFCI\noutlets in kitchen and
+      bathrooms tested and functioning.\nDeficiency: SAFETY: Exposed junction box
+      in garage ceiling lacks cover plate. Must be repaired immediately.\nEstimated
+      cost: $50-$100.\nDeficiency: SAFETY: Two exterior outlets lack GFCI protection.
+      Current code requires GFCI for all exterior outlets.\nEstimated cost: $150-$300
+      for electrician upgrade.\nPLUMBING\nSupply Lines: Copper main. PEX distribution
+      (typical for 2006 construction). Good condition.\nDrain Lines: ABS drain/waste/vent.
+      Functional. All drains tested, no slow drains detected.\nWater Heater: AO Smith
+      50-gallon gas water heater. Installed 2020 (sticker confirms). Properly strapped
+      per CA\nrequirements. T&P valve present and discharge pipe properly routed.\nFixtures:
+      Kitchen faucet: Slow drip from spout when off. Likely needs washer replacement
+      ($100-$150). All other\nfixtures functional with adequate flow and drainage.\nHose
+      Bibs: Two exterior hose bibs tested. Functional, no visible leaks.\nHVAC\nHeating:
+      Lennox forced-air gas furnace. Approximately 18 years old (original). Functional
+      at time of inspection.\nFilter was dirty - recommend replacement.\nCooling:
+      Lennox split system A/C. Condenser unit 18 years old. Condenser coils show corrosion.
+      Unit produced\n17\u00b0F temperature differential at registers (acceptable range:
+      15-20\u00b0F). Functional but nearing end of\nuseful life.\nEstimated Remaining
+      Life: 2-5 years for both furnace and condenser\nEstimated Replacement Cost:
+      $4,000-$7,000 for A/C condenser; $3,000-$5,000 for furnace; $7,000-$11,000 for
+      complete system\nreplacement\nDuctwork: Flex duct in attic. Connections appear
+      secure. Minor compression at one run - may reduce airflow to\nmaster bedroom.\nThermostat:
+      Nest programmable thermostat. Functional.\nINTERIOR\nWalls/Ceilings: Generally
+      good condition. Minor cracks in living room wall near window (cosmetic/settling).
+      Water stain\non master bedroom ceiling approximately 2 feet in diameter. Stain
+      appears dry and inactive. No moisture\ndetected with meter at time of inspection.
+      Source should be confirmed - may be related to roof flashing\ndeterioration
+      noted above.\nFloors: Hardwood in living areas (good condition). Tile in bathrooms
+      and kitchen (good condition). Carpet in\nbedrooms (fair condition, normal wear).\nKitchen:
+      Appliances tested: Range, oven, dishwasher, garbage disposal, microwave - all
+      functional. Countertops:\ngranite, good condition. Cabinets: wood, good condition,
+      soft-close hinges.\nBathrooms: Master bath: Tile shower, no visible grout issues.
+      Exhaust fan functional. Hall bath: Tub/shower combo.\nFunctional. Caulk at tub/tile
+      junction needs refreshing.\nATTIC\nAccess: Pull-down stair in hallway. Attic
+      accessed and inspected.\nInsulation: Blown fiberglass, approximately R-30 (adequate
+      for CA Zone 4).\nVentilation: Ridge vent and soffit vents. Appears adequate.\nObservations:
+      No visible signs of active leaks, rodent activity, or mold. Roof decking appears
+      dry and sound from\ninterior.\nGARAGE\nType: Attached 2-car garage with automatic
+      door openers (2 remotes)\nCondition: Good overall. Auto-reverse on door openers
+      tested and functional.\nFire Separation: Fire-rated drywall appears intact between
+      garage and living space. Self-closing door to house present\nand functional.\nDeficiency:
+      Junction box on ceiling missing cover plate (SAFETY - noted above). Two outlets
+      open ground (noted in\nElectrical section).\nLIMITATIONS AND DISCLAIMERS\nThis
+      inspection is a visual examination of the readily accessible areas of the property
+      at the time of the inspection. The inspection is not technically\nexhaustive.
+      Areas that were inaccessible, concealed, or obstructed were not inspected. This
+      report does not include inspection of: swimming\npools/spas, outbuildings, underground
+      systems, environmental hazards (asbestos, lead, mold, radon), pest/wood-destroying
+      organisms, or geological\nconditions.\nEstimated repair costs are provided as
+      general guidance only and are based on typical contractor pricing in the San
+      Jose, CA metropolitan area as of\nthe inspection date. Actual costs may vary.
+      Obtain professional estimates before making purchasing decisions.\nThis report
+      is not a guarantee or warranty, expressed or implied, regarding the condition
+      of the property. The inspector assumes no liability for\nconditions that develop
+      after the inspection date.\nInspector: Robert Anderson, ASHI #247891\nDate:
+      03/21/2026\nAnderson Home Inspections, LLC"}], "model": "claude-sonnet-4-20250514",
+      "system": "You are a property analysis expert. Respond only in valid JSON."}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate, br
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '10495'
+      Content-Type:
+      - application/json
+      Host:
+      - api.anthropic.com
+      User-Agent:
+      - Anthropic/Python 0.49.0
+      X-Stainless-Arch:
+      - x64
+      X-Stainless-Async:
+      - 'false'
+      X-Stainless-Lang:
+      - python
+      X-Stainless-OS:
+      - Linux
+      X-Stainless-Package-Version:
+      - 0.49.0
+      X-Stainless-Runtime:
+      - CPython
+      X-Stainless-Runtime-Version:
+      - 3.11.15
+      anthropic-version:
+      - '2023-06-01'
+      baggage:
+      - sentry-trace_id=bf9b7005a16f4f30b9c14788af095ef0,sentry-sample_rand=0.659207,sentry-environment=production,sentry-public_key=bec0f097edae469b35925bf075c964d9,sentry-org_id=4511034871578624,sentry-transaction=analysis.analyze_property,sentry-sample_rate=0.1,sentry-sampled=false
+      sentry-trace:
+      - bf9b7005a16f4f30b9c14788af095ef0-99f976502e79b9c5-0
+      x-api-key:
+      - <REDACTED>
+      x-stainless-read-timeout:
+      - '600'
+      x-stainless-retry-count:
+      - '0'
+      x-stainless-timeout:
+      - '600'
+    method: POST
+    uri: https://api.anthropic.com/v1/messages
+  response:
+    body:
+      string: '{"model":"claude-sonnet-4-20250514","id":"msg_01VLaGDV36toysS538ipmoZv","type":"message","role":"assistant","content":[{"type":"text","text":"```json\n{\n  \"findings\":
+        [\n    {\n      \"category\": \"electrical\",\n      \"severity\": \"critical\",\n      \"description\":
+        \"Exposed wiring junction box in garage lacks cover plate requiring immediate
+        repair.\",\n      \"location\": \"garage ceiling\",\n      \"raw_excerpt\":
+        \"Exposed junction box in garage ceiling lacks cover plate. Must be repaired
+        immediately.\",\n      \"safety_concern\": true,\n      \"requires_specialist\":
+        false\n    },\n    {\n      \"category\": \"electrical\",\n      \"severity\":
+        \"major\",\n      \"description\": \"Two exterior outlets lack required GFCI
+        protection per current code.\",\n      \"location\": \"exterior\",\n      \"raw_excerpt\":
+        \"Two exterior outlets lack GFCI protection. Current code requires GFCI for
+        all exterior outlets.\",\n      \"safety_concern\": true,\n      \"requires_specialist\":
+        false\n    },\n    {\n      \"category\": \"roof\",\n      \"severity\": \"major\",\n      \"description\":
+        \"Roof composition shingles show significant granule loss and curling with
+        2-4 years remaining life.\",\n      \"location\": \"south-facing slope\",\n      \"raw_excerpt\":
+        \"Roof composition shingles show significant granule loss and curling on south-facing
+        slope.\",\n      \"safety_concern\": false,\n      \"requires_specialist\":
+        true\n    },\n    {\n      \"category\": \"water_damage\",\n      \"severity\":
+        \"major\",\n      \"description\": \"Evidence of past moisture intrusion with
+        water stain on master bedroom ceiling requiring source confirmation.\",\n      \"location\":
+        \"master bedroom ceiling\",\n      \"raw_excerpt\": \"Evidence of past moisture
+        intrusion at master bedroom ceiling. Stain is dry and appears inactive\",\n      \"safety_concern\":
+        false,\n      \"requires_specialist\": true\n    },\n    {\n      \"category\":
+        \"hvac\",\n      \"severity\": \"major\",\n      \"description\": \"HVAC condenser
+        unit showing corrosion on coils and nearing end of useful life.\",\n      \"location\":
+        \"exterior\",\n      \"raw_excerpt\": \"HVAC condenser unit (18 years old)
+        showing corrosion on condenser coils. Functional but nearing\",\n      \"safety_concern\":
+        false,\n      \"requires_specialist\": false\n    },\n    {\n      \"category\":
+        \"foundation\",\n      \"severity\": \"moderate\",\n      \"description\":
+        \"Hairline crack in foundation east wall requiring monitoring for changes.\",\n      \"location\":
+        \"east wall\",\n      \"raw_excerpt\": \"Hairline crack in foundation east
+        wall, approximately 3 feet horizontal. Appears cosmetic/settli\",\n      \"safety_concern\":
+        false,\n      \"requires_specialist\": true\n    },\n    {\n      \"category\":
+        \"electrical\",\n      \"severity\": \"moderate\",\n      \"description\":
+        \"Two garage outlets tested with open ground requiring repair for safety.\",\n      \"location\":
+        \"garage\",\n      \"raw_excerpt\": \"Two garage outlets tested open ground.
+        Repair needed for safety.\",\n      \"safety_concern\": true,\n      \"requires_specialist\":
+        false\n    },\n    {\n      \"category\": \"plumbing\",\n      \"severity\":
+        \"moderate\",\n      \"description\": \"Kitchen faucet has slow drip requiring
+        washer replacement.\",\n      \"location\": \"kitchen\",\n      \"raw_excerpt\":
+        \"Kitchen faucet has slow drip. Washer replacement needed (~$150).\",\n      \"safety_concern\":
+        false,\n      \"requires_specialist\": false\n    },\n    {\n      \"category\":
+        \"general\",\n      \"severity\": \"minor\",\n      \"description\": \"Driveway
+        hairline crack near garage apron needs sealing to prevent water infiltration.\",\n      \"location\":
+        \"driveway near garage\",\n      \"raw_excerpt\": \"Driveway hairline crack
+        near garage apron. Seal to prevent water infiltration.\",\n      \"safety_concern\":
+        false,\n      \"requires_specialist\": false\n    },\n    {\n      \"category\":
+        \"general\",\n      \"severity\": \"minor\",\n      \"description\": \"Caulking
+        deteriorated at multiple window frames requiring recaulking for weatherproofing.\",\n      \"location\":
+        \"multiple window frames\",\n      \"raw_excerpt\": \"Caulking deteriorated
+        at multiple window frames. Recaulk for weatherproofing.\",\n      \"safety_concern\":
+        false,\n      \"requires_specialist\": false\n    },\n    {\n      \"category\":
+        \"general\",\n      \"severity\": \"minor\",\n      \"description\": \"Fence
+        post at rear property line shows wood rot at base requiring replacement before
+        failure.\",\n      \"location\": \"rear property line\",\n      \"raw_excerpt\":
+        \"Fence post at rear property line shows wood rot at base. Replace before
+        failure.\",\n      \"safety_concern\": false,\n      \"requires_specialist\":
+        false\n    }\n  ]\n}\n```"}],"stop_reason":"end_turn","stop_sequence":null,"stop_details":null,"usage":{"input_tokens":2683,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"cache_creation":{"ephemeral_5m_input_tokens":0,"ephemeral_1h_input_tokens":0},"output_tokens":1119,"service_tier":"standard","inference_geo":"not_available"}}'
+    headers:
+      CF-RAY:
+      - 9f9c2c3a9e968e12-PDX
+      Connection:
+      - keep-alive
+      Content-Security-Policy:
+      - default-src 'none'; frame-ancestors 'none'
+      Content-Type:
+      - application/json
+      Date:
+      - Sun, 10 May 2026 21:52:56 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      X-Robots-Tag:
+      - none
+      anthropic-organization-id:
+      - b2fdc71b-2fc9-444f-8b1b-31a1a50d1ce6
+      anthropic-ratelimit-input-tokens-limit:
+      - '450000'
+      anthropic-ratelimit-input-tokens-remaining:
+      - '449000'
+      anthropic-ratelimit-input-tokens-reset:
+      - '2026-05-10T21:52:46Z'
+      anthropic-ratelimit-output-tokens-limit:
+      - '90000'
+      anthropic-ratelimit-output-tokens-remaining:
+      - '89000'
+      anthropic-ratelimit-output-tokens-reset:
+      - '2026-05-10T21:52:57Z'
+      anthropic-ratelimit-requests-limit:
+      - '1000'
+      anthropic-ratelimit-requests-remaining:
+      - '999'
+      anthropic-ratelimit-requests-reset:
+      - '2026-05-10T21:52:45Z'
+      anthropic-ratelimit-tokens-limit:
+      - '540000'
+      anthropic-ratelimit-tokens-remaining:
+      - '538000'
+      anthropic-ratelimit-tokens-reset:
+      - '2026-05-10T21:52:46Z'
+      cf-cache-status:
+      - DYNAMIC
+      content-length:
+      - '5138'
+      request-id:
+      - req_011CaudWQiVDHzoqR5Lrr8vE
+      set-cookie:
+      - <REDACTED>
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      traceresponse:
+      - 00-7734394a0d60c61c00d28ce762c025b2-eb80105dbd4b82c4-01
+      vary:
+      - Accept-Encoding
+      x-envoy-upstream-service-time:
+      - '11532'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"max_tokens": 4000, "messages": [{"role": "user", "content": "You are
+      analyzing a real estate transaction. Compare these two documents and identify
+      CONTRADICTIONS \u2014 places where the seller''s disclosure says one thing but
+      the inspection report says something different.\n\nFocus on:\n1. Direct contradictions
+      (seller says no problem, inspector found a problem)\n2. Omissions (seller didn''t
+      mention something the inspector flagged as significant)\n3. Minimizations (seller
+      acknowledged an issue but understated its severity)\n4. Timeline inconsistencies
+      (seller''s dates don''t match the condition observed)\n\nFor each contradiction,
+      provide:\n- disclosure_claim: what the seller said or didn''t say (quote or
+      paraphrase)\n- inspection_finding: what the inspector found (quote or paraphrase)\n-
+      category: one of [foundation, roof, plumbing, electrical, hvac, water_damage,
+      pest, environmental, permits, general]\n- severity: high (could affect transaction),
+      medium (negotiation leverage), low (minor discrepancy)\n- explanation: one sentence
+      explaining why this matters to the buyer\n\nRespond ONLY with JSON: {\"contradictions\":
+      [...]}\n\nIf there are no contradictions, return {\"contradictions\": []}\n\nSELLER
+      DISCLOSURE:\nREAL ESTATE TRANSFER DISCLOSURE STATEMENT\n(California Civil Code
+      Section 1102 et seq.)\nTHIS STATEMENT IS A DISCLOSURE OF THE CONDITION OF THE
+      ABOVE DESCRIBED PROPERTY IN COMPLIANCE\nWITH SECTION 1102 OF THE CIVIL CODE
+      AS OF THE DATE SIGNED BY THE TRANSFEROR.\nProperty Address: 2847 Winfield Blvd,
+      San Jose, CA 95128\nCity: San Jose    County: Santa Clara    Zip: 95128\nI.
+      COORDINATION WITH OTHER DISCLOSURE FORMS\nThis Real Property Transfer Disclosure
+      Statement is made pursuant to Section 1102 of the Civil Code. Other statutes
+      require\ndisclosures, depending upon the details of the particular real estate
+      transaction.\nII. SELLER''S INFORMATION\nA. The subject property has the following
+      items:\n[X] Range/Oven [X] Dishwasher [X] Garbage Disposal\n[X] Washer/Dryer
+      Hookups [X] Rain Gutters [ ] Burglar Alarm\n[X] Smoke Detector(s) [X] Fire Alarm
+      [X] Carbon Monoxide Device(s)\n[ ] TV Antenna [ ] Satellite Dish [ ] Intercom\n[X]
+      Central Heating [X] Central Air Conditioning [ ] Evaporator Cooler(s)\n[ ] Wall/Window
+      Air Conditioning [X] Fireplace(s) [X] Gas Starter\n[X] Garage: Attached [X]
+      Garage: Door Opener(s) [X] Number Remote Controls: 2\n[ ] Pool [ ] Spa/Hot Tub
+      [ ] Child Resistant Barrier for\n[X] Patio/Decking [ ] Built-in Barbecue [ ]
+      Solar Panels (owned)\n[X] Water Heater: Gas [ ] Water Softener (owned) [ ] Security
+      Gate(s)\n[X] Automatic Garage Door Opener [ ] Sump Pump [X] 220 Volt Wiring
+      in Garage\nExhaust Fan(s) in: [X] Kitchen [X] Bathroom(s)\nGas Supply: [X] Utility  Electricity:
+      [X] Utility  Water: [X] City\nSewer: [X] City  Window Screens: [X] Full  Roof
+      Type: Composition Shingle, Age: ~18 yrs\nB. Are you (Seller) aware of any significant
+      defects/malfunctions in any of the following?\nInterior Walls: Yes (X)  No (
+      )\n   Detail: Minor cracks in living room wall near window. Cosmetic only.\nCeilings:
+      Yes ( )  No (X)\nFloors: Yes ( )  No (X)\nExterior Walls: Yes ( )  No (X)\nInsulation:
+      Yes ( )  No (X)\nRoof(s): Yes (X)  No ( )\n   Detail: Composition shingle, 18
+      years old. Some granule loss noted. No leaks observed.\nWindows: Yes ( )  No
+      (X)\nDoors: Yes ( )  No (X)\nFoundation: Yes ( )  No (X)\nSlab(s): Yes ( )  No
+      (X)\nDriveways: Yes (X)  No ( )\n   Detail: Hairline crack in driveway near
+      garage. Does not affect use.\nSidewalks: Yes ( )  No (X)\nWalls/Fences: Yes
+      ( )  No (X)\nElectrical Systems: Yes ( )  No (X)\nPlumbing/Sewers/Septics: Yes
+      ( )  No (X)\nOther Structural Components: Yes ( )  No (X)\nAdditional Seller
+      disclosures:\nRoof was patched in 2021 after winter storm. Patch was done by
+      licensed contractor (receipt available). HVAC unit serviced annually - last
+      service\nAugust 2024. Water heater replaced in 2020 (50 gallon, gas). Garage
+      door opener replaced in 2022. Kitchen remodeled in 2019 with permits pulled\nfrom
+      City of San Jose. Bathroom updated in 2021 - no permits were pulled for cosmetic
+      updates only (tile, fixtures, vanity).\nC. Are you (Seller) aware of any of
+      the following:\n1. Substances, materials, or products which may be an environmental
+      hazard such as, but not limited to, asbestos, formaldehyde, radon gas,\nlead-based
+      paint, mold, fuel or chemical storage tanks\n   Yes ( )  No (X)\n2. Features
+      of the property shared in common with adjoining landowners, such as walls, fences,
+      and driveways, whose use or responsibility for\nmaintenance may have an effect
+      on the subject property\n   Yes ( )  No (X)\n3. Any encroachments, easements
+      or similar matters that may affect your interest in the subject property\n   Yes
+      ( )  No (X)\n4. Room additions, structural modifications, or other alterations
+      or repairs made without necessary permits\n   Yes (X)  No ( )\n5. Room additions,
+      structural modifications, or other alterations or repairs not in compliance
+      with building codes\n   Yes ( )  No (X)\n6. Fill (compacted or otherwise) on
+      the property or any portion thereof\n   Yes ( )  No (X)\n7. Any settling from
+      any cause, or slippage, sliding, or other soil problems\n   Yes ( )  No (X)\n8.
+      Flooding, drainage or grading problems\n   Yes ( )  No (X)\n9. Major damage
+      to the property or any of the structures from fire, earthquake, floods, or landslides\n   Yes
+      ( )  No (X)\n10. Any zoning violations, nonconforming uses, violations of \"setback\"
+      requirements\n   Yes ( )  No (X)\n11. Neighborhood noise problems or other nuisances\n   Yes
+      (X)  No ( )\n12. CC&Rs or other deed restrictions or obligations\n   Yes ( )  No
+      (X)\n13. Homeowners'' Association which has any authority over the subject property\n   Yes
+      ( )  No (X)\n14. Any \"common areas\" (facilities such as pools, tennis courts,
+      walkways, or similar)\n   Yes ( )  No (X)\n15. Any notices of abatement or citations
+      against the property\n   Yes ( )  No (X)\n16. Any lawsuits by or against the
+      seller threatening to or affecting this real property\n   Yes ( )  No (X)\nItem
+      4 detail: Bathroom update in 2021 was cosmetic only (tile, fixtures, vanity)
+      - no structural changes, no permits required per City of San Jose\nguidelines
+      for cosmetic-only work.\nItem 11 detail: Occasional airplane noise from San
+      Jose International Airport. Flight path is north of property. Most noticeable
+      early morning (6-7 AM)\nand evening (9-10 PM).\nD. ADDITIONAL SELLER DISCLOSURES:\n1.
+      [X] Smoke Detector(s) installed per Health and Safety Code Section 13113.8\n2.
+      [X] Water Heater braced, anchored, or strapped in compliance with Section 19211\n3.
+      [X] Carbon Monoxide device(s) installed per Health and Safety Code Section 17926\nIII.
+      AGENT VISUAL INSPECTION DISCLOSURE\nThe undersigned, based on a reasonably competent
+      and diligent visual inspection of the accessible areas of the property, states
+      the following:\nProperty appears to be in good overall condition for its age.
+      Roof shows age-appropriate wear. Driveway has cosmetic crack. No evidence of
+      water\nintrusion observed. Recommend buyer obtain professional inspections for
+      roof, foundation, and pest.\nSeller(s): Michael Chen & Jennifer Chen\nDate:
+      03/05/2026\nSeller''s Agent: Lisa Nakamura, Coldwell Banker Realty\nDate: 03/05/2026\nBuyer''s
+      Agent: ____________________\nDate: ____________________\nDocusign Envelope ID:
+      A4F3B7C2-8D91-4E56-B2A1-7C3D9F8E5A12\nGenerated by zipForms Edition  04/04/2026
+      01:28 PM Pacific\n\nINSPECTION REPORT:\nHOME INSPECTION REPORT\nProperty: 2847
+      Winfield Blvd, San Jose, CA 95128\nInspection Date: March 21, 2026\nReport #:
+      INS-2025-04281\nPrepared for: David & Maria Santos\nPrepared by: Robert Anderson,
+      ASHI Certified Inspector #247891\nAnderson Home Inspections, LLC\nLicense #HI-2019-04872  |  (408)
+      555-0147\nNOTICE: This report is the exclusive property of Anderson Home Inspections,
+      LLC and the client(s) named above. Use by any\nunauthorized persons is prohibited.
+      This inspection was performed in accordance with the Standards of Practice of
+      the American\nSociety of Home Inspectors (ASHI).\nEXECUTIVE SUMMARY\nThis single-family
+      residence was built in 2006 and contains approximately 1,847 square feet of
+      living space. The property features 3\nbedrooms, 2.5 bathrooms, an attached
+      2-car garage, and a landscaped rear yard. The home is served by city water and
+      sewer,\nnatural gas, and 200 amp electrical service.\nSUMMARY OF SIGNIFICANT
+      FINDINGS:\n[SAFETY] Exposed wiring junction box in garage lacks cover plate.
+      Repair immediately.\n[SAFETY] Absence of GFCI protection at two exterior outlets.
+      Upgrade recommended.\n[MAJOR] Roof composition shingles show significant granule
+      loss and curling on south-facing slope. Estimated remaining life\n2-4 years.
+      Budget for replacement ($12,000-$18,000).\n[MAJOR] Evidence of past moisture
+      intrusion at master bedroom ceiling. Stain is dry and appears inactive but source
+      should be\nconfirmed. Possible flashing or roof-related.\n[MAJOR] HVAC condenser
+      unit (18 years old) showing corrosion on condenser coils. Functional but nearing
+      end of useful life.\nBudget for replacement ($4,000-$7,000).\n[MODERATE] Hairline
+      crack in foundation east wall, approximately 3 feet horizontal. Appears cosmetic/settling.
+      Monitor for changes.\nIf crack widens, consult structural engineer.\n[MODERATE]
+      Two garage outlets tested open ground. Repair needed for safety.\n[MODERATE]
+      Kitchen faucet has slow drip. Washer replacement needed (~$150).\n[MINOR] Driveway
+      hairline crack near garage apron. Seal to prevent water infiltration.\n[MINOR]
+      Caulking deteriorated at multiple window frames. Recaulk for weatherproofing.\n[MINOR]
+      Fence post at rear property line shows wood rot at base. Replace before failure.\nROOFING\nType:
+      Composition shingle (architectural)\nAge: Approximately 18 years (original to
+      construction)\nCondition: DEFICIENT - Significant granule loss observed on south-facing
+      slope. Multiple areas of curling and lifting\nshingles. Ridge cap appears intact.
+      Flashing at chimney and vent pipes shows minor deterioration.\nGutters and downspouts
+      functional with minor debris accumulation.\nEstimated Remaining Life: 2-4 years\nEstimated
+      Replacement Cost: $12,000-$18,000 for complete re-roof\nRecommendation: Obtain
+      quotes from licensed roofing contractors. Plan for replacement within 2-3 years.
+      Monitor for any\nactive leaks, especially at flashing points.\nEXTERIOR\nSiding:
+      Fiber cement (HardiePlank). Good condition overall. Minor paint touch-up needed
+      at north wall.\nTrim: Wood trim at eaves. No visible rot or damage.\nWindows:
+      Dual-pane vinyl. Functional. Caulking deteriorated at 4 window frames - recaulk
+      recommended.\nDoors: Front entry: fiberglass, good condition. Sliding glass:
+      aluminum frame, tracks need cleaning, rollers\nfunctional.\nDriveway: Concrete.
+      Hairline crack near garage apron (~4 feet long). Cosmetic. Seal to prevent water
+      infiltration.\nWalkways: Concrete front walkway. Good condition, no trip hazards.\nFence:
+      Wood privacy fence. Generally good. One post at rear shows wood rot at base
+      - replace.\nGrading/Drainage: Positive grade away from foundation on 3 sides.
+      East side appears level - monitor during rain.\nFOUNDATION/STRUCTURE\nType:
+      Concrete perimeter foundation with slab-on-grade\nCondition: MARGINAL - Hairline
+      horizontal crack on east wall exterior, approximately 3 feet long. Crack width
+      is less\nthan 1/8 inch and appears consistent with normal settling. No displacement
+      or vertical offset observed.\nInterior inspection shows no corresponding cracks.\nCrawl
+      Space: N/A - slab-on-grade construction\nRecommendation: Monitor crack width
+      seasonally. Mark endpoints with pencil and date. If crack widens beyond 1/4
+      inch or\nshows vertical displacement, consult a licensed structural engineer.
+      Estimated cost for engineer\nevaluation: $400-$600.\nELECTRICAL\nPanel: 200
+      amp main panel in garage. Square D brand. All breakers labeled. No double-tapped
+      breakers.\nWiring Type: Copper throughout (Romex NM-B). Appropriate for 2006
+      construction.\nOutlets/Switches: Tested representative sampling. Two garage
+      outlets showed open ground - repair needed. All GFCI\noutlets in kitchen and
+      bathrooms tested and functioning.\nDeficiency: SAFETY: Exposed junction box
+      in garage ceiling lacks cover plate. Must be repaired immediately.\nEstimated
+      cost: $50-$100.\nDeficiency: SAFETY: Two exterior outlets lack GFCI protection.
+      Current code requires GFCI for all exterior outlets.\nEstimated cost: $150-$300
+      for electrician upgrade.\nPLUMBING\nSupply Lines: Copper main. PEX distribution
+      (typical for 2006 construction). Good condition.\nDrain Lines: ABS drain/waste/vent.
+      Functional. All drains tested, no slow drains detected.\nWater Heater: AO Smith
+      50-gallon gas water heater. Installed 2020 (sticker confirms). Properly strapped
+      per CA\nrequirements. T&P valve present and discharge pipe properly routed.\nFixtures:
+      Kitchen faucet: Slow drip from spout when off. Likely needs washer replacement
+      ($100-$150). All other\nfixtures functional with adequate flow and drainage.\nHose
+      Bibs: Two exterior hose bibs tested. Functional, no visible leaks.\nHVAC\nHeating:
+      Lennox forced-air gas furnace. Approximately 18 years old (original). Functional
+      at time of inspection.\nFilter was dirty - recommend replacement.\nCooling:
+      Lennox split system A/C. Condenser unit 18 years old. Condenser coils show corrosion.
+      Unit produced\n17\u00b0F temperature differential at registers (acceptable range:
+      15-20\u00b0F). Functional but nearing end of\nuseful life.\nEstimated Remaining
+      Life: 2-5 years for both furnace and condenser\nEstimated Replacement Cost:
+      $4,000-$7,000 for A/C condenser; $3,000-$5,000 for furnace; $7,000-$11,000 for
+      complete system\nreplacement\nDuctwork: Flex duct in attic. Connections appear
+      secure. Minor compression at one run - may reduce airflow to\nmaster bedroom.\nThermostat:
+      Nest programmable thermostat. Functional.\nINTERIOR\nWalls/Ceilings: Generally
+      good condition. Minor cracks in living room wall near window (cosmetic/settling).
+      Water stain\non master bedroom ceiling approximately 2 feet in diameter. Stain
+      appears dry and inactive. No moisture\ndetected with meter at time of inspection.
+      Source should be confirmed - may be related to roof flashing\ndeterioration
+      noted above.\nFloors: Hardwood in living areas (good condition). Tile in bathrooms
+      and kitchen (good condition). Carpet in\nbedrooms (fair condition, normal wear).\nKitchen:
+      Appliances tested: Range, oven, dishwasher, garbage disposal, microwave - all
+      functional. Countertops:\ngranite, good condition. Cabinets: wood, good condition,
+      soft-close hinges.\nBathrooms: Master bath: Tile shower, no visible grout issues.
+      Exhaust fan functional. Hall bath: Tub/shower combo.\nFunctional. Caulk at tub/tile
+      junction needs refreshing.\nATTIC\nAccess: Pull-down stair in hallway. Attic
+      accessed and inspected.\nInsulation: Blown fiberglass, approximately R-30 (adequate
+      for CA Zone 4).\nVentilation: Ridge vent and soffit vents. Appears adequate.\nObservations:
+      No visible signs of active leaks, rodent activity, or mold. Roof decking appears
+      dry and sound from\ninterior.\nGARAGE\nType: Attached 2-car garage with automatic
+      door openers (2 remotes)\nCondition: Good overall. Auto-reverse on door openers
+      tested and functional.\nFire Separation: Fire-rated drywall appears intact between
+      garage and living space. Self-closing door to house present\nand functional.\nDeficiency:
+      Junction box on ceiling missing cover plate (SAFETY - noted above). Two outlets
+      open ground (noted in\nElectrical section).\nLIMITATIONS AND DISCLAIMERS\nThis
+      inspection is a visual exami"}], "model": "claude-sonnet-4-20250514", "system":
+      "You are a property analysis expert. Respond only in valid JSON."}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate, br
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '15678'
+      Content-Type:
+      - application/json
+      Host:
+      - api.anthropic.com
+      User-Agent:
+      - Anthropic/Python 0.49.0
+      X-Stainless-Arch:
+      - x64
+      X-Stainless-Async:
+      - 'false'
+      X-Stainless-Lang:
+      - python
+      X-Stainless-OS:
+      - Linux
+      X-Stainless-Package-Version:
+      - 0.49.0
+      X-Stainless-Runtime:
+      - CPython
+      X-Stainless-Runtime-Version:
+      - 3.11.15
+      anthropic-version:
+      - '2023-06-01'
+      baggage:
+      - sentry-trace_id=bf9b7005a16f4f30b9c14788af095ef0,sentry-sample_rand=0.659207,sentry-environment=production,sentry-public_key=bec0f097edae469b35925bf075c964d9,sentry-org_id=4511034871578624,sentry-transaction=analysis.analyze_property,sentry-sample_rate=0.1,sentry-sampled=false
+      sentry-trace:
+      - bf9b7005a16f4f30b9c14788af095ef0-b9c4d921dd4afb8d-0
+      x-api-key:
+      - <REDACTED>
+      x-stainless-read-timeout:
+      - '600'
+      x-stainless-retry-count:
+      - '0'
+      x-stainless-timeout:
+      - '600'
+    method: POST
+    uri: https://api.anthropic.com/v1/messages
+  response:
+    body:
+      string: '{"model":"claude-sonnet-4-20250514","id":"msg_01XE7ZtYZJBN1YRtt2LKn3mb","type":"message","role":"assistant","content":[{"type":"text","text":"```json\n{\n  \"contradictions\":
+        [\n    {\n      \"disclosure_claim\": \"Seller stated ''No leaks observed''
+        for roof and marked ''No'' for significant defects in roof\",\n      \"inspection_finding\":
+        \"Inspector found ''Evidence of past moisture intrusion at master bedroom
+        ceiling. Stain is dry and appears inactive but source should be confirmed.
+        Possible flashing or roof-related.''\",\n      \"category\": \"water_damage\",\n      \"severity\":
+        \"high\",\n      \"explanation\": \"The seller failed to disclose evidence
+        of past water intrusion that the inspector found and linked to potential roof
+        issues.\"\n    },\n    {\n      \"disclosure_claim\": \"Seller marked ''No''
+        for significant defects in foundation\",\n      \"inspection_finding\": \"Inspector
+        found ''Hairline horizontal crack on east wall exterior, approximately 3 feet
+        long'' and classified foundation condition as ''MARGINAL''\",\n      \"category\":
+        \"foundation\",\n      \"severity\": \"medium\",\n      \"explanation\": \"The
+        seller did not disclose a 3-foot foundation crack that requires monitoring
+        and potential structural engineer consultation.\"\n    },\n    {\n      \"disclosure_claim\":
+        \"Seller marked ''No'' for significant defects in electrical systems\",\n      \"inspection_finding\":
+        \"Inspector found multiple electrical safety issues including ''Exposed wiring
+        junction box in garage lacks cover plate. Repair immediately'' and ''Two garage
+        outlets tested open ground''\",\n      \"category\": \"electrical\",\n      \"severity\":
+        \"high\",\n      \"explanation\": \"The seller failed to disclose serious
+        electrical safety hazards that require immediate repair.\"\n    },\n    {\n      \"disclosure_claim\":
+        \"Seller stated roof has ''Some granule loss noted'' but marked it only as
+        a known defect without indicating severity\",\n      \"inspection_finding\":
+        \"Inspector found ''Roof composition shingles show significant granule loss
+        and curling on south-facing slope. Estimated remaining life 2-4 years. Budget
+        for replacement ($12,000-$18,000)''\",\n      \"category\": \"roof\",\n      \"severity\":
+        \"high\",\n      \"explanation\": \"The seller significantly understated the
+        roof''s condition, failing to disclose that it needs replacement within 2-4
+        years at substantial cost.\"\n    },\n    {\n      \"disclosure_claim\": \"Seller
+        stated ''HVAC unit serviced annually - last service August 2024'' with no
+        mention of defects\",\n      \"inspection_finding\": \"Inspector found ''HVAC
+        condenser unit (18 years old) showing corrosion on condenser coils. Functional
+        but nearing end of useful life. Budget for replacement ($4,000-$7,000)''\",\n      \"category\":
+        \"hvac\",\n      \"severity\": \"high\",\n      \"explanation\": \"The seller
+        failed to disclose that the HVAC system is nearing end of life and will likely
+        need expensive replacement soon despite recent servicing.\"\n    }\n  ]\n}\n```"}],"stop_reason":"end_turn","stop_sequence":null,"stop_details":null,"usage":{"input_tokens":4378,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"cache_creation":{"ephemeral_5m_input_tokens":0,"ephemeral_1h_input_tokens":0},"output_tokens":678,"service_tier":"standard","inference_geo":"not_available"}}'
+    headers:
+      CF-RAY:
+      - 9f9c2c835947efac-PDX
+      Connection:
+      - keep-alive
+      Content-Security-Policy:
+      - default-src 'none'; frame-ancestors 'none'
+      Content-Type:
+      - application/json
+      Date:
+      - Sun, 10 May 2026 21:53:07 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      X-Robots-Tag:
+      - none
+      anthropic-organization-id:
+      - b2fdc71b-2fc9-444f-8b1b-31a1a50d1ce6
+      anthropic-ratelimit-input-tokens-limit:
+      - '450000'
+      anthropic-ratelimit-input-tokens-remaining:
+      - '448000'
+      anthropic-ratelimit-input-tokens-reset:
+      - '2026-05-10T21:52:58Z'
+      anthropic-ratelimit-output-tokens-limit:
+      - '90000'
+      anthropic-ratelimit-output-tokens-remaining:
+      - '89000'
+      anthropic-ratelimit-output-tokens-reset:
+      - '2026-05-10T21:53:07Z'
+      anthropic-ratelimit-requests-limit:
+      - '1000'
+      anthropic-ratelimit-requests-remaining:
+      - '999'
+      anthropic-ratelimit-requests-reset:
+      - '2026-05-10T21:52:57Z'
+      anthropic-ratelimit-tokens-limit:
+      - '540000'
+      anthropic-ratelimit-tokens-remaining:
+      - '537000'
+      anthropic-ratelimit-tokens-reset:
+      - '2026-05-10T21:52:58Z'
+      cf-cache-status:
+      - DYNAMIC
+      content-length:
+      - '3332'
+      request-id:
+      - req_011CaudXFf3zhCRSmn8BUtyk
+      set-cookie:
+      - <REDACTED>
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      traceresponse:
+      - 00-1d70578eddcc9889e7df832e5c660ec9-a9ffb89cb0f42f59-01
+      vary:
+      - Accept-Encoding
+      x-envoy-upstream-service-time:
+      - '10497'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"max_tokens": 2000, "messages": [{"role": "user", "content": "You are
+      a residential construction cost estimator. For each inspection finding below,
+      assess whether the rule-based severity classification is accurate based on the
+      actual description.\n\nProperty context: ZIP unknown\n\nFor each finding, provide:\n-
+      id: the finding id (integer)\n- original_severity: what it was classified as\n-
+      adjusted_severity: what it should be (critical/major/moderate/minor) \u2014
+      keep the same if the classification is correct\n- cost_multiplier: a float between
+      0.5 and 2.0 adjusting the baseline cost range\n  1.0 = baseline is accurate\n  0.5
+      = baseline overstates (e.g., cosmetic crack classified as moderate)\n  1.5 =
+      baseline understates (e.g., description indicates worse condition than severity
+      suggests)\n  2.0 = significantly understated (e.g., \"moderate\" finding that
+      actually needs major repair)\n- context_notes: brief explanation of adjustment
+      (or \"accurate\" if no change)\n\nRespond ONLY with JSON: {\"adjustments\":
+      [...]}\n\nFINDINGS:\n[\n  {\n    \"id\": 0,\n    \"category\": \"electrical\",\n    \"severity\":
+      \"critical\",\n    \"description\": \"Exposed wiring junction box in garage
+      lacks cover plate.\"\n  },\n  {\n    \"id\": 1,\n    \"category\": \"electrical\",\n    \"severity\":
+      \"major\",\n    \"description\": \"Two exterior outlets lack GFCI protection.\"\n  },\n  {\n    \"id\":
+      2,\n    \"category\": \"roof_exterior\",\n    \"severity\": \"major\",\n    \"description\":
+      \"Roof composition shingles show significant granule loss and curling on south-facing
+      slope.\"\n  },\n  {\n    \"id\": 3,\n    \"category\": \"roof_exterior\",\n    \"severity\":
+      \"major\",\n    \"description\": \"Evidence of past moisture intrusion at master
+      bedroom ceiling with water stain.\"\n  },\n  {\n    \"id\": 4,\n    \"category\":
+      \"hvac_systems\",\n    \"severity\": \"major\",\n    \"description\": \"HVAC
+      condenser unit showing corrosion on condenser coils, nearing end of useful life.\"\n  },\n  {\n    \"id\":
+      5,\n    \"category\": \"foundation_structure\",\n    \"severity\": \"moderate\",\n    \"description\":
+      \"Hairline crack in foundation east wall, approximately 3 feet horizontal.\"\n  },\n  {\n    \"id\":
+      6,\n    \"category\": \"electrical\",\n    \"severity\": \"moderate\",\n    \"description\":
+      \"Two garage outlets tested open ground.\"\n  },\n  {\n    \"id\": 7,\n    \"category\":
+      \"plumbing\",\n    \"severity\": \"moderate\",\n    \"description\": \"Kitchen
+      faucet has slow drip from spout when off.\"\n  },\n  {\n    \"id\": 8,\n    \"category\":
+      \"roof_exterior\",\n    \"severity\": \"minor\",\n    \"description\": \"Flashing
+      at chimney and vent pipes shows minor deterioration.\"\n  },\n  {\n    \"id\":
+      9,\n    \"category\": \"roof_exterior\",\n    \"severity\": \"minor\",\n    \"description\":
+      \"Driveway hairline crack near garage apron approximately 4 feet long.\"\n  },\n  {\n    \"id\":
+      10,\n    \"category\": \"roof_exterior\",\n    \"severity\": \"minor\",\n    \"description\":
+      \"Caulking deteriorated at 4 window frames.\"\n  },\n  {\n    \"id\": 11,\n    \"category\":
+      \"roof_exterior\",\n    \"severity\": \"minor\",\n    \"description\": \"Fence
+      post at rear property line shows wood rot at base.\"\n  },\n  {\n    \"id\":
+      12,\n    \"category\": \"roof_exterior\",\n    \"severity\": \"minor\",\n    \"description\":
+      \"Minor paint touch-up needed at north wall siding.\"\n  },\n  {\n    \"id\":
+      13,\n    \"category\": \"hvac_systems\",\n    \"severity\": \"minor\",\n    \"description\":
+      \"Furnace filter was dirty.\"\n  },\n  {\n    \"id\": 14,\n    \"category\":
+      \"hvac_systems\",\n    \"severity\": \"minor\",\n    \"description\": \"Minor
+      compression at one ductwork run may reduce airflow to master bedroom.\"\n  },\n  {\n    \"id\":
+      15,\n    \"category\": \"hvac_systems\",\n    \"severity\": \"minor\",\n    \"description\":
+      \"Stain is dry and appears inactive but source should be.\"\n  },\n  {\n    \"id\":
+      16,\n    \"category\": \"foundation_structure\",\n    \"severity\": \"moderate\",\n    \"description\":
+      \"If crack widens, consult structural engineer.\"\n  },\n  {\n    \"id\": 17,\n    \"category\":
+      \"foundation_structure\",\n    \"severity\": \"minor\",\n    \"description\":
+      \"Repair needed for safety.\"\n  },\n  {\n    \"id\": 18,\n    \"category\":
+      \"hvac_systems\",\n    \"severity\": \"moderate\",\n    \"description\": \"Replace
+      before failure.\"\n  },\n  {\n    \"id\": 19,\n    \"category\": \"foundation_structure\",\n    \"severity\":
+      \"moderate\",\n    \"description\": \"active leaks, especially at flashing points.\"\n  }\n]"}],
+      "model": "claude-sonnet-4-20250514", "system": "You are a property analysis
+      expert. Respond only in valid JSON."}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate, br
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '4713'
+      Content-Type:
+      - application/json
+      Host:
+      - api.anthropic.com
+      User-Agent:
+      - Anthropic/Python 0.49.0
+      X-Stainless-Arch:
+      - x64
+      X-Stainless-Async:
+      - 'false'
+      X-Stainless-Lang:
+      - python
+      X-Stainless-OS:
+      - Linux
+      X-Stainless-Package-Version:
+      - 0.49.0
+      X-Stainless-Runtime:
+      - CPython
+      X-Stainless-Runtime-Version:
+      - 3.11.15
+      anthropic-version:
+      - '2023-06-01'
+      baggage:
+      - sentry-trace_id=bf9b7005a16f4f30b9c14788af095ef0,sentry-sample_rand=0.659207,sentry-environment=production,sentry-public_key=bec0f097edae469b35925bf075c964d9,sentry-org_id=4511034871578624,sentry-transaction=analysis.analyze_property,sentry-sample_rate=0.1,sentry-sampled=false
+      sentry-trace:
+      - bf9b7005a16f4f30b9c14788af095ef0-b22f7eaf9c582bd3-0
+      x-api-key:
+      - <REDACTED>
+      x-stainless-read-timeout:
+      - '600'
+      x-stainless-retry-count:
+      - '0'
+      x-stainless-timeout:
+      - '600'
+    method: POST
+    uri: https://api.anthropic.com/v1/messages
+  response:
+    body:
+      string: '{"model":"claude-sonnet-4-20250514","id":"msg_01VPCvCotQ1Ai1NLyMjrcWDK","type":"message","role":"assistant","content":[{"type":"text","text":"```json\n{\n  \"adjustments\":
+        [\n    {\n      \"id\": 0,\n      \"original_severity\": \"critical\",\n      \"adjusted_severity\":
+        \"critical\",\n      \"cost_multiplier\": 1.0,\n      \"context_notes\": \"accurate
+        - exposed electrical junction is immediate safety hazard\"\n    },\n    {\n      \"id\":
+        1,\n      \"original_severity\": \"major\",\n      \"adjusted_severity\":
+        \"major\",\n      \"cost_multiplier\": 1.0,\n      \"context_notes\": \"accurate
+        - GFCI protection required for safety\"\n    },\n    {\n      \"id\": 2,\n      \"original_severity\":
+        \"major\",\n      \"adjusted_severity\": \"major\",\n      \"cost_multiplier\":
+        1.0,\n      \"context_notes\": \"accurate - significant granule loss and curling
+        indicates roof replacement needed\"\n    },\n    {\n      \"id\": 3,\n      \"original_severity\":
+        \"major\",\n      \"adjusted_severity\": \"major\",\n      \"cost_multiplier\":
+        1.0,\n      \"context_notes\": \"accurate - moisture intrusion requires investigation
+        and remediation\"\n    },\n    {\n      \"id\": 4,\n      \"original_severity\":
+        \"major\",\n      \"adjusted_severity\": \"major\",\n      \"cost_multiplier\":
+        1.0,\n      \"context_notes\": \"accurate - corrosion on coils indicates imminent
+        replacement needed\"\n    },\n    {\n      \"id\": 5,\n      \"original_severity\":
+        \"moderate\",\n      \"adjusted_severity\": \"moderate\",\n      \"cost_multiplier\":
+        1.0,\n      \"context_notes\": \"accurate - hairline crack needs monitoring
+        but not urgent\"\n    },\n    {\n      \"id\": 6,\n      \"original_severity\":
+        \"moderate\",\n      \"adjusted_severity\": \"moderate\",\n      \"cost_multiplier\":
+        1.0,\n      \"context_notes\": \"accurate - open ground is safety issue requiring
+        rewiring\"\n    },\n    {\n      \"id\": 7,\n      \"original_severity\":
+        \"moderate\",\n      \"adjusted_severity\": \"minor\",\n      \"cost_multiplier\":
+        0.5,\n      \"context_notes\": \"overstated - slow drip is simple faucet repair,
+        not moderate issue\"\n    },\n    {\n      \"id\": 8,\n      \"original_severity\":
+        \"minor\",\n      \"adjusted_severity\": \"moderate\",\n      \"cost_multiplier\":
+        1.5,\n      \"context_notes\": \"understated - flashing deterioration can
+        lead to water damage\"\n    },\n    {\n      \"id\": 9,\n      \"original_severity\":
+        \"minor\",\n      \"adjusted_severity\": \"minor\",\n      \"cost_multiplier\":
+        1.0,\n      \"context_notes\": \"accurate - hairline driveway crack is cosmetic\"\n    },\n    {\n      \"id\":
+        10,\n      \"original_severity\": \"minor\",\n      \"adjusted_severity\":
+        \"minor\",\n      \"cost_multiplier\": 1.0,\n      \"context_notes\": \"accurate
+        - caulking maintenance is routine\"\n    },\n    {\n      \"id\": 11,\n      \"original_severity\":
+        \"minor\",\n      \"adjusted_severity\": \"minor\",\n      \"cost_multiplier\":
+        1.0,\n      \"context_notes\": \"accurate - fence post rot is not structural
+        concern\"\n    },\n    {\n      \"id\": 12,\n      \"original_severity\":
+        \"minor\",\n      \"adjusted_severity\": \"minor\",\n      \"cost_multiplier\":
+        1.0,\n      \"context_notes\": \"accurate - paint touch-up is cosmetic\"\n    },\n    {\n      \"id\":
+        13,\n      \"original_severity\": \"minor\",\n      \"adjusted_severity\":
+        \"minor\",\n      \"cost_multiplier\": 0.5,\n      \"context_notes\": \"overstated
+        - dirty filter is routine maintenance, minimal cost\"\n    },\n    {\n      \"id\":
+        14,\n      \"original_severity\": \"minor\",\n      \"adjusted_severity\":
+        \"minor\",\n      \"cost_multiplier\": 1.0,\n      \"context_notes\": \"accurate
+        - minor duct compression is low priority\"\n    },\n    {\n      \"id\": 15,\n      \"original_severity\":
+        \"minor\",\n      \"adjusted_severity\": \"minor\",\n      \"cost_multiplier\":
+        1.0,\n      \"context_notes\": \"accurate - inactive stain requires monitoring
+        only\"\n    },\n    {\n      \"id\": 16,\n      \"original_severity\": \"moderate\",\n      \"adjusted_severity\":
+        \"moderate\",\n      \"cost_multiplier\": 1.0,\n      \"context_notes\": \"accurate
+        - conditional monitoring appropriate for moderate\"\n    },\n    {\n      \"id\":
+        17,\n      \"original_severity\": \"minor\",\n      \"adjusted_severity\":
+        \"moderate\",\n      \"cost_multiplier\": 1.5,\n      \"context_notes\": \"understated
+        - safety repairs should be moderate priority\"\n    },\n    {\n      \"id\":
+        18,\n      \"original_severity\": \"moderate\",\n      \"adjusted_severity\":
+        \"moderate\",\n      \"cost_multiplier\": 1.0,\n      \"context_notes\": \"accurate
+        - replacement timing suggests moderate priority\"\n    },\n    {\n      \"id\":
+        19,\n      \"original_severity\": \"moderate\",\n      \"adjusted_severity\":
+        \"major\",\n      \"cost_multiplier\": 1.5,\n      \"context_notes\": \"understated
+        - active leaks require immediate attention\"\n    }\n  ]\n}\n```"}],"stop_reason":"end_turn","stop_sequence":null,"stop_details":null,"usage":{"input_tokens":1276,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"cache_creation":{"ephemeral_5m_input_tokens":0,"ephemeral_1h_input_tokens":0},"output_tokens":1344,"service_tier":"standard","inference_geo":"not_available"}}'
+    headers:
+      CF-RAY:
+      - 9f9c2cc5ba3c5ee3-PDX
+      Connection:
+      - keep-alive
+      Content-Security-Policy:
+      - default-src 'none'; frame-ancestors 'none'
+      Content-Type:
+      - application/json
+      Date:
+      - Sun, 10 May 2026 21:53:22 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      X-Robots-Tag:
+      - none
+      anthropic-organization-id:
+      - b2fdc71b-2fc9-444f-8b1b-31a1a50d1ce6
+      anthropic-ratelimit-input-tokens-limit:
+      - '450000'
+      anthropic-ratelimit-input-tokens-remaining:
+      - '449000'
+      anthropic-ratelimit-input-tokens-reset:
+      - '2026-05-10T21:53:08Z'
+      anthropic-ratelimit-output-tokens-limit:
+      - '90000'
+      anthropic-ratelimit-output-tokens-remaining:
+      - '90000'
+      anthropic-ratelimit-output-tokens-reset:
+      - '2026-05-10T21:53:22Z'
+      anthropic-ratelimit-requests-limit:
+      - '1000'
+      anthropic-ratelimit-requests-remaining:
+      - '999'
+      anthropic-ratelimit-requests-reset:
+      - '2026-05-10T21:53:07Z'
+      anthropic-ratelimit-tokens-limit:
+      - '540000'
+      anthropic-ratelimit-tokens-remaining:
+      - '539000'
+      anthropic-ratelimit-tokens-reset:
+      - '2026-05-10T21:53:08Z'
+      cf-cache-status:
+      - DYNAMIC
+      content-length:
+      - '5265'
+      request-id:
+      - req_011CaudY32KKnAdphRm4AFsQ
+      set-cookie:
+      - <REDACTED>
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      traceresponse:
+      - 00-167662f82db5b705de0ca1343ae8ed3d-6dbb54a89964796c-01
+      vary:
+      - Accept-Encoding
+      x-envoy-upstream-service-time:
+      - '14774'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"from": "OfferWise <noreply@getofferwise.ai>", "to": ["cassette_recorder_cassette_15f3e725@e2e-cassette.test.example.com"],
+      "subject": "Your Analysis is Ready: 456 Clean Disclosure St, Oakla...", "html":
+      "\n<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta
+      name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <meta
+      http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n    <title>OfferWise</title>\n    <!--[if
+      mso]>\n    <style type=\"text/css\">\n        table {border-collapse: collapse;}\n        .button
+      {padding: 12px 24px !important;}\n    </style>\n    <![endif]-->\n</head>\n<body
+      style=\"margin: 0; padding: 0; background-color: #0f172a; font-family: -apple-system,
+      BlinkMacSystemFont, ''Segoe UI'', Roboto, ''Helvetica Neue'', Arial, sans-serif;\">\n    <!--
+      Preview text -->\n    <div style=\"display: none; max-height: 0; overflow: hidden;\">\n        Analysis
+      ready for 456 Clean Disclosure St, Oakland, CA - OfferScore 60\n    </div>\n    \n    <!--
+      Email wrapper -->\n    <table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\"
+      border=\"0\" width=\"100%\" style=\"background-color: #0f172a;\">\n        <tr>\n            <td
+      align=\"center\" style=\"padding: 40px 20px;\">\n                <!-- Content
+      container -->\n                <table role=\"presentation\" cellspacing=\"0\"
+      cellpadding=\"0\" border=\"0\" width=\"600\" style=\"max-width: 600px; background-color:
+      #1e293b; border-radius: 16px; overflow: hidden; box-shadow: 0 20px 40px rgba(0,
+      0, 0, 0.3);\">\n                    \n                    <!-- Header -->\n                    <tr>\n                        <td
+      style=\"background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%); padding:
+      32px 40px; text-align: center;\">\n                            <h1 style=\"margin:
+      0; color: #ffffff; font-size: 28px; font-weight: 800; letter-spacing: -0.5px;\">\n                                OfferWise\n                            </h1>\n                        </td>\n                    </tr>\n                    \n                    <!--
+      Body -->\n                    <tr>\n                        <td style=\"padding:
+      40px;\">\n                            \n        <h2 style=\"margin: 0 0 16px
+      0; color: #f8fafc; font-size: 24px; font-weight: 700;\">\n            Your Analysis
+      is Ready! \ud83d\udcca\n        </h2>\n        \n        <p style=\"margin:
+      0 0 8px 0; color: #94a3b8; font-size: 14px;\">\n            Property Address\n        </p>\n        <p
+      style=\"margin: 0 0 24px 0; color: #f8fafc; font-size: 18px; font-weight: 600;\">\n            456
+      Clean Disclosure St, Oakland, CA\n        </p>\n        \n        <!-- Results
+      Summary -->\n        <table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\"
+      border=\"0\" width=\"100%\" style=\"margin: 24px 0;\">\n            <tr>\n                <td
+      width=\"50%\" style=\"padding-right: 8px;\">\n                    <div style=\"background:
+      rgba(15, 23, 42, 0.6); border-radius: 12px; border: 1px solid rgba(255, 255,
+      255, 0.1); padding: 20px; text-align: center;\">\n                        <div
+      style=\"font-size: 14px; color: #94a3b8; margin-bottom: 8px;\">OfferScore\u2122</div>\n                        <div
+      style=\"font-size: 36px; font-weight: 800; color: #3b82f6;\">60</div>\n                        <div
+      style=\"font-size: 13px; color: #3b82f6;\">Good</div>\n                    </div>\n                </td>\n                <td
+      width=\"50%\" style=\"padding-left: 8px;\">\n                    <div style=\"background:
+      rgba(15, 23, 42, 0.6); border-radius: 12px; border: 1px solid rgba(255, 255,
+      255, 0.1); padding: 20px; text-align: center;\">\n                        <div
+      style=\"font-size: 14px; color: #94a3b8; margin-bottom: 8px;\">Recommended Offer</div>\n                        <div
+      style=\"font-size: 36px; font-weight: 800; color: #10b981;\">$577,750</div>\n                        <div
+      style=\"font-size: 13px; color: #94a3b8;\">Save $172,250 vs asking</div>\n                    </div>\n                </td>\n            </tr>\n        </table>\n        \n        <table
+      role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\"
+      style=\"background-color: rgba(59, 130, 246, 0.1); border-radius: 12px; border:
+      1px solid rgba(59, 130, 246, 0.3); margin: 24px 0;\">\n            <tr>\n                <td
+      style=\"padding: 20px;\">\n                    <table role=\"presentation\"
+      cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\">\n                        <tr>\n                            <td
+      style=\"color: #94a3b8; font-size: 14px;\">Asking Price</td>\n                            <td
+      align=\"right\" style=\"color: #f8fafc; font-size: 16px;\">$750,000</td>\n                        </tr>\n                        <tr>\n                            <td
+      style=\"color: #60a5fa; font-size: 14px; font-weight: 600; padding-top: 8px;\">Recommended
+      Offer</td>\n                            <td align=\"right\" style=\"color: #60a5fa;
+      font-size: 18px; font-weight: 700; padding-top: 8px;\">$577,750</td>\n                        </tr>\n                    </table>\n                </td>\n            </tr>\n        </table>\n        \n        <p
+      style=\"margin: 0 0 8px 0; color: #cbd5e1; font-size: 16px; line-height: 1.6;\">\n            Your
+      full report includes Risk DNA\u2122, Seller Transparency Report\u2122, and negotiation
+      talking points.\n        </p>\n        \n        \n    <table role=\"presentation\"
+      cellspacing=\"0\" cellpadding=\"0\" border=\"0\" style=\"margin: 24px auto;\">\n        <tr>\n            <td
+      style=\"background-color: #3b82f6; border-radius: 8px;\">\n                <a
+      href=\"https://www.getofferwise.ai/app?analysis=547\" target=\"_blank\" style=\"display:
+      inline-block; padding: 14px 32px; color: #ffffff; text-decoration: none; font-weight:
+      600; font-size: 16px;\">\n                    View Full Report \u2192\n                </a>\n            </td>\n        </tr>\n    </table>\n    \n        \n        <table
+      role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\"\n               style=\"background:rgba(239,68,68,0.08);border:1px
+      solid rgba(239,68,68,0.2);border-radius:10px;margin:20px 0 0;\">\n          <tr><td
+      style=\"padding:16px 20px;\">\n            <p style=\"margin:0 0 4px;color:#ef4444;font-size:13px;font-weight:700;\">\ud83d\udcc4
+      Next: Draft your repair addendum</p>\n            <p style=\"margin:0 0 10px;color:#94a3b8;font-size:12px;line-height:1.5;\">\n              Claude
+      will write your formal Request for Repair from these findings \u2014 state-aware,
+      clause by clause.\n            </p>\n            <a href=\"https://www.getofferwise.ai/app?analysis=547&action=addendum&utm_source=analysis_email&utm_medium=email\"\n               style=\"display:inline-block;padding:10px
+      20px;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);color:#fca5a5;text-decoration:none;font-weight:700;font-size:13px;border-radius:8px;\">\n              Draft
+      repair addendum \u2192\n            </a>\n          </td></tr>\n        </table>\n        \n        <table
+      role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\"\n               style=\"background:rgba(249,115,22,0.08);border:1px
+      solid rgba(249,115,22,0.2);border-radius:10px;margin:12px 0 0;\">\n          <tr><td
+      style=\"padding:14px 20px;\">\n            <p style=\"margin:0;color:#94a3b8;font-size:12px;line-height:1.5;\">\n              \ud83d\udcb0
+      <strong style=\"color:#f97316;\">Refer a buyer</strong> \u2014 share your link
+      and you both get a free analysis.\n              <a href=\"https://www.getofferwise.ai/settings?tab=referrals\"
+      style=\"color:#f97316;\">Get your link \u2192</a>\n            </p>\n          </td></tr>\n        </table>\n    \n                        </td>\n                    </tr>\n                    \n                    <!--
+      Footer -->\n                    <tr>\n                        <td style=\"background-color:
+      #0f172a; padding: 24px 40px; text-align: center; border-top: 1px solid rgba(255,
+      255, 255, 0.1);\">\n                            <p style=\"margin: 0 0 8px 0;
+      color: #64748b; font-size: 13px;\">\n                                \u00a9
+      2026 OfferWise. All rights reserved.\n                            </p>\n                            <p
+      style=\"margin: 0; color: #64748b; font-size: 13px;\">\n                                <a
+      href=\"https://www.getofferwise.ai/privacy\" style=\"color: #60a5fa; text-decoration:
+      none;\">Privacy</a>\n                                &nbsp;\u00b7&nbsp;\n                                <a
+      href=\"https://www.getofferwise.ai/terms\" style=\"color: #60a5fa; text-decoration:
+      none;\">Terms</a>\n                                &nbsp;\u00b7&nbsp;\n                                <a
+      href=\"mailto:support@getofferwise.ai\" style=\"color: #60a5fa; text-decoration:
+      none;\">Support</a>\n                            </p>\n                        </td>\n                    </tr>\n                    \n                </table>\n            </td>\n        </tr>\n    </table>\n</body>\n</html>\n"}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate, br
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '9140'
+      Content-Type:
+      - application/json
+      User-Agent:
+      - resend-python:2.0.0
+      authorization:
+      - <REDACTED>
+    method: POST
+    uri: https://api.resend.com/emails
+  response:
+    body:
+      string: '{"id":"e57e85cd-49ca-4d92-93ef-28b65d18269c"}'
+    headers:
+      CF-RAY:
+      - 9f9c2d28bde353d9-PDX
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '45'
+      Content-Type:
+      - application/json
+      Date:
+      - Sun, 10 May 2026 21:53:23 GMT
+      Server:
+      - cloudflare
+      cf-cache-status:
+      - DYNAMIC
+      ratelimit-limit:
+      - '5'
+      ratelimit-policy:
+      - 5;w=1
+      ratelimit-remaining:
+      - '4'
+      ratelimit-reset:
+      - '1'
+      x-resend-daily-quota:
+      - '115'
+      x-resend-monthly-quota:
+      - '262'
+    status:
+      code: 200
+      message: OK
+version: 1

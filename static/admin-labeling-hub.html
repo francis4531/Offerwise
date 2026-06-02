@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Labeling · OfferWise Admin</title>
+<meta name="robots" content="noindex,nofollow">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0b1220; --bg2:#111827; --bg3:#1f2937;
+    --line:#1f2937; --line2:#374151;
+    --txt:#f3f4f6; --body:#cbd5e1; --gray:#9ca3af; --dim:#6b7280;
+    --accent:#f97316; --gold:#f59e0b;
+    --green:#22c55e; --red:#ef4444; --amber:#fcd34d; --blue:#60a5fa;
+    --mono:ui-monospace,SFMono-Regular,Menlo,monospace;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--txt);font-size:14px;line-height:1.55;}
+  a{color:var(--gold);text-decoration:none;}
+  a:hover{color:var(--accent);}
+
+  .topbar{padding:14px 22px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;background:#0b1220;}
+  .topbar h1{font-size:16px;font-weight:700;margin:0;letter-spacing:-.01em;}
+  .topbar h1 .accent{color:var(--accent);}
+
+  .wrap{max-width:980px;margin:0 auto;padding:24px 22px;}
+
+  .back-link{display:inline-block;margin-bottom:14px;font-size:12px;color:var(--gray);}
+  .back-link:hover{color:var(--accent);}
+
+  /* Lifecycle banner */
+  .lifecycle{padding:14px 18px;background:rgba(96,165,250,.05);border-left:3px solid var(--blue);border-radius:0 8px 8px 0;font-size:12px;color:var(--body);margin-bottom:18px;line-height:1.55;}
+  .lifecycle strong{color:var(--blue);font-size:10px;text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:4px;font-weight:700;}
+  .lifecycle .arrow{color:var(--dim);font-weight:300;}
+
+  /* Section card */
+  .section{background:var(--bg2);border:1px solid var(--line);border-radius:10px;margin-bottom:14px;cursor:pointer;transition:border-color .15s;display:block;text-decoration:none;color:inherit;}
+  .section:hover{border-color:var(--accent);}
+  .section-inner{padding:18px 22px;display:flex;align-items:center;gap:18px;}
+
+  .section-num{flex-shrink:0;width:32px;height:32px;border-radius:50%;background:linear-gradient(90deg,var(--accent),var(--gold));color:white;font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center;}
+
+  .section-body{flex:1;min-width:0;}
+  .section-title{font-size:15px;font-weight:700;color:var(--txt);margin:0 0 4px;display:flex;align-items:center;gap:10px;}
+  .section-title .badge{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;text-transform:uppercase;letter-spacing:.05em;font-family:var(--mono);}
+  .section-title .badge.ready{background:rgba(34,197,94,.15);color:var(--green);}
+  .section-title .badge.idle{background:rgba(156,163,175,.15);color:var(--gray);}
+  .section-title .badge.running{background:rgba(96,165,250,.15);color:var(--blue);}
+  .section-title .badge.attention{background:rgba(252,211,77,.15);color:var(--amber);}
+
+  .section-desc{font-size:12px;color:var(--gray);margin:0 0 8px;line-height:1.5;}
+  .section-stats{font-size:12px;color:var(--body);font-family:var(--mono);}
+  .section-stats span{display:inline-block;margin-right:18px;}
+  .section-stats strong{color:var(--accent);font-weight:600;}
+  .section-stats .muted{color:var(--gray);}
+
+  .section-arrow{flex-shrink:0;color:var(--gray);font-size:24px;font-weight:300;transition:transform .15s,color .15s;}
+  .section:hover .section-arrow{color:var(--accent);transform:translateX(3px);}
+
+  .loading{color:var(--dim);font-style:italic;font-size:12px;}
+  .err{color:var(--red);font-family:var(--mono);font-size:11px;}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <h1>🏷️ <span class="accent">Labeling</span></h1>
+  <div style="font-size:12px;color:var(--gray)" id="last-update">—</div>
+</div>
+
+<div class="wrap">
+  <a class="back-link" href="javascript:history.back()">← Back to admin</a>
+
+  <div class="lifecycle">
+    <strong>Lifecycle</strong>
+    Fresh crawl data <span class="arrow">→</span>
+    Initial labels (Claude) <span class="arrow">→</span>
+    Train models <span class="arrow">→</span>
+    Audit (human review) <span class="arrow">→</span>
+    Bulk relabel (model self-distill) <span class="arrow">→</span>
+    Retrain
+  </div>
+
+  <!-- Section 1: Initial Labeling -->
+  <a class="section" id="section-initial" href="#">
+    <div class="section-inner">
+      <div class="section-num">1</div>
+      <div class="section-body">
+        <h2 class="section-title">
+          <span>🔄 Initial Labeling</span>
+          <span class="badge idle" id="initial-badge">loading</span>
+        </h2>
+        <p class="section-desc">Run Claude Haiku on rows missing a v2 label. Generates category + severity tags from scratch.</p>
+        <div class="section-stats loading" id="initial-stats">Loading…</div>
+      </div>
+      <div class="section-arrow">→</div>
+    </div>
+  </a>
+
+  <!-- Section 2: Audit -->
+  <a class="section" id="section-audit" href="#">
+    <div class="section-inner">
+      <div class="section-num">2</div>
+      <div class="section-body">
+        <h2 class="section-title">
+          <span>🏷️ Audit</span>
+          <span class="badge idle" id="audit-badge">loading</span>
+        </h2>
+        <p class="section-desc">Operator judges misclassifications from the last training. Five verdicts, keyboard-driven. ~15 sec per finding.</p>
+        <div class="section-stats loading" id="audit-stats">Loading…</div>
+      </div>
+      <div class="section-arrow">→</div>
+    </div>
+  </a>
+
+  <!-- Section 3: Bulk Relabel -->
+  <a class="section" id="section-relabel" href="#">
+    <div class="section-inner">
+      <div class="section-num">3</div>
+      <div class="section-body">
+        <h2 class="section-title">
+          <span>🔁 Bulk Relabel</span>
+          <span class="badge idle" id="relabel-badge">loading</span>
+        </h2>
+        <p class="section-desc">Trained model relabels its own corpus where confidence is high. Self-distillation. Auto-triggers retrain on commit completion.</p>
+        <div class="section-stats loading" id="relabel-stats">Loading…</div>
+      </div>
+      <div class="section-arrow">→</div>
+    </div>
+  </a>
+
+</div>
+
+<script>
+const ADMIN_KEY = new URLSearchParams(window.location.search).get('admin_key') || '';
+
+function _esc(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function _fmt(n) {
+  if (n == null) return '—';
+  return Number(n).toLocaleString();
+}
+
+// Section navigation — each card opens its detail page.
+document.getElementById('section-initial').href =
+  '/admin/labels/initial?admin_key=' + encodeURIComponent(ADMIN_KEY);
+document.getElementById('section-audit').href =
+  '/admin/labels/audit?admin_key=' + encodeURIComponent(ADMIN_KEY);
+document.getElementById('section-relabel').href =
+  '/admin/relabel?admin_key=' + encodeURIComponent(ADMIN_KEY);
+
+async function loadSummary() {
+  try {
+    const r = await fetch('/api/admin/labeling/summary?admin_key=' + encodeURIComponent(ADMIN_KEY));
+    const d = await r.json();
+    if (!d.ok) {
+      ['initial','audit','relabel'].forEach(k => {
+        const el = document.getElementById(k + '-stats');
+        if (el) { el.className = 'section-stats err'; el.textContent = d.error || 'Failed to load.'; }
+      });
+      return;
+    }
+    renderInitial(d.initial_labeling);
+    renderAudit(d.audit);
+    renderRelabel(d.bulk_relabel);
+    document.getElementById('last-update').textContent = 'updated ' + new Date().toLocaleTimeString();
+  } catch (e) {
+    ['initial','audit','relabel'].forEach(k => {
+      const el = document.getElementById(k + '-stats');
+      if (el) { el.className = 'section-stats err'; el.textContent = 'Network error: ' + e.message; }
+    });
+  }
+}
+
+function renderInitial(data) {
+  const badge = document.getElementById('initial-badge');
+  const stats = document.getElementById('initial-stats');
+  const unl = data.unlabeled_count;
+  const tot = data.total_corpus;
+
+  if (unl == null) {
+    badge.textContent = 'unknown';
+    badge.className = 'badge idle';
+  } else if (unl === 0) {
+    badge.textContent = 'all labeled';
+    badge.className = 'badge ready';
+  } else if (unl > 100) {
+    badge.textContent = _fmt(unl) + ' unlabeled';
+    badge.className = 'badge attention';
+  } else {
+    badge.textContent = _fmt(unl) + ' unlabeled';
+    badge.className = 'badge idle';
+  }
+
+  let s = '';
+  s += '<span>Unlabeled: <strong>' + _fmt(unl) + '</strong></span>';
+  s += '<span class="muted">of ' + _fmt(tot) + ' total</span>';
+  if (data.latest_ingest_job) {
+    const dt = data.latest_ingest_job.created_at;
+    if (dt) {
+      const d = new Date(dt);
+      s += '<span class="muted">last job ' + d.toLocaleDateString() + '</span>';
+    }
+  }
+  stats.className = 'section-stats';
+  stats.innerHTML = s;
+}
+
+function renderAudit(data) {
+  const badge = document.getElementById('audit-badge');
+  const stats = document.getElementById('audit-stats');
+  const audited = data.active_batch_audited || 0;
+  const total = data.active_batch_total || 0;
+  const remaining = Math.max(0, total - audited);
+  const corpusChanges = data.total_corpus_changes || 0;
+
+  if (total === 0) {
+    badge.textContent = 'no batch';
+    badge.className = 'badge idle';
+  } else if (audited === 0) {
+    badge.textContent = _fmt(total) + ' ready';
+    badge.className = 'badge ready';
+  } else if (remaining > 0) {
+    badge.textContent = _fmt(remaining) + ' to audit';
+    badge.className = 'badge attention';
+  } else {
+    badge.textContent = 'complete';
+    badge.className = 'badge ready';
+  }
+
+  let s = '';
+  if (total > 0) {
+    s += '<span>Audited: <strong>' + _fmt(audited) + '</strong>';
+    s += '<span class="muted"> / ' + _fmt(total) + '</span></span>';
+  }
+  if (data.active_batch_dominant_verdict && data.active_batch_dominant_pct) {
+    const verdictLabel = {
+      'predicted_correct': 'predicted correct',
+      'original_correct': 'original correct',
+      'both_defensible': 'both defensible',
+      'neither_correct': 'neither correct',
+      'junk': 'junk',
+    }[data.active_batch_dominant_verdict] || data.active_batch_dominant_verdict;
+    s += '<span>Dominant: <strong>' + data.active_batch_dominant_pct + '% ' + _esc(verdictLabel) + '</strong></span>';
+  }
+  s += '<span class="muted">' + _fmt(corpusChanges) + ' corpus changes lifetime</span>';
+
+  if (s) {
+    stats.className = 'section-stats';
+    stats.innerHTML = s;
+  } else {
+    stats.className = 'section-stats muted';
+    stats.textContent = 'No audit data yet. Run training first.';
+  }
+}
+
+function renderRelabel(data) {
+  const badge = document.getElementById('relabel-badge');
+  const stats = document.getElementById('relabel-stats');
+
+  if (data.active_run_id) {
+    badge.textContent = 'running';
+    badge.className = 'badge running';
+  } else if (!data.latest_run) {
+    badge.textContent = 'never run';
+    badge.className = 'badge idle';
+  } else if (data.latest_run.status === 'completed') {
+    badge.textContent = 'complete';
+    badge.className = 'badge ready';
+  } else if (data.latest_run.status === 'failed') {
+    badge.textContent = 'failed';
+    badge.className = 'badge attention';
+  } else {
+    badge.textContent = data.latest_run.status || 'idle';
+    badge.className = 'badge idle';
+  }
+
+  if (!data.latest_run) {
+    stats.className = 'section-stats muted';
+    stats.textContent = 'No runs yet. Suggests dry-run @ 0.90 first.';
+    return;
+  }
+  const r = data.latest_run;
+  let s = '';
+  s += '<span>Last: <strong>' + _esc(r.mode || '—') + '</strong> @ ' + (r.threshold || '—') + '</span>';
+  s += '<span>Status: <strong>' + _esc(r.status) + '</strong></span>';
+  if (r.rows_processed != null && r.rows_total != null) {
+    s += '<span class="muted">' + _fmt(r.rows_processed) + ' / ' + _fmt(r.rows_total) + ' rows</span>';
+  }
+  if ((r.rows_changed_category || 0) + (r.rows_changed_severity || 0) > 0) {
+    s += '<span>Changes: <strong>' + _fmt((r.rows_changed_category || 0) + (r.rows_changed_severity || 0)) + '</strong></span>';
+  }
+  stats.className = 'section-stats';
+  stats.innerHTML = s;
+}
+
+// Boot
+loadSummary();
+// Refresh every 10s in case any backgrounded job updates state
+setInterval(loadSummary, 10000);
+</script>
+</body>
+</html>

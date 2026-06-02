@@ -1,0 +1,71 @@
+# OfferWise robots.txt
+User-agent: *
+
+# ── Public pages — crawl & index ─────────────────────────────────
+Allow: /$
+Allow: /pricing
+Allow: /for-agents
+Allow: /for-inspectors
+Allow: /for-contractors
+Allow: /internachi
+Allow: /analyze
+Allow: /sample-analysis
+Allow: /risk/
+Allow: /risk-check
+Allow: /truth-check
+Allow: /guides/
+Allow: /free-tools
+Allow: /games/
+Allow: /contact
+Allow: /privacy
+Allow: /terms
+Allow: /disclaimer
+Allow: /api/docs
+Allow: /api-pricing
+
+# ── Private / authenticated pages — no crawl ─────────────────────
+Disallow: /app
+Disallow: /dashboard
+Disallow: /settings
+Disallow: /onboarding
+Disallow: /profile
+Disallow: /login
+Disallow: /logout
+Disallow: /reset-password
+Disallow: /payment-success
+Disallow: /payment-cancel
+Disallow: /checkout
+Disallow: /compare
+Disallow: /agent-portal
+Disallow: /inspector-portal
+Disallow: /contractor-portal
+Disallow: /agent-onboarding
+Disallow: /inspector-onboarding
+Disallow: /contractor-onboarding
+Disallow: /agent-report/
+Disallow: /a/
+
+# ── Admin / internal — no crawl ──────────────────────────────────
+Disallow: /admin
+Disallow: /debug
+Disallow: /diagnostic
+Disallow: /api/
+Disallow: /agentic-roadmap
+Disallow: /auth/
+
+# ── Static junk files ────────────────────────────────────────────
+Disallow: /static/portal-mockup.html
+Disallow: /static/portal-mockup-v2.html
+Disallow: /static/portal-mockup-unified.html
+Disallow: /static/offerwise_assessment_v3.html
+Disallow: /static/house-hunt-game.html
+Disallow: /static/report-hybrid-mockup.html
+Disallow: /static/report-ui-options.html
+Disallow: /static/persona-matrix.html
+Disallow: /static/combo-matrix.html
+Disallow: /static/admin.html
+Disallow: /static/debug.html
+Disallow: /static/diagnostic.html
+
+# ── Sitemap ───────────────────────────────────────────────────────
+Sitemap: https://www.getofferwise.ai/sitemap.xml

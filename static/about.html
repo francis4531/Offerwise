@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>About OfferWise — The buyer disclosure analysis platform</title>
+<meta name="description" content="OfferWise turns 50+ page seller disclosure packets into a concrete negotiation strategy in 90 seconds. Built on a proprietary ML pipeline trained on 235,000+ real findings.">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0b1220; --bg2:#111827; --bg3:#1f2937;
+    --line:#1f2937; --line2:#374151;
+    --txt:#f3f4f6; --body:#cbd5e1; --gray:#9ca3af; --dim:#6b7280;
+    --accent:#f97316; --gold:#f59e0b; --green:#22c55e;
+    --gl:#fde68a;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:'DM Sans',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--txt);font-size:16px;line-height:1.65;-webkit-font-smoothing:antialiased;}
+  a{color:var(--gold);text-decoration:none;border-bottom:1px solid rgba(245,158,11,.3);}
+  a:hover{color:var(--accent);border-bottom-color:var(--accent);}
+
+  .topbar{position:sticky;top:0;z-index:50;background:rgba(11,18,32,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding:14px 22px;display:flex;justify-content:space-between;align-items:center;}
+  .brand{font-weight:800;letter-spacing:-.01em;font-size:15px;}
+  .brand a{color:var(--txt);border:0;}
+  .brand .ai{color:var(--accent);}
+  .topnav{display:flex;gap:18px;font-size:13px;color:var(--gray);}
+  .topnav a{color:var(--gray);border:0;}
+  .topnav a:hover{color:var(--txt);}
+  @media (max-width:640px){.topnav{display:none;}}
+
+  .hero{max-width:880px;margin:0 auto;padding:64px 22px 48px;}
+  .eyebrow{font-size:.7rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);margin-bottom:14px;}
+  h1{font-size:clamp(2rem,5.5vw,3.4rem);font-weight:800;line-height:1.05;letter-spacing:-.025em;margin:0 0 22px;}
+  h1 span{color:var(--accent);}
+  .lead{font-size:1.15rem;color:var(--body);max-width:680px;line-height:1.7;margin:0;}
+
+  .section{max-width:880px;margin:0 auto;padding:36px 22px;border-top:1px solid var(--line);}
+  .sec-num{font-size:.7rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);margin-bottom:10px;display:flex;align-items:center;gap:10px;}
+  .sec-num::before{content:"";width:24px;height:1px;background:var(--accent);}
+  .disp{font-size:clamp(1.6rem,3.5vw,2.2rem);font-weight:700;line-height:1.15;letter-spacing:-.015em;margin:0 0 18px;}
+  .disp span{color:var(--accent);}
+
+  .body p{margin:0 0 14px;color:var(--body);}
+  .body p:last-child{margin-bottom:0;}
+  .body strong{color:var(--txt);}
+  .body em{color:var(--gl);font-style:normal;}
+  .body ul{margin:0 0 14px;padding-left:20px;}
+  .body li{margin-bottom:10px;color:var(--body);}
+  .body li::marker{color:var(--accent);}
+  .body li strong{color:var(--txt);}
+
+  /* Stat cards */
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin:24px 0 8px;}
+  .stat{background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:18px 16px;}
+  .stat-val{font-size:1.8rem;font-weight:800;letter-spacing:-.02em;color:var(--accent);line-height:1;margin-bottom:6px;}
+  .stat-lbl{font-size:.78rem;color:var(--gray);line-height:1.4;}
+
+  /* Diff cards */
+  .diff-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin-top:20px;}
+  .diff{background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:18px 18px;}
+  .diff-tag{font-size:.65rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--accent);margin-bottom:8px;}
+  .diff-t{font-size:1.05rem;font-weight:700;margin:0 0 8px;letter-spacing:-.01em;color:var(--txt);}
+  .diff-b{font-size:.88rem;color:var(--body);line-height:1.55;}
+
+  /* CTA */
+  .cta{max-width:680px;margin:60px auto 0;padding:0 22px 80px;text-align:center;}
+  .cta h3{font-size:1.4rem;font-weight:700;margin:0 0 14px;letter-spacing:-.01em;}
+  .cta p{color:var(--body);margin:0 0 22px;}
+  .cta-btn{display:inline-block;background:linear-gradient(90deg,var(--accent),var(--gold));color:white;padding:14px 28px;border-radius:8px;font-weight:700;border:0;letter-spacing:-.01em;font-size:1rem;}
+  .cta-btn:hover{background:linear-gradient(90deg,#ea580c,#d97706);border:0;}
+
+  .footer{border-top:1px solid var(--line);padding:32px 22px;text-align:center;color:var(--dim);font-size:.8rem;}
+  .footer a{color:var(--gray);border:0;margin:0 8px;}
+  .footer a:hover{color:var(--accent);}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand"><a href="/">OfferWise<span class="ai">™</span></a></div>
+  <div class="topnav">
+    <a href="/analyze">Analyze</a>
+    <a href="/comparison">vs. LLMs</a>
+    <a href="/architecture">How it works</a>
+    <a href="/pricing">Pricing</a>
+  </div>
+</div>
+
+<div class="hero">
+  <div class="eyebrow">About OfferWise</div>
+  <h1>Buyers deserve <span>better intelligence</span> at the biggest financial decision of their lives.</h1>
+  <p class="lead">
+    OfferWise turns the 50&ndash;200 page seller disclosure packet into a concrete negotiation strategy in under 90 seconds &mdash; a calibrated offer range, a prioritized list of repair items, a hidden-issue reserve estimate, and a confidence-scored risk fingerprint that compares the home to similar properties.
+  </p>
+</div>
+
+<!-- The problem -->
+<section class="section">
+  <div class="sec-num">The problem</div>
+  <h2 class="disp">Five million American families make the biggest decision of their lives in <span>72 hours.</span></h2>
+  <div class="body">
+    <p>The American residential real estate transaction has a structural information asymmetry baked into it. The seller knows what they&rsquo;re hiding. The buyer doesn&rsquo;t know what to look for. Every professional in between is operating on instinct and experience, not structured data.</p>
+    <p>The disclosure packet contains the answers. But it&rsquo;s 200 pages of legal and technical language that buyers were never trained to read &mdash; on a 72-hour offer clock, after they&rsquo;ve already fallen in love with the property.</p>
+    <p>The result: buyers systematically overpay, miss material defects, and discover problems after closing &mdash; problems that the disclosure packet had warned them about, in language they couldn&rsquo;t parse.</p>
+  </div>
+</section>
+
+<!-- The product -->
+<section class="section">
+  <div class="sec-num">The product</div>
+  <h2 class="disp">A trained ML pipeline. <span>Not a wrapped LLM.</span></h2>
+  <div class="body">
+    <p>OfferWise reads every document the buyer received from the seller &mdash; prior inspection reports, repair history, neighborhood hazard reports, HOA records, structural notes &mdash; and produces a structured analysis built on a proprietary corpus of 235,000+ real disclosure findings.</p>
+    <p>The pipeline is the differentiator. We&rsquo;ve trained on <em>real inspector findings, real city violations, real cost data across 13 metropolitan markets</em>. A general-purpose LLM has no opinion about whether a Federal Pacific Stab-Lok panel is a deal-breaker. Our system has seen 1,200 of them in real inspection reports and knows.</p>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="stat-val">235K+</div><div class="stat-lbl">Trained findings in the corpus</div></div>
+    <div class="stat"><div class="stat-val">13</div><div class="stat-lbl">Active metropolitan data sources</div></div>
+    <div class="stat"><div class="stat-val">~96%</div><div class="stat-lbl">Category classifier accuracy</div></div>
+    <div class="stat"><div class="stat-val">90s</div><div class="stat-lbl">Average analysis time</div></div>
+  </div>
+</section>
+
+<!-- Why us -->
+<section class="section">
+  <div class="sec-num">Why OfferWise</div>
+  <h2 class="disp">Three things a wrapped LLM <span>cannot do.</span></h2>
+
+  <div class="diff-grid">
+    <div class="diff">
+      <div class="diff-tag">Trained, not generic</div>
+      <div class="diff-t">A real corpus, not a model card.</div>
+      <div class="diff-b">Our findings classifier, contradiction detector, and cost predictor are trained on 235,000+ real disclosure rows from 13 metros &mdash; not generic web data. The result: opinions that are specific, not platitudes.</div>
+    </div>
+    <div class="diff">
+      <div class="diff-tag">Calibrated confidence</div>
+      <div class="diff-t">Intervals, not point estimates.</div>
+      <div class="diff-b">Every repair cost comes with p10/p50/p90 bounds. We publicly track how often the actual cost lands inside the interval. An LLM can&rsquo;t tell you when it&rsquo;s guessing. We can.</div>
+    </div>
+    <div class="diff">
+      <div class="diff-tag">Cross-document reasoning</div>
+      <div class="diff-t">Every claim cross-checked.</div>
+      <div class="diff-b">The system reads the seller&rsquo;s claims and cross-references every one against every inspector finding &mdash; surfacing contradictions with page-level citations. None of this comes from a single LLM call.</div>
+    </div>
+    <div class="diff">
+      <div class="diff-tag">Property Risk DNA</div>
+      <div class="diff-t">A 5-axis fingerprint.</div>
+      <div class="diff-b">Each home gets a vector covering structural integrity, systems condition, seller transparency, temporal failure horizon, and financial exposure. Enables similarity matching across properties. Trademark pending.</div>
+    </div>
+    <div class="diff">
+      <div class="diff-tag">Buyer-aligned</div>
+      <div class="diff-t">We&rsquo;ll tell you to walk away.</div>
+      <div class="diff-b">Zillow and Redfin are paid by the transaction. We&rsquo;re paid by the buyer to question the transaction. When the analysis says walk away, we say walk away. That alignment compounds into trust.</div>
+    </div>
+    <div class="diff">
+      <div class="diff-tag">Ongoing monitoring</div>
+      <div class="diff-t">OfferWatch&trade;.</div>
+      <div class="diff-b">After the initial analysis, daily background jobs watch the property &mdash; alerting if the price drops, a seismic event happens nearby, new permits are filed, or comparable sales shift. Live today.</div>
+    </div>
+  </div>
+</section>
+
+<!-- Who -->
+<section class="section">
+  <div class="sec-num">Who we serve</div>
+  <h2 class="disp">Built for the buyer. <span>Trusted by the professionals.</span></h2>
+  <div class="body">
+    <ul>
+      <li><strong>Homebuyers</strong> &mdash; primary user. The person under contract who needs to know what to ask, what to negotiate, and whether to walk away. $9&ndash;$49 per month.</li>
+      <li><strong>Home inspectors</strong> &mdash; partners who use OfferWise to deliver branded, enriched reports that differentiate against checkbox competitors.</li>
+      <li><strong>Buyer&rsquo;s agents</strong> &mdash; partners at independent and smaller brokerages who use the analysis to deliver higher-quality client experiences than the major franchises.</li>
+      <li><strong>Repair contractors</strong> &mdash; receive qualified leads when buyers identify repair scope they need quoted.</li>
+      <li><strong>Enterprise partners</strong> &mdash; iBuyer operations, digital-mortgage lenders, brokerages who consume the analysis via API at scale.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- Mission -->
+<section class="section">
+  <div class="sec-num">Mission &amp; values</div>
+  <h2 class="disp">Mission: give every American homebuyer the intelligence a <span>Wall Street acquirer</span> would have.</h2>
+  <div class="body">
+    <ul>
+      <li><strong>Customer-honesty over upsell.</strong> If the analysis says walk away, we say walk away. Our incentives are the buyer&rsquo;s &mdash; not the agent&rsquo;s, not the seller&rsquo;s, not the transaction&rsquo;s.</li>
+      <li><strong>Defensible data over confident guessing.</strong> Every number we display can be traced to a source. We publish confidence intervals, not point estimates dressed as certainty.</li>
+      <li><strong>Build the moat in public.</strong> Our <a href="/architecture">architecture deep-dive</a> and <a href="/comparison">head-to-head comparison</a> against frontier LLMs are public because the work speaks louder than the marketing.</li>
+      <li><strong>Earn the conversation before asking for capital.</strong> We&rsquo;re not raising on slides. We&rsquo;re building a working product with paying customers first.</li>
+    </ul>
+  </div>
+</section>
+
+<div class="cta">
+  <h3>Try it on your next property.</h3>
+  <p>Upload a disclosure packet. See the analysis in 90 seconds. Decide for yourself.</p>
+  <a href="/analyze" class="cta-btn">Analyze a property →</a>
+</div>
+
+<div class="footer">
+  <a href="/thesis">Investment thesis</a>
+  <a href="/pitch">Detailed Q&amp;A</a>
+  <a href="/comparison">vs. LLMs</a>
+  <a href="/architecture">Architecture</a>
+  <a href="mailto:hello@getofferwise.ai">Contact</a>
+  <div style="margin-top:14px;">&copy; 2026 OfferWise AI &middot; Trademarks pending &middot; getofferwise.ai</div>
+</div>
+
+</body>
+</html>

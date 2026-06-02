@@ -1,0 +1,936 @@
+interactions:
+- request:
+    body: null
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate, br
+      Connection:
+      - keep-alive
+      User-Agent:
+      - python-requests/2.31.0
+      x-api-key:
+      - <REDACTED>
+    method: GET
+    uri: https://api.rentcast.io/v1/avm/value?address=789+Nightmare+Rd%2C+Berkeley%2C+CA&compCount=10&daysOld=180&maxRadius=5
+  response:
+    body:
+      string: '{"price":1242000,"priceRangeLow":825000,"priceRangeHigh":1659000,"latitude":37.8880621,"longitude":-122.2507365,"subjectProperty":{"id":"Hill-Rd,-Berkeley,-CA-94708","formattedAddress":"Hill
+        Rd, Berkeley, CA 94708","addressLine1":"Hill Rd","addressLine2":null,"city":"Berkeley","state":"CA","stateFips":"06","zipCode":"94708","latitude":37.8880621,"longitude":-122.2507365},"comparables":[{"id":"120-Hill-Rd,-Berkeley,-CA-94708","formattedAddress":"120
+        Hill Rd, Berkeley, CA 94708","addressLine1":"120 Hill Rd","addressLine2":null,"city":"Berkeley","state":"CA","stateFips":"06","zipCode":"94708","county":"Alameda","countyFips":"001","latitude":37.887464,"longitude":-122.250629,"propertyType":"Single
+        Family","bedrooms":4,"bathrooms":3,"squareFootage":4038,"lotSize":12632,"yearBuilt":1966,"status":"Inactive","price":1895000,"listingType":"Standard","listedDate":"2026-02-18T00:00:00.000Z","removedDate":"2026-03-04T00:00:00.000Z","lastSeenDate":"2026-03-03T07:54:17.627Z","daysOnMarket":14,"distance":0.0418,"daysOld":69,"correlation":0.9972},{"id":"1221-Grizzly-Peak-Blvd,-Berkeley,-CA-94708","formattedAddress":"1221
+        Grizzly Peak Blvd, Berkeley, CA 94708","addressLine1":"1221 Grizzly Peak Blvd","addressLine2":null,"city":"Berkeley","state":"CA","stateFips":"06","zipCode":"94708","county":"Alameda","countyFips":"001","latitude":37.889339,"longitude":-122.251629,"propertyType":"Single
+        Family","bedrooms":4,"bathrooms":3.5,"squareFootage":2210,"lotSize":9349,"yearBuilt":1979,"status":"Inactive","price":1495000,"listingType":"Standard","listedDate":"2026-03-18T00:00:00.000Z","removedDate":"2026-04-15T00:00:00.000Z","lastSeenDate":"2026-04-14T09:14:20.113Z","daysOnMarket":28,"distance":0.1009,"daysOld":27,"correlation":0.9947},{"id":"1321-Grizzly-Peak-Blvd,-Berkeley,-CA-94708","formattedAddress":"1321
+        Grizzly Peak Blvd, Berkeley, CA 94708","addressLine1":"1321 Grizzly Peak Blvd","addressLine2":null,"city":"Berkeley","state":"CA","stateFips":"06","zipCode":"94708","county":"Alameda","countyFips":"001","latitude":37.886738,"longitude":-122.250544,"propertyType":"Single
+        Family","bedrooms":2,"bathrooms":2,"squareFootage":1256,"lotSize":5616,"yearBuilt":1960,"status":"Inactive","price":895000,"listingType":"Standard","listedDate":"2025-11-12T00:00:00.000Z","removedDate":"2025-11-27T00:00:00.000Z","lastSeenDate":"2025-11-26T05:18:43.330Z","daysOnMarket":15,"distance":0.0922,"daysOld":166,"correlation":0.9938},{"id":"2960-Shasta-Rd,-Berkeley,-CA-94708","formattedAddress":"2960
+        Shasta Rd, Berkeley, CA 94708","addressLine1":"2960 Shasta Rd","addressLine2":null,"city":"Berkeley","state":"CA","stateFips":"06","zipCode":"94708","county":"Alameda","countyFips":"001","latitude":37.889441,"longitude":-122.252617,"propertyType":"Single
+        Family","bedrooms":3,"bathrooms":2.5,"squareFootage":2105,"lotSize":3446,"yearBuilt":1978,"status":"Active","price":1295000,"listingType":"Standard","listedDate":"2026-05-06T00:00:00.000Z","removedDate":null,"lastSeenDate":"2026-05-10T08:31:42.715Z","daysOnMarket":5,"distance":0.1401,"daysOld":1,"correlation":0.993},{"id":"111-Fairlawn-Dr,-Berkeley,-CA-94708","formattedAddress":"111
+        Fairlawn Dr, Berkeley, CA 94708","addressLine1":"111 Fairlawn Dr","addressLine2":null,"city":"Berkeley","state":"CA","stateFips":"06","zipCode":"94708","county":"Alameda","countyFips":"001","latitude":37.886334,"longitude":-122.251432,"propertyType":"Single
+        Family","bedrooms":2,"bathrooms":2,"squareFootage":1587,"lotSize":5125,"yearBuilt":1939,"status":"Inactive","price":799000,"listingType":"Standard","listedDate":"2026-01-14T00:00:00.000Z","removedDate":"2026-01-30T00:00:00.000Z","lastSeenDate":"2026-01-29T08:30:31.187Z","daysOnMarket":16,"distance":0.1254,"daysOld":102,"correlation":0.9927},{"id":"2924-Shasta-Rd,-Berkeley,-CA-94708","formattedAddress":"2924
+        Shasta Rd, Berkeley, CA 94708","addressLine1":"2924 Shasta Rd","addressLine2":null,"city":"Berkeley","state":"CA","stateFips":"06","zipCode":"94708","county":"Alameda","countyFips":"001","latitude":37.888245,"longitude":-122.253744,"propertyType":"Single
+        Family","bedrooms":2,"bathrooms":1,"squareFootage":928,"lotSize":4816,"yearBuilt":1951,"status":"Inactive","price":995000,"listingType":"Standard","listedDate":"2026-03-19T00:00:00.000Z","removedDate":"2026-03-27T00:00:00.000Z","lastSeenDate":"2026-03-26T06:17:13.787Z","daysOnMarket":8,"distance":0.1647,"daysOld":46,"correlation":0.9913},{"id":"1188-Grizzly-Peak-Blvd,-Berkeley,-CA-94708","formattedAddress":"1188
+        Grizzly Peak Blvd, Berkeley, CA 94708","addressLine1":"1188 Grizzly Peak Blvd","addressLine2":null,"city":"Berkeley","state":"CA","stateFips":"06","zipCode":"94708","county":"Alameda","countyFips":"001","latitude":37.890382,"longitude":-122.252689,"propertyType":"Single
+        Family","bedrooms":2,"bathrooms":2,"squareFootage":1394,"lotSize":7919,"yearBuilt":1952,"status":"Active","price":1950000,"listingType":"Standard","listedDate":"2026-04-28T00:00:00.000Z","removedDate":null,"lastSeenDate":"2026-05-10T08:50:26.631Z","daysOnMarket":13,"distance":0.1926,"daysOld":1,"correlation":0.9904},{"id":"1375-Queens-Rd,-Berkeley,-CA-94708","formattedAddress":"1375
+        Queens Rd, Berkeley, CA 94708","addressLine1":"1375 Queens Rd","addressLine2":null,"city":"Berkeley","state":"CA","stateFips":"06","zipCode":"94708","county":"Alameda","countyFips":"001","latitude":37.885397,"longitude":-122.251878,"propertyType":"Land","lotSize":5401,"status":"Active","price":599000,"listingType":"Standard","listedDate":"2025-05-14T00:00:00.000Z","removedDate":null,"lastSeenDate":"2026-05-10T10:05:53.529Z","daysOnMarket":362,"distance":0.1946,"daysOld":1,"correlation":0.9903},{"id":"1185-Keeler-Ave,-Berkeley,-CA-94708","formattedAddress":"1185
+        Keeler Ave, Berkeley, CA 94708","addressLine1":"1185 Keeler Ave","addressLine2":null,"city":"Berkeley","state":"CA","stateFips":"06","zipCode":"94708","county":"Alameda","countyFips":"001","latitude":37.888967,"longitude":-122.25514,"propertyType":"Single
+        Family","bedrooms":3,"bathrooms":2.5,"squareFootage":1738,"lotSize":9180,"yearBuilt":1965,"status":"Active","price":1499000,"listingType":"Standard","listedDate":"2026-05-03T00:00:00.000Z","removedDate":null,"lastSeenDate":"2026-05-10T08:40:17.125Z","daysOnMarket":8,"distance":0.2484,"daysOld":1,"correlation":0.9876},{"id":"1183-Keeler-Ave,-Berkeley,-CA-94708","formattedAddress":"1183
+        Keeler Ave, Berkeley, CA 94708","addressLine1":"1183 Keeler Ave","addressLine2":null,"city":"Berkeley","state":"CA","stateFips":"06","zipCode":"94708","county":"Alameda","countyFips":"001","latitude":37.889073,"longitude":-122.255303,"propertyType":"Single
+        Family","bedrooms":2,"bathrooms":1.5,"squareFootage":1261,"lotSize":6720,"yearBuilt":1965,"status":"Inactive","price":995000,"listingType":"Standard","listedDate":"2026-04-15T00:00:00.000Z","removedDate":"2026-04-30T00:00:00.000Z","lastSeenDate":"2026-04-29T09:30:30.109Z","daysOnMarket":15,"distance":0.2589,"daysOld":12,"correlation":0.9869}]}'
+    headers:
+      Content-Length:
+      - '6949'
+      access-control-allow-methods:
+      - GET
+      access-control-allow-origin:
+      - '*'
+      cache-control:
+      - public, max-age=0
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Sun, 10 May 2026 21:50:34 GMT
+      server:
+      - Google Frontend
+      x-cloud-trace-context:
+      - f09105a4cb928f26023723b43757c47f;o=1
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate, br
+      Connection:
+      - keep-alive
+      User-Agent:
+      - OfferWise/1.0 Property Research (contact@getofferwise.ai)
+    method: GET
+    uri: https://geocoding.geo.census.gov/geocoder/geographies/onelineaddress?address=789+Nightmare+Rd%2C+Berkeley%2C+CA&benchmark=Public_AR_Current&format=json&vintage=Current_Current
+  response:
+    body:
+      string: '{"errors":["The server, while working as a gateway to get a response
+        needed to handle the request, got an invalid response."],"status":"502"}'
+    headers:
+      Cache-Control:
+      - private, no-store
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '141'
+      Content-Type:
+      - application/json
+      Date:
+      - Sun, 10 May 2026 21:50:35 GMT
+      Set-Cookie:
+      - TS0193e6a1=01283c52a46583bfc1ad10ba154021b3a6c9cd94e83aadfee78ff98450b90bd3004044dc907f1a15a9e362ae52cc04169f568cfa8c;
+        Path=/; Domain=.geocoding.geo.census.gov; Secure; HttpOnly
+      Strict-Transport-Security:
+      - max-age=31536000
+      Vary:
+      - Origin
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - DENY
+      X-XSS-Protection:
+      - 1;mode=block
+    status:
+      code: 502
+      message: ''
+- request:
+    body: null
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate, br
+      Connection:
+      - keep-alive
+      User-Agent:
+      - OfferWise/1.0 (property-research)
+      x-api-key:
+      - <REDACTED>
+    method: GET
+    uri: https://api.rentcast.io/v1/avm/value?address=789+Nightmare+Rd%2C+Berkeley%2C+CA&compCount=15&daysOld=180&maxRadius=5
+  response:
+    body:
+      string: '{"price":1257000,"priceRangeLow":769000,"priceRangeHigh":1744000,"latitude":37.8880621,"longitude":-122.2507365,"subjectProperty":{"id":"Hill-Rd,-Berkeley,-CA-94708","formattedAddress":"Hill
+        Rd, Berkeley, CA 94708","addressLine1":"Hill Rd","addressLine2":null,"city":"Berkeley","state":"CA","stateFips":"06","zipCode":"94708","latitude":37.8880621,"longitude":-122.2507365},"comparables":[{"id":"120-Hill-Rd,-Berkeley,-CA-94708","formattedAddress":"120
+        Hill Rd, Berkeley, CA 94708","addressLine1":"120 Hill Rd","addressLine2":null,"city":"Berkeley","state":"CA","stateFips":"06","zipCode":"94708","county":"Alameda","countyFips":"001","latitude":37.887464,"longitude":-122.250629,"propertyType":"Single
+        Family","bedrooms":4,"bathrooms":3,"squareFootage":4038,"lotSize":12632,"yearBuilt":1966,"status":"Inactive","price":1895000,"listingType":"Standard","listedDate":"2026-02-18T00:00:00.000Z","removedDate":"2026-03-04T00:00:00.000Z","lastSeenDate":"2026-03-03T07:54:17.627Z","daysOnMarket":14,"distance":0.0418,"daysOld":69,"correlation":0.9972},{"id":"1221-Grizzly-Peak-Blvd,-Berkeley,-CA-94708","formattedAddress":"1221
+        Grizzly Peak Blvd, Berkeley, CA 94708","addressLine1":"1221 Grizzly Peak Blvd","addressLine2":null,"city":"Berkeley","state":"CA","stateFips":"06","zipCode":"94708","county":"Alameda","countyFips":"001","latitude":37.889339,"longitude":-122.251629,"propertyType":"Single
+        Family","bedrooms":4,"bathrooms":3.5,"squareFootage":2210,"lotSize":9349,"yearBuilt":1979,"status":"Inactive","price":1495000,"listingType":"Standard","listedDate":"2026-03-18T00:00:00.000Z","removedDate":"2026-04-15T00:00:00.000Z","lastSeenDate":"2026-04-14T09:14:20.113Z","daysOnMarket":28,"distance":0.1009,"daysOld":27,"correlation":0.9947},{"id":"1321-Grizzly-Peak-Blvd,-Berkeley,-CA-94708","formattedAddress":"1321
+        Grizzly Peak Blvd, Berkeley, CA 94708","addressLine1":"1321 Grizzly Peak Blvd","addressLine2":null,"city":"Berkeley","state":"CA","stateFips":"06","zipCode":"94708","county":"Alameda","countyFips":"001","latitude":37.886738,"longitude":-122.250544,"propertyType":"Single
+        Family","bedrooms":2,"bathrooms":2,"squareFootage":1256,"lotSize":5616,"yearBuilt":1960,"status":"Inactive","price":895000,"listingType":"Standard","listedDate":"2025-11-12T00:00:00.000Z","removedDate":"2025-11-27T00:00:00.000Z","lastSeenDate":"2025-11-26T05:18:43.330Z","daysOnMarket":15,"distance":0.0922,"daysOld":166,"correlation":0.9938},{"id":"2960-Shasta-Rd,-Berkeley,-CA-94708","formattedAddress":"2960
+        Shasta Rd, Berkeley, CA 94708","addressLine1":"2960 Shasta Rd","addressLine2":null,"city":"Berkeley","state":"CA","stateFips":"06","zipCode":"94708","county":"Alameda","countyFips":"001","latitude":37.889441,"longitude":-122.252617,"propertyType":"Single
+        Family","bedrooms":3,"bathrooms":2.5,"squareFootage":2105,"lotSize":3446,"yearBuilt":1978,"status":"Active","price":1295000,"listingType":"Standard","listedDate":"2026-05-06T00:00:00.000Z","removedDate":null,"lastSeenDate":"2026-05-10T08:31:42.715Z","daysOnMarket":5,"distance":0.1401,"daysOld":1,"correlation":0.993},{"id":"111-Fairlawn-Dr,-Berkeley,-CA-94708","formattedAddress":"111
+        Fairlawn Dr, Berkeley, CA 94708","addressLine1":"111 Fairlawn Dr","addressLine2":null,"city":"Berkeley","state":"CA","stateFips":"06","zipCode":"94708","county":"Alameda","countyFips":"001","latitude":37.886334,"longitude":-122.251432,"propertyType":"Single
+        Family","bedrooms":2,"bathrooms":2,"squareFootage":1587,"lotSize":5125,"yearBuilt":1939,"status":"Inactive","price":799000,"listingType":"Standard","listedDate":"2026-01-14T00:00:00.000Z","removedDate":"2026-01-30T00:00:00.000Z","lastSeenDate":"2026-01-29T08:30:31.187Z","daysOnMarket":16,"distance":0.1254,"daysOld":102,"correlation":0.9927},{"id":"2924-Shasta-Rd,-Berkeley,-CA-94708","formattedAddress":"2924
+        Shasta Rd, Berkeley, CA 94708","addressLine1":"2924 Shasta Rd","addressLine2":null,"city":"Berkeley","state":"CA","stateFips":"06","zipCode":"94708","county":"Alameda","countyFips":"001","latitude":37.888245,"longitude":-122.253744,"propertyType":"Single
+        Family","bedrooms":2,"bathrooms":1,"squareFootage":928,"lotSize":4816,"yearBuilt":1951,"status":"Inactive","price":995000,"listingType":"Standard","listedDate":"2026-03-19T00:00:00.000Z","removedDate":"2026-03-27T00:00:00.000Z","lastSeenDate":"2026-03-26T06:17:13.787Z","daysOnMarket":8,"distance":0.1647,"daysOld":46,"correlation":0.9913},{"id":"1188-Grizzly-Peak-Blvd,-Berkeley,-CA-94708","formattedAddress":"1188
+        Grizzly Peak Blvd, Berkeley, CA 94708","addressLine1":"1188 Grizzly Peak Blvd","addressLine2":null,"city":"Berkeley","state":"CA","stateFips":"06","zipCode":"94708","county":"Alameda","countyFips":"001","latitude":37.890382,"longitude":-122.252689,"propertyType":"Single
+        Family","bedrooms":2,"bathrooms":2,"squareFootage":1394,"lotSize":7919,"yearBuilt":1952,"status":"Active","price":1950000,"listingType":"Standard","listedDate":"2026-04-28T00:00:00.000Z","removedDate":null,"lastSeenDate":"2026-05-10T08:50:26.631Z","daysOnMarket":13,"distance":0.1926,"daysOld":1,"correlation":0.9904},{"id":"1375-Queens-Rd,-Berkeley,-CA-94708","formattedAddress":"1375
+        Queens Rd, Berkeley, CA 94708","addressLine1":"1375 Queens Rd","addressLine2":null,"city":"Berkeley","state":"CA","stateFips":"06","zipCode":"94708","county":"Alameda","countyFips":"001","latitude":37.885397,"longitude":-122.251878,"propertyType":"Land","lotSize":5401,"status":"Active","price":599000,"listingType":"Standard","listedDate":"2025-05-14T00:00:00.000Z","removedDate":null,"lastSeenDate":"2026-05-10T10:05:53.529Z","daysOnMarket":362,"distance":0.1946,"daysOld":1,"correlation":0.9903},{"id":"1185-Keeler-Ave,-Berkeley,-CA-94708","formattedAddress":"1185
+        Keeler Ave, Berkeley, CA 94708","addressLine1":"1185 Keeler Ave","addressLine2":null,"city":"Berkeley","state":"CA","stateFips":"06","zipCode":"94708","county":"Alameda","countyFips":"001","latitude":37.888967,"longitude":-122.25514,"propertyType":"Single
+        Family","bedrooms":3,"bathrooms":2.5,"squareFootage":1738,"lotSize":9180,"yearBuilt":1965,"status":"Active","price":1499000,"listingType":"Standard","listedDate":"2026-05-03T00:00:00.000Z","removedDate":null,"lastSeenDate":"2026-05-10T08:40:17.125Z","daysOnMarket":8,"distance":0.2484,"daysOld":1,"correlation":0.9876},{"id":"1183-Keeler-Ave,-Berkeley,-CA-94708","formattedAddress":"1183
+        Keeler Ave, Berkeley, CA 94708","addressLine1":"1183 Keeler Ave","addressLine2":null,"city":"Berkeley","state":"CA","stateFips":"06","zipCode":"94708","county":"Alameda","countyFips":"001","latitude":37.889073,"longitude":-122.255303,"propertyType":"Single
+        Family","bedrooms":2,"bathrooms":1.5,"squareFootage":1261,"lotSize":6720,"yearBuilt":1965,"status":"Inactive","price":995000,"listingType":"Standard","listedDate":"2026-04-15T00:00:00.000Z","removedDate":"2026-04-30T00:00:00.000Z","lastSeenDate":"2026-04-29T09:30:30.109Z","daysOnMarket":15,"distance":0.2589,"daysOld":12,"correlation":0.9869},{"id":"209-Fairlawn-Dr,-Berkeley,-CA-94708","formattedAddress":"209
+        Fairlawn Dr, Berkeley, CA 94708","addressLine1":"209 Fairlawn Dr","addressLine2":null,"city":"Berkeley","state":"CA","stateFips":"06","zipCode":"94708","county":"Alameda","countyFips":"001","latitude":37.884506,"longitude":-122.250063,"propertyType":"Single
+        Family","bedrooms":3,"bathrooms":2,"squareFootage":1823,"lotSize":4848,"yearBuilt":1951,"status":"Inactive","price":995000,"listingType":"Standard","listedDate":"2026-01-29T00:00:00.000Z","removedDate":"2026-02-12T00:00:00.000Z","lastSeenDate":"2026-02-11T07:35:33.601Z","daysOnMarket":14,"distance":0.2487,"daysOld":89,"correlation":0.9867},{"id":"1170-Sterling-Ave,-Berkeley,-CA-94708","formattedAddress":"1170
+        Sterling Ave, Berkeley, CA 94708","addressLine1":"1170 Sterling Ave","addressLine2":null,"city":"Berkeley","state":"CA","stateFips":"06","zipCode":"94708","county":"Alameda","countyFips":"001","latitude":37.889442,"longitude":-122.255291,"propertyType":"Single
+        Family","bedrooms":4,"bathrooms":3,"squareFootage":2490,"lotSize":6018,"yearBuilt":1938,"status":"Active","price":2195000,"listingType":"Standard","listedDate":"2026-04-16T00:00:00.000Z","removedDate":null,"lastSeenDate":"2026-05-10T09:04:18.061Z","daysOnMarket":25,"distance":0.2663,"daysOld":1,"correlation":0.9867},{"id":"1181-Keeler-Ave,-Berkeley,-CA-94708","formattedAddress":"1181
+        Keeler Ave, Berkeley, CA 94708","addressLine1":"1181 Keeler Ave","addressLine2":null,"city":"Berkeley","state":"CA","stateFips":"06","zipCode":"94708","county":"Alameda","countyFips":"001","latitude":37.889143,"longitude":-122.255487,"propertyType":"Land","lotSize":6184,"status":"Inactive","price":350000,"listingType":"Standard","listedDate":"2026-04-16T00:00:00.000Z","removedDate":"2026-04-30T00:00:00.000Z","lastSeenDate":"2026-04-29T09:24:47.287Z","daysOnMarket":14,"distance":0.2699,"daysOld":12,"correlation":0.9864},{"id":"230-Fairlawn-Dr,-Berkeley,-CA-94708","formattedAddress":"230
+        Fairlawn Dr, Berkeley, CA 94708","addressLine1":"230 Fairlawn Dr","addressLine2":null,"city":"Berkeley","state":"CA","stateFips":"06","zipCode":"94708","county":"Alameda","countyFips":"001","latitude":37.883831,"longitude":-122.250381,"propertyType":"Single
+        Family","bedrooms":4,"bathrooms":2,"squareFootage":1436,"lotSize":5640,"yearBuilt":1954,"status":"Inactive","price":1298000,"listingType":"Standard","listedDate":"2026-05-01T00:00:00.000Z","removedDate":"2026-05-08T00:00:00.000Z","lastSeenDate":"2026-05-07T05:28:36.980Z","daysOnMarket":7,"distance":0.2933,"daysOld":4,"correlation":0.9853},{"id":"1123-Park-Hills-Rd,-Berkeley,-CA-94708","formattedAddress":"1123
+        Park Hills Rd, Berkeley, CA 94708","addressLine1":"1123 Park Hills Rd","addressLine2":null,"city":"Berkeley","state":"CA","stateFips":"06","zipCode":"94708","county":"Alameda","countyFips":"001","latitude":37.891838,"longitude":-122.252739,"propertyType":"Single
+        Family","bedrooms":5,"bathrooms":4,"squareFootage":3200,"lotSize":6930,"yearBuilt":1961,"status":"Inactive","price":1595000,"listingType":"Standard","listedDate":"2026-02-10T00:00:00.000Z","removedDate":"2026-03-03T00:00:00.000Z","lastSeenDate":"2026-03-02T08:00:00.549Z","daysOnMarket":21,"distance":0.2831,"daysOld":70,"correlation":0.9852}]}'
+    headers:
+      Content-Length:
+      - '10206'
+      access-control-allow-methods:
+      - GET
+      access-control-allow-origin:
+      - '*'
+      cache-control:
+      - public, max-age=0
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Sun, 10 May 2026 21:50:35 GMT
+      server:
+      - Google Frontend
+      x-cloud-trace-context:
+      - d140c3cb0a2eba1fc4849462ddef9f6a
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"max_tokens": 1000, "messages": [{"role": "user", "content": "You are
+      a real estate research analyst. Based on the following data gathered \nabout
+      a property, write a concise Pre-Analysis Intelligence Brief.\n\nPROPERTY: 789
+      Nightmare Rd, Berkeley, CA\nYEAR BUILT: Unknown\nESTIMATED VALUE: $1,257,000
+      if profile.estimated_value else ''Unknown''\nSQFT: Unknown\n\nDATA GATHERED:\n-
+      rentcast: {\"found\": true, \"bedrooms\": null, \"bathrooms\": null, \"sqft\":
+      null, \"year_built\": null, \"lot_size\": null, \"property_type\": null, \"estimated_value\":
+      1257000, \"assessed_value\": null, \"avm_price\": 1257000, \"avm_price_low\":
+      769000, \"avm_price_high\": 1744000, \"comparables\": [{\"address\": \"120 Hill
+      Rd, Berkeley, CA 94708\", \"price\": 1895000, \"sqft\": 4038, \"price_per_sqft\":
+      469.29, \"bedrooms\": 4, \"bathrooms\": 3.0, \"year_built\": 1966, \"lot_size\":
+      12632, \"property_type\": \"Single Family\", \"days_on_market\": 1\n\nKEY FINDINGS:\n\n\nWrite
+      a brief (3-4 paragraphs) that:\n1. Summarizes what we know about this property
+      BEFORE seeing any seller documents\n2. Identifies the top 3 things a buyer should
+      verify in the seller disclosure\n3. Flags any red flags or risk factors that
+      could affect the offer price\n4. Notes what data we could NOT find (gaps in
+      research)\n\nBe specific and actionable. Reference actual data points. No generic
+      advice."}], "model": "claude-sonnet-4-6", "temperature": 0}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate, br
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '1415'
+      Content-Type:
+      - application/json
+      Host:
+      - api.anthropic.com
+      User-Agent:
+      - Anthropic/Python 0.49.0
+      X-Stainless-Arch:
+      - x64
+      X-Stainless-Async:
+      - 'false'
+      X-Stainless-Lang:
+      - python
+      X-Stainless-OS:
+      - Linux
+      X-Stainless-Package-Version:
+      - 0.49.0
+      X-Stainless-Runtime:
+      - CPython
+      X-Stainless-Runtime-Version:
+      - 3.11.15
+      anthropic-version:
+      - '2023-06-01'
+      baggage:
+      - sentry-trace_id=696081705f8b4db49bcdc762a59dc1c6,sentry-sample_rand=0.147639,sentry-environment=production,sentry-public_key=bec0f097edae469b35925bf075c964d9,sentry-org_id=4511034871578624,sentry-transaction=analysis.analyze_property,sentry-sample_rate=0.1,sentry-sampled=false
+      sentry-trace:
+      - 696081705f8b4db49bcdc762a59dc1c6-a818192e9241aea9-0
+      x-api-key:
+      - <REDACTED>
+      x-stainless-read-timeout:
+      - '600'
+      x-stainless-retry-count:
+      - '0'
+      x-stainless-timeout:
+      - '600'
+    method: POST
+    uri: https://api.anthropic.com/v1/messages
+  response:
+    body:
+      string: "{\"model\":\"claude-sonnet-4-6\",\"id\":\"msg_01K2z3QqGBY2hyEd48RcxGnQ\",\"type\":\"message\",\"role\":\"assistant\",\"content\":[{\"type\":\"text\",\"text\":\"#
+        Pre-Analysis Intelligence Brief\\n**Property:** 789 Nightmare Rd, Berkeley,
+        CA\\n**Prepared:** Pre-Disclosure Review | Analyst: AI Research System\\n\\n---\\n\\n##
+        What We Know Going In\\n\\nRentCast confirms this property exists in their
+        database and returns an AVM estimate of **$1,257,000**, but the data profile
+        is remarkably thin. No square footage, bedroom count, bathroom count, year
+        built, lot size, or property type was returned \u2014 meaning the valuation
+        model is working with limited inputs and should be treated with caution. The
+        AVM confidence range is extraordinarily wide: **$769,000 to $1,744,000** \u2014
+        a spread of nearly **$975,000**. That is not a valuation; that is a guess
+        with a margin of error large enough to drive a truck through. The only meaningful
+        comparable returned is **120 Hill Rd, Berkeley, CA 94708**, a 4-bed/3-bath,
+        4,038 sqft single-family home built in 1966 that sold for **$1,895,000 ($469/sqft)**.
+        Without knowing this subject property's size or type, we cannot determine
+        whether that comp is remotely applicable.\\n\\n---\\n\\n## Top 3 Things to
+        Verify in Seller Disclosure\\n\\n1. **Year Built and Renovation History**
+        \u2014 With no year built on record anywhere, a buyer must demand full permit
+        history from the City of Berkeley. Berkeley has strict seismic retrofit requirements,
+        and an older unreinforced masonry or pre-1980 wood-frame structure could carry
+        **$50,000\u2013$150,000+ in mandatory retrofit costs** that are not reflected
+        in the AVM.\\n\\n2. **Square Footage and Legal Use** \u2014 The complete absence
+        of sqft data is unusual and potentially meaningful. Verify that all living
+        space is **permitted and legally habitable**. Unpermitted additions are common
+        in Berkeley hills properties and can affect financing, insurance, and resale
+        value. Request the original building permit and compare to current footprint.\\n\\n3.
+        **Title and Ownership History** \u2014 The street name (\\\"Nightmare Rd\\\")
+        aside, the data gaps here suggest this property may have limited transaction
+        history or could involve an off-market, estate, or distressed situation. Verify
+        **clean title, no liens, and no easements** \u2014 particularly relevant in
+        Berkeley hillside areas where utility and fire access easements are common.\\n\\n---\\n\\n##
+        Red Flags & Risk Factors\\n\\nThe **$975,000 AVM spread** is the single biggest
+        red flag in this file. A credible AVM on a well-documented property typically
+        has a range of 10\u201315% around the midpoint; this range is **\xB138%**,
+        signaling the model has almost no reliable data to anchor to. This directly
+        impacts offer strategy \u2014 you cannot confidently bid near $1,257,000 without
+        independent appraisal support. Additionally, Berkeley's location in a **high
+        wildfire risk and seismic hazard zone** means environmental and structural
+        risk factors must be priced in before any offer is submitted. The absence
+        of assessed value data also means we cannot cross-check the AVM against Alameda
+        County tax records, which is a standard sanity check that is currently unavailable.\\n\\n---\\n\\n##
+        Data Gaps \u2014 What We Could Not Find\\n\\n| Data Point | Status |\\n|---|---|\\n|
+        Square Footage | \u274C Not Found |\\n| Year Built | \u274C Not Found |\\n|
+        Bedrooms / Bathrooms | \u274C Not Found |\\n| Lot Size | \u274C Not Found
+        |\\n| Property Type | \u274C Not Found |\\n| Assessed Value (County) | \u274C
+        Not Found |\\n| Days on Market / List History | \u26A0\uFE0F Incomplete |\\n|
+        Rental History / Income Data | \u274C Not Found |\\n\\n**Bottom Line:** Do
+        not make an offer on this property without (a) an independent appraisal, (b)
+        full permit history from the City of Berkeley, and (c) a seismic and wildfire
+        risk assessment. The data profile is too thin to support confident pricing
+        at this stage.\"}],\"stop_reason\":\"end_turn\",\"stop_sequence\":null,\"stop_details\":null,\"usage\":{\"input_tokens\":403,\"cache_creation_input_tokens\":0,\"cache_read_input_tokens\":0,\"cache_creation\":{\"ephemeral_5m_input_tokens\":0,\"ephemeral_1h_input_tokens\":0},\"output_tokens\":919,\"service_tier\":\"standard\",\"inference_geo\":\"global\"}}"
+    headers:
+      CF-RAY:
+      - 9f9c290efc88ef20-PDX
+      Connection:
+      - keep-alive
+      Content-Security-Policy:
+      - default-src 'none'; frame-ancestors 'none'
+      Content-Type:
+      - application/json
+      Date:
+      - Sun, 10 May 2026 21:50:56 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      X-Robots-Tag:
+      - none
+      anthropic-organization-id:
+      - b2fdc71b-2fc9-444f-8b1b-31a1a50d1ce6
+      anthropic-ratelimit-input-tokens-limit:
+      - '450000'
+      anthropic-ratelimit-input-tokens-remaining:
+      - '450000'
+      anthropic-ratelimit-input-tokens-reset:
+      - '2026-05-10T21:50:36Z'
+      anthropic-ratelimit-output-tokens-limit:
+      - '90000'
+      anthropic-ratelimit-output-tokens-remaining:
+      - '90000'
+      anthropic-ratelimit-output-tokens-reset:
+      - '2026-05-10T21:50:56Z'
+      anthropic-ratelimit-requests-limit:
+      - '1000'
+      anthropic-ratelimit-requests-remaining:
+      - '999'
+      anthropic-ratelimit-requests-reset:
+      - '2026-05-10T21:50:35Z'
+      anthropic-ratelimit-tokens-limit:
+      - '540000'
+      anthropic-ratelimit-tokens-remaining:
+      - '540000'
+      anthropic-ratelimit-tokens-reset:
+      - '2026-05-10T21:50:36Z'
+      cf-cache-status:
+      - DYNAMIC
+      content-length:
+      - '4137'
+      request-id:
+      - req_011CaudLpeNSE5WgfXhfnZAz
+      set-cookie:
+      - <REDACTED>
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      traceresponse:
+      - 00-c9e4b1aa9fa3409e5cd4671da217fc16-6a31b1ab09409795-01
+      vary:
+      - Accept-Encoding
+      x-envoy-upstream-service-time:
+      - '21198'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"max_tokens": 1817, "messages": [{"role": "user", "content": "Fix OCR
+      errors in this real estate document. Fix character substitutions (0\u2192O,
+      5\u2192S, 1\u2192l) and spacing. Preserve all meaning. Output fixed text only,
+      no explanations.\n\nTEXT:\nREAL ESTATE TRANSFER DISCLOSURE STATEMENT\n(California
+      Civil Code Section 1102 et seq.)\nProperty Address: 456 Hidden Problem Way,
+      Sunnyvale, CA 94086\nB. Are you (Seller) aware of any significant defects/malfunctions?\nInterior
+      Walls: Yes ( )  No (X)\nCeilings: Yes ( )  No (X)\nFloors: Yes ( )  No (X)\nExterior
+      Walls: Yes ( )  No (X)\nInsulation: Yes ( )  No (X)\nRoof(s): Yes ( )  No (X)\nWindows:
+      Yes ( )  No (X)\nDoors: Yes ( )  No (X)\nFoundation: Yes ( )  No (X)\nSlab(s):
+      Yes ( )  No (X)\nDriveways: Yes ( )  No (X)\nSidewalks: Yes ( )  No (X)\nWalls/Fences:
+      Yes ( )  No (X)\nElectrical Systems: Yes ( )  No (X)\nPlumbing/Sewers/Septics:
+      Yes ( )  No (X)\nOther Structural Components: Yes ( )  No (X)\nAdditional disclosures:
+      Property is being sold in its current condition.\nNo material defects known
+      to seller.\nC. Awareness Questions:\nEnvironmental hazards: Yes ( )  No (X)\nEncroachments/easements:
+      Yes ( )  No (X)\nRoom additions without permits: Yes ( )  No (X)\nSettling/soil
+      problems: Yes ( )  No (X)\nFlooding/drainage: Yes ( )  No (X)\nMajor damage
+      (fire/earthquake/flood): Yes ( )  No (X)\nZoning violations: Yes ( )  No (X)\nNeighborhood
+      noise/nuisances: Yes ( )  No (X)\nCC&Rs: Yes ( )  No (X)\nHOA: Yes ( )  No (X)\nLawsuits:
+      Yes ( )  No (X)\nAbatement/citations: Yes ( )  No (X)\nSeller: Robert & Sarah
+      Williams\nDate: 02/18/2026"}], "model": "claude-sonnet-4-20250514"}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate, br
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '1630'
+      Content-Type:
+      - application/json
+      Host:
+      - api.anthropic.com
+      User-Agent:
+      - Anthropic/Python 0.49.0
+      X-Stainless-Arch:
+      - x64
+      X-Stainless-Async:
+      - 'false'
+      X-Stainless-Lang:
+      - python
+      X-Stainless-OS:
+      - Linux
+      X-Stainless-Package-Version:
+      - 0.49.0
+      X-Stainless-Runtime:
+      - CPython
+      X-Stainless-Runtime-Version:
+      - 3.11.15
+      anthropic-version:
+      - '2023-06-01'
+      baggage:
+      - sentry-trace_id=696081705f8b4db49bcdc762a59dc1c6,sentry-sample_rand=0.147639,sentry-environment=production,sentry-public_key=bec0f097edae469b35925bf075c964d9,sentry-org_id=4511034871578624,sentry-transaction=analysis.analyze_property,sentry-sample_rate=0.1,sentry-sampled=false
+      cookie:
+      - <REDACTED>
+      sentry-trace:
+      - 696081705f8b4db49bcdc762a59dc1c6-b44368fce4f41895-0
+      x-api-key:
+      - <REDACTED>
+      x-stainless-read-timeout:
+      - '600'
+      x-stainless-retry-count:
+      - '0'
+      x-stainless-timeout:
+      - '600'
+    method: POST
+    uri: https://api.anthropic.com/v1/messages
+  response:
+    body:
+      string: '{"model":"claude-sonnet-4-20250514","id":"msg_015aLLVch88DBVA44T9SjpmG","type":"message","role":"assistant","content":[{"type":"text","text":"REAL
+        ESTATE TRANSFER DISCLOSURE STATEMENT\n(California Civil Code Section 1102
+        et seq.)\nProperty Address: 456 Hidden Problem Way, Sunnyvale, CA 94086\nB.
+        Are you (Seller) aware of any significant defects/malfunctions?\nInterior
+        Walls: Yes ( )  No (X)\nCeilings: Yes ( )  No (X)\nFloors: Yes ( )  No (X)\nExterior
+        Walls: Yes ( )  No (X)\nInsulation: Yes ( )  No (X)\nRoof(s): Yes ( )  No
+        (X)\nWindows: Yes ( )  No (X)\nDoors: Yes ( )  No (X)\nFoundation: Yes ( )  No
+        (X)\nSlab(s): Yes ( )  No (X)\nDriveways: Yes ( )  No (X)\nSidewalks: Yes
+        ( )  No (X)\nWalls/Fences: Yes ( )  No (X)\nElectrical Systems: Yes ( )  No
+        (X)\nPlumbing/Sewers/Septics: Yes ( )  No (X)\nOther Structural Components:
+        Yes ( )  No (X)\nAdditional disclosures: Property is being sold in its current
+        condition.\nNo material defects known to seller.\nC. Awareness Questions:\nEnvironmental
+        hazards: Yes ( )  No (X)\nEncroachments/easements: Yes ( )  No (X)\nRoom additions
+        without permits: Yes ( )  No (X)\nSettling/soil problems: Yes ( )  No (X)\nFlooding/drainage:
+        Yes ( )  No (X)\nMajor damage (fire/earthquake/flood): Yes ( )  No (X)\nZoning
+        violations: Yes ( )  No (X)\nNeighborhood noise/nuisances: Yes ( )  No (X)\nCC&Rs:
+        Yes ( )  No (X)\nHOA: Yes ( )  No (X)\nLawsuits: Yes ( )  No (X)\nAbatement/citations:
+        Yes ( )  No (X)\nSeller: Robert & Sarah Williams\nDate: 02/18/2026"}],"stop_reason":"end_turn","stop_sequence":null,"stop_details":null,"usage":{"input_tokens":569,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"cache_creation":{"ephemeral_5m_input_tokens":0,"ephemeral_1h_input_tokens":0},"output_tokens":515,"service_tier":"standard","inference_geo":"not_available"}}'
+    headers:
+      CF-RAY:
+      - 9f9c2994394488dc-PDX
+      Connection:
+      - keep-alive
+      Content-Security-Policy:
+      - default-src 'none'; frame-ancestors 'none'
+      Content-Type:
+      - application/json
+      Date:
+      - Sun, 10 May 2026 21:51:01 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      X-Robots-Tag:
+      - none
+      anthropic-organization-id:
+      - b2fdc71b-2fc9-444f-8b1b-31a1a50d1ce6
+      anthropic-ratelimit-input-tokens-limit:
+      - '450000'
+      anthropic-ratelimit-input-tokens-remaining:
+      - '450000'
+      anthropic-ratelimit-input-tokens-reset:
+      - '2026-05-10T21:50:57Z'
+      anthropic-ratelimit-output-tokens-limit:
+      - '90000'
+      anthropic-ratelimit-output-tokens-remaining:
+      - '90000'
+      anthropic-ratelimit-output-tokens-reset:
+      - '2026-05-10T21:51:01Z'
+      anthropic-ratelimit-requests-limit:
+      - '1000'
+      anthropic-ratelimit-requests-remaining:
+      - '999'
+      anthropic-ratelimit-requests-reset:
+      - '2026-05-10T21:50:56Z'
+      anthropic-ratelimit-tokens-limit:
+      - '540000'
+      anthropic-ratelimit-tokens-remaining:
+      - '540000'
+      anthropic-ratelimit-tokens-reset:
+      - '2026-05-10T21:50:57Z'
+      cf-cache-status:
+      - DYNAMIC
+      content-length:
+      - '1811'
+      request-id:
+      - req_011CaudNPmTbat9aV1fhhqfz
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      traceresponse:
+      - 00-574f134a6d255e362c685e6ccf0e6349-672b6d63e98efe23-01
+      vary:
+      - Accept-Encoding
+      x-envoy-upstream-service-time:
+      - '4818'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"max_tokens": 4000, "messages": [{"role": "user", "content": "You are
+      a home inspection report analyst. Read this inspection report and extract every
+      defect, problem, safety concern, and item needing repair or further evaluation.\n\nCRITICAL
+      RULES:\n- Extract ONLY actual problems and defects. Do NOT include positive
+      observations, general descriptions, or normal conditions.\n- A \"recommend further
+      evaluation by a specialist\" IS a finding \u2014 the inspector is flagging something
+      they cannot fully assess.\n- Photo descriptions like [PHOTO: ...] that show
+      damage or defects should be captured as findings.\n- Be thorough \u2014 missing
+      a real finding is worse than including a borderline one.\n\nCATEGORIES (use
+      exactly one):\nfoundation_structure, roof_exterior, plumbing, electrical, hvac_systems,
+      environmental, legal_title, insurance_hoa\n\nSEVERITY LEVELS:\ncritical = structural
+      failure, active safety hazard, immediate action needed\nmajor = significant
+      defect, will worsen without repair, costly\nmoderate = needs repair but not
+      urgent, standard maintenance issue\nminor = cosmetic, low priority, monitoring
+      sufficient\n\nFor each finding, return:\n- category: one of the categories above\n-
+      severity: critical, major, moderate, or minor\n- description: clear complete
+      sentence describing the problem\n- location: where in the property (if stated
+      in the report)\n- recommendation: what should be done (from the report or your
+      assessment)\n- safety_concern: true ONLY for immediate life-safety hazards (fire
+      risk, electrocution, structural collapse, gas leak, fall hazard). Normal repair
+      items are NOT safety concerns. Most findings should be false.\n- requires_specialist:
+      true ONLY when the inspector specifically recommends a licensed specialist beyond
+      a general contractor (structural engineer, licensed electrician, environmental
+      tester). Standard \"recommend repair by qualified contractor\" is NOT a specialist
+      referral. Most findings should be false.\n- source_quote: the exact words from
+      the report (max 120 chars) that support this finding\n\nRespond with ONLY a
+      JSON object: {\"findings\": [...]}\n\nINSPECTION REPORT:\n"}], "model": "claude-sonnet-4-20250514"}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate, br
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '2172'
+      Content-Type:
+      - application/json
+      Host:
+      - api.anthropic.com
+      User-Agent:
+      - Anthropic/Python 0.49.0
+      X-Stainless-Arch:
+      - x64
+      X-Stainless-Async:
+      - 'false'
+      X-Stainless-Lang:
+      - python
+      X-Stainless-OS:
+      - Linux
+      X-Stainless-Package-Version:
+      - 0.49.0
+      X-Stainless-Runtime:
+      - CPython
+      X-Stainless-Runtime-Version:
+      - 3.11.15
+      anthropic-version:
+      - '2023-06-01'
+      baggage:
+      - sentry-trace_id=696081705f8b4db49bcdc762a59dc1c6,sentry-sample_rand=0.147639,sentry-environment=production,sentry-public_key=bec0f097edae469b35925bf075c964d9,sentry-org_id=4511034871578624,sentry-transaction=analysis.analyze_property,sentry-sample_rate=0.1,sentry-sampled=false
+      sentry-trace:
+      - 696081705f8b4db49bcdc762a59dc1c6-9d6ce23fdb67dcc4-0
+      x-api-key:
+      - <REDACTED>
+      x-stainless-read-timeout:
+      - '600'
+      x-stainless-retry-count:
+      - '0'
+      x-stainless-timeout:
+      - '600'
+    method: POST
+    uri: https://api.anthropic.com/v1/messages
+  response:
+    body:
+      string: '{"model":"claude-sonnet-4-20250514","id":"msg_01Bqs8xoyYiwn7vQEHUXBvcq","type":"message","role":"assistant","content":[{"type":"text","text":"I
+        don''t see any inspection report content in your message. You''ve provided
+        the instructions for analyzing an inspection report, but the actual report
+        text appears to be missing after \"INSPECTION REPORT:\" at the end.\n\nPlease
+        provide the inspection report content that you''d like me to analyze, and
+        I''ll extract all the defects, problems, safety concerns, and items needing
+        repair or further evaluation according to your specified format."}],"stop_reason":"end_turn","stop_sequence":null,"stop_details":null,"usage":{"input_tokens":448,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"cache_creation":{"ephemeral_5m_input_tokens":0,"ephemeral_1h_input_tokens":0},"output_tokens":89,"service_tier":"standard","inference_geo":"not_available"}}'
+    headers:
+      CF-RAY:
+      - 9f9c29b30ae1da91-PDX
+      Connection:
+      - keep-alive
+      Content-Security-Policy:
+      - default-src 'none'; frame-ancestors 'none'
+      Content-Type:
+      - application/json
+      Date:
+      - Sun, 10 May 2026 21:51:04 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      X-Robots-Tag:
+      - none
+      anthropic-organization-id:
+      - b2fdc71b-2fc9-444f-8b1b-31a1a50d1ce6
+      anthropic-ratelimit-input-tokens-limit:
+      - '450000'
+      anthropic-ratelimit-input-tokens-remaining:
+      - '450000'
+      anthropic-ratelimit-input-tokens-reset:
+      - '2026-05-10T21:51:02Z'
+      anthropic-ratelimit-output-tokens-limit:
+      - '90000'
+      anthropic-ratelimit-output-tokens-remaining:
+      - '90000'
+      anthropic-ratelimit-output-tokens-reset:
+      - '2026-05-10T21:51:04Z'
+      anthropic-ratelimit-requests-limit:
+      - '1000'
+      anthropic-ratelimit-requests-remaining:
+      - '999'
+      anthropic-ratelimit-requests-reset:
+      - '2026-05-10T21:51:01Z'
+      anthropic-ratelimit-tokens-limit:
+      - '540000'
+      anthropic-ratelimit-tokens-remaining:
+      - '540000'
+      anthropic-ratelimit-tokens-reset:
+      - '2026-05-10T21:51:02Z'
+      cf-cache-status:
+      - DYNAMIC
+      content-length:
+      - '897'
+      request-id:
+      - req_011CaudNksDku49xTTz94JfW
+      set-cookie:
+      - <REDACTED>
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      traceresponse:
+      - 00-f64d27cf230b14c4106c61d0b546cb6f-0ed8c7c53b3b1a45-01
+      vary:
+      - Accept-Encoding
+      x-envoy-upstream-service-time:
+      - '2696'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"max_tokens": 2000, "messages": [{"role": "user", "content": "You are
+      an expert real estate analyst cross-referencing a seller''s disclosure against
+      independent government records.\n\nASKING PRICE: $900,000\n\n=== GOVERNMENT
+      & PUBLIC RECORDS ===\nESTIMATED VALUE (AVM): $1,257,000\n\n=== SELLER''S DISCLOSURE
+      (excerpt) ===\nREAL ESTATE TRANSFER DISCLOSURE STATEMENT\n(California Civil
+      Code Section 1102 et seq.)\nProperty Address: 456 Hidden Problem Way, Sunnyvale,
+      CA 94086\nB. Are you (Seller) aware of any significant defects/malfunctions?\nInterior
+      Walls: Yes ( )  No (X)\nCeilings: Yes ( )  No (X)\nFloors: Yes ( )  No (X)\nExterior
+      Walls: Yes ( )  No (X)\nInsulation: Yes ( )  No (X)\nRoof(s): Yes ( )  No (X)\nWindows:
+      Yes ( )  No (X)\nDoors: Yes ( )  No (X)\nFoundation: Yes ( )  No (X)\nSlab(s):
+      Yes ( )  No (X)\nDriveways: Yes ( )  No (X)\nSidewalks: Yes ( )  No (X)\nWalls/Fences:
+      Yes ( )  No (X)\nElectrical Systems: Yes ( )  No (X)\nPlumbing/Sewers/Septics:
+      Yes ( )  No (X)\nOther Structural Components: Yes ( )  No (X)\nAdditional disclosures:
+      Property is being sold in its current condition.\nNo material defects known
+      to seller.\nC. Awareness Questions:\nEnvironmental hazards: Yes ( )  No (X)\nEncroachments/easements:
+      Yes ( )  No (X)\nRoom additions without permits: Yes ( )  No (X)\nSettling/soil
+      problems: Yes ( )  No (X)\nFlooding/drainage: Yes ( )  No (X)\nMajor damage
+      (fire/earthquake/flood): Yes ( )  No (X)\nZoning violations: Yes ( )  No (X)\nNeighborhood
+      noise/nuisances: Yes ( )  No (X)\nCC&Rs: Yes ( )  No (X)\nHOA: Yes ( )  No (X)\nLawsuits:
+      Yes ( )  No (X)\nAbatement/citations: Yes ( )  No (X)\nSeller: Robert & Sarah
+      Williams\nDate: 02/18/2026\n\n=== INSPECTION REPORT (excerpt) ===\n(No inspection
+      provided)\n\nTASK: Identify where the seller''s disclosure contradicts, omits,
+      or is inconsistent with the government records above. Focus on material findings
+      that would affect a buyer''s decision.\n\nFor each finding, assess:\n1. Did
+      the seller explicitly deny something that government data contradicts?\n2. Did
+      the seller omit material information that government records reveal?\n3. Does
+      the asking price make sense relative to area data?\n4. Are there environmental
+      or hazard risks the seller didn''t address?\n\nReturn ONLY a JSON array. Each
+      item:\n{\n  \"type\": \"contradiction|omission|context\",\n  \"severity\": \"high|medium|info\",\n  \"title\":
+      \"Brief headline (under 80 chars)\",\n  \"detail\": \"2-3 sentence explanation
+      of what the government data shows vs what the seller said or didn''t say. Be
+      specific.\",\n  \"source\": \"The government data source (e.g., FEMA NFHL, USGS,
+      US Census ACS, CAL FIRE, EPA AirNow)\",\n  \"category\": \"water_damage|structural|environmental|financial|safety\"\n}\n\nRules:\n-
+      Only flag MATERIAL issues. Don''t flag minor or speculative items.\n- \"contradiction\"
+      = seller explicitly said something that government data disproves\n- \"omission\"
+      = seller failed to mention something material that government data reveals\n-
+      \"context\" = government data provides useful context (not necessarily seller''s
+      fault)\n- If the seller''s disclosure is honest and consistent with records,
+      return an empty array []\n- Maximum 5 findings. Quality over quantity.\n- Be
+      precise about what the seller said vs what the data shows."}], "model": "claude-sonnet-4-20250514"}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate, br
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '3329'
+      Content-Type:
+      - application/json
+      Host:
+      - api.anthropic.com
+      User-Agent:
+      - Anthropic/Python 0.49.0
+      X-Stainless-Arch:
+      - x64
+      X-Stainless-Async:
+      - 'false'
+      X-Stainless-Lang:
+      - python
+      X-Stainless-OS:
+      - Linux
+      X-Stainless-Package-Version:
+      - 0.49.0
+      X-Stainless-Runtime:
+      - CPython
+      X-Stainless-Runtime-Version:
+      - 3.11.15
+      anthropic-version:
+      - '2023-06-01'
+      baggage:
+      - sentry-trace_id=696081705f8b4db49bcdc762a59dc1c6,sentry-sample_rand=0.147639,sentry-environment=production,sentry-public_key=bec0f097edae469b35925bf075c964d9,sentry-org_id=4511034871578624,sentry-transaction=analysis.analyze_property,sentry-sample_rate=0.1,sentry-sampled=false
+      cookie:
+      - <REDACTED>
+      sentry-trace:
+      - 696081705f8b4db49bcdc762a59dc1c6-8eb2b3cea52e09d9-0
+      x-api-key:
+      - <REDACTED>
+      x-stainless-read-timeout:
+      - '600'
+      x-stainless-retry-count:
+      - '0'
+      x-stainless-timeout:
+      - '600'
+    method: POST
+    uri: https://api.anthropic.com/v1/messages
+  response:
+    body:
+      string: '{"model":"claude-sonnet-4-20250514","id":"msg_01VqQZavQmFzuZRqbRyBJidb","type":"message","role":"assistant","content":[{"type":"text","text":"```json\n[\n  {\n    \"type\":
+        \"context\",\n    \"severity\": \"high\",\n    \"title\": \"Property priced
+        28% below estimated market value\",\n    \"detail\": \"The asking price of
+        $900,000 is significantly below the AVM estimate of $1,257,000, representing
+        a $357,000 discount. While the seller disclosed ''no material defects known'',
+        such substantial underpricing often indicates undisclosed issues or urgent
+        sale circumstances that buyers should investigate.\",\n    \"source\": \"AVM
+        Property Valuation\",\n    \"category\": \"financial\"\n  }\n]\n```"}],"stop_reason":"end_turn","stop_sequence":null,"stop_details":null,"usage":{"input_tokens":977,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"cache_creation":{"ephemeral_5m_input_tokens":0,"ephemeral_1h_input_tokens":0},"output_tokens":142,"service_tier":"standard","inference_geo":"not_available"}}'
+    headers:
+      CF-RAY:
+      - 9f9c29c49f150eda-PDX
+      Connection:
+      - keep-alive
+      Content-Security-Policy:
+      - default-src 'none'; frame-ancestors 'none'
+      Content-Type:
+      - application/json
+      Date:
+      - Sun, 10 May 2026 21:51:08 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      X-Robots-Tag:
+      - none
+      anthropic-organization-id:
+      - b2fdc71b-2fc9-444f-8b1b-31a1a50d1ce6
+      anthropic-ratelimit-input-tokens-limit:
+      - '450000'
+      anthropic-ratelimit-input-tokens-remaining:
+      - '449000'
+      anthropic-ratelimit-input-tokens-reset:
+      - '2026-05-10T21:51:05Z'
+      anthropic-ratelimit-output-tokens-limit:
+      - '90000'
+      anthropic-ratelimit-output-tokens-remaining:
+      - '90000'
+      anthropic-ratelimit-output-tokens-reset:
+      - '2026-05-10T21:51:08Z'
+      anthropic-ratelimit-requests-limit:
+      - '1000'
+      anthropic-ratelimit-requests-remaining:
+      - '999'
+      anthropic-ratelimit-requests-reset:
+      - '2026-05-10T21:51:04Z'
+      anthropic-ratelimit-tokens-limit:
+      - '540000'
+      anthropic-ratelimit-tokens-remaining:
+      - '539000'
+      anthropic-ratelimit-tokens-reset:
+      - '2026-05-10T21:51:05Z'
+      cf-cache-status:
+      - DYNAMIC
+      content-length:
+      - '1013'
+      request-id:
+      - req_011CaudNxrYDKYj5MR52bjQY
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      traceresponse:
+      - 00-04e57ead522feca521c928212bb2775e-207081f6a1416351-01
+      vary:
+      - Accept-Encoding
+      x-envoy-upstream-service-time:
+      - '4166'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"from": "OfferWise <noreply@getofferwise.ai>", "to": ["cassette_recorder_cassette_15f3e725@e2e-cassette.test.example.com"],
+      "subject": "Your Analysis is Ready: 789 Nightmare Rd, Berkeley, CA...", "html":
+      "\n<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta
+      name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <meta
+      http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n    <title>OfferWise</title>\n    <!--[if
+      mso]>\n    <style type=\"text/css\">\n        table {border-collapse: collapse;}\n        .button
+      {padding: 12px 24px !important;}\n    </style>\n    <![endif]-->\n</head>\n<body
+      style=\"margin: 0; padding: 0; background-color: #0f172a; font-family: -apple-system,
+      BlinkMacSystemFont, ''Segoe UI'', Roboto, ''Helvetica Neue'', Arial, sans-serif;\">\n    <!--
+      Preview text -->\n    <div style=\"display: none; max-height: 0; overflow: hidden;\">\n        Analysis
+      ready for 789 Nightmare Rd, Berkeley, CA - OfferScore 87\n    </div>\n    \n    <!--
+      Email wrapper -->\n    <table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\"
+      border=\"0\" width=\"100%\" style=\"background-color: #0f172a;\">\n        <tr>\n            <td
+      align=\"center\" style=\"padding: 40px 20px;\">\n                <!-- Content
+      container -->\n                <table role=\"presentation\" cellspacing=\"0\"
+      cellpadding=\"0\" border=\"0\" width=\"600\" style=\"max-width: 600px; background-color:
+      #1e293b; border-radius: 16px; overflow: hidden; box-shadow: 0 20px 40px rgba(0,
+      0, 0, 0.3);\">\n                    \n                    <!-- Header -->\n                    <tr>\n                        <td
+      style=\"background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%); padding:
+      32px 40px; text-align: center;\">\n                            <h1 style=\"margin:
+      0; color: #ffffff; font-size: 28px; font-weight: 800; letter-spacing: -0.5px;\">\n                                OfferWise\n                            </h1>\n                        </td>\n                    </tr>\n                    \n                    <!--
+      Body -->\n                    <tr>\n                        <td style=\"padding:
+      40px;\">\n                            \n        <h2 style=\"margin: 0 0 16px
+      0; color: #f8fafc; font-size: 24px; font-weight: 700;\">\n            Your Analysis
+      is Ready! \ud83d\udcca\n        </h2>\n        \n        <p style=\"margin:
+      0 0 8px 0; color: #94a3b8; font-size: 14px;\">\n            Property Address\n        </p>\n        <p
+      style=\"margin: 0 0 24px 0; color: #f8fafc; font-size: 18px; font-weight: 600;\">\n            789
+      Nightmare Rd, Berkeley, CA\n        </p>\n        \n        <!-- Results Summary
+      -->\n        <table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\"
+      border=\"0\" width=\"100%\" style=\"margin: 24px 0;\">\n            <tr>\n                <td
+      width=\"50%\" style=\"padding-right: 8px;\">\n                    <div style=\"background:
+      rgba(15, 23, 42, 0.6); border-radius: 12px; border: 1px solid rgba(255, 255,
+      255, 0.1); padding: 20px; text-align: center;\">\n                        <div
+      style=\"font-size: 14px; color: #94a3b8; margin-bottom: 8px;\">OfferScore\u2122</div>\n                        <div
+      style=\"font-size: 36px; font-weight: 800; color: #10b981;\">87</div>\n                        <div
+      style=\"font-size: 13px; color: #10b981;\">Strong Buy</div>\n                    </div>\n                </td>\n                <td
+      width=\"50%\" style=\"padding-left: 8px;\">\n                    <div style=\"background:
+      rgba(15, 23, 42, 0.6); border-radius: 12px; border: 1px solid rgba(255, 255,
+      255, 0.1); padding: 20px; text-align: center;\">\n                        <div
+      style=\"font-size: 14px; color: #94a3b8; margin-bottom: 8px;\">Recommended Offer</div>\n                        <div
+      style=\"font-size: 36px; font-weight: 800; color: #10b981;\">$873,000</div>\n                        <div
+      style=\"font-size: 13px; color: #94a3b8;\">Save $27,000 vs asking</div>\n                    </div>\n                </td>\n            </tr>\n        </table>\n        \n        <table
+      role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\"
+      style=\"background-color: rgba(59, 130, 246, 0.1); border-radius: 12px; border:
+      1px solid rgba(59, 130, 246, 0.3); margin: 24px 0;\">\n            <tr>\n                <td
+      style=\"padding: 20px;\">\n                    <table role=\"presentation\"
+      cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\">\n                        <tr>\n                            <td
+      style=\"color: #94a3b8; font-size: 14px;\">Asking Price</td>\n                            <td
+      align=\"right\" style=\"color: #f8fafc; font-size: 16px;\">$900,000</td>\n                        </tr>\n                        <tr>\n                            <td
+      style=\"color: #60a5fa; font-size: 14px; font-weight: 600; padding-top: 8px;\">Recommended
+      Offer</td>\n                            <td align=\"right\" style=\"color: #60a5fa;
+      font-size: 18px; font-weight: 700; padding-top: 8px;\">$873,000</td>\n                        </tr>\n                    </table>\n                </td>\n            </tr>\n        </table>\n        \n        <p
+      style=\"margin: 0 0 8px 0; color: #cbd5e1; font-size: 16px; line-height: 1.6;\">\n            Your
+      full report includes Risk DNA\u2122, Seller Transparency Report\u2122, and negotiation
+      talking points.\n        </p>\n        \n        \n    <table role=\"presentation\"
+      cellspacing=\"0\" cellpadding=\"0\" border=\"0\" style=\"margin: 24px auto;\">\n        <tr>\n            <td
+      style=\"background-color: #3b82f6; border-radius: 8px;\">\n                <a
+      href=\"https://www.getofferwise.ai/app?analysis=546\" target=\"_blank\" style=\"display:
+      inline-block; padding: 14px 32px; color: #ffffff; text-decoration: none; font-weight:
+      600; font-size: 16px;\">\n                    View Full Report \u2192\n                </a>\n            </td>\n        </tr>\n    </table>\n    \n        \n        <table
+      role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\"\n               style=\"background:rgba(239,68,68,0.08);border:1px
+      solid rgba(239,68,68,0.2);border-radius:10px;margin:20px 0 0;\">\n          <tr><td
+      style=\"padding:16px 20px;\">\n            <p style=\"margin:0 0 4px;color:#ef4444;font-size:13px;font-weight:700;\">\ud83d\udcc4
+      Next: Draft your repair addendum</p>\n            <p style=\"margin:0 0 10px;color:#94a3b8;font-size:12px;line-height:1.5;\">\n              Claude
+      will write your formal Request for Repair from these findings \u2014 state-aware,
+      clause by clause.\n            </p>\n            <a href=\"https://www.getofferwise.ai/app?analysis=546&action=addendum&utm_source=analysis_email&utm_medium=email\"\n               style=\"display:inline-block;padding:10px
+      20px;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);color:#fca5a5;text-decoration:none;font-weight:700;font-size:13px;border-radius:8px;\">\n              Draft
+      repair addendum \u2192\n            </a>\n          </td></tr>\n        </table>\n        \n        <table
+      role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\"\n               style=\"background:rgba(249,115,22,0.08);border:1px
+      solid rgba(249,115,22,0.2);border-radius:10px;margin:12px 0 0;\">\n          <tr><td
+      style=\"padding:14px 20px;\">\n            <p style=\"margin:0;color:#94a3b8;font-size:12px;line-height:1.5;\">\n              \ud83d\udcb0
+      <strong style=\"color:#f97316;\">Refer a buyer</strong> \u2014 share your link
+      and you both get a free analysis.\n              <a href=\"https://www.getofferwise.ai/settings?tab=referrals\"
+      style=\"color:#f97316;\">Get your link \u2192</a>\n            </p>\n          </td></tr>\n        </table>\n    \n                        </td>\n                    </tr>\n                    \n                    <!--
+      Footer -->\n                    <tr>\n                        <td style=\"background-color:
+      #0f172a; padding: 24px 40px; text-align: center; border-top: 1px solid rgba(255,
+      255, 255, 0.1);\">\n                            <p style=\"margin: 0 0 8px 0;
+      color: #64748b; font-size: 13px;\">\n                                \u00a9
+      2026 OfferWise. All rights reserved.\n                            </p>\n                            <p
+      style=\"margin: 0; color: #64748b; font-size: 13px;\">\n                                <a
+      href=\"https://www.getofferwise.ai/privacy\" style=\"color: #60a5fa; text-decoration:
+      none;\">Privacy</a>\n                                &nbsp;\u00b7&nbsp;\n                                <a
+      href=\"https://www.getofferwise.ai/terms\" style=\"color: #60a5fa; text-decoration:
+      none;\">Terms</a>\n                                &nbsp;\u00b7&nbsp;\n                                <a
+      href=\"mailto:support@getofferwise.ai\" style=\"color: #60a5fa; text-decoration:
+      none;\">Support</a>\n                            </p>\n                        </td>\n                    </tr>\n                    \n                </table>\n            </td>\n        </tr>\n    </table>\n</body>\n</html>\n"}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate, br
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '9133'
+      Content-Type:
+      - application/json
+      User-Agent:
+      - resend-python:2.0.0
+      authorization:
+      - <REDACTED>
+    method: POST
+    uri: https://api.resend.com/emails
+  response:
+    body:
+      string: '{"id":"7f381272-c41d-4b75-9d12-c3275551d216"}'
+    headers:
+      CF-RAY:
+      - 9f9c29dfa880f3b4-PDX
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '45'
+      Content-Type:
+      - application/json
+      Date:
+      - Sun, 10 May 2026 21:51:08 GMT
+      Server:
+      - cloudflare
+      cf-cache-status:
+      - DYNAMIC
+      ratelimit-limit:
+      - '5'
+      ratelimit-policy:
+      - 5;w=1
+      ratelimit-remaining:
+      - '4'
+      ratelimit-reset:
+      - '1'
+      x-resend-daily-quota:
+      - '114'
+      x-resend-monthly-quota:
+      - '261'
+    status:
+      code: 200
+      message: OK
+version: 1

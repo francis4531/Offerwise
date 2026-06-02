@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OfferWise for Agents — A briefing in your voice, in 90 seconds</title>
+<link rel="icon" type="image/svg+xml" href="/static/logo-icon-only.svg">
+  <link rel="alternate icon" type="image/x-icon" href="/favicon.ico">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #060d1a; --surface: #0f1e35; --surface2: #162032; --border: rgba(255,255,255,0.08);
+  --text: #f1f5f9; --muted: #94a3b8; --dim: #64748b;
+  --fire1: #f97316; --fire2: #f59e0b; --green: #22c55e; --blue: #60a5fa;
+}
+html { scroll-behavior: smooth; }
+body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; line-height: 1.6; }
+nav { display:flex; align-items:center; justify-content:space-between; padding:18px 40px; border-bottom:1px solid var(--border); position:sticky; top:0; background:rgba(6,13,26,0.95); backdrop-filter:blur(12px); z-index:100; }
+.nav-logo { font-size:1.3rem; font-weight:900; letter-spacing:-.02em; color:var(--text); text-decoration:none; }
+.nav-logo .wise { background:linear-gradient(90deg,var(--fire1),var(--fire2)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.nav-cta { background:linear-gradient(90deg,var(--fire1),var(--fire2)); color:white; border:none; padding:10px 22px; border-radius:8px; font-weight:700; font-size:14px; cursor:pointer; text-decoration:none; }
+.hero { text-align:center; padding:80px 24px 64px; max-width:780px; margin:0 auto; }
+.hero-tag { display:inline-block; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.12em; color:var(--fire1); border:1px solid rgba(249,115,22,.3); background:rgba(249,115,22,.08); padding:5px 14px; border-radius:20px; margin-bottom:24px; }
+.hero h1 { font-size:clamp(2rem,5vw,3.2rem); font-weight:900; letter-spacing:-.03em; line-height:1.12; margin-bottom:20px; }
+.hero h1 em { font-style:normal; background:linear-gradient(90deg,var(--fire1),var(--fire2)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.hero p { font-size:1.1rem; color:var(--muted); max-width:580px; margin:0 auto 36px; line-height:1.7; }
+.hero-btns { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
+.btn-primary { background:linear-gradient(90deg,var(--fire1),var(--fire2)); color:white; border:none; padding:14px 32px; border-radius:10px; font-weight:700; font-size:16px; cursor:pointer; text-decoration:none; transition:opacity .15s; }
+.btn-primary:hover { opacity:.9; }
+.btn-secondary { background:transparent; color:var(--muted); border:1px solid var(--border); padding:14px 28px; border-radius:10px; font-weight:600; font-size:15px; cursor:pointer; text-decoration:none; }
+.btn-secondary:hover { border-color:rgba(255,255,255,.2); color:var(--text); }
+.section { padding:72px 24px; max-width:900px; margin:0 auto; }
+.section-label { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.12em; color:var(--fire1); margin-bottom:12px; }
+.section h2 { font-size:clamp(1.6rem,3vw,2.2rem); font-weight:800; margin-bottom:16px; letter-spacing:-.02em; }
+.section > p.lede { color:var(--muted); max-width:620px; margin-bottom:48px; font-size:1rem; }
+
+.briefing-preview { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:32px; margin:32px 0 8px; max-width:680px; }
+.bp-name { font-size:24px; font-weight:800; margin-bottom:2px; }
+.bp-biz { font-size:14px; color:var(--muted); margin-bottom:16px; }
+.bp-label { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.09em; color:var(--fire1); margin-bottom:6px; }
+.bp-addr { font-size:16px; font-weight:600; margin-bottom:24px; }
+.bp-commentary { background:rgba(255,255,255,.02); border-left:3px solid var(--fire1); padding:16px 18px; border-radius:0 8px 8px 0; margin-bottom:24px; }
+.bp-commentary-label { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.09em; color:var(--muted); margin-bottom:6px; }
+.bp-commentary-text { font-size:13.5px; color:var(--text); font-style:italic; line-height:1.65; }
+.bp-section-title { font-size:11px; text-transform:uppercase; letter-spacing:.09em; color:var(--muted); font-weight:700; margin-bottom:4px; }
+.bp-h3 { font-size:18px; font-weight:700; margin-bottom:12px; }
+.bp-cost-card { background:var(--surface2); border:1px solid var(--border); border-radius:10px; padding:14px 16px; display:flex; justify-content:space-between; align-items:center; gap:14px; flex-wrap:wrap; margin-bottom:8px; }
+.bp-cost-label { font-size:10px; text-transform:uppercase; letter-spacing:.07em; color:var(--muted); font-weight:700; }
+.bp-cost-range { font-size:22px; font-weight:800; color:var(--fire1); }
+.bp-scenarios { display:grid; grid-template-columns:1fr; gap:8px; margin-bottom:24px; }
+.bp-scenario { background:var(--surface2); border:1px solid var(--border); border-radius:10px; padding:14px 16px; }
+.bp-scen-row { display:flex; justify-content:space-between; align-items:baseline; gap:14px; flex-wrap:wrap; margin-bottom:4px; }
+.bp-scen-label { font-size:10px; text-transform:uppercase; letter-spacing:.09em; color:var(--muted); font-weight:700; }
+.bp-scen-price { font-size:18px; font-weight:800; }
+.bp-scen-price.opening { color:var(--green); }
+.bp-scen-price.walkup { color:var(--blue); }
+.bp-scen-price.walkaway { color:var(--fire1); }
+.bp-scen-rat { font-size:12px; color:var(--muted); line-height:1.55; margin:0; }
+.bp-bottom { background:linear-gradient(135deg, rgba(249,115,22,.07), rgba(245,158,11,.03)); border:1px solid rgba(249,115,22,.2); border-radius:12px; padding:18px 20px; margin-top:8px; }
+.bp-bottom-label { font-size:10px; text-transform:uppercase; letter-spacing:.09em; color:var(--fire1); font-weight:700; margin-bottom:8px; }
+.bp-bottom-text { font-size:14px; line-height:1.55; }
+.bp-footer { margin-top:20px; padding-top:14px; border-top:1px solid var(--border); font-size:10px; color:var(--dim); text-align:center; }
+
+.steps { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:20px; }
+.step { background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:24px; }
+.step-num { font-size:11px; font-weight:700; color:var(--fire1); text-transform:uppercase; letter-spacing:.1em; margin-bottom:12px; }
+.step h3 { font-size:15px; font-weight:700; margin-bottom:8px; }
+.step p { font-size:13px; color:var(--muted); line-height:1.6; }
+.value-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:16px; }
+.value-card { background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:24px; }
+.value-icon { font-size:1.8rem; margin-bottom:12px; }
+.value-card h3 { font-size:15px; font-weight:700; margin-bottom:8px; }
+.value-card p { font-size:13px; color:var(--muted); line-height:1.6; }
+
+.honest-note { background:rgba(96,165,250,.05); border:1px solid rgba(96,165,250,.15); border-radius:12px; padding:18px 22px; margin-top:32px; font-size:13.5px; line-height:1.65; color:var(--muted); }
+.honest-note strong { color:var(--text); }
+
+.pricing-grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; max-width:640px; margin:0 auto; }
+@media (max-width:560px) { .pricing-grid { grid-template-columns:1fr; } }
+.plan-card { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:28px; }
+.plan-card.featured { border-color:rgba(249,115,22,.4); background:linear-gradient(135deg,rgba(249,115,22,.06),rgba(245,158,11,.04)); }
+.plan-badge { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:var(--fire1); background:rgba(249,115,22,.1); padding:3px 10px; border-radius:4px; display:inline-block; margin-bottom:12px; }
+.plan-price { font-size:2.2rem; font-weight:900; letter-spacing:-.03em; margin-bottom:4px; }
+.plan-price span { font-size:14px; font-weight:500; color:var(--muted); }
+.plan-desc { font-size:13px; color:var(--muted); margin-bottom:20px; }
+.plan-features { list-style:none; display:flex; flex-direction:column; gap:8px; margin-bottom:24px; }
+.plan-features li { font-size:13px; color:var(--muted); display:flex; gap:8px; }
+.plan-features li::before { content:'✓'; color:var(--green); font-weight:700; flex-shrink:0; }
+.plan-cta { width:100%; padding:12px; border-radius:9px; font-weight:700; font-size:14px; cursor:pointer; font-family:inherit; border:none; }
+.free-cta { background:rgba(255,255,255,.07); color:var(--text); }
+.pro-cta { background:linear-gradient(90deg,var(--fire1),var(--fire2)); color:white; }
+.pricing-note { max-width:520px; margin:24px auto 0; font-size:12px; line-height:1.6; color:var(--dim); text-align:center; }
+
+.signup-section { background:linear-gradient(135deg,rgba(249,115,22,.06),rgba(245,158,11,.04)); border-top:1px solid rgba(249,115,22,.15); border-bottom:1px solid rgba(249,115,22,.15); padding:72px 24px; }
+.signup-inner { max-width:540px; margin:0 auto; }
+.signup-inner h2 { font-size:2rem; font-weight:800; margin-bottom:8px; letter-spacing:-.02em; }
+.signup-inner > p { color:var(--muted); margin-bottom:32px; }
+.form-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+@media (max-width:520px) { .form-grid { grid-template-columns:1fr; } }
+.form-group { display:flex; flex-direction:column; gap:6px; }
+.form-group.full { grid-column:1/-1; }
+.form-group label { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--dim); }
+.form-group input, .form-group select { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:10px 14px; color:var(--text); font-size:14px; font-family:inherit; outline:none; transition:border-color .15s; }
+.form-group input:focus, .form-group select:focus { border-color:rgba(249,115,22,.5); }
+.form-group select option { background:var(--surface); }
+#agent-signup-btn { width:100%; padding:14px; background:linear-gradient(90deg,var(--fire1),var(--fire2)); border:none; border-radius:10px; color:white; font-size:16px; font-weight:700; cursor:pointer; font-family:inherit; margin-top:20px; }
+#signup-success { display:none; text-align:center; padding:32px; background:rgba(34,197,94,.06); border:1px solid rgba(34,197,94,.2); border-radius:14px; }
+footer { text-align:center; padding:32px; font-size:12px; color:var(--dim); border-top:1px solid var(--border); }
+footer a { color:var(--dim); text-decoration:none; }
+</style>
+    <!-- Reddit Pixel Base Code -->
+    <script>
+    !function(w,d){if(!w.rdt){var p=w.rdt=function(){p.sendEvent?p.sendEvent.apply(p,arguments):p.queue.push(arguments)};p.queue=[];var t=d.createElement('script');t.src='https://www.redditstatic.com/ads/pixel.js';t.async=!0;var s=d.getElementsByTagName('script')[0];s.parentNode.insertBefore(t,s)}}(window,document);
+    rdt('init','a2_ihx65g62d5n6',{optOut:false,useDecimalCurrencyValues:true,signalsMode:'all'});
+    rdt('track','PageVisit');
+    </script>
+    <!-- End Reddit Pixel -->
+  <link rel="canonical" href="https://www.getofferwise.ai/for-agents">
+</head>
+<body>
+<nav>
+  <a href="/" class="nav-logo">Offer<span class="wise">Wise</span> AI</a>
+  <a href="#signup" class="nav-cta">Get Started Free</a>
+</nav>
+
+<section class="hero">
+  <div class="hero-tag">For Licensed Real Estate Agents</div>
+  <h1>A one-page briefing for your client. <em>In your voice. In 90 seconds.</em></h1>
+  <p>Upload the inspection or disclosure PDF, write a sentence or two of your own commentary, and OfferWise produces a one-page property briefing — repair cost overview, offer strategy, your bottom-line take — headlined with your name and brokerage. Send it to your client with one click.</p>
+  <div class="hero-btns">
+    <a href="#signup" class="btn-primary">Start Free — 10 Briefings/Month</a>
+    <a href="#how-it-works" class="btn-secondary">See how it works →</a>
+  </div>
+</section>
+
+<div class="section" style="padding-top:24px;">
+  <div class="section-label">What your client receives</div>
+  <h2>Your name on the briefing. OfferWise in the footer.</h2>
+  <p class="lede">The deliverable is a one-page page your client opens from an email link. Your name and brokerage are at the top. Your commentary is quoted prominently. OfferWise is a single-line footer credit. Sample below is illustrative — your real briefings use your own inputs and findings.</p>
+
+  <div class="briefing-preview">
+    <div class="bp-name">Jane Smith</div>
+    <div class="bp-biz">Smith Realty Group</div>
+    <div class="bp-label">Property Briefing</div>
+    <div class="bp-addr">22580 San Vicente Avenue · For Sarah Chen</div>
+
+    <div class="bp-commentary">
+      <div class="bp-commentary-label">From your agent</div>
+      <div class="bp-commentary-text">Seller listed 60 days ago at $1.25M, motivated by job relocation. Best-condition house I've shown in this ZIP this month despite the items below. You're our top contender — we need to decide by Friday.</div>
+    </div>
+
+    <div class="bp-section-title">Section 1</div>
+    <div class="bp-h3">Repair cost overview</div>
+    <div class="bp-cost-card">
+      <div>
+        <div class="bp-cost-label">Estimated repair budget</div>
+        <div class="bp-cost-range">$12,500 – $31,000</div>
+      </div>
+      <div style="font-size:12px;color:var(--muted);max-width:240px;">Range reflects low- and high-cost scenarios across the documented findings.</div>
+    </div>
+
+    <div class="bp-section-title" style="margin-top:24px;">Section 2</div>
+    <div class="bp-h3">Offer strategy</div>
+    <div class="bp-scenarios">
+      <div class="bp-scenario">
+        <div class="bp-scen-row"><div class="bp-scen-label">Opening offer</div><div class="bp-scen-price opening">$1,012,000</div></div>
+        <p class="bp-scen-rat">Anchors below the seller's price with the documented repair findings as leverage. Leaves room to counter without losing credibility.</p>
+      </div>
+      <div class="bp-scenario">
+        <div class="bp-scen-row"><div class="bp-scen-label">Walk-up</div><div class="bp-scen-price walkup">$1,200,000</div></div>
+        <p class="bp-scen-rat">The buyer's comfortable monthly payment supports this price. Above this, the deal stops being a clear win.</p>
+      </div>
+      <div class="bp-scenario">
+        <div class="bp-scen-row"><div class="bp-scen-label">Walk-away</div><div class="bp-scen-price walkaway">$1,300,000</div></div>
+        <p class="bp-scen-rat">The qualified ceiling. Above this, the math no longer works given the repair burden.</p>
+      </div>
+    </div>
+
+    <div class="bp-bottom">
+      <div class="bp-bottom-label">Bottom line</div>
+      <div class="bp-bottom-text">Given the documented $12K–$31K in repair findings and your budget tiers, I'd open at $1.012M. We have room to negotiate up to $1.2M. Above $1.3M the deal doesn't pencil — particularly with a motivated seller already 60 days on market.</div>
+    </div>
+
+    <div class="bp-footer">Data and cost intelligence: OfferWise AI</div>
+  </div>
+</div>
+
+<div id="how-it-works">
+<div class="section" style="padding-top:32px;">
+  <div class="section-label">How it works</div>
+  <h2>Four steps. One deliverable. About 90 seconds.</h2>
+  <p class="lede">You're already doing the analysis in your head when you walk a client through a disclosure. OfferWise gives you a place to put it on paper — with the cost numbers and offer strategy already filled in.</p>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">Step 01</div>
+      <h3>Upload the inspection or disclosure PDF</h3>
+      <p>Drop the file your client just received from the seller or the inspector. OfferWise extracts the findings.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">Step 02</div>
+      <h3>Pick a side, enter the budget</h3>
+      <p>Are you representing the buyer or the seller? For buyers, enter their three budget tiers (qualified, comfortable, preferred). For sellers, enter the list price.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">Step 03</div>
+      <h3>Write your commentary</h3>
+      <p>Two or three sentences in your own voice — what your client should know about this property, this seller, this market. This is the part that makes the briefing yours.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">Step 04</div>
+      <h3>Send to your client</h3>
+      <p>OfferWise generates the one-page briefing and gives you a shareable link. Send from inside OfferWise or copy the link. The email comes from your domain; replies go to you.</p>
+    </div>
+  </div>
+</div>
+</div>
+
+<div class="section">
+  <div class="section-label">Why agents use it</div>
+  <h2>The work you'd do anyway — written down in a way your client can read.</h2>
+  <p class="lede">Buyer asks "what's this house going to cost to fix?" You give a thoughtful answer. Then they forget it on the drive home. OfferWise turns that conversation into a one-page document they keep, read again, and forward to the people helping them decide.</p>
+  <div class="value-grid">
+    <div class="value-card"><div class="value-icon">📊</div><h3>Real repair cost ranges</h3><p>Every documented finding converted to a low–high cost band using public-records and contractor-pricing data. Not guesses — numbers your client can use in negotiation.</p></div>
+    <div class="value-card"><div class="value-icon">🎯</div><h3>Three-scenario offer strategy</h3><p>For buyers: Opening / Walk-up / Walk-away, anchored to their budget. For sellers: Counter / Hold / Concede, anchored to list. Concrete prices with rationales.</p></div>
+    <div class="value-card"><div class="value-icon">🗣️</div><h3>Your commentary as the lede</h3><p>Your professional voice is the first thing the client reads — quoted, framed, attributed to you. The data sits underneath as support for what you're saying.</p></div>
+    <div class="value-card"><div class="value-icon">✉️</div><h3>One-click send + engagement signal</h3><p>Send from inside OfferWise. Email comes from your domain, replies go to you. You see when the client opens it and clicks through.</p></div>
+    <div class="value-card"><div class="value-icon">📄</div><h3>Buyer-side and seller-side</h3><p>The briefing flips framing automatically. Same upload, same commentary field — different strategy section depending on which side you're representing.</p></div>
+    <div class="value-card"><div class="value-icon">🏷️</div><h3>Your brand, not OfferWise's</h3><p>Your name and brokerage headline every briefing. OfferWise is a single-line footer credit. Your client thinks of you, not us.</p></div>
+  </div>
+
+  <div class="honest-note">
+    <strong>What this is not.</strong> Not a buyer-facing portal you send buyers to fill out themselves — you do the upload and the commentary. Not a chatbot that replaces your judgment — it formalizes your judgment in a document. Not contract or financial advice — the briefing carries a clear disclaimer and is decision-support for a transaction you're guiding.
+  </div>
+</div>
+
+<div id="pricing" class="section" style="text-align:center;">
+  <div class="section-label">Pricing</div>
+  <h2>Start free. We'll talk about paid once you're using it.</h2>
+  <p class="lede" style="text-align:left;max-width:540px;margin:0 auto 40px;">Free tier gives you 10 briefings per month. That's enough to evaluate the agent product against your normal workflow. We're not pushing paid signups until you've actually used it and have feedback.</p>
+  <div class="pricing-grid">
+    <div class="plan-card">
+      <div class="plan-badge">Free</div>
+      <div class="plan-price">$0<span>/mo</span></div>
+      <div class="plan-desc">For trying the briefing on your real deals</div>
+      <ul class="plan-features">
+        <li>10 briefings per month</li>
+        <li>Your name and brokerage on every briefing</li>
+        <li>One-click send + engagement tracking</li>
+        <li>Buyer-side and seller-side framing</li>
+        <li>Works with disclosures from any US jurisdiction</li>
+      </ul>
+      <button class="plan-cta free-cta" onclick="document.getElementById('signup').scrollIntoView({behavior:'smooth'})">Get Started Free</button>
+    </div>
+    <div class="plan-card featured">
+      <div class="plan-badge">Pro (coming)</div>
+      <div class="plan-price">$29<span>/mo</span></div>
+      <div class="plan-desc">For agents who close on volume</div>
+      <ul class="plan-features">
+        <li>Unlimited briefings</li>
+        <li>Custom brokerage colors and logo on briefings</li>
+        <li>CSV export of briefing history</li>
+        <li>Priority support</li>
+      </ul>
+      <button class="plan-cta pro-cta" onclick="document.getElementById('signup').scrollIntoView({behavior:'smooth'})">Get on the Pro Waitlist</button>
+    </div>
+  </div>
+  <p class="pricing-note">Pro features are on the roadmap, not yet live — sign up free now, and we'll reach out about Pro when it ships. No credit card today.</p>
+</div>
+
+<div id="signup" class="signup-section">
+  <div class="signup-inner">
+    <h2>Start in 60 seconds.</h2>
+    <p>Create your free account. No credit card required.</p>
+    <div id="signup-success">
+      <div style="font-size:2rem;margin-bottom:12px;">✅</div>
+      <h3 style="margin-bottom:8px;">You're registered!</h3>
+      <p style="color:var(--muted);margin-bottom:20px;">Head to your Agent Portal to create your first briefing.</p>
+      <a href="/agent-portal" style="display:inline-block;padding:12px 28px;background:linear-gradient(90deg,var(--fire1),var(--fire2));color:white;border-radius:10px;font-weight:700;text-decoration:none;">Go to Agent Portal →</a>
+    </div>
+    <div id="signup-form">
+      <div class="form-grid">
+        <div class="form-group"><label>Your Full Name</label><input type="text" id="f-name" placeholder="Jane Smith" required></div>
+        <div class="form-group"><label>Brokerage Name</label><input type="text" id="f-biz" placeholder="Keller Williams Realty"></div>
+        <div class="form-group"><label>State License #</label><input type="text" id="f-lic" placeholder="e.g. DRE 01234567"></div>
+        <div class="form-group"><label>License State</label>
+          <select id="f-state">
+            <option value="">Select state</option>
+            <option>AL</option><option>AK</option><option>AZ</option><option>AR</option><option>CA</option>
+            <option>CO</option><option>CT</option><option>DE</option><option>FL</option><option>GA</option>
+            <option>HI</option><option>ID</option><option>IL</option><option>IN</option><option>IA</option>
+            <option>KS</option><option>KY</option><option>LA</option><option>ME</option><option>MD</option>
+            <option>MA</option><option>MI</option><option>MN</option><option>MS</option><option>MO</option>
+            <option>MT</option><option>NE</option><option>NV</option><option>NH</option><option>NJ</option>
+            <option>NM</option><option>NY</option><option>NC</option><option>ND</option><option>OH</option>
+            <option>OK</option><option>OR</option><option>PA</option><option>RI</option><option>SC</option>
+            <option>SD</option><option>TN</option><option>TX</option><option>UT</option><option>VT</option>
+            <option>VA</option><option>WA</option><option>WV</option><option>WI</option><option>WY</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Phone</label><input type="tel" id="f-phone" placeholder="(555) 123-4567"></div>
+        <div class="form-group"><label>Primary Market / Cities</label><input type="text" id="f-areas" placeholder="Austin TX, Round Rock TX"></div>
+      </div>
+      <button id="agent-signup-btn" onclick="agentSignup()">Create Free Account →</button>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <a href="/">OfferWise AI</a> &nbsp;·&nbsp; <a href="/for-inspectors">For Inspectors</a> &nbsp;·&nbsp; <a href="/privacy">Privacy</a> &nbsp;·&nbsp; <a href="/terms">Terms</a>
+</footer>
+
+<script>
+async function agentSignup() {
+  var btn = document.getElementById('agent-signup-btn');
+
+  var payload = {
+    agent_name:    document.getElementById('f-name').value.trim(),
+    business_name: document.getElementById('f-biz').value.trim(),
+    license_number:document.getElementById('f-lic').value.trim(),
+    license_state: document.getElementById('f-state').value,
+    phone:         document.getElementById('f-phone').value.trim(),
+    service_areas: document.getElementById('f-areas').value.trim(),
+  };
+
+  if (!payload.agent_name) { alert('Please enter your full name.'); return; }
+
+  btn.disabled = true;
+  btn.textContent = 'Creating account...';
+
+  try { sessionStorage.setItem('pending_agent_signup', JSON.stringify(payload)); } catch(e) {}
+
+  try {
+    var res = await fetch('/api/agent/register', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      credentials: 'include',
+      body: JSON.stringify(payload)
+    });
+
+    if (res.status === 401) {
+      window.location.href = '/login?signup=1&redirect=' + encodeURIComponent('/agent-onboarding');
+      return;
+    }
+
+    var data = await res.json();
+    if (data.success) {
+      try { sessionStorage.removeItem('pending_agent_signup'); } catch(e) {}
+      document.getElementById('signup-form').style.display = 'none';
+      document.getElementById('signup-success').style.display = 'block';
+    } else {
+      alert(data.error || 'Registration failed. Please try again.');
+      btn.disabled = false; btn.textContent = 'Create Free Account →';
+    }
+  } catch(e) {
+    alert('Something went wrong. Please try again.');
+    btn.disabled = false; btn.textContent = 'Create Free Account →';
+  }
+}
+</script>
+</body>
+</html>

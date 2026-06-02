@@ -1,0 +1,982 @@
+interactions:
+- request:
+    body: null
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate, br
+      Connection:
+      - keep-alive
+      User-Agent:
+      - python-requests/2.31.0
+      x-api-key:
+      - <REDACTED>
+    method: GET
+    uri: https://api.rentcast.io/v1/avm/value?address=456+Clean+Disclosure+St%2C+Oakland%2C+CA&compCount=10&daysOld=180&maxRadius=5
+  response:
+    body:
+      string: '{"price":382000,"priceRangeLow":282000,"priceRangeHigh":483000,"latitude":37.8043514,"longitude":-122.2711639,"subjectProperty":{"latitude":37.8043514,"longitude":-122.2711639},"comparables":[{"id":"330-13th-St,-Unit-1A,-Oakland,-CA-94612","formattedAddress":"330
+        13th St, Unit 1A, Oakland, CA 94612","addressLine1":"330 13th St","addressLine2":"Unit
+        1A","city":"Oakland","state":"CA","stateFips":"06","zipCode":"94612","county":"Alameda","countyFips":"001","latitude":37.802691,"longitude":-122.268593,"propertyType":"Condo","bedrooms":1,"bathrooms":1.5,"squareFootage":1296,"lotSize":4959,"yearBuilt":1914,"status":"Active","price":449000,"listingType":"Standard","listedDate":"2026-04-09T00:00:00.000Z","removedDate":null,"lastSeenDate":"2026-05-10T09:09:33.200Z","daysOnMarket":32,"distance":0.1815,"daysOld":1,"correlation":0.9909},{"id":"330-13th-St,-Unit-5C,-Oakland,-CA-94612","formattedAddress":"330
+        13th St, Unit 5C, Oakland, CA 94612","addressLine1":"330 13th St","addressLine2":"Unit
+        5C","city":"Oakland","state":"CA","stateFips":"06","zipCode":"94612","county":"Alameda","countyFips":"001","latitude":37.802691,"longitude":-122.268593,"propertyType":"Condo","bedrooms":1,"bathrooms":1.5,"squareFootage":992,"lotSize":4959,"yearBuilt":1914,"status":"Inactive","price":450000,"listingType":"Standard","listedDate":"2026-01-15T00:00:00.000Z","removedDate":"2026-02-25T00:00:00.000Z","lastSeenDate":"2026-02-24T08:59:16.786Z","daysOnMarket":41,"distance":0.1815,"daysOld":76,"correlation":0.9902},{"id":"989-Franklin-St,-Apt-621,-Oakland,-CA-94607","formattedAddress":"989
+        Franklin St, Apt 621, Oakland, CA 94607","addressLine1":"989 Franklin St","addressLine2":"Apt
+        621","city":"Oakland","state":"CA","stateFips":"06","zipCode":"94607","county":"Alameda","countyFips":"001","latitude":37.801157,"longitude":-122.271988,"propertyType":"Condo","bedrooms":1,"bathrooms":1,"squareFootage":524,"lotSize":1899,"yearBuilt":2004,"status":"Active","price":299000,"listingType":"Standard","listedDate":"2026-03-18T00:00:00.000Z","removedDate":null,"lastSeenDate":"2026-05-10T09:38:24.195Z","daysOnMarket":54,"distance":0.2255,"daysOld":1,"correlation":0.9887},{"id":"1755-Broadway,-Apt-45,-Oakland,-CA-94612","formattedAddress":"1755
+        Broadway, Apt 45, Oakland, CA 94612","addressLine1":"1755 Broadway","addressLine2":"Apt
+        45","city":"Oakland","state":"CA","stateFips":"06","zipCode":"94612","county":"Alameda","countyFips":"001","latitude":37.807564,"longitude":-122.269677,"propertyType":"Condo","bedrooms":2,"bathrooms":2,"squareFootage":1241,"lotSize":8059,"yearBuilt":1920,"status":"Inactive","price":600000,"listingType":"Standard","listedDate":"2026-02-27T00:00:00.000Z","removedDate":"2026-03-20T00:00:00.000Z","lastSeenDate":"2026-03-19T08:22:44.994Z","daysOnMarket":21,"distance":0.2366,"daysOld":53,"correlation":0.9877},{"id":"1511-Jefferson-St,-Unit-109,-Oakland,-CA-94612","formattedAddress":"1511
+        Jefferson St, Unit 109, Oakland, CA 94612","addressLine1":"1511 Jefferson
+        St","addressLine2":"Unit 109","city":"Oakland","state":"CA","stateFips":"06","zipCode":"94612","county":"Alameda","countyFips":"001","latitude":37.806866,"longitude":-122.274516,"propertyType":"Condo","bedrooms":1,"bathrooms":1,"squareFootage":861,"yearBuilt":2007,"status":"Active","price":389888,"listingType":"Standard","listedDate":"2026-03-05T00:00:00.000Z","removedDate":null,"lastSeenDate":"2026-05-10T09:46:43.965Z","daysOnMarket":67,"distance":0.2526,"daysOld":1,"correlation":0.9874},{"id":"1511-Jefferson-St,-Unit-313,-Oakland,-CA-94612","formattedAddress":"1511
+        Jefferson St, Unit 313, Oakland, CA 94612","addressLine1":"1511 Jefferson
+        St","addressLine2":"Unit 313","city":"Oakland","state":"CA","stateFips":"06","zipCode":"94612","county":"Alameda","countyFips":"001","latitude":37.806866,"longitude":-122.274516,"propertyType":"Condo","bedrooms":1,"bathrooms":1,"squareFootage":752,"lotSize":24738,"yearBuilt":2007,"status":"Active","price":398000,"listingType":"Standard","listedDate":"2026-04-10T00:00:00.000Z","removedDate":null,"lastSeenDate":"2026-05-10T09:09:33.172Z","daysOnMarket":31,"distance":0.2526,"daysOld":1,"correlation":0.9874},{"id":"988-Franklin-St,-Apt-601,-Oakland,-CA-94607","formattedAddress":"988
+        Franklin St, Apt 601, Oakland, CA 94607","addressLine1":"988 Franklin St","addressLine2":"Apt
+        601","city":"Oakland","state":"CA","stateFips":"06","zipCode":"94607","county":"Alameda","countyFips":"001","latitude":37.800675,"longitude":-122.271225,"propertyType":"Condo","bedrooms":2,"bathrooms":2,"squareFootage":750,"lotSize":98010,"yearBuilt":1993,"status":"Active","price":425000,"listingType":"Standard","listedDate":"2026-03-14T00:00:00.000Z","removedDate":null,"lastSeenDate":"2026-05-10T09:46:43.883Z","daysOnMarket":58,"distance":0.2543,"daysOld":1,"correlation":0.9873},{"id":"989-Webster-St,-Apt-450,-Oakland,-CA-94607","formattedAddress":"989
+        Webster St, Apt 450, Oakland, CA 94607","addressLine1":"989 Webster St","addressLine2":"Apt
+        450","city":"Oakland","state":"CA","stateFips":"06","zipCode":"94607","county":"Alameda","countyFips":"001","latitude":37.800675,"longitude":-122.271225,"propertyType":"Condo","bedrooms":2,"bathrooms":2,"squareFootage":821,"lotSize":98010,"yearBuilt":1993,"status":"Inactive","price":325000,"listingType":"Standard","listedDate":"2026-02-25T00:00:00.000Z","removedDate":"2026-04-26T00:00:00.000Z","lastSeenDate":"2026-04-25T09:40:40.315Z","daysOnMarket":60,"distance":0.2543,"daysOld":16,"correlation":0.9871},{"id":"989-Webster-St,-Apt-443,-Oakland,-CA-94607","formattedAddress":"989
+        Webster St, Apt 443, Oakland, CA 94607","addressLine1":"989 Webster St","addressLine2":"Apt
+        443","city":"Oakland","state":"CA","stateFips":"06","zipCode":"94607","county":"Alameda","countyFips":"001","latitude":37.800674,"longitude":-122.271225,"propertyType":"Condo","bedrooms":1,"bathrooms":1,"squareFootage":559,"yearBuilt":1993,"status":"Inactive","price":199000,"listingType":"Standard","listedDate":"2026-03-12T00:00:00.000Z","removedDate":"2026-04-21T00:00:00.000Z","lastSeenDate":"2026-04-20T10:24:38.099Z","daysOnMarket":40,"distance":0.2544,"daysOld":21,"correlation":0.9871},{"id":"988-Franklin-St,-Apt-707,-Oakland,-CA-94607","formattedAddress":"988
+        Franklin St, Apt 707, Oakland, CA 94607","addressLine1":"988 Franklin St","addressLine2":"Apt
+        707","city":"Oakland","state":"CA","stateFips":"06","zipCode":"94607","county":"Alameda","countyFips":"001","latitude":37.800675,"longitude":-122.271225,"propertyType":"Condo","bedrooms":1,"bathrooms":1,"squareFootage":615,"lotSize":98010,"yearBuilt":1993,"status":"Inactive","price":288000,"listingType":"Standard","listedDate":"2026-02-12T00:00:00.000Z","removedDate":"2026-04-11T00:00:00.000Z","lastSeenDate":"2026-04-10T09:06:42.821Z","daysOnMarket":58,"distance":0.2543,"daysOld":31,"correlation":0.987}]}'
+    headers:
+      Content-Length:
+      - '6816'
+      access-control-allow-methods:
+      - GET
+      access-control-allow-origin:
+      - '*'
+      cache-control:
+      - public, max-age=0
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Sun, 10 May 2026 21:49:58 GMT
+      server:
+      - Google Frontend
+      x-cloud-trace-context:
+      - 1a7f8859a2cdcf9dc4c22b87a12a5dae
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate, br
+      Connection:
+      - keep-alive
+      User-Agent:
+      - OfferWise/1.0 Property Research (contact@getofferwise.ai)
+    method: GET
+    uri: https://geocoding.geo.census.gov/geocoder/geographies/onelineaddress?address=456+Clean+Disclosure+St%2C+Oakland%2C+CA&benchmark=Public_AR_Current&format=json&vintage=Current_Current
+  response:
+    body:
+      string: '{"result":{"input":{"address":{"address":"456 Clean Disclosure St,
+        Oakland, CA"},"vintage":{"isDefault":true,"id":"4","vintageName":"Current_Current","vintageDescription":"Current
+        Vintage - Current Benchmark"},"benchmark":{"isDefault":true,"benchmarkDescription":"Public
+        Address Ranges - Current Benchmark","id":"4","benchmarkName":"Public_AR_Current"}},"addressMatches":[]}}'
+    headers:
+      Cache-Control:
+      - private, no-store
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '375'
+      Content-Type:
+      - application/json
+      Date:
+      - Sun, 10 May 2026 21:49:58 GMT
+      Set-Cookie:
+      - TS0193e6a1=01283c52a4dcbd0c28417fb796b277b1cfd500bba8568e8bc9f83d8960356afdac8ab3ca8aa738bafaa0bcff363e0f0b16e23fc49d;
+        Path=/; Domain=.geocoding.geo.census.gov; Secure; HttpOnly
+      Strict-Transport-Security:
+      - max-age=31536000
+      Vary:
+      - Origin
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - DENY
+      X-XSS-Protection:
+      - 1;mode=block
+    status:
+      code: 200
+      message: ''
+- request:
+    body: null
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate, br
+      Connection:
+      - keep-alive
+      User-Agent:
+      - OfferWise/1.0 (property-research)
+      x-api-key:
+      - <REDACTED>
+    method: GET
+    uri: https://api.rentcast.io/v1/avm/value?address=456+Clean+Disclosure+St%2C+Oakland%2C+CA&compCount=15&daysOld=180&maxRadius=5
+  response:
+    body:
+      string: '{"price":388000,"priceRangeLow":280000,"priceRangeHigh":496000,"latitude":37.8043514,"longitude":-122.2711639,"subjectProperty":{"latitude":37.8043514,"longitude":-122.2711639},"comparables":[{"id":"330-13th-St,-Unit-1A,-Oakland,-CA-94612","formattedAddress":"330
+        13th St, Unit 1A, Oakland, CA 94612","addressLine1":"330 13th St","addressLine2":"Unit
+        1A","city":"Oakland","state":"CA","stateFips":"06","zipCode":"94612","county":"Alameda","countyFips":"001","latitude":37.802691,"longitude":-122.268593,"propertyType":"Condo","bedrooms":1,"bathrooms":1.5,"squareFootage":1296,"lotSize":4959,"yearBuilt":1914,"status":"Active","price":449000,"listingType":"Standard","listedDate":"2026-04-09T00:00:00.000Z","removedDate":null,"lastSeenDate":"2026-05-10T09:09:33.200Z","daysOnMarket":32,"distance":0.1815,"daysOld":1,"correlation":0.9909},{"id":"330-13th-St,-Unit-5C,-Oakland,-CA-94612","formattedAddress":"330
+        13th St, Unit 5C, Oakland, CA 94612","addressLine1":"330 13th St","addressLine2":"Unit
+        5C","city":"Oakland","state":"CA","stateFips":"06","zipCode":"94612","county":"Alameda","countyFips":"001","latitude":37.802691,"longitude":-122.268593,"propertyType":"Condo","bedrooms":1,"bathrooms":1.5,"squareFootage":992,"lotSize":4959,"yearBuilt":1914,"status":"Inactive","price":450000,"listingType":"Standard","listedDate":"2026-01-15T00:00:00.000Z","removedDate":"2026-02-25T00:00:00.000Z","lastSeenDate":"2026-02-24T08:59:16.786Z","daysOnMarket":41,"distance":0.1815,"daysOld":76,"correlation":0.9902},{"id":"989-Franklin-St,-Apt-621,-Oakland,-CA-94607","formattedAddress":"989
+        Franklin St, Apt 621, Oakland, CA 94607","addressLine1":"989 Franklin St","addressLine2":"Apt
+        621","city":"Oakland","state":"CA","stateFips":"06","zipCode":"94607","county":"Alameda","countyFips":"001","latitude":37.801157,"longitude":-122.271988,"propertyType":"Condo","bedrooms":1,"bathrooms":1,"squareFootage":524,"lotSize":1899,"yearBuilt":2004,"status":"Active","price":299000,"listingType":"Standard","listedDate":"2026-03-18T00:00:00.000Z","removedDate":null,"lastSeenDate":"2026-05-10T09:38:24.195Z","daysOnMarket":54,"distance":0.2255,"daysOld":1,"correlation":0.9887},{"id":"1755-Broadway,-Apt-45,-Oakland,-CA-94612","formattedAddress":"1755
+        Broadway, Apt 45, Oakland, CA 94612","addressLine1":"1755 Broadway","addressLine2":"Apt
+        45","city":"Oakland","state":"CA","stateFips":"06","zipCode":"94612","county":"Alameda","countyFips":"001","latitude":37.807564,"longitude":-122.269677,"propertyType":"Condo","bedrooms":2,"bathrooms":2,"squareFootage":1241,"lotSize":8059,"yearBuilt":1920,"status":"Inactive","price":600000,"listingType":"Standard","listedDate":"2026-02-27T00:00:00.000Z","removedDate":"2026-03-20T00:00:00.000Z","lastSeenDate":"2026-03-19T08:22:44.994Z","daysOnMarket":21,"distance":0.2366,"daysOld":53,"correlation":0.9877},{"id":"1511-Jefferson-St,-Unit-109,-Oakland,-CA-94612","formattedAddress":"1511
+        Jefferson St, Unit 109, Oakland, CA 94612","addressLine1":"1511 Jefferson
+        St","addressLine2":"Unit 109","city":"Oakland","state":"CA","stateFips":"06","zipCode":"94612","county":"Alameda","countyFips":"001","latitude":37.806866,"longitude":-122.274516,"propertyType":"Condo","bedrooms":1,"bathrooms":1,"squareFootage":861,"yearBuilt":2007,"status":"Active","price":389888,"listingType":"Standard","listedDate":"2026-03-05T00:00:00.000Z","removedDate":null,"lastSeenDate":"2026-05-10T09:46:43.965Z","daysOnMarket":67,"distance":0.2526,"daysOld":1,"correlation":0.9874},{"id":"1511-Jefferson-St,-Unit-313,-Oakland,-CA-94612","formattedAddress":"1511
+        Jefferson St, Unit 313, Oakland, CA 94612","addressLine1":"1511 Jefferson
+        St","addressLine2":"Unit 313","city":"Oakland","state":"CA","stateFips":"06","zipCode":"94612","county":"Alameda","countyFips":"001","latitude":37.806866,"longitude":-122.274516,"propertyType":"Condo","bedrooms":1,"bathrooms":1,"squareFootage":752,"lotSize":24738,"yearBuilt":2007,"status":"Active","price":398000,"listingType":"Standard","listedDate":"2026-04-10T00:00:00.000Z","removedDate":null,"lastSeenDate":"2026-05-10T09:09:33.172Z","daysOnMarket":31,"distance":0.2526,"daysOld":1,"correlation":0.9874},{"id":"988-Franklin-St,-Apt-601,-Oakland,-CA-94607","formattedAddress":"988
+        Franklin St, Apt 601, Oakland, CA 94607","addressLine1":"988 Franklin St","addressLine2":"Apt
+        601","city":"Oakland","state":"CA","stateFips":"06","zipCode":"94607","county":"Alameda","countyFips":"001","latitude":37.800675,"longitude":-122.271225,"propertyType":"Condo","bedrooms":2,"bathrooms":2,"squareFootage":750,"lotSize":98010,"yearBuilt":1993,"status":"Active","price":425000,"listingType":"Standard","listedDate":"2026-03-14T00:00:00.000Z","removedDate":null,"lastSeenDate":"2026-05-10T09:46:43.883Z","daysOnMarket":58,"distance":0.2543,"daysOld":1,"correlation":0.9873},{"id":"989-Webster-St,-Apt-450,-Oakland,-CA-94607","formattedAddress":"989
+        Webster St, Apt 450, Oakland, CA 94607","addressLine1":"989 Webster St","addressLine2":"Apt
+        450","city":"Oakland","state":"CA","stateFips":"06","zipCode":"94607","county":"Alameda","countyFips":"001","latitude":37.800675,"longitude":-122.271225,"propertyType":"Condo","bedrooms":2,"bathrooms":2,"squareFootage":821,"lotSize":98010,"yearBuilt":1993,"status":"Inactive","price":325000,"listingType":"Standard","listedDate":"2026-02-25T00:00:00.000Z","removedDate":"2026-04-26T00:00:00.000Z","lastSeenDate":"2026-04-25T09:40:40.315Z","daysOnMarket":60,"distance":0.2543,"daysOld":16,"correlation":0.9871},{"id":"989-Webster-St,-Apt-443,-Oakland,-CA-94607","formattedAddress":"989
+        Webster St, Apt 443, Oakland, CA 94607","addressLine1":"989 Webster St","addressLine2":"Apt
+        443","city":"Oakland","state":"CA","stateFips":"06","zipCode":"94607","county":"Alameda","countyFips":"001","latitude":37.800674,"longitude":-122.271225,"propertyType":"Condo","bedrooms":1,"bathrooms":1,"squareFootage":559,"yearBuilt":1993,"status":"Inactive","price":199000,"listingType":"Standard","listedDate":"2026-03-12T00:00:00.000Z","removedDate":"2026-04-21T00:00:00.000Z","lastSeenDate":"2026-04-20T10:24:38.099Z","daysOnMarket":40,"distance":0.2544,"daysOld":21,"correlation":0.9871},{"id":"988-Franklin-St,-Apt-707,-Oakland,-CA-94607","formattedAddress":"988
+        Franklin St, Apt 707, Oakland, CA 94607","addressLine1":"988 Franklin St","addressLine2":"Apt
+        707","city":"Oakland","state":"CA","stateFips":"06","zipCode":"94607","county":"Alameda","countyFips":"001","latitude":37.800675,"longitude":-122.271225,"propertyType":"Condo","bedrooms":1,"bathrooms":1,"squareFootage":615,"lotSize":98010,"yearBuilt":1993,"status":"Inactive","price":288000,"listingType":"Standard","listedDate":"2026-02-12T00:00:00.000Z","removedDate":"2026-04-11T00:00:00.000Z","lastSeenDate":"2026-04-10T09:06:42.821Z","daysOnMarket":58,"distance":0.2543,"daysOld":31,"correlation":0.987},{"id":"1511-Jefferson-St,-Unit-TH11,-Oakland,-CA-94612","formattedAddress":"1511
+        Jefferson St, Unit TH11, Oakland, CA 94612","addressLine1":"1511 Jefferson
+        St","addressLine2":"Unit TH11","city":"Oakland","state":"CA","stateFips":"06","zipCode":"94612","county":"Alameda","countyFips":"001","latitude":37.806866,"longitude":-122.274516,"propertyType":"Condo","bedrooms":2,"bathrooms":2.5,"squareFootage":1277,"lotSize":24829,"yearBuilt":2007,"status":"Inactive","price":589000,"listingType":"Standard","listedDate":"2026-01-06T00:00:00.000Z","removedDate":"2026-03-22T00:00:00.000Z","lastSeenDate":"2026-03-21T10:32:17.591Z","daysOnMarket":75,"distance":0.2526,"daysOld":51,"correlation":0.9869},{"id":"988-Franklin-St,-Apt-710,-Oakland,-CA-94607","formattedAddress":"988
+        Franklin St, Apt 710, Oakland, CA 94607","addressLine1":"988 Franklin St","addressLine2":"Apt
+        710","city":"Oakland","state":"CA","stateFips":"06","zipCode":"94607","county":"Alameda","countyFips":"001","latitude":37.800675,"longitude":-122.271225,"propertyType":"Condo","bedrooms":1,"bathrooms":1,"squareFootage":563,"yearBuilt":1993,"status":"Inactive","price":299000,"listingType":"Standard","listedDate":"2026-01-14T00:00:00.000Z","removedDate":"2026-03-22T00:00:00.000Z","lastSeenDate":"2026-03-21T10:17:32.099Z","daysOnMarket":67,"distance":0.2543,"daysOld":51,"correlation":0.9868},{"id":"989-Webster-St,-Apt-546,-Oakland,-CA-94607","formattedAddress":"989
+        Webster St, Apt 546, Oakland, CA 94607","addressLine1":"989 Webster St","addressLine2":"Apt
+        546","city":"Oakland","state":"CA","stateFips":"06","zipCode":"94607","county":"Alameda","countyFips":"001","latitude":37.80051,"longitude":-122.270763,"propertyType":"Condo","bedrooms":2,"bathrooms":2,"squareFootage":807,"yearBuilt":1993,"status":"Active","price":330000,"listingType":"Standard","listedDate":"2026-01-09T00:00:00.000Z","removedDate":null,"lastSeenDate":"2026-05-10T10:04:21.148Z","daysOnMarket":122,"distance":0.2666,"daysOld":1,"correlation":0.9867},{"id":"1755-Broadway,-Apt-56,-Oakland,-CA-94612","formattedAddress":"1755
+        Broadway, Apt 56, Oakland, CA 94612","addressLine1":"1755 Broadway","addressLine2":"Apt
+        56","city":"Oakland","state":"CA","stateFips":"06","zipCode":"94612","county":"Alameda","countyFips":"001","latitude":37.807564,"longitude":-122.269677,"propertyType":"Condo","bedrooms":1,"bathrooms":1,"squareFootage":977,"yearBuilt":1920,"status":"Inactive","price":499000,"listingType":"Standard","listedDate":"2025-09-17T00:00:00.000Z","removedDate":"2025-12-02T00:00:00.000Z","lastSeenDate":"2025-12-01T09:32:11.398Z","daysOnMarket":76,"distance":0.2366,"daysOld":161,"correlation":0.9866},{"id":"988-Franklin-St,-Apt-302,-Oakland,-CA-94607","formattedAddress":"988
+        Franklin St, Apt 302, Oakland, CA 94607","addressLine1":"988 Franklin St","addressLine2":"Apt
+        302","city":"Oakland","state":"CA","stateFips":"06","zipCode":"94607","county":"Alameda","countyFips":"001","latitude":37.800675,"longitude":-122.271225,"propertyType":"Condo","bedrooms":1,"bathrooms":1,"squareFootage":588,"yearBuilt":1993,"status":"Inactive","price":280000,"listingType":"Standard","listedDate":"2025-11-16T00:00:00.000Z","removedDate":"2026-02-22T00:00:00.000Z","lastSeenDate":"2026-02-21T08:55:50.693Z","daysOnMarket":98,"distance":0.2543,"daysOld":79,"correlation":0.9865}]}'
+    headers:
+      Content-Length:
+      - '10131'
+      access-control-allow-methods:
+      - GET
+      access-control-allow-origin:
+      - '*'
+      cache-control:
+      - public, max-age=0
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Sun, 10 May 2026 21:49:59 GMT
+      server:
+      - Google Frontend
+      x-cloud-trace-context:
+      - 3eb7ccba81f1aa3d59d3b0fb67b67c6e
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"max_tokens": 1000, "messages": [{"role": "user", "content": "You are
+      a real estate research analyst. Based on the following data gathered \nabout
+      a property, write a concise Pre-Analysis Intelligence Brief.\n\nPROPERTY: 456
+      Clean Disclosure St, Oakland, CA\nYEAR BUILT: Unknown\nESTIMATED VALUE: $388,000
+      if profile.estimated_value else ''Unknown''\nSQFT: Unknown\n\nDATA GATHERED:\n-
+      rentcast: {\"found\": true, \"bedrooms\": null, \"bathrooms\": null, \"sqft\":
+      null, \"year_built\": null, \"lot_size\": null, \"property_type\": null, \"estimated_value\":
+      388000, \"assessed_value\": null, \"avm_price\": 388000, \"avm_price_low\":
+      280000, \"avm_price_high\": 496000, \"comparables\": [{\"address\": \"330 13th
+      St, Unit 1A, Oakland, CA 94612\", \"price\": 449000, \"sqft\": 1296, \"price_per_sqft\":
+      346.45, \"bedrooms\": 1, \"bathrooms\": 1.5, \"year_built\": 1914, \"lot_size\":
+      4959, \"property_type\": \"Condo\", \"days_on_market\": 32, \"d\n\nKEY FINDINGS:\n\n\nWrite
+      a brief (3-4 paragraphs) that:\n1. Summarizes what we know about this property
+      BEFORE seeing any seller documents\n2. Identifies the top 3 things a buyer should
+      verify in the seller disclosure\n3. Flags any red flags or risk factors that
+      could affect the offer price\n4. Notes what data we could NOT find (gaps in
+      research)\n\nBe specific and actionable. Reference actual data points. No generic
+      advice."}], "model": "claude-sonnet-4-6", "temperature": 0}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate, br
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '1420'
+      Content-Type:
+      - application/json
+      Host:
+      - api.anthropic.com
+      User-Agent:
+      - Anthropic/Python 0.49.0
+      X-Stainless-Arch:
+      - x64
+      X-Stainless-Async:
+      - 'false'
+      X-Stainless-Lang:
+      - python
+      X-Stainless-OS:
+      - Linux
+      X-Stainless-Package-Version:
+      - 0.49.0
+      X-Stainless-Runtime:
+      - CPython
+      X-Stainless-Runtime-Version:
+      - 3.11.15
+      anthropic-version:
+      - '2023-06-01'
+      baggage:
+      - sentry-trace_id=70b32fffab764ae68b2af643f13e5769,sentry-sample_rand=0.483583,sentry-environment=production,sentry-public_key=bec0f097edae469b35925bf075c964d9,sentry-org_id=4511034871578624,sentry-transaction=analysis.analyze_property,sentry-sample_rate=0.1,sentry-sampled=false
+      sentry-trace:
+      - 70b32fffab764ae68b2af643f13e5769-b2b3cb4c6a03cd78-0
+      x-api-key:
+      - <REDACTED>
+      x-stainless-read-timeout:
+      - '600'
+      x-stainless-retry-count:
+      - '0'
+      x-stainless-timeout:
+      - '600'
+    method: POST
+    uri: https://api.anthropic.com/v1/messages
+  response:
+    body:
+      string: "{\"model\":\"claude-sonnet-4-6\",\"id\":\"msg_01CvXX5tnGjX3TrGDQ6EhJgQ\",\"type\":\"message\",\"role\":\"assistant\",\"content\":[{\"type\":\"text\",\"text\":\"#
+        Pre-Analysis Intelligence Brief\\n**Property:** 456 Clean Disclosure St, Oakland,
+        CA\\n**Prepared:** Pre-Disclosure Review | Status: Awaiting Seller Documents\\n\\n---\\n\\n##
+        What We Know Before Seeing Seller Documents\\n\\nRentCast has confirmed this
+        property exists in its database with an AVM (Automated Valuation Model) estimate
+        of **$388,000**, but the data profile is notably thin. The AVM range spans
+        **$280,000 to $496,000** \u2014 a $216,000 spread that signals low model confidence,
+        likely due to missing core property attributes. No square footage, bedroom
+        count, bathroom count, year built, lot size, or property type was returned.
+        This is an unusually sparse profile for a listed property and warrants immediate
+        attention. The only actionable anchor we have is the valuation estimate itself,
+        which should be treated as a rough directional figure rather than a reliable
+        pricing benchmark given the wide confidence interval.\\n\\n---\\n\\n## Top
+        3 Things to Verify in the Seller Disclosure\\n\\n1. **Physical Property Characteristics**
+        \u2014 Confirm square footage, bedroom/bathroom count, and year built directly
+        from the disclosure or county assessor records. These fields returned null
+        across the board, meaning the AVM was likely estimated with minimal inputs.
+        A property built pre-1978 triggers lead paint disclosure requirements; pre-1950
+        construction in Oakland carries additional seismic and foundation risk considerations
+        that must be documented.\\n\\n2. **Property Type and Legal Use** \u2014 RentCast
+        returned no property type classification. Verify whether this is a single-family
+        residence, condo, multi-unit, or mixed-use structure. This directly affects
+        financing eligibility, insurance rates, and HOA obligations. Oakland has specific
+        rent control implications depending on property type and unit count that could
+        materially affect investment value.\\n\\n3. **Assessed Value vs. Market Value
+        Gap** \u2014 The assessed value came back null. Request the current Alameda
+        County tax assessment record. A significant gap between assessed value ($0
+        or unknown) and the $388,000 AVM could indicate a Prop 13-protected low tax
+        basis \u2014 a buyer benefit \u2014 or alternatively, a recent reassessment
+        trigger that would spike property taxes post-sale.\\n\\n---\\n\\n## Red Flags
+        and Risk Factors Affecting Offer Price\\n\\nThe **$216,000 AVM range** is
+        the single biggest red flag at this stage. Comparable sales data was partially
+        returned \u2014 one comp at **330 13th St, Unit 1A** sold at **$449,000 for
+        1,296 sqft ($346/sqft)** \u2014 but without knowing this subject property's
+        square footage, that price-per-sqft benchmark cannot be applied. If this property
+        is smaller than the comp, the $388,000 estimate may actually be generous.
+        Oakland's market also carries localized risk factors including **seismic zone
+        exposure, older housing stock, and active rent control ordinances** that can
+        suppress investor demand and complicate exit strategies. Until property type
+        and unit count are confirmed, rent control applicability remains an open liability.
+        Buyers should not anchor to $388,000 without first establishing basic physical
+        facts.\\n\\n---\\n\\n## Critical Data Gaps\\n\\nThe following information
+        was **not retrievable** and must be sourced independently before any offer
+        is submitted:\\n\\n- \u274C Square footage (no basis for price-per-sqft analysis)\\n-
+        \u274C Year built (cannot assess age-related risk: seismic, electrical, plumbing,
+        lead/asbestos)\\n- \u274C Bedroom/bathroom count (cannot validate comp alignment)\\n-
+        \u274C Assessed value (cannot project post-sale tax burden)\\n- \u274C Lot
+        size (cannot evaluate land value component or development potential)\\n- \u274C
+        Property type (cannot confirm financing eligibility or rent control exposure)\\n\\n**Bottom
+        line:** This property has a price tag but no verifiable profile. The seller
+        disclosure package and Alameda County Assessor records should be treated as
+        mandatory \u2014 not optional \u2014 before any offer discussion begins.\"}],\"stop_reason\":\"end_turn\",\"stop_sequence\":null,\"stop_details\":null,\"usage\":{\"input_tokens\":406,\"cache_creation_input_tokens\":0,\"cache_read_input_tokens\":0,\"cache_creation\":{\"ephemeral_5m_input_tokens\":0,\"ephemeral_1h_input_tokens\":0},\"output_tokens\":889,\"service_tier\":\"standard\",\"inference_geo\":\"global\"}}"
+    headers:
+      CF-RAY:
+      - 9f9c282d0cdf9811-PDX
+      Connection:
+      - keep-alive
+      Content-Security-Policy:
+      - default-src 'none'; frame-ancestors 'none'
+      Content-Type:
+      - application/json
+      Date:
+      - Sun, 10 May 2026 21:50:20 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      X-Robots-Tag:
+      - none
+      anthropic-organization-id:
+      - b2fdc71b-2fc9-444f-8b1b-31a1a50d1ce6
+      anthropic-ratelimit-input-tokens-limit:
+      - '450000'
+      anthropic-ratelimit-input-tokens-remaining:
+      - '450000'
+      anthropic-ratelimit-input-tokens-reset:
+      - '2026-05-10T21:49:59Z'
+      anthropic-ratelimit-output-tokens-limit:
+      - '90000'
+      anthropic-ratelimit-output-tokens-remaining:
+      - '90000'
+      anthropic-ratelimit-output-tokens-reset:
+      - '2026-05-10T21:50:20Z'
+      anthropic-ratelimit-requests-limit:
+      - '1000'
+      anthropic-ratelimit-requests-remaining:
+      - '999'
+      anthropic-ratelimit-requests-reset:
+      - '2026-05-10T21:49:59Z'
+      anthropic-ratelimit-tokens-limit:
+      - '540000'
+      anthropic-ratelimit-tokens-remaining:
+      - '540000'
+      anthropic-ratelimit-tokens-reset:
+      - '2026-05-10T21:49:59Z'
+      cf-cache-status:
+      - DYNAMIC
+      content-length:
+      - '4391'
+      request-id:
+      - req_011CaudJAFkgWKPi9jY1ryzA
+      set-cookie:
+      - <REDACTED>
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      traceresponse:
+      - 00-bbd7ed135500ada86a590e5d889e31f3-d3bfc37ea18625dd-01
+      vary:
+      - Accept-Encoding
+      x-envoy-upstream-service-time:
+      - '21407'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"max_tokens": 2500, "messages": [{"role": "user", "content": "Fix OCR
+      errors in this real estate document. Fix character substitutions (0\u2192O,
+      5\u2192S, 1\u2192l) and spacing. Preserve all meaning. Output fixed text only,
+      no explanations.\n\nTEXT:\nREAL ESTATE TRANSFER DISCLOSURE STATEMENT\n(California
+      Civil Code Section 1102 et seq.)\nTHIS STATEMENT IS A DISCLOSURE OF THE CONDITION
+      OF THE ABOVE DESCRIBED PROPERTY IN COMPLIANCE\nWITH SECTION 1102 OF THE CIVIL
+      CODE AS OF THE DATE SIGNED BY THE TRANSFEROR.\nProperty Address: 2847 Winfield
+      Blvd, San Jose, CA 95128\nCity: San Jose    County: Santa Clara    Zip: 95128\nI.
+      COORDINATION WITH OTHER DISCLOSURE FORMS\nThis Real Property Transfer Disclosure
+      Statement is made pursuant to Section 1102 of the Civil Code. Other statutes
+      require\ndisclosures, depending upon the details of the particular real estate
+      transaction.\nII. SELLER''S INFORMATION\nA. The subject property has the following
+      items:\n[X] Range/Oven [X] Dishwasher [X] Garbage Disposal\n[X] Washer/Dryer
+      Hookups [X] Rain Gutters [ ] Burglar Alarm\n[X] Smoke Detector(s) [X] Fire Alarm
+      [X] Carbon Monoxide Device(s)\n[ ] TV Antenna [ ] Satellite Dish [ ] Intercom\n[X]
+      Central Heating [X] Central Air Conditioning [ ] Evaporator Cooler(s)\n[ ] Wall/Window
+      Air Conditioni [X] Fireplace(s) [X] Gas Starter\n[X] Garage: Attached [X] Garage:
+      Door Opener(s) [X] Number Remote Controls: 2\n[ ] Pool [ ] Spa/Hot Tub [ ] Child
+      Resistant Barrier fo\n[X] Patio/Decking [ ] Built-in Barbecue [ ] Solar Panels
+      (owned)\n[X] Water Heater: Gas [ ] Water Softener (owned) [ ] Security Gate(s)\n[X]
+      Automatic Garage Door Open [ ] Sump Pump [X] 220 Volt Wiring in Garage\nExhaust
+      Fan(s) in: [X] Kitchen [X] Bathroom(s)\nGas Supply: [X] Utility  Electricity:
+      [X] Utility  Water: [X] City\nSewer: [X] City  Window Screens: [X] Full  Roof
+      Type: Composition Shingle, Age: ~18 yrs\nB. Are you (Seller) aware of any significant
+      defects/malfunctions in any of the following?\nInterior Walls: Yes (X)  No (
+      )\n   Detail: Minor cracks in living room wall near window. Cosmetic only.\nCeilings:
+      Yes ( )  No (X)\nFloors: Yes ( )  No (X)\nExterior Walls: Yes ( )  No (X)\nInsulation:
+      Yes ( )  No (X)\nRoof(s): Yes (X)  No ( )\n   Detail: Composition shingle, 18
+      years old. Some granule loss noted"}], "model": "claude-sonnet-4-20250514"}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate, br
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '2310'
+      Content-Type:
+      - application/json
+      Host:
+      - api.anthropic.com
+      User-Agent:
+      - Anthropic/Python 0.49.0
+      X-Stainless-Arch:
+      - x64
+      X-Stainless-Async:
+      - 'false'
+      X-Stainless-Lang:
+      - python
+      X-Stainless-OS:
+      - Linux
+      X-Stainless-Package-Version:
+      - 0.49.0
+      X-Stainless-Runtime:
+      - CPython
+      X-Stainless-Runtime-Version:
+      - 3.11.15
+      anthropic-version:
+      - '2023-06-01'
+      baggage:
+      - sentry-trace_id=70b32fffab764ae68b2af643f13e5769,sentry-sample_rand=0.483583,sentry-environment=production,sentry-public_key=bec0f097edae469b35925bf075c964d9,sentry-org_id=4511034871578624,sentry-transaction=analysis.analyze_property,sentry-sample_rate=0.1,sentry-sampled=false
+      sentry-trace:
+      - 70b32fffab764ae68b2af643f13e5769-a5c28082001a9834-0
+      x-api-key:
+      - <REDACTED>
+      x-stainless-read-timeout:
+      - '600'
+      x-stainless-retry-count:
+      - '0'
+      x-stainless-timeout:
+      - '600'
+    method: POST
+    uri: https://api.anthropic.com/v1/messages
+  response:
+    body:
+      string: '{"model":"claude-sonnet-4-20250514","id":"msg_011GJfJkHMVxp8vtELZSoRMG","type":"message","role":"assistant","content":[{"type":"text","text":"REAL
+        ESTATE TRANSFER DISCLOSURE STATEMENT\n(California Civil Code Section 1102
+        et seq.)\nTHIS STATEMENT IS A DISCLOSURE OF THE CONDITION OF THE ABOVE DESCRIBED
+        PROPERTY IN COMPLIANCE\nWITH SECTION 1102 OF THE CIVIL CODE AS OF THE DATE
+        SIGNED BY THE TRANSFEROR.\nProperty Address: 2847 Winfield Blvd, San Jose,
+        CA 95128\nCity: San Jose    County: Santa Clara    Zip: 95128\nI. COORDINATION
+        WITH OTHER DISCLOSURE FORMS\nThis Real Property Transfer Disclosure Statement
+        is made pursuant to Section 1102 of the Civil Code. Other statutes require\ndisclosures,
+        depending upon the details of the particular real estate transaction.\nII.
+        SELLER''S INFORMATION\nA. The subject property has the following items:\n[X]
+        Range/Oven [X] Dishwasher [X] Garbage Disposal\n[X] Washer/Dryer Hookups [X]
+        Rain Gutters [ ] Burglar Alarm\n[X] Smoke Detector(s) [X] Fire Alarm [X] Carbon
+        Monoxide Device(s)\n[ ] TV Antenna [ ] Satellite Dish [ ] Intercom\n[X] Central
+        Heating [X] Central Air Conditioning [ ] Evaporator Cooler(s)\n[ ] Wall/Window
+        Air Conditioning [X] Fireplace(s) [X] Gas Starter\n[X] Garage: Attached [X]
+        Garage: Door Opener(s) [X] Number Remote Controls: 2\n[ ] Pool [ ] Spa/Hot
+        Tub [ ] Child Resistant Barrier\n[X] Patio/Decking [ ] Built-in Barbecue [
+        ] Solar Panels (owned)\n[X] Water Heater: Gas [ ] Water Softener (owned) [
+        ] Security Gate(s)\n[X] Automatic Garage Door Opener [ ] Sump Pump [X] 220
+        Volt Wiring in Garage\nExhaust Fan(s) in: [X] Kitchen [X] Bathroom(s)\nGas
+        Supply: [X] Utility  Electricity: [X] Utility  Water: [X] City\nSewer: [X]
+        City  Window Screens: [X] Full  Roof Type: Composition Shingle, Age: ~18 yrs\nB.
+        Are you (Seller) aware of any significant defects/malfunctions in any of the
+        following?\nInterior Walls: Yes (X)  No ( )\n   Detail: Minor cracks in living
+        room wall near window. Cosmetic only.\nCeilings: Yes ( )  No (X)\nFloors:
+        Yes ( )  No (X)\nExterior Walls: Yes ( )  No (X)\nInsulation: Yes ( )  No
+        (X)\nRoof(s): Yes (X)  No ( )\n   Detail: Composition shingle, 18 years old.
+        Some granule loss noted"}],"stop_reason":"end_turn","stop_sequence":null,"stop_details":null,"usage":{"input_tokens":752,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"cache_creation":{"ephemeral_5m_input_tokens":0,"ephemeral_1h_input_tokens":0},"output_tokens":697,"service_tier":"standard","inference_geo":"not_available"}}'
+    headers:
+      CF-RAY:
+      - 9f9c28b37d850eda-PDX
+      Connection:
+      - keep-alive
+      Content-Security-Policy:
+      - default-src 'none'; frame-ancestors 'none'
+      Content-Type:
+      - application/json
+      Date:
+      - Sun, 10 May 2026 21:50:27 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      X-Robots-Tag:
+      - none
+      anthropic-organization-id:
+      - b2fdc71b-2fc9-444f-8b1b-31a1a50d1ce6
+      anthropic-ratelimit-input-tokens-limit:
+      - '450000'
+      anthropic-ratelimit-input-tokens-remaining:
+      - '450000'
+      anthropic-ratelimit-input-tokens-reset:
+      - '2026-05-10T21:50:21Z'
+      anthropic-ratelimit-output-tokens-limit:
+      - '90000'
+      anthropic-ratelimit-output-tokens-remaining:
+      - '89000'
+      anthropic-ratelimit-output-tokens-reset:
+      - '2026-05-10T21:50:27Z'
+      anthropic-ratelimit-requests-limit:
+      - '1000'
+      anthropic-ratelimit-requests-remaining:
+      - '999'
+      anthropic-ratelimit-requests-reset:
+      - '2026-05-10T21:50:20Z'
+      anthropic-ratelimit-tokens-limit:
+      - '540000'
+      anthropic-ratelimit-tokens-remaining:
+      - '539000'
+      anthropic-ratelimit-tokens-reset:
+      - '2026-05-10T21:50:21Z'
+      cf-cache-status:
+      - DYNAMIC
+      content-length:
+      - '2492'
+      request-id:
+      - req_011CaudKk616zNgq1shceSdq
+      set-cookie:
+      - <REDACTED>
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      traceresponse:
+      - 00-e2a1739e7fc126cf187287704756ccef-71541c955718084b-01
+      vary:
+      - Accept-Encoding
+      x-envoy-upstream-service-time:
+      - '6428'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"max_tokens": 4000, "messages": [{"role": "user", "content": "You are
+      a home inspection report analyst. Read this inspection report and extract every
+      defect, problem, safety concern, and item needing repair or further evaluation.\n\nCRITICAL
+      RULES:\n- Extract ONLY actual problems and defects. Do NOT include positive
+      observations, general descriptions, or normal conditions.\n- A \"recommend further
+      evaluation by a specialist\" IS a finding \u2014 the inspector is flagging something
+      they cannot fully assess.\n- Photo descriptions like [PHOTO: ...] that show
+      damage or defects should be captured as findings.\n- Be thorough \u2014 missing
+      a real finding is worse than including a borderline one.\n\nCATEGORIES (use
+      exactly one):\nfoundation_structure, roof_exterior, plumbing, electrical, hvac_systems,
+      environmental, legal_title, insurance_hoa\n\nSEVERITY LEVELS:\ncritical = structural
+      failure, active safety hazard, immediate action needed\nmajor = significant
+      defect, will worsen without repair, costly\nmoderate = needs repair but not
+      urgent, standard maintenance issue\nminor = cosmetic, low priority, monitoring
+      sufficient\n\nFor each finding, return:\n- category: one of the categories above\n-
+      severity: critical, major, moderate, or minor\n- description: clear complete
+      sentence describing the problem\n- location: where in the property (if stated
+      in the report)\n- recommendation: what should be done (from the report or your
+      assessment)\n- safety_concern: true ONLY for immediate life-safety hazards (fire
+      risk, electrocution, structural collapse, gas leak, fall hazard). Normal repair
+      items are NOT safety concerns. Most findings should be false.\n- requires_specialist:
+      true ONLY when the inspector specifically recommends a licensed specialist beyond
+      a general contractor (structural engineer, licensed electrician, environmental
+      tester). Standard \"recommend repair by qualified contractor\" is NOT a specialist
+      referral. Most findings should be false.\n- source_quote: the exact words from
+      the report (max 120 chars) that support this finding\n\nRespond with ONLY a
+      JSON object: {\"findings\": [...]}\n\nINSPECTION REPORT:\n"}], "model": "claude-sonnet-4-20250514"}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate, br
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '2172'
+      Content-Type:
+      - application/json
+      Host:
+      - api.anthropic.com
+      User-Agent:
+      - Anthropic/Python 0.49.0
+      X-Stainless-Arch:
+      - x64
+      X-Stainless-Async:
+      - 'false'
+      X-Stainless-Lang:
+      - python
+      X-Stainless-OS:
+      - Linux
+      X-Stainless-Package-Version:
+      - 0.49.0
+      X-Stainless-Runtime:
+      - CPython
+      X-Stainless-Runtime-Version:
+      - 3.11.15
+      anthropic-version:
+      - '2023-06-01'
+      baggage:
+      - sentry-trace_id=70b32fffab764ae68b2af643f13e5769,sentry-sample_rand=0.483583,sentry-environment=production,sentry-public_key=bec0f097edae469b35925bf075c964d9,sentry-org_id=4511034871578624,sentry-transaction=analysis.analyze_property,sentry-sample_rate=0.1,sentry-sampled=false
+      sentry-trace:
+      - 70b32fffab764ae68b2af643f13e5769-805797c03ef4f534-0
+      x-api-key:
+      - <REDACTED>
+      x-stainless-read-timeout:
+      - '600'
+      x-stainless-retry-count:
+      - '0'
+      x-stainless-timeout:
+      - '600'
+    method: POST
+    uri: https://api.anthropic.com/v1/messages
+  response:
+    body:
+      string: '{"model":"claude-sonnet-4-20250514","id":"msg_01VpxEykhNnbMWLNr4LwkYDS","type":"message","role":"assistant","content":[{"type":"text","text":"I
+        notice that you''ve provided the setup instructions and rules for analyzing
+        a home inspection report, but the actual inspection report content appears
+        to be missing. The text ends with \"INSPECTION REPORT:\" but no report content
+        follows.\n\nCould you please provide the actual inspection report content
+        that you''d like me to analyze? Once you share the report, I''ll extract all
+        the defects, problems, safety concerns, and items needing repair or further
+        evaluation according to your specified format and return them as a JSON object."}],"stop_reason":"end_turn","stop_sequence":null,"stop_details":null,"usage":{"input_tokens":448,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"cache_creation":{"ephemeral_5m_input_tokens":0,"ephemeral_1h_input_tokens":0},"output_tokens":106,"service_tier":"standard","inference_geo":"not_available"}}'
+    headers:
+      CF-RAY:
+      - 9f9c28dc895fafe8-PDX
+      Connection:
+      - keep-alive
+      Content-Security-Policy:
+      - default-src 'none'; frame-ancestors 'none'
+      Content-Type:
+      - application/json
+      Date:
+      - Sun, 10 May 2026 21:50:30 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      X-Robots-Tag:
+      - none
+      anthropic-organization-id:
+      - b2fdc71b-2fc9-444f-8b1b-31a1a50d1ce6
+      anthropic-ratelimit-input-tokens-limit:
+      - '450000'
+      anthropic-ratelimit-input-tokens-remaining:
+      - '450000'
+      anthropic-ratelimit-input-tokens-reset:
+      - '2026-05-10T21:50:28Z'
+      anthropic-ratelimit-output-tokens-limit:
+      - '90000'
+      anthropic-ratelimit-output-tokens-remaining:
+      - '90000'
+      anthropic-ratelimit-output-tokens-reset:
+      - '2026-05-10T21:50:30Z'
+      anthropic-ratelimit-requests-limit:
+      - '1000'
+      anthropic-ratelimit-requests-remaining:
+      - '999'
+      anthropic-ratelimit-requests-reset:
+      - '2026-05-10T21:50:27Z'
+      anthropic-ratelimit-tokens-limit:
+      - '540000'
+      anthropic-ratelimit-tokens-remaining:
+      - '540000'
+      anthropic-ratelimit-tokens-reset:
+      - '2026-05-10T21:50:28Z'
+      cf-cache-status:
+      - DYNAMIC
+      content-length:
+      - '993'
+      request-id:
+      - req_011CaudLE7yRh3GdBssLRnxq
+      set-cookie:
+      - <REDACTED>
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      traceresponse:
+      - 00-4a11b4cd29054b0e5849a6c32e769253-f557abbdc888c519-01
+      vary:
+      - Accept-Encoding
+      x-envoy-upstream-service-time:
+      - '2982'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"max_tokens": 2000, "messages": [{"role": "user", "content": "You are
+      an expert real estate analyst cross-referencing a seller''s disclosure against
+      independent government records.\n\nASKING PRICE: $750,000\n\n=== GOVERNMENT
+      & PUBLIC RECORDS ===\nESTIMATED VALUE (AVM): $388,000\n\n=== SELLER''S DISCLOSURE
+      (excerpt) ===\nREAL ESTATE TRANSFER DISCLOSURE STATEMENT\n(California Civil
+      Code Section 1102 et seq.)\nTHIS STATEMENT IS A DISCLOSURE OF THE CONDITION
+      OF THE ABOVE DESCRIBED PROPERTY IN COMPLIANCE\nWITH SECTION 1102 OF THE CIVIL
+      CODE AS OF THE DATE SIGNED BY THE TRANSFEROR.\nProperty Address: 2847 Winfield
+      Blvd, San Jose, CA 95128\nCity: San Jose    County: Santa Clara    Zip: 95128\nI.
+      COORDINATION WITH OTHER DISCLOSURE FORMS\nThis Real Property Transfer Disclosure
+      Statement is made pursuant to Section 1102 of the Civil Code. Other statutes
+      require\ndisclosures, depending upon the details of the particular real estate
+      transaction.\nII. SELLER''S INFORMATION\nA. The subject property has the following
+      items:\n[X] Range/Oven [X] Dishwasher [X] Garbage Disposal\n[X] Washer/Dryer
+      Hookups [X] Rain Gutters [ ] Burglar Alarm\n[X] Smoke Detector(s) [X] Fire Alarm
+      [X] Carbon Monoxide Device(s)\n[ ] TV Antenna [ ] Satellite Dish [ ] Intercom\n[X]
+      Central Heating [X] Central Air Conditioning [ ] Evaporator Cooler(s)\n[ ] Wall/Window
+      Air Conditioning [X] Fireplace(s) [X] Gas Starter\n[X] Garage: Attached [X]
+      Garage: Door Opener(s) [X] Number Remote Controls: 2\n[ ] Pool [ ] Spa/Hot Tub
+      [ ] Child Resistant Barrier\n[X] Patio/Decking [ ] Built-in Barbecue [ ] Solar
+      Panels (owned)\n[X] Water Heater: Gas [ ] Water Softener (owned) [ ] Security
+      Gate(s)\n[X] Automatic Garage Door Opener [ ] Sump Pump [X] 220 Volt Wiring
+      in Garage\nExhaust Fan(s) in: [X] Kitchen [X] Bathroom(s)\nGas Supply: [X] Utility  Electricity:
+      [X] Utility  Water: [X] City\nSewer: [X] City  Window Screens: [X] Full  Roof
+      Type: Composition Shingle, Age: ~18 yrs\nB. Are you (Seller) aware of any significant
+      defects/malfunctions in any of the following?\nInterior Walls: Yes (X)  No (
+      )\n   Detail: Minor cracks in living room wall near window. Cosmetic only.\nCeilings:
+      Yes ( )  No (X)\nFloors: Yes ( )  No (X)\nExterior Walls: Yes ( )  No (X)\nInsulation:
+      Yes ( )  No (X)\nRoof(s): Yes (X)  No ( )\n   Detail: Composition shingle, 18
+      years old. Some granule loss noted. No leaks observed.\nWindows: Yes ( )  No
+      (X)\nDoors: Yes ( )  No (X)\nFoundation: Yes ( )  No (X)\nSlab(s): Yes ( )  No
+      (X)\nDriveways: Yes (X)  No ( )\n   Detail: Hairline crack in driveway near
+      garage. Does not affect use.\nSidewalks: Yes ( )  No (X)\nWalls/Fences: Yes
+      ( )  No (X)\nElectrical Systems: Yes ( )  No (X)\nPlumbing/Sewers/Septics: Yes
+      ( )  No (X)\nOther Structural Components: Yes ( )  No (X)\nAdditional Seller
+      disclosures:\nRoof was patched in 2021 after winter storm. Patch was done by
+      licensed contractor (receipt available). HVAC unit serviced annually - last
+      service\nAugust 2024. Water heater replaced in 2020 (50 gallon, gas). Garage
+      door opener replaced in 2022. Kitchen remodeled in 2019 with permits pulled\nfrom
+      City of San Jose. Bathroom updated in 2021 - no permits were pulled for cosmetic
+      updates only (tile, fixtures, vanity).\nC. Are you (Seller) aware of any of
+      the following:\n1. Substances, materials, or products which may be an environmental
+      hazard such as, but not limited t\n\n=== INSPECTION REPORT (excerpt) ===\n(No
+      inspection provided)\n\nTASK: Identify where the seller''s disclosure contradicts,
+      omits, or is inconsistent with the government records above. Focus on material
+      findings that would affect a buyer''s decision.\n\nFor each finding, assess:\n1.
+      Did the seller explicitly deny something that government data contradicts?\n2.
+      Did the seller omit material information that government records reveal?\n3.
+      Does the asking price make sense relative to area data?\n4. Are there environmental
+      or hazard risks the seller didn''t address?\n\nReturn ONLY a JSON array. Each
+      item:\n{\n  \"type\": \"contradiction|omission|context\",\n  \"severity\": \"high|medium|info\",\n  \"title\":
+      \"Brief headline (under 80 chars)\",\n  \"detail\": \"2-3 sentence explanation
+      of what the government data shows vs what the seller said or didn''t say. Be
+      specific.\",\n  \"source\": \"The government data source (e.g., FEMA NFHL, USGS,
+      US Census ACS, CAL FIRE, EPA AirNow)\",\n  \"category\": \"water_damage|structural|environmental|financial|safety\"\n}\n\nRules:\n-
+      Only flag MATERIAL issues. Don''t flag minor or speculative items.\n- \"contradiction\"
+      = seller explicitly said something that government data disproves\n- \"omission\"
+      = seller failed to mention something material that government data reveals\n-
+      \"context\" = government data provides useful context (not necessarily seller''s
+      fault)\n- If the seller''s disclosure is honest and consistent with records,
+      return an empty array []\n- Maximum 5 findings. Quality over quantity.\n- Be
+      precise about what the seller said vs what the data shows."}], "model": "claude-sonnet-4-20250514"}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate, br
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '5024'
+      Content-Type:
+      - application/json
+      Host:
+      - api.anthropic.com
+      User-Agent:
+      - Anthropic/Python 0.49.0
+      X-Stainless-Arch:
+      - x64
+      X-Stainless-Async:
+      - 'false'
+      X-Stainless-Lang:
+      - python
+      X-Stainless-OS:
+      - Linux
+      X-Stainless-Package-Version:
+      - 0.49.0
+      X-Stainless-Runtime:
+      - CPython
+      X-Stainless-Runtime-Version:
+      - 3.11.15
+      anthropic-version:
+      - '2023-06-01'
+      baggage:
+      - sentry-trace_id=70b32fffab764ae68b2af643f13e5769,sentry-sample_rand=0.483583,sentry-environment=production,sentry-public_key=bec0f097edae469b35925bf075c964d9,sentry-org_id=4511034871578624,sentry-transaction=analysis.analyze_property,sentry-sample_rate=0.1,sentry-sampled=false
+      cookie:
+      - <REDACTED>
+      sentry-trace:
+      - 70b32fffab764ae68b2af643f13e5769-a3609e06ca601ede-0
+      x-api-key:
+      - <REDACTED>
+      x-stainless-read-timeout:
+      - '600'
+      x-stainless-retry-count:
+      - '0'
+      x-stainless-timeout:
+      - '600'
+    method: POST
+    uri: https://api.anthropic.com/v1/messages
+  response:
+    body:
+      string: '{"model":"claude-sonnet-4-20250514","id":"msg_01Jch7rPiMxitSeNVG9dRDGF","type":"message","role":"assistant","content":[{"type":"text","text":"```json\n[\n  {\n    \"type\":
+        \"context\",\n    \"severity\": \"high\",\n    \"title\": \"Asking price exceeds
+        AVM estimate by 93%\",\n    \"detail\": \"The seller is asking $750,000 for
+        a property with an Automated Valuation Model (AVM) estimate of $388,000. This
+        represents a significant premium of $362,000 (93% above estimated market value)
+        that buyers should carefully evaluate.\",\n    \"source\": \"AVM Government
+        Records\",\n    \"category\": \"financial\"\n  }\n]\n```"}],"stop_reason":"end_turn","stop_sequence":null,"stop_details":null,"usage":{"input_tokens":1487,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"cache_creation":{"ephemeral_5m_input_tokens":0,"ephemeral_1h_input_tokens":0},"output_tokens":133,"service_tier":"standard","inference_geo":"not_available"}}'
+    headers:
+      CF-RAY:
+      - 9f9c28efdc63ef67-PDX
+      Connection:
+      - keep-alive
+      Content-Security-Policy:
+      - default-src 'none'; frame-ancestors 'none'
+      Content-Type:
+      - application/json
+      Date:
+      - Sun, 10 May 2026 21:50:33 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      X-Robots-Tag:
+      - none
+      anthropic-organization-id:
+      - b2fdc71b-2fc9-444f-8b1b-31a1a50d1ce6
+      anthropic-ratelimit-input-tokens-limit:
+      - '450000'
+      anthropic-ratelimit-input-tokens-remaining:
+      - '449000'
+      anthropic-ratelimit-input-tokens-reset:
+      - '2026-05-10T21:50:31Z'
+      anthropic-ratelimit-output-tokens-limit:
+      - '90000'
+      anthropic-ratelimit-output-tokens-remaining:
+      - '90000'
+      anthropic-ratelimit-output-tokens-reset:
+      - '2026-05-10T21:50:33Z'
+      anthropic-ratelimit-requests-limit:
+      - '1000'
+      anthropic-ratelimit-requests-remaining:
+      - '999'
+      anthropic-ratelimit-requests-reset:
+      - '2026-05-10T21:50:30Z'
+      anthropic-ratelimit-tokens-limit:
+      - '540000'
+      anthropic-ratelimit-tokens-remaining:
+      - '539000'
+      anthropic-ratelimit-tokens-reset:
+      - '2026-05-10T21:50:31Z'
+      cf-cache-status:
+      - DYNAMIC
+      content-length:
+      - '937'
+      request-id:
+      - req_011CaudLTnkd6eF896AfNUGg
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      traceresponse:
+      - 00-741c9d0e64d99d924ef86fdc73d66113-9ba99cf5a9afe88c-01
+      vary:
+      - Accept-Encoding
+      x-envoy-upstream-service-time:
+      - '3532'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"from": "OfferWise <noreply@getofferwise.ai>", "to": ["cassette_recorder_cassette_15f3e725@e2e-cassette.test.example.com"],
+      "subject": "Your Analysis is Ready: 456 Clean Disclosure St, Oakla...", "html":
+      "\n<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta
+      name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <meta
+      http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n    <title>OfferWise</title>\n    <!--[if
+      mso]>\n    <style type=\"text/css\">\n        table {border-collapse: collapse;}\n        .button
+      {padding: 12px 24px !important;}\n    </style>\n    <![endif]-->\n</head>\n<body
+      style=\"margin: 0; padding: 0; background-color: #0f172a; font-family: -apple-system,
+      BlinkMacSystemFont, ''Segoe UI'', Roboto, ''Helvetica Neue'', Arial, sans-serif;\">\n    <!--
+      Preview text -->\n    <div style=\"display: none; max-height: 0; overflow: hidden;\">\n        Analysis
+      ready for 456 Clean Disclosure St, Oakland, CA - OfferScore 87\n    </div>\n    \n    <!--
+      Email wrapper -->\n    <table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\"
+      border=\"0\" width=\"100%\" style=\"background-color: #0f172a;\">\n        <tr>\n            <td
+      align=\"center\" style=\"padding: 40px 20px;\">\n                <!-- Content
+      container -->\n                <table role=\"presentation\" cellspacing=\"0\"
+      cellpadding=\"0\" border=\"0\" width=\"600\" style=\"max-width: 600px; background-color:
+      #1e293b; border-radius: 16px; overflow: hidden; box-shadow: 0 20px 40px rgba(0,
+      0, 0, 0.3);\">\n                    \n                    <!-- Header -->\n                    <tr>\n                        <td
+      style=\"background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%); padding:
+      32px 40px; text-align: center;\">\n                            <h1 style=\"margin:
+      0; color: #ffffff; font-size: 28px; font-weight: 800; letter-spacing: -0.5px;\">\n                                OfferWise\n                            </h1>\n                        </td>\n                    </tr>\n                    \n                    <!--
+      Body -->\n                    <tr>\n                        <td style=\"padding:
+      40px;\">\n                            \n        <h2 style=\"margin: 0 0 16px
+      0; color: #f8fafc; font-size: 24px; font-weight: 700;\">\n            Your Analysis
+      is Ready! \ud83d\udcca\n        </h2>\n        \n        <p style=\"margin:
+      0 0 8px 0; color: #94a3b8; font-size: 14px;\">\n            Property Address\n        </p>\n        <p
+      style=\"margin: 0 0 24px 0; color: #f8fafc; font-size: 18px; font-weight: 600;\">\n            456
+      Clean Disclosure St, Oakland, CA\n        </p>\n        \n        <!-- Results
+      Summary -->\n        <table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\"
+      border=\"0\" width=\"100%\" style=\"margin: 24px 0;\">\n            <tr>\n                <td
+      width=\"50%\" style=\"padding-right: 8px;\">\n                    <div style=\"background:
+      rgba(15, 23, 42, 0.6); border-radius: 12px; border: 1px solid rgba(255, 255,
+      255, 0.1); padding: 20px; text-align: center;\">\n                        <div
+      style=\"font-size: 14px; color: #94a3b8; margin-bottom: 8px;\">OfferScore\u2122</div>\n                        <div
+      style=\"font-size: 36px; font-weight: 800; color: #10b981;\">87</div>\n                        <div
+      style=\"font-size: 13px; color: #10b981;\">Strong Buy</div>\n                    </div>\n                </td>\n                <td
+      width=\"50%\" style=\"padding-left: 8px;\">\n                    <div style=\"background:
+      rgba(15, 23, 42, 0.6); border-radius: 12px; border: 1px solid rgba(255, 255,
+      255, 0.1); padding: 20px; text-align: center;\">\n                        <div
+      style=\"font-size: 14px; color: #94a3b8; margin-bottom: 8px;\">Recommended Offer</div>\n                        <div
+      style=\"font-size: 36px; font-weight: 800; color: #3b82f6;\">$757,500</div>\n                        <div
+      style=\"font-size: 13px; color: #94a3b8;\">Fair at asking price</div>\n                    </div>\n                </td>\n            </tr>\n        </table>\n        \n        <table
+      role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\"
+      style=\"background-color: rgba(59, 130, 246, 0.1); border-radius: 12px; border:
+      1px solid rgba(59, 130, 246, 0.3); margin: 24px 0;\">\n            <tr>\n                <td
+      style=\"padding: 20px;\">\n                    <table role=\"presentation\"
+      cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\">\n                        <tr>\n                            <td
+      style=\"color: #94a3b8; font-size: 14px;\">Asking Price</td>\n                            <td
+      align=\"right\" style=\"color: #f8fafc; font-size: 16px;\">$750,000</td>\n                        </tr>\n                        <tr>\n                            <td
+      style=\"color: #60a5fa; font-size: 14px; font-weight: 600; padding-top: 8px;\">Recommended
+      Offer</td>\n                            <td align=\"right\" style=\"color: #60a5fa;
+      font-size: 18px; font-weight: 700; padding-top: 8px;\">$757,500</td>\n                        </tr>\n                    </table>\n                </td>\n            </tr>\n        </table>\n        \n        <p
+      style=\"margin: 0 0 8px 0; color: #cbd5e1; font-size: 16px; line-height: 1.6;\">\n            Your
+      full report includes Risk DNA\u2122, Seller Transparency Report\u2122, and negotiation
+      talking points.\n        </p>\n        \n        \n    <table role=\"presentation\"
+      cellspacing=\"0\" cellpadding=\"0\" border=\"0\" style=\"margin: 24px auto;\">\n        <tr>\n            <td
+      style=\"background-color: #3b82f6; border-radius: 8px;\">\n                <a
+      href=\"https://www.getofferwise.ai/app?analysis=545\" target=\"_blank\" style=\"display:
+      inline-block; padding: 14px 32px; color: #ffffff; text-decoration: none; font-weight:
+      600; font-size: 16px;\">\n                    View Full Report \u2192\n                </a>\n            </td>\n        </tr>\n    </table>\n    \n        \n        <table
+      role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\"\n               style=\"background:rgba(239,68,68,0.08);border:1px
+      solid rgba(239,68,68,0.2);border-radius:10px;margin:20px 0 0;\">\n          <tr><td
+      style=\"padding:16px 20px;\">\n            <p style=\"margin:0 0 4px;color:#ef4444;font-size:13px;font-weight:700;\">\ud83d\udcc4
+      Next: Draft your repair addendum</p>\n            <p style=\"margin:0 0 10px;color:#94a3b8;font-size:12px;line-height:1.5;\">\n              Claude
+      will write your formal Request for Repair from these findings \u2014 state-aware,
+      clause by clause.\n            </p>\n            <a href=\"https://www.getofferwise.ai/app?analysis=545&action=addendum&utm_source=analysis_email&utm_medium=email\"\n               style=\"display:inline-block;padding:10px
+      20px;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);color:#fca5a5;text-decoration:none;font-weight:700;font-size:13px;border-radius:8px;\">\n              Draft
+      repair addendum \u2192\n            </a>\n          </td></tr>\n        </table>\n        \n        <table
+      role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\"\n               style=\"background:rgba(249,115,22,0.08);border:1px
+      solid rgba(249,115,22,0.2);border-radius:10px;margin:12px 0 0;\">\n          <tr><td
+      style=\"padding:14px 20px;\">\n            <p style=\"margin:0;color:#94a3b8;font-size:12px;line-height:1.5;\">\n              \ud83d\udcb0
+      <strong style=\"color:#f97316;\">Refer a buyer</strong> \u2014 share your link
+      and you both get a free analysis.\n              <a href=\"https://www.getofferwise.ai/settings?tab=referrals\"
+      style=\"color:#f97316;\">Get your link \u2192</a>\n            </p>\n          </td></tr>\n        </table>\n    \n                        </td>\n                    </tr>\n                    \n                    <!--
+      Footer -->\n                    <tr>\n                        <td style=\"background-color:
+      #0f172a; padding: 24px 40px; text-align: center; border-top: 1px solid rgba(255,
+      255, 255, 0.1);\">\n                            <p style=\"margin: 0 0 8px 0;
+      color: #64748b; font-size: 13px;\">\n                                \u00a9
+      2026 OfferWise. All rights reserved.\n                            </p>\n                            <p
+      style=\"margin: 0; color: #64748b; font-size: 13px;\">\n                                <a
+      href=\"https://www.getofferwise.ai/privacy\" style=\"color: #60a5fa; text-decoration:
+      none;\">Privacy</a>\n                                &nbsp;\u00b7&nbsp;\n                                <a
+      href=\"https://www.getofferwise.ai/terms\" style=\"color: #60a5fa; text-decoration:
+      none;\">Terms</a>\n                                &nbsp;\u00b7&nbsp;\n                                <a
+      href=\"mailto:support@getofferwise.ai\" style=\"color: #60a5fa; text-decoration:
+      none;\">Support</a>\n                            </p>\n                        </td>\n                    </tr>\n                    \n                </table>\n            </td>\n        </tr>\n    </table>\n</body>\n</html>\n"}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate, br
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '9143'
+      Content-Type:
+      - application/json
+      User-Agent:
+      - resend-python:2.0.0
+      authorization:
+      - <REDACTED>
+    method: POST
+    uri: https://api.resend.com/emails
+  response:
+    body:
+      string: '{"id":"662a3a46-4592-448d-ba5a-9687e3186748"}'
+    headers:
+      CF-RAY:
+      - 9f9c29074e325ee3-PDX
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '45'
+      Content-Type:
+      - application/json
+      Date:
+      - Sun, 10 May 2026 21:50:34 GMT
+      Server:
+      - cloudflare
+      cf-cache-status:
+      - DYNAMIC
+      ratelimit-limit:
+      - '5'
+      ratelimit-policy:
+      - 5;w=1
+      ratelimit-remaining:
+      - '4'
+      ratelimit-reset:
+      - '1'
+      x-resend-daily-quota:
+      - '113'
+      x-resend-monthly-quota:
+      - '260'
+    status:
+      code: 200
+      message: OK
+version: 1

@@ -1,0 +1,208 @@
+# OfferWise — Inspection Report Field Map (WINspect / ASHI format)
+# =====================================================================
+# Version:  v0.1
+# Date:     2026-05-30
+# Built from: a REAL consented first-party specimen — WIN Home Inspection
+#   "Extended Full Home Inspection", WINspect v2.2.031, ASHI standard,
+#   2839 Pendleton Dr, San Jose, CA 95148 (DocuSign envelope 26710B55).
+#   First-party: the buyer (the OfferWise founder) is the named client, so this
+#   is a consented document suitable as a build/test fixture (signatures and PII
+#   are NOT persisted; only structured finding state is used).
+#
+# WHY INSPECTION IS THE MOAT:
+#   A seller's disclosure (TDS) cannot, by its structure, reveal latent hazards
+#   the seller doesn't know or isn't asked about. The inspection does. This one
+#   specimen contains all four canonical silent hazards:
+#     - Federal Pacific (FPE) Stab-Lok panel        -> electrical.panel_brand_safety
+#     - aluminum branch wiring                       -> electrical.wiring_material
+#     - partially detached furnace flue (CO risk)    -> hvac.flue_venting_integrity
+#     - galvanized supply pipe + active supply leak  -> plumbing.* 
+#   plus pre-1978 asbestos and lead (Detail-only; absent from the Summary).
+#
+# SOURCE-OF-TRUTH DECISION:
+#   The DETAIL section is authoritative (it carries the rating vocabulary on
+#   every item AND includes findings the Summary omits — e.g. asbestos/lead).
+#   The 32-item SUMMARY is a corroborating signal: a finding present in BOTH
+#   gets higher evidence-quality confidence. The two sections DUPLICATE the same
+#   findings (the report says italicized detail comments also appear in summary),
+#   so they are NOT counted as independent evidence.
+#
+# RATING VOCABULARY -> severity (the WINspect "Explanation of Terms"):
+#   good / functional / satisfactory  -> clean   (polarity 'supports')
+#   attention                          -> moderate concern
+#   maintenance                        -> moderate concern (repair/replace needed)
+#   action required                    -> critical concern (immediate)
+#   n/a                                -> not a reading (excluded/not present)
+# Some findings carry their own free-text severity regardless of the rating word
+# (e.g. an FPE panel is a 'major' safety concern even though the inspector files
+# it descriptively); those are pinned via `severity_override` below.
+# =====================================================================
+
+format: WINspect
+standard: ASHI
+parser_note: >
+  Input is the inspection report TEXT produced by the existing extraction layer
+  (PDFHandler / extract_text_via_vision with document_type='inspection_report',
+  which already transcribes the rating words). This map turns rated findings into
+  checklist-keyed readings. NO new OCR. The detail section is parsed by locating
+  each component label and the rating token that follows it.
+
+rating_severity:
+  good: clean
+  functional: clean
+  satisfactory: clean
+  attention: moderate
+  maintenance: moderate
+  "action required": critical
+  "n/a": exclude
+
+# Findings the parser looks for, keyed to checklist items. `match` is the
+# component label as it appears in the Detail; `concern_when` lists the rating/
+# free-text tokens that make this a concern (otherwise it's a clean reading).
+findings:
+
+  # ── Electrical — two of the four silent hazards ────────────────────────────
+  - match: "over current devices"
+    section: electrical
+    maps_to: electrical.panel_brand_safety
+    concern_tokens: ["federal pacific", "fpe", "stab-lock", "stab lock"]
+    severity_override: major
+    silent_hazard: true
+    note: "FPE Stab-Lok panel — latent fire risk; a disclosure cannot surface this."
+  - match: "panel to structure"
+    section: electrical
+    maps_to: electrical.wiring_material
+    concern_tokens: ["aluminum"]
+    severity_override: major
+    silent_hazard: true
+    note: "Aluminum branch wiring — fire-safety concern at connections."
+  - match: "service size"
+    section: electrical
+    maps_to: electrical.service_capacity_amps
+    concern_tokens: []          # capacity is a datapoint, not inherently a concern
+    kind: datapoint
+  - match: "g.f.c.i. protection"
+    section: electrical
+    maps_to: electrical.gfci_protection
+    concern_tokens: ["malfunction", "would not trip"]
+  - match: "receptacle ground verify"
+    section: electrical
+    maps_to: electrical.receptacle_grounding
+    concern_tokens: ["not grounded", "ungrounded"]
+
+  # ── HVAC — silent hazard: detached flue (CO) ───────────────────────────────
+  - match: "vents / flues"
+    section: heating
+    maps_to: hvac.flue_venting_integrity
+    concern_tokens: ["detached", "spent gasses", "spent gas"]
+    severity_override: major
+    silent_hazard: true
+    note: "Partially detached furnace flue — spent combustion gas / CO risk."
+
+  # ── Plumbing — galvanized pipe + active leak ───────────────────────────────
+  - match: "evidence of leaks"
+    section: plumbing
+    maps_to: plumbing.active_leaks
+    concern_tokens: ["yes", "leak"]
+  - match: "structure pipe material"
+    section: plumbing
+    maps_to: plumbing.supply_pipe_material
+    concern_tokens: ["galvanized"]
+    note: "Galvanized supply pipe — failing/encrustation noted."
+  - match: "encrustations evident"
+    section: plumbing
+    maps_to: plumbing.known_defect_pipe_material
+    concern_tokens: ["yes"]
+
+  # ── Environmental — Detail-only latent hazards (NOT in the Summary) ─────────
+  - match: "asbestos noted"
+    section: structure
+    maps_to: environmental.asbestos_risk
+    concern_tokens: ["pre 1978", "pre-1978"]
+    silent_hazard: true
+    note: "Pre-1978 construction — possible asbestos; Detail-only, absent from Summary."
+  - match: "lead"
+    section: structure
+    maps_to: environmental.lead_paint_risk
+    concern_tokens: ["pre 1978", "pre-1978"]
+    silent_hazard: true
+    note: "Pre-1978 — possible lead paint; Detail-only, absent from Summary."
+
+  # ── Safety ─────────────────────────────────────────────────────────────────
+  - match: "smoke detector"
+    section: structure
+    maps_to: safety.smoke_detectors
+    concern_tokens: ["missing", "no smoke detectors"]
+  - match: "carbon monoxide detector"
+    section: structure
+    maps_to: safety.co_detectors
+    concern_tokens: ["missing", "not present", "none"]
+    # NOTE: this specimen has CO detectors PRESENT -> clean reading.
+
+  # ── Water heater ───────────────────────────────────────────────────────────
+  - match: "safety tie down"
+    section: water_heater
+    maps_to: structure.seismic_retrofit
+    concern_tokens: ["does not encircle", "plumbers tape"]
+    note: "WH strap does not encircle tank — the kind of thing a TDS may mark compliant."
+
+  # ── Roof ───────────────────────────────────────────────────────────────────
+  - match: "roof cover material"
+    section: roof
+    maps_to: roof.cover_material
+    concern_tokens: []
+    kind: datapoint
+  - match: "indications of leaking"
+    section: roof
+    maps_to: roof.leak_evidence
+    concern_tokens: ["yes"]     # this specimen: No -> clean
+
+  # ── Foundation / structure ─────────────────────────────────────────────────
+  - match: "evidence of movement"
+    section: foundation
+    maps_to: foundation.movement_evidence
+    concern_tokens: ["yes"]     # this specimen: No -> clean
+  - match: "site drainage"
+    section: site
+    maps_to: site.drainage_grading
+    concern_tokens: ["poor", "toward the foundation"]
+
+# =====================================================================
+# VERIFIED SPECIMEN — 2839 Pendleton Dr (the inspection acceptance fixture).
+# Finding state transcribed from the real report's Detail section.
+# This is a DIFFERENT property from the TDS specimen (381 Tina Dr); same buyer.
+# So this fixture validates the inspection path on its own, NOT a TDS cross-ref.
+# =====================================================================
+specimen_2839_pendleton:
+  property: "2839 Pendleton Dr, San Jose, CA 95148"
+  year_built: 1977
+  inspector_standard: ASHI
+  # concern findings (the inspection's value): item_id -> severity
+  concerns:
+    electrical.panel_brand_safety:   {severity: major, silent_hazard: true, evidence: "FPE Stab-Lok main + sub panel"}
+    electrical.wiring_material:      {severity: major, silent_hazard: true, evidence: "aluminum branch wiring"}
+    electrical.gfci_protection:      {severity: moderate, evidence: "hall bath GFCI would not trip"}
+    hvac.flue_venting_integrity:     {severity: major, silent_hazard: true, evidence: "furnace flue partially detached in garage"}
+    plumbing.active_leaks:           {severity: moderate, evidence: "leak at incoming supply near shut-off"}
+    plumbing.supply_pipe_material:   {severity: moderate, evidence: "galvanized section remaining"}
+    plumbing.known_defect_pipe_material: {severity: moderate, evidence: "encrustation on galvanized pipe"}
+    environmental.asbestos_risk:     {severity: moderate, silent_hazard: true, evidence: "pre-1978; popcorn ceiling"}
+    environmental.lead_paint_risk:   {severity: moderate, silent_hazard: true, evidence: "pre-1978 construction"}
+    safety.smoke_detectors:          {severity: moderate, evidence: "missing in bedrooms"}
+    structure.seismic_retrofit:      {severity: moderate, evidence: "WH strap does not encircle tank"}
+    site.drainage_grading:           {severity: minor, evidence: "summary note"}
+  # clean readings present in the report (dual-confidence: checked & fine)
+  clean:
+    - safety.co_detectors            # CO detectors present
+    - roof.leak_evidence             # no current roof leak
+    - foundation.movement_evidence   # no movement noted
+
+# Acceptance expectation through the pipeline:
+expected:
+  silent_hazards_caught: 5           # FPE, aluminum, flue, asbestos, lead
+  total_concern_items: 12
+  note: >
+    The headline proof of the moat: a clean TDS for this same buyer would never
+    surface the FPE panel, the aluminum wiring, the detached flue, or the
+    pre-1978 asbestos/lead. The inspection does. THIS is what catches what the
+    disclosure hides.

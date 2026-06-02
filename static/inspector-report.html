@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Property Analysis — OfferWise AI</title>
+  <link rel="icon" type="image/svg+xml" href="/static/logo-icon-only.svg">
+  <link rel="alternate icon" type="image/x-icon" href="/favicon.ico">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #060d1a; --surface: #0f1e35; --surface2: #162032;
+      --border: rgba(255,255,255,0.08); --border2: rgba(255,255,255,0.05);
+      --text: #f1f5f9; --muted: #94a3b8; --dim: #64748b;
+      --fire1: #f97316; --fire2: #f59e0b;
+      --green: #22c55e; --blue: #60a5fa; --red: #ef4444; --purple: #a78bfa;
+    }
+    body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; min-height: 100vh; }
+
+    @media print {
+      body { background: white; color: #1e293b; }
+      .no-print { display: none !important; }
+      .card { border: 1px solid #e2e8f0 !important; background: white !important; }
+    }
+
+    .container { max-width: 760px; margin: 0 auto; padding: 32px 24px; }
+
+    /* PREPARED BY BANNER */
+    .prepared-by { background: linear-gradient(135deg,rgba(249,115,22,.08),rgba(245,158,11,.05)); border: 1px solid rgba(249,115,22,.2); border-radius: 14px; padding: 18px 22px; margin-bottom: 24px; display: flex; align-items: center; gap: 16px; }
+    .prep-icon { font-size: 1.8rem; flex-shrink: 0; }
+    .prep-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--fire1); margin-bottom: 4px; }
+    .prep-name { font-size: 15px; font-weight: 700; color: var(--text); }
+    .prep-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+    /* HERO */
+    .hero-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 28px; margin-bottom: 20px; }
+    .hero-top { display: flex; align-items: center; gap: 24px; margin-bottom: 20px; }
+    .score-ring { width: 88px; height: 88px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .score-inner { width: 68px; height: 68px; border-radius: 50%; background: var(--surface); display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .score-val { font-size: 24px; font-weight: 900; line-height: 1; }
+    .score-lbl { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--dim); }
+    .hero-info h1 { font-size: 18px; font-weight: 800; margin-bottom: 6px; }
+    .metrics-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
+    @media (max-width: 520px) { .metrics-grid { grid-template-columns: 1fr 1fr; } }
+    .metric { padding: 12px; background: rgba(255,255,255,.03); border-radius: 10px; border: 1px solid var(--border); }
+    .metric-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--dim); margin-bottom: 4px; }
+    .metric-val { font-size: 16px; font-weight: 800; }
+
+    /* CARDS */
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 22px; margin-bottom: 16px; }
+    .card-title { font-size: 14px; font-weight: 700; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+
+    /* DNA BARS */
+    .dna-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+    .dna-label { font-size: 12px; font-weight: 600; color: var(--muted); width: 100px; flex-shrink: 0; }
+    .dna-bar-bg { flex: 1; height: 8px; background: rgba(255,255,255,.06); border-radius: 4px; overflow: hidden; }
+    .dna-bar-fill { height: 100%; border-radius: 4px; transition: width .6s ease; }
+    .dna-score { font-size: 12px; font-weight: 700; width: 36px; text-align: right; flex-shrink: 0; }
+
+    /* REPAIR TABLE */
+    .repair-row { display: grid; grid-template-columns: 1fr auto; gap: 12px; padding: 14px 0; border-bottom: 1px solid rgba(255,255,255,.04); align-items: start; }
+    .repair-row:last-child { border-bottom: none; }
+    .repair-system { font-size: 14px; font-weight: 700; text-transform: capitalize; margin-bottom: 2px; }
+    .repair-meta { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
+    .repair-tag { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 4px; }
+    .repair-trade { font-size: 11px; color: var(--dim); margin-top: 2px; }
+    .repair-cost { font-weight: 800; color: var(--fire2); font-size: 14px; text-align: right; white-space: nowrap; padding-top: 2px; }
+    .repair-issues { font-size: 11px; color: var(--muted); margin-top: 6px; line-height: 1.5; }
+    /* v5.88.61: "Why this matters" interpretation paragraph. Distinct
+       from the rest of the row so the buyer can scan to the actionable
+       summary quickly. Left rule mimics a pull-quote treatment. */
+    .repair-why { font-size: 12.5px; color: #cbd5e1; line-height: 1.65; margin-top: 10px; padding: 8px 12px; background: rgba(255,255,255,.025); border-left: 2px solid rgba(249,115,22,.4); border-radius: 4px; }
+    .repair-why strong { color: #f1f5f9; font-weight: 700; }
+
+    /* PREDICTED ISSUES */
+    .prediction-item { padding: 14px; background: rgba(167,139,250,.05); border: 1px solid rgba(167,139,250,.15); border-radius: 10px; margin-bottom: 10px; }
+    .prediction-item:last-child { margin-bottom: 0; }
+    .prediction-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 8px; }
+    .prediction-title { font-size: 13px; font-weight: 700; }
+    .prediction-prob { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 4px; white-space: nowrap; }
+    .prediction-detail { font-size: 12px; color: var(--muted); line-height: 1.6; }
+    .prediction-timeline { display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 4px; background: rgba(96,165,250,.1); color: var(--blue); margin-top: 6px; }
+
+    /* CTA */
+    .cta-box { background: linear-gradient(135deg,rgba(249,115,22,.08),rgba(245,158,11,.05)); border: 1px solid rgba(249,115,22,.25); border-radius: 14px; padding: 24px; text-align: center; margin: 24px 0; }
+    .cta-box h3 { font-size: 16px; font-weight: 800; margin-bottom: 8px; }
+    .cta-box p { font-size: 13px; color: var(--muted); margin-bottom: 18px; line-height: 1.6; }
+    .cta-btn { display: inline-block; padding: 12px 28px; background: linear-gradient(90deg,var(--fire1),var(--fire2)); color: white; border-radius: 10px; font-weight: 700; font-size: 14px; text-decoration: none; }
+
+    /* POWERED BY */
+    .powered-bar { border-top: 1px solid var(--border); margin-top: 32px; padding-top: 20px; text-align: center; font-size: 12px; color: var(--dim); }
+    .powered-bar strong { color: var(--fire1); }
+
+    /* LOADING */
+    .loading { text-align: center; padding: 80px 24px; }
+    .spin { width: 36px; height: 36px; border: 3px solid rgba(249,115,22,.2); border-top-color: var(--fire1); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 16px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* v5.88.87 D: request-quote button + modal (inspector report) */
+    .ir-quote-btn {
+      margin-top: 10px;
+      background: transparent;
+      border: 1px solid rgba(96,165,250,.35);
+      color: var(--blue);
+      font-size: 11px;
+      font-weight: 600;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background .12s, border-color .12s;
+    }
+    .ir-quote-btn:hover { background: rgba(96,165,250,.08); border-color: var(--blue); }
+    .ir-quote-btn:disabled { opacity: .6; cursor: default; }
+    .qm-backdrop {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,.65); z-index: 1000;
+      align-items: center; justify-content: center; padding: 20px;
+    }
+    .qm-backdrop.show { display: flex; }
+    .qm-modal {
+      background: var(--surface, #0f1e35);
+      border: 1px solid var(--border, rgba(255,255,255,.08));
+      border-radius: 14px;
+      padding: 24px;
+      max-width: 440px; width: 100%;
+      box-shadow: 0 24px 64px rgba(0,0,0,.4);
+    }
+    .qm-modal h3 { margin: 0 0 6px; font-size: 18px; font-weight: 700; color: var(--text, #f1f5f9); }
+    .qm-modal .qm-sub { font-size: 12.5px; color: var(--muted, #94a3b8); margin-bottom: 16px; line-height: 1.5; }
+    .qm-modal label { display: block; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; color: var(--dim, #64748b); margin-bottom: 5px; margin-top: 12px; }
+    .qm-modal input, .qm-modal select, .qm-modal textarea {
+      width: 100%;
+      background: var(--surface2, #162032);
+      border: 1px solid var(--border, rgba(255,255,255,.08));
+      border-radius: 7px;
+      padding: 9px 11px;
+      color: var(--text, #f1f5f9);
+      font-size: 13px;
+      font-family: inherit;
+      outline: none;
+    }
+    .qm-modal input:focus, .qm-modal select:focus, .qm-modal textarea:focus { border-color: var(--blue, #60a5fa); }
+    .qm-modal textarea { resize: vertical; min-height: 60px; }
+    .qm-modal .qm-actions { display: flex; gap: 10px; margin-top: 18px; }
+    .qm-modal .qm-actions button { flex: 1; padding: 10px; border-radius: 7px; font-weight: 700; font-size: 13px; cursor: pointer; font-family: inherit; border: none; }
+    .qm-modal .qm-actions .qm-cancel { background: rgba(255,255,255,.06); color: var(--text, #f1f5f9); }
+    .qm-modal .qm-actions .qm-submit { background: linear-gradient(90deg, var(--blue, #60a5fa), #3b82f6); color: white; }
+    .qm-modal .qm-actions button:disabled { opacity: .6; cursor: default; }
+    .qm-status { margin-top: 12px; font-size: 12px; color: var(--muted, #94a3b8); }
+    .qm-status.ok { color: var(--green, #22c55e); }
+    .qm-status.err { color: #fca5a5; }
+  </style>
+</head>
+<body>
+
+<div class="container" id="main-content">
+  <div class="loading">
+    <div class="spin"></div>
+    <div style="font-size:14px;color:var(--muted);">Loading your analysis...</div>
+  </div>
+</div>
+
+<div class="no-print" id="print-fab" style="display:none;position:fixed;bottom:24px;right:24px;z-index:100;">
+  <button onclick="window.print()" style="padding:12px 20px;background:linear-gradient(90deg,#f97316,#f59e0b);border:none;border-radius:10px;color:white;font-weight:700;font-size:14px;cursor:pointer;box-shadow:0 4px 20px rgba(249,115,22,.4);">
+    📄 Save as PDF
+  </button>
+</div>
+
+<script>
+const token = window.location.pathname.split('/').pop().split('?')[0];
+
+async function loadReport() {
+  try {
+    const res = await fetch(`/api/inspector-report/${token}`);
+    if (!res.ok) throw new Error('Not found');
+    const data = await res.json();
+    renderReport(data);
+    document.getElementById('print-fab').style.display = 'block';
+  } catch(e) {
+    document.getElementById('main-content').innerHTML = `
+      <div style="text-align:center;padding:80px 24px;color:#64748b;">
+        <div style="font-size:3rem;margin-bottom:16px;">😕</div>
+        <div style="font-size:18px;font-weight:700;margin-bottom:8px;">Report not found</div>
+        <div style="font-size:14px;">This link may have expired or is incorrect. Contact your inspector for a new link.</div>
+      </div>`;
+  }
+}
+
+function fmt(n) { return n ? '$' + Math.round(n).toLocaleString() : '—'; }
+function fmtK(n) { return n >= 1000 ? '$' + Math.round(n/1000) + 'K' : (n > 0 ? '$' + Math.round(n) : '—'); }
+function cap(s) { return s ? String(s).replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase()) : ''; }
+// v5.88.87 D: HTML attribute escape for the data-* fields on quote-request buttons.
+function escapeAttr(s) { return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function renderReport(data) {
+  const result = data.result || {};
+  const riskScore = result.risk_score || {};
+  const riskDna = result.risk_dna || {};
+
+  // ── Score ──────────────────────────────────────────────────
+  const composite = riskDna.composite_score || riskScore.overall_risk_score || 0;
+  const displayScore = Math.round(100 - composite);
+  const scoreColor = displayScore >= 70 ? '#22c55e' : displayScore >= 45 ? '#f59e0b' : '#ef4444';
+  const riskLabel = displayScore >= 70 ? 'Low Risk' : displayScore >= 45 ? 'Moderate Risk' : 'High Risk';
+  const riskTier = riskScore.risk_tier || riskLabel.toUpperCase().replace(' ','_');
+
+  // ── Repairs ────────────────────────────────────────────────
+  const repairLow  = riskScore.total_repair_cost_low  || 0;
+  const repairHigh = riskScore.total_repair_cost_high || 0;
+  const repairAvg  = Math.round((repairLow + repairHigh) / 2);
+
+  const categoryScores = riskScore.category_scores || [];
+  const breakdown = categoryScores
+    .filter(cs => (cs.estimated_cost_low||0) > 0 || (cs.estimated_cost_high||0) > 0)
+    .map(cs => ({
+      system:             typeof cs.category === 'object' ? (cs.category.value||cs.category) : cs.category,
+      low:                cs.estimated_cost_low  || 0,
+      high:               cs.estimated_cost_high || 0,
+      avg:                Math.round(((cs.estimated_cost_low||0)+(cs.estimated_cost_high||0))/2),
+      score:              cs.score || 0,
+      key_issues:         cs.key_issues || [],
+      safety:             cs.safety_concern || false,
+      insurability:       cs.affects_insurability || false,
+      specialist:         cs.requires_specialist || false,
+      severity:           cs.severity_breakdown || {},
+    }))
+    .sort((a,b) => b.avg - a.avg);
+
+  // ── Risk DNA vector scores ─────────────────────────────────
+  const vectorScores = (riskDna.vector_scores) || {};
+  const dnaRows = [
+    { label:'Structural',    score: vectorScores.structural   || 0, color:'#ef4444' },
+    { label:'Systems',       score: vectorScores.systems      || 0, color:'#f97316' },
+    { label:'Financial',     score: vectorScores.financial    || 0, color:'#f59e0b' },
+    { label:'Transparency',  score: vectorScores.transparency || 0, color:'#60a5fa' },
+    { label:'Temporal',      score: vectorScores.temporal     || 0, color:'#a78bfa' },
+  ];
+  const hasVectors = dnaRows.some(r => r.score > 0);
+
+  // ── Predicted issues ───────────────────────────────────────
+  const predicted = (result.predicted_issues || [])
+    .filter(p => (p.probability||0) >= 0.3)
+    .sort((a,b) => (b.probability||0) - (a.probability||0))
+    .slice(0,4);
+
+  // ── Contractor map ─────────────────────────────────────────
+  const contractorMap = {
+    roof:'Roofing Contractor', roofing:'Roofing Contractor',
+    hvac:'HVAC Specialist', heating:'HVAC Specialist', cooling:'HVAC Specialist',
+    electrical:'Licensed Electrician', plumbing:'Licensed Plumber',
+    foundation:'Structural Engineer', structural:'Structural Engineer',
+    sewer:'Plumber / Sewer Specialist', mold:'Mold Remediation',
+    pest:'Pest Control', termite:'Pest Control', default:'General Contractor'
+  };
+  function getTrade(sys) {
+    const k = (sys||'').toLowerCase();
+    for (const [key,val] of Object.entries(contractorMap)) { if (k.includes(key)) return val; }
+    return contractorMap.default;
+  }
+
+  const createdDate = new Date(data.created_at).toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+  const pct = (displayScore/100)*360;
+  const ringBg = `conic-gradient(${scoreColor} 0deg ${pct}deg, rgba(255,255,255,.06) ${pct}deg)`;
+
+  // ── Build severity tag HTML ────────────────────────────────
+  function severityTags(sev) {
+    const tags = [];
+    if (sev.critical > 0) tags.push(`<span class="repair-tag" style="background:rgba(239,68,68,.12);color:#ef4444;">${sev.critical} critical</span>`);
+    if (sev.major    > 0) tags.push(`<span class="repair-tag" style="background:rgba(245,158,11,.12);color:#f59e0b;">${sev.major} major</span>`);
+    if (sev.minor    > 0) tags.push(`<span class="repair-tag" style="background:rgba(148,163,184,.1);color:#94a3b8;">${sev.minor} minor</span>`);
+    return tags.join('');
+  }
+
+  // ── Build flag badges ──────────────────────────────────────
+  function flagBadges(item) {
+    const badges = [];
+    if (item.safety)       badges.push(`<span class="repair-tag" style="background:rgba(239,68,68,.1);color:#ef4444;">⚠️ Safety</span>`);
+    if (item.insurability) badges.push(`<span class="repair-tag" style="background:rgba(96,165,250,.1);color:#60a5fa;">🏦 Insurability</span>`);
+    if (item.specialist)   badges.push(`<span class="repair-tag" style="background:rgba(167,139,250,.1);color:#a78bfa;">👷 Specialist</span>`);
+    return badges.join('');
+  }
+
+  // ── v5.88.61: Urgency tagging ──────────────────────────────
+  // Triage findings into 4 actionable buckets so the buyer knows
+  // what to do NOW vs. what can wait. Based on existing flags +
+  // severity counts — no new data required.
+  //
+  // Logic (priority order, first match wins):
+  //   1. Safety flag → SAFETY (always top priority)
+  //   2. Critical severity ≥ 1 → PRE-CLOSE FIX (negotiate before signing)
+  //   3. Insurability flag → 12-MONTH (closing-relevant, even at minor severity)
+  //   4. Major severity ≥ 1 OR specialist required → 12-MONTH
+  //   5. Minor only → 5-YEAR (long-term maintenance)
+  function urgencyTag(item) {
+    const sev = item.severity || {};
+    let label, color;
+    if (item.safety) {
+      label = 'Safety priority'; color = '#ef4444';
+    } else if ((sev.critical || 0) >= 1) {
+      label = 'Pre-close fix'; color = '#f97316';
+    } else if (item.insurability || (sev.major || 0) >= 1 || item.specialist) {
+      label = '12-month window'; color = '#f59e0b';
+    } else {
+      label = '5-year plan'; color = '#94a3b8';
+    }
+    return `<span class="repair-tag" style="background:${color}1A;color:${color};font-weight:700;">${label}</span>`;
+  }
+
+  // ── v5.88.61: "Why this matters" interpretation ────────────
+  // The actionable thing-beyond-the-PDF: a short paragraph telling
+  // the buyer what to DO with this finding. Template-based (not LLM
+  // — deterministic quality, no per-render cost, no AI drift).
+  //
+  // Selection works in three pieces:
+  //   intro — names the risk category in plain language
+  //   action — recommends a specific next step
+  //   leverage — explains the negotiation/decision implication
+  //
+  // Each piece is picked from a small table based on flags and
+  // severity. The result reads like a consultant's note, not a
+  // template, because the pieces compose to specific situations.
+  //
+  // Lowercase normalization preserves common acronyms (HVAC, AC).
+  function sysLower(s) {
+    const known = ['HVAC','AC','GFCI','EV','PEX'];
+    const cleaned = String(s||'').replace(/_/g,' ');
+    // Don't lowercase if the source looks like an acronym
+    if (known.some(k => cleaned.toUpperCase().includes(k))) return cleaned.toUpperCase();
+    return cleaned.toLowerCase();
+  }
+  // a/an based on first vowel sound. Acronyms like HVAC are vowel-sound
+  // initial even though they don't start with a vowel letter.
+  function art(word) {
+    if (!word) return 'a';
+    const first = String(word).trim().slice(0,4).toUpperCase();
+    if (first.startsWith('HVAC') || first.startsWith('AC ') || first === 'AC')
+      return 'an';
+    return /^[aeiouAEIOU]/.test(word) ? 'an' : 'a';
+  }
+  function Art(word) { return art(word).replace(/^./, c => c.toUpperCase()); }
+  function whyThisMatters(item) {
+    const trade = getTrade(item.system);
+    const sev = item.severity || {};
+    const hasCritical = (sev.critical || 0) >= 1;
+    const hasMajor    = (sev.major    || 0) >= 1;
+    const costHigh    = item.high || item.avg || 0;
+    const costStr     = costHigh >= 25000 ? 'substantial' : costHigh >= 8000 ? 'meaningful' : 'manageable';
+    const sysLow      = sysLower(item.system);
+    const sysCap      = cap(item.system);
+
+    // Intro — what this category of finding tends to mean
+    let intro;
+    if (item.safety && hasCritical) {
+      intro = `Findings with both safety implications and critical severity are typically deal-defining`;
+    } else if (item.safety) {
+      intro = `Safety-flagged findings are the highest-priority items in any inspection`;
+    } else if (hasCritical) {
+      intro = `Critical-severity findings on the ${sysCap} system signal a problem that won't get smaller with time`;
+    } else if (item.insurability) {
+      intro = `${sysCap} findings that affect insurability can complicate or delay your closing if the insurer requires resolution first`;
+    } else if (item.specialist && hasMajor) {
+      // "a HVAC" reads wrong (vowel-sound); use "an" before vowel sounds
+      const article = /^[aeiouAEIOU]/.test(sysLow) || /^HVAC/i.test(sysLow) ? 'an' : 'a';
+      intro = `When the inspection flags ${article} ${sysLow} issue at major severity AND recommends a specialist, that's a sign the surface-level finding may understate the actual scope`;
+    } else if (hasMajor) {
+      intro = `Major-severity ${sysLow} findings typically need attention within the first year of ownership`;
+    } else if (item.specialist) {
+      intro = `The inspection recommends a specialist evaluation here — not because the finding is severe, but because confirming scope requires expertise beyond a general inspection`;
+    } else {
+      intro = `This finding falls in the routine-maintenance band — not urgent, but worth budgeting for`;
+    }
+
+    // Action — what to do about it, naming the specific trade.
+    // Insurability gets priority over major-but-not-specialist
+    // because insurer requirements affect closing timing.
+    let action;
+    if (item.safety) {
+      action = `Get ${art(trade)} ${trade} evaluation before removing your inspection contingency`;
+    } else if (hasCritical || (item.specialist && hasMajor)) {
+      action = `${Art(trade)} ${trade} estimate before closing gives you firm numbers to negotiate against`;
+    } else if (item.insurability) {
+      action = `Get ${art(trade)} ${trade} estimate and share it with your prospective insurer before closing`;
+    } else if (item.specialist) {
+      action = `${Art(trade)} ${trade} consultation will confirm scope and tighten the cost estimate`;
+    } else if (hasMajor) {
+      action = `Get ${art(trade)} ${trade} estimate; the inspection finding is enough to act on but a specialist quote sharpens the cost range`;
+    } else {
+      action = `Track this as part of your 5-year maintenance plan`;
+    }
+
+    // Leverage — the negotiation or decision implication
+    let leverage;
+    if (item.safety && hasCritical) {
+      leverage = `A finding at this level alone justifies either a substantial repair credit or walking away — you have strong leverage to ask for both`;
+    } else if (item.safety || hasCritical) {
+      leverage = `This is leverage. A ${costStr} repair documented in the inspection report typically supports a price reduction or repair credit in the same range`;
+    } else if (item.insurability) {
+      leverage = `Bring this up with your agent before submitting an offer — sometimes the seller's existing insurer has already noted it, which strengthens your case`;
+    } else if (hasMajor) {
+      leverage = `Consider asking for a repair credit at the low end of the cost range — it's a reasonable ask backed by documented findings`;
+    } else if (item.specialist) {
+      leverage = `If the specialist confirms a larger issue, you may have grounds to re-open negotiations even after going under contract`;
+    } else {
+      leverage = `Not typically a negotiation item — but useful to know for your post-close planning`;
+    }
+
+    return `${intro}. ${action}. ${leverage}.`;
+  }
+
+  document.getElementById('main-content').innerHTML = `
+
+    <!-- Prepared by — v5.88.60: stripped "Powered by OfferWise AI" from
+         the hero. OfferWise is now a tool credit in the footer only,
+         not a co-branded line in the inspector's hero. The inspector's
+         name and business gets the full credit here.
+         v5.88.90: split the byline. Previously "Analysis prepared by
+         [Inspector]" made the inspector look like the author of
+         everything on the page including cost estimates. Inspectors
+         pushed back on that — many state licenses warn against cost-
+         estimating as practicing outside scope. New byline separates
+         the inspector's authentic output (conditions observed) from
+         OfferWise's analytical output (cost ranges, negotiation
+         framing). Same visual prominence; clean attribution. -->
+    <div class="prepared-by">
+      <div class="prep-icon">🔍</div>
+      <div>
+        <div class="prep-label">Conditions observed by</div>
+        <div class="prep-name">${data.inspector_biz || data.inspector_name || 'Your Inspector'}</div>
+        <div class="prep-sub" style="font-size:11px;color:var(--dim);margin-top:4px;">Cost ranges & negotiation framing by OfferWise · ${createdDate}</div>
+      </div>
+    </div>
+
+    <!-- Hero card — v5.88.60: removed the OfferScore ring and the
+         "Low Risk / Moderate Risk / High Risk" label. OfferScore is a
+         buyer-facing concept (it lives on the buyer dashboard) — for an
+         inspector deliverable, the inspector's actual professional output
+         is the issues found, the systems reviewed, and the repair cost
+         estimate. Those are countable, defensible numbers the inspector
+         can stand behind. The score had the additional problem that
+         it sometimes contradicted the metrics-grid "Risk Tier" value
+         (score 84 = Low Risk according to one rubric, HIGH according to
+         the backend's risk_tier classifier) — an inspector reading that
+         would not be able to defend both. Removed both. -->
+    <div class="hero-card">
+      <div class="hero-top" style="align-items:flex-start;">
+        <div class="hero-info">
+          <h1>${data.property_address || 'Property Analysis'}</h1>
+          ${data.buyer_name ? `<div style="font-size:13px;color:var(--muted);margin-bottom:6px;">Prepared for: <strong style="color:var(--text);">${data.buyer_name}</strong></div>` : ''}
+        </div>
+      </div>
+      <div class="metrics-grid">
+        <div class="metric">
+          <div class="metric-label">Asking Price</div>
+          <div class="metric-val">${(data.property_price||0) > 0 ? fmt(data.property_price) : '—'}</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Est. Repairs</div>
+          <div class="metric-val" style="color:#f59e0b;">${repairLow > 0 ? fmtK(repairLow)+'–'+fmtK(repairHigh) : '—'}</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Issues Found</div>
+          <div class="metric-val" style="color:${breakdown.length>0?'#f59e0b':'#22c55e'};">${breakdown.length}</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Systems Reviewed</div>
+          <div class="metric-val" style="color:#60a5fa;">${categoryScores.length}</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Avg Repair Cost</div>
+          <div class="metric-val" style="color:#f59e0b;">${repairAvg > 0 ? fmt(repairAvg) : '—'}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- v5.88.64: Inspector's hosted PDF link pass-through. Renders only
+         when the inspector pasted a public URL to their own full report
+         (typically from Spectora/HomeGauge/etc.). OfferWise doesn't host
+         the file — we just send the buyer there. rel="noopener noreferrer"
+         because we don't control the destination.
+
+         Defense-in-depth: the server already validates http(s)-only and
+         rejects attribute-escape characters at write time. We re-check
+         here at render time in case a row was somehow stored before that
+         validation existed, or via a path that skipped it. If the URL
+         fails the client-side check, we render nothing — silent absence
+         is correct, no need to surface a "this report had an unsafe
+         link" error to the buyer. -->
+    ${(function(){
+      const u = (data.inspection_pdf_url || '').trim();
+      if (!u) return '';
+      if (!u.startsWith('http://') && !u.startsWith('https://')) return '';
+      if (u.length > 2048) return '';
+      if (/["'<>`\\\s]/.test(u)) return '';
+      return `<a href="${u}" target="_blank" rel="noopener noreferrer"
+       style="display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px 18px;background:rgba(96,165,250,.08);border:1px solid rgba(96,165,250,.25);border-radius:12px;margin-bottom:20px;text-decoration:none;color:inherit;transition:background .15s;"
+       onmouseover="this.style.background='rgba(96,165,250,.14)';"
+       onmouseout="this.style.background='rgba(96,165,250,.08)';">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div style="font-size:1.4rem;">📄</div>
+        <div>
+          <div style="font-size:14px;font-weight:700;color:#f1f5f9;">View Full Inspection Report</div>
+          <div style="font-size:11px;color:var(--dim);margin-top:2px;">The complete PDF from ${cap(data.inspector_biz || data.inspector_name || 'your inspector')} — opens in a new tab</div>
+        </div>
+      </div>
+      <div style="font-size:13px;color:#60a5fa;font-weight:700;white-space:nowrap;">Open ↗</div>
+    </a>`;
+    })()}
+
+    <!-- Risk DNA breakdown (only if vectors present) -->
+    ${hasVectors ? `
+    <div class="card">
+      <div class="card-title">🧬 Risk DNA Breakdown</div>
+      <div style="font-size:12px;color:var(--dim);margin-bottom:14px;">Five-dimension risk profile — higher score = higher risk in that dimension.</div>
+      ${dnaRows.map(r => `
+        <div class="dna-row">
+          <div class="dna-label">${r.label}</div>
+          <div class="dna-bar-bg">
+            <div class="dna-bar-fill" style="width:${Math.min(100,r.score)}%;background:${r.color};opacity:${0.5 + r.score/200};"></div>
+          </div>
+          <div class="dna-score" style="color:${r.score>=70?'#ef4444':r.score>=40?'#f59e0b':'#22c55e'};">${Math.round(r.score)}</div>
+        </div>`).join('')}
+    </div>` : ''}
+
+    <!-- v5.88.60: Removed the "Want an offer price recommendation?" CTA.
+         It previously sat here and pointed the buyer to run their own
+         OfferWise analysis — effectively using the inspector's deliverable
+         as an ad surface for OfferWise. Inspectors paid for this report
+         to be theirs; we shouldn't redirect their client to us inside it.
+         If the buyer wants an offer-price analysis, they can find OfferWise
+         through normal channels (search, agent referral, our marketing).
+         Not through hijacking the inspector's brand. -->
+
+    <!-- Repair cost breakdown — v5.88.61: enriched each finding row with
+         an urgency tag and a "Why this matters" interpretation paragraph.
+         The interpretation is template-based (deterministic, no LLM
+         drift) and tells the buyer what to DO with the finding:
+         the specific specialist trade to call, when to act, and the
+         negotiation/decision implication. This is the actual value
+         beyond "tidier PDF summary" — the inspector's findings stay
+         as observed, OfferWise translates them into a buyer-action plan
+         while staying inside the inspector's scope of practice. -->
+    ${breakdown.length > 0 || repairLow > 0 ? `
+    <div class="card">
+      <div class="card-title">🔧 Repair Cost Breakdown</div>
+      <div style="font-size:12px;color:var(--dim);margin-bottom:14px;">Each finding from your inspection translated into an action plan: what to do, when, and how to use it in negotiation.</div>
+      ${breakdown.length > 0 ? breakdown.slice(0,8).map(item => `
+        <div class="repair-row">
+          <div>
+            <div class="repair-system">${cap(item.system)}</div>
+            <div class="repair-trade">Recommended specialist: <strong style="color:#cbd5e1;">${getTrade(item.system)}</strong></div>
+            <div class="repair-meta">
+              ${urgencyTag(item)}
+              ${severityTags(item.severity)}
+              ${flagBadges(item)}
+            </div>
+            ${item.key_issues.length ? `<div class="repair-issues"><strong style="color:#94a3b8;">From the inspection:</strong> ${item.key_issues.slice(0,2).map(s=>s.length>100?s.slice(0,97)+'...':s).join(' · ')}</div>` : ''}
+            <div class="repair-why"><strong>Why this matters:</strong> ${whyThisMatters(item)}</div>
+            ${(item.high||0) >= 1000 ? `
+              <button class="ir-quote-btn" data-cat="${escapeAttr(item.system||'')}" data-low="${item.low||0}" data-high="${item.high||0}" data-trade="${escapeAttr(getTrade(item.system))}">
+                Request quote from a ${escapeAttr(getTrade(item.system))}
+              </button>` : ''}
+          </div>
+          <div class="repair-cost">${item.low&&item.high ? fmtK(item.low)+'–'+fmtK(item.high) : fmtK(item.avg||0)}</div>
+        </div>`).join('') : `
+        <div class="repair-row">
+          <div><div class="repair-system">Total estimated repairs</div></div>
+          <div class="repair-cost">${fmtK(repairLow)}–${fmtK(repairHigh)}</div>
+        </div>`}
+      <div style="margin-top:12px;padding:10px 14px;background:rgba(245,158,11,.08);border-radius:8px;display:flex;justify-content:space-between;">
+        <span style="font-size:13px;font-weight:700;">Total avg estimate</span>
+        <span style="font-size:14px;font-weight:800;color:#f59e0b;">${repairAvg > 0 ? fmt(repairAvg) : '—'}</span>
+      </div>
+    </div>` : ''}
+
+    <!-- Predicted hidden / future issues -->
+    ${predicted.length > 0 ? `
+    <div class="card" style="border-color:rgba(167,139,250,.2);">
+      <div class="card-title" style="color:#a78bfa;">🔮 Predicted Hidden & Future Issues</div>
+      <div style="font-size:12px;color:var(--dim);margin-bottom:14px;">Based on patterns in the inspection findings, OfferWise AI flagged the following issues as likely present or emerging. These are not confirmed defects — they are risk-weighted predictions for your awareness.</div>
+      ${predicted.map(p => {
+        const prob = Math.round((p.probability||0)*100);
+        const probColor = prob>=70?'#ef4444':prob>=50?'#f59e0b':'#94a3b8';
+        const urgencyColor = p.urgency==='critical'?'#ef4444':p.urgency==='high'?'#f97316':p.urgency==='medium'?'#f59e0b':'#94a3b8';
+        const costStr = (p.estimated_cost_low&&p.estimated_cost_high) ? fmt(p.estimated_cost_low)+'–'+fmt(p.estimated_cost_high) : '';
+        const indicators = (p.observable_indicators||[]).slice(0,2).join('; ');
+        return `
+        <div class="prediction-item">
+          <div class="prediction-header">
+            <div class="prediction-title">${p.predicted_issue||'Unknown issue'}</div>
+            <div class="prediction-prob" style="background:${probColor}22;color:${probColor};">${prob}% likely</div>
+          </div>
+          <div class="prediction-detail">
+            ${indicators ? `<div style="margin-bottom:4px;"><strong style="color:var(--muted);">Evidence:</strong> ${indicators}</div>` : ''}
+            ${costStr ? `<div style="margin-bottom:4px;"><strong style="color:var(--muted);">Est. cost if confirmed:</strong> ${costStr}</div>` : ''}
+            ${p.specialist_needed ? `<div style="margin-bottom:4px;"><strong style="color:var(--muted);">Specialist:</strong> ${p.specialist_needed}</div>` : ''}
+          </div>
+          ${p.likely_timeline ? `<span class="prediction-timeline">⏱ ${cap(p.likely_timeline)}</span>` : ''}
+          ${p.urgency ? `<span class="prediction-timeline" style="background:${urgencyColor}18;color:${urgencyColor};margin-left:6px;">${cap(p.urgency)} urgency</span>` : ''}
+        </div>`;
+      }).join('')}
+      <div style="margin-top:10px;font-size:11px;color:var(--dim);padding-top:10px;border-top:1px solid rgba(255,255,255,.04);">
+        Predictions are based on statistical correlations across thousands of inspection reports. They are not guarantees. A licensed specialist should evaluate any suspected issue before purchase.
+      </div>
+    </div>` : ''}
+
+    <!-- v5.88.55: Removed the "Original Inspection Report" panel.
+         Previously displayed the PDF-extracted text from the inspection
+         report, but that surfaced PDF encoding artifacts like (cid:64257)
+         for the "fi" ligature. It looked like garbage output of a broken
+         tool, which was embarrassing for the inspector whose name appears
+         on this page. The analysis above already cites specific findings
+         from the report, so the raw text dump added noise without signal.
+         To restore an inline view in a future release, persist the
+         original PDF (a new column on InspectorReport, not present today)
+         and embed it via iframe or embed tag. Until then, the panel stays
+         removed. The inspection_text column is still populated and used
+         internally for analysis; only the buyer-facing display is removed. -->
+
+    <!-- v5.88.60: Removed the "Try OfferWise Free" CTA box that sat here.
+         Same principle as the offer-price CTA removal above: an inspector
+         deliverable should not end on an ad for OfferWise. If we want
+         OfferWise referrals, we get them through normal marketing, not
+         by hijacking the inspector's signed report. -->
+
+    <!-- Footer -->
+    <div class="powered-bar">
+      <p>Conditions observed by <strong>${data.inspector_biz || data.inspector_name || 'your inspector'}</strong></p>
+      <p style="margin-top:4px;">Cost ranges, negotiation framing, and offer analysis by <strong>OfferWise AI</strong> · <a href="/" style="color:var(--dim);">getofferwise.ai</a></p>
+      <p style="margin-top:4px;font-size:11px;">This analysis is based on the inspection report provided and is not a substitute for professional advice. Always consult qualified professionals before making real estate decisions.</p>
+    </div>
+  `;
+
+  // v5.88.87 D: wire request-quote buttons after innerHTML is set. The
+  // buttons render with data-cat / data-low / data-high / data-trade,
+  // populated from the breakdown items above. Click opens the modal with
+  // the right context.
+  Array.prototype.forEach.call(document.querySelectorAll('.ir-quote-btn'), function(btn) {
+    btn.addEventListener('click', function() {
+      var cat = btn.getAttribute('data-cat') || '';
+      var low = parseFloat(btn.getAttribute('data-low') || '0');
+      var high = parseFloat(btn.getAttribute('data-high') || '0');
+      var trade = btn.getAttribute('data-trade') || '';
+      openIrQuoteModal(cat, low, high, trade);
+    });
+  });
+}
+
+// v5.88.55: toggleInspectionText() removed when the Original Inspection
+// Report panel was removed from buyer view. Kept this comment as a
+// breadcrumb in case the panel is re-added (with embedded PDF) later.
+
+// v5.88.87 D: contractor quote-request modal. Token is module-scope (line
+// 116) so these functions reach it without needing to be in an IIFE.
+var irQmCat = null, irQmLow = null, irQmHigh = null, irQmTrade = null;
+
+function openIrQuoteModal(category, low, high, trade) {
+  irQmCat = category || '';
+  irQmLow = low || 0;
+  irQmHigh = high || 0;
+  irQmTrade = trade || '';
+  var humanCat = (category || '').replace(/_/g, ' ');
+  var sub = document.getElementById('ir-qm-sub');
+  if (sub) {
+    sub.textContent = humanCat
+      ? 'We\'ll route a quote request for ' + humanCat +
+        ' work at this property to licensed contractors in your area. No charge for the lead.'
+      : 'We\'ll route your request to licensed contractors in your area. No charge for the lead.';
+  }
+  var status = document.getElementById('ir-qm-status');
+  if (status) { status.textContent = ''; status.className = 'qm-status'; }
+  var submit = document.getElementById('ir-qm-submit');
+  if (submit) { submit.disabled = false; submit.textContent = 'Send request'; }
+  var backdrop = document.getElementById('ir-qm-backdrop');
+  if (backdrop) backdrop.classList.add('show');
+  setTimeout(function() {
+    var em = document.getElementById('ir-qm-email');
+    if (em) em.focus();
+  }, 50);
+}
+
+function closeIrQuoteModal() {
+  var backdrop = document.getElementById('ir-qm-backdrop');
+  if (backdrop) backdrop.classList.remove('show');
+}
+
+// Wire submit + backdrop-close on DOM ready (modal element is in static
+// markup below, so it's available immediately).
+document.addEventListener('DOMContentLoaded', function() {
+  var backdrop = document.getElementById('ir-qm-backdrop');
+  if (backdrop) {
+    backdrop.addEventListener('click', function(e) {
+      if (e.target === backdrop) closeIrQuoteModal();
+    });
+  }
+  var submit = document.getElementById('ir-qm-submit');
+  if (!submit) return;
+  submit.addEventListener('click', function() {
+    var email = (document.getElementById('ir-qm-email').value || '').trim();
+    var phone = (document.getElementById('ir-qm-phone').value || '').trim();
+    var name  = (document.getElementById('ir-qm-name').value || '').trim();
+    var timing= document.getElementById('ir-qm-timing').value || 'this_week';
+    var notes = (document.getElementById('ir-qm-notes').value || '').trim();
+    var status = document.getElementById('ir-qm-status');
+
+    function setStatus(msg, cls) {
+      status.textContent = msg;
+      status.className = 'qm-status ' + (cls || '');
+    }
+
+    if (!email || email.indexOf('@') < 0) {
+      setStatus('Please enter a valid email so the contractor can reach you.', 'err');
+      return;
+    }
+
+    var costStr = '';
+    if (irQmLow && irQmHigh) {
+      try { costStr = fmt(irQmLow) + ' – ' + fmt(irQmHigh); } catch(_e) { costStr = ''; }
+    }
+
+    submit.disabled = true;
+    submit.textContent = 'Sending…';
+    setStatus('');
+
+    fetch('/api/contractor-lead/public', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        share_token: token,
+        source_type: 'inspector_report',
+        user_email: email,
+        user_phone: phone,
+        user_name: name,
+        repair_system: irQmCat,
+        trade_needed: irQmTrade,
+        cost_estimate: costStr,
+        issue_description: notes,
+        contact_timing: timing,
+      }),
+    })
+    .then(function(r) { return r.json().then(function(j) { return { ok: r.ok, body: j }; }); })
+    .then(function(res) {
+      if (!res.ok || !res.body || !res.body.success) {
+        var msg = (res.body && res.body.error) || 'Something went wrong. Please try again.';
+        setStatus(msg, 'err');
+        submit.disabled = false;
+        submit.textContent = 'Send request';
+        return;
+      }
+      setStatus(res.body.message || 'Request submitted — a contractor will reach out soon.', 'ok');
+      submit.textContent = 'Sent ✓';
+      setTimeout(closeIrQuoteModal, 2000);
+    })
+    .catch(function(e) {
+      console.error('quote submit failed', e);
+      setStatus('Network error. Please try again.', 'err');
+      submit.disabled = false;
+      submit.textContent = 'Send request';
+    });
+  });
+});
+
+loadReport();
+</script>
+
+<!-- v5.88.87 D: contractor quote-request modal markup. Stays in the DOM
+     at all times (hidden); shown by openIrQuoteModal which adds .show. -->
+<div id="ir-qm-backdrop" class="qm-backdrop">
+  <div class="qm-modal" role="dialog" aria-modal="true" aria-labelledby="ir-qm-title">
+    <h3 id="ir-qm-title">Get quotes from local contractors</h3>
+    <div class="qm-sub" id="ir-qm-sub">We'll route your request to licensed contractors in your area. No charge for the lead.</div>
+
+    <label for="ir-qm-email">Your email</label>
+    <input type="email" id="ir-qm-email" placeholder="you@example.com" autocomplete="email" required>
+
+    <label for="ir-qm-phone">Phone (optional)</label>
+    <input type="tel" id="ir-qm-phone" placeholder="(555) 123-4567" autocomplete="tel">
+
+    <label for="ir-qm-name">Your name (optional)</label>
+    <input type="text" id="ir-qm-name" placeholder="Your name" autocomplete="name">
+
+    <label for="ir-qm-timing">When do you need this?</label>
+    <select id="ir-qm-timing">
+      <option value="this_week">This week</option>
+      <option value="asap">ASAP</option>
+      <option value="just_exploring">Just exploring</option>
+    </select>
+
+    <label for="ir-qm-notes">Anything else? (optional)</label>
+    <textarea id="ir-qm-notes" rows="2" placeholder="Specific issues, access info, etc."></textarea>
+
+    <div class="qm-status" id="ir-qm-status"></div>
+
+    <div class="qm-actions">
+      <button type="button" class="qm-cancel" onclick="closeIrQuoteModal()">Cancel</button>
+      <button type="button" class="qm-submit" id="ir-qm-submit">Send request</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

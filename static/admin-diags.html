@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Diagnostics · OfferWise Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0b1220;
+      --bg-card: #111827;
+      --bg-card-2: #1f2937;
+      --line: #1f2937;
+      --line-2: #374151;
+      --text: #f3f4f6;
+      --text-body: #cbd5e1;
+      --muted: #9ca3af;
+      --dim: #6b7280;
+      --accent: #f97316;
+      --accent-hover: #ea580c;
+      --green: #22c55e;
+      --red: #ef4444;
+      --amber: #fcd34d;
+      --mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    .wrap { max-width: 1100px; margin: 0 auto; padding: 24px; }
+    h1 {
+      font-size: 24px;
+      font-weight: 700;
+      margin: 0 0 4px;
+      letter-spacing: -0.01em;
+    }
+    .sub {
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 22px;
+    }
+    .controls {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 18px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--line);
+      flex-wrap: wrap;
+    }
+    .btn {
+      padding: 8px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: 6px;
+      border: 1px solid var(--line-2);
+      background: var(--bg-card);
+      color: var(--text);
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .btn:hover { background: var(--bg-card-2); border-color: var(--accent); }
+    .btn.primary {
+      background: linear-gradient(90deg, var(--accent), #f59e0b);
+      border: 0;
+      color: white;
+    }
+    .btn.primary:hover {
+      background: linear-gradient(90deg, var(--accent-hover), #d97706);
+    }
+    .btn[disabled] {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .btn-small {
+      padding: 4px 10px;
+      font-size: 11px;
+      font-weight: 500;
+    }
+    .panel {
+      background: var(--bg-card);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      margin-bottom: 14px;
+      overflow: hidden;
+    }
+    .panel-head {
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255,255,255,0.015);
+    }
+    .panel-head .title {
+      font-weight: 700;
+      font-size: 14px;
+      color: var(--text);
+      flex: 1;
+    }
+    .panel-head .actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .panel-body { padding: 14px 16px; }
+    .purpose {
+      color: var(--muted);
+      font-size: 12px;
+      margin: 0 0 12px;
+      line-height: 1.5;
+    }
+    .result-meta {
+      font-size: 11px;
+      color: var(--dim);
+      margin-bottom: 8px;
+      font-family: var(--mono);
+    }
+    .result-text {
+      background: #050810;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 10px 12px;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text-body);
+      overflow-x: auto;
+      white-space: pre;
+      max-height: 480px;
+      overflow-y: auto;
+    }
+    .result-error {
+      background: rgba(239, 68, 68, 0.08);
+      border: 1px solid rgba(239, 68, 68, 0.40);
+      border-radius: 6px;
+      padding: 10px 12px;
+      font-family: var(--mono);
+      font-size: 12px;
+      color: #fca5a5;
+      white-space: pre-wrap;
+    }
+    .status-dot {
+      display: inline-block;
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--dim);
+      flex-shrink: 0;
+    }
+    .status-dot.success { background: var(--green); }
+    .status-dot.error { background: var(--red); }
+    .status-dot.running { background: var(--amber); animation: pulse 1s infinite; }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+    .copy-feedback {
+      color: var(--green);
+      font-size: 11px;
+      margin-left: 6px;
+      opacity: 0;
+      transition: opacity .15s;
+    }
+    .copy-feedback.show { opacity: 1; }
+    .loading {
+      color: var(--muted);
+      font-size: 12px;
+      padding: 8px 0;
+      font-style: italic;
+    }
+    .hint {
+      background: rgba(252, 211, 77, 0.06);
+      border: 1px solid rgba(252, 211, 77, 0.25);
+      border-radius: 6px;
+      padding: 10px 14px;
+      font-size: 12px;
+      color: var(--amber);
+      margin-bottom: 18px;
+    }
+    .hint strong { color: var(--text); }
+    a.nav-back {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 12px;
+    }
+    a.nav-back:hover { color: var(--accent); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <a class="nav-back" href="javascript:history.back()">← Back to admin</a>
+    <h1>🩺 Database Diagnostics</h1>
+    <div class="sub">
+      Read-only diagnostic queries. Run any panel individually, run them all,
+      and copy results to share. All queries are pre-defined server-side — no
+      ad-hoc SQL execution.
+    </div>
+
+    <div class="hint">
+      <strong>Use case:</strong> When something feels wrong in the data layer
+      (missing rows, schema drift, "is this the prod DB?"), run the relevant
+      panels and copy results back to whoever's helping you diagnose. Each
+      result is formatted as a text table for easy copy-paste.
+    </div>
+
+    <div class="controls">
+      <button class="btn primary" id="run-all-btn" onclick="runAllDiagnostics()">▶ Run all diagnostics</button>
+      <button class="btn" onclick="copyAllResults()">📋 Copy all results</button>
+      <button class="btn" onclick="clearAllResults()">↻ Clear results</button>
+      <span id="run-all-status" style="font-size: 11px; color: var(--muted); font-family: var(--mono)"></span>
+    </div>
+
+    <div id="panel-list">
+      <div class="loading">Loading diagnostic registry...</div>
+    </div>
+  </div>
+
+<script>
+const ADMIN_KEY = new URLSearchParams(window.location.search).get('admin_key') || '';
+
+// Per-panel result state for copy-all
+const _resultState = {};
+
+function _esc(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+async function loadDiagsRegistry() {
+  const listEl = document.getElementById('panel-list');
+  try {
+    const r = await fetch('/api/admin/diags/list?admin_key=' + encodeURIComponent(ADMIN_KEY));
+    const d = await r.json();
+    if (!d.queries || !d.queries.length) {
+      listEl.innerHTML = '<div class="loading">No diagnostic queries registered.</div>';
+      return;
+    }
+    let html = '';
+    d.queries.forEach(q => {
+      html += `
+        <div class="panel" data-query-id="${_esc(q.id)}">
+          <div class="panel-head">
+            <span class="status-dot" id="dot-${_esc(q.id)}"></span>
+            <span class="title">${_esc(q.title)}</span>
+            <div class="actions">
+              <button class="btn btn-small" onclick="runDiagnostic('${_esc(q.id)}')" id="run-${_esc(q.id)}">▶ Run</button>
+              <button class="btn btn-small" onclick="copyPanelResult('${_esc(q.id)}')" id="copy-${_esc(q.id)}" style="display:none">📋 Copy</button>
+              <span class="copy-feedback" id="copy-fb-${_esc(q.id)}">copied!</span>
+            </div>
+          </div>
+          <div class="panel-body">
+            <p class="purpose">${_esc(q.purpose)}</p>
+            <div id="result-${_esc(q.id)}"></div>
+          </div>
+        </div>
+      `;
+    });
+    listEl.innerHTML = html;
+  } catch (e) {
+    listEl.innerHTML = `<div class="result-error">Failed to load registry: ${_esc(e.message)}</div>`;
+  }
+}
+
+async function runDiagnostic(queryId) {
+  const dot = document.getElementById('dot-' + queryId);
+  const runBtn = document.getElementById('run-' + queryId);
+  const copyBtn = document.getElementById('copy-' + queryId);
+  const resultEl = document.getElementById('result-' + queryId);
+  if (!resultEl) return;
+
+  // UI: running state
+  dot.className = 'status-dot running';
+  runBtn.disabled = true;
+  runBtn.textContent = '⏳ Running...';
+  resultEl.innerHTML = '<div class="loading">Running query...</div>';
+
+  try {
+    const r = await fetch('/api/admin/diags/run?admin_key=' + encodeURIComponent(ADMIN_KEY), {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({query_id: queryId}),
+    });
+    const d = await r.json();
+
+    if (d.ok) {
+      dot.className = 'status-dot success';
+      const meta = `${d.row_count} row${d.row_count === 1 ? '' : 's'} · ${d.elapsed_ms}ms`;
+      resultEl.innerHTML = `
+        <div class="result-meta">${_esc(meta)}</div>
+        <div class="result-text">${_esc(d.text_table)}</div>
+      `;
+      _resultState[queryId] = {
+        title: d.title,
+        purpose: d.purpose,
+        text: d.text_table,
+        meta: meta,
+      };
+      copyBtn.style.display = 'inline-block';
+    } else {
+      dot.className = 'status-dot error';
+      const errText = d.error || 'Unknown error';
+      resultEl.innerHTML = `<div class="result-error">⚠️ ${_esc(errText)}</div>`;
+      _resultState[queryId] = {
+        title: d.title || queryId,
+        purpose: d.purpose || '',
+        text: 'ERROR: ' + errText,
+        meta: 'failed',
+      };
+      copyBtn.style.display = 'inline-block';
+    }
+  } catch (e) {
+    dot.className = 'status-dot error';
+    resultEl.innerHTML = `<div class="result-error">Request failed: ${_esc(e.message)}</div>`;
+  } finally {
+    runBtn.disabled = false;
+    runBtn.textContent = '▶ Run again';
+  }
+}
+
+async function runAllDiagnostics() {
+  const btn = document.getElementById('run-all-btn');
+  const statusEl = document.getElementById('run-all-status');
+  btn.disabled = true;
+  btn.textContent = '⏳ Running...';
+
+  const panels = document.querySelectorAll('.panel[data-query-id]');
+  const ids = Array.from(panels).map(p => p.dataset.queryId);
+
+  let done = 0;
+  for (const id of ids) {
+    done++;
+    statusEl.textContent = `(${done}/${ids.length}) running ${id}...`;
+    await runDiagnostic(id);
+  }
+
+  statusEl.textContent = `✓ ran ${ids.length} queries`;
+  btn.disabled = false;
+  btn.textContent = '▶ Run all diagnostics';
+}
+
+function copyPanelResult(queryId) {
+  const state = _resultState[queryId];
+  if (!state) return;
+  const block = formatPanelForCopy(queryId, state);
+  copyText(block);
+  // UI feedback
+  const fb = document.getElementById('copy-fb-' + queryId);
+  if (fb) {
+    fb.classList.add('show');
+    setTimeout(() => fb.classList.remove('show'), 1400);
+  }
+}
+
+function copyAllResults() {
+  const ids = Object.keys(_resultState);
+  if (!ids.length) {
+    alert('Nothing to copy. Run a diagnostic first.');
+    return;
+  }
+  const lines = ['# OfferWise diagnostic results', '# Generated: ' + new Date().toISOString(), ''];
+  ids.forEach(id => {
+    lines.push(formatPanelForCopy(id, _resultState[id]));
+    lines.push('');
+  });
+  copyText(lines.join('\n'));
+
+  // Show transient feedback on the master button
+  const btn = document.querySelector('button[onclick="copyAllResults()"]');
+  if (btn) {
+    const orig = btn.textContent;
+    btn.textContent = '✓ Copied!';
+    setTimeout(() => { btn.textContent = orig; }, 1400);
+  }
+}
+
+function formatPanelForCopy(queryId, state) {
+  return [
+    '## ' + state.title,
+    '> ' + state.purpose,
+    'Result (' + state.meta + '):',
+    '',
+    state.text,
+  ].join('\n');
+}
+
+function copyText(text) {
+  // Modern clipboard API with fallback
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(text).catch(() => _copyFallback(text));
+  } else {
+    _copyFallback(text);
+  }
+}
+
+function _copyFallback(text) {
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.position = 'fixed';
+  ta.style.left = '-9999px';
+  document.body.appendChild(ta);
+  ta.select();
+  try { document.execCommand('copy'); } catch (e) {}
+  document.body.removeChild(ta);
+}
+
+function clearAllResults() {
+  Object.keys(_resultState).forEach(id => {
+    const resultEl = document.getElementById('result-' + id);
+    const dot = document.getElementById('dot-' + id);
+    const copyBtn = document.getElementById('copy-' + id);
+    const runBtn = document.getElementById('run-' + id);
+    if (resultEl) resultEl.innerHTML = '';
+    if (dot) dot.className = 'status-dot';
+    if (copyBtn) copyBtn.style.display = 'none';
+    if (runBtn) runBtn.textContent = '▶ Run';
+  });
+  for (const k of Object.keys(_resultState)) delete _resultState[k];
+  const statusEl = document.getElementById('run-all-status');
+  if (statusEl) statusEl.textContent = '';
+}
+
+// Boot
+loadDiagsRegistry();
+</script>
+</body>
+</html>

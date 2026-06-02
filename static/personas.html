@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OfferWise — Personas &amp; Value Propositions</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/svg+xml" href="/static/logo-icon-only.svg">
+  <link rel="alternate icon" type="image/x-icon" href="/favicon.ico">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --accent:#f97316;--accent2:#f59e0b;--success:#22c55e;
+  --blue:#3b82f6;--green:#22c55e;--red:#ef4444;
+  --dark:#0f172a;--darker:#020617;
+  --surface:rgba(255,255,255,0.03);--surface2:rgba(255,255,255,0.06);
+  --border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.12);
+  --light:#f8fafc;--gray:#64748b;--gl:#94a3b8;
+}
+body{font-family:"Inter",-apple-system,sans-serif;background:var(--darker);color:var(--light);-webkit-font-smoothing:antialiased;line-height:1.6;}
+
+/* ── CHROME ── */
+.chrome{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;justify-content:space-between;align-items:center;padding:.9rem 2rem;background:rgba(2,6,23,0.9);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);}
+.logo{font-size:1.25rem;font-weight:800;color:#f1f5f9;text-decoration:none;letter-spacing:-.02em;}
+.logo .wise{background:linear-gradient(90deg,#f97316,#f59e0b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.nav-tag{font-size:.65rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--gl);border:1px solid var(--border2);padding:4px 12px;border-radius:100px;}
+.chrome-right{display:flex;gap:.5rem;align-items:center;}
+.chrome-link{font-size:.7rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--gl);text-decoration:none;padding:6px 14px;border:1px solid var(--border2);border-radius:6px;transition:all .2s;}
+.chrome-link:hover{color:var(--accent);border-color:rgba(249,115,22,.4);background:rgba(249,115,22,.05);}
+
+/* ── PAGE LAYOUT ── */
+.page{padding:90px 2rem 5rem;max-width:1200px;margin:0 auto;}
+
+/* ── HERO ── */
+.eyebrow{font-size:.68rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:1rem;display:flex;align-items:center;gap:10px;}
+.eyebrow::before{content:"";width:28px;height:1px;background:var(--accent);flex-shrink:0;}
+.hero{margin-bottom:4rem;padding-bottom:2rem;border-bottom:1px solid var(--border);}
+.hero h1{font-size:clamp(2.4rem,4.5vw,3.8rem);font-weight:900;line-height:1.05;letter-spacing:-.03em;color:#f1f5f9;margin-bottom:1.5rem;}
+.hero h1 span{color:var(--accent);}
+.hero-sub{font-size:1.05rem;color:var(--gl);line-height:1.75;margin-bottom:1.5rem;max-width:760px;}
+.hero-note{font-size:.85rem;color:var(--gray);line-height:1.75;border-left:2px solid rgba(249,115,22,.4);padding:.85rem 1.1rem;background:rgba(249,115,22,.04);border-radius:0 6px 6px 0;max-width:760px;}
+.hero-note strong{color:var(--gl);}
+
+/* ── SECTION HEAD ── */
+.sec-head{margin-bottom:2rem;}
+.sec-num{font-size:.65rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);margin-bottom:.5rem;display:flex;align-items:center;gap:10px;}
+.sec-num::before{content:"";width:24px;height:1px;background:var(--accent);}
+.sec-h2{font-size:clamp(1.6rem,3vw,2.4rem);font-weight:800;line-height:1.15;letter-spacing:-.02em;color:#f1f5f9;margin-bottom:.5rem;}
+.sec-h2 span{color:var(--accent);}
+.sec-lead{font-size:.98rem;color:var(--gl);line-height:1.7;max-width:720px;}
+
+/* ── PERSONA TIER LABEL ── */
+.tier-label{font-size:.62rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);padding:5px 12px;border:1px solid rgba(249,115,22,.3);border-radius:100px;display:inline-block;margin-bottom:1rem;background:rgba(249,115,22,.05);}
+.tier-label.enterprise{color:var(--blue);border-color:rgba(59,130,246,.3);background:rgba(59,130,246,.05);}
+
+/* ── PERSONA CARDS ── */
+.tier{margin-bottom:4rem;}
+.persona-grid{display:grid;grid-template-columns:1fr;gap:1.25rem;margin-top:1.5rem;}
+.persona{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.75rem;transition:all .25s;}
+.persona:hover{border-color:var(--border2);background:var(--surface2);}
+.persona-header{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:.85rem;flex-wrap:wrap;}
+.persona-name-block{display:flex;align-items:center;gap:.85rem;flex-wrap:wrap;}
+.persona-icon{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;background:rgba(249,115,22,.1);border:1px solid rgba(249,115,22,.25);flex-shrink:0;}
+.persona-icon.enterprise{background:rgba(59,130,246,.1);border-color:rgba(59,130,246,.25);}
+.persona-name{font-size:1.15rem;font-weight:800;color:#f1f5f9;letter-spacing:-.01em;}
+.persona-role{font-size:.65rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gray);margin-top:2px;}
+.persona-priority{font-size:.65rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gl);padding:4px 10px;border:1px solid var(--border2);border-radius:6px;white-space:nowrap;}
+.priority-primary{color:var(--accent);border-color:rgba(249,115,22,.4);background:rgba(249,115,22,.05);}
+.priority-growth{color:var(--green);border-color:rgba(34,197,94,.3);background:rgba(34,197,94,.05);}
+.priority-seq{color:var(--gl);}
+
+/* Persona body */
+.persona-body{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:1.5rem;margin-top:.75rem;}
+@media (max-width:900px){.persona-body{grid-template-columns:1fr;gap:1rem;}}
+.pb-block{}
+.pb-label{font-size:.6rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-bottom:.5rem;}
+.pb-label.gray{color:var(--gray);}
+.pb-text{font-size:.88rem;color:var(--gl);line-height:1.65;}
+.pb-text strong{color:#f1f5f9;}
+.pb-text em{color:var(--gray);font-style:italic;}
+
+.persona-meta{display:flex;gap:1.25rem;margin-top:1.25rem;padding-top:1rem;border-top:1px solid var(--border);font-size:.75rem;color:var(--gray);flex-wrap:wrap;}
+.persona-meta-item{display:flex;align-items:center;gap:.4rem;}
+.persona-meta-item strong{color:#f1f5f9;font-weight:700;}
+
+/* ── TRADEMARKED OUTPUTS ── */
+.trademarks{display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem;margin-top:1.5rem;}
+@media (max-width:900px){.trademarks{grid-template-columns:1fr;}}
+.tm{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.5rem;}
+.tm-name{font-size:1.05rem;font-weight:800;color:#f1f5f9;margin-bottom:.4rem;letter-spacing:-.01em;}
+.tm-tag{font-size:.6rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:.85rem;}
+.tm-desc{font-size:.85rem;color:var(--gl);line-height:1.65;margin-bottom:1rem;}
+.tm-users{font-size:.7rem;color:var(--gray);padding-top:.75rem;border-top:1px solid var(--border);}
+.tm-users strong{color:var(--gl);}
+
+/* ── HONEST READ (observations) ── */
+.observations{display:grid;grid-template-columns:1fr;gap:1rem;margin-top:1.5rem;}
+.obs{background:var(--surface);border-left:3px solid var(--accent);border-radius:0 10px 10px 0;padding:1.1rem 1.4rem;}
+.obs-num{font-size:.6rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-bottom:.4rem;}
+.obs-title{font-size:1rem;font-weight:700;color:#f1f5f9;margin-bottom:.4rem;letter-spacing:-.01em;}
+.obs-text{font-size:.88rem;color:var(--gl);line-height:1.7;}
+.obs-text strong{color:#f1f5f9;}
+
+/* ── CALLOUT (the thesis-page-out-of-sync flag) ── */
+.callout{background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.25);border-radius:10px;padding:1.1rem 1.4rem;margin:2rem 0;}
+.callout-tag{font-size:.6rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-bottom:.4rem;}
+.callout-text{font-size:.88rem;color:var(--gl);line-height:1.7;}
+.callout-text strong{color:#f1f5f9;}
+
+/* ── STRATEGIC RECOMMENDATIONS ── */
+.recs{display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem;margin-top:1.5rem;}
+@media (max-width:900px){.recs{grid-template-columns:1fr;}}
+.rec{background:linear-gradient(180deg,rgba(249,115,22,.04) 0%,var(--surface) 100%);border:1px solid rgba(249,115,22,.15);border-radius:14px;padding:1.5rem;}
+.rec-num{font-size:1.8rem;font-weight:900;color:var(--accent);line-height:1;margin-bottom:.5rem;letter-spacing:-.02em;}
+.rec-title{font-size:1rem;font-weight:800;color:#f1f5f9;margin-bottom:.6rem;letter-spacing:-.01em;}
+.rec-text{font-size:.85rem;color:var(--gl);line-height:1.65;}
+
+/* ── FOOTER ── */
+.footer{margin-top:5rem;padding-top:2rem;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;font-size:.75rem;color:var(--gray);}
+.footer-link{color:var(--gl);text-decoration:none;border-bottom:1px solid var(--border2);transition:color .2s;}
+.footer-link:hover{color:var(--accent);border-color:var(--accent);}
+
+/* ── UTILITY ── */
+.subhead{font-size:.85rem;color:var(--gray);margin-top:.4rem;font-weight:500;}
+
+@media (max-width:768px){
+  .page{padding:80px 1rem 3rem;}
+  .persona-body{grid-template-columns:1fr;}
+  .persona-meta{font-size:.7rem;gap:.75rem;}
+}
+</style>
+</head>
+<body>
+
+<!-- Chrome -->
+<div class="chrome">
+  <a href="/" class="logo">Offer<span class="wise">Wise</span></a>
+  <div class="chrome-right">
+    <span class="nav-tag">Personas &amp; Value</span>
+    <a href="/thesis" class="chrome-link">Thesis</a>
+  </div>
+</div>
+
+<div class="page">
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="eyebrow">Persona Map · Read &amp; Reference</div>
+    <h1>Who we serve.<br>And <span>how the value compounds.</span></h1>
+    <p class="hero-sub">OfferWise positions for eight personas across two distinct commercial motions: a self-serve SaaS funnel built around the homebuyer, and a sales-led enterprise/API motion built around real-estate-adjacent businesses that consume property-condition intelligence. The buyer is the trunk of the tree; the rest are branches that either feed buyers in or monetize their data on the way out.</p>
+    <div class="hero-note">
+      <strong>How to read this page.</strong> Each persona is graded on commercial priority (Primary / Growth Multiplier / Sequenced) and motion (SaaS / Enterprise). The grading reflects what the codebase actually supports today — pricing tiers, free quotas, sales CTAs — not aspirations. Where the live thesis page diverges from current state, the divergence is flagged in-line.
+    </div>
+  </div>
+
+  <!-- TIER 1: PRIMARY BUYER -->
+  <div class="tier">
+    <div class="sec-head">
+      <div class="sec-num">Tier 1 · The Trunk</div>
+      <div class="tier-label">Self-Serve SaaS · Primary</div>
+      <h2 class="sec-h2">The buyer is <span>the whole business.</span></h2>
+      <p class="sec-lead">The buyer is paying us today. The buyer's data trains our models. The buyer's referrals reach the next buyer. Every other persona either feeds buyers into this funnel or extracts value from buyer-generated artifacts on the way through. Lose buyer-side scale and the rest of the diagram collapses.</p>
+    </div>
+
+    <div class="persona-grid">
+
+      <!-- BUYER -->
+      <div class="persona">
+        <div class="persona-header">
+          <div class="persona-name-block">
+            <div class="persona-icon">🏠</div>
+            <div>
+              <div class="persona-name">Homebuyer</div>
+              <div class="persona-role">Primary Persona · 80%+ of revenue today</div>
+            </div>
+          </div>
+          <span class="persona-priority priority-primary">Primary</span>
+        </div>
+        <div class="persona-body">
+          <div class="pb-block">
+            <div class="pb-label">Job-to-be-Done</div>
+            <div class="pb-text">"I'm about to spend $500K to $2M. The disclosure looks clean but the inspection found problems. <strong>Should I worry, walk, or negotiate?</strong>" Buyers come into the flow at the moment of maximum financial anxiety — between offer-acceptance and inspection-contingency expiration — when speed and clarity matter more than depth.</div>
+          </div>
+          <div class="pb-block">
+            <div class="pb-label">What we sell</div>
+            <div class="pb-text">AI analysis of seller-disclosure + inspection-report PDFs. Output: <strong>OfferScore™</strong> (single rating), <strong>Property Risk DNA™</strong> (multi-dimensional risk breakdown), <strong>Seller Transparency Report™</strong> (cross-reference of disclosure vs inspection contradictions), repair-cost breakdown with permit requirements, and a recommended offer price with negotiation talking points.</div>
+          </div>
+          <div class="pb-block">
+            <div class="pb-label">Why us, not Zillow</div>
+            <div class="pb-text">Zestimates price the property; they don't audit the seller's honesty. <strong>Contradiction detection between disclosure and inspection is the differentiator.</strong> No public competitor cross-references these documents. Comps + cost data are table stakes; the cross-reference engine is the moat.</div>
+          </div>
+        </div>
+        <div class="persona-meta">
+          <div class="persona-meta-item">Pricing: <strong>$9 / $19 / $49</strong></div>
+          <div class="persona-meta-item">Tiers: Starter · Pro · Unlimited</div>
+          <div class="persona-meta-item">Acquisition: organic search, Google Ads, Reddit, inspector referral</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- TIER 2: GROWTH MULTIPLIERS -->
+  <div class="tier">
+    <div class="sec-head">
+      <div class="sec-num">Tier 2 · Branches that feed the trunk</div>
+      <div class="tier-label">Self-Serve SaaS · Growth Multipliers</div>
+      <h2 class="sec-h2">Three personas exist <span>to bring more buyers.</span></h2>
+      <p class="sec-lead">Inspectors, agents, and contractors aren't standalone profit centers in the current revenue mix — they're acquisition channels priced cheap or free to maximize through-flow. Their CAC for buyers is approximately zero; the buyer LTV they generate is the actual yield.</p>
+    </div>
+
+    <div class="persona-grid">
+
+      <!-- INSPECTOR -->
+      <div class="persona">
+        <div class="persona-header">
+          <div class="persona-name-block">
+            <div class="persona-icon">🔍</div>
+            <div>
+              <div class="persona-name">Home Inspector</div>
+              <div class="persona-role">Growth Multiplier · Acquisition Channel</div>
+            </div>
+          </div>
+          <span class="persona-priority priority-growth">Growth Multiplier</span>
+        </div>
+        <div class="persona-body">
+          <div class="pb-block">
+            <div class="pb-label">Job-to-be-Done</div>
+            <div class="pb-text">"I write a 40-page report listing 80 issues. The buyer reads three pages and panics. The agent tells them everything's fine. <strong>I lose the relationship and the next referral.</strong>" Inspectors want their work understood, not misread.</div>
+          </div>
+          <div class="pb-block">
+            <div class="pb-label">What we sell</div>
+            <div class="pb-text">A way to give every report a buyer-friendly companion <strong>without integration work</strong>. Inspector sends the buyer a branded link. Buyer gets findings + cost estimates + permit needs in plain language. Inspector's logo on top. Free for the first 5 reports/month, then $49/mo.</div>
+          </div>
+          <div class="pb-block">
+            <div class="pb-label">Why this matters strategically</div>
+            <div class="pb-text">Each inspector partnership is a recurring buyer-acquisition channel. <strong>One inspector who does 5-10 reports/week is 250-500 buyers/year</strong> with near-zero CAC. The inspector loop-back email (mentioned in thesis) closes the loop by showing the inspector how their report drove offer outcomes.</div>
+          </div>
+        </div>
+        <div class="persona-meta">
+          <div class="persona-meta-item">Pricing: <strong>Free → $49/mo</strong></div>
+          <div class="persona-meta-item">5 reports/month free tier</div>
+          <div class="persona-meta-item">Self-serve onboarding at <em>/inspector-onboarding</em></div>
+        </div>
+      </div>
+
+      <!-- BUYER'S AGENT -->
+      <div class="persona">
+        <div class="persona-header">
+          <div class="persona-name-block">
+            <div class="persona-icon">🤝</div>
+            <div>
+              <div class="persona-name">Buyer's Agent</div>
+              <div class="persona-role">Growth Multiplier · Deal-Saver Tool</div>
+            </div>
+          </div>
+          <span class="persona-priority priority-growth">Growth Multiplier</span>
+        </div>
+        <div class="persona-body">
+          <div class="pb-block">
+            <div class="pb-label">Job-to-be-Done</div>
+            <div class="pb-text">"Inspection just came back. My buyer wants to lowball $50K. The list agent will walk. <strong>How do I save this deal AND protect my buyer?</strong>" Agents lose 20-30% of deals at inspection contingency; OfferWise gives them a defensible recommendation grounded in data.</div>
+          </div>
+          <div class="pb-block">
+            <div class="pb-label">What we sell</div>
+            <div class="pb-text">A way to look smart without becoming a structural engineer. Agent shares an OfferWise link with the buyer. Buyer gets data-backed offer recommendation. <strong>Agent positions as "I bring tools other agents don't"</strong> and earns referral revenue.</div>
+          </div>
+          <div class="pb-block">
+            <div class="pb-label">Why this matters strategically</div>
+            <div class="pb-text">B2B2C wedge — agent earns referral commissions, OfferWise gets the buyer relationship. <strong>Agent partnerships reduce inspection-contingency deal-fall-through</strong>, which both agents and OfferWise benefit from. White-label agent landing pages already in code (<em>/agent-landing</em>).</div>
+          </div>
+        </div>
+        <div class="persona-meta">
+          <div class="persona-meta-item">Pricing: <strong>Free → $29/mo</strong></div>
+          <div class="persona-meta-item">10 analyses/month free tier</div>
+          <div class="persona-meta-item">Branded portal at <em>/agent-portal</em></div>
+        </div>
+      </div>
+
+      <!-- CONTRACTOR -->
+      <div class="persona">
+        <div class="persona-header">
+          <div class="persona-name-block">
+            <div class="persona-icon">🔧</div>
+            <div>
+              <div class="persona-name">Contractor</div>
+              <div class="persona-role">Growth Multiplier · Marketplace Demand-Side</div>
+            </div>
+          </div>
+          <span class="persona-priority priority-seq">Sequenced</span>
+        </div>
+        <div class="persona-body">
+          <div class="pb-block">
+            <div class="pb-label">Job-to-be-Done</div>
+            <div class="pb-text">"Lead-gen costs me $40-100/lead from Angi/HomeAdvisor. <strong>Most are tire-kickers.</strong> I want pre-qualified buyers with budgets who already know they need work done." Contractors want intent-rich leads, not impressions.</div>
+          </div>
+          <div class="pb-block">
+            <div class="pb-label">What we sell</div>
+            <div class="pb-text">Pre-qualified leads for every trade identified in inspections. Buyer's report flags "you'll need a roofer + HVAC tech + electrician." Contractor pays <strong>flat $49/mo</strong>, gets matched to inspection-driven leads in their service area. <em>No referral fees, no per-lead pricing.</em></div>
+          </div>
+          <div class="pb-block">
+            <div class="pb-label">Honest sequencing note</div>
+            <div class="pb-text">Two-sided marketplace play. <strong>Lead density requires buyer-side scale we don't have yet.</strong> Currently scaffolded but underpowered until buyer flow grows. Realistic timeline: meaningful contractor revenue is 12-24 months out, after we reach ~5K monthly buyer analyses.</div>
+          </div>
+        </div>
+        <div class="persona-meta">
+          <div class="persona-meta-item">Pricing: <strong>$49/mo flat</strong></div>
+          <div class="persona-meta-item">No referral fees, no commissions</div>
+          <div class="persona-meta-item">Onboarding at <em>/contractor-onboarding</em></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- TIER 3: ENTERPRISE / API -->
+  <div class="tier">
+    <div class="sec-head">
+      <div class="sec-num">Tier 3 · Branches that monetize buyer data</div>
+      <div class="tier-label enterprise">Sales-Led Enterprise / API · Sequenced</div>
+      <h2 class="sec-h2">Four personas buy <span>buyer-generated intelligence.</span></h2>
+      <p class="sec-lead">Lenders, title companies, insurance underwriters, and appraisers all consume buyer-generated property-condition data through API integrations. These are sales-led ("Talk to Us" CTAs), longer cycles, higher contract values, and entirely separate go-to-market mechanics from the SaaS funnel above. Each addresses a real underwriting or workflow gap in their industry — but each requires meaningful buyer-side data accumulation before the sale becomes credible.</p>
+    </div>
+
+    <div class="persona-grid">
+
+      <!-- LENDER -->
+      <div class="persona">
+        <div class="persona-header">
+          <div class="persona-name-block">
+            <div class="persona-icon enterprise">🏦</div>
+            <div>
+              <div class="persona-name">Lender / Mortgage Underwriter</div>
+              <div class="persona-role">Enterprise · Underwriting Intelligence</div>
+            </div>
+          </div>
+          <span class="persona-priority priority-seq">Sequenced</span>
+        </div>
+        <div class="persona-body">
+          <div class="pb-block">
+            <div class="pb-label">Job-to-be-Done</div>
+            <div class="pb-text">"Appraisals tell me what the property is theoretically worth. <strong>They don't tell me what's actually wrong with it.</strong> I'm underwriting a 30-year loan with stale data." Inspections find condition issues appraisals miss.</div>
+          </div>
+          <div class="pb-block">
+            <div class="pb-label">What we sell</div>
+            <div class="pb-text">Property condition intelligence API for underwriting. Three endpoints feed loan-decision pipelines, plug into existing LOS systems, add inspection-based risk signals. <strong>Sold via "Talk to Us" — sales-led, not self-serve.</strong></div>
+          </div>
+          <div class="pb-block">
+            <div class="pb-label">Honest sequencing note</div>
+            <div class="pb-text">Smaller TAM than buyer-side, higher contract value. <strong>Realistic wedge: regional/community lenders</strong> doing high-LTV loans where condition risk matters most. Big banks have internal underwriting tools they won't replace; the entry point is mid-market.</div>
+          </div>
+        </div>
+        <div class="persona-meta">
+          <div class="persona-meta-item">Pricing: <strong>"Talk to Us"</strong> · API tiers</div>
+          <div class="persona-meta-item">Three endpoints documented at <em>/api-docs</em></div>
+        </div>
+      </div>
+
+      <!-- TITLE -->
+      <div class="persona">
+        <div class="persona-header">
+          <div class="persona-name-block">
+            <div class="persona-icon enterprise">📜</div>
+            <div>
+              <div class="persona-name">Title Company</div>
+              <div class="persona-role">Enterprise · Closing Differentiation</div>
+            </div>
+          </div>
+          <span class="persona-priority priority-seq">Sequenced</span>
+        </div>
+        <div class="persona-body">
+          <div class="pb-block">
+            <div class="pb-label">Job-to-be-Done</div>
+            <div class="pb-text">"Our closings are commodities. Every title company offers the same thing. <strong>How do I differentiate without building tech?</strong>" Title companies compete on relationships and price; data products are out of reach for most.</div>
+          </div>
+          <div class="pb-block">
+            <div class="pb-label">What we sell</div>
+            <div class="pb-text">AI-powered disclosure analysis as a closing add-on. <strong>White-label OfferWise reports delivered alongside title docs.</strong> Title company adds value to every closing, gets repeat business from agents and lenders.</div>
+          </div>
+          <div class="pb-block">
+            <div class="pb-label">Honest sequencing note</div>
+            <div class="pb-text">Differentiation play, not core product. Real opportunity is partner-channel: title companies refer buyers in, distribute analysis at closing, become a third acquisition channel after inspectors and agents. <strong>Sequenced behind buyer-side scale.</strong></div>
+          </div>
+        </div>
+        <div class="persona-meta">
+          <div class="persona-meta-item">Pricing: <strong>"Talk to Us"</strong></div>
+          <div class="persona-meta-item">White-label option in roadmap</div>
+        </div>
+      </div>
+
+      <!-- INSURANCE -->
+      <div class="persona">
+        <div class="persona-header">
+          <div class="persona-name-block">
+            <div class="persona-icon enterprise">🛡️</div>
+            <div>
+              <div class="persona-name">Insurance Underwriter</div>
+              <div class="persona-role">Enterprise · Pre-Bind Risk Profile</div>
+            </div>
+          </div>
+          <span class="persona-priority priority-seq">Sequenced</span>
+        </div>
+        <div class="persona-body">
+          <div class="pb-block">
+            <div class="pb-label">Job-to-be-Done</div>
+            <div class="pb-text">"I'm pricing a homeowners policy with whatever the broker tells me. <strong>I find out the roof is 25 years old AFTER the first claim.</strong>" Property condition is the largest predictor of claims, and underwriters fly blind without it.</div>
+          </div>
+          <div class="pb-block">
+            <div class="pb-label">What we sell</div>
+            <div class="pb-text">Property risk profiles available pre-bind. Roof age, foundation issues, water damage history, fire-zone exposure, electrical-panel age — <strong>data points that change premium decisions.</strong> API integration into underwriting platforms.</div>
+          </div>
+          <div class="pb-block">
+            <div class="pb-label">Honest sequencing note</div>
+            <div class="pb-text">Specialty lines (high-value homes, coastal properties, older housing stock) are the realistic wedge. Standard policy underwriting is dominated by Verisk and CoreLogic — direct competition is brutal. <strong>Niche entry, then expand.</strong></div>
+          </div>
+        </div>
+        <div class="persona-meta">
+          <div class="persona-meta-item">Pricing: <strong>"Contact Sales"</strong></div>
+          <div class="persona-meta-item">API access pattern matches Lender</div>
+        </div>
+      </div>
+
+      <!-- APPRAISER -->
+      <div class="persona">
+        <div class="persona-header">
+          <div class="persona-name-block">
+            <div class="persona-icon enterprise">📐</div>
+            <div>
+              <div class="persona-name">Appraiser</div>
+              <div class="persona-role">Enterprise · Pre-Dispatch Intelligence</div>
+            </div>
+          </div>
+          <span class="persona-priority priority-seq">Sequenced</span>
+        </div>
+        <div class="persona-body">
+          <div class="pb-block">
+            <div class="pb-label">Job-to-be-Done</div>
+            <div class="pb-text">"I drive 90 minutes to a property cold, do a 30-minute walk-through, write a defensible report. <strong>I miss things because I came in blind.</strong>" Pre-walk intelligence reduces revisits and errors.</div>
+          </div>
+          <div class="pb-block">
+            <div class="pb-label">What we sell</div>
+            <div class="pb-text">Property intelligence before dispatch. Pre-screen each assignment: known issues from prior inspections, comp accuracy notes, hazard exposure. <strong>Walks in informed, writes faster, defends more easily.</strong></div>
+          </div>
+          <div class="pb-block">
+            <div class="pb-label">Honest sequencing note</div>
+            <div class="pb-text">Smallest TAM of the four enterprise personas. Specialty (niche, high-margin) but tertiary in priority. <strong>Realistically 24-36 months out</strong> as a meaningful revenue stream. Worth keeping the page live for inbound, but no outbound effort warranted.</div>
+          </div>
+        </div>
+        <div class="persona-meta">
+          <div class="persona-meta-item">Pricing: <strong>"Contact Sales"</strong></div>
+          <div class="persona-meta-item">Tertiary priority among enterprise personas</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- TRADEMARKED OUTPUTS -->
+  <div class="tier">
+    <div class="sec-head">
+      <div class="sec-num">Output layer · The product artifacts</div>
+      <h2 class="sec-h2">Three outputs <span>cross every persona.</span></h2>
+      <p class="sec-lead">These are the named, trademark-protected artifacts the analysis pipeline produces. Each is consumed by buyers directly and referenced in API responses for enterprise integrations. The artifacts are how value travels from buyer-generated data into every other persona's workflow.</p>
+    </div>
+
+    <div class="trademarks">
+      <div class="tm">
+        <div class="tm-tag">Single-Number Rating</div>
+        <div class="tm-name">OfferScore™</div>
+        <div class="tm-desc">A 0-100 property rating summarizing condition, comp-relative price, and risk exposure. The headline number on every analysis. Designed to be defensible at a buyer's kitchen table and citable in an offer letter.</div>
+        <div class="tm-users"><strong>Used by:</strong> Buyers (primary), Agents (talking point), Lenders (underwriting input)</div>
+      </div>
+      <div class="tm">
+        <div class="tm-tag">Multi-Dimensional Risk</div>
+        <div class="tm-name">Property Risk DNA™</div>
+        <div class="tm-desc">A multi-axis breakdown across structural, environmental, mechanical, neighborhood, and legal dimensions. Each axis scored independently so buyers see WHERE risk concentrates, not just THAT it exists.</div>
+        <div class="tm-users"><strong>Used by:</strong> Buyers, Insurance Underwriters, Appraisers</div>
+      </div>
+      <div class="tm">
+        <div class="tm-tag">Differentiator</div>
+        <div class="tm-name">Seller Transparency Report™</div>
+        <div class="tm-desc">Cross-references the seller's disclosure against the inspection report and surfaces contradictions ("seller said no water damage; inspection found bathroom subfloor rot"). The single largest differentiator vs Zillow / Redfin / public comps tools.</div>
+        <div class="tm-users"><strong>Used by:</strong> Buyers (primary), Agents (negotiation tool)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- THESIS-OUT-OF-SYNC CALLOUT -->
+  <div class="callout">
+    <div class="callout-tag">Internal note · Thesis page divergence</div>
+    <div class="callout-text"><strong>The investor thesis page (/thesis) currently states "Six loops · Four personas · One engine."</strong> That four-persona framing reflects the original SaaS positioning (Buyer + Inspector + Agent + Contractor) before the four enterprise personas (Lender, Title, Insurance, Appraiser) were added. Both framings are valid for different audiences: investors evaluating the SaaS engine see four; partners evaluating distribution see eight. The thesis page should be updated, or this page should be linked from the thesis page as "complete persona map," to avoid confusion when both are reviewed in the same conversation.</div>
+  </div>
+
+  <!-- HONEST READ -->
+  <div class="tier">
+    <div class="sec-head">
+      <div class="sec-num">Strategic observations · Read after the table</div>
+      <h2 class="sec-h2">Six things the persona map <span>actually says.</span></h2>
+      <p class="sec-lead">These observations come from reading the deployed code, not from a strategic deck. They're meant to be directional rather than definitive — to be used in product decisions, fundraising conversations, and team alignment.</p>
+    </div>
+
+    <div class="observations">
+      <div class="obs">
+        <div class="obs-num">Observation 01</div>
+        <div class="obs-title">The buyer is the entire commercial engine today.</div>
+        <div class="obs-text">The other seven personas exist to drive buyers into the funnel (inspectors send buyers, agents share with buyers, contractors get matched to buyers' needs) OR to monetize buyer-generated data downstream (lenders, insurance, title, appraisers buy the analysis output). <strong>The buyer is the trunk; everyone else is a branch.</strong> Every product decision should weight buyer-side outcomes 5-10x more than the others until that ratio shifts.</div>
+      </div>
+
+      <div class="obs">
+        <div class="obs-num">Observation 02</div>
+        <div class="obs-title">Two distinct commercial motions live in this codebase.</div>
+        <div class="obs-text">Personas 1-4 are <strong>self-serve SaaS</strong> with $9-$49 pricing and Stripe checkout. Personas 5-8 are <strong>sales-led enterprise/API</strong> with "Talk to Us" CTAs. These have different unit economics, different sales cycles, different team requirements. The codebase serves both but the website doesn't yet acknowledge the bifurcation visibly. Marketing surface area should be reorganized to reflect the distinction.</div>
+      </div>
+
+      <div class="obs">
+        <div class="obs-num">Observation 03</div>
+        <div class="obs-title">Inspector and Agent are growth multipliers, not profit centers.</div>
+        <div class="obs-text">Free tiers (5/month, 10/month) suggest the strategy already understands this — they're acquisition channels priced cheap or free to maximize through-flow. <strong>The CAC for buyers acquired through inspector links is essentially zero</strong>; the LTV is whatever the buyer pays. Direct inspector/agent revenue is bonus, not the goal. Maximize partnership volume; don't optimize per-partner ARR.</div>
+      </div>
+
+      <div class="obs">
+        <div class="obs-num">Observation 04</div>
+        <div class="obs-title">Contractor is a marketplace play that depends on buyer volume.</div>
+        <div class="obs-text">$49/mo flat with no per-lead fees sounds compelling — but only works at scale. <strong>With current buyer volume (~122 paid clicks per 90 days from Google Ads as of v5.87.90 GSC data), the contractor side won't have enough lead density to deliver value.</strong> Realistic activation is 12-24 months out, after buyer flow scales to ~5K monthly analyses. Until then, position contractor partnerships as "early access" rather than full GA.</div>
+      </div>
+
+      <div class="obs">
+        <div class="obs-num">Observation 05</div>
+        <div class="obs-title">Search intent validates buyer focus, not professional outreach.</div>
+        <div class="obs-text">The Search Console + Google Ads intent data (v5.87.90) shows comps queries dominate at 33.6%, tools at 12.3%, cost at 4.9% — <strong>all buyer-intent searches.</strong> Zero meaningful queries hit the for-inspectors / for-lenders surfaces. The professional personas need outbound (cold outreach, partnerships, conferences, podcast appearances) — they don't get found via search. Plan B2B GTM accordingly; don't expect SEO to solve it.</div>
+      </div>
+
+      <div class="obs">
+        <div class="obs-num">Observation 06</div>
+        <div class="obs-title">The mega-menu treats all 8 personas as peers. They aren't.</div>
+        <div class="obs-text">Buyer is 80%+ of revenue today; the others are sequenced future bets. The current top nav doesn't reflect this — Products dropdown shows seven persona links with equal visual weight. <strong>A truer hierarchy would be: Buyer (homepage) → Sub-menu of "For Professionals" with the SaaS partners → Separate "Enterprise" CTA for the API personas.</strong> The recent v5.87.91 top-bar widget work (prioritizing buyer-flow visibility over preserving all 8 persona links) was correctly aligned with this.</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- STRATEGIC RECOMMENDATIONS -->
+  <div class="tier">
+    <div class="sec-head">
+      <div class="sec-num">Recommendations · Actionable next steps</div>
+      <h2 class="sec-h2">Three decisions <span>this map should inform.</span></h2>
+      <p class="sec-lead">Pulled directly from the observations above. Each is a specific structural change, not a directional comment.</p>
+    </div>
+
+    <div class="recs">
+      <div class="rec">
+        <div class="rec-num">01</div>
+        <div class="rec-title">Front door = buyer. Side doors = everyone else.</div>
+        <div class="rec-text">The recent top-bar widget work was correct in prioritizing the buyer flow over preserving all 8 persona links in the nav. Keep going in that direction. Restructure the nav to: Buyer-led hero → "For Professionals" submenu (Inspectors, Agents, Contractors) → "Enterprise" separate CTA (Lenders, Title, Insurance, Appraisers).</div>
+      </div>
+      <div class="rec">
+        <div class="rec-num">02</div>
+        <div class="rec-title">Visually separate SaaS from Enterprise.</div>
+        <div class="rec-text">The 4 self-serve SaaS personas should share marketing surface area — they flow into each other and feed buyer growth. The 4 enterprise personas need a separate "Enterprise" section with sales-led CTAs, not equal nav placement. Different unit economics deserve different marketing real estate.</div>
+      </div>
+      <div class="rec">
+        <div class="rec-num">03</div>
+        <div class="rec-title">Sequence professional personas honestly.</div>
+        <div class="rec-text">Until buyer-side scales, professional personas are aspirational. Inspector partnership is most validated (free tier in code, lowest friction) and most strategic (recurring referral). Agent is second. Contractor needs buyer volume. Enterprise needs sales hires. Plan investment of effort accordingly; don't dilute focus across all eight equally.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div>OfferWise · Personas &amp; Value Propositions · v5.87.95+</div>
+    <div>
+      <a href="/thesis" class="footer-link">Investment thesis</a> ·
+      <a href="/architecture" class="footer-link">Architecture</a> ·
+      <a href="/" class="footer-link">Home</a>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

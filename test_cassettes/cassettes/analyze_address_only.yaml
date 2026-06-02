@@ -1,0 +1,378 @@
+interactions:
+- request:
+    body: null
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate, br
+      Connection:
+      - keep-alive
+      User-Agent:
+      - python-requests/2.31.0
+      x-api-key:
+      - <REDACTED>
+    method: GET
+    uri: https://api.rentcast.io/v1/avm/value?address=123+Cassette+Test+Lane%2C+San+Jose%2C+CA&compCount=10&daysOld=180&maxRadius=5
+  response:
+    body:
+      string: '{"price":1950000,"priceRangeLow":1436000,"priceRangeHigh":2464000,"latitude":37.2255172,"longitude":-121.8422511,"subjectProperty":{"addressLine1":"Hill
+        Ln","addressLine2":null,"city":"San Jose","state":"CA","stateFips":"06","latitude":37.2255172,"longitude":-121.8422511},"comparables":[{"id":"20011-Graystone-Ln,-San-Jose,-CA-95120","formattedAddress":"20011
+        Graystone Ln, San Jose, CA 95120","addressLine1":"20011 Graystone Ln","addressLine2":null,"city":"San
+        Jose","state":"CA","stateFips":"06","zipCode":"95120","county":"Santa Clara","countyFips":"085","latitude":37.22566,"longitude":-121.836878,"propertyType":"Land","lotSize":1032372,"status":"Active","price":2650000,"listingType":"Standard","listedDate":"2026-01-29T00:00:00.000Z","removedDate":null,"lastSeenDate":"2026-05-10T10:15:16.449Z","daysOnMarket":102,"distance":0.2961,"daysOld":1,"correlation":0.9852},{"id":"18616-Skuse-Ct,-San-Jose,-CA-95120","formattedAddress":"18616
+        Skuse Ct, San Jose, CA 95120","addressLine1":"18616 Skuse Ct","addressLine2":null,"city":"San
+        Jose","state":"CA","stateFips":"06","zipCode":"95120","county":"Santa Clara","countyFips":"085","latitude":37.222326,"longitude":-121.83904,"propertyType":"Single
+        Family","bedrooms":3,"bathrooms":2.5,"squareFootage":2964,"lotSize":80150,"yearBuilt":1993,"status":"Inactive","price":2899998,"listingType":"Standard","listedDate":"2026-02-12T00:00:00.000Z","removedDate":"2026-02-21T00:00:00.000Z","lastSeenDate":"2026-02-20T08:08:24.256Z","daysOnMarket":9,"distance":0.2829,"daysOld":80,"correlation":0.9851},{"id":"6605-Bret-Harte-Dr,-San-Jose,-CA-95120","formattedAddress":"6605
+        Bret Harte Dr, San Jose, CA 95120","addressLine1":"6605 Bret Harte Dr","addressLine2":null,"city":"San
+        Jose","state":"CA","stateFips":"06","zipCode":"95120","county":"Santa Clara","countyFips":"085","latitude":37.220202,"longitude":-121.846824,"propertyType":"Single
+        Family","bedrooms":5,"bathrooms":2,"squareFootage":2647,"lotSize":7392,"yearBuilt":1969,"status":"Inactive","price":2498888,"listingType":"Standard","listedDate":"2025-11-29T00:00:00.000Z","removedDate":"2025-12-19T00:00:00.000Z","lastSeenDate":"2025-12-18T07:58:23.141Z","daysOnMarket":20,"distance":0.4457,"daysOld":144,"correlation":0.9763},{"id":"6256-Hokett-Way,-San-Jose,-CA-95123","formattedAddress":"6256
+        Hokett Way, San Jose, CA 95123","addressLine1":"6256 Hokett Way","addressLine2":null,"city":"San
+        Jose","state":"CA","stateFips":"06","zipCode":"95123","county":"Santa Clara","countyFips":"085","latitude":37.232261,"longitude":-121.839638,"propertyType":"Single
+        Family","bedrooms":3,"bathrooms":2,"squareFootage":1409,"lotSize":6206,"yearBuilt":1968,"status":"Inactive","price":1499000,"listingType":"Standard","listedDate":"2026-01-07T00:00:00.000Z","removedDate":"2026-01-16T00:00:00.000Z","lastSeenDate":"2026-01-15T08:10:23.641Z","daysOnMarket":9,"distance":0.4882,"daysOld":116,"correlation":0.9745},{"id":"6204-Valley-Glen-Ct,-San-Jose,-CA-95123","formattedAddress":"6204
+        Valley Glen Ct, San Jose, CA 95123","addressLine1":"6204 Valley Glen Ct","addressLine2":null,"city":"San
+        Jose","state":"CA","stateFips":"06","zipCode":"95123","county":"Santa Clara","countyFips":"085","latitude":37.232385,"longitude":-121.845484,"propertyType":"Single
+        Family","bedrooms":4,"bathrooms":2,"squareFootage":1843,"lotSize":8712,"yearBuilt":1971,"status":"Inactive","price":1750000,"listingType":"Standard","listedDate":"2026-02-09T00:00:00.000Z","removedDate":"2026-02-15T00:00:00.000Z","lastSeenDate":"2026-02-14T07:55:28.350Z","daysOnMarket":6,"distance":0.5073,"daysOld":86,"correlation":0.9738},{"id":"6247-Hokett-Way,-San-Jose,-CA-95123","formattedAddress":"6247
+        Hokett Way, San Jose, CA 95123","addressLine1":"6247 Hokett Way","addressLine2":null,"city":"San
+        Jose","state":"CA","stateFips":"06","zipCode":"95123","county":"Santa Clara","countyFips":"085","latitude":37.232549,"longitude":-121.840213,"propertyType":"Single
+        Family","bedrooms":4,"bathrooms":2,"squareFootage":1495,"lotSize":6018,"yearBuilt":1968,"status":"Inactive","price":1299000,"listingType":"Standard","listedDate":"2025-11-14T00:00:00.000Z","removedDate":"2025-12-04T00:00:00.000Z","lastSeenDate":"2025-12-03T07:20:51.808Z","daysOnMarket":20,"distance":0.4992,"daysOld":159,"correlation":0.9735},{"id":"18950-Graystone-Ln,-San-Jose,-CA-95120","formattedAddress":"18950
+        Graystone Ln, San Jose, CA 95120","addressLine1":"18950 Graystone Ln","addressLine2":null,"city":"San
+        Jose","state":"CA","stateFips":"06","zipCode":"95120","county":"Santa Clara","countyFips":"085","latitude":37.218407,"longitude":-121.839723,"propertyType":"Single
+        Family","bedrooms":3,"bathrooms":2.5,"squareFootage":1956,"lotSize":45302,"yearBuilt":1962,"status":"Inactive","price":2100000,"listingType":"Standard","listedDate":"2025-09-24T00:00:00.000Z","removedDate":"2025-11-20T00:00:00.000Z","lastSeenDate":"2025-11-19T09:28:02.633Z","daysOnMarket":57,"distance":0.5111,"daysOld":173,"correlation":0.9727},{"id":"6225-Gunter-Way,-San-Jose,-CA-95123","formattedAddress":"6225
+        Gunter Way, San Jose, CA 95123","addressLine1":"6225 Gunter Way","addressLine2":null,"city":"San
+        Jose","state":"CA","stateFips":"06","zipCode":"95123","county":"Santa Clara","countyFips":"085","latitude":37.232454,"longitude":-121.837978,"propertyType":"Single
+        Family","bedrooms":3,"bathrooms":2,"squareFootage":1495,"lotSize":6600,"yearBuilt":1971,"status":"Inactive","price":1450000,"listingType":"Standard","listedDate":"2026-03-10T00:00:00.000Z","removedDate":"2026-03-18T00:00:00.000Z","lastSeenDate":"2026-03-17T07:29:24.058Z","daysOnMarket":8,"distance":0.5344,"daysOld":55,"correlation":0.9727},{"id":"6219-Evangeline-Dr,-San-Jose,-CA-95123","formattedAddress":"6219
+        Evangeline Dr, San Jose, CA 95123","addressLine1":"6219 Evangeline Dr","addressLine2":null,"city":"San
+        Jose","state":"CA","stateFips":"06","zipCode":"95123","county":"Santa Clara","countyFips":"085","latitude":37.233215,"longitude":-121.844479,"propertyType":"Single
+        Family","bedrooms":5,"bathrooms":3,"squareFootage":2384,"lotSize":8540,"yearBuilt":1969,"status":"Inactive","price":1899000,"listingType":"Standard","listedDate":"2026-02-25T00:00:00.000Z","removedDate":"2026-03-07T00:00:00.000Z","lastSeenDate":"2026-03-06T08:32:37.463Z","daysOnMarket":10,"distance":0.5464,"daysOld":66,"correlation":0.972},{"id":"6198-Hancock-Ave,-San-Jose,-CA-95123","formattedAddress":"6198
+        Hancock Ave, San Jose, CA 95123","addressLine1":"6198 Hancock Ave","addressLine2":null,"city":"San
+        Jose","state":"CA","stateFips":"06","zipCode":"95123","county":"Santa Clara","countyFips":"085","latitude":37.233694,"longitude":-121.84248,"propertyType":"Single
+        Family","bedrooms":4,"bathrooms":2,"squareFootage":1342,"lotSize":5985,"yearBuilt":1968,"status":"Inactive","price":1428888,"listingType":"Standard","listedDate":"2026-04-23T00:00:00.000Z","removedDate":"2026-05-01T00:00:00.000Z","lastSeenDate":"2026-04-30T09:39:05.415Z","daysOnMarket":8,"distance":0.5657,"daysOld":11,"correlation":0.9716}]}'
+    headers:
+      Content-Length:
+      - '6973'
+      access-control-allow-methods:
+      - GET
+      access-control-allow-origin:
+      - '*'
+      cache-control:
+      - public, max-age=0
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Sun, 10 May 2026 21:49:34 GMT
+      server:
+      - Google Frontend
+      x-cloud-trace-context:
+      - 3bb0bbd29a916145886f862efbc1f2f5
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate, br
+      Connection:
+      - keep-alive
+      User-Agent:
+      - OfferWise/1.0 Property Research (contact@getofferwise.ai)
+    method: GET
+    uri: https://geocoding.geo.census.gov/geocoder/geographies/onelineaddress?address=123+Cassette+Test+Lane%2C+San+Jose%2C+CA&benchmark=Public_AR_Current&format=json&vintage=Current_Current
+  response:
+    body:
+      string: '{"result":{"input":{"address":{"address":"123 Cassette Test Lane, San
+        Jose, CA"},"vintage":{"isDefault":true,"id":"4","vintageName":"Current_Current","vintageDescription":"Current
+        Vintage - Current Benchmark"},"benchmark":{"isDefault":true,"benchmarkDescription":"Public
+        Address Ranges - Current Benchmark","id":"4","benchmarkName":"Public_AR_Current"}},"addressMatches":[]}}'
+    headers:
+      Cache-Control:
+      - private, no-store
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '375'
+      Content-Type:
+      - application/json
+      Date:
+      - Sun, 10 May 2026 21:49:34 GMT
+      Set-Cookie:
+      - TS0193e6a1=01283c52a45b8bb720f85ff531120b861b67fc7cba6d8eab5f6f6aff047d16bd97a36f7e4ef444c48415a3ccbd771f7761ee4dc6ee;
+        Path=/; Domain=.geocoding.geo.census.gov; Secure; HttpOnly
+      Strict-Transport-Security:
+      - max-age=31536000
+      Vary:
+      - Origin
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - DENY
+      X-XSS-Protection:
+      - 1;mode=block
+    status:
+      code: 200
+      message: ''
+- request:
+    body: null
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate, br
+      Connection:
+      - keep-alive
+      User-Agent:
+      - OfferWise/1.0 (property-research)
+      x-api-key:
+      - <REDACTED>
+    method: GET
+    uri: https://api.rentcast.io/v1/avm/value?address=123+Cassette+Test+Lane%2C+San+Jose%2C+CA&compCount=15&daysOld=180&maxRadius=5
+  response:
+    body:
+      string: '{"price":1870000,"priceRangeLow":1416000,"priceRangeHigh":2324000,"latitude":37.2255172,"longitude":-121.8422511,"subjectProperty":{"addressLine1":"Hill
+        Ln","addressLine2":null,"city":"San Jose","state":"CA","stateFips":"06","latitude":37.2255172,"longitude":-121.8422511},"comparables":[{"id":"20011-Graystone-Ln,-San-Jose,-CA-95120","formattedAddress":"20011
+        Graystone Ln, San Jose, CA 95120","addressLine1":"20011 Graystone Ln","addressLine2":null,"city":"San
+        Jose","state":"CA","stateFips":"06","zipCode":"95120","county":"Santa Clara","countyFips":"085","latitude":37.22566,"longitude":-121.836878,"propertyType":"Land","lotSize":1032372,"status":"Active","price":2650000,"listingType":"Standard","listedDate":"2026-01-29T00:00:00.000Z","removedDate":null,"lastSeenDate":"2026-05-10T10:15:16.449Z","daysOnMarket":102,"distance":0.2961,"daysOld":1,"correlation":0.9852},{"id":"18616-Skuse-Ct,-San-Jose,-CA-95120","formattedAddress":"18616
+        Skuse Ct, San Jose, CA 95120","addressLine1":"18616 Skuse Ct","addressLine2":null,"city":"San
+        Jose","state":"CA","stateFips":"06","zipCode":"95120","county":"Santa Clara","countyFips":"085","latitude":37.222326,"longitude":-121.83904,"propertyType":"Single
+        Family","bedrooms":3,"bathrooms":2.5,"squareFootage":2964,"lotSize":80150,"yearBuilt":1993,"status":"Inactive","price":2899998,"listingType":"Standard","listedDate":"2026-02-12T00:00:00.000Z","removedDate":"2026-02-21T00:00:00.000Z","lastSeenDate":"2026-02-20T08:08:24.256Z","daysOnMarket":9,"distance":0.2829,"daysOld":80,"correlation":0.9851},{"id":"6605-Bret-Harte-Dr,-San-Jose,-CA-95120","formattedAddress":"6605
+        Bret Harte Dr, San Jose, CA 95120","addressLine1":"6605 Bret Harte Dr","addressLine2":null,"city":"San
+        Jose","state":"CA","stateFips":"06","zipCode":"95120","county":"Santa Clara","countyFips":"085","latitude":37.220202,"longitude":-121.846824,"propertyType":"Single
+        Family","bedrooms":5,"bathrooms":2,"squareFootage":2647,"lotSize":7392,"yearBuilt":1969,"status":"Inactive","price":2498888,"listingType":"Standard","listedDate":"2025-11-29T00:00:00.000Z","removedDate":"2025-12-19T00:00:00.000Z","lastSeenDate":"2025-12-18T07:58:23.141Z","daysOnMarket":20,"distance":0.4457,"daysOld":144,"correlation":0.9763},{"id":"6256-Hokett-Way,-San-Jose,-CA-95123","formattedAddress":"6256
+        Hokett Way, San Jose, CA 95123","addressLine1":"6256 Hokett Way","addressLine2":null,"city":"San
+        Jose","state":"CA","stateFips":"06","zipCode":"95123","county":"Santa Clara","countyFips":"085","latitude":37.232261,"longitude":-121.839638,"propertyType":"Single
+        Family","bedrooms":3,"bathrooms":2,"squareFootage":1409,"lotSize":6206,"yearBuilt":1968,"status":"Inactive","price":1499000,"listingType":"Standard","listedDate":"2026-01-07T00:00:00.000Z","removedDate":"2026-01-16T00:00:00.000Z","lastSeenDate":"2026-01-15T08:10:23.641Z","daysOnMarket":9,"distance":0.4882,"daysOld":116,"correlation":0.9745},{"id":"6204-Valley-Glen-Ct,-San-Jose,-CA-95123","formattedAddress":"6204
+        Valley Glen Ct, San Jose, CA 95123","addressLine1":"6204 Valley Glen Ct","addressLine2":null,"city":"San
+        Jose","state":"CA","stateFips":"06","zipCode":"95123","county":"Santa Clara","countyFips":"085","latitude":37.232385,"longitude":-121.845484,"propertyType":"Single
+        Family","bedrooms":4,"bathrooms":2,"squareFootage":1843,"lotSize":8712,"yearBuilt":1971,"status":"Inactive","price":1750000,"listingType":"Standard","listedDate":"2026-02-09T00:00:00.000Z","removedDate":"2026-02-15T00:00:00.000Z","lastSeenDate":"2026-02-14T07:55:28.350Z","daysOnMarket":6,"distance":0.5073,"daysOld":86,"correlation":0.9738},{"id":"6247-Hokett-Way,-San-Jose,-CA-95123","formattedAddress":"6247
+        Hokett Way, San Jose, CA 95123","addressLine1":"6247 Hokett Way","addressLine2":null,"city":"San
+        Jose","state":"CA","stateFips":"06","zipCode":"95123","county":"Santa Clara","countyFips":"085","latitude":37.232549,"longitude":-121.840213,"propertyType":"Single
+        Family","bedrooms":4,"bathrooms":2,"squareFootage":1495,"lotSize":6018,"yearBuilt":1968,"status":"Inactive","price":1299000,"listingType":"Standard","listedDate":"2025-11-14T00:00:00.000Z","removedDate":"2025-12-04T00:00:00.000Z","lastSeenDate":"2025-12-03T07:20:51.808Z","daysOnMarket":20,"distance":0.4992,"daysOld":159,"correlation":0.9735},{"id":"18950-Graystone-Ln,-San-Jose,-CA-95120","formattedAddress":"18950
+        Graystone Ln, San Jose, CA 95120","addressLine1":"18950 Graystone Ln","addressLine2":null,"city":"San
+        Jose","state":"CA","stateFips":"06","zipCode":"95120","county":"Santa Clara","countyFips":"085","latitude":37.218407,"longitude":-121.839723,"propertyType":"Single
+        Family","bedrooms":3,"bathrooms":2.5,"squareFootage":1956,"lotSize":45302,"yearBuilt":1962,"status":"Inactive","price":2100000,"listingType":"Standard","listedDate":"2025-09-24T00:00:00.000Z","removedDate":"2025-11-20T00:00:00.000Z","lastSeenDate":"2025-11-19T09:28:02.633Z","daysOnMarket":57,"distance":0.5111,"daysOld":173,"correlation":0.9727},{"id":"6225-Gunter-Way,-San-Jose,-CA-95123","formattedAddress":"6225
+        Gunter Way, San Jose, CA 95123","addressLine1":"6225 Gunter Way","addressLine2":null,"city":"San
+        Jose","state":"CA","stateFips":"06","zipCode":"95123","county":"Santa Clara","countyFips":"085","latitude":37.232454,"longitude":-121.837978,"propertyType":"Single
+        Family","bedrooms":3,"bathrooms":2,"squareFootage":1495,"lotSize":6600,"yearBuilt":1971,"status":"Inactive","price":1450000,"listingType":"Standard","listedDate":"2026-03-10T00:00:00.000Z","removedDate":"2026-03-18T00:00:00.000Z","lastSeenDate":"2026-03-17T07:29:24.058Z","daysOnMarket":8,"distance":0.5344,"daysOld":55,"correlation":0.9727},{"id":"6219-Evangeline-Dr,-San-Jose,-CA-95123","formattedAddress":"6219
+        Evangeline Dr, San Jose, CA 95123","addressLine1":"6219 Evangeline Dr","addressLine2":null,"city":"San
+        Jose","state":"CA","stateFips":"06","zipCode":"95123","county":"Santa Clara","countyFips":"085","latitude":37.233215,"longitude":-121.844479,"propertyType":"Single
+        Family","bedrooms":5,"bathrooms":3,"squareFootage":2384,"lotSize":8540,"yearBuilt":1969,"status":"Inactive","price":1899000,"listingType":"Standard","listedDate":"2026-02-25T00:00:00.000Z","removedDate":"2026-03-07T00:00:00.000Z","lastSeenDate":"2026-03-06T08:32:37.463Z","daysOnMarket":10,"distance":0.5464,"daysOld":66,"correlation":0.972},{"id":"6198-Hancock-Ave,-San-Jose,-CA-95123","formattedAddress":"6198
+        Hancock Ave, San Jose, CA 95123","addressLine1":"6198 Hancock Ave","addressLine2":null,"city":"San
+        Jose","state":"CA","stateFips":"06","zipCode":"95123","county":"Santa Clara","countyFips":"085","latitude":37.233694,"longitude":-121.84248,"propertyType":"Single
+        Family","bedrooms":4,"bathrooms":2,"squareFootage":1342,"lotSize":5985,"yearBuilt":1968,"status":"Inactive","price":1428888,"listingType":"Standard","listedDate":"2026-04-23T00:00:00.000Z","removedDate":"2026-05-01T00:00:00.000Z","lastSeenDate":"2026-04-30T09:39:05.415Z","daysOnMarket":8,"distance":0.5657,"daysOld":11,"correlation":0.9716},{"id":"6235-Tillamook-Dr,-San-Jose,-CA-95123","formattedAddress":"6235
+        Tillamook Dr, San Jose, CA 95123","addressLine1":"6235 Tillamook Dr","addressLine2":null,"city":"San
+        Jose","state":"CA","stateFips":"06","zipCode":"95123","county":"Santa Clara","countyFips":"085","latitude":37.232059,"longitude":-121.835359,"propertyType":"Single
+        Family","bedrooms":3,"bathrooms":2,"squareFootage":1409,"lotSize":5974,"yearBuilt":1968,"status":"Inactive","price":1550000,"listingType":"Standard","listedDate":"2026-04-09T00:00:00.000Z","removedDate":"2026-04-24T00:00:00.000Z","lastSeenDate":"2026-04-23T08:39:51.336Z","daysOnMarket":15,"distance":0.5906,"daysOld":18,"correlation":0.9703},{"id":"6209-Hopi-Ct,-San-Jose,-CA-95123","formattedAddress":"6209
+        Hopi Ct, San Jose, CA 95123","addressLine1":"6209 Hopi Ct","addressLine2":null,"city":"San
+        Jose","state":"CA","stateFips":"06","zipCode":"95123","county":"Santa Clara","countyFips":"085","latitude":37.23093,"longitude":-121.833948,"propertyType":"Single
+        Family","bedrooms":4,"bathrooms":2,"squareFootage":1495,"lotSize":6500,"yearBuilt":1968,"status":"Inactive","price":1698000,"listingType":"Standard","listedDate":"2026-04-08T00:00:00.000Z","removedDate":"2026-04-24T00:00:00.000Z","lastSeenDate":"2026-04-23T08:39:51.404Z","daysOnMarket":16,"distance":0.591,"daysOld":18,"correlation":0.9703},{"id":"6669-Pebblewood-Ct,-San-Jose,-CA-95120","formattedAddress":"6669
+        Pebblewood Ct, San Jose, CA 95120","addressLine1":"6669 Pebblewood Ct","addressLine2":null,"city":"San
+        Jose","state":"CA","stateFips":"06","zipCode":"95120","county":"Santa Clara","countyFips":"085","latitude":37.218103,"longitude":-121.848839,"propertyType":"Single
+        Family","bedrooms":4,"bathrooms":2.5,"squareFootage":2240,"lotSize":10890,"yearBuilt":1969,"status":"Active","price":2100000,"listingType":"Standard","listedDate":"2026-05-07T00:00:00.000Z","removedDate":null,"lastSeenDate":"2026-05-10T06:33:12.718Z","daysOnMarket":4,"distance":0.6282,"daysOld":1,"correlation":0.9686},{"id":"6217-Hopi-Ct,-San-Jose,-CA-95123","formattedAddress":"6217
+        Hopi Ct, San Jose, CA 95123","addressLine1":"6217 Hopi Ct","addressLine2":null,"city":"San
+        Jose","state":"CA","stateFips":"06","zipCode":"95123","county":"Santa Clara","countyFips":"085","latitude":37.230969,"longitude":-121.833054,"propertyType":"Single
+        Family","bedrooms":3,"bathrooms":2,"squareFootage":1409,"lotSize":8514,"yearBuilt":1968,"status":"Inactive","price":1600000,"listingType":"Standard","listedDate":"2026-03-26T00:00:00.000Z","removedDate":"2026-04-10T00:00:00.000Z","lastSeenDate":"2026-04-09T08:43:19.551Z","daysOnMarket":15,"distance":0.6315,"daysOld":32,"correlation":0.9681},{"id":"807-Colleen-Dr,-San-Jose,-CA-95123","formattedAddress":"807
+        Colleen Dr, San Jose, CA 95123","addressLine1":"807 Colleen Dr","addressLine2":null,"city":"San
+        Jose","state":"CA","stateFips":"06","zipCode":"95123","county":"Santa Clara","countyFips":"085","latitude":37.233657,"longitude":-121.847809,"propertyType":"Single
+        Family","bedrooms":3,"bathrooms":2.5,"squareFootage":1903,"lotSize":6565,"yearBuilt":1971,"status":"Inactive","price":1598000,"listingType":"Standard","listedDate":"2026-04-27T00:00:00.000Z","removedDate":"2026-05-08T00:00:00.000Z","lastSeenDate":"2026-05-07T09:15:22.950Z","daysOnMarket":11,"distance":0.6409,"daysOld":4,"correlation":0.9679}]}'
+    headers:
+      Content-Length:
+      - '10308'
+      access-control-allow-methods:
+      - GET
+      access-control-allow-origin:
+      - '*'
+      cache-control:
+      - public, max-age=0
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Sun, 10 May 2026 21:49:35 GMT
+      server:
+      - Google Frontend
+      x-cloud-trace-context:
+      - b78de237469e7d45d90d676b0c76c0c1
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"max_tokens": 1000, "messages": [{"role": "user", "content": "You are
+      a real estate research analyst. Based on the following data gathered \nabout
+      a property, write a concise Pre-Analysis Intelligence Brief.\n\nPROPERTY: 123
+      Cassette Test Lane, San Jose, CA\nYEAR BUILT: Unknown\nESTIMATED VALUE: $1,870,000
+      if profile.estimated_value else ''Unknown''\nSQFT: Unknown\n\nDATA GATHERED:\n-
+      rentcast: {\"found\": true, \"bedrooms\": null, \"bathrooms\": null, \"sqft\":
+      null, \"year_built\": null, \"lot_size\": null, \"property_type\": null, \"estimated_value\":
+      1870000, \"assessed_value\": null, \"avm_price\": 1870000, \"avm_price_low\":
+      1416000, \"avm_price_high\": 2324000, \"comparables\": [{\"address\": \"20011
+      Graystone Ln, San Jose, CA 95120\", \"price\": 2650000, \"sqft\": 0, \"price_per_sqft\":
+      0, \"bedrooms\": 0, \"bathrooms\": 0.0, \"year_built\": 0, \"lot_size\": 1032372,
+      \"property_type\": \"Land\", \"days_on_market\": 102, \"dista\n\nKEY FINDINGS:\n\n\nWrite
+      a brief (3-4 paragraphs) that:\n1. Summarizes what we know about this property
+      BEFORE seeing any seller documents\n2. Identifies the top 3 things a buyer should
+      verify in the seller disclosure\n3. Flags any red flags or risk factors that
+      could affect the offer price\n4. Notes what data we could NOT find (gaps in
+      research)\n\nBe specific and actionable. Reference actual data points. No generic
+      advice."}], "model": "claude-sonnet-4-6", "temperature": 0}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate, br
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '1422'
+      Content-Type:
+      - application/json
+      Host:
+      - api.anthropic.com
+      User-Agent:
+      - Anthropic/Python 0.49.0
+      X-Stainless-Arch:
+      - x64
+      X-Stainless-Async:
+      - 'false'
+      X-Stainless-Lang:
+      - python
+      X-Stainless-OS:
+      - Linux
+      X-Stainless-Package-Version:
+      - 0.49.0
+      X-Stainless-Runtime:
+      - CPython
+      X-Stainless-Runtime-Version:
+      - 3.11.15
+      anthropic-version:
+      - '2023-06-01'
+      baggage:
+      - sentry-trace_id=78866d2ed4534f1a83a8be0f0e161614,sentry-sample_rand=0.711028,sentry-environment=production,sentry-public_key=bec0f097edae469b35925bf075c964d9,sentry-org_id=4511034871578624,sentry-transaction=analysis.analyze_property,sentry-sample_rate=0.1,sentry-sampled=false
+      sentry-trace:
+      - 78866d2ed4534f1a83a8be0f0e161614-ae1b05db697f97ba-0
+      x-api-key:
+      - <REDACTED>
+      x-stainless-read-timeout:
+      - '600'
+      x-stainless-retry-count:
+      - '0'
+      x-stainless-timeout:
+      - '600'
+    method: POST
+    uri: https://api.anthropic.com/v1/messages
+  response:
+    body:
+      string: "{\"model\":\"claude-sonnet-4-6\",\"id\":\"msg_01UT4nmvs7JWAJhC58ZHQd5E\",\"type\":\"message\",\"role\":\"assistant\",\"content\":[{\"type\":\"text\",\"text\":\"#
+        Pre-Analysis Intelligence Brief\\n**Property:** 123 Cassette Test Lane, San
+        Jose, CA\\n**Prepared:** Pre-Disclosure Review | Status: Preliminary\\n\\n---\\n\\n##
+        What We Know Going In\\n\\nThe automated valuation model (AVM) via RentCast
+        places this property at **$1,870,000**, which aligns with the AVM midpoint
+        and carries a notably wide confidence range of **$1,416,000 to $2,324,000**
+        \u2014 a spread of nearly **$908,000**. That range alone signals meaningful
+        valuation uncertainty. The only available comparable pulled is **20011 Graystone
+        Ln**, a Land-classified parcel that sold for $2,650,000 with a lot size of
+        over **1,032,372 sq ft (roughly 23 acres)** and zero recorded square footage
+        \u2014 suggesting the comp engine is struggling to find truly similar properties
+        and may be pulling dissimilar asset classes to anchor the estimate. This is
+        a weak comparables foundation and should not be treated as a reliable valuation
+        without further manual comp analysis.\\n\\n---\\n\\n## Top 3 Things to Verify
+        in Seller Disclosure\\n\\n1. **Property Type and Legal Classification** \u2014
+        RentCast returned a null on property type, and the only comp flagged is classified
+        as \\\"Land.\\\" Buyers must confirm whether this property is improved residential,
+        mixed-use, or carries any unimproved land designation that could affect financing
+        eligibility and appraisal methodology.\\n2. **Physical Characteristics (Bed/Bath/SqFt/Year
+        Built)** \u2014 Every core physical data point \u2014 bedrooms, bathrooms,
+        square footage, and year built \u2014 came back **null** across all data sources.
+        Sellers must provide documentation (permits, tax records, or a recent appraisal)
+        to substantiate the physical profile of the home before any offer price can
+        be responsibly anchored.\\n3. **Lot Size and Any Land Use Restrictions** \u2014
+        Given that the closest comp is a 23-acre land parcel, buyers should request
+        the assessor parcel map and confirm lot dimensions, zoning designation, and
+        whether any portion of the land carries agricultural, conservation, or development
+        restrictions that could limit use or resale.\\n\\n---\\n\\n## Red Flags &
+        Risk Factors\\n\\nThe wide AVM range ($908K spread) is the most immediate
+        red flag \u2014 it reflects low model confidence, likely driven by data sparsity
+        on this specific address. The fact that **RentCast found the address but returned
+        nulls on every physical attribute** suggests either a data reporting gap or
+        that this property has limited transaction history, which itself can indicate
+        an off-market or atypical asset. The comparable pulled being a **Land-type
+        property** with no usable price-per-sqft metric means the $1,870,000 estimate
+        has essentially no reliable comp support as currently presented. A buyer anchoring
+        an offer to this AVM without independent appraisal or manual comp review risks
+        overpaying by a material margin \u2014 or potentially underbidding on a legitimately
+        unique asset.\\n\\n---\\n\\n## Critical Data Gaps\\n\\nThe following data
+        points were **not retrievable** and must be sourced independently before offer
+        submission:\\n\\n- \u274C Year Built (unknown \u2014 affects condition assumptions,
+        permit history, and 1970s-era material risk such as asbestos or aluminum wiring)\\n-
+        \u274C Square Footage (unknown \u2014 no price-per-sqft analysis is possible)\\n-
+        \u274C Bedrooms / Bathrooms (unknown \u2014 cannot assess livability or rental
+        income potential)\\n- \u274C Assessed Value (null \u2014 cannot calculate
+        current tax burden or flag Prop 13 reassessment exposure)\\n- \u274C Lot Size
+        (null \u2014 cannot confirm land value component)\\n- \u274C Meaningful Comparable
+        Sales (only one comp returned; it is a dissimilar land parcel)\\n\\n**Bottom
+        line:** This brief reflects a high-uncertainty profile. Do not finalize offer
+        strategy until seller disclosures, county assessor records, and a manual comparable
+        sales analysis are in hand.\"}],\"stop_reason\":\"end_turn\",\"stop_sequence\":null,\"stop_details\":null,\"usage\":{\"input_tokens\":411,\"cache_creation_input_tokens\":0,\"cache_read_input_tokens\":0,\"cache_creation\":{\"ephemeral_5m_input_tokens\":0,\"ephemeral_1h_input_tokens\":0},\"output_tokens\":900,\"service_tier\":\"standard\",\"inference_geo\":\"global\"}}"
+    headers:
+      CF-RAY:
+      - 9f9c2797ae9358c2-PDX
+      Connection:
+      - keep-alive
+      Content-Security-Policy:
+      - default-src 'none'; frame-ancestors 'none'
+      Content-Type:
+      - application/json
+      Date:
+      - Sun, 10 May 2026 21:49:58 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      X-Robots-Tag:
+      - none
+      anthropic-organization-id:
+      - b2fdc71b-2fc9-444f-8b1b-31a1a50d1ce6
+      anthropic-ratelimit-input-tokens-limit:
+      - '450000'
+      anthropic-ratelimit-input-tokens-remaining:
+      - '450000'
+      anthropic-ratelimit-input-tokens-reset:
+      - '2026-05-10T21:49:36Z'
+      anthropic-ratelimit-output-tokens-limit:
+      - '90000'
+      anthropic-ratelimit-output-tokens-remaining:
+      - '90000'
+      anthropic-ratelimit-output-tokens-reset:
+      - '2026-05-10T21:49:58Z'
+      anthropic-ratelimit-requests-limit:
+      - '1000'
+      anthropic-ratelimit-requests-remaining:
+      - '999'
+      anthropic-ratelimit-requests-reset:
+      - '2026-05-10T21:49:35Z'
+      anthropic-ratelimit-tokens-limit:
+      - '540000'
+      anthropic-ratelimit-tokens-remaining:
+      - '540000'
+      anthropic-ratelimit-tokens-reset:
+      - '2026-05-10T21:49:36Z'
+      cf-cache-status:
+      - DYNAMIC
+      content-length:
+      - '4255'
+      request-id:
+      - req_011CaudGQFKNLWrmo5csHimV
+      set-cookie:
+      - <REDACTED>
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      traceresponse:
+      - 00-76d8043caee3de78a9ed6c83a629a484-ba6f39a3dab7ccd9-01
+      vary:
+      - Accept-Encoding
+      x-envoy-upstream-service-time:
+      - '22707'
+    status:
+      code: 200
+      message: OK
+version: 1

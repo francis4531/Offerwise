@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Bulk Relabel · OfferWise Admin</title>
+<meta name="robots" content="noindex,nofollow">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0b1220; --bg2:#111827; --bg3:#1f2937;
+    --line:#1f2937; --line2:#374151;
+    --txt:#f3f4f6; --body:#cbd5e1; --gray:#9ca3af; --dim:#6b7280;
+    --accent:#f97316; --gold:#f59e0b;
+    --green:#22c55e; --red:#ef4444; --amber:#fcd34d; --blue:#60a5fa;
+    --mono:ui-monospace,SFMono-Regular,Menlo,monospace;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--txt);font-size:14px;line-height:1.55;}
+  a{color:var(--gold);text-decoration:none;}
+  a:hover{color:var(--accent);}
+  .topbar{padding:14px 22px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;background:#0b1220;}
+  .topbar h1{font-size:16px;font-weight:700;margin:0;letter-spacing:-.01em;}
+  .topbar h1 .accent{color:var(--accent);}
+
+  .wrap{max-width:1000px;margin:0 auto;padding:24px 22px;}
+  .card{background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:22px;margin-bottom:18px;}
+  .card h2{font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--gray);margin:0 0 16px;}
+
+  .controls{display:flex;gap:14px;align-items:flex-end;flex-wrap:wrap;}
+  .field{display:flex;flex-direction:column;gap:6px;}
+  .field label{font-size:11px;color:var(--gray);font-weight:600;letter-spacing:.05em;text-transform:uppercase;}
+  .field select, .field input{background:var(--bg3);border:1px solid var(--line2);color:var(--txt);font-family:inherit;font-size:14px;padding:8px 12px;border-radius:5px;outline:none;min-width:140px;}
+  .field select:focus, .field input:focus{border-color:var(--accent);}
+
+  .btn{padding:10px 22px;border-radius:6px;border:1px solid;font-weight:600;font-size:13px;cursor:pointer;font-family:inherit;letter-spacing:.01em;}
+  .btn.primary{background:linear-gradient(90deg,var(--accent),var(--gold));border-color:var(--accent);color:white;}
+  .btn.primary:hover{filter:brightness(1.1);}
+  .btn.danger{background:transparent;border-color:var(--red);color:#fca5a5;}
+  .btn.danger:hover{background:rgba(239,68,68,.08);}
+  .btn:disabled{opacity:.5;cursor:not-allowed;}
+
+  /* Progress */
+  .progress-block{margin-top:18px;}
+  .progress-bar{height:8px;background:var(--bg3);border-radius:4px;overflow:hidden;margin:8px 0 14px;}
+  .progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--gold));transition:width .3s;}
+  .progress-meta{display:flex;justify-content:space-between;font-size:12px;color:var(--gray);font-family:var(--mono);margin-bottom:6px;}
+  .progress-meta strong{color:var(--txt);}
+
+  /* Counters */
+  .counters{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-top:14px;}
+  .counter{padding:12px 14px;background:var(--bg3);border:1px solid var(--line);border-radius:6px;}
+  .counter .label{font-size:10px;color:var(--gray);text-transform:uppercase;letter-spacing:.05em;font-weight:600;}
+  .counter .val{font-size:22px;font-weight:700;color:var(--txt);font-family:var(--mono);margin-top:3px;}
+  .counter .val.warn{color:var(--amber);}
+  .counter .val.danger{color:var(--red);}
+  .counter .val.ok{color:var(--green);}
+
+  /* Status badges */
+  .status-badge{display:inline-block;font-size:11px;font-weight:700;padding:3px 10px;border-radius:4px;text-transform:uppercase;letter-spacing:.05em;font-family:var(--mono);}
+  .status-badge.queued{background:rgba(252,211,77,.15);color:var(--amber);}
+  .status-badge.running{background:rgba(96,165,250,.15);color:var(--blue);}
+  .status-badge.completed{background:rgba(34,197,94,.15);color:var(--green);}
+  .status-badge.failed{background:rgba(239,68,68,.15);color:var(--red);}
+  .status-badge.cancelled{background:rgba(156,163,175,.15);color:var(--gray);}
+
+  /* Stats / change distribution */
+  .change-dist{margin-top:18px;}
+  .change-dist h3{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--gray);margin:0 0 10px;}
+  .change-row{display:grid;grid-template-columns:1fr 70px;gap:10px;font-size:12px;padding:6px 0;border-bottom:1px dotted var(--line);}
+  .change-row .pair{font-family:var(--mono);color:var(--body);}
+  .change-row .cnt{text-align:right;font-family:var(--mono);font-weight:600;color:var(--accent);}
+
+  /* History */
+  .history-table{width:100%;border-collapse:collapse;font-size:13px;}
+  .history-table th{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--gray);font-weight:600;padding:8px 10px;text-align:left;border-bottom:1px solid var(--line2);}
+  .history-table td{padding:9px 10px;border-bottom:1px solid var(--line);color:var(--body);vertical-align:top;}
+
+  .info-box{background:rgba(96,165,250,.06);border-left:3px solid var(--blue);padding:12px 16px;border-radius:0 6px 6px 0;font-size:13px;line-height:1.65;color:var(--body);margin-bottom:18px;}
+  .info-box strong{color:var(--txt);}
+  .warn-box{background:rgba(252,211,77,.06);border-left:3px solid var(--amber);padding:12px 16px;border-radius:0 6px 6px 0;font-size:13px;line-height:1.65;color:var(--body);margin-bottom:18px;}
+  .warn-box strong{color:var(--amber);}
+
+  .back-link{display:inline-block;margin-bottom:14px;font-size:12px;color:var(--gray);}
+  .back-link:hover{color:var(--accent);}
+
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--bg2);border:1px solid var(--green);color:var(--green);padding:11px 22px;border-radius:8px;font-weight:600;font-size:13px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:50;}
+  .toast.show{opacity:1;}
+  .toast.warn{border-color:var(--amber);color:var(--amber);}
+  .toast.err{border-color:var(--red);color:var(--red);}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <h1>🔁 Bulk <span class="accent">Relabel</span></h1>
+  <div style="font-size:12px;color:var(--gray)" id="last-update">—</div>
+</div>
+
+<div class="wrap">
+  <a class="back-link" href="javascript:history.back()">← Back to admin</a>
+
+  <div class="info-box">
+    <strong>What this does:</strong> Runs the trained classifiers over every finding in the corpus. Where the model disagrees with the original label AND its confidence exceeds the threshold, the corpus row is updated. Originals are preserved in <code>audit_original_*</code> columns. Auto-triggers retraining on commit-mode completion (if no other training job is in flight).
+  </div>
+
+  <div class="card">
+    <h2>Start a relabel run</h2>
+    <div class="controls">
+      <div class="field">
+        <label for="mode-select">Mode</label>
+        <select id="mode-select">
+          <option value="dry_run">Dry run (no corpus changes)</option>
+          <option value="commit">Commit (mutates corpus + auto-retrain)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="threshold-input">Confidence threshold</label>
+        <input id="threshold-input" type="number" min="0.5" max="1.0" step="0.01" value="0.90">
+      </div>
+      <button class="btn primary" id="start-btn" onclick="startRelabel()">Start</button>
+    </div>
+  </div>
+
+  <div class="card" id="current-run-card" style="display:none">
+    <h2>Current run <span class="status-badge" id="current-status">—</span></h2>
+    <div id="current-meta" style="font-size:12px;color:var(--gray);margin-bottom:14px;font-family:var(--mono)">—</div>
+
+    <div class="progress-block">
+      <div class="progress-meta">
+        <span><strong id="cur-processed">0</strong> of <strong id="cur-total">0</strong> processed</span>
+        <span id="cur-pct">0.0%</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="cur-fill" style="width:0%"></div></div>
+    </div>
+
+    <div class="counters">
+      <div class="counter">
+        <div class="label">Cat changes</div>
+        <div class="val ok" id="cur-cat-change">0</div>
+      </div>
+      <div class="counter">
+        <div class="label">Sev changes</div>
+        <div class="val ok" id="cur-sev-change">0</div>
+      </div>
+      <div class="counter">
+        <div class="label">Agreement</div>
+        <div class="val" id="cur-agreement">0</div>
+      </div>
+      <div class="counter">
+        <div class="label">Low confidence</div>
+        <div class="val warn" id="cur-low-conf">0</div>
+      </div>
+      <div class="counter">
+        <div class="label">Failed</div>
+        <div class="val danger" id="cur-failed">0</div>
+      </div>
+    </div>
+
+    <div id="cur-actions" style="margin-top:18px;display:flex;gap:10px;">
+      <button class="btn danger" id="cancel-btn" onclick="cancelRun()" style="display:none">Cancel run</button>
+      <button class="btn danger" id="force-fail-btn" onclick="forceFailRun()" style="display:none;border-style:dashed">Force-fail (subprocess dead)</button>
+      <a class="btn primary" id="retrain-link" style="display:none;text-decoration:none;text-align:center;line-height:18px" href="#">View triggered retrain ↗</a>
+    </div>
+
+    <div id="cur-error" style="display:none;margin-top:14px;padding:11px 14px;background:rgba(239,68,68,.06);border:1px solid var(--red);border-radius:6px;color:#fca5a5;font-size:12px;font-family:var(--mono);white-space:pre-wrap;line-height:1.55;"></div>
+
+    <div class="change-dist" id="cur-changes" style="display:none">
+      <h3>Top category changes</h3>
+      <div id="cur-cat-dist"></div>
+      <h3 style="margin-top:18px">Top severity changes</h3>
+      <div id="cur-sev-dist"></div>
+    </div>
+  </div>
+
+  <!-- v5.89.54: Metrics Snapshots moved here from the ML Pipeline Advanced
+       drawer. Most useful immediately before/after a relabel run to
+       compare corpus + model state. -->
+  <div class="card" id="metrics-snapshots-card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <h2 style="margin:0">📸 Metrics Snapshots</h2>
+      <div style="display:flex;gap:6px;align-items:center">
+        <span id="ml-metrics-snap-count" style="font-size:11px;color:var(--dim)"></span>
+        <button onclick="captureMLMetricsSnapshot(event)" id="ml-metrics-snap-btn"
+                style="padding:5px 12px;font-size:11px;background:linear-gradient(90deg,#22c55e,#16a34a);color:white;border:none;border-radius:4px;cursor:pointer;font-weight:600">📸 Snapshot Now</button>
+        <button onclick="loadMLMetricsSnapshots()"
+                style="padding:5px 12px;font-size:11px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:4px;cursor:pointer">↻</button>
+      </div>
+    </div>
+    <div style="font-size:11px;color:var(--dim);margin-bottom:10px;line-height:1.5">
+      Captures corpus state for explicit before/after comparison. Take one before starting a relabel run, another after it completes, then use Compare to see the delta in counts and per-state distribution.
+    </div>
+    <div id="ml-metrics-snapshots">
+      <div style="font-size:11px;color:var(--dim);padding:8px 0">Loading…</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>History</h2>
+    <table class="history-table" id="history-table">
+      <thead><tr><th>Started</th><th>Mode</th><th>Threshold</th><th>Status</th><th>Processed</th><th>Changes</th></tr></thead>
+      <tbody id="history-tbody"><tr><td colspan="6" style="text-align:center;color:var(--dim);padding:24px">Loading…</td></tr></tbody>
+    </table>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const ADMIN_KEY = new URLSearchParams(window.location.search).get('admin_key') || '';
+let _polling = null;
+let _currentJobId = null;
+
+function _esc(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function toast(msg, kind) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show' + (kind ? ' ' + kind : '');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+async function startRelabel() {
+  const mode = document.getElementById('mode-select').value;
+  const threshold = parseFloat(document.getElementById('threshold-input').value);
+
+  if (mode === 'commit') {
+    if (!confirm('Commit mode will MUTATE corpus labels for any row where the model disagrees and confidence ≥ ' + threshold + '. Auto-triggers retraining on completion. Continue?')) {
+      return;
+    }
+  }
+
+  document.getElementById('start-btn').disabled = true;
+  try {
+    const r = await fetch('/api/admin/relabel/start?admin_key=' + encodeURIComponent(ADMIN_KEY), {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({mode: mode, threshold: threshold}),
+    });
+    const d = await r.json();
+    if (!d.ok) {
+      toast(d.error || 'failed', 'err');
+      document.getElementById('start-btn').disabled = false;
+      return;
+    }
+    toast('Relabel started — job_id ' + d.job_id.slice(0, 8) + '…');
+    _currentJobId = d.job_id;
+    startPolling();
+  } catch (e) {
+    toast('Network error: ' + e.message, 'err');
+    document.getElementById('start-btn').disabled = false;
+  }
+}
+
+async function cancelRun() {
+  if (!_currentJobId) return;
+  if (!confirm('Cancel this relabel run? Partial corpus changes (if any) stay in place.')) return;
+  try {
+    const r = await fetch('/api/admin/relabel/cancel?admin_key=' + encodeURIComponent(ADMIN_KEY), {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({job_id: _currentJobId}),
+    });
+    const d = await r.json();
+    if (!d.ok) {
+      toast(d.error || 'cancel failed', 'err');
+      return;
+    }
+    toast('Cancellation requested', 'warn');
+  } catch (e) {
+    toast('Network error: ' + e.message, 'err');
+  }
+}
+
+// v5.89.52: force-fail when the subprocess is dead and cooperative
+// cancellation can't work (cancellation requires the subprocess to be
+// alive and polling cancel_requested).
+async function forceFailRun() {
+  if (!_currentJobId) return;
+  const reason = prompt(
+    'Force-fail this run? This marks the DB row as failed without asking the subprocess.\n\n' +
+    'Use ONLY if the subprocess appears dead (no progress for >10 min, or you see no relabel process in Render shell).\n\n' +
+    'Optional: reason (will appear in error_message)',
+    'Subprocess appears dead'
+  );
+  if (reason === null) return;  // user cancelled
+  try {
+    const r = await fetch('/api/admin/relabel/force-fail?admin_key=' + encodeURIComponent(ADMIN_KEY), {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({job_id: _currentJobId, reason: reason || 'Force-failed by operator'}),
+    });
+    const d = await r.json();
+    if (!d.ok) {
+      toast(d.error || 'force-fail failed', 'err');
+      return;
+    }
+    toast(d.message || 'Run marked as failed', 'warn');
+    pollStatus();  // refresh immediately
+  } catch (e) {
+    toast('Network error: ' + e.message, 'err');
+  }
+}
+
+async function pollStatus() {
+  try {
+    const r = await fetch('/api/admin/relabel/status?admin_key=' + encodeURIComponent(ADMIN_KEY));
+    const d = await r.json();
+    if (!d.ok) return;
+    if (!d.has_run) {
+      document.getElementById('current-run-card').style.display = 'none';
+      return;
+    }
+    renderCurrentRun(d.run);
+    document.getElementById('last-update').textContent = 'updated ' + new Date().toLocaleTimeString();
+  } catch (e) {
+    // Silently retry next tick
+  }
+}
+
+function renderCurrentRun(run) {
+  const card = document.getElementById('current-run-card');
+  card.style.display = '';
+  _currentJobId = run.job_id;
+
+  document.getElementById('current-status').textContent = run.status;
+  document.getElementById('current-status').className = 'status-badge ' + run.status;
+  document.getElementById('current-meta').innerHTML =
+    'job ' + _esc(run.job_id.slice(0, 14)) + '… &middot; ' +
+    'mode=' + _esc(run.mode) + ' &middot; ' +
+    'threshold=' + run.threshold + ' &middot; ' +
+    'started ' + (run.started_at ? _esc(run.started_at.slice(11, 19)) : '—');
+
+  document.getElementById('cur-processed').textContent = run.rows_processed.toLocaleString();
+  document.getElementById('cur-total').textContent = run.rows_total.toLocaleString();
+  document.getElementById('cur-pct').textContent = run.progress_pct.toFixed(1) + '%';
+  document.getElementById('cur-fill').style.width = run.progress_pct.toFixed(1) + '%';
+
+  document.getElementById('cur-cat-change').textContent = run.rows_changed_category.toLocaleString();
+  document.getElementById('cur-sev-change').textContent = run.rows_changed_severity.toLocaleString();
+  document.getElementById('cur-agreement').textContent = run.rows_agreement.toLocaleString();
+  document.getElementById('cur-low-conf').textContent = run.rows_low_confidence.toLocaleString();
+  document.getElementById('cur-failed').textContent = run.rows_failed.toLocaleString();
+
+  // Cancel button visibility
+  const cancelBtn = document.getElementById('cancel-btn');
+  const forceFailBtn = document.getElementById('force-fail-btn');
+  if (run.status === 'queued' || run.status === 'running') {
+    cancelBtn.style.display = '';
+    cancelBtn.disabled = run.cancel_requested;
+    cancelBtn.textContent = run.cancel_requested ? 'Cancelling…' : 'Cancel run';
+    // v5.89.52: force-fail is always available while running. UI is
+    // visually distinct (dashed border) since it's an escape hatch.
+    forceFailBtn.style.display = '';
+  } else {
+    cancelBtn.style.display = 'none';
+    forceFailBtn.style.display = 'none';
+  }
+
+  // v5.89.52: surface last_progress_at in the meta line so operator
+  // can see the heartbeat. If it's been more than ~3 min, mark warning.
+  if (run.last_progress_at && (run.status === 'queued' || run.status === 'running')) {
+    const lastP = new Date(run.last_progress_at);
+    const ageMs = Date.now() - lastP.getTime();
+    const ageSec = Math.round(ageMs / 1000);
+    let ageStr;
+    if (ageSec < 60) ageStr = ageSec + 's ago';
+    else if (ageSec < 3600) ageStr = Math.round(ageSec / 60) + 'm ago';
+    else ageStr = Math.round(ageSec / 3600) + 'h ago';
+    const warn = ageSec > 180;  // >3 min = visible warning
+    const color = warn ? 'var(--amber)' : 'var(--gray)';
+    const existing = document.getElementById('current-meta').innerHTML;
+    // Append only if not already there (idempotent re-render)
+    if (existing.indexOf('last progress') < 0) {
+      document.getElementById('current-meta').innerHTML =
+        existing + ' &middot; <span style="color:' + color + '">last progress ' + ageStr + '</span>';
+    } else {
+      // Update inline
+      document.getElementById('current-meta').innerHTML =
+        existing.replace(/last progress [^<]+/, 'last progress ' + ageStr);
+    }
+  }
+
+  // Retrain link if commit completed and training was triggered
+  const retrainLink = document.getElementById('retrain-link');
+  if (run.triggered_training_job_id) {
+    retrainLink.style.display = '';
+    retrainLink.href = '/admin/ml-training?admin_key=' + encodeURIComponent(ADMIN_KEY) +
+                       '&job_id=' + encodeURIComponent(run.triggered_training_job_id);
+  } else {
+    retrainLink.style.display = 'none';
+  }
+
+  // Error
+  const errBox = document.getElementById('cur-error');
+  if (run.error_message) {
+    errBox.style.display = '';
+    errBox.textContent = run.error_message;
+  } else {
+    errBox.style.display = 'none';
+  }
+
+  // Change distributions
+  if (run.stats && (run.stats.category_change_dist || run.stats.severity_change_dist)) {
+    document.getElementById('cur-changes').style.display = '';
+    const cat = run.stats.category_change_dist || {};
+    const sev = run.stats.severity_change_dist || {};
+    document.getElementById('cur-cat-dist').innerHTML = renderDist(cat) || '<div style="color:var(--dim);font-style:italic;font-size:12px">No changes yet.</div>';
+    document.getElementById('cur-sev-dist').innerHTML = renderDist(sev) || '<div style="color:var(--dim);font-style:italic;font-size:12px">No changes yet.</div>';
+  }
+
+  // If run reached terminal state, stop polling + re-enable start
+  if (['completed', 'failed', 'cancelled'].indexOf(run.status) >= 0) {
+    stopPolling();
+    document.getElementById('start-btn').disabled = false;
+    loadHistory();
+  }
+}
+
+function renderDist(dist) {
+  const entries = Object.entries(dist || {});
+  if (entries.length === 0) return '';
+  let html = '';
+  for (const [pair, count] of entries) {
+    html += '<div class="change-row"><div class="pair">' + _esc(pair) + '</div><div class="cnt">' + count + '</div></div>';
+  }
+  return html;
+}
+
+function startPolling() {
+  if (_polling) return;
+  pollStatus();  // immediate
+  _polling = setInterval(pollStatus, 2000);
+}
+
+function stopPolling() {
+  if (_polling) {
+    clearInterval(_polling);
+    _polling = null;
+  }
+}
+
+async function loadHistory() {
+  try {
+    const r = await fetch('/api/admin/relabel/history?admin_key=' + encodeURIComponent(ADMIN_KEY));
+    const d = await r.json();
+    if (!d.ok) return;
+    const tbody = document.getElementById('history-tbody');
+    if (!d.runs || d.runs.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--dim);padding:24px">No runs yet.</td></tr>';
+      return;
+    }
+    let html = '';
+    for (const r of d.runs) {
+      const created = r.created_at ? new Date(r.created_at).toLocaleString() : '—';
+      const changes = (r.rows_changed_category || 0) + (r.rows_changed_severity || 0);
+      html +=
+        '<tr>' +
+          '<td style="font-family:var(--mono);font-size:12px">' + _esc(created) + '</td>' +
+          '<td>' + _esc(r.mode) + '</td>' +
+          '<td style="font-family:var(--mono)">' + r.threshold + '</td>' +
+          '<td><span class="status-badge ' + _esc(r.status) + '">' + _esc(r.status) + '</span></td>' +
+          '<td style="font-family:var(--mono);font-size:12px">' + r.rows_processed.toLocaleString() + ' / ' + r.rows_total.toLocaleString() + '</td>' +
+          '<td style="font-family:var(--mono);color:var(--accent);font-weight:600">' + changes.toLocaleString() + '</td>' +
+        '</tr>';
+    }
+    tbody.innerHTML = html;
+  } catch (e) {
+    // silently fail
+  }
+}
+
+// ─── Metrics Snapshots (moved from ML Pipeline Advanced in v5.89.54) ───
+
+// Minimal fetch wrapper with timeout. admin-relabel.html doesn't include
+// the global helper from admin.html so we define a local version.
+function fetchWithTimeout(url, timeoutMs, opts) {
+  opts = opts || {};
+  return new Promise(function(resolve, reject) {
+    var t = setTimeout(function() { reject(new Error('Timeout after ' + timeoutMs + 'ms')); }, timeoutMs);
+    fetch(url, opts).then(function(r) { clearTimeout(t); resolve(r); }).catch(function(e) { clearTimeout(t); reject(e); });
+  });
+}
+
+async function captureMLMetricsSnapshot(ev) {
+  if (ev) ev.stopPropagation();
+  var btn = document.getElementById('ml-metrics-snap-btn');
+  var label = prompt(
+    'Snapshot label (recommended — short tag like "before-relabel" or "after"):\n\n' +
+    'Leave blank for unlabeled snapshot.', ''
+  );
+  if (label === null) return;
+  var notes = prompt(
+    'Optional notes about this snapshot (what changed since last? what are you about to do?):\n\n' +
+    'Leave blank for no notes.', ''
+  );
+  if (notes === null) notes = '';
+
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = '⏳ Capturing...';
+  }
+  try {
+    var r = await fetchWithTimeout(
+      '/api/admin/ml-snapshot-now?admin_key=' + encodeURIComponent(ADMIN_KEY),
+      15000,
+      {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({label: label, notes: notes}),
+      }
+    );
+    var d = await r.json();
+    if (!d.ok) {
+      alert('Snapshot failed: ' + (d.error || 'unknown error'));
+      return;
+    }
+    await loadMLMetricsSnapshots();
+    toast('Snapshot captured');
+  } catch (e) {
+    alert('Network error capturing snapshot: ' + e);
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = '📸 Snapshot Now';
+    }
+  }
+}
+
+async function loadMLMetricsSnapshots() {
+  var el = document.getElementById('ml-metrics-snapshots');
+  var countEl = document.getElementById('ml-metrics-snap-count');
+  if (!el) return;
+  try {
+    var r = await fetchWithTimeout('/api/admin/ml-snapshots?admin_key=' + encodeURIComponent(ADMIN_KEY), 8000);
+    var d = await r.json();
+    var snaps = d.snapshots || [];
+    if (countEl) countEl.textContent = snaps.length + (snaps.length === 1 ? ' snapshot' : ' snapshots');
+
+    if (snaps.length === 0) {
+      el.innerHTML = '<div style="font-size:11px;color:var(--dim);padding:8px 0">' +
+        'No snapshots yet. Click <strong>📸 Snapshot Now</strong> to capture the current state.' +
+        '</div>';
+      return;
+    }
+
+    window._mlMetricsSnaps = snaps;
+
+    var html = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:8px">';
+    for (var i = 0; i < snaps.length; i++) {
+      var s = snaps[i];
+      var ts = s.created_at ? new Date(s.created_at).toLocaleString() : 'unknown';
+      var label = s.label ? _esc(s.label) : '<em style="color:var(--dim)">unlabeled</em>';
+      html += '<div style="background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:6px;padding:10px">';
+      html += '<div style="display:flex;justify-content:space-between;align-items:start;gap:6px">';
+      html += '<div style="flex:1;min-width:0">';
+      html += '<div style="font-size:12px;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis">' + label + '</div>';
+      html += '<div style="font-size:10px;color:var(--dim);margin-top:2px">#' + s.id + ' · ' + _esc(ts) + '</div>';
+      html += '</div>';
+      html += '<button onclick="compareMLMetricsSnapshots(' + s.id + ', null)" '
+        + 'style="padding:3px 10px;font-size:10px;background:linear-gradient(90deg,#6366f1,#4f46e5);color:white;border:none;border-radius:3px;cursor:pointer;font-weight:600;flex-shrink:0">'
+        + 'Compare</button>';
+      html += '</div>';
+      html += '<div style="margin-top:8px;display:grid;grid-template-columns:repeat(2,1fr);gap:4px;font-size:11px;font-family:var(--mono);color:var(--muted)">';
+      html += '<div>rows: <span style="color:var(--text)">' + (s.total_rows || 0).toLocaleString() + '</span></div>';
+      html += '<div>labeled: <span style="color:var(--text)">' + (s.rows_labeled || 0).toLocaleString() + '</span></div>';
+      html += '<div>≥0.85: <span style="color:var(--text)">' + (s.rows_high_confidence || 0).toLocaleString() + '</span></div>';
+      html += '<div>crawlers: <span style="color:var(--text)">' + (s.active_crawler_count || 0) + '</span></div>';
+      if (s.fc_category_acc != null) {
+        html += '<div>cat acc: <span style="color:var(--text)">' + (s.fc_category_acc * 100).toFixed(1) + '%</span></div>';
+      }
+      if (s.rc_mae != null) {
+        html += '<div>cost MAE: <span style="color:var(--text)">$' + Math.round(s.rc_mae).toLocaleString() + '</span></div>';
+      }
+      html += '</div>';
+      if (s.notes) {
+        html += '<div style="margin-top:6px;font-size:10px;color:var(--dim);font-style:italic;overflow:hidden;text-overflow:ellipsis">' + _esc(s.notes) + '</div>';
+      }
+      html += '</div>';
+    }
+    html += '</div>';
+    html += '<div id="ml-metrics-compare-output" style="margin-top:14px"></div>';
+    el.innerHTML = html;
+  } catch (e) {
+    el.innerHTML = '<div style="font-size:11px;color:#f87171">Failed to load: ' + _esc(String(e)) + '</div>';
+  }
+}
+
+async function compareMLMetricsSnapshots(beforeId, afterId) {
+  var out = document.getElementById('ml-metrics-compare-output');
+  if (!out) return;
+  out.innerHTML = '<div style="font-size:11px;color:var(--muted);padding:8px 0">Computing diff…</div>';
+  try {
+    var url = '/api/admin/ml-snapshot-compare?admin_key=' + encodeURIComponent(ADMIN_KEY) +
+              '&before_id=' + beforeId +
+              (afterId ? '&after_id=' + afterId : '');
+    var r = await fetchWithTimeout(url, 12000);
+    var d = await r.json();
+    if (!d.ok) {
+      out.innerHTML = '<div style="font-size:11px;color:#f87171">Compare failed: ' + _esc(d.error || 'unknown') + '</div>';
+      return;
+    }
+
+    function _renderDelta(metric, label, fmt) {
+      if (!metric || (metric.before == null && metric.after == null)) return '';
+      var b = metric.before;
+      var a = metric.after;
+      var dd = metric.delta;
+      var pct = metric.pct;
+      function _f(v) {
+        if (v == null) return '—';
+        if (fmt === 'pct') return (v * 100).toFixed(1) + '%';
+        if (fmt === 'usd') return '$' + Math.round(v).toLocaleString();
+        if (fmt === 'count') return v.toLocaleString();
+        return String(v);
+      }
+      var arrow = dd == null ? '' : (dd > 0 ? '↑' : dd < 0 ? '↓' : '·');
+      var color = dd == null ? 'var(--muted)' : (dd > 0 ? '#22c55e' : dd < 0 ? '#f87171' : 'var(--muted)');
+      if (fmt === 'usd' && metric.delta != null) {
+        color = dd < 0 ? '#22c55e' : dd > 0 ? '#f87171' : 'var(--muted)';
+      }
+      var deltaStr = dd == null ? '' : (' ' + (dd > 0 ? '+' : '') + (fmt === 'pct' ? (dd * 100).toFixed(1) + '%' : (fmt === 'usd' ? '$' + Math.round(Math.abs(dd)).toLocaleString() : dd.toLocaleString())));
+      var pctStr = pct != null ? ' (' + (pct > 0 ? '+' : '') + pct + '%)' : '';
+      return '<tr>' +
+        '<td style="padding:4px 8px;color:var(--muted)">' + label + '</td>' +
+        '<td style="padding:4px 8px;text-align:right;font-family:var(--mono)">' + _f(b) + '</td>' +
+        '<td style="padding:4px 8px;text-align:right;font-family:var(--mono)">' + _f(a) + '</td>' +
+        '<td style="padding:4px 8px;text-align:right;font-family:var(--mono);color:' + color + '">' + arrow + deltaStr + pctStr + '</td>' +
+        '</tr>';
+    }
+
+    var html = '<div style="background:rgba(99,102,241,.05);border:1px solid rgba(99,102,241,.2);border-radius:6px;padding:14px">';
+    html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">';
+    html += '<div style="font-size:13px;font-weight:600">Comparison: ' + _esc(d.before.label || ('#' + d.before.id)) + ' → ' + _esc(d.after.label || ('#' + d.after.id)) + '</div>';
+    html += '<button onclick="document.getElementById(\'ml-metrics-compare-output\').innerHTML=\'\';" style="padding:3px 10px;font-size:10px;background:transparent;color:var(--dim);border:1px solid var(--border);border-radius:3px;cursor:pointer">✕ close</button>';
+    html += '</div>';
+
+    html += '<table style="width:100%;font-size:12px;border-collapse:collapse">';
+    html += '<tr style="border-bottom:1px solid rgba(255,255,255,.08)">' +
+      '<th style="text-align:left;padding:4px 8px;color:var(--dim);font-weight:600">Metric</th>' +
+      '<th style="text-align:right;padding:4px 8px;color:var(--dim);font-weight:600">Before</th>' +
+      '<th style="text-align:right;padding:4px 8px;color:var(--dim);font-weight:600">After</th>' +
+      '<th style="text-align:right;padding:4px 8px;color:var(--dim);font-weight:600">Δ</th>' +
+      '</tr>';
+    html += _renderDelta(d.corpus.total_rows, 'Total rows', 'count');
+    html += _renderDelta(d.corpus.rows_labeled, 'Labeled rows', 'count');
+    html += _renderDelta(d.corpus.rows_high_confidence, 'High-confidence (≥0.85)', 'count');
+    html += _renderDelta(d.model_metrics.fc_category_acc, 'Category accuracy', 'pct');
+    html += _renderDelta(d.model_metrics.fc_severity_acc, 'Severity accuracy', 'pct');
+    html += _renderDelta(d.model_metrics.cd_accuracy, 'Contradiction accuracy', 'pct');
+    html += _renderDelta(d.model_metrics.rc_r2, 'Cost predictor R²', 'pct');
+    html += _renderDelta(d.model_metrics.rc_mae, 'Cost predictor MAE', 'usd');
+    html += _renderDelta(d.crawlers.active_count, 'Active crawlers', 'count');
+    html += '</table>';
+
+    var stateChanges = (d.states_diff || []).filter(function(s) { return s.delta !== 0; });
+    if (stateChanges.length > 0) {
+      html += '<div style="margin-top:14px;font-size:12px;font-weight:600;color:var(--muted)">Per-state row changes</div>';
+      html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:4px;margin-top:6px;font-family:var(--mono);font-size:11px">';
+      stateChanges.forEach(function(s) {
+        var color = s.delta > 0 ? '#22c55e' : '#f87171';
+        var sign = s.delta > 0 ? '+' : '';
+        html += '<div style="padding:3px 6px;background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:3px">';
+        html += '<span style="color:var(--muted)">' + _esc(s.state) + '</span>: ';
+        html += '<span style="color:' + color + '">' + sign + s.delta.toLocaleString() + '</span>';
+        html += '</div>';
+      });
+      html += '</div>';
+    }
+
+    var sourceChanges = (d.sources_diff || []).filter(function(s) { return s.delta !== 0; });
+    if (sourceChanges.length > 0) {
+      html += '<div style="margin-top:14px;font-size:12px;font-weight:600;color:var(--muted)">Per-source row changes</div>';
+      html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:4px;margin-top:6px;font-family:var(--mono);font-size:11px">';
+      sourceChanges.forEach(function(s) {
+        var color = s.delta > 0 ? '#22c55e' : '#f87171';
+        var sign = s.delta > 0 ? '+' : '';
+        html += '<div style="padding:3px 6px;background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">';
+        html += '<span style="color:var(--muted)">' + _esc(s.source) + '</span>: ';
+        html += '<span style="color:' + color + '">' + sign + s.delta.toLocaleString() + '</span>';
+        html += '</div>';
+      });
+      html += '</div>';
+    }
+
+    html += '</div>';
+    out.innerHTML = html;
+    out.scrollIntoView({behavior: 'smooth', block: 'nearest'});
+  } catch (e) {
+    out.innerHTML = '<div style="font-size:11px;color:#f87171">Network error: ' + _esc(String(e)) + '</div>';
+  }
+}
+
+// Boot: load history + start polling for any active run
+loadHistory();
+loadMLMetricsSnapshots();
+pollStatus().then(() => {
+  // If there's an active run, start the poll loop
+  const card = document.getElementById('current-run-card');
+  if (card.style.display !== 'none') {
+    const status = document.getElementById('current-status').textContent;
+    if (status === 'queued' || status === 'running') {
+      startPolling();
+    }
+  }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Initial Labeling · OfferWise Admin</title>
+<meta name="robots" content="noindex,nofollow">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0b1220; --bg2:#111827; --bg3:#1f2937;
+    --line:#1f2937; --line2:#374151;
+    --txt:#f3f4f6; --body:#cbd5e1; --gray:#9ca3af; --dim:#6b7280;
+    --accent:#f97316; --gold:#f59e0b;
+    --green:#22c55e; --red:#ef4444; --amber:#fcd34d; --blue:#60a5fa;
+    --mono:ui-monospace,SFMono-Regular,Menlo,monospace;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--txt);font-size:14px;line-height:1.55;}
+  a{color:var(--gold);text-decoration:none;}
+  a:hover{color:var(--accent);}
+
+  .topbar{padding:14px 22px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;background:#0b1220;}
+  .topbar h1{font-size:16px;font-weight:700;margin:0;letter-spacing:-.01em;}
+  .topbar h1 .accent{color:var(--accent);}
+
+  .wrap{max-width:1000px;margin:0 auto;padding:24px 22px;}
+  .card{background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:22px;margin-bottom:18px;}
+  .card h2{font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--gray);margin:0 0 16px;}
+
+  .info-box{background:rgba(96,165,250,.06);border-left:3px solid var(--blue);padding:12px 16px;border-radius:0 6px 6px 0;font-size:13px;line-height:1.65;color:var(--body);margin-bottom:18px;}
+  .info-box strong{color:var(--txt);}
+
+  /* Big stat panel */
+  .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:14px;}
+  .stat{padding:14px 16px;background:var(--bg3);border:1px solid var(--line);border-radius:6px;}
+  .stat .label{font-size:10px;color:var(--gray);text-transform:uppercase;letter-spacing:.05em;font-weight:600;}
+  .stat .val{font-size:22px;font-weight:700;color:var(--txt);font-family:var(--mono);margin-top:4px;}
+  .stat .val.ok{color:var(--green);}
+  .stat .val.warn{color:var(--amber);}
+  .stat .val.danger{color:var(--red);}
+  .stat .sub{font-size:10px;color:var(--gray);margin-top:3px;font-family:var(--mono);}
+
+  /* Primary button */
+  .btn{padding:12px 26px;border-radius:6px;border:1px solid;font-weight:600;font-size:14px;cursor:pointer;font-family:inherit;letter-spacing:.01em;}
+  .btn.primary{background:linear-gradient(90deg,var(--accent),var(--gold));border-color:var(--accent);color:white;}
+  .btn.primary:hover{filter:brightness(1.1);}
+  .btn.secondary{background:transparent;border-color:var(--line2);color:var(--body);font-size:12px;padding:8px 14px;}
+  .btn.secondary:hover{border-color:var(--accent);color:var(--accent);}
+  .btn:disabled{opacity:.55;cursor:not-allowed;}
+
+  /* Progress */
+  .progress-bar{height:10px;background:var(--bg3);border-radius:5px;overflow:hidden;margin:10px 0 14px;}
+  .progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--gold));transition:width .3s;}
+  .progress-meta{display:flex;justify-content:space-between;font-size:12px;color:var(--gray);font-family:var(--mono);margin-bottom:6px;}
+  .progress-meta strong{color:var(--txt);}
+
+  /* Status badge */
+  .status-badge{display:inline-block;font-size:11px;font-weight:700;padding:3px 10px;border-radius:4px;text-transform:uppercase;letter-spacing:.05em;font-family:var(--mono);}
+  .status-badge.queued{background:rgba(252,211,77,.15);color:var(--amber);}
+  .status-badge.running{background:rgba(96,165,250,.15);color:var(--blue);}
+  .status-badge.completed{background:rgba(34,197,94,.15);color:var(--green);}
+  .status-badge.failed{background:rgba(239,68,68,.15);color:var(--red);}
+  .status-badge.cancelled{background:rgba(156,163,175,.15);color:var(--gray);}
+
+  /* Advanced section */
+  .advanced{margin-top:14px;border-top:1px solid var(--line);padding-top:14px;}
+  .advanced summary{cursor:pointer;font-size:12px;color:var(--gray);font-weight:600;letter-spacing:.04em;text-transform:uppercase;list-style:none;}
+  .advanced summary::-webkit-details-marker{display:none;}
+  .advanced summary::before{content:'▶ ';color:var(--dim);font-size:9px;}
+  .advanced[open] summary::before{content:'▼ ';}
+  .advanced-body{margin-top:12px;}
+  .filter-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+  .filter-row input{flex:1;min-width:240px;background:var(--bg3);border:1px solid var(--line2);color:var(--txt);font-family:var(--mono);font-size:12px;padding:8px 12px;border-radius:5px;outline:none;}
+  .filter-row input:focus{border-color:var(--accent);}
+  .advanced .desc{font-size:11px;color:var(--gray);margin:0 0 10px;line-height:1.5;}
+
+  /* History */
+  .history-table{width:100%;border-collapse:collapse;font-size:13px;}
+  .history-table th{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--gray);font-weight:600;padding:8px 10px;text-align:left;border-bottom:1px solid var(--line2);}
+  .history-table td{padding:9px 10px;border-bottom:1px solid var(--line);color:var(--body);vertical-align:top;}
+  .history-table td.empty{text-align:center;color:var(--dim);padding:24px;}
+
+  .back-link{display:inline-block;margin-bottom:14px;font-size:12px;color:var(--gray);}
+  .back-link:hover{color:var(--accent);}
+
+  .err-box{display:none;margin-top:14px;padding:11px 14px;background:rgba(239,68,68,.06);border:1px solid var(--red);border-radius:6px;color:#fca5a5;font-size:12px;font-family:var(--mono);}
+
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--bg2);border:1px solid var(--green);color:var(--green);padding:11px 22px;border-radius:8px;font-weight:600;font-size:13px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:50;}
+  .toast.show{opacity:1;}
+  .toast.warn{border-color:var(--amber);color:var(--amber);}
+  .toast.err{border-color:var(--red);color:var(--red);}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <h1>🔄 <span class="accent">Initial Labeling</span></h1>
+  <div style="font-size:12px;color:var(--gray)" id="last-update">—</div>
+</div>
+
+<div class="wrap">
+  <a class="back-link" href="javascript:history.back()">← Back</a>
+
+  <div class="info-box">
+    <strong>What this does:</strong> Sends every row in <code>ml_finding_labels</code> with a NULL <code>category_v2</code> through Claude Haiku 4.5 via Batch API. Generates category + severity tags from scratch. This is step 1 of the labeling lifecycle — runs after a fresh crawl and before model training. Uses Batch API (50% discount). Server-side job, you can close this tab and come back.
+  </div>
+
+  <div class="card">
+    <h2>Corpus state</h2>
+    <div class="stats-grid" id="stats-grid">
+      <div class="stat">
+        <div class="label">Total rows</div>
+        <div class="val" id="stat-total">—</div>
+      </div>
+      <div class="stat">
+        <div class="label">Labeled (v2)</div>
+        <div class="val ok" id="stat-labeled">—</div>
+        <div class="sub" id="stat-labeled-pct">—</div>
+      </div>
+      <div class="stat">
+        <div class="label">Unlabeled</div>
+        <div class="val" id="stat-unlabeled">—</div>
+        <div class="sub" id="stat-unlabeled-pct">—</div>
+      </div>
+      <div class="stat">
+        <div class="label">Last job</div>
+        <div class="val" id="stat-last-job" style="font-size:14px">—</div>
+        <div class="sub" id="stat-last-job-status">—</div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:18px">
+      <button class="btn primary" id="start-all-btn" onclick="startAll()">🔄 Re-label All Unlabeled</button>
+      <span id="start-hint" style="font-size:12px;color:var(--gray)">Runs Haiku 4.5 over rows missing v2 labels.</span>
+    </div>
+
+    <details class="advanced">
+      <summary>Advanced — re-label filtered subset</summary>
+      <div class="advanced-body">
+        <p class="desc">Re-label rows whose finding_text contains a substring. Useful for re-running on specific cities, code sections, or patterns. Leave blank to match the main button (all unlabeled rows).</p>
+        <div class="filter-row">
+          <input id="filter-input" type="text" placeholder="e.g. PER CSB or §27-2005" autocomplete="off">
+          <button class="btn secondary" id="start-filtered-btn" onclick="startFiltered()">Re-label filtered</button>
+        </div>
+      </div>
+    </details>
+  </div>
+
+  <div class="card" id="current-job-card" style="display:none">
+    <h2>Current job <span class="status-badge" id="current-status">—</span></h2>
+    <div id="current-meta" style="font-size:12px;color:var(--gray);margin-bottom:14px;font-family:var(--mono)">—</div>
+
+    <div class="progress-meta">
+      <span><strong id="cur-processed">0</strong> processed &middot; <strong id="cur-added">0</strong> added &middot; <strong id="cur-rejected">0</strong> rejected</span>
+      <span id="cur-eta">—</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="cur-fill" style="width:0%"></div></div>
+
+    <div id="cur-elapsed" style="font-size:11px;color:var(--gray);font-family:var(--mono);text-align:right">—</div>
+
+    <div class="err-box" id="cur-error"></div>
+  </div>
+
+  <div class="card">
+    <h2>Recent jobs</h2>
+    <table class="history-table" id="history-table">
+      <thead>
+        <tr><th>Started</th><th>Status</th><th>Processed</th><th>Added</th><th>Elapsed</th></tr>
+      </thead>
+      <tbody id="history-tbody">
+        <tr><td colspan="5" class="empty">Loading…</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const ADMIN_KEY = new URLSearchParams(window.location.search).get('admin_key') || '';
+let _polling = null;
+let _lastSeenJobId = null;
+
+function _esc(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function _fmt(n) {
+  if (n == null) return '—';
+  return Number(n).toLocaleString();
+}
+
+function _fmtSec(s) {
+  if (s == null) return '—';
+  s = Math.round(s);
+  if (s < 60) return s + 's';
+  const m = Math.floor(s / 60);
+  const r = s % 60;
+  if (m < 60) return m + 'm ' + r + 's';
+  const h = Math.floor(m / 60);
+  const rm = m % 60;
+  return h + 'h ' + rm + 'm';
+}
+
+function toast(msg, kind) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show' + (kind ? ' ' + kind : '');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+async function startAll() {
+  const filterEl = document.getElementById('filter-input');
+  if (filterEl) filterEl.value = '';
+  return _start('');
+}
+
+async function startFiltered() {
+  const filterEl = document.getElementById('filter-input');
+  const filter = (filterEl ? filterEl.value : '').trim();
+  if (!filter) {
+    toast('Filter is empty — use the main button for "all unlabeled"', 'warn');
+    return;
+  }
+  return _start(filter);
+}
+
+async function _start(filter) {
+  const scope = filter ? 'rows matching "' + filter + '"' : 'all unlabeled rows';
+  const ok = confirm(
+    'Start re-label job?\n\n' +
+    'Scope: ' + scope + '\n' +
+    'Model: Claude Haiku 4.5 via Batch API (50% discount)\n\n' +
+    'Job runs server-side — you can close this tab and come back.'
+  );
+  if (!ok) return;
+
+  const startAllBtn = document.getElementById('start-all-btn');
+  const startFilteredBtn = document.getElementById('start-filtered-btn');
+  startAllBtn.disabled = true;
+  startFilteredBtn.disabled = true;
+
+  try {
+    const body = {prompt_version: 'v2'};
+    if (filter) body.filter = filter;
+    const r = await fetch('/api/admin/ml-relabel-start?admin_key=' + encodeURIComponent(ADMIN_KEY), {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(body),
+    });
+    const d = await r.json();
+    if (!d.ok) {
+      toast(d.error || 'failed to start', 'err');
+      startAllBtn.disabled = false;
+      startFilteredBtn.disabled = false;
+      return;
+    }
+    toast('Relabel job started');
+    // Start polling progress
+    startPolling();
+    // Refresh history right away
+    loadHistory();
+  } catch (e) {
+    toast('Network error: ' + e.message, 'err');
+    startAllBtn.disabled = false;
+    startFilteredBtn.disabled = false;
+  }
+}
+
+async function pollStatus() {
+  try {
+    const r = await fetch('/api/admin/ml-relabel-status?admin_key=' + encodeURIComponent(ADMIN_KEY));
+    const d = await r.json();
+    if (!d.ok) return;
+
+    // Update corpus stats
+    if (d.corpus) {
+      document.getElementById('stat-total').textContent = _fmt(d.corpus.total);
+      document.getElementById('stat-labeled').textContent = _fmt(d.corpus.labeled);
+      document.getElementById('stat-labeled-pct').textContent = d.corpus.percent + '%';
+      document.getElementById('stat-unlabeled').textContent = _fmt(d.corpus.remaining);
+      const unlpct = d.corpus.total ? (100 - d.corpus.percent).toFixed(2) : '0';
+      document.getElementById('stat-unlabeled-pct').textContent = unlpct + '%';
+
+      // Color the unlabeled stat
+      const unl = d.corpus.remaining || 0;
+      const unlEl = document.getElementById('stat-unlabeled');
+      if (unl === 0) unlEl.className = 'val ok';
+      else if (unl > 100) unlEl.className = 'val warn';
+      else unlEl.className = 'val';
+    }
+
+    // Last-job summary
+    if (d.current_job) {
+      const j = d.current_job;
+      document.getElementById('stat-last-job').textContent =
+        j.started_at ? new Date(j.started_at).toLocaleDateString() : '—';
+      document.getElementById('stat-last-job-status').textContent = j.status || '—';
+
+      renderCurrentJob(j);
+
+      // If job reached terminal state, stop polling
+      if (['completed','failed','cancelled'].indexOf(j.status) >= 0) {
+        if (_lastSeenJobId !== j.id) {
+          // We just observed a terminal transition — refresh history and unlock buttons
+          document.getElementById('start-all-btn').disabled = false;
+          document.getElementById('start-filtered-btn').disabled = false;
+          loadHistory();
+          _lastSeenJobId = j.id;
+        }
+        stopPolling();
+      } else {
+        // Running — keep buttons locked
+        document.getElementById('start-all-btn').disabled = true;
+        document.getElementById('start-filtered-btn').disabled = true;
+        _lastSeenJobId = j.id;
+      }
+    } else {
+      // No jobs ever
+      document.getElementById('stat-last-job').textContent = '—';
+      document.getElementById('stat-last-job-status').textContent = 'never run';
+      document.getElementById('current-job-card').style.display = 'none';
+    }
+
+    document.getElementById('last-update').textContent = 'updated ' + new Date().toLocaleTimeString();
+  } catch (e) {
+    // silently retry next tick
+  }
+}
+
+function renderCurrentJob(j) {
+  const card = document.getElementById('current-job-card');
+  card.style.display = '';
+
+  const badge = document.getElementById('current-status');
+  badge.textContent = j.status;
+  badge.className = 'status-badge ' + j.status;
+
+  document.getElementById('current-meta').textContent =
+    'job ' + j.id + ' · started ' + (j.started_at ? new Date(j.started_at).toLocaleTimeString() : '—');
+
+  document.getElementById('cur-processed').textContent = _fmt(j.rows_processed);
+  document.getElementById('cur-added').textContent = _fmt(j.rows_added);
+  document.getElementById('cur-rejected').textContent = _fmt(j.rows_rejected);
+
+  // Progress is tricky: ml-relabel-start jobs don't know total upfront in the
+  // same way (depends on filter / unlabeled count at start). Use rows_added
+  // relative to corpus.remaining at job start as best-effort.
+  // For now, just show as a continuous bar when running, full when complete.
+  const fill = document.getElementById('cur-fill');
+  if (j.status === 'completed') {
+    fill.style.width = '100%';
+  } else if (j.status === 'failed' || j.status === 'cancelled') {
+    fill.style.width = '0%';
+  } else {
+    // Pulsing indeterminate-ish: scale by elapsed against estimated eta
+    if (j.eta_seconds && j.elapsed_seconds) {
+      const totalEst = j.elapsed_seconds + j.eta_seconds;
+      const p = Math.min(99, Math.round(100 * j.elapsed_seconds / totalEst));
+      fill.style.width = p + '%';
+    } else {
+      // Indeterminate — show a small bar moving slowly
+      fill.style.width = '8%';
+    }
+  }
+
+  document.getElementById('cur-eta').textContent =
+    j.eta_seconds != null ? 'ETA ' + _fmtSec(j.eta_seconds) : '';
+  document.getElementById('cur-elapsed').textContent =
+    j.elapsed_seconds != null ? 'elapsed ' + _fmtSec(j.elapsed_seconds) : '';
+
+  const err = document.getElementById('cur-error');
+  if (j.error) {
+    err.style.display = '';
+    err.textContent = j.error;
+  } else {
+    err.style.display = 'none';
+  }
+}
+
+function startPolling() {
+  if (_polling) return;
+  pollStatus();
+  _polling = setInterval(pollStatus, 3000);
+}
+
+function stopPolling() {
+  if (_polling) {
+    clearInterval(_polling);
+    _polling = null;
+  }
+}
+
+async function loadHistory() {
+  // Reuse the ingestion-jobs endpoint already in admin_routes for full history.
+  // Filter to job_type='relabel' client-side.
+  try {
+    const r = await fetch('/api/admin/ml-ingestion-jobs?admin_key=' + encodeURIComponent(ADMIN_KEY));
+    const d = await r.json();
+    const tbody = document.getElementById('history-tbody');
+    if (!d.ok || !d.jobs) {
+      tbody.innerHTML = '<tr><td colspan="5" class="empty">Failed to load history.</td></tr>';
+      return;
+    }
+    const relabelJobs = d.jobs.filter(j => j.job_type === 'relabel').slice(0, 25);
+    if (relabelJobs.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="5" class="empty">No relabel jobs yet.</td></tr>';
+      return;
+    }
+    let html = '';
+    for (const j of relabelJobs) {
+      const started = j.started_at ? new Date(j.started_at).toLocaleString() : '—';
+      html +=
+        '<tr>' +
+          '<td style="font-family:var(--mono);font-size:11px">' + _esc(started) + '</td>' +
+          '<td><span class="status-badge ' + _esc(j.status || '') + '">' + _esc(j.status || '—') + '</span></td>' +
+          '<td style="font-family:var(--mono)">' + _fmt(j.rows_processed) + '</td>' +
+          '<td style="font-family:var(--mono);color:var(--green)">' + _fmt(j.rows_added) + '</td>' +
+          '<td style="font-family:var(--mono);font-size:11px">' + _fmtSec(j.elapsed_seconds) + '</td>' +
+        '</tr>';
+    }
+    tbody.innerHTML = html;
+  } catch (e) {
+    document.getElementById('history-tbody').innerHTML =
+      '<tr><td colspan="5" class="empty">Network error loading history.</td></tr>';
+  }
+}
+
+// Boot
+pollStatus().then(() => {
+  loadHistory();
+  // If there's a running job, keep polling
+  const status = document.getElementById('current-status').textContent;
+  if (status === 'queued' || status === 'running') {
+    startPolling();
+  } else {
+    // Slow refresh every 30s for corpus stats
+    setInterval(pollStatus, 30000);
+  }
+});
+</script>
+</body>
+</html>

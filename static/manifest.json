@@ -1,0 +1,49 @@
+{
+  "name": "OfferWise AI",
+  "short_name": "OfferWise",
+  "description": "AI-powered home buying analysis. Find hidden issues before you make an offer.",
+  "start_url": "/app",
+  "display": "standalone",
+  "background_color": "#060d1a",
+  "theme_color": "#f97316",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/static/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/static/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/static/screenshot-mobile.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow"
+    }
+  ],
+  "categories": ["finance", "real-estate", "productivity"],
+  "shortcuts": [
+    {
+      "name": "Analyze a Property",
+      "short_name": "Analyze",
+      "description": "Start a new property analysis",
+      "url": "/app",
+      "icons": [{ "src": "/static/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "My Dashboard",
+      "short_name": "Dashboard",
+      "description": "View past analyses",
+      "url": "/dashboard",
+      "icons": [{ "src": "/static/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}

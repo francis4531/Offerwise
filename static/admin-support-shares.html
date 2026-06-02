@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" type="image/svg+xml" href="/static/logo-icon-only.svg">
+  <link rel="alternate icon" type="image/x-icon" href="/favicon.ico">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Support Inbox — OfferWise Admin</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+  :root {
+    --bg: #080c14;
+    --surface: #0d1424;
+    --card: #111827;
+    --border: #1e2d45;
+    --border-bright: #2a3f5f;
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --faint: #1e293b;
+    --accent: #3b82f6;
+    --accent-dim: rgba(59,130,246,0.12);
+    --green: #22c55e;
+    --green-dim: rgba(34,197,94,0.12);
+    --amber: #f59e0b;
+    --amber-dim: rgba(245,158,11,0.12);
+    --red: #ef4444;
+    --red-dim: rgba(239,68,68,0.12);
+    --indigo: #6366f1;
+    --mono: 'JetBrains Mono', monospace;
+    --sans: 'DM Sans', sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; font-family: var(--sans); background: var(--bg); color: var(--text);
+    font-size: 14px; line-height: 1.5;
+  }
+  .wrap { display: grid; grid-template-columns: 380px 1fr; height: 100vh; }
+  .sidebar {
+    background: var(--surface); border-right: 1px solid var(--border);
+    display: flex; flex-direction: column; overflow: hidden;
+  }
+  .sb-head {
+    padding: 14px 16px; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .sb-title { font-weight: 600; font-size: 14px; }
+  .filters {
+    padding: 8px 12px; border-bottom: 1px solid var(--border);
+    display: flex; gap: 4px; overflow-x: auto;
+  }
+  .pill {
+    background: transparent; border: 1px solid var(--border);
+    color: var(--muted); font-size: 11px; font-weight: 500;
+    padding: 4px 10px; border-radius: 999px; cursor: pointer; white-space: nowrap;
+    transition: all 0.15s;
+  }
+  .pill:hover { color: var(--text); border-color: var(--border-bright); }
+  .pill.active { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
+  .pill .count {
+    margin-left: 4px; font-family: var(--mono); font-size: 10px; opacity: 0.7;
+  }
+  .ticket-list { flex: 1; overflow-y: auto; }
+  .ticket-row {
+    padding: 12px 16px; border-bottom: 1px solid var(--faint);
+    cursor: pointer; transition: background 0.1s;
+  }
+  .ticket-row:hover { background: var(--faint); }
+  .ticket-row.active { background: var(--accent-dim); border-left: 2px solid var(--accent); padding-left: 14px; }
+  .ticket-row-head {
+    display: flex; align-items: center; gap: 8px; margin-bottom: 4px;
+  }
+  .badge {
+    font-size: 9px; font-weight: 600; padding: 2px 6px; border-radius: 4px;
+    text-transform: uppercase; letter-spacing: 0.04em;
+  }
+  .badge.open       { background: var(--accent-dim); color: var(--accent); }
+  .badge.in_progress{ background: var(--amber-dim); color: var(--amber); }
+  .badge.waiting_on_user { background: var(--indigo); color: white; }
+  .badge.resolved   { background: var(--green-dim); color: var(--green); }
+  .badge.reopened   { background: var(--red-dim); color: var(--red); }
+  .badge.source {
+    background: transparent; border: 1px solid var(--border);
+    color: var(--muted); font-weight: 500;
+  }
+  .ticket-subject {
+    font-weight: 500; color: var(--text);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .ticket-meta {
+    font-size: 11px; color: var(--muted);
+    display: flex; gap: 8px; align-items: center;
+  }
+  .ticket-msg-count {
+    background: var(--faint); padding: 1px 5px; border-radius: 3px;
+    font-family: var(--mono); font-size: 10px;
+  }
+
+  .detail { padding: 22px; overflow-y: auto; background: var(--bg); }
+  .empty-state {
+    color: var(--muted); text-align: center; margin-top: 40vh;
+  }
+  .detail-head { margin-bottom: 18px; padding-bottom: 14px; border-bottom: 1px solid var(--border); }
+  .detail-head h1 {
+    margin: 0 0 8px 0; font-size: 18px; font-weight: 600;
+  }
+  .detail-meta { display: flex; gap: 12px; flex-wrap: wrap; font-size: 12px; color: var(--muted); }
+  .actions { display: flex; gap: 8px; margin-top: 12px; }
+  .btn {
+    background: var(--card); border: 1px solid var(--border);
+    color: var(--text); padding: 7px 12px; border-radius: 6px;
+    font-size: 12px; cursor: pointer; font-family: var(--sans);
+    transition: all 0.15s;
+  }
+  .btn:hover { border-color: var(--border-bright); background: var(--faint); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: white; }
+  .btn.primary:hover { background: #2563eb; }
+  .btn.success { background: var(--green); border-color: var(--green); color: white; }
+  .btn.success:hover { opacity: 0.9; }
+
+  .message {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 8px; padding: 14px; margin-bottom: 12px;
+  }
+  .message.admin { border-color: var(--accent-dim); background: var(--accent-dim); }
+  .message.system { background: transparent; border-style: dashed; }
+  .message.note { background: var(--amber-dim); border-color: var(--amber); }
+  .msg-head {
+    display: flex; align-items: center; gap: 8px; margin-bottom: 8px;
+    font-size: 11px; color: var(--muted);
+  }
+  .msg-author { font-weight: 600; color: var(--text); }
+  .msg-body {
+    font-size: 14px; line-height: 1.6;
+    white-space: pre-wrap; word-wrap: break-word;
+  }
+  .snapshot-card {
+    background: var(--faint); border: 1px solid var(--border);
+    border-radius: 6px; padding: 10px; margin-top: 10px;
+    font-size: 12px;
+  }
+  .snapshot-card h4 {
+    margin: 0 0 8px; font-size: 10px; text-transform: uppercase;
+    letter-spacing: 0.05em; color: var(--muted);
+  }
+  .snapshot-row { display: flex; justify-content: space-between; padding: 3px 0; }
+  .snapshot-label { color: var(--muted); }
+  .snapshot-val { font-family: var(--mono); }
+
+  .compose {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 8px; padding: 14px; margin-top: 14px;
+  }
+  .compose-tabs {
+    display: flex; gap: 4px; margin-bottom: 10px;
+  }
+  .compose-tab {
+    background: transparent; border: 1px solid var(--border);
+    color: var(--muted); font-size: 11px; font-weight: 500;
+    padding: 4px 10px; border-radius: 6px; cursor: pointer;
+    font-family: var(--sans);
+  }
+  .compose-tab.active { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
+  .compose textarea {
+    width: 100%; min-height: 120px; background: var(--bg);
+    border: 1px solid var(--border); border-radius: 6px;
+    color: var(--text); padding: 10px 12px; font-size: 14px;
+    font-family: var(--sans); line-height: 1.55; resize: vertical;
+    box-sizing: border-box;
+  }
+  .compose textarea:focus { outline: none; border-color: var(--accent); }
+  .compose-actions {
+    display: flex; gap: 8px; align-items: center; margin-top: 10px;
+  }
+  .compose-info { flex: 1; font-size: 11px; color: var(--muted); }
+  .compose.is-note textarea { background: var(--amber-dim); border-color: var(--amber); }
+
+  /* v5.88.37: aging chip on ticket row */
+  .age-chip {
+    font-family: var(--mono); font-size: 10px;
+    padding: 1px 5px; border-radius: 3px;
+    background: var(--faint); color: var(--muted);
+  }
+  .age-chip.stale {
+    background: var(--amber-dim); color: var(--amber);
+    font-weight: 600;
+  }
+  .ticket-row.stale { border-left: 2px solid var(--amber); padding-left: 14px; }
+  .ticket-row.stale.active { border-left-color: var(--accent); }
+
+  /* v5.88.37: search box in sidebar */
+  .sb-search {
+    padding: 8px 12px; border-bottom: 1px solid var(--border);
+  }
+  .sb-search input {
+    width: 100%; background: var(--bg);
+    border: 1px solid var(--border); border-radius: 6px;
+    color: var(--text); padding: 6px 10px;
+    font-size: 12px; font-family: var(--sans);
+    box-sizing: border-box;
+  }
+  .sb-search input:focus { outline: none; border-color: var(--accent); }
+  .sb-search .stale-toggle {
+    margin-top: 6px; font-size: 11px; color: var(--muted);
+    display: flex; align-items: center; gap: 5px; cursor: pointer;
+  }
+
+  /* v5.88.37: template picker */
+  .templates {
+    display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px;
+  }
+  .template-btn {
+    background: var(--faint); border: 1px solid var(--border);
+    color: var(--text); padding: 4px 9px; border-radius: 999px;
+    font-size: 11px; cursor: pointer; font-family: var(--sans);
+    transition: all 0.15s;
+  }
+  .template-btn:hover { background: var(--accent-dim); border-color: var(--accent); }
+  .template-warning {
+    color: var(--amber); font-size: 11px; margin-top: 6px;
+  }
+
+  .loading { color: var(--muted); padding: 20px; text-align: center; }
+
+  /* v5.88.39: New Ticket modal */
+  .modal-backdrop {
+    position: fixed; top:0; left:0; right:0; bottom:0;
+    background: rgba(0,0,0,0.55); z-index: 1000;
+    display: none; align-items: center; justify-content: center;
+  }
+  .modal-backdrop.open { display: flex; }
+  .modal {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 10px; width: 560px; max-width: 92vw;
+    max-height: 92vh; overflow-y: auto;
+    padding: 20px 22px; box-shadow: 0 14px 40px rgba(0,0,0,0.5);
+  }
+  .modal h2 {
+    font-size: 16px; font-weight: 600; margin: 0 0 4px 0; color: var(--text);
+  }
+  .modal-sub {
+    color: var(--muted); font-size: 12px; margin-bottom: 16px;
+  }
+  .modal-field {
+    margin-bottom: 12px;
+  }
+  .modal-field label {
+    display: block; font-size: 11px; font-weight: 500;
+    color: var(--muted); margin-bottom: 4px; text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .modal-field label .req { color: var(--red); }
+  .modal-field input, .modal-field textarea {
+    width: 100%; background: var(--bg); border: 1px solid var(--border);
+    border-radius: 6px; color: var(--text); padding: 8px 10px;
+    font-size: 13px; font-family: var(--sans); box-sizing: border-box;
+  }
+  .modal-field textarea {
+    min-height: 140px; resize: vertical; line-height: 1.5;
+  }
+  .modal-field input:focus, .modal-field textarea:focus {
+    outline: none; border-color: var(--accent);
+  }
+  .modal-field.err input, .modal-field.err textarea { border-color: var(--red); }
+  .modal-field .field-err {
+    color: var(--red); font-size: 11px; margin-top: 4px;
+  }
+  .modal-actions {
+    display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px;
+  }
+  .modal-row {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <aside class="sidebar">
+    <div class="sb-head">
+      <span class="sb-title">Support Inbox</span>
+      <div style="display:flex; gap:6px">
+        <button class="btn primary" id="newTicketBtn" title="Create a new ticket manually" onclick="openNewTicketModal()">+ New</button>
+        <button class="btn" id="refreshBtn" title="Refresh" onclick="loadTickets()">refresh</button>
+      </div>
+    </div>
+    <div class="filters" id="filterPills"></div>
+    <div class="sb-search">
+      <input type="search" id="searchBox" placeholder="Search subject, name, email..." />
+      <label class="stale-toggle">
+        <input type="checkbox" id="staleOnly" />
+        Show only stale (>24h)
+      </label>
+    </div>
+    <div class="ticket-list" id="ticketList">
+      <div class="loading">Loading...</div>
+    </div>
+  </aside>
+
+  <main class="detail" id="detail">
+    <div class="empty-state">
+      <p>Select a ticket from the list</p>
+    </div>
+  </main>
+
+</div>
+
+<!-- v5.88.39: New Ticket modal -->
+<div class="modal-backdrop" id="newTicketBackdrop" onclick="if(event.target===this)closeNewTicketModal()">
+  <div class="modal" role="dialog" aria-labelledby="newTicketTitle">
+    <h2 id="newTicketTitle">New ticket</h2>
+    <div class="modal-sub">Paste customer details from your inbox. The first message represents what they said; you'll reply in the next step.</div>
+
+    <div class="modal-row">
+      <div class="modal-field" id="f_from_email">
+        <label>From email <span class="req">*</span></label>
+        <input type="email" id="nt_from_email" placeholder="alice@example.com" autocomplete="off" />
+        <div class="field-err"></div>
+      </div>
+      <div class="modal-field" id="f_from_name">
+        <label>From name <span style="color:var(--muted);text-transform:none">(optional)</span></label>
+        <input type="text" id="nt_from_name" placeholder="Alice Smith" autocomplete="off" />
+        <div class="field-err"></div>
+      </div>
+    </div>
+
+    <div class="modal-field" id="f_subject">
+      <label>Subject <span class="req">*</span></label>
+      <input type="text" id="nt_subject" placeholder="Question about my analysis" autocomplete="off" />
+      <div class="field-err"></div>
+    </div>
+
+    <div class="modal-field" id="f_body">
+      <label>Customer's message <span class="req">*</span></label>
+      <textarea id="nt_body" placeholder="Paste what they said. If logging a phone call, write a brief note of what was discussed."></textarea>
+      <div class="field-err"></div>
+    </div>
+
+    <div class="modal-field" id="f_linked_property_id">
+      <label>Linked property ID <span style="color:var(--muted);text-transform:none">(optional)</span></label>
+      <input type="number" id="nt_linked_property_id" placeholder="e.g. 42 — leave blank if not about a specific property" />
+      <div class="field-err"></div>
+    </div>
+
+    <div id="nt_global_err" style="color:var(--red); font-size:12px; margin-top:4px; display:none;"></div>
+
+    <div class="modal-actions">
+      <button type="button" class="btn" onclick="closeNewTicketModal()">Cancel</button>
+      <button type="button" class="btn primary" id="nt_submit" onclick="submitNewTicket()">Create ticket</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const ADMIN_KEY = new URLSearchParams(window.location.search).get('admin_key') || '';
+let currentStatus = 'open';
+let currentTicketId = null;
+// v5.88.37: search + stale state, debounced
+let searchQuery = '';
+let staleOnly = false;
+let searchDebounce = null;
+let cachedTemplates = null;  // lazy-loaded; refreshed on first composer open
+
+async function loadTickets() {
+  const list = document.getElementById('ticketList');
+  list.innerHTML = '<div class="loading">Loading...</div>';
+  try {
+    const params = new URLSearchParams({
+      status: currentStatus,
+      limit: '100',
+      admin_key: ADMIN_KEY,
+    });
+    if (searchQuery)         params.set('q', searchQuery);
+    if (staleOnly)           params.set('stale_only', '1');
+    const r = await fetch('/api/admin/tickets?' + params.toString());
+
+    // v5.88.40: handle non-200 responses explicitly so the user sees a
+    // real error message instead of a JSON parse failure on the 403 body.
+    if (!r.ok) {
+      const bodyText = await r.text();
+      showPageError(
+        'Failed to load tickets (HTTP ' + r.status + ').',
+        bodyText.substring(0, 300),
+        r.status === 401 || r.status === 403
+      );
+      list.innerHTML = '<div class="loading" style="color:var(--red)">' +
+        'HTTP ' + r.status + ' — see error banner above.' +
+        '</div>';
+      return;
+    }
+
+    const data = await r.json();
+    hidePageError();
+    renderPills(data.counts || {});
+    renderList(data.tickets || []);
+  } catch (e) {
+    showPageError(
+      'Could not reach the tickets API.',
+      e && e.message ? e.message : String(e),
+      false
+    );
+    list.innerHTML = '<div class="loading" style="color:var(--red)">Failed to load: ' +
+      escapeHtml((e && e.message) ? e.message : String(e)) + '</div>';
+  }
+}
+
+// v5.88.40: page-level error banner. Used when the API fails outright
+// so the iframe is never blank — the user sees what went wrong AND a
+// hint on how to fix it for auth failures.
+function showPageError(headline, detail, isAuthError) {
+  let banner = document.getElementById('pageErrorBanner');
+  if (!banner) {
+    banner = document.createElement('div');
+    banner.id = 'pageErrorBanner';
+    banner.style.cssText =
+      'position:fixed;top:0;left:0;right:0;z-index:2000;' +
+      'background:#7f1d1d;color:#fee;padding:10px 16px;' +
+      'font-family:var(--sans);font-size:13px;line-height:1.4;' +
+      'border-bottom:2px solid #ef4444;box-shadow:0 2px 8px rgba(0,0,0,0.4);';
+    document.body.appendChild(banner);
+  }
+  const fix = isAuthError
+    ? '<br><span style="opacity:0.85">Likely cause: the admin_key query param is missing or invalid. ' +
+      'Try reopening this view from the admin nav, or append <code style="background:#450a0a;padding:1px 4px;border-radius:3px">?admin_key=YOUR_KEY</code> to the URL.</span>'
+    : '';
+  banner.innerHTML =
+    '<strong>' + escapeHtml(headline) + '</strong>' +
+    (detail ? '<br><span style="opacity:0.85;font-family:var(--mono);font-size:11px">' +
+              escapeHtml(detail) + '</span>' : '') +
+    fix;
+}
+
+function hidePageError() {
+  const banner = document.getElementById('pageErrorBanner');
+  if (banner) banner.remove();
+}
+
+function renderPills(counts) {
+  const wrap = document.getElementById('filterPills');
+  const items = [
+    {key: 'open',            label: 'Open',     count: counts.open || 0},
+    {key: 'in_progress',     label: 'Working',  count: counts.in_progress || 0},
+    {key: 'waiting_on_user', label: 'Waiting',  count: counts.waiting_on_user || 0},
+    {key: 'resolved',        label: 'Resolved', count: counts.resolved || 0},
+    {key: 'reopened',        label: 'Reopened', count: counts.reopened || 0},
+    {key: 'all',             label: 'All',      count: ''},
+  ];
+  wrap.innerHTML = items.map(function(i) {
+    return '<button class="pill ' + (i.key === currentStatus ? 'active' : '') +
+      '" data-key="' + i.key + '">' + escapeHtml(i.label) +
+      (i.count !== '' ? '<span class="count">' + i.count + '</span>' : '') +
+      '</button>';
+  }).join('');
+  wrap.querySelectorAll('.pill').forEach(function(p) {
+    p.onclick = function() { currentStatus = p.dataset.key; loadTickets(); };
+  });
+}
+
+function renderList(tickets) {
+  const list = document.getElementById('ticketList');
+  if (!tickets.length) {
+    list.innerHTML = '<div class="loading">No tickets in this view.</div>';
+    return;
+  }
+  list.innerHTML = tickets.map(function(t) {
+    // v5.88.37: aging chip
+    const aging = t.aging || {};
+    const ageHrs = aging.age_hours || 0;
+    let ageLabel = '';
+    let ageClass = 'age-chip';
+    if (aging.aging_basis !== 'n/a') {
+      if (ageHrs < 1)         ageLabel = '<1h';
+      else if (ageHrs < 24)   ageLabel = Math.round(ageHrs) + 'h';
+      else                    ageLabel = Math.round(ageHrs / 24) + 'd';
+      if (aging.is_stale) ageClass += ' stale';
+    }
+    const ageChip = ageLabel
+      ? '<span class="' + ageClass + '" title="' + escapeHtml(aging.aging_basis || '') + '">' + ageLabel + '</span>'
+      : '';
+
+    return '<div class="ticket-row ' +
+      (t.id === currentTicketId ? 'active ' : '') +
+      (aging.is_stale ? 'stale' : '') +
+      '" data-id="' + t.id + '">' +
+      '<div class="ticket-row-head">' +
+        '<span class="badge ' + t.status + '">' + formatStatus(t.status) + '</span>' +
+        '<span class="badge source">' + formatSource(t.source) + '</span>' +
+        ageChip +
+      '</div>' +
+      '<div class="ticket-subject">' + escapeHtml(t.subject || '(no subject)') + '</div>' +
+      '<div class="ticket-meta">' +
+        '<span>' + escapeHtml(t.user_name || 'unknown') + '</span>' +
+        '<span>&middot;</span>' +
+        '<span>' + formatRelative(t.created_at) + '</span>' +
+        (t.message_count > 1 ? '<span class="ticket-msg-count">' + t.message_count + ' msgs</span>' : '') +
+      '</div>' +
+      '</div>';
+  }).join('');
+  list.querySelectorAll('.ticket-row').forEach(function(row) {
+    row.onclick = function() { openTicket(parseInt(row.dataset.id, 10)); };
+  });
+}
+
+async function openTicket(ticketId) {
+  currentTicketId = ticketId;
+  document.querySelectorAll('.ticket-row').forEach(function(r) {
+    r.classList.toggle('active', parseInt(r.dataset.id, 10) === ticketId);
+  });
+  const detail = document.getElementById('detail');
+  detail.innerHTML = '<div class="loading">Loading...</div>';
+  try {
+    const r = await fetch('/api/admin/tickets/' + ticketId + '?admin_key=' + ADMIN_KEY);
+    if (!r.ok) {
+      detail.innerHTML = '<div class="empty-state">Could not load ticket #' + ticketId + '</div>';
+      return;
+    }
+    const t = await r.json();
+    renderDetail(t);
+  } catch (e) {
+    detail.innerHTML = '<div class="empty-state" style="color:var(--red)">Error: ' + escapeHtml(e.message) + '</div>';
+  }
+}
+
+function renderDetail(t) {
+  const detail = document.getElementById('detail');
+  const messages = (t.messages || []).map(function(m, i) {
+    return renderMessage(m, t, i === 0);
+  }).join('');
+  detail.innerHTML =
+    '<div class="detail-head">' +
+      '<h1>' + escapeHtml(t.subject || '(no subject)') + '</h1>' +
+      '<div class="detail-meta">' +
+        '<span class="badge ' + t.status + '">' + formatStatus(t.status) + '</span>' +
+        '<span class="badge source">' + formatSource(t.source) + '</span>' +
+        '<span>' + escapeHtml(t.user_name) + ' &lt;' + escapeHtml(t.user_email || '') + '&gt;</span>' +
+        '<span>&middot;</span>' +
+        '<span>opened ' + formatRelative(t.created_at) + '</span>' +
+        (t.property_address ? '<span>&middot;</span><span>' + escapeHtml(t.property_address) + '</span>' : '') +
+      '</div>' +
+      '<div class="actions">' + renderStatusActions(t.status) + '</div>' +
+    '</div>' +
+    messages +
+    renderComposer(t) +
+    '';
+  detail.querySelectorAll('button[data-transition]').forEach(function(b) {
+    b.onclick = function() { transition(t.id, b.dataset.transition); };
+  });
+  wireComposer(t);
+}
+
+function renderComposer(t) {
+  // Resolved tickets don't get a composer by default — admin would explicitly
+  // reopen first. (They can still add an internal note via the Note tab.)
+  const isResolved = t.status === 'resolved';
+  const replyPlaceholder = isResolved
+    ? 'Add a note (ticket is resolved). Switch to Reply to send the customer an email.'
+    : 'Type your reply to ' + (t.user_email || 'the customer') + '...';
+  return '<div class="compose" id="composeBox" data-ticket-id="' + t.id + '">' +
+    '<div class="compose-tabs">' +
+      '<button type="button" class="compose-tab active" data-mode="reply"' +
+        (isResolved ? '' : '') + '>Reply (sends email)</button>' +
+      '<button type="button" class="compose-tab" data-mode="note">Internal note</button>' +
+    '</div>' +
+    // v5.88.37: template picker (lazy-fills on focus)
+    '<div class="templates" id="templatesRow"></div>' +
+    '<textarea id="composeBody" placeholder="' + escapeHtml(replyPlaceholder) + '"></textarea>' +
+    '<div class="template-warning" id="templateWarning"></div>' +
+    '<div class="compose-actions">' +
+      '<span class="compose-info" id="composeInfo">' +
+        (isResolved ? 'Note: ticket resolved — switch to Note tab to add without reopening.' : '') +
+      '</span>' +
+      '<button type="button" class="btn" id="composeCancel">Clear</button>' +
+      '<button type="button" class="btn primary" id="composeSend">Send reply</button>' +
+    '</div>' +
+  '</div>';
+}
+
+async function loadTemplatesOnce() {
+  if (cachedTemplates !== null) return cachedTemplates;
+  try {
+    const r = await fetch('/api/admin/ticket-templates?admin_key=' + ADMIN_KEY);
+    const data = await r.json();
+    cachedTemplates = data.templates || [];
+  } catch (e) {
+    console.warn('Failed to load templates', e);
+    cachedTemplates = [];
+  }
+  return cachedTemplates;
+}
+
+async function renderTemplateRow(ticketId) {
+  const row = document.getElementById('templatesRow');
+  if (!row) return;
+  const tpls = await loadTemplatesOnce();
+  if (!tpls.length) {
+    row.style.display = 'none';
+    return;
+  }
+  row.innerHTML = tpls.map(function(t) {
+    return '<button type="button" class="template-btn" data-tpl="' + t.id +
+      '" title="' + escapeHtml(t.body.substring(0, 80)) + '...">' +
+      escapeHtml(t.name) + '</button>';
+  }).join('');
+  row.querySelectorAll('.template-btn').forEach(function(b) {
+    b.onclick = async function() { await applyTemplate(ticketId, parseInt(b.dataset.tpl, 10)); };
+  });
+}
+
+async function applyTemplate(ticketId, templateId) {
+  const ta = document.getElementById('composeBody');
+  const warn = document.getElementById('templateWarning');
+  if (!ta) return;
+  try {
+    const r = await fetch(
+      '/api/admin/tickets/' + ticketId + '/render-template/' + templateId +
+      '?admin_key=' + ADMIN_KEY
+    );
+    const data = await r.json();
+    if (!r.ok) {
+      warn.textContent = 'Failed to render: ' + (data.error || r.status);
+      return;
+    }
+    ta.value = data.rendered_body || '';
+    ta.focus();
+    // Place cursor at the end
+    ta.setSelectionRange(ta.value.length, ta.value.length);
+    if (data.unresolved_variables && data.unresolved_variables.length) {
+      warn.textContent = 'Unresolved variables: ' +
+        data.unresolved_variables.map(function(v) { return '{' + v + '}'; }).join(', ') +
+        '. Fix or remove them before sending.';
+    } else {
+      warn.textContent = '';
+    }
+  } catch (e) {
+    warn.textContent = 'Error: ' + e.message;
+  }
+}
+
+function wireComposer(t) {
+  const box = document.getElementById('composeBox');
+  if (!box) return;
+  const textarea = box.querySelector('#composeBody');
+  const sendBtn  = box.querySelector('#composeSend');
+  const cancelBtn = box.querySelector('#composeCancel');
+  const info     = box.querySelector('#composeInfo');
+  let mode = 'reply'; // 'reply' or 'note'
+
+  // v5.88.37: load templates row (fire-and-forget; if it fails, no templates shown)
+  renderTemplateRow(t.id);
+
+  box.querySelectorAll('.compose-tab').forEach(function(tab) {
+    tab.onclick = function() {
+      mode = tab.dataset.mode;
+      box.querySelectorAll('.compose-tab').forEach(function(x) {
+        x.classList.toggle('active', x === tab);
+      });
+      box.classList.toggle('is-note', mode === 'note');
+      sendBtn.textContent = (mode === 'note') ? 'Save note' : 'Send reply';
+      info.textContent = (mode === 'note')
+        ? 'Internal note - only visible in admin UI, no email sent.'
+        : (t.status === 'resolved'
+            ? 'Replying will email the customer; ticket stays resolved unless you reopen.'
+            : 'Sends an email and moves ticket to "waiting on user".');
+    };
+  });
+
+  cancelBtn.onclick = function() {
+    textarea.value = '';
+    textarea.focus();
+  };
+
+  sendBtn.onclick = async function() {
+    const body = (textarea.value || '').trim();
+    if (!body) {
+      info.textContent = 'Type something first.';
+      info.style.color = 'var(--amber)';
+      return;
+    }
+    sendBtn.disabled = true;
+    sendBtn.textContent = 'Sending...';
+    try {
+      const r = await fetch('/api/admin/tickets/' + t.id + '/reply?admin_key=' + ADMIN_KEY, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({body: body, internal_note: mode === 'note'}),
+      });
+      const data = await r.json();
+      if (!r.ok) {
+        info.textContent = 'Failed: ' + (data.error || r.status);
+        info.style.color = 'var(--red)';
+        sendBtn.disabled = false;
+        sendBtn.textContent = (mode === 'note') ? 'Save note' : 'Send reply';
+        return;
+      }
+      // Success: clear, refresh
+      textarea.value = '';
+      if (data.warning) {
+        // Message saved but email had an issue
+        info.textContent = 'Saved, but: ' + data.warning;
+        info.style.color = 'var(--amber)';
+      }
+      loadTickets();
+      openTicket(t.id);
+    } catch (e) {
+      info.textContent = 'Network error: ' + e.message;
+      info.style.color = 'var(--red)';
+      sendBtn.disabled = false;
+      sendBtn.textContent = (mode === 'note') ? 'Save note' : 'Send reply';
+    }
+  };
+
+  // Keyboard: cmd/ctrl+enter to send
+  textarea.addEventListener('keydown', function(e) {
+    if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+      e.preventDefault();
+      sendBtn.click();
+    }
+  });
+}
+
+function renderMessage(m, ticket, isFirst) {
+  const kindMap = {
+    'user':   'user: ' + escapeHtml(m.author_name || 'user'),
+    'admin':  'admin: ' + escapeHtml(m.author_name || 'admin'),
+    'system': 'system',
+    'note':   'internal note',
+  };
+  const kindLabel = kindMap[m.author_kind] || escapeHtml(m.author_kind);
+  let snap = '';
+  if (isFirst && ticket.snapshot) {
+    snap = renderSnapshot(ticket.snapshot, ticket.property_address);
+  }
+  return '<div class="message ' + m.author_kind + '">' +
+    '<div class="msg-head">' +
+      '<span class="msg-author">' + kindLabel + '</span>' +
+      '<span>&middot;</span>' +
+      '<span>' + formatRelative(m.created_at) + '</span>' +
+    '</div>' +
+    '<div class="msg-body">' + escapeHtml(m.body || '') + '</div>' +
+    snap +
+    '</div>';
+}
+
+function renderSnapshot(s, address) {
+  const rows = [
+    ['Address', s.address || address || '-'],
+    ['Asking price', s.price != null ? '$' + Number(s.price).toLocaleString() : '-'],
+    ['OfferScore', s.offerscore != null ? s.offerscore + '/100' : '-'],
+    ['Risk tier', s.risk_tier || '-'],
+    ['Recommended offer', s.recommended_offer ? '$' + Number(s.recommended_offer).toLocaleString() : '-'],
+    ['Repair range', (s.repair_cost_low || s.repair_cost_high)
+      ? '$' + Number(s.repair_cost_low || 0).toLocaleString() + ' - $' + Number(s.repair_cost_high || 0).toLocaleString()
+      : '-'],
+  ];
+  const rowsHtml = rows.map(function(r) {
+    return '<div class="snapshot-row"><span class="snapshot-label">' +
+      escapeHtml(r[0]) + '</span><span class="snapshot-val">' +
+      escapeHtml(String(r[1])) + '</span></div>';
+  }).join('');
+  return '<div class="snapshot-card"><h4>Analysis snapshot at share time</h4>' + rowsHtml + '</div>';
+}
+
+function renderStatusActions(status) {
+  const transitions = {
+    'open':            [['in_progress', 'Start working', 'primary'], ['resolved', 'Resolve', 'success']],
+    'in_progress':     [['waiting_on_user', 'Awaiting user', 'btn'], ['resolved', 'Resolve', 'success']],
+    'waiting_on_user': [['in_progress', 'Back to working', 'primary'], ['resolved', 'Resolve', 'success']],
+    'resolved':        [['reopened', 'Reopen', 'btn']],
+    'reopened':        [['in_progress', 'Working', 'primary'], ['resolved', 'Resolve', 'success']],
+  };
+  const acts = transitions[status] || [];
+  return acts.map(function(a) {
+    return '<button class="btn ' + (a[2] === 'btn' ? '' : a[2]) +
+      '" data-transition="' + a[0] + '">' + escapeHtml(a[1]) + '</button>';
+  }).join('');
+}
+
+async function transition(ticketId, newStatus) {
+  try {
+    const r = await fetch('/api/admin/tickets/' + ticketId + '/status?admin_key=' + ADMIN_KEY, {
+      method: 'PATCH',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({status: newStatus}),
+    });
+    const data = await r.json();
+    if (!r.ok) {
+      alert('Could not change status: ' + (data.error || r.status));
+      return;
+    }
+    loadTickets();
+    openTicket(ticketId);
+  } catch (e) {
+    alert('Transition failed: ' + e.message);
+  }
+}
+
+function formatStatus(s) {
+  return ({
+    'open':            'open',
+    'in_progress':     'working',
+    'waiting_on_user': 'waiting',
+    'resolved':        'resolved',
+    'reopened':        'reopened',
+  })[s] || s;
+}
+
+function formatSource(s) {
+  return ({
+    'in_product_share': 'in-product',
+    'inbound_email':    'email',
+    'contact_form':     'form',
+    'manual':           'manual',
+  })[s] || s;
+}
+
+function formatRelative(iso) {
+  if (!iso) return '-';
+  const then = new Date(iso);
+  const now = new Date();
+  const sec = Math.floor((now - then) / 1000);
+  if (sec < 60)    return sec + 's ago';
+  if (sec < 3600)  return Math.floor(sec / 60) + 'm ago';
+  if (sec < 86400) return Math.floor(sec / 3600) + 'h ago';
+  const days = Math.floor(sec / 86400);
+  if (days < 30) return days + 'd ago';
+  return then.toLocaleDateString('en-US', {month: 'short', day: 'numeric'});
+}
+
+function escapeHtml(s) {
+  if (s === null || s === undefined) return '';
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+// v5.88.37: wire the search box (debounced) and stale-only toggle
+(function wireSidebarSearch() {
+  const box = document.getElementById('searchBox');
+  if (box) {
+    box.addEventListener('input', function(e) {
+      clearTimeout(searchDebounce);
+      searchDebounce = setTimeout(function() {
+        searchQuery = (e.target.value || '').trim();
+        loadTickets();
+      }, 250);
+    });
+  }
+  const stale = document.getElementById('staleOnly');
+  if (stale) {
+    stale.addEventListener('change', function(e) {
+      staleOnly = !!e.target.checked;
+      loadTickets();
+    });
+  }
+})();
+
+// v5.88.39: New Ticket modal handling
+function openNewTicketModal() {
+  const m = document.getElementById('newTicketBackdrop');
+  if (!m) return;
+  // Clear all fields and errors from any previous use
+  ['nt_from_email', 'nt_from_name', 'nt_subject', 'nt_body', 'nt_linked_property_id'].forEach(function(id) {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  ['f_from_email', 'f_from_name', 'f_subject', 'f_body', 'f_linked_property_id'].forEach(function(id) {
+    const f = document.getElementById(id);
+    if (f) {
+      f.classList.remove('err');
+      const e = f.querySelector('.field-err');
+      if (e) e.textContent = '';
+    }
+  });
+  const ge = document.getElementById('nt_global_err');
+  if (ge) { ge.style.display = 'none'; ge.textContent = ''; }
+  m.classList.add('open');
+  setTimeout(function() {
+    const el = document.getElementById('nt_from_email');
+    if (el) el.focus();
+  }, 50);
+}
+
+function closeNewTicketModal() {
+  const m = document.getElementById('newTicketBackdrop');
+  if (m) m.classList.remove('open');
+}
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    const m = document.getElementById('newTicketBackdrop');
+    if (m && m.classList.contains('open')) closeNewTicketModal();
+  }
+});
+
+async function submitNewTicket() {
+  const submitBtn = document.getElementById('nt_submit');
+  const fromEmail = (document.getElementById('nt_from_email').value || '').trim();
+  const fromName  = (document.getElementById('nt_from_name').value || '').trim();
+  const subject   = (document.getElementById('nt_subject').value || '').trim();
+  const body      = (document.getElementById('nt_body').value || '').trim();
+  const linkedPropRaw = (document.getElementById('nt_linked_property_id').value || '').trim();
+
+  // Client-side validation mirroring the server
+  const clientErrors = {};
+  if (!fromEmail || fromEmail.indexOf('@') < 0) {
+    clientErrors.from_email = 'Valid email address required';
+  }
+  if (!subject) clientErrors.subject = 'Subject required';
+  if (!body)    clientErrors.body    = 'Body required';
+  let linkedPropertyId = null;
+  if (linkedPropRaw) {
+    const n = parseInt(linkedPropRaw, 10);
+    if (isNaN(n) || n <= 0) {
+      clientErrors.linked_property_id = 'Must be a positive integer';
+    } else {
+      linkedPropertyId = n;
+    }
+  }
+
+  ['from_email', 'from_name', 'subject', 'body', 'linked_property_id'].forEach(function(k) {
+    const f = document.getElementById('f_' + k);
+    if (!f) return;
+    const e = f.querySelector('.field-err');
+    if (clientErrors[k]) {
+      f.classList.add('err');
+      if (e) e.textContent = clientErrors[k];
+    } else {
+      f.classList.remove('err');
+      if (e) e.textContent = '';
+    }
+  });
+  if (Object.keys(clientErrors).length) return;
+
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Creating...';
+  try {
+    const r = await fetch('/api/admin/tickets?admin_key=' + ADMIN_KEY, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        from_email: fromEmail,
+        subject: subject,
+        body: body,
+        from_name: fromName || null,
+        linked_property_id: linkedPropertyId,
+      }),
+    });
+    const data = await r.json();
+
+    if (!r.ok) {
+      if (data.fields) {
+        Object.keys(data.fields).forEach(function(k) {
+          const f = document.getElementById('f_' + k);
+          if (!f) return;
+          f.classList.add('err');
+          const e = f.querySelector('.field-err');
+          if (e) e.textContent = data.fields[k];
+        });
+      }
+      const ge = document.getElementById('nt_global_err');
+      if (ge) {
+        ge.style.display = 'block';
+        ge.textContent = data.error || 'Failed to create ticket (' + r.status + ')';
+      }
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Create ticket';
+      return;
+    }
+
+    // Success: close modal, refresh list, open the new ticket
+    closeNewTicketModal();
+    const newTicketId = data.ticket && data.ticket.id;
+    currentStatus = 'open';
+    await loadTickets();
+    if (newTicketId) {
+      openTicket(newTicketId);
+    }
+  } catch (e) {
+    const ge = document.getElementById('nt_global_err');
+    if (ge) {
+      ge.style.display = 'block';
+      ge.textContent = 'Network error: ' + e.message;
+    }
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Create ticket';
+  }
+}
+
+// v5.88.40: warn at boot if no admin_key was passed in. This is the
+// most common cause of an empty page — the user's outer URL didn't
+// have admin_key in it, so the iframe (or full-page open) also lacks
+// it. Without this banner the page would 403 and look blank.
+if (!ADMIN_KEY) {
+  showPageError(
+    'No admin_key in URL. Tickets API will reject the request.',
+    'Append ?admin_key=YOUR_KEY to this page\'s URL, or open the Support tab from the admin nav (which propagates the key automatically).',
+    true
+  );
+}
+
+loadTickets();
+</script>
+</body>
+</html>

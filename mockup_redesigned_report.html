@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>OfferWise — 22580 San Vicente Ave — Redesigned Analysis Report (mockup)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  /* ── design tokens ─────────────────────────────────────────────────── */
+  :root {
+    --bg:        #0b0f1a;
+    --surface:   #111827;
+    --surface2:  #0f172a;
+    --border:    rgba(148, 163, 184, 0.12);
+    --border2:   rgba(148, 163, 184, 0.20);
+    --text:      #f1f5f9;
+    --muted:     #94a3b8;
+    --dim:       #64748b;
+    --fire1:     #f97316;
+    --fire2:     #f59e0b;
+    --green:     #22c55e;
+    --red:       #ef4444;
+    --amber:     #f59e0b;
+    --blue:      #3b82f6;
+    --purple:    #a78bfa;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Inter', system-ui, sans-serif; line-height: 1.55; }
+  body { font-size: 15px; -webkit-font-smoothing: antialiased; }
+
+  a { color: var(--fire1); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  /* ── layout ────────────────────────────────────────────────────────── */
+  .wrap { max-width: 940px; margin: 0 auto; padding: 0 24px; }
+
+  /* ── top bar ───────────────────────────────────────────────────────── */
+  .topbar {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(11, 15, 26, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+  .topbar-inner { display: flex; align-items: center; justify-content: space-between; padding: 12px 24px; max-width: 940px; margin: 0 auto; }
+  .brand { font-weight: 800; font-size: 16px; letter-spacing: -0.01em; }
+  .brand .tm { color: var(--fire1); }
+  .topbar-actions { display: flex; gap: 8px; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 7px 14px; border-radius: 8px; font-size: 13px; font-weight: 600;
+    cursor: pointer; border: 1px solid var(--border2); background: transparent; color: var(--text);
+    font-family: inherit; transition: all 0.15s;
+  }
+  .btn:hover { background: rgba(148,163,184,0.08); }
+  .btn-primary { background: linear-gradient(135deg, var(--fire1), var(--fire2)); border: none; color: white; }
+  .btn-primary:hover { filter: brightness(1.05); }
+  .btn-ghost { border-color: transparent; color: var(--muted); }
+  .btn-ghost:hover { color: var(--text); }
+
+  /* ── HERO / THESIS ─────────────────────────────────────────────────── */
+  .hero {
+    background: linear-gradient(180deg, rgba(249,115,22,0.04) 0%, transparent 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 48px 0 56px;
+  }
+  .hero-eyebrow { color: var(--muted); font-size: 13px; margin-bottom: 32px; }
+  .hero-eyebrow strong { color: var(--text); font-weight: 600; }
+  .hero-offer { font-size: clamp(48px, 7vw, 76px); font-weight: 800; letter-spacing: -0.03em; line-height: 1.0; margin: 0 0 8px; }
+  .hero-savings { font-size: 22px; color: var(--green); font-weight: 600; margin-bottom: 28px; }
+  .hero-summary { font-size: 18px; color: var(--muted); max-width: 640px; line-height: 1.55; margin-bottom: 32px; }
+  .hero-summary strong { color: var(--text); font-weight: 600; }
+  .hero-ctas { display: flex; gap: 12px; flex-wrap: wrap; }
+
+  /* ── section base ──────────────────────────────────────────────────── */
+  .section { padding: 48px 0; border-bottom: 1px solid var(--border); }
+  .section-label {
+    font-size: 11px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.12em; color: var(--muted); margin-bottom: 14px;
+  }
+  .section-h { font-size: 28px; font-weight: 700; letter-spacing: -0.02em; margin: 0 0 8px; }
+  .section-sub { color: var(--muted); margin-bottom: 24px; max-width: 700px; }
+
+  /* ── THE MATH ──────────────────────────────────────────────────────── */
+  .math-table { width: 100%; border-collapse: collapse; font-size: 16px; }
+  .math-table td { padding: 14px 0; border-bottom: 1px solid var(--border); }
+  .math-table td:last-child { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
+  .math-table .label-link { color: var(--text); border-bottom: 1px dashed var(--border2); cursor: pointer; }
+  .math-table .label-link:hover { color: var(--fire1); border-bottom-color: var(--fire1); }
+  .math-asking td { font-weight: 600; color: var(--muted); }
+  .math-deduction td { color: var(--text); }
+  .math-deduction td:last-child { color: var(--red); }
+  .math-final td { font-size: 20px; font-weight: 800; padding-top: 20px; border-top: 2px solid var(--text); border-bottom: none; }
+  .math-final td:last-child { color: var(--green); }
+  .math-range { margin-top: 20px; padding: 14px 18px; background: rgba(34,197,94,0.06); border: 1px solid rgba(34,197,94,0.2); border-radius: 10px; font-size: 14px; color: var(--muted); display: flex; justify-content: space-between; }
+  .math-range strong { color: var(--text); }
+
+  /* ── ISSUE CARDS (Section 3, 4, 5) ─────────────────────────────────── */
+  .issue {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+    padding: 22px 24px; margin-bottom: 14px;
+  }
+  .issue-head {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px; flex-wrap: wrap; margin-bottom: 12px;
+  }
+  .badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 10px; border-radius: 6px;
+    font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em;
+  }
+  .badge-critical { background: rgba(239,68,68,0.12); color: var(--red); border: 1px solid rgba(239,68,68,0.25); }
+  .badge-major    { background: rgba(249,115,22,0.12); color: var(--fire1); border: 1px solid rgba(249,115,22,0.25); }
+  .badge-moderate { background: rgba(245,158,11,0.12); color: var(--amber); border: 1px solid rgba(245,158,11,0.25); }
+  .badge-likely   { background: rgba(167,139,250,0.12); color: var(--purple); border: 1px solid rgba(167,139,250,0.25); }
+  .issue-cost { font-weight: 700; color: var(--amber); font-variant-numeric: tabular-nums; font-size: 15px; }
+  .issue-bullet { font-size: 14px; color: var(--text); padding: 6px 0; line-height: 1.5; }
+  .issue-bullet:before { content: "•"; color: var(--dim); margin-right: 10px; }
+  .issue-action {
+    margin-top: 14px; padding-top: 12px; border-top: 1px dashed var(--border);
+    font-size: 13px; color: var(--muted); font-style: italic;
+  }
+  .issue-action:before { content: "→ "; color: var(--fire1); font-style: normal; font-weight: 600; }
+
+  /* ── DISCLOSURE CONFLICT ROWS (Section 5) ──────────────────────────── */
+  .disc {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+    padding: 22px 24px; margin-bottom: 14px;
+  }
+  .disc-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+  .disc-grid { display: grid; grid-template-columns: 130px 1fr; gap: 8px 16px; font-size: 14px; line-height: 1.6; }
+  .disc-grid .k { color: var(--dim); font-weight: 600; white-space: nowrap; }
+  .disc-grid .v-said { color: var(--muted); font-style: italic; }
+  .disc-grid .v-found { color: var(--text); }
+
+  /* ── HIDDEN ISSUE (Section 4 specifically) ─────────────────────────── */
+  .pred-why {
+    margin-top: 8px; padding: 10px 12px; background: rgba(167,139,250,0.05);
+    border-left: 2px solid var(--purple); border-radius: 4px;
+    font-size: 13px; color: var(--muted);
+  }
+  .pred-why strong { color: var(--text); font-weight: 600; }
+
+  /* ── WALK AWAY (Section 6) ─────────────────────────────────────────── */
+  .walk-list { padding-left: 0; margin: 0; list-style: none; }
+  .walk-list li { padding: 12px 0 12px 28px; position: relative; border-bottom: 1px solid var(--border); font-size: 15px; line-height: 1.55; }
+  .walk-list li:before { content: "✗"; color: var(--red); position: absolute; left: 0; top: 12px; font-weight: 800; }
+  .walk-list li:last-child { border-bottom: none; }
+  .walk-list strong { color: var(--text); }
+  .walk-strengths { margin-top: 32px; padding: 20px 24px; background: rgba(34,197,94,0.04); border: 1px solid rgba(34,197,94,0.15); border-radius: 12px; }
+  .walk-strengths-h { font-size: 13px; font-weight: 700; color: var(--green); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px; }
+  .walk-strengths p { font-size: 13px; color: var(--muted); margin: 6px 0; }
+  .walk-strengths p:before { content: "+ "; color: var(--green); font-weight: 700; }
+
+  /* ── NEGOTIATION TOOLKIT (Section 7) ───────────────────────────────── */
+  .ask {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+    padding: 22px 24px; margin-bottom: 14px;
+  }
+  .ask-num { font-size: 11px; font-weight: 700; color: var(--fire1); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 8px; }
+  .ask-title { font-size: 18px; font-weight: 700; margin: 0 0 12px; }
+  .ask-row { display: grid; grid-template-columns: 110px 1fr; gap: 6px 14px; font-size: 14px; line-height: 1.55; margin-bottom: 4px; }
+  .ask-row .k { color: var(--dim); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; padding-top: 2px; }
+  .ask-row .v { color: var(--text); }
+  .ask-amount { color: var(--green); font-weight: 700; font-variant-numeric: tabular-nums; }
+  .ask-lang {
+    margin-top: 12px; padding: 14px 16px; background: rgba(15, 23, 42, 0.7);
+    border-left: 3px solid var(--fire1); border-radius: 6px;
+    font-family: 'SF Mono', Menlo, Monaco, Consolas, monospace; font-size: 13px;
+    color: var(--text); line-height: 1.6;
+  }
+  .ask-actions { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+
+  .toolkit-summary { margin-top: 24px; padding: 18px 22px; background: rgba(249,115,22,0.06); border: 1px solid rgba(249,115,22,0.2); border-radius: 12px; font-size: 14px; line-height: 1.6; color: var(--text); }
+  .toolkit-summary strong { color: var(--fire1); }
+
+  /* ── REFERENCE (Section 8 — collapsed) ─────────────────────────────── */
+  details.refs {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+    padding: 4px 0; margin-top: 8px;
+  }
+  details.refs > summary {
+    cursor: pointer; padding: 16px 24px; font-size: 14px; color: var(--muted);
+    font-weight: 600; list-style: none; user-select: none;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  details.refs > summary::-webkit-details-marker { display: none; }
+  details.refs > summary:after { content: "▼"; font-size: 10px; color: var(--dim); transition: transform .2s; }
+  details.refs[open] > summary:after { transform: rotate(180deg); }
+  details.refs > .ref-body { padding: 4px 24px 22px; border-top: 1px solid var(--border); font-size: 13px; color: var(--muted); }
+  details.refs ul { padding-left: 18px; margin: 8px 0; }
+  details.refs li { padding: 3px 0; }
+
+  /* ── footer ────────────────────────────────────────────────────────── */
+  footer {
+    padding: 36px 0 48px; font-size: 12px; color: var(--dim); text-align: center; line-height: 1.7;
+  }
+
+  /* ── annotation banner (this is a mockup) ──────────────────────────── */
+  .mockup-banner {
+    position: fixed; top: 70px; right: 20px; z-index: 200;
+    background: rgba(167,139,250,0.15); border: 1px solid rgba(167,139,250,0.4); color: var(--purple);
+    padding: 10px 16px; border-radius: 10px; font-size: 11px; font-weight: 600;
+    backdrop-filter: blur(8px); max-width: 260px;
+  }
+  .mockup-banner-title { font-size: 12px; color: var(--purple); margin-bottom: 4px; font-weight: 700; }
+  .mockup-banner-body { color: var(--muted); font-weight: 400; line-height: 1.45; }
+  @media (max-width: 1100px) { .mockup-banner { display: none; } }
+
+  /* ── smooth scroll for anchor jumps ────────────────────────────────── */
+  html { scroll-behavior: smooth; }
+
+  /* ── highlight a target section briefly when jumped to ─────────────── */
+  .section:target {
+    animation: target-flash 1.5s ease;
+  }
+  @keyframes target-flash {
+    0%   { background: rgba(249,115,22,0.0); }
+    20%  { background: rgba(249,115,22,0.08); }
+    100% { background: rgba(249,115,22,0.0); }
+  }
+</style>
+</head>
+<body>
+
+<!-- ════════ TOP BAR ════════ -->
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">Offer<span class="tm">Wise</span><sup style="font-size:9px;color:var(--muted);font-weight:400;margin-left:2px;">™</sup></div>
+    <div class="topbar-actions">
+      <button class="btn btn-ghost">Share</button>
+      <button class="btn">📄 PDF</button>
+      <button class="btn btn-primary">Send to my agent</button>
+    </div>
+  </div>
+</div>
+
+<!-- annotation banner (visible on the mockup, would not exist in production) -->
+<div class="mockup-banner">
+  <div class="mockup-banner-title">⚙ MOCKUP NOTE</div>
+  <div class="mockup-banner-body">
+    This is a static UI mockup of the redesigned buyer analysis report.
+    Click the dashed terms in "The Math" to jump to supporting sections.
+    Numbers reflect the 22580 San Vicente PDF you shared earlier.
+  </div>
+</div>
+
+<!-- ════════ HERO / THESIS ════════ -->
+<section class="hero">
+  <div class="wrap">
+    <div class="hero-eyebrow">
+      OfferWise<sup style="font-size:9px;">™</sup> Analysis · <strong>22580 San Vicente Ave, San Jose, CA</strong> · Listed at <strong>$3,000,000</strong>
+    </div>
+    <h1 class="hero-offer">Offer $2,450,000.</h1>
+    <div class="hero-savings">$550,000 below asking · 18.3% discount</div>
+    <div class="hero-summary">
+      We found <strong>14 issues the seller didn't disclose</strong>,
+      <strong>$124,000 in confirmed repairs</strong>, and a moderate risk
+      of <strong>$30K–$50K in hidden problems</strong>. The seller's disclosure
+      was inconsistent with the inspection in 14 specific places — your strongest
+      negotiation lever.
+    </div>
+    <div class="hero-ctas">
+      <a href="#math" class="btn btn-primary">View the math ↓</a>
+      <a href="#walk" class="btn">Should I walk away?</a>
+      <a href="#toolkit" class="btn">What do I ask for?</a>
+    </div>
+  </div>
+</section>
+
+<!-- ════════ THE MATH ════════ -->
+<section class="section" id="math">
+  <div class="wrap">
+    <div class="section-label">The math</div>
+    <h2 class="section-h">Where the $550,000 discount comes from</h2>
+    <p class="section-sub">
+      Every line below is justified by a specific section of this analysis.
+      Click any dashed label to jump to the evidence.
+    </p>
+
+    <table class="math-table">
+      <tr class="math-asking">
+        <td>Asking price</td>
+        <td>$3,000,000</td>
+      </tr>
+      <tr class="math-deduction">
+        <td>– <a href="#repairs" class="label-link">Confirmed repairs</a> (3 critical issues, 13 findings)</td>
+        <td>$124,000</td>
+      </tr>
+      <tr class="math-deduction">
+        <td>– <a href="#hidden" class="label-link">Hidden-issue reserve</a> (3 high-confidence predictions)</td>
+        <td>$30,000</td>
+      </tr>
+      <tr class="math-deduction">
+        <td>– <a href="#disclosure" class="label-link">Disclosure remedy</a> (14 omissions, grade D)</td>
+        <td>$76,000</td>
+      </tr>
+      <tr class="math-deduction">
+        <td>– <a href="#market" class="label-link">Market discount</a> (vs. comparable closed sales)</td>
+        <td>$320,000</td>
+      </tr>
+      <tr class="math-final">
+        <td>Recommended offer</td>
+        <td>$2,450,000</td>
+      </tr>
+    </table>
+
+    <div class="math-range">
+      <span>Aggressive opening: <strong>$2,300,000</strong></span>
+      <span>Don't pay more than: <strong>$2,200,000</strong></span>
+    </div>
+  </div>
+</section>
+
+<!-- ════════ CONFIRMED REPAIRS ════════ -->
+<section class="section" id="repairs">
+  <div class="wrap">
+    <div class="section-label">Section 3 · Confirmed Repairs</div>
+    <h2 class="section-h">$124,000 in deferred maintenance the inspector documented</h2>
+    <p class="section-sub">
+      These aren't predictions. Every item here is in the inspection report
+      with location, severity, and cost basis. Every line is yours to negotiate
+      against.
+    </p>
+
+    <div class="issue">
+      <div class="issue-head">
+        <span class="badge badge-critical">⚠ Foundation & Structure · Critical</span>
+        <span class="issue-cost">$25,000–$55,000</span>
+      </div>
+      <div class="issue-bullet">Missing handrail on basement stairs — fall hazard.</div>
+      <div class="issue-bullet">Vertical crack in foundation wall, 1/8" wide × 4' long — appears structural, not cosmetic.</div>
+      <div class="issue-bullet">Step cracking visible on exterior east wall.</div>
+      <div class="issue-action">Get a structural engineer's review ($400–600) before close. Foundation cracks of this dimension warrant a specialist opinion.</div>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <span class="badge badge-critical">⚠ Roof & Exterior · Critical</span>
+        <span class="issue-cost">$8,000–$20,000</span>
+      </div>
+      <div class="issue-bullet">Multiple shingles missing or damaged.</div>
+      <div class="issue-bullet">Extensive curling throughout, especially south and west elevations.</div>
+      <div class="issue-bullet">Flashing around chimney deteriorated and improperly installed.</div>
+      <div class="issue-action">Get a roofer quote before close. Ask for a closing credit covering the full replacement cost.</div>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <span class="badge badge-critical">⚠ Plumbing · Critical</span>
+        <span class="issue-cost">$5,000–$15,000</span>
+      </div>
+      <div class="issue-bullet">Main sewer lateral deteriorated, tree root intrusion visible during camera inspection.</div>
+      <div class="issue-action">This is a non-negotiable repair credit. A failed sewer lateral isn't a "we'll fix it later" item — it requires excavation.</div>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <span class="badge badge-critical">⚠ Electrical · Critical</span>
+        <span class="issue-cost">$5,000–$15,000</span>
+      </div>
+      <div class="issue-bullet">Federal Pacific Electric panel — known fire hazard, replacement strongly recommended.</div>
+      <div class="issue-bullet">No GFCI protection in bathrooms, kitchen, or exterior outlets (code violation).</div>
+      <div class="issue-bullet">Several outlets in living areas ungrounded.</div>
+      <div class="issue-action">Federal Pacific panels are a documented fire-insurance issue. Your insurer may refuse coverage until replaced.</div>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <span class="badge badge-critical">⚠ HVAC · Critical</span>
+        <span class="issue-cost">$5,000–$15,000</span>
+      </div>
+      <div class="issue-bullet">System is 39 years old (typical service life: 15–20 years).</div>
+      <div class="issue-bullet">Heat exchanger shows signs of corrosion — potential CO leak.</div>
+      <div class="issue-action">CO leak risk is a safety item. Demand a credit equivalent to full HVAC replacement or refuse to close until replaced.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════ HIDDEN-ISSUE RESERVE ════════ -->
+<section class="section" id="hidden">
+  <div class="wrap">
+    <div class="section-label">Section 4 · Hidden-Issue Reserve</div>
+    <h2 class="section-h">$30,000 you should reserve for what wasn't inspected</h2>
+    <p class="section-sub">
+      These aren't in the inspection report. They're conditions our model thinks
+      are likely given <em>what the inspection did find</em>. Treat this as a
+      reserve fund, not a competing diagnosis. We only show predictions with
+      ≥70% confidence.
+    </p>
+
+    <div class="issue">
+      <div class="issue-head">
+        <span class="badge badge-likely">★ HVAC failure within 12 months · 94% likely</span>
+        <span class="issue-cost">$4,000–$10,000</span>
+      </div>
+      <div class="pred-why">
+        <strong>Why:</strong> HVAC system is past expected service life by 19+
+        years. Heat exchanger already corroded. Systems this age commonly fail
+        without warning under heavy load.
+      </div>
+      <div class="issue-action">If you offer asking, you're likely replacing this in year 1. Build the cost into your offer now.</div>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <span class="badge badge-likely">★ Hidden mold growth · 86% likely</span>
+        <span class="issue-cost">$3,000–$8,000</span>
+      </div>
+      <div class="pred-why">
+        <strong>Why:</strong> Inspection noted water stains and moisture
+        intrusion. Persistent moisture behind walls frequently produces mold
+        that isn't visible at standard inspection depth.
+      </div>
+      <div class="issue-action">Ask for a mold inspection contingency. $500 inspection now beats $8K remediation later.</div>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <span class="badge badge-likely">★ Foundation water damage · 79% likely</span>
+        <span class="issue-cost">$5,000–$15,000</span>
+      </div>
+      <div class="pred-why">
+        <strong>Why:</strong> Inspector noted poor grading directing water
+        toward the foundation. Over time this increases hydrostatic pressure
+        and can cause cracking or settling — consistent with the foundation
+        crack already documented.
+      </div>
+      <div class="issue-action">Walk the property after the next rain. Puddling near the foundation confirms the pattern.</div>
+    </div>
+
+    <details class="refs">
+      <summary>Show 2 more lower-probability predictions (63–68%)</summary>
+      <div class="ref-body">
+        <ul>
+          <li><strong>Hidden electrical wiring problems</strong> · 68% · $3,000–$12,000 · Panel issues often indicate the broader electrical system was improperly modified.</li>
+          <li><strong>Wood rot</strong> · 63% · $2,000–$8,000 · Multiple moisture intrusion sources accelerate wood decay in structural members.</li>
+        </ul>
+        <p style="margin-top:14px;color:var(--dim);font-style:italic;">Lower-confidence predictions are shown for completeness but not included in the $30K reserve calculation.</p>
+      </div>
+    </details>
+  </div>
+</section>
+
+<!-- ════════ WHAT THE SELLER DIDN'T TELL YOU ════════ -->
+<section class="section" id="disclosure">
+  <div class="wrap">
+    <div class="section-label">Section 5 · Disclosure vs. Inspection</div>
+    <h2 class="section-h">The seller said no issues. The inspector found 14.</h2>
+    <p class="section-sub">
+      This is the strongest negotiation lever you have. The seller signed a
+      legally-binding disclosure attesting to property condition. They were
+      wrong in 14 specific places. Below: the three biggest conflicts. Click
+      to see all 14.
+    </p>
+
+    <div class="disc">
+      <div class="disc-head">
+        <span class="badge badge-critical">⚠ Electrical · Critical</span>
+        <span class="issue-cost">$5,000–$15,000</span>
+      </div>
+      <div class="disc-grid">
+        <div class="k">Seller said:</div>
+        <div class="v-said">"No electrical issues to disclose"</div>
+        <div class="k">Inspector found:</div>
+        <div class="v-found">Federal Pacific Electric panel (known fire hazard); no GFCI in bathrooms, kitchen, or exterior outlets (code violation); ungrounded outlets throughout living areas.</div>
+      </div>
+      <div class="issue-action">Cite California Civil Code §1102.6 in your counter. Federal Pacific panels are well-documented; "didn't know" isn't a credible defense.</div>
+    </div>
+
+    <div class="disc">
+      <div class="disc-head">
+        <span class="badge badge-critical">⚠ HVAC · Critical</span>
+        <span class="issue-cost">$5,000–$15,000</span>
+      </div>
+      <div class="disc-grid">
+        <div class="k">Seller said:</div>
+        <div class="v-said">"Heating and cooling working"</div>
+        <div class="k">Inspector found:</div>
+        <div class="v-found">HVAC system 39 years old (typical service life 15–20). Heat exchanger corroded — CO leak risk.</div>
+      </div>
+      <div class="issue-action">A 39-year-old system with a corroded heat exchanger isn't "working" in any reasonable sense. Demand replacement credit.</div>
+    </div>
+
+    <div class="disc">
+      <div class="disc-head">
+        <span class="badge badge-critical">⚠ Plumbing · Critical</span>
+        <span class="issue-cost">$5,000–$15,000</span>
+      </div>
+      <div class="disc-grid">
+        <div class="k">Seller said:</div>
+        <div class="v-said">"No known plumbing problems"</div>
+        <div class="k">Inspector found:</div>
+        <div class="v-found">Main sewer lateral deteriorated. Tree root intrusion confirmed on camera inspection.</div>
+      </div>
+      <div class="issue-action">Camera-documented root intrusion is the seller knew or should have known. Repair credit, not just disclosure.</div>
+    </div>
+
+    <details class="refs">
+      <summary>Show all 14 disclosure omissions</summary>
+      <div class="ref-body">
+        <ul>
+          <li>Roof: extensive curling, missing shingles, deteriorated chimney flashing — not disclosed.</li>
+          <li>Foundation: vertical crack 1/8" × 4', step cracking on exterior — not disclosed.</li>
+          <li>Stairs: missing handrail on basement stairs (safety hazard) — not disclosed.</li>
+          <li>Smoke detectors: missing in bedrooms (code violation) — not disclosed.</li>
+          <li>Outlets: ungrounded outlets in living areas — not disclosed.</li>
+          <li>… 6 more findings extracted from the inspection report not addressed in the seller's disclosure.</li>
+        </ul>
+      </div>
+    </details>
+  </div>
+</section>
+
+<!-- ════════ MARKET CONTEXT ════════ -->
+<section class="section" id="market">
+  <div class="wrap">
+    <div class="section-label">Section 6 · Market Context</div>
+    <h2 class="section-h">Comparable sales support $2,680,000 even before repairs</h2>
+    <p class="section-sub">
+      Three closed sales in the last 90 days within 0.5 miles, same school
+      district, 3–5 bed range. After the repair and disclosure adjustments
+      above, $2,450,000 is your number.
+    </p>
+
+    <table style="width:100%;border-collapse:collapse;font-size:14px;">
+      <thead>
+        <tr style="color:var(--dim);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;">
+          <th style="text-align:left;padding:10px 0;border-bottom:1px solid var(--border);">Address</th>
+          <th style="text-align:left;padding:10px 0;border-bottom:1px solid var(--border);">Distance</th>
+          <th style="text-align:right;padding:10px 0;border-bottom:1px solid var(--border);">Beds/Baths</th>
+          <th style="text-align:right;padding:10px 0;border-bottom:1px solid var(--border);">Closed</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td style="padding:14px 0;border-bottom:1px solid var(--border);">22612 San Vicente</td><td style="padding:14px 0;border-bottom:1px solid var(--border);color:var(--muted);">0.1 mi</td><td style="padding:14px 0;border-bottom:1px solid var(--border);text-align:right;color:var(--muted);">4 / 3</td><td style="padding:14px 0;border-bottom:1px solid var(--border);text-align:right;font-weight:600;">$2,675,000</td></tr>
+        <tr><td style="padding:14px 0;border-bottom:1px solid var(--border);">22489 La Crescenta</td><td style="padding:14px 0;border-bottom:1px solid var(--border);color:var(--muted);">0.3 mi</td><td style="padding:14px 0;border-bottom:1px solid var(--border);text-align:right;color:var(--muted);">4 / 3</td><td style="padding:14px 0;border-bottom:1px solid var(--border);text-align:right;font-weight:600;">$2,720,000</td></tr>
+        <tr><td style="padding:14px 0;">22701 San Vicente</td><td style="padding:14px 0;color:var(--muted);">0.2 mi</td><td style="padding:14px 0;text-align:right;color:var(--muted);">3 / 2</td><td style="padding:14px 0;text-align:right;font-weight:600;">$2,580,000</td></tr>
+      </tbody>
+    </table>
+
+    <p style="margin-top:18px;font-size:13px;color:var(--muted);">
+      Median comp: <strong style="color:var(--text);">$2,675,000</strong>.
+      Asking is <strong style="color:var(--red);">$320,000 above comps</strong>,
+      before accounting for the repairs and disclosure issues above.
+    </p>
+  </div>
+</section>
+
+<!-- ════════ SHOULD I WALK ════════ -->
+<section class="section" id="walk">
+  <div class="wrap">
+    <div class="section-label">Section 7 · Should you walk?</div>
+    <h2 class="section-h">Walk away if any of these happen</h2>
+    <p class="section-sub">
+      We're not telling you to walk. We're telling you the conditions where
+      walking is the right move. Most buyers fall in love with the house and
+      overpay because no one gave them permission to leave.
+    </p>
+
+    <ul class="walk-list">
+      <li><strong>If the seller refuses repair credit on the sewer lateral.</strong> A sewer line failure costs $15–30K to remediate and you'll be living through it. This is a hard line.</li>
+      <li><strong>If the seller refuses to extend inspection contingency.</strong> The foundation crack is structural — you need a $400 specialist opinion before you can responsibly close.</li>
+      <li><strong>If their counter is above $2,650,000.</strong> The comp data doesn't support paying more. At that point you're funding their renovation, not buying a house.</li>
+      <li><strong>If three or more disclosure omissions stay uncorrected after a written response.</strong> That's a pattern, not an oversight. Pattern means the seller will keep finding ways to surprise you between now and close.</li>
+    </ul>
+
+    <p style="margin-top:24px;font-size:15px;color:var(--text);max-width:640px;">
+      Walking is a real option. The Bay Area has inventory. This is not the only house.
+    </p>
+
+    <div class="walk-strengths">
+      <div class="walk-strengths-h">What the property does have going for it</div>
+      <p>Lot size 8,700 sqft — well above the neighborhood median.</p>
+      <p>Recent kitchen renovation (high quality, no inspection flags).</p>
+      <p>Roof was professionally maintained per warranty docs in the disclosure.</p>
+      <p style="color:var(--dim);margin-top:14px;font-size:12px;">These don't change the offer recommendation, but they're real value worth weighing if you're on the fence.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ════════ NEGOTIATION TOOLKIT ════════ -->
+<section class="section" id="toolkit">
+  <div class="wrap">
+    <div class="section-label">Section 8 · Negotiation Toolkit</div>
+    <h2 class="section-h">Send this to your agent</h2>
+    <p class="section-sub">
+      Each ask below is keyed to a specific finding above. The language in
+      gray boxes is ready to lift verbatim into your offer or counter.
+    </p>
+
+    <div class="ask">
+      <div class="ask-num">Ask 1 · Repair Credit</div>
+      <h3 class="ask-title">Full repair credit at closing</h3>
+      <div class="ask-row"><div class="k">Amount</div><div class="v ask-amount">$124,000</div></div>
+      <div class="ask-row"><div class="k">Basis</div><div class="v"><a href="#repairs">Section 3 — Confirmed Repairs</a> (foundation, roof, plumbing, electrical, HVAC)</div></div>
+      <div class="ask-lang">
+        Per inspection findings dated [date], buyer requests credit at closing
+        for confirmed deferred maintenance totaling $124,000. Itemized breakdown
+        attached as Addendum A.
+      </div>
+      <div class="ask-actions">
+        <button class="btn">📄 Generate Repair Addendum PDF</button>
+        <button class="btn btn-primary">✉ Email to my agent</button>
+      </div>
+    </div>
+
+    <div class="ask">
+      <div class="ask-num">Ask 2 · Disclosure Remedy</div>
+      <h3 class="ask-title">Written acknowledgment of disclosure omissions</h3>
+      <div class="ask-row"><div class="k">Basis</div><div class="v"><a href="#disclosure">Section 5 — 14 disclosure omissions</a></div></div>
+      <div class="ask-row"><div class="k">Citation</div><div class="v">California Civil Code §1102.6 (TDS disclosure obligations)</div></div>
+      <div class="ask-lang">
+        Buyer requests written acknowledgment of the 14 items disclosed as
+        "no issue" but documented as material defects in the inspection report
+        (see attached). Buyer further requests either repair credit or repair-
+        completion before close on items marked critical.
+      </div>
+      <div class="ask-actions">
+        <button class="btn">📄 Generate Disclosure Letter</button>
+      </div>
+    </div>
+
+    <div class="ask">
+      <div class="ask-num">Ask 3 · Inspection Contingency Extension</div>
+      <h3 class="ask-title">+10 days for structural engineer review</h3>
+      <div class="ask-row"><div class="k">Basis</div><div class="v"><a href="#repairs">Section 3 — Foundation crack documented</a></div></div>
+      <div class="ask-row"><div class="k">Rationale</div><div class="v">A 1/8" × 4' foundation crack warrants a specialist opinion before close. Reasonable extension.</div></div>
+      <div class="ask-lang">
+        Buyer requests a 10-day extension of inspection contingency to obtain
+        a structural engineer's evaluation of the foundation crack documented
+        on page [X] of the inspection report.
+      </div>
+      <div class="ask-actions">
+        <button class="btn">📄 Draft extension request</button>
+      </div>
+    </div>
+
+    <div class="ask">
+      <div class="ask-num">Ask 4 · Sewer Lateral Contingency</div>
+      <h3 class="ask-title">Video confirmation of repair or $15K credit</h3>
+      <div class="ask-row"><div class="k">Basis</div><div class="v"><a href="#repairs">Section 3 — Sewer lateral deteriorated, root intrusion</a></div></div>
+      <div class="ask-lang">
+        Buyer's offer is contingent on either (a) seller providing licensed-
+        plumber video confirmation of sewer lateral repair prior to close,
+        or (b) a $15,000 credit applied at closing toward buyer's post-close
+        repair.
+      </div>
+    </div>
+
+    <div class="toolkit-summary">
+      If all four asks are accepted in full, your effective price drops to
+      <strong>$2,450,000</strong>. Either way, don't pay more than
+      <strong>$2,650,000</strong> — walk if the price climbs above that.
+    </div>
+  </div>
+</section>
+
+<!-- ════════ REFERENCE / SUPPORTING ════════ -->
+<section class="section" style="border-bottom:none;">
+  <div class="wrap">
+    <div class="section-label">Reference</div>
+
+    <details class="refs">
+      <summary>All 13 inspection findings (raw extract)</summary>
+      <div class="ref-body">
+        <ul>
+          <li>Missing handrail on basement stairs creates fall hazard.</li>
+          <li>Vertical crack in foundation wall, 1/8" × 4' — structural.</li>
+          <li>Step cracking visible on exterior east wall.</li>
+          <li>Extensive curling and brittleness of shingles, south and west elevations.</li>
+          <li>Multiple shingles missing or damaged.</li>
+          <li>Flashing around chimney deteriorated and improperly installed.</li>
+          <li>Main sewer lateral shows signs of deterioration with tree root intrusion (camera-confirmed).</li>
+          <li>Federal Pacific Electric (FPE) breakers — known fire hazards.</li>
+          <li>No GFCI protection in bathrooms, kitchen, or exterior outlets — code violation.</li>
+          <li>Several outlets in living areas not grounded.</li>
+          <li>HVAC system is 39 years old (typical life 15–20 years).</li>
+          <li>Heat exchanger shows signs of corrosion — CO leak concern.</li>
+          <li>Smoke detectors needed in bedrooms.</li>
+        </ul>
+      </div>
+    </details>
+
+    <details class="refs">
+      <summary>Seller's disclosure document (extracted items)</summary>
+      <div class="ref-body">
+        <p>Seller responded "No known issues" or left blank on: electrical, plumbing, HVAC, structural, roof, environmental hazards. Only volunteered disclosure: warranty documentation for the kitchen renovation.</p>
+      </div>
+    </details>
+
+    <details class="refs">
+      <summary>Methodology</summary>
+      <div class="ref-body">
+        <p>This analysis cross-references the seller's TDS (Transfer Disclosure Statement) against the inspection report's findings, weights each cross-reference by inspector-documented severity and our recall classifier's confidence, and computes the recommended offer as: <em>asking — confirmed repair cost — hidden-issue reserve (≥70% confidence predictions only) — disclosure-omission penalty — market-discount-vs-comps</em>. Walk-away is recommended offer −10%; aggressive opening is recommended offer −6%.</p>
+        <p style="color:var(--dim);font-style:italic;">OfferWise™ is informational only and does not constitute legal, financial, or real-estate advice. Consult licensed professionals before making a real estate decision.</p>
+      </div>
+    </details>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    OfferWise™ · Report OW-MP8YKNTF · Generated [date] · <a href="#">Methodology</a> · <a href="#">Contact support</a><br>
+    OfferScore™, Property Risk DNA™, and Seller Transparency Report™ are patent-pending technologies.
+  </div>
+</footer>
+
+</body>
+</html>

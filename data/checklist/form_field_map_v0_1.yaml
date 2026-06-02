@@ -1,0 +1,485 @@
+VERSION: v0.1
+purpose: Curated deterministic form-field / structured-report map (Q-5.2 deterministic path). Maps standardized form + report locations to checklist item ids with value semantics. DERIVED from the Q-5.8 verified citations + the Q-5.7 source audit — not invented. Field-level extraction from real C.A.R. form PDFs requires form specimens (see gaps).
+source_forms:
+- TDS
+- SPQ
+- NHD_report
+- title_report
+- CLUE
+coverage:
+  deterministic_items: 47
+  locator_cited: 21
+  locator_inferred: 16
+  needs_form_specimen: 10
+gaps: locator_confidence=needs_specimen items have a known form but no field-level locator yet; resolving them needs a real C.A.R. form specimen to read (spec-first). Until then the deterministic mapper can consume (form, locator, value) tuples but the parser that PRODUCES field-identified inputs from a real PDF is deferred (Phase 1 follow-on).
+mappings:
+- item_id: roof.age
+  group: roof_exterior
+  form: TDS_or_SPQ
+  locator: TDS (section unspecified)
+  locator_confidence: inferred
+  value_semantics:
+    positive_reading: present | yes | IN-zone | disclosed
+    polarity_when_positive: unfavorable
+    polarity_when_negative: favorable
+  also_inspection: true
+- item_id: roof.cover_material
+  group: roof_exterior
+  form: TDS_or_SPQ
+  locator: TDS (section unspecified)
+  locator_confidence: inferred
+  value_semantics:
+    positive_reading: present | yes | IN-zone | disclosed
+    polarity_when_positive: unfavorable
+    polarity_when_negative: favorable
+  also_inspection: false
+- item_id: roof.leak_evidence
+  group: roof_exterior
+  form: TDS_or_SPQ
+  locator: TDS (section unspecified)
+  locator_confidence: inferred
+  value_semantics:
+    positive_reading: present | yes | IN-zone | disclosed
+    polarity_when_positive: unfavorable
+    polarity_when_negative: favorable
+  also_inspection: false
+- item_id: roof.skylight_penetration_integrity
+  group: roof_exterior
+  form: TDS_or_SPQ
+  locator: TDS (section unspecified)
+  locator_confidence: inferred
+  value_semantics:
+    positive_reading: present | yes | IN-zone | disclosed
+    polarity_when_positive: unfavorable
+    polarity_when_negative: favorable
+  also_inspection: true
+- item_id: plumbing.known_defect_pipe_material
+  group: plumbing
+  form: TDS_or_SPQ
+  locator: SPQ 8
+  locator_confidence: cited
+  value_semantics:
+    positive_reading: present | yes | IN-zone | disclosed
+    polarity_when_positive: unfavorable
+    polarity_when_negative: favorable
+  also_inspection: true
+- item_id: plumbing.active_leaks
+  group: plumbing
+  form: TDS_or_SPQ
+  locator: TDS (section unspecified)
+  locator_confidence: inferred
+  value_semantics:
+    positive_reading: present | yes | IN-zone | disclosed
+    polarity_when_positive: unfavorable
+    polarity_when_negative: favorable
+  also_inspection: false
+- item_id: plumbing.sewer_type
+  group: plumbing
+  form: TDS_or_SPQ
+  locator: TDS (section unspecified)
+  locator_confidence: inferred
+  value_semantics:
+    positive_reading: present | yes | IN-zone | disclosed
+    polarity_when_positive: unfavorable
+    polarity_when_negative: favorable
+  also_inspection: false
+- item_id: hvac.heating_type
+  group: hvac_systems
+  form: TDS_or_SPQ
+  locator: TDS (section unspecified)
+  locator_confidence: inferred
+  value_semantics:
+    positive_reading: present | yes | IN-zone | disclosed
+    polarity_when_positive: unfavorable
+    polarity_when_negative: favorable
+  also_inspection: false
+- item_id: foundation.movement_evidence
+  group: foundation_structure
+  form: TDS_or_SPQ
+  locator: TDS (section unspecified)
+  locator_confidence: inferred
+  value_semantics:
+    positive_reading: present | yes | IN-zone | disclosed
+    polarity_when_positive: unfavorable
+    polarity_when_negative: favorable
+  also_inspection: false
+- item_id: structure.water_intrusion_history
+  group: foundation_structure
+  form: TDS_or_SPQ
+  locator: SPQ 10
+  locator_confidence: cited
+  value_semantics:
+    positive_reading: present | yes | IN-zone | disclosed
+    polarity_when_positive: unfavorable
+    polarity_when_negative: favorable
+  also_inspection: false
+- item_id: structure.chimney_fireplace_condition
+  group: foundation_structure
+  form: TDS_or_SPQ
+  locator: SPQ 8
+  locator_confidence: cited
+  value_semantics:
+    positive_reading: present | yes | IN-zone | disclosed
+    polarity_when_positive: unfavorable
+    polarity_when_negative: favorable
+  also_inspection: true
+- item_id: site.drainage_grading
+  group: foundation_structure
+  form: TDS_or_SPQ
+  locator: SPQ 8
+  locator_confidence: cited
+  value_semantics:
+    positive_reading: present | yes | IN-zone | disclosed
+    polarity_when_positive: unfavorable
+    polarity_when_negative: favorable
+  also_inspection: false
+- item_id: site.retaining_walls
+  group: foundation_structure
+  form: TDS_or_SPQ
+  locator: SPQ 8
+  locator_confidence: cited
+  value_semantics:
+    positive_reading: present | yes | IN-zone | disclosed
+    polarity_when_positive: unfavorable
+    polarity_when_negative: favorable
+  also_inspection: false
+- item_id: environmental.lead_paint_risk
+  group: environmental
+  form: TDS_or_SPQ
+  locator: null
+  locator_confidence: needs_specimen
+  value_semantics:
+    positive_reading: present | yes | IN-zone | disclosed
+    polarity_when_positive: unfavorable
+    polarity_when_negative: favorable
+  also_inspection: false
+- item_id: environmental.asbestos_risk
+  group: environmental
+  form: TDS_or_SPQ
+  locator: TDS C.1
+  locator_confidence: cited
+  value_semantics:
+    positive_reading: present | yes | IN-zone | disclosed
+    polarity_when_positive: unfavorable
+    polarity_when_negative: favorable
+  also_inspection: false
+- item_id: environmental.mold_risk
+  group: environmental
+  form: TDS_or_SPQ
+  locator: SPQ 10
+  locator_confidence: cited
+  value_semantics:
+    positive_reading: present | yes | IN-zone | disclosed
+    polarity_when_positive: unfavorable
+    polarity_when_negative: favorable
+  also_inspection: true
+- item_id: environmental.death_on_property
+  group: environmental
+  form: TDS_or_SPQ
+  locator: null
+  locator_confidence: needs_specimen
+  value_semantics:
+    positive_reading: present | yes | IN-zone | disclosed
+    polarity_when_positive: unfavorable
+    polarity_when_negative: favorable
+  also_inspection: false
+- item_id: safety.co_detectors
+  group: general
+  form: TDS_or_SPQ
+  locator: null
+  locator_confidence: needs_specimen
+  value_semantics:
+    positive_reading: present | yes | IN-zone | disclosed
+    polarity_when_positive: unfavorable
+    polarity_when_negative: favorable
+  also_inspection: false
+- item_id: permits.unpermitted_additions
+  group: general
+  form: TDS_or_SPQ
+  locator: TDS C.4
+  locator_confidence: cited
+  value_semantics:
+    positive_reading: present | yes | IN-zone | disclosed
+    polarity_when_positive: unfavorable
+    polarity_when_negative: favorable
+  also_inspection: false
+- item_id: adu.presence_and_permit
+  group: general
+  form: TDS_or_SPQ
+  locator: SPQ 8
+  locator_confidence: cited
+  value_semantics:
+    positive_reading: present | yes | IN-zone | disclosed
+    polarity_when_positive: unfavorable
+    polarity_when_negative: favorable
+  also_inspection: false
+- item_id: legal_title.ownership_interests
+  group: legal_title
+  form: TDS_or_SPQ
+  locator: SPQ 15
+  locator_confidence: cited
+  value_semantics:
+    positive_reading: present | yes | IN-zone | disclosed
+    polarity_when_positive: unfavorable
+    polarity_when_negative: favorable
+  also_inspection: false
+- item_id: legal_title.liens_and_legal_actions
+  group: legal_title
+  form: TDS_or_SPQ
+  locator: SPQ 15
+  locator_confidence: cited
+  value_semantics:
+    positive_reading: present | yes | IN-zone | disclosed
+    polarity_when_positive: unfavorable
+    polarity_when_negative: favorable
+  also_inspection: false
+- item_id: legal_title.easements_encroachments
+  group: legal_title
+  form: TDS_or_SPQ
+  locator: SPQ 12
+  locator_confidence: cited
+  value_semantics:
+    positive_reading: present | yes | IN-zone | disclosed
+    polarity_when_positive: unfavorable
+    polarity_when_negative: favorable
+  also_inspection: false
+- item_id: legal_title.shared_features_maintenance
+  group: legal_title
+  form: TDS_or_SPQ
+  locator: SPQ 15
+  locator_confidence: cited
+  value_semantics:
+    positive_reading: present | yes | IN-zone | disclosed
+    polarity_when_positive: unfavorable
+    polarity_when_negative: favorable
+  also_inspection: false
+- item_id: legal_title.title_exceptions
+  group: legal_title
+  form: title_report
+  locator: null
+  locator_confidence: needs_specimen
+  value_semantics:
+    positive_reading: present | yes | IN-zone | disclosed
+    polarity_when_positive: unfavorable
+    polarity_when_negative: favorable
+  also_inspection: false
+- item_id: hoa.exists
+  group: hoa
+  form: TDS_or_SPQ
+  locator: SPQ 14
+  locator_confidence: cited
+  value_semantics:
+    positive_reading: present | yes | IN-zone | disclosed
+    polarity_when_positive: unfavorable
+    polarity_when_negative: favorable
+  also_inspection: false
+- item_id: hoa.financial_obligations
+  group: hoa
+  form: TDS_or_SPQ
+  locator: SPQ 14
+  locator_confidence: cited
+  value_semantics:
+    positive_reading: present | yes | IN-zone | disclosed
+    polarity_when_positive: unfavorable
+    polarity_when_negative: favorable
+  also_inspection: false
+- item_id: hoa.litigation_and_violations
+  group: hoa
+  form: TDS_or_SPQ
+  locator: SPQ 14
+  locator_confidence: cited
+  value_semantics:
+    positive_reading: present | yes | IN-zone | disclosed
+    polarity_when_positive: unfavorable
+    polarity_when_negative: favorable
+  also_inspection: false
+- item_id: hoa.cc_and_r_restrictions
+  group: hoa
+  form: TDS_or_SPQ
+  locator: SPQ 14
+  locator_confidence: cited
+  value_semantics:
+    positive_reading: present | yes | IN-zone | disclosed
+    polarity_when_positive: unfavorable
+    polarity_when_negative: favorable
+  also_inspection: false
+- item_id: equipment.leased_or_liened_systems
+  group: general
+  form: TDS_or_SPQ
+  locator: SPQ 8
+  locator_confidence: cited
+  value_semantics:
+    positive_reading: present | yes | IN-zone | disclosed
+    polarity_when_positive: unfavorable
+    polarity_when_negative: favorable
+  also_inspection: false
+- item_id: solar.ownership_status
+  group: general
+  form: TDS_or_SPQ
+  locator: null
+  locator_confidence: needs_specimen
+  value_semantics:
+    positive_reading: present | yes | IN-zone | disclosed
+    polarity_when_positive: unfavorable
+    polarity_when_negative: favorable
+  also_inspection: false
+- item_id: insurance.claims_history_clue
+  group: general
+  form: TDS_or_SPQ
+  locator: SPQ 6
+  locator_confidence: cited
+  value_semantics:
+    positive_reading: present | yes | IN-zone | disclosed
+    polarity_when_positive: unfavorable
+    polarity_when_negative: favorable
+  also_inspection: false
+- item_id: disaster.prior_relief_flood_obligation
+  group: general
+  form: TDS_or_SPQ
+  locator: SPQ 9
+  locator_confidence: cited
+  value_semantics:
+    positive_reading: present | yes | IN-zone | disclosed
+    polarity_when_positive: unfavorable
+    polarity_when_negative: favorable
+  also_inspection: false
+- item_id: ca.flood_hazard_zone
+  group: environmental
+  form: NHD_report
+  locator: NHD (section unspecified)
+  locator_confidence: inferred
+  value_semantics:
+    positive_reading: present | yes | IN-zone | disclosed
+    polarity_when_positive: unfavorable
+    polarity_when_negative: favorable
+  also_inspection: false
+- item_id: ca.dam_inundation_zone
+  group: environmental
+  form: NHD_report
+  locator: NHD (section unspecified)
+  locator_confidence: inferred
+  value_semantics:
+    positive_reading: present | yes | IN-zone | disclosed
+    polarity_when_positive: unfavorable
+    polarity_when_negative: favorable
+  also_inspection: false
+- item_id: ca.fire_hazard_severity_zone
+  group: roof_exterior
+  form: NHD_report
+  locator: NHD (section unspecified)
+  locator_confidence: inferred
+  value_semantics:
+    positive_reading: present | yes | IN-zone | disclosed
+    polarity_when_positive: unfavorable
+    polarity_when_negative: favorable
+  also_inspection: false
+- item_id: ca.wildland_state_responsibility_area
+  group: roof_exterior
+  form: NHD_report
+  locator: NHD (section unspecified)
+  locator_confidence: inferred
+  value_semantics:
+    positive_reading: present | yes | IN-zone | disclosed
+    polarity_when_positive: unfavorable
+    polarity_when_negative: favorable
+  also_inspection: false
+- item_id: ca.earthquake_fault_zone
+  group: foundation_structure
+  form: NHD_report
+  locator: NHD (section unspecified)
+  locator_confidence: inferred
+  value_semantics:
+    positive_reading: present | yes | IN-zone | disclosed
+    polarity_when_positive: unfavorable
+    polarity_when_negative: favorable
+  also_inspection: false
+- item_id: ca.seismic_hazard_zone
+  group: foundation_structure
+  form: NHD_report
+  locator: NHD (section unspecified)
+  locator_confidence: inferred
+  value_semantics:
+    positive_reading: present | yes | IN-zone | disclosed
+    polarity_when_positive: unfavorable
+    polarity_when_negative: favorable
+  also_inspection: false
+- item_id: ca.defensible_space
+  group: roof_exterior
+  form: NHD_report
+  locator: null
+  locator_confidence: needs_specimen
+  value_semantics:
+    positive_reading: present | yes | IN-zone | disclosed
+    polarity_when_positive: unfavorable
+    polarity_when_negative: favorable
+  also_inspection: false
+- item_id: ca.fire_hardening_disclosure
+  group: roof_exterior
+  form: NHD_report
+  locator: null
+  locator_confidence: needs_specimen
+  value_semantics:
+    positive_reading: present | yes | IN-zone | disclosed
+    polarity_when_positive: unfavorable
+    polarity_when_negative: favorable
+  also_inspection: false
+- item_id: ca.mello_roos_cfd
+  group: tax_assessment
+  form: NHD_report
+  locator: null
+  locator_confidence: needs_specimen
+  value_semantics:
+    positive_reading: present | yes | IN-zone | disclosed
+    polarity_when_positive: unfavorable
+    polarity_when_negative: favorable
+  also_inspection: false
+- item_id: ca.bond_1915_assessment
+  group: tax_assessment
+  form: TDS_or_SPQ
+  locator: null
+  locator_confidence: needs_specimen
+  value_semantics:
+    positive_reading: present | yes | IN-zone | disclosed
+    polarity_when_positive: unfavorable
+    polarity_when_negative: favorable
+  also_inspection: false
+- item_id: ca.supplemental_tax
+  group: tax_assessment
+  form: NHD_report
+  locator: null
+  locator_confidence: needs_specimen
+  value_semantics:
+    positive_reading: present | yes | IN-zone | disclosed
+    polarity_when_positive: unfavorable
+    polarity_when_negative: favorable
+  also_inspection: false
+- item_id: ca.environmental_screening
+  group: environmental
+  form: NHD_report
+  locator: NHD (section unspecified)
+  locator_confidence: inferred
+  value_semantics:
+    positive_reading: present | yes | IN-zone | disclosed
+    polarity_when_positive: unfavorable
+    polarity_when_negative: favorable
+  also_inspection: false
+- item_id: ca.water_heater_seismic_bracing
+  group: plumbing
+  form: TDS_or_SPQ
+  locator: TDS (section unspecified)
+  locator_confidence: inferred
+  value_semantics:
+    positive_reading: present | yes | IN-zone | disclosed
+    polarity_when_positive: unfavorable
+    polarity_when_negative: favorable
+  also_inspection: false
+- item_id: ca.water_conserving_fixtures
+  group: plumbing
+  form: TDS_or_SPQ
+  locator: SPQ 6
+  locator_confidence: cited
+  value_semantics:
+    positive_reading: present | yes | IN-zone | disclosed
+    polarity_when_positive: unfavorable
+    polarity_when_negative: favorable
+  also_inspection: false
