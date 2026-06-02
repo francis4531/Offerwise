@@ -2,6 +2,7 @@ services:
   - type: web
     name: offerwise
     runtime: docker
+    branch: main
     # Standard (2GB RAM, 1 CPU): needed for ML training. The sentence-transformer
     # embedder is ~250MB; two gunicorn workers each hold their own copy plus the
     # training subprocess needs its own embedder + XGBoost working memory. Starter
@@ -74,11 +75,76 @@ services:
       - key: STRIPE_SECRET_KEY
         sync: false
 
+  # ── STAGING / integration site (v5.89.132) ───────────────────────────────
+  # Tracks the `staging` branch; promote to prod by fast-forwarding `main`
+  # (scripts/promote_to_prod.sh). Own DB + disk — never touches production data.
+  #
+  # plan: starter keeps cost low while pre-revenue. NOTE: this app loads a
+  # ~250MB sentence-transformer embedder at boot (1 gunicorn worker), so 512MB
+  # Starter is tight. If staging OOMs on deploy, change `plan: starter` →
+  # `plan: standard` below (one line). ML *training* never runs on staging
+  # regardless; staging exists to verify the app boots and the flows work.
+  - type: web
+    name: offerwise-staging
+    runtime: docker
+    plan: starter
+    branch: staging
+    dockerfilePath: ./Dockerfile
+    disk:
+      name: docrepo-staging
+      mountPath: /var/data/docrepo
+      sizeGB: 1
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: offerwise-staging-db
+          property: connectionString
+      - key: APP_ENV
+        value: "staging"
+      - key: WEB_CONCURRENCY
+        value: "1"
+      - key: OCR_DPI
+        value: "100"
+      - key: OCR_PARALLEL_WORKERS
+        value: "1"
+      - key: GUNICORN_TIMEOUT
+        value: "600"
+      - key: DISABLE_PADDLEOCR
+        value: "true"
+      # Staging does NOT build the reasoning corpus (prod owns that).
+      - key: OFFERWISE_REASONING_PERSIST
+        value: "0"
+      - key: SECRET_KEY
+        generateValue: true
+      # Secrets — set these on the staging service in the dashboard. Use Stripe
+      # TEST keys, and add the staging domain to Google/Facebook OAuth redirect
+      # URIs, so staging never touches live payments or prod OAuth.
+      - key: FACEBOOK_CLIENT_ID
+        sync: false
+      - key: FACEBOOK_CLIENT_SECRET
+        sync: false
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+      - key: STRIPE_PUBLISHABLE_KEY
+        sync: false
+      - key: STRIPE_SECRET_KEY
+        sync: false
+
 databases:
   - name: offerwise-db
     plan: free
     databaseName: offerwise
     user: offerwise
+
+  # Staging database — isolated from prod so integration tests never touch real
+  # data. NOTE: Render free Postgres expires ~30 days after creation; bump to a
+  # paid plan if you want staging to persist longer.
+  - name: offerwise-staging-db
+    plan: free
+    databaseName: offerwise_staging
+    user: offerwise_staging
 
 # Cron Jobs
 # Note: Cron jobs on Render require a paid plan or can be configured

@@ -5,6 +5,47 @@ Consolidated from 80 individual files on 2026-03-13.
 
 ---
 
+## v5.89.132 — 2026-06-02
+Deploy safety: history-preserving staging→prod pipeline (replaces force-push).
+
+### Why
+Deploys ran `git init && … && git push render main --force`, which wiped git
+history on every deploy (no rollback) and pushed straight to prod untested.
+
+### What
+- **render.yaml** — pinned prod `offerwise` to `branch: main`; added a persistent
+  staging web service `offerwise-staging` (Starter, `branch: staging`, own
+  `docrepo-staging` disk, `APP_ENV=staging`, `WEB_CONCURRENCY=1`, Stripe TEST /
+  staging-OAuth secrets via `sync:false`) and an isolated `offerwise-staging-db`
+  (free). Staging builds no reasoning corpus (`OFFERWISE_REASONING_PERSIST=0`).
+- **app.py** — gated the in-process APScheduler OFF when `APP_ENV` is
+  staging/preview (or `DISABLE_SCHEDULER=1`), so staging is side-effect-free: no
+  drip/monitor/daily-task emails or crawlers. ML *inference* init is NOT gated —
+  staging can still run analyses to verify flows.
+- **scripts/ow_deploy.sh** — history-preserving deploy to the `staging` branch
+  via one persistent clone (`~/offerwise-deploy`); rsync `--delete` of the build
+  over the clone, normal commit, push `origin staging`. Auto-detects the build
+  dir; `OW_REPO`/`OW_GIT` overridable.
+- **scripts/ow_promote.sh** — fast-forward `main` to the verified `origin/staging`
+  commit and push, so prod ships the identical artifact tested on staging.
+  `--ff-only`: stops with reconcile instructions if `main` diverged; prints the
+  Render rollback hint.
+- **docs/DEPLOY.md** — one-time setup (clone, `staging` branch, re-sync Blueprint,
+  set staging TEST/OAuth secrets), per-deploy flow (extract → ow_deploy.sh →
+  verify staging URL → ow_promote.sh), rollback via dashboard, and an interim
+  history-preserving-direct-to-main option for before the staging service exists.
+
+### Notes
+- One-time Render dashboard work required (account-level, can't be scripted):
+  re-sync the Blueprint to create the staging service/DB/disk, and set the
+  `sync:false` staging secrets to Stripe TEST keys + a staging OAuth client.
+- Render free Postgres expires ~30 days after creation; bump
+  `offerwise-staging-db` to a small paid plan for a steady staging DB.
+- Staging runs Starter, so ML *training* won't run there (fine for deploy
+  safety). If staging OOMs on boot, flip its `plan: starter` → `plan: standard`.
+
+---
+
 ## v5.89.131 — 2026-06-02
 Daily Tasks: drop two tasks and fix the "Go →" scroll landing.
 

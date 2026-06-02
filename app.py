@@ -11880,8 +11880,20 @@ def _start_background_schedulers():
 # initializes ML inference because _execute_training needs the embedder loaded.
 _scheduler = None
 _is_training_subprocess = os.environ.get('OFFERWISE_TRAINING_SUBPROCESS') == '1'
+# v5.89.132: the staging/integration service must be side-effect-free — no drip
+# sends, monitor emails, daily-task emails, or crawlers. Gate the scheduler OFF
+# when APP_ENV is staging/preview (or DISABLE_SCHEDULER=1). Prod leaves APP_ENV
+# unset, so it keeps the scheduler. ML inference init below is NOT gated —
+# staging can still run analyses to verify flows.
+_scheduler_off = (os.environ.get('DISABLE_SCHEDULER') == '1'
+                  or os.environ.get('APP_ENV', '').strip().lower() in ('staging', 'preview'))
 if os.environ.get('WERKZEUG_RUN_MAIN') != 'true' or not app.debug:
-    if not _is_training_subprocess:
+    if _is_training_subprocess:
+        logging.info("🧠 Training subprocess: skipping APScheduler (gunicorn workers own the schedule)")
+    elif _scheduler_off:
+        logging.info("⏸️ Scheduler disabled (APP_ENV=%s) — staging is side-effect-free: no drip/monitor/daily-task emails or crawlers",
+                     os.environ.get('APP_ENV') or 'unset')
+    else:
         try:
             _boot('starting background scheduler')
             _scheduler = _start_background_schedulers()
@@ -11889,8 +11901,6 @@ if os.environ.get('WERKZEUG_RUN_MAIN') != 'true' or not app.debug:
         except Exception as e:
             _boot(f'scheduler start failed: {e.__class__.__name__}')
             logging.warning(f"Could not start APScheduler: {e}")
-    else:
-        logging.info("🧠 Training subprocess: skipping APScheduler (gunicorn workers own the schedule)")
     # v5.88.72: ML inference init moved to a background thread.
     #
     # Previously this block ran synchronously at module load, blocking
