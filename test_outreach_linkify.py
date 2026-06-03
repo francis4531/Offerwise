@@ -52,6 +52,29 @@ class TestLinkifyHelper(unittest.TestCase):
         )
         self.assertEqual(out.count('<a href="'), 2)
 
+    def test_trailing_period_excluded_from_href(self):
+        """v5.89.136 regression: an LLM-written sentence ending in a URL +
+        period must NOT put the period inside the href (it 404s). The period
+        stays as visible text after the anchor."""
+        from admin_routes import _linkify_line
+        out = _linkify_line(
+            'Take a look at https://www.getofferwise.ai/for-title-companies.'
+        )
+        self.assertIn(
+            '<a href="https://www.getofferwise.ai/for-title-companies"', out
+        )
+        self.assertNotIn('for-title-companies."', out)
+        self.assertNotIn('for-title-companies.</a>', out)
+        self.assertTrue(out.rstrip().endswith('.'))
+
+    def test_trailing_comma_excluded_from_href(self):
+        from admin_routes import _linkify_line
+        out = _linkify_line(
+            'First https://www.getofferwise.ai/for-agents, then reply.'
+        )
+        self.assertIn('<a href="https://www.getofferwise.ai/for-agents"', out)
+        self.assertIn('</a>, then reply.', out)
+
     def test_line_without_url_unchanged(self):
         from admin_routes import _linkify_line
         line = "Hi Jane, hope you're well. No links here."

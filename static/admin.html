@@ -19394,7 +19394,14 @@ function prospRender() {
     html += '<div class="pcell-company">' + _pasteEsc(c.company || '—');
     if (c.wedge) html += '<span class="wedge-tag">' + _pasteEsc(c.wedge.replace(/_/g,' ')) + '</span>';
     html += '</div>';
-    html += '<div><span class="status-pill status-' + status + '">' + statusLabel + '</span></div>';
+    html += '<div><span class="status-pill status-' + status + '">' + statusLabel + '</span>';
+    // v5.89.136: show which follow-up touch this prospect is on. 'contacted'
+    // implies at least touch 1, so floor at 1 for sent/replied rows.
+    if (status === 'sent' || status === 'replied') {
+      var tc = Math.max(c.touch_count || 0, 1);
+      html += '<div style="font-size:10px;color:var(--muted);margin-top:3px;font-family:var(--mono,monospace)">Touch ' + tc + '/4</div>';
+    }
+    html += '</div>';
 
     // Actions column — varies by status
     html += '<div class="pcell-actions">';

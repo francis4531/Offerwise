@@ -715,12 +715,14 @@ def _fallback_draft(name: str, company: str, wedge_pain: str,
         link_line = (
             f'I wrote a one-pager for {company_role} folks: {landing_url}. '
             f'Architecture and a head-to-head benchmark are at '
-            f'https://www.getofferwise.ai/architecture and /comparison.'
+            f'https://www.getofferwise.ai/architecture and '
+            f'https://www.getofferwise.ai/comparison.'
         )
     else:
         link_line = (
             'Architecture and a head-to-head benchmark are at '
-            'https://www.getofferwise.ai/architecture and /comparison.'
+            'https://www.getofferwise.ai/architecture and '
+            'https://www.getofferwise.ai/comparison.'
         )
 
     # v5.88.02: prepend greeting so fallback drafts match the LLM-path shape

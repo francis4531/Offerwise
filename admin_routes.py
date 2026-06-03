@@ -6556,19 +6556,36 @@ import re as _re_email
 _URL_RE_EMAIL = _re_email.compile(r'(https?://[^\s<>"\')]+)')
 
 
+_LINKIFY_TRAIL = '.,;:!?'
+
+
 def _linkify_line(line):
     """Replace bare URLs in a line with <a href> anchor tags.
 
-    Preserves surrounding text. Closing punctuation (period, comma)
-    immediately after the URL is left outside the anchor tag — this is
-    a deliberate trade-off: catching all valid URL chars vs. avoiding
-    trailing-punctuation in the linked text. The simpler regex
-    (no closing-punctuation in URL) reads cleaner in the resulting email.
+    Trailing sentence punctuation (. , ; : ! ?) immediately after a URL is
+    kept OUT of the href and left as visible text after the anchor. Without
+    this, an LLM-written sentence like "...take a look at https://site/page."
+    pulls the period into the href and the link 404s. (v5.89.136 fix — the
+    prior regex documented this behavior but did not actually implement it,
+    so the period was being swallowed into the link.)
+
+    Closing parens, quotes, and angle brackets are already excluded by the
+    URL character class in _URL_RE_EMAIL.
     """
-    return _URL_RE_EMAIL.sub(
-        r'<a href="\1" style="color:#2563eb;text-decoration:underline">\1</a>',
-        line,
-    )
+    def _sub(mo):
+        url = mo.group(1)
+        trail = ''
+        while url and url[-1] in _LINKIFY_TRAIL:
+            trail = url[-1] + trail
+            url = url[:-1]
+        if not url:
+            return mo.group(0)
+        return (
+            f'<a href="{url}" style="color:#2563eb;text-decoration:underline">'
+            f'{url}</a>'
+        ) + trail
+
+    return _URL_RE_EMAIL.sub(_sub, line)
 
 
 def _outreach_engagement_for(resend_ids):
@@ -6778,6 +6795,7 @@ def outreach_list_b2b():
     # return the contact list, just without engagement decoration.
     last_send_by_contact = {}
     engagement = {}
+    touch_counts = {}
     last_send_failure = None
     try:
         last_send_subq = (db.session.query(
@@ -6796,6 +6814,23 @@ def outreach_list_b2b():
         last_send_by_contact = {r.contact_id: r for r in last_send_rows}
 
         engagement = _outreach_engagement_for([r.resend_id for r in last_send_rows])
+
+        # v5.89.136: per-contact touch count = number of successful B2B sends.
+        # This is the source of truth for "which touch each prospect is on"
+        # (OutreachLog is the touch ledger — one row per send). Drives the
+        # follow-up scheduler and the "Touch N/4" indicator in the admin UI.
+        touch_counts = dict(
+            db.session.query(
+                OutreachLog.contact_id, _f.count(OutreachLog.id)
+            )
+            .filter(
+                OutreachLog.cohort == 'b2b',
+                OutreachLog.contact_id.in_(contact_ids),
+                OutreachLog.success == True,  # noqa: E712
+            )
+            .group_by(OutreachLog.contact_id)
+            .all()
+        )
     except Exception as e:
         logger.exception('outreach_list_b2b: engagement aggregation failed (non-fatal)')
         last_send_failure = f'{type(e).__name__}: {e}'
@@ -6827,6 +6862,7 @@ def outreach_list_b2b():
                 'wedge': c.wedge or '',
                 'notes': c.notes or '',
                 'status': c.status or 'not_contacted',
+                'touch_count': touch_counts.get(c.id, 0),
                 'last_contacted_at': c.last_contacted_at.isoformat() if c.last_contacted_at else None,
                 'replied_at': c.replied_at.isoformat() if c.replied_at else None,
                 'last_reply_summary': c.last_reply_summary or '',

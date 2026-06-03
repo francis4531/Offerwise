@@ -5,6 +5,47 @@ Consolidated from 80 individual files on 2026-03-13.
 
 ---
 
+## v5.89.136 — 2026-06-03
+B2B follow-up sequence ("drip for B2B") + outreach URL trailing-period 404 fix.
+
+### Fixed
+- **Outreach draft links 404 on a trailing period.** `_linkify_line` was pulling
+  trailing sentence punctuation into the href, so an LLM-written sentence ending
+  in a URL (e.g. ".../for-title-companies.") linked to `/for-title-companies.`
+  and 404'd. The period (and , ; : ! ?) is now kept out of the href and left as
+  visible text after the anchor. The prior docstring claimed this behavior but
+  the regex never implemented it.
+- **Fallback draft URLs.** `_fallback_draft` emitted a broken
+  "…/architecture and /comparison." fragment; /comparison is now a full
+  clickable URL.
+
+### Added — B2B follow-up sequence (touches 2-4)
+- New `b2b_followup.py`: automated second/third/fourth touches for B2B prospects
+  who were contacted but have not replied. The first touch stays manual (the
+  reviewed, research-personalized draft). Follow-ups are short, human nudges
+  spaced ~3d / ~4d / ~7d (env-tunable via `B2B_FOLLOWUP_GAP_2|3|4_HOURS`).
+- **No schema change.** OutreachLog is the touch ledger (one row per send), so
+  the current touch number is derived by counting successful b2b sends. This
+  avoids a migration against the branched alembic history.
+- **Stops automatically** when the founder flags a prospect replied / meeting_set
+  / design_partner / passed, when the email unsubscribes, or at touch 4.
+- `run_b2b_followup_scheduler` runs hourly via APScheduler (id `b2b_followup`),
+  gated OFF on staging with the rest of the scheduler. Manual / backstop trigger
+  at `POST /api/cron/b2b-followup` (CRON_SECRET header or admin session).
+- Admin outreach list shows a "Touch N/4" indicator per contact, from the new
+  `touch_count` field on `/api/admin/outreach/b2b`. Inline style only — no CSS
+  change.
+
+### Tests
+- `test_b2b_followup.py` — scheduler selection, timing gate, touch-3 progression,
+  stop-on-reply, max-touches cap, unsubscribe skip, legacy-contact floor, plus
+  copy checks (subject threads, no em-dashes, link + unsubscribe present,
+  first-name substitution).
+- `test_outreach_linkify.py` — added trailing-period and trailing-comma
+  regression cases for the 404 fix.
+
+---
+
 ## v5.89.135 — 2026-06-02
 Deploy scripts: clear end-of-run banner showing version + environment.
 

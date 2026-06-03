@@ -10086,6 +10086,25 @@ def run_drip_cron():
     return jsonify({'success': True, 'stats': stats})
 
 
+@app.route('/api/cron/b2b-followup', methods=['POST'])
+def run_b2b_followup_cron():
+    """Advance B2B follow-up touches (2-4) for contacted-but-unanswered
+    prospects. Runs automatically every hour via APScheduler; this endpoint
+    is a manual/external trigger and a backstop.
+
+    Auth: Requires CRON_SECRET header or admin session.
+    """
+    cron_secret = os.environ.get('CRON_SECRET', '')
+    req_secret = request.headers.get('X-Cron-Secret', '')
+    is_admin_user = current_user.is_authenticated and current_user.email in ADMIN_EMAILS
+    if not (cron_secret and req_secret == cron_secret) and not is_admin_user:
+        return jsonify({'error': 'Unauthorized'}), 401
+
+    from b2b_followup import run_b2b_followup_scheduler
+    stats = run_b2b_followup_scheduler(db.session)
+    return jsonify({'success': True, 'stats': stats})
+
+
 # =============================================================================
 # BUG TRACKER (v5.54.20)
 # =============================================================================
@@ -10751,6 +10770,19 @@ def _start_background_schedulers():
             if user_sent > 0:
                 logging.info(f"📧 User drip: sent={user_sent} checked={user_stats.get('checked', 0)}")
 
+    def _b2b_followup_job():
+        with app.app_context():
+            # v5.89.136: B2B follow-up sequence (touches 2-4) for contacted-
+            # but-unanswered prospects. Stops automatically once a prospect is
+            # flagged replied/closed. Gated off on staging with the rest.
+            from b2b_followup import run_b2b_followup_scheduler
+            stats = run_b2b_followup_scheduler(db.session)
+            if stats.get('sent', 0) > 0 or stats.get('errors', 0) > 0:
+                logging.info(
+                    f"📨 B2B follow-up: sent={stats.get('sent', 0)} "
+                    f"errors={stats.get('errors', 0)} checked={stats.get('checked', 0)}"
+                )
+
     def _ads_job():
         with app.app_context():
             # Google Ads sync
@@ -11132,6 +11164,9 @@ def _start_background_schedulers():
 
     # Drip: every 15 minutes
     _safe_add_job(_drip_job,         'interval', minutes=15,  id='drip',         replace_existing=True)
+    # B2B follow-up sequence (touches 2-4): every hour. Spacing is day-scale,
+    # so hourly is plenty; sends at most one touch per contact per run.
+    _safe_add_job(_b2b_followup_job, 'interval', hours=1,     id='b2b_followup', replace_existing=True)
     # Google Ads: every 6 hours
     _safe_add_job(_ads_job,          'interval', hours=6,     id='ads_sync',     replace_existing=True)
     # Reddit: every hour
