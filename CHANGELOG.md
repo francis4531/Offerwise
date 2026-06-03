@@ -5,6 +5,23 @@ Consolidated from 80 individual files on 2026-03-13.
 
 ---
 
+## v5.89.135 — 2026-06-02
+Deploy scripts: clear end-of-run banner showing version + environment.
+
+### What
+- **scripts/ow_deploy.sh** — after pushing, prints a boxed banner stating the
+  deployment number (`v$VER` from the build's VERSION file) and `ENVIRONMENT ▶▶
+  STAGING`, plus the staging URL and a reminder that it is NOT yet in production.
+- **scripts/ow_promote.sh** — after pushing to `main`, prints a boxed banner with
+  the promoted version and `ENVIRONMENT ▶▶ PRODUCTION`, flagging that the build is
+  now live to real users. (Also added the `VER` read in this script, which it
+  previously lacked.)
+
+No app/runtime code changed — operator-visibility only. Supersedes v5.89.134;
+identical app behavior (Apple removed, Facebook + Google + email retained).
+
+---
+
 ## v5.89.134 — 2026-06-02
 Remove Apple sign-in only — Google + Facebook + email/password retained.
 
