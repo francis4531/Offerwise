@@ -258,6 +258,7 @@ class TestGoogleOAuthCallback(unittest.TestCase):
                 'They could repeatedly log in to get unlimited free analyses.')
 
 
+# =============================================================================
 # Subscription cancellation webhook (deferred from Release 2)
 # =============================================================================
 

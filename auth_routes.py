@@ -90,6 +90,7 @@ class _OAuthProxy:
         return getattr(obj, item)
 
 google = _OAuthProxy('google')
+facebook = _OAuthProxy('facebook')
 
 class _LazyList:
     """Proxies a list from app module, resolved on first use."""
@@ -883,6 +884,226 @@ def auth_reset_password(token):
         'message': 'Password reset successfully!'
     })
 
+
+
+@auth_bp.route('/login/facebook')
+def login_facebook():
+    """Initiate Facebook OAuth login"""
+    if not facebook:
+        return render_template_string('''
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Facebook Login - Configuration Required</title>
+            <style>
+                body {
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+                    color: #e2e8f0;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    min-height: 100vh;
+                    margin: 0;
+                    padding: 20px;
+                }
+                .container {
+                    max-width: 600px;
+                    background: #1e293b;
+                    border-radius: 16px;
+                    padding: 40px;
+                    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+                    border: 1px solid #334155;
+                }
+                h1 { color: #f1f5f9; margin-top: 0; }
+                .message { background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 8px; padding: 20px; margin: 20px 0; }
+                .info { background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 8px; padding: 20px; margin: 20px 0; font-size: 14px; line-height: 1.6; }
+                .button { display: inline-block; padding: 12px 24px; background: linear-gradient(135deg, #0ea5e9 0%, #06b6d4 100%); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; margin-top: 20px; }
+                code { background: #0f172a; padding: 2px 6px; border-radius: 4px; font-size: 13px; }
+                a { color: #60a5fa; }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <h1>📘 Facebook Login Configuration Required</h1>
+                <div class="message">
+                    <strong>⚠️ Facebook OAuth is not yet configured for this application.</strong>
+                </div>
+                <div class="info">
+                    <p><strong>For the application administrator:</strong></p>
+                    <p>To enable Facebook login, please configure the following environment variables in your Render dashboard:</p>
+                    <ul>
+                        <li><code>FACEBOOK_CLIENT_ID</code> - Your Facebook App ID</li>
+                        <li><code>FACEBOOK_CLIENT_SECRET</code> - Your Facebook App Secret</li>
+                    </ul>
+                    <p><strong>Setup instructions:</strong></p>
+                    <ol>
+                        <li>Visit <a href="https://developers.facebook.com/apps" target="_blank">Facebook Developers</a></li>
+                        <li>Create a new app or select existing app</li>
+                        <li>Add "Facebook Login" product</li>
+                        <li>Get App ID and App Secret from Settings -> Basic</li>
+                        <li>Configure Valid OAuth Redirect URIs to include: <code>https://your-app.onrender.com/auth/facebook/callback</code></li>
+                        <li>Add credentials to Render environment variables</li>
+                        <li>Redeploy the application</li>
+                    </ol>
+                    <p><strong>⚡ Quick Setup:</strong> In Render dashboard -> Environment -> Add:</p>
+                    <ul>
+                        <li><code>FACEBOOK_CLIENT_ID</code> = your_app_id_here</li>
+                        <li><code>FACEBOOK_CLIENT_SECRET</code> = your_app_secret_here</li>
+                    </ul>
+                </div>
+                <a href="/login" class="button">← Back to Login</a>
+            </div>
+        </body>
+        </html>
+        ''')
+    # v5.89.66: Capture signup attribution before OAuth redirect
+    _capture_signup_attribution_to_session()
+    redirect_uri = url_for('auth.facebook_callback', _external=True)
+    return facebook.authorize_redirect(redirect_uri)
+
+
+
+@auth_bp.route('/auth/facebook/callback')
+def facebook_callback():
+    """Handle Facebook OAuth callback"""
+    try:
+        # Get the token from Facebook
+        facebook.authorize_access_token()
+        
+        # Get user info from Facebook
+        resp = facebook.get('me?fields=id,name,email')
+        user_info = resp.json()
+        
+        email = user_info.get('email')
+        name = user_info.get('name')
+        facebook_id = user_info.get('id')
+        
+        if not email:
+            flash('Could not get email from Facebook. Please try again.', 'error')
+            return redirect(url_for('auth.login_page'))
+        
+        # BLOCK CHECK: Prevent accounts that have been deleted 3+ times
+        if EmailRegistry.is_blocked(email):
+            logging.warning(f"🚫 BLOCKED: {email} has been deleted 3+ times — Facebook signup denied")
+            flash('This email address has been blocked due to repeated account deletions. Please contact support.', 'error')
+            return redirect(url_for('auth.login_page'))
+        
+        # Check if user exists
+        user = User.query.filter_by(email=email).first()
+        
+        if user:
+            # Existing user - just update Facebook ID if needed
+            if not user.facebook_id:
+                user.facebook_id = facebook_id
+                if not user.auth_provider or user.auth_provider == 'email':
+                    user.auth_provider = 'facebook'
+            
+            # DEVELOPER ACCOUNT: Ensure unlimited credits on every login
+            # Uses global DEVELOPER_EMAILS
+            is_developer = email.lower() in DEVELOPER_EMAILS
+            
+            if is_developer:
+                # Boost to 500 if below
+                if user.analysis_credits < 500:
+                    old_credits = user.analysis_credits
+                    user.analysis_credits = 500
+                    user.tier = 'enterprise'
+                    logging.info(f"👑 DEVELOPER LOGIN: Boosted credits {old_credits} -> 500")
+                    logging.info("👑 DEVELOPER LOGIN: Set tier to enterprise")
+            
+
+            # FREE USER WITH 0 CREDITS: Restore 1 free credit if never paid and no analyses
+            if not is_developer and user.analysis_credits <= 0 and not user.stripe_customer_id:
+                fb_analysis_count = db.session.query(Analysis).join(Property).filter(Property.user_id == user.id).count()
+                if fb_analysis_count == 0:
+                    user.analysis_credits = 1
+                    logging.info(f"🔄 Restored 1 free credit for {email} (Facebook login, 0 credits, never paid)")
+
+            db.session.commit()
+        else:
+            # New user signup - check email registry for credit eligibility
+            logging.info(f"🆕 New user signup: {email}")
+            
+            # Register email and check credit eligibility
+            email_registry, is_new_email = EmailRegistry.register_email(email)
+            can_receive_credit, reason = EmailRegistry.can_receive_free_credit(email)
+            
+            if can_receive_credit:
+                # Give free credit
+                analysis_credits = 1
+                EmailRegistry.give_free_credit(email)
+                logging.info(f"✅ Giving free credit to {email} (reason: {reason})")
+            else:
+                # No free credit
+                analysis_credits = 0
+                logging.warning(f"❌ No free credit for {email} (reason: {reason})")
+                
+                if reason == "abuse_flagged":
+                    logging.warning(f"🚨 ABUSE FLAG: {email} is flagged for credit abuse")
+                elif reason == "already_received":
+                    logging.info(f"ℹ️  {email} already received free credit previously")
+            
+            # Create new user account
+            user = User(
+                email=email,
+                name=name,
+                facebook_id=facebook_id,
+                auth_provider='facebook',
+                tier='free',
+                subscription_status='active',
+                analysis_credits=analysis_credits
+            )
+            
+            db.session.add(user)
+            db.session.commit()
+            
+            logging.info(f"👤 Created Facebook user account with {analysis_credits} credit(s)")
+
+            # v5.89.66: Persist signup attribution
+            _apply_signup_attribution(user)
+            try:
+                db.session.commit()
+            except Exception:
+                db.session.rollback()
+
+            # 📧 Send welcome email to new user
+            try:
+                send_welcome_email(user.email, user.name or 'there')
+                logging.info(f"📧 Welcome email sent to {user.email}")
+            except Exception as e:
+                logging.warning(f"📧 Could not send welcome email: {e}")
+        
+
+            # Inspector report attribution — did they arrive from a shared report?
+            _share_token = session.pop('inspector_share_token', None)
+            if _attribute_inspector_referral(_share_token, user):
+                db.session.commit()
+        # Log the user in
+        login_user(user)
+        user.last_login = datetime.utcnow()
+        db.session.commit()
+        
+        # Check onboarding status and get destination
+        needs_onboarding, redirect_url = check_user_needs_onboarding(user)
+        
+        if needs_onboarding:
+            # User needs to complete preferences or legal
+            logging.info(f"🆕 New Facebook user {user.id} needs onboarding - redirecting to {redirect_url}")
+            return redirect(redirect_url)
+        
+        # Onboarding complete - redirect_url contains final destination
+        if redirect_url:
+            logging.info(f"✅ Facebook user {user.id} onboarding complete - sending to {redirect_url}")
+            return redirect(redirect_url)
+        
+        # Fallback to dashboard
+        return redirect(url_for('dashboard'))
+        
+    except Exception as e:
+        logging.error(f"Facebook OAuth error: {e}")
+        flash('An error occurred during Facebook login. Please try again.', 'error')
+        return redirect(url_for('auth.login_page'))
 
 
 # ── Magic Link Login (passwordless) ─────────────────────────────────────────

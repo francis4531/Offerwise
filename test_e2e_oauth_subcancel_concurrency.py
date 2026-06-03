@@ -209,6 +209,61 @@ class TestGoogleOAuthCallback(unittest.TestCase):
 
 
 # =============================================================================
+# OAuth callbacks — Facebook
+# =============================================================================
+
+class TestFacebookOAuthCallback(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        from app import app
+        from models import db, User, EmailRegistry
+        cls.app = app
+        cls.db = db
+        cls.User = User
+        cls.EmailRegistry = EmailRegistry
+
+    def setUp(self):
+        self.client = self.app.test_client(use_cookies=True)
+        with self.app.app_context():
+            self.User.query.filter(
+                self.User.email.like('%@e2e-final.test.example.com')
+            ).delete()
+            self.db.session.commit()
+
+    def tearDown(self):
+        self.setUp()
+
+    def test_facebook_callback_new_user_creates_row(self):
+        email = _unique_email('fb_new')
+        token = {
+            'access_token': 'fb_token',
+            'userinfo': {
+                'email': email,
+                'id': 'fb_id_001',
+                'name': 'FB User',
+            },
+        }
+
+        # Facebook's userinfo endpoint sometimes uses .get() rather than
+        # the userinfo claim — patch the .get() return as well
+        mock_fb = MagicMock()
+        mock_fb.authorize_access_token.return_value = token
+        mock_resp = MagicMock()
+        mock_resp.json.return_value = token['userinfo']
+        mock_fb.get.return_value = mock_resp
+
+        with patch('auth_routes.facebook', mock_fb):
+            r = self.client.get('/auth/facebook/callback?code=fake&state=fake')
+
+        self.assertNotEqual(r.status_code, 500)
+
+        with self.app.app_context():
+            user = self.User.query.filter_by(email=email).first()
+            if user:
+                self.assertEqual(user.auth_provider, 'facebook')
+
+
+# =============================================================================
 # Subscription cancellation webhook
 # =============================================================================
 

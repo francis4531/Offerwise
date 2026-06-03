@@ -99,10 +99,7 @@ class TestThreeStrikesBlock(unittest.TestCase):
             self.assertTrue(self.EmailRegistry.is_blocked('flagged@test.com'))
 
     def test_is_blocked_in_code_paths(self):
-        """Verify is_blocked is called in all auth paths.
-
-        Apple/Facebook OAuth removed in v5.89.133 — only Google + email/password remain.
-        """
+        """Verify is_blocked is called in all auth paths (Apple removed v5.89.134)."""
         import inspect
         from app import app
         import auth_routes
@@ -111,6 +108,9 @@ class TestThreeStrikesBlock(unittest.TestCase):
 
         source = inspect.getsource(auth_routes.auth_register)
         self.assertIn('is_blocked', source, "Email register missing is_blocked check")
+
+        source = inspect.getsource(app.view_functions.get('auth.facebook_callback', lambda: ''))
+        self.assertIn('is_blocked', source, "Facebook callback missing is_blocked check")
 
 
 class TestRateLimiting(unittest.TestCase):

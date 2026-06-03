@@ -5,38 +5,36 @@ Consolidated from 80 individual files on 2026-03-13.
 
 ---
 
-## v5.89.133 — 2026-06-02
-Remove Facebook and Apple sign-in (Google + email/password only).
+## v5.89.134 — 2026-06-02
+Remove Apple sign-in only — Google + Facebook + email/password retained.
 
 ### Why
-Facebook/Apple OAuth added login-page friction and broken-config noise (Apple
-"not configured" warnings, staging redirect_uri mismatches) for providers no
-real users actually sign in with. Reversible — re-add if users ask.
+Supersedes the unreleased v5.89.133 (which removed both Apple and Facebook).
+Facebook is kept by request; only Apple sign-in is dropped — it was unconfigured
+(the recurring "Apple OAuth not configured" warning) and fronted no real logins.
 
 ### What
-- **app.py** — removed the Apple and Facebook `oauth.register` blocks;
-  `/api/oauth-status` now reports Google only; dropped apple/facebook from the
-  system-info dict and removed the Facebook/Apple callback paths from the
-  CSRF-exempt list. Facebook *outreach* features (community/Nextdoor target
-  seeding, GTM 'facebook' posts) are intentionally untouched.
-- **auth_routes.py** — removed the `/login/apple`, `/auth/apple/callback`,
-  `/login/facebook`, `/auth/facebook/callback` routes and the now-dead
-  apple/facebook OAuth proxies. Google + email/password paths unchanged.
-- **static/login.html** — removed the "Continue with Facebook" button. CSS
-  untouched (the now-unused `.oauth-btn.facebook` rules are left in place — no
-  styling changes).
-- **render.yaml** — dropped `FACEBOOK_*` sync:false entries from both the prod
-  and staging service env blocks.
-- **Tests** — trimmed the Apple/Facebook OAuth callback classes/cases from
-  test_comprehensive.py and the four e2e oauth suites (concurrency, races,
-  ratelimits-concurrency, subcancel-concurrency); Google and email-path coverage
-  retained. All touched files py_compile clean.
+- **app.py** — removed the Apple `oauth.register` block; dropped apple from
+  `/api/oauth-status`, the system-info dict, and the CSRF-exempt callback list.
+  Facebook registration/status/exempt entries retained unchanged.
+- **auth_routes.py** — removed `/login/apple` and `/auth/apple/callback` plus the
+  apple OAuth proxy. Facebook routes (`/login/facebook`, `/auth/facebook/callback`)
+  and the facebook proxy untouched.
+- **Tests** — dropped the Apple OAuth callback classes/cases from
+  test_comprehensive.py and the four e2e oauth suites; the Facebook callback
+  class/cases are retained.
+- **scripts/ow_deploy.sh** — carries the v5.89.133 fix: resolve the build dir to
+  an absolute path before cd-ing into the clone, so a relative argument can't
+  break the rsync.
+- **login.html / render.yaml** — unchanged from v5.89.132 (Facebook button and
+  `FACEBOOK_*` env entries intact; Apple never had a UI button or render.yaml entry).
 
 ### Notes
-- Existing `FACEBOOK_*` / `APPLE_*` env vars on the Render services are now
-  unused and can be deleted from the dashboard whenever convenient.
-- `/data-deletion` (originally required for Facebook OAuth review) is left in
-  place — harmless and still linkable.
+- Existing `APPLE_*` env vars on the Render services are now unused and can be
+  deleted from the dashboard.
+- Staging CSRF: set `ALLOWED_ORIGIN=https://offerwise-staging.onrender.com` on the
+  staging service so POSTs (preference save, pixel acks) aren't 403'd. This is a
+  per-environment env var the code already supports — not a code change.
 
 ---
 

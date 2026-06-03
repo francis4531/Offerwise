@@ -54,6 +54,13 @@ services:
       - key: SECRET_KEY
         generateValue: true
       
+      # Facebook OAuth - mark as required, will copy from old service
+      - key: FACEBOOK_CLIENT_ID
+        sync: false
+      
+      - key: FACEBOOK_CLIENT_SECRET
+        sync: false
+      
       # Google OAuth - mark as required, will copy from old service
       - key: GOOGLE_CLIENT_ID
         sync: false
@@ -110,8 +117,12 @@ services:
       - key: SECRET_KEY
         generateValue: true
       # Secrets — set these on the staging service in the dashboard. Use Stripe
-      # TEST keys, and add the staging domain to the Google OAuth redirect URIs,
-      # so staging never touches live payments or prod OAuth.
+      # TEST keys, and add the staging domain to Google/Facebook OAuth redirect
+      # URIs, so staging never touches live payments or prod OAuth.
+      - key: FACEBOOK_CLIENT_ID
+        sync: false
+      - key: FACEBOOK_CLIENT_SECRET
+        sync: false
       - key: GOOGLE_CLIENT_ID
         sync: false
       - key: GOOGLE_CLIENT_SECRET

@@ -649,6 +649,7 @@ def csrf_protection():
         '/webhook/stripe',
         '/webhook/resend',
         '/auth/google/callback',
+        '/auth/facebook/callback', 
         '/auth/register',          # Email/password signup
         '/auth/login-email',       # Email/password login
         '/auth/forgot-password',   # Password reset request
@@ -2239,8 +2240,26 @@ google = oauth.register(
     }
 )
 
-# Apple and Facebook OAuth removed in v5.89.133 — Google + email/password only.
-# (Re-add registrations here if a provider is reinstated.)
+# Apple OAuth removed in v5.89.134 (Google + Facebook + email/password only).
+
+# Configure Facebook OAuth (optional)
+facebook_client_id = os.environ.get('FACEBOOK_CLIENT_ID')
+facebook_client_secret = os.environ.get('FACEBOOK_CLIENT_SECRET')
+if facebook_client_id and facebook_client_secret:
+    facebook = oauth.register(
+        name='facebook',
+        client_id=facebook_client_id,
+        client_secret=facebook_client_secret,
+        access_token_url='https://graph.facebook.com/oauth/access_token',
+        authorize_url='https://www.facebook.com/dialog/oauth',
+        api_base_url='https://graph.facebook.com/',
+        client_kwargs={
+            'scope': 'email public_profile'
+        }
+    )
+else:
+    facebook = None
+    logging.warning("Facebook OAuth not configured (missing FACEBOOK_CLIENT_ID or FACEBOOK_CLIENT_SECRET)")
 
 # Initialize intelligence
 parser = DocumentParser()
@@ -2392,7 +2411,8 @@ def enforce_https():
 def oauth_status():
     """Check which OAuth providers are configured"""
     return jsonify({
-        'google': True,  # Google + email/password only (Apple/Facebook removed v5.89.133)
+        'google': True,  # Always enabled (primary provider)
+        'facebook': facebook is not None
     })
 
 # ============================================================================
@@ -8449,6 +8469,7 @@ def system_info():
     info['stripe_test_configured'] = bool(os.environ.get('STRIPE_TEST_SECRET_KEY', ''))
     info['webhook_configured'] = bool(os.environ.get('STRIPE_WEBHOOK_SECRET', ''))
     info['google_oauth_configured'] = bool(os.environ.get('GOOGLE_CLIENT_ID', ''))
+    info['facebook_configured'] = bool(os.environ.get('FACEBOOK_CLIENT_ID', ''))
     info['github_configured'] = bool(os.environ.get('GITHUB_CLIENT_ID', ''))
     info['google_ads_configured'] = bool(os.environ.get('GOOGLE_ADS_DEVELOPER_TOKEN', ''))
     info['ga4_configured'] = bool(os.environ.get('GA4_PROPERTY_ID', '') and os.environ.get('GOOGLE_ANALYTICS_KEY_JSON', ''))

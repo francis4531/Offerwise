@@ -16,7 +16,11 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BUILD_DEFAULT="$(dirname "$SCRIPT_DIR")"
-BUILD="${1:-$BUILD_DEFAULT}"
+_build_arg="${1:-$BUILD_DEFAULT}"
+# Resolve to an ABSOLUTE path before we cd into the clone — otherwise a relative
+# arg (e.g. "offerwise_render") breaks once the working dir changes.
+BUILD="$(cd "$_build_arg" 2>/dev/null && pwd || true)"
+[ -n "$BUILD" ] || { echo "✗ build dir '$_build_arg' not found"; exit 1; }
 OW_REPO="${OW_REPO:-$HOME/offerwise-deploy}"
 OW_GIT="${OW_GIT:-https://github.com/francis4531/Offerwise.git}"
 
