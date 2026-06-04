@@ -1782,7 +1782,12 @@ label{font-size:11px;color:var(--muted);display:block;margin-bottom:4px;font-wei
 <!-- ─── ANALYTICS ─── -->
 <style>
 /* v5.89.137 — Analytics page: altitude layout (all detail, layered). Scoped .an-* classes, reuses theme vars. */
-.an-stripnote{font-family:var(--mono);font-size:11px;color:var(--muted);opacity:.75;margin:9px 2px 18px}
+.an-stripnote{font-family:var(--mono);font-size:11px;color:var(--muted);opacity:.75;margin:9px 2px 16px}
+.an-insight-top{background:var(--blue-dim);border:1px solid rgba(59,130,246,.3);border-radius:12px;padding:14px 16px;margin-bottom:18px}
+.an-insight-hd{font-size:12px;font-weight:700;color:var(--text);margin-bottom:10px}
+.an-insight-row{display:flex;align-items:flex-start;gap:10px;padding:7px 0;font-size:12.5px;line-height:1.55;color:var(--text)}
+.an-insight-row+.an-insight-row{border-top:1px solid rgba(255,255,255,.06)}
+.an-insight-ic{font-size:15px;flex-shrink:0;line-height:1.4}
 /* NOTE: no overflow:hidden — in the flex-column .view it forces min-height:0,
    which makes the flex algorithm shrink+clip cards instead of letting the page
    scroll. The whole admin uses overflow:visible on cards for this reason. */
@@ -1813,6 +1818,9 @@ details.an-drill[open] .an-chev{transform:rotate(90deg)}
   <!-- ALTITUDE 1 — executive strip: the whole business in one line -->
   <div id="keyMetrics2" class="stats"></div>
   <div class="an-stripnote">The whole business at a glance — every section below drills into one of these.</div>
+
+  <!-- Core insights, surfaced from the funnel analysis (populated by loadFunnel) -->
+  <div id="analyticsCoreInsight" class="an-insight-top"><div class="loading-msg" style="padding:6px 0"><span class="spinner"></span></div></div>
 
   <!-- ALTITUDE 2 — domain sections (headline visible, granular detail one click down) -->
 
@@ -15361,6 +15369,13 @@ async function loadFunnel(){
     document.getElementById('funnelInsights').innerHTML=
       '<div style="font-size:.85rem;font-weight:600;color:var(--text);margin-bottom:12px;">💡 Funnel Insights</div>'+
       insights.map(i=>'<div style="display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:.85rem;line-height:1.6;"><span style="font-size:16px;flex-shrink:0;">'+i.icon+'</span><span style="color:var(--text);">'+i.text+'</span></div>').join('');
+
+    // v5.89.139: surface the same core insights at the top of the Analytics page.
+    var _topIns=document.getElementById('analyticsCoreInsight');
+    if(_topIns){
+      _topIns.innerHTML='<div class="an-insight-hd">💡 Core insights</div>'+
+        insights.slice(0,4).map(function(i){return '<div class="an-insight-row"><span class="an-insight-ic">'+i.icon+'</span><span>'+i.text+'</span></div>';}).join('');
+    }
     
   }catch(e){
     document.getElementById('funnelViz').innerHTML='<div class="empty"><div class="icon">📊</div>No funnel data yet. Events will populate as users interact with the site.</div>';

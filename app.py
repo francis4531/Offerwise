@@ -10637,15 +10637,43 @@ _INFRA_DEFAULT_VENDORS = [
     dict(name='GitHub',          category='dev',      logo_emoji='🐱', notes='Source control'),
     dict(name='RentCast',        category='data',     logo_emoji='🏠', notes='Market data API'),
     dict(name='Stripe',          category='payments', logo_emoji='💳', notes='Payment processing'),
+    # v5.89.140: definitely-paid providers the code authenticates to but that
+    # weren't tracked as vendors. Ad platforms (Google/Reddit Ads) intentionally
+    # excluded — their spend is authoritative on the ad dashboard, so a vendor
+    # row here would double-count.
+    dict(name='OpenAI',          category='ai',       logo_emoji='🧠', notes='gpt-4o fallback in ai_client'),
+    dict(name='Mailgun',         category='email',    logo_emoji='📬', notes='Secondary email provider (separate from Resend)'),
+    dict(name='WalkScore',       category='data',     logo_emoji='🚶', notes='Walk/Transit/Bike score API'),
+    dict(name='GreatSchools',    category='data',     logo_emoji='🏫', notes='School ratings API'),
+    dict(name='PermitData',      category='data',     logo_emoji='📋', notes='Building permit data API'),
+    dict(name='Apollo',          category='outreach', logo_emoji='🔭', notes='B2B contact discovery API'),
+    dict(name='Hunter',          category='outreach', logo_emoji='🎯', notes='Email finder API'),
+    dict(name='Snov',            category='outreach', logo_emoji='📇', notes='Email finder / outreach API'),
+    dict(name='MillionVerifier', category='outreach', logo_emoji='✅', notes='Email verification — default verifier (~$3.50/1k)'),
+    dict(name='ZeroBounce',      category='outreach', logo_emoji='📮', notes='Email verification — alternate provider'),
+    dict(name='Porkbun',         category='domain',   logo_emoji='🌐', notes='Domain registration + DNS'),
 ]
 
 def _ensure_infra_vendors():
-    """Seed default vendors if the table is empty."""
+    """Ensure each default vendor exists (matched by name).
+
+    Idempotent: adds only the vendors that are missing and never modifies or
+    removes existing rows, so it is safe to run on every boot and from request
+    handlers. (The prior version only seeded when the table was completely
+    empty, so on an existing DB any vendor added to the default list — or any
+    default never seeded — would never appear. That was the cause of the
+    "providers missing from the costs page" bug.)
+    """
     from models import InfraVendor
-    if InfraVendor.query.count() == 0:
-        for v in _INFRA_DEFAULT_VENDORS:
+    existing = {v.name for v in InfraVendor.query.all()}
+    added = 0
+    for v in _INFRA_DEFAULT_VENDORS:
+        if v['name'] not in existing:
             db.session.add(InfraVendor(**v))
+            added += 1
+    if added:
         db.session.commit()
+        logging.info(f"🏗 Ensured infra vendors — added {added} missing default(s)")
 DOCREPO_DISK_PATH  = os.environ.get('DOCREPO_PATH', '/var/data/docrepo')
 DOCREPO_LOCAL_PATH = os.path.join(os.path.dirname(__file__), 'document_repo')
 

@@ -3308,17 +3308,9 @@ def admin_system_info():
 # ---------------------------------------------------------------------------
 
 # Default vendors seeded on first access
-_INFRA_DEFAULT_VENDORS = [
-    dict(name='Render',          category='hosting',  logo_emoji='🚀', notes='Web service + PostgreSQL DB'),
-    dict(name='Anthropic',       category='ai',       logo_emoji='🤖', notes='claude.ai subscription + Console API (dev usage)'),
-    dict(name='Google Cloud',    category='platform', logo_emoji='☁️',  notes='Maps, Vision, GA4, Ads platform costs'),
-    dict(name='Resend',          category='email',    logo_emoji='📧', notes='Transactional email — above free tier'),
-    dict(name='RentCast',        category='data',     logo_emoji='🏠', notes='Property data API subscription'),
-    dict(name='GitHub',          category='tooling',  logo_emoji='🐙', notes='Private repos / Teams plan'),
-    dict(name='Porkbun',         category='domain',   logo_emoji='🌐', notes='Domain registration + DNS'),
-    dict(name='WalkScore',       category='data',     logo_emoji='🚶', notes='Walk/Transit/Bike score API'),
-    dict(name='Other',           category='other',    logo_emoji='💼', notes='Miscellaneous infrastructure'),
-]
+# v5.89.139: the infra-vendor default list lives ONLY in app.py now
+# (_INFRA_DEFAULT_VENDORS + _ensure_infra_vendors). The previous duplicate
+# copy here was dead code and had diverged from app.py's list.
 
 
 

@@ -5,6 +5,54 @@ Consolidated from 80 individual files on 2026-03-13.
 
 ---
 
+## v5.89.140 — 2026-06-04
+Expanded infra-vendor seed to cover all definitely-paid providers (audit follow-up).
+
+### Added
+- After a full cross-reference of every external credential the code reads
+  against both cost surfaces, added the 11 definitely-paid providers that were
+  tracked nowhere as vendors: OpenAI (ai), Mailgun (email),
+  WalkScore / GreatSchools / PermitData (data), Apollo / Hunter / Snov /
+  MillionVerifier / ZeroBounce (outreach), and Porkbun (domain). Thanks to the
+  idempotent seed (v5.89.139) these are added to the existing prod DB on next
+  boot without touching existing rows. Seeded defaults: 8 -> 19.
+- Deliberately NOT added: Google Ads / Reddit Ads (spend is authoritative on the
+  ad-performance dashboard — a vendor row would double-count) and ArcGIS/Esri
+  (tier-dependent; add manually if you're on a paid plan).
+
+---
+
+## v5.89.139 — 2026-06-04
+Cost-page provider seed fix + core insights surfaced atop Analytics.
+
+### Fixed (cost pages)
+- `_ensure_infra_vendors()` only seeded when the `InfraVendor` table was empty,
+  so on an existing prod DB it was a no-op and the vendor list was frozen at
+  first-seed — any default added later (or never seeded) never showed on the
+  costs page. Rewritten to be idempotent: ensures each default vendor exists by
+  name, adding only the missing ones and never touching existing rows. Safe to
+  run on every boot.
+- Removed a dead, divergent second copy of `_INFRA_DEFAULT_VENDORS` in
+  `admin_routes.py` (defined but never referenced, and drifted from app.py's
+  list — app.py had Sentry/Stripe, the dead copy had Porkbun/WalkScore/Other).
+  The default list now lives in one place. List intentionally NOT expanded —
+  additional providers are added via the vendor UI.
+
+### Added (analytics)
+- "Core insights" callout at the top of the Analytics page, just under the KPI
+  strip. Reuses the insights already computed by `loadFunnel` (biggest drop-off,
+  analysis completion, etc.) so the headline takeaways are the first thing read.
+  The detailed Funnel Insights remain in the deep-dive. No metric definitions
+  changed.
+
+### Validated
+- `py_compile` app.py, admin_routes.py; admin.html JS passes `node --check`;
+  view-analytics div balance net 0. (The seed fix is a small idempotency change
+  in app.py; exercising it in a unit test would require importing the full app
+  module, so it was validated by compile + review rather than a dedicated test.)
+
+---
+
 ## v5.89.138 — 2026-06-04
 Fix: analytics altitude layout clipped its own cards (regression from v5.89.137).
 
