@@ -1783,7 +1783,10 @@ label{font-size:11px;color:var(--muted);display:block;margin-bottom:4px;font-wei
 <style>
 /* v5.89.137 — Analytics page: altitude layout (all detail, layered). Scoped .an-* classes, reuses theme vars. */
 .an-stripnote{font-family:var(--mono);font-size:11px;color:var(--muted);opacity:.75;margin:9px 2px 18px}
-.an-domain{background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:14px;overflow:hidden}
+/* NOTE: no overflow:hidden — in the flex-column .view it forces min-height:0,
+   which makes the flex algorithm shrink+clip cards instead of letting the page
+   scroll. The whole admin uses overflow:visible on cards for this reason. */
+.an-domain{background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:14px}
 .an-dhead{display:flex;align-items:center;gap:14px;padding:13px 16px;border-bottom:1px solid var(--border)}
 .an-dtitle{font-size:14px;font-weight:700;letter-spacing:-.01em}
 .an-dsub{font-size:11px;color:var(--muted);margin-left:auto;text-align:right}

@@ -5,6 +5,21 @@ Consolidated from 80 individual files on 2026-03-13.
 
 ---
 
+## v5.89.138 — 2026-06-04
+Fix: analytics altitude layout clipped its own cards (regression from v5.89.137).
+
+### Fixed
+- The new `.an-domain` cards carried `overflow:hidden` (for rounded corners).
+  Inside the flex-column `.view` container, `overflow:hidden` forces a flex
+  item's automatic min-height to 0, so the flex algorithm shrank every card to
+  cram the page into one screen and clipped the overflow instead of letting it
+  scroll. Symptoms: empty-looking section bodies, missing `<details>` rows, and
+  drip metrics sliced in half. Removed `overflow:hidden` so the cards size to
+  their content like every other admin card (the whole admin uses
+  `overflow:visible` for exactly this reason). No markup or data changes.
+
+---
+
 ## v5.89.137 — 2026-06-03
 Analytics admin page: altitude layout — all the detail, presented clearly.
 
