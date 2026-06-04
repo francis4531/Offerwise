@@ -1780,86 +1780,106 @@ label{font-size:11px;color:var(--muted);display:block;margin-bottom:4px;font-wei
 
 
 <!-- ─── ANALYTICS ─── -->
+<style>
+/* v5.89.137 — Analytics page: altitude layout (all detail, layered). Scoped .an-* classes, reuses theme vars. */
+.an-stripnote{font-family:var(--mono);font-size:11px;color:var(--muted);opacity:.75;margin:9px 2px 18px}
+.an-domain{background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:14px;overflow:hidden}
+.an-dhead{display:flex;align-items:center;gap:14px;padding:13px 16px;border-bottom:1px solid var(--border)}
+.an-dtitle{font-size:14px;font-weight:700;letter-spacing:-.01em}
+.an-dsub{font-size:11px;color:var(--muted);margin-left:auto;text-align:right}
+.an-dbody{padding:16px}
+.an-g2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media(max-width:820px){.an-g2{grid-template-columns:1fr}}
+.an-sublabel{font-size:11px;font-weight:600;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em}
+details.an-drill{border-top:1px solid var(--border);background:rgba(255,255,255,.012)}
+details.an-drill summary{list-style:none;cursor:pointer;padding:11px 16px;display:flex;align-items:center;gap:10px;font-size:12.5px;font-weight:600;color:var(--muted);user-select:none}
+details.an-drill summary::-webkit-details-marker{display:none}
+details.an-drill summary:hover{color:var(--text)}
+.an-chev{font-family:var(--mono);font-size:11px;color:var(--gray);transition:transform .15s;flex-shrink:0}
+details.an-drill[open] .an-chev{transform:rotate(90deg)}
+.an-badge{margin-left:auto;font-family:var(--mono);font-size:10px;color:var(--gray);background:var(--surface2);border:1px solid var(--border);padding:2px 8px;border-radius:20px}
+.an-inner{padding:4px 16px 16px}
+.an-foot{padding:13px 16px;font-size:11.5px;color:var(--muted);border:1px solid var(--border);border-radius:10px;background:var(--surface);margin-top:2px}
+</style>
 <div class="view" id="view-analytics">
   <div class="section-head">
     <div class="section-title">📊 Analytics</div>
-    <button class="btn btn-ghost btn-sm ml" onclick="loadAnalytics();loadWaitlist()">↻ Refresh</button>
+    <button class="btn btn-ghost btn-sm ml" onclick="loadAnalytics();loadWaitlist();loadSurveys()">↻ Refresh</button>
   </div>
 
-  <div class="card" style="margin-bottom:16px">
-    <div class="card-head"><div class="card-title">🎯 Key Metrics</div></div>
-    <div class="card-body" style="padding:12px"><div id="keyMetrics2" class="stats"></div></div>
-  </div>
+  <!-- ALTITUDE 1 — executive strip: the whole business in one line -->
+  <div id="keyMetrics2" class="stats"></div>
+  <div class="an-stripnote">The whole business at a glance — every section below drills into one of these.</div>
 
-  <!-- Lead Nurture card - redesigned -->
-  <div class="card" style="margin-bottom:16px">
-    <div class="card-head">
-      <div class="card-title">📧 Lead Nurture — Drip Campaign</div>
-      <span style="font-size:11px;color:var(--muted)">Free tool → email captured → 5-email drip → signup</span>
-    </div>
+  <!-- ALTITUDE 2 — domain sections (headline visible, granular detail one click down) -->
 
-    <!-- Funnel stat row -->
-    <div class="metric-row" style="padding:12px 14px;border-bottom:1px solid var(--border)" id="dripFunnel">
-      <div class="loading-msg"><span class="spinner"></span></div>
-    </div>
-
-    <!-- Two-column: funnel bars + engagement -->
-    <div class="g2" style="padding:14px;gap:14px">
-      <!-- Step funnel bars -->
-      <div>
-        <div style="font-size:11px;font-weight:600;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em">Funnel drop-off</div>
-        <div id="dripBarChart"><div class="loading-msg" style="padding:0"><span class="spinner"></span></div></div>
-        <div id="dripDetail" style="margin-top:8px;font-size:11px;color:var(--muted)"></div>
-      </div>
-      <!-- Email engagement -->
-      <div>
-        <div style="font-size:11px;font-weight:600;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em">Email engagement</div>
-        <div id="dripEngagement"><div class="loading-msg" style="padding:0"><span class="spinner"></span></div></div>
-      </div>
-    </div>
-
-    <!-- Leads table -->
-    <div style="border-top:1px solid var(--border)">
-      <div style="padding:8px 14px;font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em">Recent leads</div>
-      <div style="overflow-x:auto">
-        <table class="tbl">
-          <thead><tr>
-            <th>Email</th><th>Source</th><th>ZIP</th><th>Grade</th>
-            <th>Drip step</th><th>Status</th><th>Captured</th>
-          </tr></thead>
-          <tbody id="waitlistTableBody"><tr><td colspan="7" class="tbl-empty"><span class="spinner"></span></td></tr></tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-
-  <div class="card" style="margin-bottom:16px">
-    <div class="card-head"><div class="card-title">🔄 Conversion Funnel Metrics</div></div>
-    <div class="card-body"><div id="funnelMetrics" class="stats"></div></div>
-  </div>
-
-  <div class="card" style="margin-bottom:16px">
-    <div class="card-head"><div class="card-title">📈 Daily Activity — 30 days</div></div>
-    <div class="card-body" style="padding:12px 16px 8px">
+  <!-- Acquisition -->
+  <div class="an-domain">
+    <div class="an-dhead"><div class="an-dtitle">📈 Acquisition</div><div class="an-dsub">Daily signups &amp; analyses · last 30 days</div></div>
+    <div class="an-dbody">
       <div id="analyticsChart" style="height:200px;position:relative"><div class="loading-msg"><span class="spinner"></span></div></div>
       <div id="analyticsChartLegend" style="display:flex;gap:16px;justify-content:center;margin-top:4px;font-size:10px;color:var(--muted)"></div>
     </div>
   </div>
 
-  <!-- PMF Survey -->
-  <div class="card">
-    <div class="card-head">
-      <div class="card-title">🎯 Product-Market Fit Score</div>
-      <button class="btn btn-ghost btn-sm" onclick="loadSurveys()">↻ Refresh</button>
-    </div>
-    <div class="card-body" id="revenueMetrics">
-      <div class="loading-msg"><span class="spinner"></span></div>
-    </div>
+  <!-- Activation & retention -->
+  <div class="an-domain">
+    <div class="an-dhead"><div class="an-dtitle">🔄 Activation &amp; retention</div><div class="an-dsub">Signup → first analysis → repeat → paid</div></div>
+    <div class="an-dbody"><div id="funnelMetrics" class="stats"></div></div>
+    <details class="an-drill">
+      <summary><span class="an-chev">▸</span>Funnel deep dive, diagnostics &amp; user drip state<span class="an-badge">viz · rates · where signups die · entry cliff · A/B · panel health</span></summary>
+      <div class="an-inner"><div id="analytics-panel-funnel"></div></div>
+    </details>
   </div>
-  <div id="analytics-panel-funnel"></div>
-  <!-- v5.88.33: Shared Analyses + Insights moved from Support to Analytics -->
-  <div id="analytics-panel-shared" style="margin-top:16px"></div>
-  <div id="analytics-panel-insights" style="margin-top:16px"></div>
+
+  <!-- Lead nurture (drip) -->
+  <div class="an-domain">
+    <div class="an-dhead"><div class="an-dtitle">📧 Lead nurture — drip</div><div class="an-dsub">Free tool → email captured → 5-email drip → signup</div></div>
+    <div class="an-dbody">
+      <div class="metric-row" id="dripFunnel" style="padding:0 0 12px;border-bottom:1px solid var(--border);margin-bottom:14px"><div class="loading-msg"><span class="spinner"></span></div></div>
+      <div class="an-g2">
+        <div>
+          <div class="an-sublabel">Funnel drop-off</div>
+          <div id="dripBarChart"><div class="loading-msg" style="padding:0"><span class="spinner"></span></div></div>
+          <div id="dripDetail" style="margin-top:8px;font-size:11px;color:var(--muted)"></div>
+        </div>
+        <div>
+          <div class="an-sublabel">Email engagement</div>
+          <div id="dripEngagement"><div class="loading-msg" style="padding:0"><span class="spinner"></span></div></div>
+        </div>
+      </div>
+    </div>
+    <details class="an-drill">
+      <summary><span class="an-chev">▸</span>Recent leads<span class="an-badge">email · source · ZIP · grade · drip step · status</span></summary>
+      <div class="an-inner" style="overflow-x:auto">
+        <table class="tbl">
+          <thead><tr><th>Email</th><th>Source</th><th>ZIP</th><th>Grade</th><th>Drip step</th><th>Status</th><th>Captured</th></tr></thead>
+          <tbody id="waitlistTableBody"><tr><td colspan="7" class="tbl-empty"><span class="spinner"></span></td></tr></tbody>
+        </table>
+      </div>
+    </details>
+  </div>
+
+  <!-- Product-market fit -->
+  <div class="an-domain">
+    <div class="an-dhead"><div class="an-dtitle">🎯 Product-market fit</div><button class="btn btn-ghost btn-sm" onclick="loadSurveys()" style="margin-left:auto">↻ Refresh</button></div>
+    <div class="an-dbody" id="revenueMetrics"><div class="loading-msg"><span class="spinner"></span></div></div>
+  </div>
+
+  <!-- Insights & shared work -->
+  <div class="an-domain">
+    <div class="an-dhead"><div class="an-dtitle">💡 Insights &amp; shared work</div><div class="an-dsub">Generated narratives · shared analyses</div></div>
+    <details class="an-drill">
+      <summary><span class="an-chev">▸</span>Insights<span class="an-badge">embedded page</span></summary>
+      <div class="an-inner"><div id="analytics-panel-insights"></div></div>
+    </details>
+    <details class="an-drill">
+      <summary><span class="an-chev">▸</span>Shared analyses<span class="an-badge">embedded page</span></summary>
+      <div class="an-inner"><div id="analytics-panel-shared"></div></div>
+    </details>
+  </div>
+
+  <div class="an-foot">Same data, layered — headlines up top, detail one click down. Counts over rates under ~100 users. One source of truth per number.</div>
 </div><!-- /view-analytics -->
 
 <!-- ─── FUNNEL DEEP DIVE ─── -->

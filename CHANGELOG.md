@@ -5,6 +5,38 @@ Consolidated from 80 individual files on 2026-03-13.
 
 ---
 
+## v5.89.137 — 2026-06-03
+Analytics admin page: altitude layout — all the detail, presented clearly.
+
+### Changed
+- Reorganized `#view-analytics` from a flat stack of cards into a layered
+  "altitude" structure: an always-visible executive KPI strip on top, then
+  domain sections (Acquisition, Activation & retention, Lead nurture,
+  Product-market fit, Insights & shared work). Each section opens with its
+  headline content visible and tucks the granular detail into expandable
+  `<details>` rows.
+- Nothing was removed. The heavy detail — funnel deep dive, conversion debug,
+  entry cliff, risk-check exit, panel health, the A/B test, and per-user drip
+  state — now lives one click down inside a collapsible section instead of
+  stacked flat at the bottom of the page. Recent leads and the per-email
+  engagement breakdown likewise collapse.
+- Pure HTML + scoped CSS (`.an-*` classes reusing the existing theme vars).
+  Every render-target id is preserved (`keyMetrics2`, `funnelMetrics`,
+  `analyticsChart`, `dripFunnel`/`dripBarChart`/`dripDetail`/`dripEngagement`,
+  `waitlistTableBody`, `revenueMetrics`, and the `analytics-panel-funnel`/
+  `-shared`/`-insights` reparent targets), so `loadAnalytics`, `loadWaitlist`,
+  `loadSurveys`, and the panel reparenting all work unchanged — no JS logic
+  was touched.
+
+### Notes
+- No data or metric definitions changed; this is a presentation restructure.
+- The compact per-domain header stat chips shown in the mockup are a fast
+  follow that needs a little JS to populate from the same payloads.
+- Validated: div balance net 0 in the rewritten view; admin.html JS passes
+  `node --check`.
+
+---
+
 ## v5.89.136 — 2026-06-03
 B2B follow-up sequence ("drip for B2B") + outreach URL trailing-period 404 fix.
 
