@@ -5,6 +5,42 @@ Consolidated from 80 individual files on 2026-03-13.
 
 ---
 
+## v5.89.144 — 2026-06-05
+Durable card-activity importer for infra costs (+ backfill of both company cards).
+
+### Added
+- `card_import.py` — pure, unit-tested engine that classifies credit-card
+  activity into infra-cost vendors and groups matched charges by vendor-month.
+  Ad channels (Google/Reddit Ads) are deliberately skipped (already synced on the
+  API Costs page) so they're never double-counted; payments and personal charges
+  are skipped; Claude.ai is folded into Anthropic.
+- `POST /api/admin/infra/import-card` — paste a card CSV → creates monthly
+  `needs_review` InfraInvoice rows (source='card_import') in the existing
+  approval queue. Auto-creates missing vendors (Zillow→ads, Delaware→corporate);
+  never clobbers manual/email_auto invoices; supports `dry_run` preview.
+- "Import card activity" panel on the Infra Costs page (Preview + Import),
+  mirroring the outreach paste-import convention.
+- `test_card_import.py` — 5 tests covering classification, ad-channel exclusion,
+  payment/unmatched handling, and monthly grouping. All passing.
+
+### Validated end-to-end on both card exports
+- Card 1 → 18 review invoices ($1,702.37); Card 2 → 9 ($1,080.56); ad channels
+  skipped ($1,860.02). Infra ($2,782.93) + API-Costs ad spend ($1,860.02) =
+  $4,642.95 — the full ledger, no double-count.
+
+---
+
+## v5.89.143 — 2026-06-04
+Added InterNACHI as an Ads-category vendor.
+
+- Added InterNACHI to the seed (category `ads`, ~$49/mo) — a referral/marketing
+  channel that already appears in `funnel_tracker` as a traffic source and is not
+  tracked on any ad dashboard, so no double-count risk. The idempotent seed adds
+  it on next boot. Seeded defaults: 18 → 19. (This also introduces the first
+  `ads` category on the Infra Costs page.)
+
+---
+
 ## v5.89.142 — 2026-06-04
 Inbound invoices are surfaced for review instead of silently dropped.
 

@@ -3497,6 +3497,85 @@ def infra_invoices_create():
     return jsonify(inv.to_dict()), 201
 
 
+@admin_bp.route('/api/admin/infra/import-card', methods=['POST'])
+@_api_admin_req_dec
+def infra_import_card():
+    """Import a credit-card-activity CSV → monthly needs-review InfraInvoice rows.
+
+    Body (JSON):
+      raw:        the pasted CSV text (columns Date, Description, Amount)
+      card_label: optional label stored in the invoice description (e.g. 'Card 1')
+      dry_run:    if true, classify + preview without writing anything
+
+    Matched vendor charges are grouped by (vendor, charge-month) and summed into
+    one invoice each, written with source='card_import' and needs_review=True so
+    they land in the existing approval queue. Ad channels already synced on the
+    API Costs page (Google/Reddit Ads) are skipped to avoid double-counting;
+    payments/credits and unmatched personal charges are skipped. Missing vendors
+    are auto-created (Zillow->ads, Delaware->corporate). Existing invoices from
+    other sources (email_auto / manual) are never clobbered.
+    """
+    from models import InfraVendor, InfraInvoice
+    from datetime import date as _date
+    import card_import
+
+    data = request.get_json(silent=True) or {}
+    raw = (data.get('raw') or '').strip()
+    card_label = (data.get('card_label') or 'card').strip()[:40]
+    dry_run = bool(data.get('dry_run', False))
+    if not raw:
+        return jsonify({'error': 'raw CSV text required'}), 400
+
+    parsed = card_import.parse_card_csv(raw)
+    created, updated, skipped_existing = [], [], []
+
+    for inv in parsed['invoices']:
+        vname = inv['vendor']
+        vrow = InfraVendor.query.filter(db.func.lower(InfraVendor.name) == vname.lower()).first()
+        if not vrow:
+            cat, emo = card_import.AUTO_CREATE_CATEGORY.get(vname, ('other', '\U0001F9FE'))
+            vrow = InfraVendor(name=vname, category=cat, logo_emoji=emo,
+                               notes='Auto-created from card import.')
+            if not dry_run:
+                db.session.add(vrow)
+                db.session.flush()
+        ps = _date.fromisoformat(inv['period_start'])
+        pe = _date.fromisoformat(inv['period_end'])
+        vid = getattr(vrow, 'id', None)
+        existing = (InfraInvoice.query.filter_by(vendor_id=vid, period_start=ps).first()
+                    if vid else None)
+        # Never clobber a manual or email-ingested invoice for the same month.
+        if existing and getattr(existing, 'source', None) not in ('card_import', None):
+            skipped_existing.append({'vendor': vname, 'period': inv['period_start'],
+                                     'reason': f"already tracked (source={existing.source})"})
+            continue
+        bucket = updated if existing else created
+        bucket.append({'vendor': vname, 'period': inv['period_start'],
+                       'amount': inv['amount'], 'charges': inv['charge_count']})
+        if dry_run:
+            continue
+        row = existing or InfraInvoice(vendor_id=vid, period_start=ps)
+        row.period_end = pe
+        row.amount_usd = inv['amount']
+        row.description = f"Imported from {card_label} - {inv['charge_count']} charge(s)"
+        row.source = 'card_import'
+        row.needs_review = True
+        if not existing:
+            db.session.add(row)
+
+    if not dry_run:
+        db.session.commit()
+
+    return jsonify({
+        'dry_run': dry_run,
+        'card_label': card_label,
+        'created': created,
+        'updated': updated,
+        'skipped_existing': skipped_existing,
+        'skipped': parsed['skipped'],
+        'matched_total': parsed['matched_total'],
+    }), 200
+
 
 @admin_bp.route('/api/admin/infra/invoices/<int:iid>', methods=['DELETE'])
 @_api_admin_req_dec

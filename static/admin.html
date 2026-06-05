@@ -4227,6 +4227,25 @@ details.an-drill[open] .an-chev{transform:rotate(90deg)}
     </div>
   </div>
 
+  <!-- Import card activity -->
+  <div class="panel">
+    <div class="panel-header">
+      <div class="panel-title">📥 Import card activity</div>
+    </div>
+    <div class="panel-body" style="padding:16px 20px;">
+      <div style="font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.5;">
+        Paste a card-activity CSV (columns Date, Description, Amount). Matched vendor charges become monthly invoices in the review queue below. Google &amp; Reddit Ads are skipped (already tracked on the API Costs page) and personal charges are skipped. Preview first to see exactly what would be created.
+      </div>
+      <input id="cardImportLabel" type="text" placeholder="Card label (e.g. Card 1)" style="background:rgba(255,255,255,0.06);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:7px 10px;font-size:12px;width:220px;margin-bottom:8px;">
+      <textarea id="cardImportRaw" rows="6" placeholder="Date,Receipt,Description,Amount&#10;06/03/2026,,RENDER.COM SAN FRANCISCO CA,75.36" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.06);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:10px;font-size:12px;font-family:var(--mono,monospace);resize:vertical;"></textarea>
+      <div style="display:flex;gap:8px;margin-top:10px;">
+        <button class="btn btn-ghost btn-sm" onclick="importCardActivity(true)">Preview</button>
+        <button class="btn btn-primary btn-sm" onclick="importCardActivity(false)">Import</button>
+      </div>
+      <div id="cardImportResult" style="margin-top:12px;font-size:12px;line-height:1.5;"></div>
+    </div>
+  </div>
+
   <!-- Invoice log -->
   <div class="panel">
     <div class="panel-header">
@@ -17788,6 +17807,46 @@ function openAddModal() {
   document.getElementById('inv-period-start').value = y + '-' + m + '-01';
   document.getElementById('inv-period-end').value   = y + '-' + m + '-' + String(lastDay).padStart(2,'0');
   document.getElementById('invoice-modal').classList.add('open');
+}
+
+async function importCardActivity(dryRun) {
+  var raw = (document.getElementById('cardImportRaw').value || '').trim();
+  var label = (document.getElementById('cardImportLabel').value || 'card').trim();
+  var out = document.getElementById('cardImportResult');
+  if (!raw) { out.innerHTML = '<span style="color:var(--red)">Paste a CSV first.</span>'; return; }
+  out.innerHTML = '<span class="spinner"></span> ' + (dryRun ? 'Previewing…' : 'Importing…');
+  try {
+    var r = await fetch('/api/admin/infra/import-card?admin_key=__ADMIN_KEY__', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ raw: raw, card_label: label, dry_run: dryRun })
+    });
+    var d = await r.json();
+    if (!r.ok) { out.innerHTML = '<span style="color:var(--red)">' + (d.error || 'Import failed') + '</span>'; return; }
+    var created = d.created || [], updated = d.updated || [], skE = d.skipped_existing || [], sk = d.skipped || {};
+    function fmt(arr) {
+      return arr.map(function (x) {
+        return '<div style="color:var(--muted)">' + x.vendor + ' · ' + x.period + ' · $' + (x.amount || 0).toFixed(2) +
+          ' (' + (x.charges || 0) + ' charge' + (x.charges === 1 ? '' : 's') + ')</div>';
+      }).join('');
+    }
+    var lines = [];
+    lines.push('<div style="font-weight:700;margin-bottom:6px;">' + (d.dry_run ? 'Preview' : 'Imported') +
+      ' — matched $' + (d.matched_total || 0).toFixed(2) + ' from ' + (d.card_label || 'card') + '</div>');
+    lines.push('<div style="margin-bottom:4px;">' + (d.dry_run ? 'Would create' : 'Created') + ' ' + created.length + ':</div>' + fmt(created));
+    if (updated.length) lines.push('<div style="margin:6px 0 4px;">' + (d.dry_run ? 'Would update' : 'Updated') + ' ' + updated.length + ':</div>' + fmt(updated));
+    if (skE.length) lines.push('<div style="margin:6px 0 4px;color:#d97706">Skipped (already tracked) ' + skE.length + ':</div>' +
+      skE.map(function (x) { return '<div style="color:var(--muted)">' + x.vendor + ' · ' + x.period + ' — ' + x.reason + '</div>'; }).join(''));
+    var ads = sk.ad_synced || {}, un = sk.unmatched || {}, pay = sk.payment_or_credit || {};
+    lines.push('<div style="margin-top:8px;color:var(--muted);font-size:11px;">Skipped: ad-synced ' + (ads.count || 0) +
+      ' ($' + (ads.amount || 0).toFixed(2) + ', already on API Costs), personal/unmatched ' + (un.count || 0) +
+      ', payments ' + (pay.count || 0) + '.</div>');
+    if (!d.dry_run) lines.push('<div style="margin-top:8px;color:#16a34a">Done — new rows are in the Invoice Log below, marked “review”. Approve each to confirm. ' +
+      '<button class="btn btn-ghost btn-sm" onclick="if(window.OfferWiseInfraCosts)OfferWiseInfraCosts.load()">↻ Refresh log</button></div>');
+    out.innerHTML = lines.join('');
+  } catch (e) {
+    out.innerHTML = '<span style="color:var(--red)">' + e + '</span>';
+  }
 }
 
 function openAddVendorModal() {

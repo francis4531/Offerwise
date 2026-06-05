@@ -10633,6 +10633,7 @@ _INFRA_DEFAULT_VENDORS = [
     dict(name='MillionVerifier', category='outreach', logo_emoji='✅', notes='Email verification — default verifier (~$3.50/1k)'),
     dict(name='ZeroBounce',      category='outreach', logo_emoji='📮', notes='Email verification — alternate provider'),
     dict(name='Porkbun',         category='domain',   logo_emoji='🌐', notes='Domain registration + DNS'),
+    dict(name='InterNACHI',      category='ads',      logo_emoji='📣', notes='Home-inspector association — referral/marketing channel (~$49/mo)'),
 ]
 
 def _ensure_infra_vendors():
