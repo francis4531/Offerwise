@@ -64,7 +64,7 @@ class LLMCostContext:
 # ─── LLM Client Wrapper ──────────────────────────────────────────────────────
 
 def _call_llm(prompt: str, system: str = "", max_tokens: int = 4000) -> Optional[str]:
-    """Call the LLM (Anthropic Claude, with OpenAI fallback)."""
+    """Call the LLM. Anthropic Claude is the sole provider (no fallback)."""
     api_key = os.environ.get('ANTHROPIC_API_KEY')
     if not api_key:
         logger.warning("No ANTHROPIC_API_KEY — LLM layer disabled")
@@ -81,24 +81,8 @@ def _call_llm(prompt: str, system: str = "", max_tokens: int = 4000) -> Optional
         )
         return msg.content[0].text
     except Exception as e:
+        # Claude is the sole AI provider — no cross-provider fallback.
         logger.warning(f"Anthropic LLM call failed: {e}")
-        # Fallback to OpenAI if available
-        oai_key = os.environ.get('OPENAI_API_KEY')
-        if oai_key:
-            try:
-                import openai
-                client = openai.OpenAI(api_key=oai_key)
-                resp = client.chat.completions.create(
-                    model="gpt-4o-mini",
-                    max_tokens=max_tokens,
-                    messages=[
-                        {"role": "system", "content": system or "You are a property analysis expert. Respond only in valid JSON."},
-                        {"role": "user", "content": prompt},
-                    ]
-                )
-                return resp.choices[0].message.content
-            except Exception as e2:
-                logger.warning(f"OpenAI fallback also failed: {e2}")
         return None
 
 
@@ -531,9 +515,9 @@ def enhance_analysis(
         'stats': {},
     }
 
-    # Check if LLM is available
-    if not os.environ.get('ANTHROPIC_API_KEY') and not os.environ.get('OPENAI_API_KEY'):
-        logger.info("No LLM API key — hybrid layer skipped")
+    # Check if LLM is available (Claude is the sole provider)
+    if not os.environ.get('ANTHROPIC_API_KEY'):
+        logger.info("No ANTHROPIC_API_KEY — hybrid layer skipped")
         result['stats'] = {'llm_available': False}
         return result
 

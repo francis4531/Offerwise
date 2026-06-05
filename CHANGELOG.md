@@ -5,6 +5,34 @@ Consolidated from 80 individual files on 2026-03-13.
 
 ---
 
+## v5.89.141 — 2026-06-04
+Claude is now the sole AI provider; fixed the infra-vendor seed race (staging 500).
+
+### Changed — Anthropic / Claude is the only model provider
+- Removed the OpenAI (GPT-4o / GPT-4o-mini) fallback from all four call sites:
+  `ai_client.py`, `offerwise_intelligence.py`, `hybrid_ai.py`, and `app.py`
+  (truth-check). All model behavior is now confined to the Claude model family
+  — on a transient error the call retries with backoff, then raises. No
+  cross-provider fallback.
+- Removed OpenAI from the infra-vendor seed (no longer a provider). The
+  `OPENAI_API_KEY` env var is now unused and safe to delete from the environment.
+
+### Fixed — infra-vendor seed race (the staging 500)
+- `_ensure_infra_vendors()` did check-then-insert, which is not atomic. Under the
+  threaded gunicorn worker the costs/analytics page fires the invoices and
+  summary requests concurrently on first load; two threads both read an unseeded
+  table and both insert the defaults, and the second hit a UniqueViolation on
+  `infra_vendors_name_key` (name=Render) — which then poisoned the session and
+  500'd the whole invoices request. Now wrapped: on IntegrityError (concurrent
+  seed) or any error it rolls back cleanly, so the rows still get created and the
+  request proceeds. Caught on staging before the Sunday promote.
+
+### Validated
+- py_compile app.py, ai_client.py, offerwise_intelligence.py, hybrid_ai.py; no
+  OpenAI model calls remain in runtime code; seed = 18 vendors (OpenAI removed).
+
+---
+
 ## v5.89.140 — 2026-06-04
 Expanded infra-vendor seed to cover all definitely-paid providers (audit follow-up).
 

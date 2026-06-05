@@ -6103,32 +6103,14 @@ What is NOT a legitimate red flag:
                 if _ae.status_code in (429, 500, 503, 529) and _truth_attempt == 0:
                     import time as _t; _t.sleep(3)
                     continue
-                break  # non-retryable or second attempt — try OpenAI fallback
+                break  # non-retryable or second attempt
 
-        # ── OpenAI fallback: use extracted PDF text if Anthropic failed ──────
+        # Claude is the sole AI provider — no cross-provider fallback.
         if _truth_response_text is None:
-            _oai_key = os.environ.get("OPENAI_API_KEY", "")
-            _extracted = _pdf_text_for_grounding or ""
-            if _oai_key and len(_extracted) > 200:
-                try:
-                    import openai as _openai
-                    _oai = _openai.OpenAI(api_key=_oai_key)
-                    _oai_resp = _oai.chat.completions.create(
-                        model="gpt-4o",
-                        max_tokens=2000,
-                        messages=[{
-                            "role": "user",
-                            "content": f"SELLER DISCLOSURE DOCUMENT:\n\n{_extracted[:12000]}\n\n{prompt}"
-                        }]
-                    )
-                    _truth_response_text = (_oai_resp.choices[0].message.content or "").strip()
-                    logging.info("✅ Truth-check: OpenAI GPT-4o fallback succeeded")
-                except Exception as _oai_err:
-                    logging.error(f"Truth-check OpenAI fallback failed: {_oai_err}")
-            if _truth_response_text is None:
-                raise RuntimeError(
-                    f"All AI providers failed for truth-check. Last error: {_truth_last_err}"
-                )
+            raise RuntimeError(
+                f"Truth-check failed — Claude is the sole AI provider. "
+                f"Last error: {_truth_last_err}"
+            )
         # Alias so downstream code continues to work unchanged
         response = type("_R", (), {"content": [type("_C", (), {"text": _truth_response_text})()]})()
         try:
@@ -10641,7 +10623,6 @@ _INFRA_DEFAULT_VENDORS = [
     # weren't tracked as vendors. Ad platforms (Google/Reddit Ads) intentionally
     # excluded — their spend is authoritative on the ad dashboard, so a vendor
     # row here would double-count.
-    dict(name='OpenAI',          category='ai',       logo_emoji='🧠', notes='gpt-4o fallback in ai_client'),
     dict(name='Mailgun',         category='email',    logo_emoji='📬', notes='Secondary email provider (separate from Resend)'),
     dict(name='WalkScore',       category='data',     logo_emoji='🚶', notes='Walk/Transit/Bike score API'),
     dict(name='GreatSchools',    category='data',     logo_emoji='🏫', notes='School ratings API'),
@@ -10665,15 +10646,27 @@ def _ensure_infra_vendors():
     "providers missing from the costs page" bug.)
     """
     from models import InfraVendor
-    existing = {v.name for v in InfraVendor.query.all()}
-    added = 0
-    for v in _INFRA_DEFAULT_VENDORS:
-        if v['name'] not in existing:
+    from sqlalchemy.exc import IntegrityError
+    try:
+        existing = {v.name for v in InfraVendor.query.all()}
+        missing = [v for v in _INFRA_DEFAULT_VENDORS if v['name'] not in existing]
+        if not missing:
+            return
+        for v in missing:
             db.session.add(InfraVendor(**v))
-            added += 1
-    if added:
         db.session.commit()
-        logging.info(f"🏗 Ensured infra vendors — added {added} missing default(s)")
+        logging.info(f"🏗 Ensured infra vendors — added {len(missing)} missing default(s)")
+    except IntegrityError:
+        # check-then-insert is NOT atomic: under threaded workers, a concurrent
+        # request can seed the same vendors between our read and our commit, so
+        # the unique constraint on name fires. Harmless — the rows now exist;
+        # roll back our duplicate batch so the session is usable for the rest of
+        # the request. (This was the "duplicate key … (name)=(Render)" 500.)
+        db.session.rollback()
+    except Exception:
+        # Never let vendor seeding poison the calling request's transaction.
+        db.session.rollback()
+        logging.exception("infra vendor seed skipped due to error")
 DOCREPO_DISK_PATH  = os.environ.get('DOCREPO_PATH', '/var/data/docrepo')
 DOCREPO_LOCAL_PATH = os.path.join(os.path.dirname(__file__), 'document_repo')
 

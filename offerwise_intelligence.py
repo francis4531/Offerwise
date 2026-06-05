@@ -158,7 +158,7 @@ Valid concerns: foundation, roof, hvac, mold, electrical, plumbing, pest, safety
         _t0 = time.time()
         message = None
 
-        # ── Primary: Anthropic Claude ─────────────────────────────
+        # ── Anthropic Claude (sole provider) ──────────────────────
         try:
             client = anthropic.Anthropic(api_key=anthropic_api_key)
             message = client.messages.create(
@@ -167,41 +167,11 @@ Valid concerns: foundation, roof, hvac, mold, electrical, plumbing, pest, safety
                 temperature=0,
                 messages=[{"role": "user", "content": prompt}]
             )
-        except anthropic.APIStatusError as _ae:
-            # 529 = Anthropic overloaded — fall through to OpenAI
-            if _ae.status_code not in (429, 529, 503, 500):
-                raise
-            logging.warning(f"Anthropic unavailable ({_ae.status_code}) — falling back to OpenAI GPT-4o")
-            message = None
         except Exception as _ae:
-            logging.warning(f"Anthropic error — falling back to OpenAI: {_ae}")
-            message = None
+            # Claude is the sole AI provider — no cross-provider fallback.
+            logging.error(f"Anthropic call failed for buyer concern analysis: {_ae}")
+            return None
 
-        # ── Fallback: OpenAI GPT-4o ───────────────────────────────
-        if message is None:
-            try:
-                import openai as _openai
-                _oai_key = os.environ.get("OPENAI_API_KEY", "")
-                if not _oai_key:
-                    raise RuntimeError("OPENAI_API_KEY not set")
-                _oai = _openai.OpenAI(api_key=_oai_key)
-                _oai_resp = _oai.chat.completions.create(
-                    model="gpt-4o",
-                    max_tokens=1000,
-                    temperature=0,
-                    messages=[{"role": "user", "content": prompt}]
-                )
-                # Wrap in an object that looks like Anthropic's response
-                class _FakeMsg:
-                    class _C:
-                        def __init__(self, t): self.text = t
-                    def __init__(self, text):
-                        self.content = [self._C(text)]
-                message = _FakeMsg(_oai_resp.choices[0].message.content or "{}")
-                logging.info("✅ OpenAI GPT-4o fallback succeeded for buyer concern analysis")
-            except Exception as _oe:
-                logging.error(f"OpenAI fallback also failed: {_oe}")
-                return None
         try:
             try:
                 from app import app as _ow_app, db as _ow_db
