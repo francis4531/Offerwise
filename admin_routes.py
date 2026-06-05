@@ -3695,24 +3695,66 @@ def infra_inbound_invoice():
     logging.info('inbound-invoice: parsed email %s → %s', email_id, parsed.to_log_dict())
 
     # Step 6: Decide what to do.
-    # If we have at least an amount + matched vendor + period_start, write the row.
-    # Otherwise, write a row with needs_review=True and as much as we have.
-    if parsed.amount_usd is None or parsed.matched_vendor_id is None or parsed.period_start is None:
-        # Cannot create the row even as needs-review — we lack the NOT NULL fields.
-        # Fall back to writing under a synthetic 'Unknown Vendor' or skip.
-        # For now, log and skip; admin will see in Resend dashboard if curious.
-        logging.warning(
-            'inbound-invoice: insufficient data to persist (vendor=%s, amount=%s, period_start=%s, errors=%s). email_id=%s',
-            parsed.matched_vendor_id, parsed.amount_usd, parsed.period_start,
-            parsed.parse_errors, email_id,
+    # ── Surface, never drop ───────────────────────────────────────────────
+    # Claude reports confidence 0.0 only when the email is NOT an invoice
+    # (marketing, a support reply, etc.). Those we skip — surfacing them is noise.
+    # Anything that looks like a real invoice gets written, even if incomplete:
+    # we resolve a vendor and backfill the NOT NULL fields with safe, reviewable
+    # defaults, flagging needs_review so it shows up on the costs page for the
+    # admin to confirm or correct. (Previously a real invoice was logged and
+    # dropped whenever the vendor didn't match — that was the "got invoiced but
+    # don't see it" gap.)
+    if (parsed.confidence or 0.0) <= 0.0:
+        logging.info(
+            'inbound-invoice: not an invoice (confidence 0) — skipping. email_id=%s errors=%s',
+            email_id, parsed.parse_errors,
         )
         return jsonify({
-            'ok': True,
-            'persisted': False,
-            'reason': 'insufficient_data',
-            'errors': parsed.parse_errors,
-            'email_id': email_id,
+            'ok': True, 'persisted': False, 'reason': 'not_an_invoice',
+            'errors': parsed.parse_errors, 'email_id': email_id,
         }), 200
+
+    from datetime import date as _date
+    from sqlalchemy.exc import IntegrityError as _IntegrityError
+
+    # Resolve a vendor. If Claude matched one, use it. Otherwise create (or reuse)
+    # a vendor from the name Claude extracted, so a first-ever "Hunter" invoice
+    # still lands under "Hunter" and auto-matches next time. If even the name is
+    # missing, fall back to a single catch-all so the row is still visible.
+    if parsed.matched_vendor_id is None:
+        _raw_name = (parsed.vendor_name_raw or '').strip()
+        _vname = _raw_name or 'Unidentified vendor'
+        _vrow = InfraVendor.query.filter(
+            db.func.lower(InfraVendor.name) == _vname.lower()
+        ).first()
+        if not _vrow:
+            _vrow = InfraVendor(
+                name=_vname[:100], category='other', logo_emoji='🧾',
+                notes='Auto-created from an inbound invoice — confirm or merge.',
+            )
+            db.session.add(_vrow)
+            try:
+                db.session.flush()
+            except _IntegrityError:
+                db.session.rollback()
+                _vrow = InfraVendor.query.filter(
+                    db.func.lower(InfraVendor.name) == _vname.lower()
+                ).first()
+        parsed.matched_vendor_id = _vrow.id
+        parsed.matched_vendor_name = _vrow.name
+        parsed.needs_review = True
+        logging.info(
+            'inbound-invoice: no vendor match — surfaced under vendor "%s" (id=%s) for review. email_id=%s',
+            _vrow.name, _vrow.id, email_id,
+        )
+
+    # Backfill the remaining NOT NULL fields with reviewable defaults.
+    if parsed.period_start is None:
+        parsed.period_start = _date.today().replace(day=1)
+        parsed.needs_review = True
+    if parsed.amount_usd is None:
+        parsed.amount_usd = 0.0
+        parsed.needs_review = True
 
     # Default period_end to last day of month if unknown
     if not parsed.period_end:

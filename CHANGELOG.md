@@ -5,6 +5,34 @@ Consolidated from 80 individual files on 2026-03-13.
 
 ---
 
+## v5.89.142 — 2026-06-04
+Inbound invoices are surfaced for review instead of silently dropped.
+
+### Fixed — "got invoiced but don't see it"
+- `infra_inbound_invoice()` previously logged-and-dropped any parsed invoice it
+  couldn't fully resolve (no vendor match, or missing amount/period). A real
+  invoice from a vendor not yet in the table (e.g. Hunter before it was seeded)
+  would parse fine and never appear. Now:
+    - confidence 0 → still skipped (Claude flags non-invoices that way);
+    - otherwise the invoice is ALWAYS written and surfaced as needs_review —
+      vendor resolved by match, else auto-created from the name Claude extracted
+      (a first-ever "Hunter" invoice lands under "Hunter" and auto-matches next
+      time), else a single "Unidentified vendor" catch-all;
+    - missing period_start defaults to the first of the current month;
+    - missing amount defaults to $0.00.
+  The row appears in the invoice log with the existing amber "⚠ review" badge and
+  a ✓ approve button — the list endpoint and renderer already surface
+  needs_review, so no UI change was needed.
+
+### Note
+- Validated by py_compile + data-flow review (list query applies no
+  amount/needs_review filter; renderer already badges needs_review rows). The
+  persist path runs behind svix + Resend inside the route, so it was not
+  unit-tested; the persist step can be refactored into a testable helper on
+  request.
+
+---
+
 ## v5.89.141 — 2026-06-04
 Claude is now the sole AI provider; fixed the infra-vendor seed race (staging 500).
 
