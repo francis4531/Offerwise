@@ -5,6 +5,23 @@ Consolidated from 80 individual files on 2026-03-13.
 
 ---
 
+## v5.89.147 — 2026-06-05
+Cost-page cleanup: de-lie infra labels, move ad spend off the API page.
+
+- Infra Costs: removed the hardcoded "12-Month" wording that no longer matched
+  the range selector. "Last 12 Months" card -> "Total" with a dynamic sub-label
+  (this month / last N days / all time); "12-Month Spend by Vendor" panel ->
+  "Spend by Vendor · {range}". Applied to the embedded admin view and the
+  standalone /admin/infra-costs page.
+- API Costs: removed the "Ad Spend" section from both API-cost surfaces. Ad
+  spend (Google, Reddit, Zillow) is marketing spend, not an API/usage cost, and
+  already lives in full under Ad Performance — so it is gone from this page,
+  and also pulled out of the "Total Est. Spend" KPI and the Monthly Cost
+  Projection. Replaced with a one-line pointer (the embedded one links straight
+  to Ad Performance). Removed the now-dead renderAds().
+
+---
+
 ## v5.89.146 — 2026-06-05
 Timeline range selector on both cost pages, unified on ?days=.
 

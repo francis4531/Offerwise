@@ -219,22 +219,8 @@
     </div>
   </div>
 
-  <!-- ── SECTION 2: Ad Spend (Google Ads + Reddit Ads — REAL data) ── -->
-  <div class="section">
-    <div class="section-header">
-      <div class="section-title">
-        <span class="pill pill-google">Ad Spend</span>
-        <span class="section-badge badge-paid">PAID · actual spend</span>
-      </div>
-      <span id="ads-status" class="status-dot"><span class="dot dot-grey"></span> checking…</span>
-    </div>
-    <table>
-      <thead><tr><th>Channel</th><th>Spend (period)</th><th>Clicks</th><th>Impressions</th><th>Source</th></tr></thead>
-      <tbody id="ads-tbody">
-        <tr><td colspan="5" class="loading">Loading ad spend data…</td></tr>
-      </tbody>
-    </table>
-  </div>
+  <!-- Ad spend lives under Ad Performance — marketing spend, not an API/usage cost. -->
+  <p style="font-size:12px;color:var(--muted);margin:4px 0 22px;">📡 Ad spend (Google, Reddit, Zillow) is tracked under <strong style="color:var(--text)">Ad Performance</strong> — it is marketing spend, not an API or usage cost, so it is no longer shown here.</p>
 
   <!-- ── SECTION 3: Stripe ── -->
   <div class="section">
@@ -409,7 +395,6 @@ async function loadAll() {
     renderSummaryCards(cost, email, analysis);
     renderAlerts(cost);
     renderAnthropic(cost);
-    renderAds(analysis);
     renderStripe(sys, analysis);
     renderResend(email);
     renderRentCast(analysis);
@@ -431,8 +416,7 @@ function renderSummaryCards(cost, email, analysis) {
   const wsCost         = analysis?.walkscore_cost_est       ?? 0;
   const visionCost     = analysis?.google_vision_cost_est   ?? 0;
   const mailgunCost    = analysis?.mailgun_cost_est         ?? 0;
-  const adSpend        = (analysis?.google_ads_spend ?? 0) + (analysis?.reddit_ads_spend ?? 0);
-  const totalEst = aiCost + emailCost + mailgunCost + rentcastCost + mapsCost + wsCost + visionCost + adSpend;
+  const totalEst = aiCost + emailCost + mailgunCost + rentcastCost + mapsCost + wsCost + visionCost;
 
   const periodLabel = currentDays < 0 ? 'all time' : currentDays === 0 ? 'this month' : currentDays === 1 ? 'today' : `${currentDays}d`;
 
@@ -546,57 +530,6 @@ function renderAnthropic(cost) {
   const note = document.createElement('div');
   note.style.cssText = 'padding:8px 20px;font-size:11px;color:var(--muted);border-top:1px solid var(--border);';
   note.textContent = 'Pricing: claude-sonnet-4-5 $3.00/M input · $15.00/M output · claude-sonnet-4 $3.00/M input · $15.00/M output · claude-haiku-4-5 $0.80/M input · $4.00/M output';
-}
-
-function renderAds(analysis) {
-  const gSpend  = analysis?.google_ads_spend;
-  const rSpend  = analysis?.reddit_ads_spend;
-  const gSrc    = analysis?.google_ads_data_source ?? 'none';
-  const rSrc    = analysis?.reddit_ads_data_source ?? 'none';
-  const rLastSync = analysis?.reddit_ads_last_sync;
-  const hasAny  = gSpend != null || rSpend != null;
-
-  document.getElementById('ads-status').innerHTML = statusDot(
-    hasAny,
-    hasAny ? `Real data · ${gSrc === 'gtm_ad_performance_db' ? '📦 GTM DB' : 'no sync yet'}` : 'No data — auto-sync runs every 6h'
-  );
-
-  // v5.87.75: dataSource-aware badge with optional last-sync tooltip
-  const srcBadge = (src, lastSync) => {
-    if (src === 'gtm_ad_performance_db') {
-      const tip = lastSync ? ` title="Last sync: ${lastSync}"` : '';
-      return `<span style="font-size:11px;color:var(--green);font-family:var(--mono);"${tip}>📦 GTM DB (real)</span>`;
-    }
-    return '<span style="font-size:11px;color:var(--amber);font-family:var(--mono);">⚠️ not synced yet</span>';
-  };
-
-  // v5.87.75: Reddit-specific tooltip when synced but $0 — distinguishes
-  // "no campaigns active" from "sync never ran".
-  const rTip = (rSrc === 'gtm_ad_performance_db' && (rSpend === 0 || rSpend == null) && rLastSync)
-    ? ` title="Last sync: ${rLastSync}. Zero spend in period or no campaigns active."`
-    : '';
-
-  document.getElementById('ads-tbody').innerHTML = `
-    <tr>
-      <td><div class="api-name">Google Ads</div><div class="api-provider">Search campaigns</div></td>
-      <td class="cost-cell">${gSpend != null ? `<span class="cost-high">$${gSpend.toFixed(2)}</span>` : '<span class="cost-zero">—</span>'}</td>
-      <td class="cost-cell">${analysis?.google_ads_clicks != null ? fmtNum(analysis.google_ads_clicks) : '—'}</td>
-      <td class="cost-cell">${analysis?.google_ads_impressions != null ? fmtNum(analysis.google_ads_impressions) : '—'}</td>
-      <td>${srcBadge(gSrc, null)}</td>
-    </tr>
-    <tr${rTip}>
-      <td><div class="api-name">Reddit Ads</div><div class="api-provider">Traffic campaigns</div></td>
-      <td class="cost-cell">${rSpend != null ? `<span class="cost-high">$${rSpend.toFixed(2)}</span>` : '<span class="cost-zero">—</span>'}</td>
-      <td class="cost-cell">${analysis?.reddit_ads_clicks != null ? fmtNum(analysis.reddit_ads_clicks) : '—'}</td>
-      <td class="cost-cell">${analysis?.reddit_ads_impressions != null ? fmtNum(analysis.reddit_ads_impressions) : '—'}</td>
-      <td>${srcBadge(rSrc, rLastSync)}</td>
-    </tr>
-    ${(gSpend == null && rSpend == null) ? `<tr><td colspan="5" style="color:var(--muted);font-size:12px;padding:12px 16px;">
-      No ad spend synced for this period. Both providers auto-sync every 6 hours via a scheduled job —
-      check Render logs for <code>💰 Google Ads sync</code> and <code>🟠 Reddit Ads sync</code>.
-      Use <strong>Backfill 7d</strong> in the GTM tab to force-pull historical data.
-    </td></tr>` : ''}
-  `;
 }
 
 function renderStripe(sys, analysis) {
@@ -846,14 +779,10 @@ function renderProjection(cost, email, analysis) {
   const stripeMonthly  = analysis?.stripe_revenue ? analysis.stripe_revenue * 0.029 : 0;
   const mailgunMonthly = analysis ? ((analysis.mailgun_calls ?? 0) / daysElapsed) * daysInMonth * 0.0008 : 0;
   // Ad spend: use actual period data projected to month (real data, not estimated)
-  const gAdsMonthly    = analysis?.google_ads_spend != null ? (analysis.google_ads_spend / daysElapsed) * daysInMonth : 0;
-  const rAdsMonthly    = analysis?.reddit_ads_spend != null ? (analysis.reddit_ads_spend / daysElapsed) * daysInMonth : 0;
-  const total = aiMonthly + emailMonthly + mailgunMonthly + rcMonthly + mapsMonthly + wsMonthly + visionMonthly + stripeMonthly + gAdsMonthly + rAdsMonthly;
+  const total = aiMonthly + emailMonthly + mailgunMonthly + rcMonthly + mapsMonthly + wsMonthly + visionMonthly + stripeMonthly;
   const maxVal = Math.max(total, 1);
 
   const bars = [
-    { label: 'Google Ads',    value: gAdsMonthly,    color: '#4285f4' },
-    { label: 'Reddit Ads',    value: rAdsMonthly,    color: '#ff4500' },
     { label: 'Anthropic',     value: aiMonthly,      color: '#6366f1' },
     { label: 'RentCast',      value: rcMonthly,      color: '#f59e0b' },
     { label: 'Google Maps',   value: mapsMonthly,    color: '#34d399' },

@@ -227,8 +227,8 @@
   <!-- Summary cards -->
   <div class="cards" id="summary-cards">
     <div class="card"><div class="card-label">This Month</div><div class="card-value" id="card-month">—</div><div class="card-sub">infrastructure spend</div></div>
-    <div class="card"><div class="card-label">Avg / Month</div><div class="card-value" id="card-avg">—</div><div class="card-sub">trailing 12 months</div></div>
-    <div class="card"><div class="card-label">Last 12 Months</div><div class="card-value" id="card-total">—</div><div class="card-sub">total dev spend</div></div>
+    <div class="card"><div class="card-label">Avg / Month</div><div class="card-value" id="card-avg">—</div><div class="card-sub">in selected range</div></div>
+    <div class="card"><div class="card-label">Total</div><div class="card-value" id="card-total">—</div><div class="card-sub" id="card-total-sub">selected range</div></div>
     <div class="card"><div class="card-label">Vendors Tracked</div><div class="card-value" id="card-vendors">—</div><div class="card-sub">with invoices logged</div></div>
   </div>
 
@@ -295,7 +295,7 @@
   <!-- Spend by vendor chart -->
   <div class="panel">
     <div class="panel-header">
-      <div class="panel-title">📊 12-Month Spend by Vendor</div>
+      <div class="panel-title">📊 Spend by Vendor <span id="vendor-range-lbl" style="color:var(--muted);font-weight:400;font-size:12px"></span></div>
     </div>
     <div class="chart-wrap" id="vendor-chart">
       <div class="empty-state">Loading…</div>
@@ -760,6 +760,11 @@ async function saveBulkQueue() {
 }
 
 let currentInfraDays = 0;  // 0 = this month (default), 7/30 = last N days, -1 = all time
+function infraRangeLabel() {
+  if (currentInfraDays < 0) return 'all time';
+  if (currentInfraDays === 0) return 'this month';
+  return 'last ' + currentInfraDays + ' days';
+}
 function setInfraPeriod(days, btn) {
   currentInfraDays = days;
   var bar = document.getElementById('infra-period-bar');
@@ -804,6 +809,9 @@ function renderSummaryCards(summary, invoices) {
   document.getElementById('card-avg').textContent     = '$' + summary.avg_monthly.toFixed(2);
   document.getElementById('card-total').textContent   = '$' + summary.grand_total.toFixed(2);
   document.getElementById('card-vendors').textContent = vendorsWithInvoices;
+  const _rl = infraRangeLabel();
+  const _ts = document.getElementById('card-total-sub'); if (_ts) _ts.textContent = _rl;
+  const _vr = document.getElementById('vendor-range-lbl'); if (_vr) _vr.textContent = '· ' + _rl;
 }
 
 // ── CHARTS ────────────────────────────────────────────────────────────────
