@@ -5,6 +5,24 @@ Consolidated from 80 individual files on 2026-03-13.
 
 ---
 
+## v5.89.148 — 2026-06-05
+Ad/referral spend out of Infra Costs, surfaced under Ad Performance.
+
+- Infra Costs endpoints (infra_invoices_list + infra_invoices_summary) now exclude
+  ad/marketing-category vendors (category='ads' — InterNACHI, Zillow, ...) via a
+  shared _infra_category_filter. NULL categories are retained, so auto-created
+  vendors are not dropped. Stops marketing spend from appearing on a page meant
+  for infra/usage costs ("not infra either").
+- Ad Performance: new "Referral & Directory Spend" card surfaces those same
+  invoices (channel, period, amount + total), fetched from the reused endpoint
+  with ?category=ads&days=-1 (all time). Loads with the page via loadAds().
+- Pointer notes added to both infra surfaces (embedded admin view + standalone
+  /admin/infra-costs) explaining the spend now lives under Ad Performance.
+- One endpoint, two views: ?category=ads returns only ad-category; the default
+  view excludes it. Verified against an in-memory DB.
+
+---
+
 ## v5.89.147 — 2026-06-05
 Cost-page cleanup: de-lie infra labels, move ad spend off the API page.
 

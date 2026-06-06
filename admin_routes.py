@@ -3395,6 +3395,18 @@ def _infra_range_cutoff_from_args():
     return None
 
 
+def _infra_category_filter(q):
+    """Keep ad/marketing-category vendors OUT of infra cost views by default.
+    ?category=ads returns ONLY ad-category invoices (used by the Ad Performance surface).
+    Ad/referral spend (InterNACHI, Zillow, ...) is marketing spend, not infra."""
+    from models import InfraVendor
+    from sqlalchemy import or_
+    cat = (request.args.get('category') or '').strip().lower()
+    if cat == 'ads':
+        return q.filter(InfraVendor.category == 'ads')
+    return q.filter(or_(InfraVendor.category != 'ads', InfraVendor.category.is_(None)))
+
+
 @admin_bp.route('/api/admin/infra/invoices', methods=['GET'])
 @_api_admin_req_dec
 def infra_invoices_list():
@@ -3419,6 +3431,7 @@ def infra_invoices_list():
     vid = request.args.get('vendor_id')
     if vid:
         q = q.filter(InfraInvoice.vendor_id == int(vid))
+    q = _infra_category_filter(q)
     cutoff = _infra_range_cutoff_from_args()
     if cutoff is not None:
         q = q.filter(InfraInvoice.period_start >= cutoff)
@@ -3439,6 +3452,7 @@ def infra_invoices_summary():
     except Exception: pass
     cutoff = _infra_range_cutoff_from_args()
     iq = InfraInvoice.query.join(InfraVendor)
+    iq = _infra_category_filter(iq)
     if cutoff is not None:
         iq = iq.filter(InfraInvoice.period_start >= cutoff)
     invoices = iq.order_by(InfraInvoice.period_start).all()

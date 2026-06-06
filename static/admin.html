@@ -2042,6 +2042,15 @@ details.an-drill[open] .an-chev{transform:rotate(90deg)}
     <div id="adTableContainer"><div class="loading-msg"><span class="spinner"></span></div></div>
   </div>
 
+  <!-- Invoiced ad/referral channels (infra invoices, category=ads) -->
+  <div class="card" id="adInvoicedCard">
+    <div class="card-head">
+      <div class="card-title">📣 Referral &amp; Directory Spend</div>
+      <span style="font-size:11px;color:var(--muted)">Recorded invoices · InterNACHI, Zillow, etc. · all time</span>
+    </div>
+    <div id="adInvoicedContainer"><div class="loading-msg"><span class="spinner"></span></div></div>
+  </div>
+
   <!-- Status cards -->
   <div class="g2" style="margin-top:14px">
     <div class="card">
@@ -4189,6 +4198,7 @@ details.an-drill[open] .an-chev{transform:rotate(90deg)}
     <button class="period-btn active" onclick="setInfraPeriod(0,this)">This month</button>
     <button class="period-btn" onclick="setInfraPeriod(-1,this)">All time</button>
   </div>
+  <p style="font-size:12px;color:var(--muted);margin:0 0 16px;">📣 Ad &amp; referral spend (InterNACHI, Zillow, …) is marketing spend, not infra — it is tracked under <a href="#" onclick="showView('adperf');return false;" style="color:var(--accent)">Ad Performance</a> and is excluded here.</p>
 <div class="notice">
     💡 These are <strong>your personal developer costs</strong> — subscriptions, hosting, and tooling you pay to build OfferWise.
     Separate from per-user API costs tracked in the API Cost Dashboard.
@@ -15409,7 +15419,38 @@ function _adSourceBadge(src){
   return `<span style="background:${bg};color:${color};padding:2px 8px;border-radius:4px;font-size:.7rem">${label}</span>`;
 }
 
+async function loadAdInvoiced(){
+  const container=document.getElementById('adInvoicedContainer');
+  if(!container) return;
+  const esc=(s)=>(s==null?'':String(s)).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const fmtMonth=(s)=>{ if(!s) return '—'; const p=s.split('-'); return ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][parseInt(p[1],10)-1]+' '+p[0].slice(2); };
+  try{
+    const r=await fetch(apiUrl('/api/admin/infra/invoices?category=ads&days=-1'));
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    const rows=await r.json();
+    if(!rows.length){ container.innerHTML='<div style="padding:14px;font-size:12px;color:var(--muted)">No referral/directory invoices recorded yet. Use the Log Ad Spend form below, or import a card to capture Zillow / InterNACHI charges.</div>'; return; }
+    let total=0;
+    const body=rows.map(function(inv){
+      total+=(inv.amount_usd||0);
+      const rev=inv.needs_review?' <span style="color:var(--yellow);font-size:.7rem">⚠ review</span>':'';
+      return '<tr><td style="padding:6px 8px">'+(inv.vendor_emoji?esc(inv.vendor_emoji)+' ':'')+esc(inv.vendor_name||'—')+rev+'</td>'
+        +'<td class="r" style="padding:6px 8px;color:var(--muted)">'+fmtMonth(inv.period_start)+'</td>'
+        +'<td class="r" style="padding:6px 8px">$'+(inv.amount_usd||0).toFixed(2)+'</td></tr>';
+    }).join('');
+    container.innerHTML='<table style="width:100%;border-collapse:collapse"><thead><tr>'
+      +'<th style="text-align:left;padding:6px 8px;font-size:.7rem;color:var(--muted)">Channel</th>'
+      +'<th style="text-align:right;padding:6px 8px;font-size:.7rem;color:var(--muted)">Period</th>'
+      +'<th style="text-align:right;padding:6px 8px;font-size:.7rem;color:var(--muted)">Amount</th></tr></thead>'
+      +'<tbody>'+body+'</tbody>'
+      +'<tfoot><tr style="border-top:1px solid var(--border)"><td style="padding:6px 8px;font-weight:700">Total</td><td></td>'
+      +'<td class="r" style="padding:6px 8px;font-weight:700">$'+total.toFixed(2)+'</td></tr></tfoot></table>';
+  }catch(e){
+    container.innerHTML='<div style="padding:14px;font-size:12px;color:var(--red)">Could not load referral spend: '+esc(e&&e.message?e.message:e)+'</div>';
+  }
+}
+
 async function loadAds(){
+  loadAdInvoiced();
   const days=document.getElementById('adDays').value;
   const container=document.getElementById('adTableContainer');
   try{
