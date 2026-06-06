@@ -184,10 +184,10 @@
   <!-- Period selector -->
   <div class="period-bar">
     <span style="font-size:12px;color:var(--muted);margin-right:4px;">Period:</span>
-    <button class="period-btn active" onclick="setPeriod(1,this)">Today</button>
     <button class="period-btn" onclick="setPeriod(7,this)">7 days</button>
     <button class="period-btn" onclick="setPeriod(30,this)">30 days</button>
-    <button class="period-btn" onclick="setPeriod(0,this)">This month</button>
+    <button class="period-btn active" onclick="setPeriod(0,this)">This month</button>
+    <button class="period-btn" onclick="setPeriod(-1,this)">All time</button>
   </div>
 
   <!-- Summary cards -->
@@ -349,7 +349,7 @@
 const ADMIN_KEY = new URLSearchParams(location.search).get('admin_key') || '';
 const HEADERS = { 'X-Admin-Key': ADMIN_KEY, 'X-Requested-With': 'XMLHttpRequest' };
 
-let currentDays = 1;
+let currentDays = 0;
 let cachedData = {};
 
 function setPeriod(days, btn) {
@@ -434,7 +434,7 @@ function renderSummaryCards(cost, email, analysis) {
   const adSpend        = (analysis?.google_ads_spend ?? 0) + (analysis?.reddit_ads_spend ?? 0);
   const totalEst = aiCost + emailCost + mailgunCost + rentcastCost + mapsCost + wsCost + visionCost + adSpend;
 
-  const periodLabel = currentDays === 0 ? 'this month' : currentDays === 1 ? 'today' : `${currentDays}d`;
+  const periodLabel = currentDays < 0 ? 'all time' : currentDays === 0 ? 'this month' : currentDays === 1 ? 'today' : `${currentDays}d`;
 
   document.getElementById('summary-cards').innerHTML = `
     <div class="card">
@@ -835,7 +835,7 @@ function renderAuth(sys) {
 
 function renderProjection(cost, email, analysis) {
   const daysInMonth = 30;
-  const daysElapsed = currentDays || 1;
+  const daysElapsed = currentDays < 0 ? 30 : (currentDays || 1);
 
   const aiMonthly      = cost     ? (cost.total_cost / daysElapsed) * daysInMonth : 0;
   const emailMonthly   = email    ? ((email.emails_sent / daysElapsed) * daysInMonth * 0.0008) : 0;
@@ -867,7 +867,7 @@ function renderProjection(cost, email, analysis) {
 
   document.getElementById('projection-chart').innerHTML = `
     <div style="font-size:12px;color:var(--muted);margin-bottom:12px;">
-      Projected full-month cost based on ${currentDays === 0 ? 'this month so far' : `last ${currentDays} day(s)`}.
+      Projected full-month cost based on ${currentDays < 0 ? 'all recorded activity' : currentDays === 0 ? 'this month so far' : `last ${currentDays} day(s)`}.
       Stripe fees estimated from revenue. RentCast at ~$0.10/call.
     </div>
     ${bars.map(b => `

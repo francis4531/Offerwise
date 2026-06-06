@@ -5,6 +5,28 @@ Consolidated from 80 individual files on 2026-03-13.
 
 ---
 
+## v5.89.146 — 2026-06-05
+Timeline range selector on both cost pages, unified on ?days=.
+
+- New range selector (7 days / 30 days / This month / All time) on the Infra
+  Costs page — both the embedded admin view and the standalone
+  /admin/infra-costs page. It was previously hardwired to a 12-month window.
+- API Costs page: added "All time" and standardized its bar to the same four
+  ranges (dropped the "Today" button so both pages match). Default on open is
+  "This month" on every surface.
+- Backend: infra_invoices_list + infra_invoices_summary now read ?days=
+  (7/30 = last N days, 0 = this calendar month, -1 = all time) via shared
+  _infra_range_cutoff_from_args; legacy ?months= still honored. avg_monthly now
+  divides by the months actually present in the range. ai-costs / email-stats /
+  analysis-stats gained the -1 (all time) case via a large lookback window.
+- setInfraPeriod is exported on window in the admin.html infra IIFE, same
+  window-export discipline as importCardActivity (v5.89.145).
+- Note: infra invoices are monthly, so day-based ranges are coarse there —
+  "This month" / "All time" are the natural views; the API page (per-day
+  usage) uses all four meaningfully.
+
+---
+
 ## v5.89.145 — 2026-06-05
 Fix: "Import card activity" buttons threw ReferenceError (IIFE scope).
 

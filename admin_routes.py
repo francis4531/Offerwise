@@ -2450,10 +2450,10 @@ def admin_ai_costs():
 
     # Try DB first — it survives Render restarts and captures all endpoints
     try:
-        db_summary = get_cost_summary_from_db(days if days > 0 else 30)
+        db_summary = get_cost_summary_from_db(100000 if days < 0 else (days if days > 0 else 30))
         if db_summary and db_summary.get('total_calls', 0) > 0:
             db_summary['alerts'] = tracker.check_cost_alerts()
-            db_summary['period'] = 'month' if days == 0 else (f'{days}d' if days > 1 else 'day')
+            db_summary['period'] = 'all' if days < 0 else ('month' if days == 0 else (f'{days}d' if days > 1 else 'day'))
             db_summary['data_source'] = 'database'
             return jsonify(db_summary)
     except Exception as db_e:
@@ -2528,7 +2528,7 @@ def admin_email_stats():
     """Email send counts from EmailSendLog (real per-send rows). ?days=1|7|30|0"""
     from datetime import timedelta
     days = int(request.args.get('days', 1) or 1)
-    since = datetime.utcnow() - timedelta(days=days if days > 0 else 30)
+    since = datetime.utcnow() - timedelta(days=(100000 if days < 0 else (days if days > 0 else 30)))
 
     resend_configured = bool(os.environ.get('RESEND_API_KEY', ''))
 
@@ -2666,7 +2666,7 @@ def admin_analysis_stats():
     """Analysis counts, per-API call estimates, Stripe revenue. ?days=1|7|30|0"""
     from datetime import timedelta
     days = int(request.args.get('days', 1) or 1)
-    since = datetime.utcnow() - timedelta(days=days if days > 0 else 30)
+    since = datetime.utcnow() - timedelta(days=(100000 if days < 0 else (days if days > 0 else 30)))
 
     try:
         # Exclude persona/test accounts from all counts
@@ -3363,10 +3363,42 @@ def infra_vendors_delete(vid):
 
 
 
+def _infra_days_cutoff(days):
+    """Unified ?days= selector -> date cutoff for infra invoices.
+    Positive N = last N days; 0 = this calendar month; negative = all time (no cutoff)."""
+    from datetime import date, timedelta
+    if days is None or days < 0:
+        return None
+    if days == 0:
+        return date.today().replace(day=1)
+    return date.today() - timedelta(days=days)
+
+
+def _infra_range_cutoff_from_args():
+    """Resolve a period_start cutoff from request args.
+    Honors ?days= (7/30/0/-1) first, then legacy ?months=, else None (all time)."""
+    from datetime import date, timedelta
+    if 'days' in request.args:
+        try:
+            return _infra_days_cutoff(int(request.args.get('days') or 0))
+        except (TypeError, ValueError):
+            return None
+    if 'months' in request.args:
+        try:
+            months = int(request.args.get('months', 12))
+        except (TypeError, ValueError):
+            months = 12
+        cutoff = date.today().replace(day=1)
+        for _ in range(max(0, months - 1)):
+            cutoff = (cutoff - timedelta(days=1)).replace(day=1)
+        return cutoff
+    return None
+
+
 @admin_bp.route('/api/admin/infra/invoices', methods=['GET'])
 @_api_admin_req_dec
 def infra_invoices_list():
-    """List invoices. ?vendor_id=&year=&months=12"""
+    """List invoices. ?vendor_id=&days=7|30|0|-1 (0=this month, -1=all). Legacy ?months= still honored."""
     from models import InfraInvoice, InfraVendor
     from datetime import date, timedelta
     try:
@@ -3387,11 +3419,9 @@ def infra_invoices_list():
     vid = request.args.get('vendor_id')
     if vid:
         q = q.filter(InfraInvoice.vendor_id == int(vid))
-    months = int(request.args.get('months', 12))
-    cutoff = date.today().replace(day=1)
-    for _ in range(months - 1):
-        cutoff = (cutoff - timedelta(days=1)).replace(day=1)
-    q = q.filter(InfraInvoice.period_start >= cutoff)
+    cutoff = _infra_range_cutoff_from_args()
+    if cutoff is not None:
+        q = q.filter(InfraInvoice.period_start >= cutoff)
     invoices = q.order_by(InfraInvoice.period_start.desc()).all()
     return jsonify([inv.to_dict() for inv in invoices])
 
@@ -3400,22 +3430,18 @@ def infra_invoices_list():
 @admin_bp.route('/api/admin/infra/invoices/summary', methods=['GET'])
 @_api_admin_req_dec
 def infra_invoices_summary():
-    """Monthly totals + per-vendor breakdown. ?months=12"""
+    """Monthly totals + per-vendor breakdown. ?days=7|30|0|-1 (0=this month, -1=all). Legacy ?months= honored."""
     from models import InfraInvoice, InfraVendor
     from datetime import date, timedelta
     from collections import defaultdict
     try:
         from app import _ensure_infra_vendors as _eiv; _eiv()
     except Exception: pass
-    months = int(request.args.get('months', 12))
-    cutoff = date.today().replace(day=1)
-    for _ in range(months - 1):
-        cutoff = (cutoff - timedelta(days=1)).replace(day=1)
-    invoices = (InfraInvoice.query
-                .join(InfraVendor)
-                .filter(InfraInvoice.period_start >= cutoff)
-                .order_by(InfraInvoice.period_start)
-                .all())
+    cutoff = _infra_range_cutoff_from_args()
+    iq = InfraInvoice.query.join(InfraVendor)
+    if cutoff is not None:
+        iq = iq.filter(InfraInvoice.period_start >= cutoff)
+    invoices = iq.order_by(InfraInvoice.period_start).all()
     # Group by month
     by_month = defaultdict(lambda: {'total': 0.0, 'vendors': {}})
     vendor_totals = defaultdict(float)
@@ -3427,13 +3453,14 @@ def infra_invoices_summary():
         by_month[month_key]['vendors'][vname] = by_month[month_key]['vendors'].get(vname, 0.0) + inv.amount_usd
         vendor_totals[vname] += inv.amount_usd
         grand_total += inv.amount_usd
-    avg_monthly = grand_total / months if months > 0 else 0
+    n_months = max(1, len(by_month))
+    avg_monthly = grand_total / n_months
     return jsonify({
         'by_month': dict(by_month),
         'vendor_totals': dict(vendor_totals),
         'grand_total': round(grand_total, 2),
         'avg_monthly': round(avg_monthly, 2),
-        'months': months,
+        'months': n_months,
     })
 
 
