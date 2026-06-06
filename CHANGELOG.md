@@ -5,6 +5,19 @@ Consolidated from 80 individual files on 2026-03-13.
 
 ---
 
+## v5.89.145 — 2026-06-05
+Fix: "Import card activity" buttons threw ReferenceError (IIFE scope).
+
+- `importCardActivity` was defined inside the Infra Costs script\'s IIFE but
+  never published to `window`, so the inline onclick handlers hit
+  "Uncaught ReferenceError: importCardActivity is not defined". Added it to the
+  window-export block at the end of the IIFE, matching the existing v5.87.74
+  pattern (filterInvoices / approveInvoice / deleteInvoice). No logic change.
+- Validated with node --check PER BLOCK rather than concatenated — the
+  concatenated check used previously cannot catch IIFE/scope export bugs.
+
+---
+
 ## v5.89.144 — 2026-06-05
 Durable card-activity importer for infra costs (+ backfill of both company cards).
 
