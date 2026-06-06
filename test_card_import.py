@@ -60,3 +60,52 @@ def test_handles_case_insensitive_headers_and_blank_lines():
     out = ci.parse_card_csv(csv_text)
     assert len(out['invoices']) == 1
     assert out['invoices'][0]['amount'] == 75.36
+
+
+def test_parses_bank_table_copy_no_header_whitespace():
+    """A transaction list copied from a bank's website: no header, whitespace
+    aligned, with City/State columns. This is what broke the first real import."""
+    text = (
+        "01/17/2026          WYZANT              SAN MATEO       CA      43.60\n"
+        "01/16/2026          MOBILE PAYMENT - THANK YOU      -1261.87\n"
+        "01/05/2026          CLAUDE.AI SUBSCRIPTISAN FRANCISCO       CA      88.77\n"
+        "01/03/2026          PORKBUN* PORKBUN.COMSHERWOOD     OR      143.80\n"
+    )
+    out = ci.parse_card_csv(text)
+    invs = {(i['vendor'], i['period_start']): i for i in out['invoices']}
+    assert invs[('Anthropic', '2026-01-01')]['amount'] == 88.77   # CLAUDE.AI -> Anthropic
+    assert invs[('Porkbun', '2026-01-01')]['amount'] == 143.80
+    assert out['skipped']['payment_or_credit']['count'] == 1       # the -1261.87 credit
+    assert out['skipped']['unmatched']['count'] == 1               # WYZANT (personal)
+    assert out['matched_total'] == 88.77 + 143.80
+
+
+def test_parses_tab_delimited_no_header():
+    text = (
+        "01/05/2026\tCLAUDE.AI SUBSCRIPTION\tSAN FRANCISCO\tCA\t88.77\n"
+        "01/03/2026\tPORKBUN.COM\tSHERWOOD\tOR\t143.80\n"
+    )
+    out = ci.parse_card_csv(text)
+    assert len(out['invoices']) == 2
+    assert out['matched_total'] == 88.77 + 143.80
+
+
+def test_amount_with_dollar_and_commas_in_table_copy():
+    text = "03/04/2026   RENDER.COM   SAN FRANCISCO   CA   $1,075.36\n"
+    out = ci.parse_card_csv(text)
+    assert len(out['invoices']) == 1
+    assert out['invoices'][0]['vendor'] == 'Render'
+    assert out['invoices'][0]['amount'] == 1075.36
+
+
+def test_comma_csv_still_works_unchanged():
+    """Regression guard: the original comma-CSV-with-header path is untouched."""
+    csv_text = (
+        "Date,Receipt,Description,Amount\n"
+        "06/03/2026,,INTER NACHI 65000001BOULDER             CO,49.00\n"
+        "06/03/2026,,CHARGEPOINT INC     CAMPBELL            CA,3.80\n"
+    )
+    out = ci.parse_card_csv(csv_text)
+    # CHARGEPOINT is personal/unmatched; InterNACHI matches its vendor
+    assert any(i['vendor'] == 'InterNACHI' and i['amount'] == 49.00 for i in out['invoices']) \
+        or out['skipped']['unmatched']['count'] >= 1

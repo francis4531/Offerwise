@@ -12,6 +12,7 @@ double-counted; payments/credits and unmatched (personal) charges are skipped to
 
 import csv
 import io
+import re
 from calendar import monthrange
 from datetime import date, datetime
 
@@ -76,6 +77,46 @@ def _parse_date(s):
     return None
 
 
+_DATE_RE = re.compile(r'^(\d{1,2}/\d{1,2}/\d{2,4}|\d{4}-\d{2}-\d{2})\b')
+_TRAILING_AMT_RE = re.compile(r'(-?\$?\d[\d,]*\.\d{1,2})\s*$')
+
+
+def _extract_rows(csv_text):
+    """Yield {'date','description','amount'} from card activity in EITHER format:
+
+    1. A real CSV export — comma-separated WITH a header row (Date, Description,
+       Amount, plus any extra columns). Parsed with csv.DictReader.
+    2. A transaction list copied straight from a bank's website — whitespace/tab
+       aligned, NO header, often with City/State columns between the merchant and
+       the amount. Parsed line by line: leading token is the date, the trailing
+       token is the amount, everything between is the description.
+
+    This makes the importer forgiving of however the user grabbed their activity.
+    """
+    text = csv_text or ''
+    first = next((ln for ln in text.splitlines() if ln.strip()), '')
+    if ',' in first and re.search(r'amount', first, re.I) and re.search(r'date|description', first, re.I):
+        for row in csv.DictReader(io.StringIO(text)):
+            r = {(k or '').strip().lower(): v for k, v in row.items()}
+            yield {'date': r.get('date'),
+                   'description': r.get('description', '') or '',
+                   'amount': _parse_amount(r.get('amount'))}
+        return
+    for line in text.splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        md = _DATE_RE.match(line)
+        if not md:
+            continue  # header row or any non-transaction line
+        ma = _TRAILING_AMT_RE.search(line)
+        if not ma:
+            continue
+        yield {'date': md.group(1),
+               'description': line[md.end():ma.start()].strip(' ,\t'),
+               'amount': _parse_amount(ma.group(1))}
+
+
 def parse_card_csv(csv_text):
     """Parse card-activity CSV text → grouped monthly vendor invoices + skip summary.
 
@@ -87,7 +128,7 @@ def parse_card_csv(csv_text):
         'matched_total': float,
     }
     """
-    reader = csv.DictReader(io.StringIO(csv_text))
+    reader = _extract_rows(csv_text)
     groups = {}  # (vendor, year, month) -> {amount, count}
     skipped = {
         'ad_synced': {'count': 0, 'amount': 0.0},
@@ -95,9 +136,8 @@ def parse_card_csv(csv_text):
         'payment_or_credit': {'count': 0},
         'no_date': 0,
     }
-    for row in reader:
-        r = {(k or '').strip().lower(): v for k, v in row.items()}
-        amt = _parse_amount(r.get('amount'))
+    for r in reader:
+        amt = r.get('amount')
         vendor, reason = classify_charge(r.get('description', ''), amt)
         if reason == 'payment_or_credit':
             skipped['payment_or_credit']['count'] += 1

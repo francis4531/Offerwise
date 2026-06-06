@@ -5,6 +5,27 @@ Consolidated from 80 individual files on 2026-03-13.
 
 ---
 
+## v5.89.149 — 2026-06-06
+Card importer now accepts the bank "transaction list" copy, not just the CSV export.
+
+- ROOT CAUSE of "Imported — matched $0.00 ... payments 82": parse_card_csv used
+  csv.DictReader, which needs a comma-separated file WITH a header row. Pasting the
+  whitespace/tab-aligned transaction list copied from a bank website (no header,
+  City/State columns) made every amount unreadable, so every row fell into
+  payments and nothing matched.
+- New _extract_rows() reads BOTH formats: the comma-CSV-with-header export (proven
+  DictReader path, unchanged) and a line-based path for table copies — leading
+  token = date, trailing token = amount (handles $ and thousands commas), the
+  middle = description. Tab-delimited and no-header comma input also work.
+- Verified: the real activity.csv still yields 18 invoices / $1,702.37 (no
+  regression); a pasted table copy now matches CLAUDE.AI->Anthropic and
+  PORKBUN->Porkbun, routes WYZANT to unmatched and the credit to payments.
+- test_card_import.py: +4 tests (table copy, tab-delimited, $/comma amount,
+  comma-CSV regression guard) — 9/9 pass.
+- Importer panel help text updated to say either format is accepted.
+
+---
+
 ## v5.89.148 — 2026-06-05
 Ad/referral spend out of Infra Costs, surfaced under Ad Performance.
 
