@@ -108,9 +108,16 @@
         .thread { margin: 18px 0 8px; }
         .msg { margin-bottom: 14px; display: flex; }
         .msg.user { justify-content: flex-end; }
-        .bubble { max-width: 84%; padding: 12px 16px; border-radius: 14px; font-size: 0.97rem; white-space: pre-wrap; }
+        .bubble { max-width: 84%; padding: 12px 16px; border-radius: 14px; font-size: 0.97rem; }
+        .bubble p { margin: 0 0 10px; }
+        .bubble p:last-child { margin: 0; }
+        .bubble ul { margin: 8px 0; padding-left: 20px; }
+        .bubble ul:last-child { margin-bottom: 0; }
+        .bubble li { margin-bottom: 5px; }
+        .bubble strong { color: #fff; font-weight: 700; }
+        .bubble em { font-style: italic; }
         .msg.assistant .bubble { background: var(--bg-card); border: 1px solid var(--line); border-bottom-left-radius: 4px; }
-        .msg.user .bubble { background: linear-gradient(135deg, #2563eb, #3b82f6); color: #fff; border-bottom-right-radius: 4px; }
+        .msg.user .bubble { background: linear-gradient(135deg, #2563eb, #3b82f6); color: #fff; border-bottom-right-radius: 4px; white-space: pre-wrap; }
         .typing .bubble { color: var(--gray); }
 
         .ask-row { display: flex; gap: 10px; margin-top: 14px; }
@@ -334,12 +341,46 @@
             askInput.focus();
         }
 
+        function escapeHtml(s) {
+            return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+        function inlineMd(s) {
+            return s
+                .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+                .replace(/__([^_]+)__/g, '<strong>$1</strong>')
+                .replace(/(^|[^*])\*(?!\s)([^*]+?)\*(?!\*)/g, '$1<em>$2</em>');
+        }
+        function renderRich(text) {
+            // Safe subset renderer: escape first, then apply our own controlled
+            // tags, so model output can never inject HTML. Drops --- rules, makes
+            // bullet blocks into lists, paragraphs otherwise, with bold/italic.
+            var safe = escapeHtml(text).replace(/\r/g, '');
+            var blocks = safe.split(/\n{2,}/);
+            var html = '';
+            blocks.forEach(function (block) {
+                var lines = block.split('\n').filter(function (l) {
+                    return !/^\s*([-*_=]\s*){3,}$/.test(l);
+                });
+                if (!lines.length) { return; }
+                var allBullets = lines.every(function (l) { return /^\s*[-*•]\s+/.test(l); });
+                if (allBullets) {
+                    html += '<ul>' + lines.map(function (l) {
+                        return '<li>' + inlineMd(l.replace(/^\s*[-*•]\s+/, '')) + '</li>';
+                    }).join('') + '</ul>';
+                } else {
+                    html += '<p>' + lines.map(inlineMd).join('<br>') + '</p>';
+                }
+            });
+            return html || ('<p>' + safe + '</p>');
+        }
+
         function addMsg(role, text) {
             var wrap = document.createElement('div');
             wrap.className = 'msg ' + role;
             var b = document.createElement('div');
             b.className = 'bubble';
-            b.textContent = text;
+            if (role === 'assistant') { b.innerHTML = renderRich(text); }
+            else { b.textContent = text; }
             wrap.appendChild(b);
             thread.appendChild(wrap);
             wrap.scrollIntoView({ behavior: 'smooth', block: 'end' });

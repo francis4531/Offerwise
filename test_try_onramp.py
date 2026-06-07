@@ -121,6 +121,23 @@ class TryOnRampTests(unittest.TestCase):
         # The document text must be passed into the prompt (grounding).
         self.assertIn('Home inspection report', m.call_args[0][0])
 
+    def test_findings_strip_glyphs_labels_and_exclude_non_concerns(self):
+        findings = [
+            _FakeFinding('informational', '\u25a1 No history of mold'),        # positive -> excluded
+            _FakeFinding('minor', 'Comments: small cosmetic scuff'),          # minor -> excluded
+            _FakeFinding('critical', 'Comments: \u2610 active foundation leak', 'have it evaluated'),
+        ]
+        with patch.object(app_module.parser, 'parse_inspection_report',
+                          return_value=_FakeDoc(findings)):
+            d = _start(self.client, text=_LONG_TEXT).get_json()
+        self.assertEqual(len(d['findings']), 1)                 # only the real concern headlines
+        self.assertEqual(d['findings'][0]['severity'], 'critical')
+        txt = d['findings'][0]['text']
+        self.assertTrue(txt.startswith('Active foundation leak'), txt)
+        self.assertNotIn('\u25a1', txt)
+        self.assertNotIn('\u2610', txt)
+        self.assertNotIn('Comments:', txt)
+
     def test_chat_unknown_token_returns_410(self):
         r = self.client.post('/api/try/chat', json={'token': 'nope', 'message': 'hi'})
         self.assertEqual(r.status_code, 410)

@@ -5,6 +5,39 @@ Consolidated from 80 individual files on 2026-03-13.
 
 ---
 
+## v5.89.153 — 2026-06-07
+On-ramp polish from the first staging test — the chat answers and finding cards
+were showing raw output. Two fixes.
+
+Chat responses now render instead of dumping markdown:
+- The chat bubble showed the model's markdown literally — "**bold**", "*italic*"
+  and "---" appeared as raw characters. Added a small, XSS-safe renderer in
+  static/try.html (escape first, then apply only our own tags): bold/italic,
+  bullet lists, paragraphs, and horizontal-rule lines ("---") dropped. Assistant
+  bubbles render rich; user bubbles stay plain pre-wrap text.
+- Warmed the chat system prompt: answer like a knowledgeable friend in short
+  conversational paragraphs, light bold/bullets only when they help, and never
+  section headers or "---" separators.
+
+Finding cards cleaned up:
+- Stripped leading checkbox glyphs (□ ☐ ✓ •, etc.) and field labels ("Comments:",
+  "Notes:") that were leaking from raw document text into the cards (_try_clean,
+  looped so "Comments: ☐ ..." is fully removed). Findings are now clean sentences.
+- The teaser now headlines only real concerns (critical / major / moderate).
+  Minor/informational items and the positive checkbox lines common in a clean
+  seller disclosure no longer pad "what I'd look at first" — when nothing
+  significant turns up, the intro honestly says "nothing major jumped out."
+- Made the intro generic ("your document", not "your inspection report"), since
+  the on-ramp accepts disclosures too.
+
+Note: the parser is tuned for inspection reports, so on a seller disclosure the
+underlying findings are still rougher than on an inspection report — a deeper
+disclosure-aware pass is a separate follow-up, not in this build.
+
+Tests: test_try_onramp.py now 10 (added glyph/label stripping + concern-only
+findings); all passing.
+
+
 ## v5.89.152 — 2026-06-07
 Conversational on-ramp ("Try") — a low-friction, no-login front door aimed at
 the "land but never start" drop-off. Buyers drop ONE inspection report (or paste

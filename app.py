@@ -5391,19 +5391,45 @@ def _try_prune():
         _TRY_SESSIONS.pop(k, None)
 
 
+# Leading glyphs (checkboxes, bullets, dashes) and field labels that leak in
+# from raw document text — stripped so findings read as clean sentences.
+_TRY_LEADING_GLYPHS = "□☐☑☒✓✔✗✘●•▪◦‣·*>-–— \t"
+_TRY_LABELS = ("comments:", "comment:", "notes:", "note:", "remarks:",
+               "remark:", "description:", "finding:")
+
+
+def _try_clean(text):
+    """Strip leading checkbox/bullet glyphs and field labels from document text.
+
+    Loops so interleaved artifacts like "Comments: ☐ ..." are fully removed.
+    """
+    t = (text or '').strip()
+    for _ in range(3):
+        before = t
+        t = t.lstrip(_TRY_LEADING_GLYPHS).strip()
+        low = t.lower()
+        for lbl in _TRY_LABELS:
+            if low.startswith(lbl):
+                t = t[len(lbl):].strip()
+                break
+        if t == before:
+            break
+    return t
+
+
 def _try_sentence(finding):
     """Render one InspectionFinding as a complete, plain-English sentence.
 
-    Never emits fragments, enum names, or truncated text. Returns None when the
-    finding has no usable description.
+    Never emits fragments, enum names, raw checkbox glyphs, or truncated text.
+    Returns None when the finding has no usable description.
     """
-    desc = (getattr(finding, 'description', '') or '').strip()
+    desc = _try_clean(getattr(finding, 'description', ''))
     if not desc:
         return None
-    s = desc[0].upper() + desc[1:] if desc else desc
+    s = desc[0].upper() + desc[1:]
     if not s.endswith(('.', '!', '?')):
         s += '.'
-    rec = (getattr(finding, 'recommendation', '') or '').strip()
+    rec = _try_clean(getattr(finding, 'recommendation', ''))
     if rec:
         rec = rec[0].upper() + rec[1:]
         if not rec.endswith(('.', '!', '?')):
@@ -5413,18 +5439,28 @@ def _try_sentence(finding):
 
 
 def _try_top_findings(findings, limit=3):
-    """Top findings by severity, as complete sentences for the teaser."""
+    """Top *concerns* as complete sentences for the teaser.
+
+    Only critical/major/moderate findings headline "what I'd look at first" —
+    minor/informational items and positive checkbox lines (common in clean
+    seller disclosures) are not concerns and shouldn't lead. Returns [] when the
+    document raises nothing significant, which reads as an honest "nothing major
+    jumped out" rather than padding the list with non-issues.
+    """
     order = {'critical': 0, 'major': 1, 'moderate': 2, 'minor': 3, 'informational': 4}
+    concern = {'critical', 'major', 'moderate'}
     ranked = sorted(
         findings or [],
         key=lambda f: order.get(getattr(getattr(f, 'severity', None), 'value', 'minor'), 5)
     )
     out = []
     for f in ranked:
+        sev = getattr(getattr(f, 'severity', None), 'value', 'finding')
+        if sev not in concern:
+            continue
         sentence = _try_sentence(f)
         if sentence:
-            out.append({'severity': getattr(getattr(f, 'severity', None), 'value', 'finding'),
-                        'text': sentence})
+            out.append({'severity': sev, 'text': sentence})
         if len(out) >= limit:
             break
     return out
@@ -5509,9 +5545,9 @@ def try_start():
         pass
 
     if payload:
-        intro = "I read your inspection report. Here are the things I'd want you to see first — ask me anything about them, or about anything else in the report."
+        intro = "I read through your document. Here are the things I'd want you to see first — ask me anything about them, or about anything else in it."
     else:
-        intro = "I've read your document. I didn't flag any major red-flag findings on a first pass, but ask me anything about it and I'll answer from what's actually in the report."
+        intro = "I read through your document. Nothing major jumped out on a first pass, which is a good sign — but ask me anything about it and I'll answer from what's actually in the text."
 
     return jsonify({
         'token': token,
@@ -5565,7 +5601,10 @@ def try_chat():
         "question, say so plainly and suggest the full OfferWise analysis rather than "
         "guessing. Never invent findings, costs, or facts that are not in the text. You are "
         "not a lawyer or a licensed inspector — help them understand and prepare to "
-        "negotiate, but do not give legal advice. Keep answers short, concrete, and kind."
+        "negotiate, but do not give legal advice. Write the way a knowledgeable friend "
+        "would explain it: warm, plain, and conversational, in short paragraphs. You may "
+        "use a short bullet list or bold a key term when it genuinely helps, but never use "
+        "section headers or horizontal-rule separators like '---'. Keep it concise."
     )
     prompt = (
         "DOCUMENT:\n\"\"\"\n" + doc_text + "\n\"\"\"\n\n"
