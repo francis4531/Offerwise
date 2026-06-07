@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Talk to Your Inspection Report | OfferWise</title>
+    <meta name="description" content="Drop your home inspection report and ask it anything. Instant, plain-English answers from your own document. No signup.">
+    <meta property="og:title" content="Talk to your inspection report">
+    <meta property="og:description" content="Drop your inspection report and ask it anything — instant, plain-English answers. No signup.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://www.getofferwise.ai/try">
+    <link rel="icon" type="image/svg+xml" href="/static/logo-icon-only.svg">
+    <link rel="alternate icon" type="image/x-icon" href="/favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=DM+Serif+Display&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #0f172a; --bg-card: #1e293b; --text: #f1f5f9;
+            --gray: #94a3b8; --gray-light: #cbd5e1;
+            --red: #ef4444; --amber: #f59e0b; --green: #22c55e; --blue: #3b82f6;
+            --line: rgba(255,255,255,0.08);
+        }
+        body {
+            font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg); color: var(--text); line-height: 1.6;
+        }
+        .container { max-width: 760px; margin: 0 auto; padding: 0 20px; }
+
+        nav {
+            padding: 16px 20px; display: flex; align-items: center;
+            justify-content: space-between; border-bottom: 1px solid var(--line);
+        }
+        nav a.logo { color: #f1f5f9; font-weight: 800; font-size: 1.2rem; text-decoration: none; }
+        nav a.logo .wise { background: linear-gradient(90deg, #f97316, #f59e0b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        nav a.back { color: var(--gray); text-decoration: none; font-size: 0.9rem; }
+        nav a.back:hover { color: var(--text); }
+
+        .hero { text-align: center; padding: 48px 20px 28px; }
+        .hero-badge {
+            display: inline-block; background: rgba(59,130,246,0.12);
+            border: 1px solid rgba(59,130,246,0.3); padding: 7px 18px;
+            border-radius: 50px; color: #93c5fd; font-size: 0.82rem;
+            font-weight: 600; margin-bottom: 22px;
+        }
+        .hero h1 { font-size: clamp(1.9rem, 5vw, 2.8rem); font-weight: 900; line-height: 1.1; margin-bottom: 14px; }
+        .hero h1 em { font-style: normal; background: linear-gradient(90deg, #f97316, #f59e0b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .hero p { color: var(--gray-light); font-size: 1.05rem; max-width: 520px; margin: 0 auto; }
+
+        .entry { padding: 0 20px 56px; }
+        .drop-zone {
+            border: 3px dashed rgba(255,255,255,0.15); border-radius: 18px;
+            padding: 44px 28px; text-align: center; cursor: pointer;
+            transition: all 0.25s; background: rgba(255,255,255,0.02);
+        }
+        .drop-zone:hover, .drop-zone.dragover { border-color: var(--blue); background: rgba(59,130,246,0.05); }
+        .drop-zone.has-file { border-color: var(--green); border-style: solid; }
+        .drop-icon { font-size: 2.6rem; margin-bottom: 12px; }
+        .drop-zone h3 { font-size: 1.15rem; margin-bottom: 6px; }
+        .drop-zone p { color: var(--gray); font-size: 0.9rem; }
+        .drop-zone input[type=file] { display: none; }
+        .file-info { color: var(--green); font-weight: 600; margin-top: 12px; font-size: 0.95rem; }
+
+        .paste-toggle { text-align: center; margin-top: 16px; }
+        .paste-toggle button { background: none; border: none; color: var(--gray); font-size: 0.9rem; cursor: pointer; text-decoration: underline; font-family: inherit; }
+        .paste-toggle button:hover { color: var(--text); }
+        .paste-area { display: none; margin-top: 16px; }
+        .paste-area.active { display: block; }
+        .paste-area textarea {
+            width: 100%; min-height: 160px; padding: 16px; border-radius: 12px;
+            border: 1px solid var(--line); background: var(--bg-card); color: var(--text);
+            font-family: inherit; font-size: 0.95rem; resize: vertical;
+        }
+        .paste-area textarea:focus { outline: none; border-color: var(--blue); }
+
+        .go-btn {
+            display: block; width: 100%; max-width: 380px; margin: 22px auto 0;
+            padding: 16px 28px; background: linear-gradient(135deg, #f97316, #f59e0b);
+            color: #1a1205; border: none; border-radius: 13px; font-size: 1.05rem;
+            font-weight: 800; cursor: pointer; transition: all 0.25s; font-family: inherit;
+        }
+        .go-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(245,158,11,0.35); }
+        .go-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+        .fine-print { text-align: center; margin-top: 14px; color: var(--gray); font-size: 0.8rem; }
+        .err { text-align: center; color: #fca5a5; font-size: 0.9rem; margin-top: 14px; min-height: 1.2em; }
+
+        .loading { display: none; text-align: center; padding: 56px 20px; }
+        .loading.active { display: block; }
+        .spinner { width: 64px; height: 64px; border: 4px solid rgba(245,158,11,0.2); border-top-color: var(--amber); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 20px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loading p { color: var(--gray-light); }
+
+        /* Conversation */
+        .convo { display: none; padding: 8px 20px 60px; }
+        .convo.active { display: block; }
+        .findings { margin-bottom: 8px; }
+        .findings-head { font-family: 'DM Serif Display', serif; font-size: 1.35rem; margin-bottom: 14px; }
+        .finding {
+            display: flex; gap: 12px; align-items: flex-start; background: var(--bg-card);
+            border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; margin-bottom: 10px;
+        }
+        .sev-dot { width: 10px; height: 10px; border-radius: 50%; margin-top: 8px; flex-shrink: 0; }
+        .sev-critical { background: var(--red); }
+        .sev-major { background: var(--amber); }
+        .sev-moderate { background: var(--blue); }
+        .sev-minor, .sev-informational, .sev-finding { background: var(--gray); }
+        .finding .ftext { font-size: 0.96rem; color: var(--gray-light); }
+
+        .thread { margin: 18px 0 8px; }
+        .msg { margin-bottom: 14px; display: flex; }
+        .msg.user { justify-content: flex-end; }
+        .bubble { max-width: 84%; padding: 12px 16px; border-radius: 14px; font-size: 0.97rem; white-space: pre-wrap; }
+        .msg.assistant .bubble { background: var(--bg-card); border: 1px solid var(--line); border-bottom-left-radius: 4px; }
+        .msg.user .bubble { background: linear-gradient(135deg, #2563eb, #3b82f6); color: #fff; border-bottom-right-radius: 4px; }
+        .typing .bubble { color: var(--gray); }
+
+        .ask-row { display: flex; gap: 10px; margin-top: 14px; }
+        .ask-row input {
+            flex: 1; padding: 14px 16px; border-radius: 12px; border: 1px solid var(--line);
+            background: var(--bg-card); color: var(--text); font-family: inherit; font-size: 0.97rem;
+        }
+        .ask-row input:focus { outline: none; border-color: var(--blue); }
+        .ask-row button {
+            padding: 0 22px; border: none; border-radius: 12px; background: linear-gradient(135deg, #f97316, #f59e0b);
+            color: #1a1205; font-weight: 800; cursor: pointer; font-family: inherit; font-size: 0.97rem;
+        }
+        .ask-row button:disabled { opacity: 0.45; cursor: not-allowed; }
+        .remaining { text-align: center; color: var(--gray); font-size: 0.8rem; margin-top: 10px; }
+
+        .cta-card {
+            margin-top: 22px; background: linear-gradient(135deg, rgba(249,115,22,0.12), rgba(245,158,11,0.08));
+            border: 1px solid rgba(245,158,11,0.3); border-radius: 16px; padding: 24px; text-align: center;
+        }
+        .cta-card h3 { font-family: 'DM Serif Display', serif; font-size: 1.3rem; margin-bottom: 8px; }
+        .cta-card p { color: var(--gray-light); font-size: 0.95rem; margin-bottom: 16px; }
+        .cta-card a {
+            display: inline-block; padding: 14px 28px; background: linear-gradient(135deg, #f97316, #f59e0b);
+            color: #1a1205; border-radius: 12px; font-weight: 800; text-decoration: none;
+        }
+        .cta-mini { text-align: center; margin-top: 22px; }
+        .cta-mini a { color: var(--amber); text-decoration: none; font-weight: 600; font-size: 0.95rem; }
+        .cta-mini a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <nav>
+        <a class="logo" href="/">Offer<span class="wise">Wise</span></a>
+        <a class="back" href="/">← Home</a>
+    </nav>
+
+    <div id="entryView">
+        <div class="hero">
+            <div class="hero-badge">No signup · Your document, answered instantly</div>
+            <h1>Drop your inspection report.<br><em>Ask it anything.</em></h1>
+            <p>Upload the report you just got back (or paste the part that worries you), and ask in plain English. Answers come straight from your own document.</p>
+        </div>
+        <div class="entry container">
+            <div class="drop-zone" id="dropZone">
+                <input type="file" id="fileInput" accept="application/pdf">
+                <div class="drop-icon">📄</div>
+                <h3 id="dropTitle">Drop your inspection report here</h3>
+                <p>PDF, up to 15 MB. We don't store it unless you create an account.</p>
+                <div class="file-info" id="fileInfo" style="display:none;"></div>
+            </div>
+            <div class="paste-toggle">
+                <button id="pasteToggle" type="button">or paste the text instead</button>
+            </div>
+            <div class="paste-area" id="pasteArea">
+                <textarea id="pasteText" placeholder="Paste the section of your report you want to ask about…"></textarea>
+            </div>
+            <button class="go-btn" id="goBtn" disabled>Read my report</button>
+            <div class="err" id="entryErr"></div>
+            <div class="fine-print">Free preview. For the full analysis — every finding cross-checked against the seller's disclosures, with a defensible offer price — you'll create a free account.</div>
+        </div>
+    </div>
+
+    <div class="loading" id="loadingView">
+        <div class="spinner"></div>
+        <h3>Reading your report…</h3>
+        <p>Pulling out what matters most.</p>
+    </div>
+
+    <div class="convo container" id="convoView">
+        <div class="findings" id="findingsBox"></div>
+        <div class="thread" id="thread"></div>
+        <div id="askWrap">
+            <div class="ask-row">
+                <input type="text" id="askInput" placeholder="Ask about your report…" autocomplete="off">
+                <button id="askBtn">Ask</button>
+            </div>
+            <div class="remaining" id="remaining"></div>
+        </div>
+        <div id="ctaWrap"></div>
+        <div class="cta-mini" id="ctaMini">
+            <a href="/analyze">Get the full analysis &amp; your defensible offer →</a>
+        </div>
+    </div>
+
+    <script>
+    (function () {
+        var fileInput = document.getElementById('fileInput');
+        var dropZone = document.getElementById('dropZone');
+        var dropTitle = document.getElementById('dropTitle');
+        var fileInfo = document.getElementById('fileInfo');
+        var pasteToggle = document.getElementById('pasteToggle');
+        var pasteArea = document.getElementById('pasteArea');
+        var pasteText = document.getElementById('pasteText');
+        var goBtn = document.getElementById('goBtn');
+        var entryErr = document.getElementById('entryErr');
+        var entryView = document.getElementById('entryView');
+        var loadingView = document.getElementById('loadingView');
+        var convoView = document.getElementById('convoView');
+        var findingsBox = document.getElementById('findingsBox');
+        var thread = document.getElementById('thread');
+        var askInput = document.getElementById('askInput');
+        var askBtn = document.getElementById('askBtn');
+        var askWrap = document.getElementById('askWrap');
+        var remaining = document.getElementById('remaining');
+        var ctaWrap = document.getElementById('ctaWrap');
+
+        var selectedFile = null;
+        var token = null;
+
+        function refreshGo() {
+            var hasPaste = pasteText.value.trim().length > 40;
+            goBtn.disabled = !(selectedFile || hasPaste);
+        }
+
+        dropZone.addEventListener('click', function () { fileInput.click(); });
+        dropZone.addEventListener('dragover', function (e) { e.preventDefault(); dropZone.classList.add('dragover'); });
+        dropZone.addEventListener('dragleave', function () { dropZone.classList.remove('dragover'); });
+        dropZone.addEventListener('drop', function (e) {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            if (e.dataTransfer.files && e.dataTransfer.files.length) { setFile(e.dataTransfer.files[0]); }
+        });
+        fileInput.addEventListener('change', function () {
+            if (fileInput.files && fileInput.files.length) { setFile(fileInput.files[0]); }
+        });
+
+        function setFile(f) {
+            if (f.type !== 'application/pdf' && !f.name.toLowerCase().endsWith('.pdf')) {
+                entryErr.textContent = 'Please choose a PDF, or paste the text instead.';
+                return;
+            }
+            selectedFile = f;
+            entryErr.textContent = '';
+            dropZone.classList.add('has-file');
+            dropTitle.textContent = 'Ready to read';
+            fileInfo.style.display = 'block';
+            fileInfo.textContent = '✓ ' + f.name;
+            refreshGo();
+        }
+
+        pasteToggle.addEventListener('click', function () {
+            pasteArea.classList.toggle('active');
+            if (pasteArea.classList.contains('active')) { pasteText.focus(); }
+        });
+        pasteText.addEventListener('input', refreshGo);
+
+        function fileToBase64(f) {
+            return new Promise(function (resolve, reject) {
+                var r = new FileReader();
+                r.onload = function () { resolve(String(r.result).split(',')[1]); };
+                r.onerror = function () { reject(new Error('read failed')); };
+                r.readAsDataURL(f);
+            });
+        }
+
+        goBtn.addEventListener('click', function () { start(); });
+
+        function start() {
+            entryErr.textContent = '';
+            goBtn.disabled = true;
+            var send = function (body) {
+                entryView.style.display = 'none';
+                loadingView.classList.add('active');
+                fetch('/api/try/start', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                }).then(function (r) {
+                    return r.json().then(function (d) { return { ok: r.ok, d: d }; });
+                }).then(function (res) {
+                    loadingView.classList.remove('active');
+                    if (!res.ok) {
+                        entryView.style.display = 'block';
+                        goBtn.disabled = false;
+                        entryErr.textContent = (res.d && res.d.error) ? res.d.error : 'Something went wrong. Please try again.';
+                        return;
+                    }
+                    onStarted(res.d);
+                }).catch(function () {
+                    loadingView.classList.remove('active');
+                    entryView.style.display = 'block';
+                    goBtn.disabled = false;
+                    entryErr.textContent = 'Something went wrong. Please try again.';
+                });
+            };
+            if (selectedFile) {
+                fileToBase64(selectedFile).then(function (b64) {
+                    send({ pdf_base64: b64, filename: selectedFile.name });
+                }).catch(function () {
+                    goBtn.disabled = false;
+                    entryErr.textContent = 'That file could not be read. Please try another.';
+                });
+            } else {
+                send({ text: pasteText.value.trim() });
+            }
+        }
+
+        function onStarted(d) {
+            token = d.token;
+            convoView.classList.add('active');
+            if (d.findings && d.findings.length) {
+                var head = document.createElement('div');
+                head.className = 'findings-head';
+                head.textContent = "Here's what I'd look at first";
+                findingsBox.appendChild(head);
+                d.findings.forEach(function (f) {
+                    var row = document.createElement('div');
+                    row.className = 'finding';
+                    var dot = document.createElement('div');
+                    dot.className = 'sev-dot sev-' + (f.severity || 'finding');
+                    var txt = document.createElement('div');
+                    txt.className = 'ftext';
+                    txt.textContent = f.text;
+                    row.appendChild(dot);
+                    row.appendChild(txt);
+                    findingsBox.appendChild(row);
+                });
+            }
+            addMsg('assistant', d.intro || 'I read your document. Ask me anything about it.');
+            updateRemaining(d.messages_remaining);
+            askInput.focus();
+        }
+
+        function addMsg(role, text) {
+            var wrap = document.createElement('div');
+            wrap.className = 'msg ' + role;
+            var b = document.createElement('div');
+            b.className = 'bubble';
+            b.textContent = text;
+            wrap.appendChild(b);
+            thread.appendChild(wrap);
+            wrap.scrollIntoView({ behavior: 'smooth', block: 'end' });
+            return wrap;
+        }
+
+        function updateRemaining(n) {
+            if (typeof n !== 'number') { remaining.textContent = ''; return; }
+            if (n <= 0) { remaining.textContent = ''; return; }
+            remaining.textContent = n + (n === 1 ? ' free question left' : ' free questions left');
+        }
+
+        function showCta(msg, url) {
+            askWrap.style.display = 'none';
+            var card = document.createElement('div');
+            card.className = 'cta-card';
+            var h = document.createElement('h3');
+            h.textContent = 'See the whole picture';
+            var p = document.createElement('p');
+            p.textContent = msg;
+            var a = document.createElement('a');
+            a.href = url || '/analyze';
+            a.textContent = 'Run the full analysis — free to start';
+            card.appendChild(h); card.appendChild(p); card.appendChild(a);
+            ctaWrap.appendChild(card);
+            card.scrollIntoView({ behavior: 'smooth', block: 'end' });
+        }
+
+        function ask() {
+            var q = askInput.value.trim();
+            if (!q || !token) { return; }
+            addMsg('user', q);
+            askInput.value = '';
+            askBtn.disabled = true;
+            var typing = addMsg('assistant', '…');
+            typing.classList.add('typing');
+            fetch('/api/try/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ token: token, message: q })
+            }).then(function (r) {
+                return r.json().then(function (d) { return { ok: r.ok, status: r.status, d: d }; });
+            }).then(function (res) {
+                thread.removeChild(typing);
+                askBtn.disabled = false;
+                var d = res.d || {};
+                if (d.capped) { showCta(d.message, d.cta_url); return; }
+                if (res.status === 410) {
+                    addMsg('assistant', d.message || 'This preview expired. Drop your report again to continue.');
+                    return;
+                }
+                if (!res.ok) {
+                    addMsg('assistant', d.message || "I couldn't answer that just now. Please try again.");
+                    return;
+                }
+                addMsg('assistant', d.answer || '');
+                updateRemaining(d.messages_remaining);
+                if (typeof d.messages_remaining === 'number' && d.messages_remaining <= 0) {
+                    showCta("That's the end of the free preview. Create a free account and I'll run the full analysis — every finding, cross-checked against the disclosures, with a defensible offer price.", '/analyze');
+                }
+            }).catch(function () {
+                if (typing.parentNode) { thread.removeChild(typing); }
+                askBtn.disabled = false;
+                addMsg('assistant', "I'm having trouble right now. Please try again in a moment.");
+            });
+        }
+
+        askBtn.addEventListener('click', ask);
+        askInput.addEventListener('keydown', function (e) { if (e.key === 'Enter') { ask(); } });
+    })();
+    </script>
+</body>
+</html>

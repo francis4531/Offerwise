@@ -5,6 +5,57 @@ Consolidated from 80 individual files on 2026-03-13.
 
 ---
 
+## v5.89.152 — 2026-06-07
+Conversational on-ramp ("Try") — a low-friction, no-login front door aimed at
+the "land but never start" drop-off. Buyers drop ONE inspection report (or paste
+text), get instant findings plus a chat grounded in their own document, then a
+CTA into the full (gated) analysis. Value first, ask later — the account, the
+extra documents, and payment are requested only after a value moment, not as a
+wall before it.
+
+New surface (sits alongside /free-tools and /truth-check, same no-login pattern):
+- GET /try — serves static/try.html, a self-contained conversational page in the
+  existing brand (DM Sans / DM Serif, slate + orange). Drop-zone or paste, top
+  findings as cards, a chat thread, a free-question counter, and a persistent CTA
+  to /analyze. Mobile-friendly; vanilla JS (node --check clean).
+- POST /api/try/start — parses ONE document and opens an anonymous session.
+  Reuses the REAL engine: pdf_handler.extract_text_from_bytes for PDFs and
+  parser.parse_inspection_report (AI-first, rules fallback), so the teaser
+  findings are exactly what the full report would surface. Returns the top 3 by
+  severity as complete sentences (never fragments or enum names). 15/hour limit,
+  15 MB / ~200 KB caps, PDF magic-byte + size validation.
+- POST /api/try/chat — answers grounded ONLY in the uploaded document, citing
+  where things appear and declining when the document is silent (no invented
+  findings/costs; not legal advice). 40/hour limit, 6 free messages per session
+  then a "create a free account" CTA, 2 KB question cap, document truncated to
+  60 KB in-prompt. AI failures refund the turn rather than burning it.
+
+Guardrails & state:
+- Anonymous session state is in-process with a 1-hour TTL (single gunicorn
+  worker), pruned on each start. Nothing is persisted unless the buyer creates an
+  account; an expired session returns 410 and the page asks them to re-drop the
+  document. Tradeoff: sessions are lost on restart — acceptable for an ephemeral
+  preview, revisit with a lightweight table if it matters.
+- Cost shape: ~1 AI call per start (findings) and ~1 per chat message, bounded by
+  the per-IP rate limits and the 6-message cap. Worth watching at volume; a
+  lighter findings prompt can replace the full parser later if latency/cost bite.
+
+Funnel instrumentation (funnel_tracker.track_from_request): try_landed (GET /try),
+try_started + try_findings_shown (/api/try/start), try_chat_message (/api/try/chat)
+— so the "start" rate can actually be measured. (try_cta_clicked / signup
+attribution is a follow-up, since the CTA hands off to the existing /analyze flow.)
+
+Tests: test_try_onramp.py (9, all passing) — page served, start returns token +
+top-3 severity-sorted complete-sentence findings, short-text rejected, no-findings
+still opens chat, grounded chat passes the document into the prompt, unknown token
+410, message cap returns the CTA, AI failure refunds the turn.
+
+Not included (deliberately, to keep the MVP shippable): routing homepage/ad
+traffic to /try (a content/marketing decision), an address-only entry for buyers
+who don't yet have an inspection report (the "timing" cause), and persisted
+sessions. None block shipping the on-ramp itself.
+
+
 ## v5.89.151 — 2026-06-07
 Fix six Sentry issues in one pass — three N+1 query patterns and three real
 errors — plus a sweep that removed the same N+1 pattern from four more routes.

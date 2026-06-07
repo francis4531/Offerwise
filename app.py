@@ -5366,6 +5366,228 @@ def free_tools_page():
     """Free tools hub — all free tools in one tabbed dashboard."""
     return send_from_directory('static', 'free-tools.html')
 
+
+# =============================================================================
+# CONVERSATIONAL ON-RAMP ("Try") — v5.89.152
+# Low-friction, no-login front door for the "land but never start" drop-off:
+# drop ONE inspection report (or paste text), get instant findings + a chat
+# grounded in that document, then a CTA into the full (gated) analysis flow.
+# Reuses the real parser (DocumentParser) and AI client — the findings shown
+# are exactly what the full report would surface. Anonymous session state lives
+# in-process with a short TTL (single gunicorn worker), so nothing is persisted
+# unless the buyer creates an account; an expired session just asks them to
+# re-drop the document.
+# =============================================================================
+_TRY_SESSIONS = {}            # token -> {text, address, findings_count, msg_count, created}
+_TRY_TTL = 3600               # 1 hour
+_TRY_MAX_MESSAGES = 6         # free chat turns before the account CTA
+_TRY_MAX_TEXT = 200_000       # ~200 KB of document text retained per session
+
+
+def _try_prune():
+    """Drop expired anonymous sessions so the in-process store stays bounded."""
+    cutoff = time.time() - _TRY_TTL
+    for k in [k for k, v in list(_TRY_SESSIONS.items()) if v.get('created', 0) < cutoff]:
+        _TRY_SESSIONS.pop(k, None)
+
+
+def _try_sentence(finding):
+    """Render one InspectionFinding as a complete, plain-English sentence.
+
+    Never emits fragments, enum names, or truncated text. Returns None when the
+    finding has no usable description.
+    """
+    desc = (getattr(finding, 'description', '') or '').strip()
+    if not desc:
+        return None
+    s = desc[0].upper() + desc[1:] if desc else desc
+    if not s.endswith(('.', '!', '?')):
+        s += '.'
+    rec = (getattr(finding, 'recommendation', '') or '').strip()
+    if rec:
+        rec = rec[0].upper() + rec[1:]
+        if not rec.endswith(('.', '!', '?')):
+            rec += '.'
+        s += ' ' + rec
+    return s
+
+
+def _try_top_findings(findings, limit=3):
+    """Top findings by severity, as complete sentences for the teaser."""
+    order = {'critical': 0, 'major': 1, 'moderate': 2, 'minor': 3, 'informational': 4}
+    ranked = sorted(
+        findings or [],
+        key=lambda f: order.get(getattr(getattr(f, 'severity', None), 'value', 'minor'), 5)
+    )
+    out = []
+    for f in ranked:
+        sentence = _try_sentence(f)
+        if sentence:
+            out.append({'severity': getattr(getattr(f, 'severity', None), 'value', 'finding'),
+                        'text': sentence})
+        if len(out) >= limit:
+            break
+    return out
+
+
+@app.route('/try')
+def try_onramp_page():
+    """Conversational on-ramp — no login required."""
+    try:
+        from funnel_tracker import track_from_request
+        track_from_request('try_landed', request)
+    except Exception:
+        pass
+    return send_from_directory('static', 'try.html')
+
+
+@app.route('/api/try/start', methods=['POST'])
+@limiter.limit("15 per hour")
+def try_start():
+    """Parse ONE document (uploaded PDF or pasted text), return top findings and
+    open an anonymous chat session. No login."""
+    try:
+        from funnel_tracker import track_from_request
+        track_from_request('try_started', request)
+    except Exception:
+        pass
+
+    data = request.get_json(silent=True) or {}
+    text = (data.get('text') or '').strip()
+    pdf_base64 = data.get('pdf_base64') or ''
+
+    if pdf_base64:
+        if ',' in pdf_base64:
+            pdf_base64 = pdf_base64.split(',', 1)[1]
+        if len(pdf_base64) > 20_971_520:
+            return jsonify({'error': 'That file is too large. Please upload a PDF under 15 MB.'}), 413
+        try:
+            pdf_bytes = base64.b64decode(pdf_base64)
+        except Exception:
+            return jsonify({'error': 'That file could not be read. Please try a different PDF.'}), 400
+        if not pdf_bytes.startswith(b'%PDF-'):
+            return jsonify({'error': 'That does not look like a PDF. Please upload your inspection report as a PDF, or paste the text instead.'}), 400
+        if len(pdf_bytes) > 15_728_640:
+            return jsonify({'error': 'That file is too large. Please upload a PDF under 15 MB.'}), 413
+        try:
+            extracted = pdf_handler.extract_text_from_bytes(pdf_bytes) or {}
+            text = (extracted.get('text') or '').strip()
+        except Exception as e:
+            logging.error(f"try_start extraction failed: {e}")
+            return jsonify({'error': 'We could not read that document. Please try pasting the text instead.'}), 422
+
+    if not text or len(text.strip()) < 80:
+        return jsonify({'error': 'There was not enough readable text. Please upload your full inspection report, or paste a larger section.'}), 400
+    if len(text) > _TRY_MAX_TEXT:
+        text = text[:_TRY_MAX_TEXT]
+
+    findings = []
+    address = None
+    try:
+        doc = parser.parse_inspection_report(text)
+        findings = doc.inspection_findings or []
+        address = doc.property_address
+    except Exception as e:
+        logging.error(f"try_start parse failed: {e}")
+
+    payload = _try_top_findings(findings, limit=3)
+
+    _try_prune()
+    token = secrets.token_urlsafe(18)
+    _TRY_SESSIONS[token] = {
+        'text': text,
+        'address': address,
+        'findings_count': len(findings),
+        'msg_count': 0,
+        'created': time.time(),
+    }
+
+    try:
+        from funnel_tracker import track_from_request
+        track_from_request('try_findings_shown', request)
+    except Exception:
+        pass
+
+    if payload:
+        intro = "I read your inspection report. Here are the things I'd want you to see first — ask me anything about them, or about anything else in the report."
+    else:
+        intro = "I've read your document. I didn't flag any major red-flag findings on a first pass, but ask me anything about it and I'll answer from what's actually in the report."
+
+    return jsonify({
+        'token': token,
+        'address': address or '',
+        'findings': payload,
+        'intro': intro,
+        'messages_remaining': _TRY_MAX_MESSAGES,
+    })
+
+
+@app.route('/api/try/chat', methods=['POST'])
+@limiter.limit("40 per hour")
+def try_chat():
+    """Answer a buyer's question grounded ONLY in their uploaded document. No login."""
+    data = request.get_json(silent=True) or {}
+    token = (data.get('token') or '').strip()
+    message = (data.get('message') or '').strip()
+
+    sess = _TRY_SESSIONS.get(token)
+    if not token or not sess:
+        return jsonify({'error': 'expired',
+                        'message': "This preview has expired. Drop your inspection report again to pick up where you left off."}), 410
+    if not message:
+        return jsonify({'error': 'Please type a question.'}), 400
+    if len(message) > 2000:
+        message = message[:2000]
+
+    if sess['msg_count'] >= _TRY_MAX_MESSAGES:
+        return jsonify({
+            'capped': True,
+            'message': "That's the end of the free preview, and your document raises more than I can cover here. Create a free account and I'll run the full analysis: every finding, cross-checked against the seller's disclosures, with a defensible offer price.",
+            'cta_url': '/analyze',
+        })
+
+    sess['msg_count'] += 1
+    try:
+        from funnel_tracker import track_from_request
+        track_from_request('try_chat_message', request)
+    except Exception:
+        pass
+
+    doc_text = sess['text']
+    if len(doc_text) > 60_000:
+        doc_text = doc_text[:60_000]
+
+    system = (
+        "You are OfferWise, a calm, plain-English home-buying guide helping a prospective "
+        "buyer understand a real estate document they just uploaded. Answer ONLY from the "
+        "document text provided. When you reference something, point to where it appears "
+        "(the section, or what the inspector wrote). If the document does not address the "
+        "question, say so plainly and suggest the full OfferWise analysis rather than "
+        "guessing. Never invent findings, costs, or facts that are not in the text. You are "
+        "not a lawyer or a licensed inspector — help them understand and prepare to "
+        "negotiate, but do not give legal advice. Keep answers short, concrete, and kind."
+    )
+    prompt = (
+        "DOCUMENT:\n\"\"\"\n" + doc_text + "\n\"\"\"\n\n"
+        "BUYER'S QUESTION: " + message + "\n\n"
+        "Answer using only the document above."
+    )
+
+    try:
+        from ai_client import get_ai_response
+        answer = get_ai_response(prompt, max_tokens=600, temperature=0, system=system)
+    except Exception as e:
+        logging.error(f"try_chat AI error: {e}")
+        sess['msg_count'] = max(0, sess['msg_count'] - 1)  # don't burn a turn on our failure
+        return jsonify({'error': 'busy',
+                        'message': "I'm having trouble reading that right now. Please try again in a moment."}), 503
+
+    return jsonify({
+        'answer': answer,
+        'messages_remaining': max(0, _TRY_MAX_MESSAGES - sess['msg_count']),
+    })
+
+
 @app.route('/truth-check')
 def truth_check_page():
     """Free disclosure truth check - viral tool, no login required.
