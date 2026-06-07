@@ -18,6 +18,17 @@ import pytest
 from datetime import datetime, timedelta
 from unittest.mock import patch, MagicMock, call
 
+import agentic_monitor as _am
+
+
+@pytest.fixture(autouse=True)
+def _clear_avm_cache():
+    """The RentCast AVM cache is module-level; clear it around every test so a
+    cached response from one test can't leak into the next."""
+    _am._AVM_CACHE.clear()
+    yield
+    _am._AVM_CACHE.clear()
+
 
 # ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -330,13 +341,13 @@ def test_price_no_drop_no_alert():
                 _check_price_for_watch(watch, db)
                 mock_send.assert_not_called()
 
-def test_price_drop_2pct_triggers_alert():
-    """A 2%+ AVM drop should fire a price_drop alert."""
+def test_price_drop_triggers_alert():
+    """A drop past the 3.0% threshold (raised from 2.0% in v5.88.87) fires a price_drop alert."""
     from agentic_monitor import _check_price_for_watch
     watch = _make_watch(avm_at_analysis=800000)
     db = _make_db()
     with patch('agentic_monitor.RENTCAST_API_KEY', 'key'):
-        with patch('agentic_monitor.requests.get', return_value=_rentcast_avm_response(780000)):
+        with patch('agentic_monitor.requests.get', return_value=_rentcast_avm_response(770000)):  # 3.75% drop
             with patch('agentic_monitor._send') as mock_send:
                 with patch('agentic_monitor._save_alert') as mock_save:
                     _check_price_for_watch(watch, db)
@@ -746,3 +757,35 @@ def test_price_drop_alert_contains_dollar_figures():
                     _check_price_for_watch(watch, db)
                     call_html = mock_send.call_args[0][2]
                     assert '$' in call_html
+
+
+def test_avm_cache_dedups_comps_and_price_same_day():
+    """The comps monitor and price monitor must share ONE RentCast /avm/value
+    call per address per day (v5.89.150 de-dup), not one each."""
+    from agentic_monitor import _check_comps_for_watch, _check_price_for_watch
+    watch = _make_watch(asking_price=800000, avm_at_analysis=790000,
+                        created_at=datetime(2026, 1, 1))
+    db = _make_db()
+    resp = _rentcast_comps_response(new_comps=[], price=790000)
+    with patch('agentic_monitor.RENTCAST_API_KEY', 'key'):
+        with patch('agentic_monitor.requests.get', return_value=resp) as mock_get:
+            with patch('agentic_monitor._send'), patch('agentic_monitor._save_alert'):
+                with patch('agentic_monitor._within_alert_cooldown', return_value=False):
+                    _check_comps_for_watch(watch, db)   # fetches + caches
+                    _check_price_for_watch(watch, db)   # must reuse the cache
+            assert mock_get.call_count == 1, \
+                f"expected 1 shared RentCast call, got {mock_get.call_count}"
+
+
+def test_avm_cache_expires_and_refetches():
+    """A second address (cache miss) still fetches; cache is keyed per address."""
+    from agentic_monitor import _check_comps_for_watch
+    db = _make_db()
+    resp = _rentcast_comps_response(new_comps=[], price=790000)
+    with patch('agentic_monitor.RENTCAST_API_KEY', 'key'):
+        with patch('agentic_monitor.requests.get', return_value=resp) as mock_get:
+            with patch('agentic_monitor._send'), patch('agentic_monitor._save_alert'):
+                with patch('agentic_monitor._within_alert_cooldown', return_value=False):
+                    _check_comps_for_watch(_make_watch(id=1, address='111 A St, San Jose, CA'), db)
+                    _check_comps_for_watch(_make_watch(id=2, address='222 B St, San Jose, CA'), db)
+            assert mock_get.call_count == 2  # different addresses -> two fetches

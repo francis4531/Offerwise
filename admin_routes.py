@@ -2702,13 +2702,27 @@ def admin_analysis_stats():
         #   RentCastTool → /avm/value (property details + valuation + comps)
         #   MarketStatsTool → /markets (ZIP-level market stats)
         rentcast_analysis_calls = completed * 2
-        rentcast_total_calls = rentcast_nearby_calls + rentcast_analysis_calls
+        # Daily agentic monitor: 1 /avm/value per active watch per day. The comps
+        # and price monitors share one cached call as of v5.89.150 (was 2/day).
+        # Scaled to the selected period (capped so "all time" can't blow up).
+        rentcast_monitor_calls = 0
+        rentcast_active_watches = 0
+        try:
+            from models import PropertyWatch
+            rentcast_active_watches = PropertyWatch.query.filter_by(is_active=True).count()
+            _period_days = max(1, min((datetime.utcnow() - since).days, 366))
+            rentcast_monitor_calls = rentcast_active_watches * _period_days
+        except Exception:
+            pass
+        rentcast_total_calls = rentcast_nearby_calls + rentcast_analysis_calls + rentcast_monitor_calls
         # RentCast API pricing tiers (as of 2026):
         #   Foundation $74/mo → 1k included, $0.20/req overage
         #   Growth $199/mo → 5k included, $0.06/req overage
         #   Scale $449/mo → 25k included, $0.03/req overage
-        # We estimate at Growth overage rate ($0.06) as a reasonable assumption
-        rentcast_cost_est = round(rentcast_total_calls * 0.06, 2)
+        # The $74 Foundation line is on the ledger, so estimate at Foundation:
+        # the first 1,000 calls/period are included; overage bills at $0.20/req.
+        rentcast_included = 1000
+        rentcast_cost_est = round(max(0, rentcast_total_calls - rentcast_included) * 0.20, 2)
 
         # Google Maps Geocoding: called ONLY from risk_check_engine (viral Risk Check tool).
         # The full analysis pipeline (property_research_agent) uses the Census Bureau geocoder (FREE).
@@ -2945,6 +2959,9 @@ def admin_analysis_stats():
             'rentcast_total_calls': rentcast_total_calls,
             'rentcast_nearby_calls': rentcast_nearby_calls,
             'rentcast_analysis_calls': rentcast_analysis_calls,
+            'rentcast_monitor_calls': rentcast_monitor_calls,
+            'rentcast_active_watches': rentcast_active_watches,
+            'rentcast_included': rentcast_included,
             'rentcast_cost_est': rentcast_cost_est,
             # Google Maps
             'google_maps_configured': google_maps_configured,

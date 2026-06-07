@@ -5,6 +5,25 @@ Consolidated from 80 individual files on 2026-03-13.
 
 ---
 
+## v5.89.150 — 2026-06-06
+RentCast: de-dup the daily monitor calls + complete the cost estimate.
+
+- agentic_monitor: the comps monitor (07:00) and price monitor (07:30) each made
+  their own /avm/value call for the same address every day. New _rentcast_avm()
+  adds a ~23h in-process, address-keyed cache so the two jobs share ONE call —
+  roughly halving monitor-side RentCast usage per active watch. Both checks now
+  route through it; only successful fetches cache; expired entries are pruned.
+- API Costs (RentCast card): the estimate counted only analysis + nearby calls and
+  omitted the daily monitor entirely, and priced at the Growth overage rate. Now it
+  adds "Daily monitor AVM calls" = active watches x days-in-period (post de-dup,
+  1/watch/day) and prices on the Foundation tier ($74/mo, 1,000 included, $0.20/req
+  over) that matches the ledger line. The card shows the active-watch count.
+- Tests: +2 (cache de-dup, per-address miss); fixed the stale price-drop test to the
+  real 3.0% threshold. agentic_monitor 61 pass (3 scheduler tests need flask_cors,
+  environment-only); card_import 9 pass.
+
+---
+
 ## v5.89.149 — 2026-06-06
 Card importer now accepts the bank "transaction list" copy, not just the CSV export.
 

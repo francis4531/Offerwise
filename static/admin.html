@@ -17331,6 +17331,9 @@ function renderRentCast(analysis) {
 
   const nearbyCalls  = analysis?.rentcast_nearby_calls   ?? 0;
   const analysisCalls = analysis?.rentcast_analysis_calls ?? 0;
+  const monitorCalls  = analysis?.rentcast_monitor_calls  ?? 0;
+  const activeWatches = analysis?.rentcast_active_watches ?? 0;
+  const included      = analysis?.rentcast_included       ?? 1000;
   const totalCalls   = analysis?.rentcast_total_calls     ?? 0;
   const costEst      = analysis?.rentcast_cost_est        ?? 0;
 
@@ -17338,7 +17341,7 @@ function renderRentCast(analysis) {
     <tr>
       <td>Total API calls (period)</td>
       <td class="cost-cell">${fmtNum(totalCalls)}</td>
-      <td><span class="pricing-note">~$0.06/call est. (Growth plan overage) · subscription from $74/mo</span></td>
+      <td><span class="pricing-note">Foundation: ${fmtNum(included)} calls included in $74/mo; $0.20/call over</span></td>
       <td>${fmtDollars(costEst)}</td>
     </tr>
     <tr>
@@ -17351,6 +17354,12 @@ function renderRentCast(analysis) {
       <td>Full analysis AVM calls</td>
       <td class="cost-cell cost-zero">${fmtNum(analysisCalls)}</td>
       <td><span class="pricing-note">2 calls per completed analysis: /avm/value + /markets</span></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Daily monitor AVM calls</td>
+      <td class="cost-cell cost-zero">${fmtNum(monitorCalls)}</td>
+      <td><span class="pricing-note">${fmtNum(activeWatches)} active watch(es) × 1 call/day (comps + price share one fetch)</span></td>
       <td></td>
     </tr>
     <tr style="background:rgba(255,255,255,0.02);">

@@ -26,6 +26,46 @@ PT = ZoneInfo('America/Los_Angeles')
 
 RENTCAST_API_KEY = os.environ.get('RENTCAST_API_KEY', '')
 
+# ── RentCast AVM fetch with a short in-process cache ──────────────────────────
+# The comps monitor (07:00) and price monitor (07:30) both need /avm/value for
+# the same address on the same day, and APScheduler runs them in one long-lived
+# process. An address-keyed cache lets the second job reuse the first job's
+# fetch instead of paying for a duplicate RentCast call — roughly halving
+# monitor-side RentCast usage per active watch (v5.89.150).
+_AVM_CACHE = {}          # address -> (fetched_at_epoch, data)
+_AVM_CACHE_TTL = 82800   # ~23h, matching the once-per-day monitor cadence
+
+
+def _rentcast_avm(address):
+    """RentCast /avm/value JSON for an address (cached ~23h). Returns None on a
+    missing key, empty address, non-200, or error. Only successful fetches cache."""
+    import time
+    if not RENTCAST_API_KEY or not address:
+        return None
+    now = time.time()
+    hit = _AVM_CACHE.get(address)
+    if hit and (now - hit[0]) < _AVM_CACHE_TTL:
+        return hit[1]
+    # prune expired entries so the long-lived process doesn't grow unbounded
+    for k in [k for k, (t, _d) in _AVM_CACHE.items() if now - t >= _AVM_CACHE_TTL]:
+        _AVM_CACHE.pop(k, None)
+    try:
+        resp = requests.get(
+            'https://api.rentcast.io/v1/avm/value',
+            params={'address': address},
+            headers={'X-Api-Key': RENTCAST_API_KEY},
+            timeout=15,
+        )
+        if resp.status_code != 200:
+            return None
+        data = resp.json()
+    except Exception as e:
+        logger.warning(f"RentCast AVM fetch failed for {address}: {e}")
+        return None
+    _AVM_CACHE[address] = (now, data)
+    return data
+
+
 # ── Helpers ──────────────────────────────────────────────────────────────────
 
 def _now():
@@ -374,19 +414,9 @@ def _check_comps_for_watch(watch, db):
     if not watch.asking_price:
         return
 
-    # Fetch comps from RentCast
-    try:
-        resp = requests.get(
-            'https://api.rentcast.io/v1/avm/value',
-            params={'address': watch.address},
-            headers={'X-Api-Key': RENTCAST_API_KEY},
-            timeout=15
-        )
-        if resp.status_code != 200:
-            return
-        data = resp.json()
-    except Exception as e:
-        logger.warning(f"RentCast comps fetch failed for {watch.address}: {e}")
+    # Fetch comps from RentCast (shares a once-per-day cached call with the price monitor)
+    data = _rentcast_avm(watch.address)
+    if data is None:
         return
 
     comps_raw = data.get('comparables', []) or []
@@ -654,18 +684,8 @@ def _check_price_for_watch(watch, db):
     if watch.last_price_check_at and (_now() - watch.last_price_check_at).total_seconds() < 82800:
         return
 
-    try:
-        resp = requests.get(
-            'https://api.rentcast.io/v1/avm/value',
-            params={'address': watch.address},
-            headers={'X-Api-Key': RENTCAST_API_KEY},
-            timeout=15
-        )
-        if resp.status_code != 200:
-            return
-        data = resp.json()
-    except Exception as e:
-        logger.warning(f"RentCast price check failed: {e}")
+    data = _rentcast_avm(watch.address)
+    if data is None:
         return
 
     current_avm = data.get('price') or 0
