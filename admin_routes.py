@@ -159,10 +159,13 @@ def admin_inspectors_list():
         return jsonify({'error': 'Unauthorized'}), 403
     try:
         inspectors = Inspector.query.order_by(Inspector.created_at.desc()).limit(200).all()
+        # Pre-fetch owners in one query instead of User.query.get() per inspector (N+1).
+        _insp_user_ids = [i.user_id for i in inspectors if i.user_id]
+        _insp_user_map = {u.id: u for u in User.query.filter(User.id.in_(_insp_user_ids)).all()} if _insp_user_ids else {}
         out = []
         for insp in inspectors:
             try:
-                user = User.query.get(insp.user_id)
+                user = _insp_user_map.get(insp.user_id)
                 out.append({
                     'id': insp.id,
                     'user_id': insp.user_id,

@@ -8162,6 +8162,17 @@ def handle_exception(error):
     if isinstance(error, RateLimitExceeded):
         return error  # let Flask convert to 429 response
 
+    # v5.89.151: Routing / client errors (404, 405, 400, 415, ...) are normal
+    # HTTP traffic — most often bots probing endpoints with the wrong method
+    # (e.g. a GET to the POST-only /api/v1/analyze). They are NOT server bugs,
+    # so return the standard response WITHOUT logging an error or capturing to
+    # Sentry. Previously these fell through to the logging.error calls below,
+    # which the logging→Sentry integration paged as high-priority errors and
+    # which generated >1K events from the /api/v1/analyze 405 alone.
+    from werkzeug.exceptions import HTTPException
+    if isinstance(error, HTTPException) and (error.code or 500) < 500:
+        return error
+
     import traceback
     db.session.rollback()
     logging.error(f"Unhandled exception on {request.path}: {error}")
@@ -9337,8 +9348,11 @@ def get_analytics():
         all_power_user_ids = set(power_user_ids_list) | paying_user_ids
         
         power_users_data = []
-        for user_id in list(all_power_user_ids)[:20]:  # Limit to 20
-            user = User.query.get(user_id)
+        _pu_ids = list(all_power_user_ids)[:20]  # Limit to 20
+        # One query for all power users instead of User.query.get() per id (N+1).
+        _pu_map = {u.id: u for u in User.query.filter(User.id.in_(_pu_ids)).all()} if _pu_ids else {}
+        for user_id in _pu_ids:
+            user = _pu_map.get(user_id)
             if user:
                 # Get their analysis count
                 user_usage = next((u for u in usage_stats if u.user_id == user_id), None)
@@ -9394,22 +9408,23 @@ def get_analytics():
                 'last_login': user.last_login.isoformat() if user.last_login else None
             })
         
-        # Recent activity (last 7 days) - count by Analysis creation
+        # Recent activity (last 7 days) — properties created per day. One query
+        # for the whole window, bucketed in Python with identical day boundaries
+        # (was 7 separate COUNT queries — the N+1 Sentry flagged on this route).
         recent_activity = []
+        _ra_now = datetime.now()
+        _ra_window_start = (_ra_now - timedelta(days=6)).replace(hour=0, minute=0, second=0, microsecond=0)
+        try:
+            _ra_times = [r[0] for r in db.session.query(Property.created_at).filter(
+                Property.created_at >= _ra_window_start
+            ).all()]
+        except Exception:
+            _ra_times = []
         for i in range(7):
-            day = datetime.now() - timedelta(days=i)
+            day = _ra_now - timedelta(days=i)
             day_start = day.replace(hour=0, minute=0, second=0, microsecond=0)
             day_end = day_start + timedelta(days=1)
-            
-            # Count properties created on this day
-            try:
-                day_analyses = Property.query.filter(
-                    Property.created_at >= day_start,
-                    Property.created_at < day_end
-                ).count()
-            except Exception:
-                day_analyses = 0
-            
+            day_analyses = sum(1 for t in _ra_times if t and day_start <= t < day_end)
             recent_activity.append({
                 'date': day.strftime('%a %m/%d'),
                 'analyses': day_analyses,
@@ -9474,23 +9489,34 @@ def get_insights():
         now = datetime.now()
         
         # ── Cohort Analysis: signups by week → retention ──────────────
+        # Fetch all cohort users once, and their property counts in one GROUP BY,
+        # then bucket by week in Python. Previously this ran a users-per-week
+        # query (×8) AND a Property.count() per user nested inside it — the
+        # heaviest N+1 in the codebase.
         cohorts = []
+        _coh_window_start = (now - timedelta(weeks=8)).replace(hour=0, minute=0, second=0, microsecond=0)
+        _coh_users = User.query.filter(User.created_at >= _coh_window_start).all()
+        _coh_user_ids = [u.id for u in _coh_users]
+        _coh_prop_counts = {}
+        if _coh_user_ids:
+            for uid, cnt in (db.session.query(Property.user_id, func.count(Property.id))
+                             .filter(Property.user_id.in_(_coh_user_ids))
+                             .group_by(Property.user_id).all()):
+                _coh_prop_counts[uid] = cnt
         for weeks_ago in range(8):
             week_start = (now - timedelta(weeks=weeks_ago+1)).replace(hour=0, minute=0, second=0, microsecond=0)
             week_end = (now - timedelta(weeks=weeks_ago)).replace(hour=0, minute=0, second=0, microsecond=0)
-            
-            week_users = User.query.filter(
-                User.created_at >= week_start,
-                User.created_at < week_end
-            ).all()
-            
+
+            week_users = [u for u in _coh_users
+                          if u.created_at and week_start <= u.created_at < week_end]
+
             signups = len(week_users)
             analyzed = 0
             returned = 0
             converted = 0
             
             for u in week_users:
-                props = Property.query.filter_by(user_id=u.id).count()
+                props = _coh_prop_counts.get(u.id, 0)
                 if props > 0:
                     analyzed += 1
                 if props >= 2:
@@ -9539,16 +9565,34 @@ def get_insights():
             risk_tiers[a.risk_tier] += 1
         
         # ── Daily Activity (30 days) ─────────────────────────────────
+        # Three windowed fetches bucketed in Python (was 90 COUNT queries:
+        # signups + analyses + logins, each counted per day across 30 days).
         daily = []
+        _daily_window_start = (now - timedelta(days=29)).replace(hour=0, minute=0, second=0, microsecond=0)
+        try:
+            _d_signups = [r[0] for r in db.session.query(User.created_at).filter(
+                User.created_at >= _daily_window_start).all()]
+        except Exception:
+            _d_signups = []
+        try:
+            _d_analyses = [r[0] for r in db.session.query(Property.created_at).filter(
+                Property.created_at >= _daily_window_start).all()]
+        except Exception:
+            _d_analyses = []
+        try:
+            _d_logins = [r[0] for r in db.session.query(User.last_login).filter(
+                User.last_login >= _daily_window_start).all()]
+        except Exception:
+            _d_logins = []
         for days_ago in range(30):
             day = now - timedelta(days=days_ago)
             day_start = day.replace(hour=0, minute=0, second=0, microsecond=0)
             day_end = day_start + timedelta(days=1)
-            
-            signups = User.query.filter(User.created_at >= day_start, User.created_at < day_end).count()
-            analyses = Property.query.filter(Property.created_at >= day_start, Property.created_at < day_end).count()
-            logins = User.query.filter(User.last_login >= day_start, User.last_login < day_end).count()
-            
+
+            signups = sum(1 for t in _d_signups if t and day_start <= t < day_end)
+            analyses = sum(1 for t in _d_analyses if t and day_start <= t < day_end)
+            logins = sum(1 for t in _d_logins if t and day_start <= t < day_end)
+
             daily.append({
                 'date': day.strftime('%m/%d'),
                 'signups': signups,

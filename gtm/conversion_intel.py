@@ -27,6 +27,10 @@ logger = logging.getLogger(__name__)
 GA4_PROPERTY_ID = os.environ.get("GA4_PROPERTY_ID", "")
 GA4_KEY_JSON = os.environ.get("GOOGLE_ANALYTICS_KEY_JSON", "")
 
+# Guard so an invalid GA key (e.g. a placeholder value on staging) is logged
+# at most once per process instead of on every /api/gtm/funnel call.
+_GA4_JSON_WARNED = False
+
 FUNNEL_STAGES = [
     # Stage 1: Top of funnel (free tools)
     "visit",                # Any page load
@@ -86,7 +90,16 @@ def _get_ga4_client():
         logger.warning("google-analytics-data package not installed — run: pip install google-analytics-data")
         return None
     except json.JSONDecodeError:
-        logger.error("GOOGLE_ANALYTICS_KEY_JSON is not valid JSON")
+        # Config issue, not a server bug — and it recurs on every funnel call.
+        # Log once at WARNING (the logging→Sentry integration only captures
+        # error level), then disable GA4 gracefully.
+        global _GA4_JSON_WARNED
+        if not _GA4_JSON_WARNED:
+            logger.warning(
+                "GOOGLE_ANALYTICS_KEY_JSON is set but is not valid JSON — "
+                "GA4 integration disabled. (Logged once per process.)"
+            )
+            _GA4_JSON_WARNED = True
         return None
     except Exception as e:
         logger.error(f"GA4 client init failed: {e}")

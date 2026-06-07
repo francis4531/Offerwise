@@ -5,6 +5,53 @@ Consolidated from 80 individual files on 2026-03-13.
 
 ---
 
+## v5.89.151 — 2026-06-07
+Fix six Sentry issues in one pass — three N+1 query patterns and three real
+errors — plus a sweep that removed the same N+1 pattern from four more routes.
+
+N+1 query fixes (returned 200, but slow / heavy DB load):
+- get_analytics (/api/analytics): the 7-day "recent activity" trend ran one
+  COUNT per day (7 queries). Now a single windowed fetch bucketed in Python with
+  identical day boundaries. The power-users block also did User.query.get() per
+  id (<=20); now one IN(...) query.
+- get_user_analyses (/api/user/analyses): loaded the user's properties, then ran
+  a per-property "latest analysis" query inside the loop (~55 SELECTs, ~341ms —
+  the worst-timed of the set). Now one IN(...) query, newest-first, reduced to a
+  latest-per-property dict. Output (sort order, owned count, numeric offer_score,
+  cross-user isolation) verified unchanged by the TestListAnalyses suite.
+- api_gtm_drafts (/api/gtm/drafts): d.to_dict() read draft.thread, lazy-loading
+  gtm_scanned_threads once per draft. Now eager-loaded — contains_eager when the
+  platform filter already joins the thread, joinedload otherwise.
+
+Real errors (High priority):
+- 405 on /api/v1/analyze (>1K events, top volume): bots send GET to the POST-only
+  route; the catch-all handle_exception logged every werkzeug routing exception as
+  an error, which the logging->Sentry integration paged. Now 4xx HTTPExceptions
+  return the standard response WITHOUT logging or Sentry capture; 5xx still log.
+- GOOGLE_ANALYTICS_KEY_JSON is not valid JSON (staging /api/gtm/funnel): the GA
+  key was json.loads()'d and the JSONDecodeError logged at ERROR on every call.
+  Now logged once per process at WARNING and GA4 disabled gracefully.
+- Reddit Ads API error 429 (admin.api_reddit_ads_sync): NO code change needed —
+  the current code (v5.89.124) already handles 429 first (warning + raise
+  RedditAdsRateLimited, and the per-date loop breaks on the first 429). The Sentry
+  error events are from Jun 1, before that fix shipped, and stop once prod is on
+  >=v5.89.124. Verified there is no other error-level 429 path.
+
+N+1 sweep (same pattern, not Sentry-reported, lower-traffic admin/internal):
+- get_insights (/api/insights): the 8-week cohort ran a per-user Property.count()
+  nested inside the per-week loop (the heaviest N+1 in the codebase) — now all
+  cohort users in one query + one GROUP BY for property counts, bucketed by week.
+  The 30-day daily activity ran 90 COUNTs (signups + analyses + logins x 30) — now
+  three windowed fetches bucketed in Python. Boundaries/output unchanged.
+- admin inspectors list: User.query.get() per inspector (<=200) -> one IN query.
+- get_user_repair_jobs: a double N+1 (claims per lead, then Contractor.query.get()
+  per claim) -> two batched queries with dict lookups.
+
+Note (not changed): get_insights also loads all properties / analyses / documents
+to bucket in Python (one query each — heavy on large tables but not N+1). Left as
+a future GROUP BY cleanup to keep this build focused.
+
+
 ## v5.89.150 — 2026-06-06
 RentCast: de-dup the daily monitor calls + complete the cost estimate.
 

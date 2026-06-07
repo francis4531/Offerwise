@@ -338,12 +338,25 @@ def get_user_analyses():
             # Get all properties for current user that have been analyzed
             properties = Property.query.filter_by(user_id=current_user.id).all()
 
+            # Fetch the latest analysis for ALL of these properties in ONE query.
+            # This was previously a per-property query inside the loop below — an
+            # N+1 that fired ~55 SELECTs (and ~341ms) on accounts with many saved
+            # analyses. Ordered newest-first, so the first row seen for a given
+            # property_id is its most recent analysis.
+            _prop_ids = [p.id for p in properties]
+            _latest_by_prop = {}
+            if _prop_ids:
+                for _a in (Analysis.query
+                           .filter(Analysis.property_id.in_(_prop_ids))
+                           .order_by(Analysis.created_at.desc())
+                           .all()):
+                    if _a.property_id not in _latest_by_prop:
+                        _latest_by_prop[_a.property_id] = _a
+
             analyses = []
             for prop in properties:
-                # Get most recent analysis for this property
-                analysis = Analysis.query.filter_by(
-                    property_id=prop.id
-                ).order_by(Analysis.created_at.desc()).first()
+                # Most recent analysis for this property (from the batch fetch above)
+                analysis = _latest_by_prop.get(prop.id)
 
                 if analysis and prop.analyzed_at:
                     import json as _json
@@ -961,14 +974,27 @@ def get_user_repair_jobs():
     leads = ContractorLead.query.filter_by(
         user_id=current_user.id
     ).order_by(ContractorLead.created_at.desc()).all()
-    
+
+    # Pre-fetch all claims for these leads, and all referenced contractors, in
+    # two queries — was a claims-query-per-lead plus a contractor-get-per-claim
+    # (a double N+1).
+    _lead_ids = [l.id for l in leads]
+    _claims_by_lead = {}
+    _all_claims = (ContractorLeadClaim.query
+                   .filter(ContractorLeadClaim.lead_id.in_(_lead_ids)).all()) if _lead_ids else []
+    for _cl in _all_claims:
+        _claims_by_lead.setdefault(_cl.lead_id, []).append(_cl)
+    _contractor_ids = {c.contractor_id for c in _all_claims if c.contractor_id}
+    _contractor_map = {c.id: c for c in Contractor.query.filter(
+        Contractor.id.in_(_contractor_ids)).all()} if _contractor_ids else {}
+
     result = []
     for lead in leads:
-        # Get claims/interested contractors (anonymised until claimed)
-        claims = ContractorLeadClaim.query.filter_by(lead_id=lead.id).all()
+        # Claims/interested contractors (anonymised until claimed), from prefetch
+        claims = _claims_by_lead.get(lead.id, [])
         contractors_info = []
         for claim in claims:
-            c = Contractor.query.get(claim.contractor_id)
+            c = _contractor_map.get(claim.contractor_id)
             if c:
                 contractors_info.append({
                     'name':   c.business_name or c.name or 'Contractor',

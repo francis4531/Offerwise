@@ -110,6 +110,7 @@ def api_gtm_drafts():
     _check_admin()
     try:
         from models import GTMRedditDraft, GTMScannedThread
+        from sqlalchemy.orm import joinedload, contains_eager
         status   = request.args.get('status', 'pending')
         platform = request.args.get('platform')  # reddit | biggerpockets | bp (alias)
         # Normalize 'bp' → 'biggerpockets' (frontend uses shorthand)
@@ -118,9 +119,16 @@ def api_gtm_drafts():
         limit    = min(int(request.args.get('limit', 20)), 100)
         q = GTMRedditDraft.query.filter_by(status=status)
         if platform:
-            # Filter by the platform of the parent thread
+            # Filter by the platform of the parent thread. The join is already
+            # present, so populate draft.thread from it via contains_eager to
+            # avoid a per-draft lazy-load of gtm_scanned_threads (N+1).
             q = q.join(GTMScannedThread, GTMRedditDraft.thread_id == GTMScannedThread.id)\
-                 .filter(GTMScannedThread.platform == platform)
+                 .filter(GTMScannedThread.platform == platform)\
+                 .options(contains_eager(GTMRedditDraft.thread))
+        else:
+            # No join here, so eager-load the parent thread directly (still N+1
+            # otherwise, since d.to_dict() reads draft.thread).
+            q = q.options(joinedload(GTMRedditDraft.thread))
         drafts = q.order_by(GTMRedditDraft.created_at.desc()).limit(limit).all()
         return jsonify([d.to_dict() for d in drafts])
     except Exception as e:
