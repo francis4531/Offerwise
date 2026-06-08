@@ -5,6 +5,94 @@ Consolidated from 80 individual files on 2026-03-13.
 
 ---
 
+## v5.89.156 — 2026-06-07
+Rebuild the v2 home arm as the on-ramp hero — make value the first thing a buyer
+meets, signup the last. This is what makes the on-ramp (and the ad spend driving
+traffic) actually convert, instead of /try sitting unused.
+
+Why: both home arms funneled to /login?signup before any value — control (the full
+marketing page) and the old v2 ("What is the seller not telling you?" → Upload →
+signup). The "land but never start" drop-off happens right there.
+
+- static/index-v2.html: rewritten. The hero IS the on-ramp — same proven hook
+  ("What is the seller not telling you?") but the action is now: drop an inspection
+  report or disclosure (or paste text), get instant findings + a grounded chat,
+  no signup. Reuses /api/try/start + the Ask widget (ask-widget.js), so it's the
+  same component as /try and the report. Built in the on-ramp aesthetic (DM Sans /
+  DM Serif, slate + orange) so the hero and the widget feel like one thing.
+- Second door for the "timing" cohort: a "No report yet? Try it on a sample
+  inspection" button that runs the same pipeline on a bundled sample document, so
+  visitors who don't have a report yet still reach value instead of bouncing. The
+  sample only calls the model on click (not on page load), keeping cost bounded.
+- Kept a focused body below the hero (3-step how-it-works, a trust line) and a
+  footer CTA to the full analysis for the ready-to-commit visitor.
+
+A/B: this becomes the live experiment automatically — / serves index-v2.html to
+the 'v2' arm and index.html to 'control', 50/50 sticky. Reset the experiment by
+bumping the cookie ('ow_ab' → 'ow_ab2') and test name ('home_promptfirst' →
+'home_onramp') so visitors pinned to the old prompt-first arm get re-bucketed into
+a clean control-vs-on-ramp test. Start rate is measured by the existing try_*
+funnel events. (Note: the "always V2 on staging" was just the old sticky cookie —
+not a bug; the reset clears it.)
+
+Cost gate: unauthenticated AI now sits at the highest-traffic surface, so the
+per-IP rate limits + 6-message cap on /api/try/* stay on, and the sample is
+click-triggered. Tests unchanged and green (16).
+
+
+## v5.89.155 — 2026-06-07
+Fix a severity-color bug in the Ask widget, caught while building a faithful
+interactive preview of the component in each entry point.
+
+- static/ask-widget.js: the finding-card CSS used the class `.crit`, but the
+  backend (_try_top_findings) emits the severity value `critical`. Critical
+  findings — the most important ones — therefore rendered without their red
+  left-border and tag color. Renamed the CSS to `.critical` so it matches; major
+  and moderate already matched. No behavior change beyond the corrected color.
+
+## v5.89.154 — 2026-06-07
+The "Ask your report" component — one reusable chat, grounded in whatever
+context a surface has, matching the approved mockup. This is the thick/credible/
+sticky layer: a buyer can interrogate their report everywhere they see one.
+
+New shared pieces:
+- ask_engine.py — the single grounding engine every surface uses, so the rules,
+  tone, and formatting are identical. grounded_answer() + context builders for a
+  document (on-ramp), an analysis + its documents (full report), and a share
+  snapshot (shared view). One SYSTEM_RULES prompt (warm, plain, cite the source,
+  refuse when the context is silent, no headers/'---').
+- static/ask-widget.js — the reusable, self-contained widget (window.OfferWiseAsk
+  .mount). Injects its own styles; renders the mockup design (context strip with a
+  live dot, OfferWise identity on answers, severity-colored finding cards,
+  suggested chips, safe markdown rendering, footer/CTA, free-question cap). Config
+  driven: endpoint + payload + labels + chips + cap. Fixes the flat staging look.
+
+Wired in this build:
+- /try (on-ramp) — rewritten to mount the widget for the chat (keeps the
+  drop/paste entry). Context: the one uploaded document. The old bespoke chat JS
+  is gone; the widget now owns rendering, so future polish is one place.
+- Shared view (/opinion/<token>, shared_opinion.html) — widget mounted between
+  the summary and the reactions; a spouse/agent can interrogate the snapshot with
+  no login. New endpoint /api/share/<token>/chat (sharing_routes, 40/hr, grounded
+  in the share snapshot). Jinja values passed via |tojson (XSS-safe).
+
+Backend ready for the full report:
+- /api/report/chat (app.py, login-required, 60/hr) — resolves the buyer's
+  Analysis (ownership-checked, by analysis_id or latest for a property_id), loads
+  that property's Documents, and grounds the answer in the analysis JSON + the
+  document text. This is the richest surface — it can explain the offer price.
+
+Remaining (next pass, NOT in this build): mounting the widget into the /app
+report. app.html is a React (Babel) app, so the mount belongs in the React tree
+and deserves a careful, validated pass rather than being rushed into a 9,000-line
+monolith at the tail of this build. The backend and the component are done — it's
+purely the front-end mount.
+
+Tests: ask_engine unit tests (test_ask_engine.py, 6) + the on-ramp suite still
+green after refactoring /api/try/chat onto the engine (test_try_onramp.py, 10).
+All 16 passing. (Report/share endpoints are thin wrappers over the tested engine.)
+
+
 ## v5.89.153 — 2026-06-07
 On-ramp polish from the first staging test — the chat answers and finding cards
 were showing raw output. Two fixes.

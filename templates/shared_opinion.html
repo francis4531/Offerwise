@@ -337,6 +337,11 @@
   </div>
   {% endif %}
 
+  <!-- Ask the analysis -->
+  <div class="ask-section animate-in delay-3" style="margin:30px 0;">
+    <div id="ow-ask"></div>
+  </div>
+
   <!-- Reaction Section -->
   <div class="reaction-section animate-in delay-4" id="reactionSection">
     <div class="reaction-question">What's your take?</div>
@@ -429,5 +434,27 @@
   }
 </script>
 
+<script src="/static/ask-widget.js"></script>
+<script>
+  (function () {
+    if (!window.OfferWiseAsk) { return; }
+    var OW = {
+      token: {{ token|tojson }},
+      sharer: {{ (sharer_name or 'Someone')|tojson }},
+      address: {{ (snapshot.address or 'this property')|tojson }}
+    };
+    OfferWiseAsk.mount({
+      el: '#ow-ask',
+      endpoint: '/api/share/' + encodeURIComponent(OW.token) + '/chat',
+      contextLabel: 'this shared analysis',
+      contextPieces: 'read-only · no login',
+      intro: "This is " + OW.sharer + "'s OfferWise analysis for " + OW.address + ". Ask me anything about it — the findings, the risk, or the offer — and I'll answer from the analysis.",
+      chips: ['What stands out most?', "What's the strongest negotiating point?", 'Is the offer price fair?'],
+      placeholder: 'Ask about this analysis…',
+      footerNote: 'Powered by OfferWise',
+      cta: { text: 'Run your own analysis →', href: '/app?ref=opinion&token=' + encodeURIComponent(OW.token), ghost: true }
+    });
+  })();
+</script>
 </body>
 </html>

@@ -4,121 +4,190 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>OfferWise — What is the seller not telling you?</title>
+<meta name="description" content="Drop your home inspection report or seller disclosure and ask it anything. Straight answers from your own documents — free, no signup.">
+<link rel="icon" type="image/svg+xml" href="/static/logo-icon-only.svg">
+<link rel="alternate icon" type="image/x-icon" href="/favicon.ico">
+<script src="/static/gtm-loader.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=DM+Serif+Display&display=swap" rel="stylesheet">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700&family=Inter+Tight:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
-  :root{
-    --bg:#0c0f17; --bg2:#11151f; --card:#161b27; --line:#26303f;
-    --text:#eef2f8; --soft:#9aa6bb; --faint:#647088;
-    --accent:#ff6b35; --accent-2:#ffa552; --good:#43c08a; --blue:#5b9dff; --red:#ef5a5a;
-  }
   *{margin:0;padding:0;box-sizing:border-box}
-  body{background:var(--bg);color:var(--text);font-family:'Inter Tight',system-ui,sans-serif;
-    line-height:1.5;-webkit-font-smoothing:antialiased;overflow-x:hidden}
-  body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
-    background:radial-gradient(900px 500px at 50% -8%,rgba(255,107,53,.13),transparent 60%),
-               radial-gradient(700px 500px at 85% 110%,rgba(91,157,255,.08),transparent 55%);}
-  .wrap{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:0 24px}
-  nav{display:flex;align-items:center;justify-content:space-between;max-width:900px;margin:0 auto;padding:22px 24px;position:relative;z-index:2}
-  .logo{font-family:'Fraunces',serif;font-weight:600;font-size:1.35rem;letter-spacing:-.01em}
-  .logo b{color:var(--accent)}
-  .nav-right{display:flex;align-items:center;gap:26px;font-size:.92rem;color:var(--soft)}
-  .nav-right a{color:var(--soft);text-decoration:none}
-  .nav-login{color:var(--text)!important;font-weight:500}
+  :root{--bg:#0b1220;--card:#162338;--text:#eef3fb;--gray:#9fb0c9;--gray-l:#cbd5e1;--dim:#6b7c97;
+        --amber:#f59e0b;--orange:#f97316;--green:#34d399;--blue:#60a5fa;--line:rgba(255,255,255,.09)}
+  body{font-family:'DM Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    background:radial-gradient(1000px 560px at 80% -10%,rgba(249,115,22,.11),transparent 60%),
+               radial-gradient(820px 640px at 6% 112%,rgba(59,130,246,.10),transparent 55%),var(--bg);
+    color:var(--text);line-height:1.6;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:780px;margin:0 auto;padding:0 22px}
+  nav{display:flex;align-items:center;justify-content:space-between;max-width:1080px;margin:0 auto;padding:18px 24px;border-bottom:1px solid var(--line)}
+  nav .logo{font-weight:800;font-size:1.25rem;color:#eef3fb;text-decoration:none}
+  nav .logo .w{background:linear-gradient(90deg,var(--orange),var(--amber));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  nav .right{display:flex;gap:22px;align-items:center;font-size:.92rem}
+  nav .right a{color:var(--gray);text-decoration:none}nav .right a:hover{color:var(--text)}
+  nav .right a.login{color:var(--text);font-weight:600}
 
-  .hero{text-align:center;padding:5rem 0 1rem}
-  .eyebrow{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.18em;
-    text-transform:uppercase;color:var(--accent-2);margin-bottom:1.4rem}
-  h1{font-family:'Fraunces',serif;font-weight:600;font-size:clamp(2.3rem,5.6vw,3.7rem);
-    line-height:1.03;letter-spacing:-.02em;margin-bottom:1rem}
-  h1 .stroke{color:var(--accent)}
-  .sub{font-size:1.15rem;color:var(--soft);max-width:30em;margin:0 auto 2.3rem}
+  .hero{text-align:center;padding:56px 0 8px}
+  .eyebrow{display:inline-block;font-size:.78rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+    color:#93c5fd;background:rgba(59,130,246,.12);border:1px solid rgba(59,130,246,.3);padding:6px 16px;border-radius:50px;margin-bottom:22px}
+  h1{font-family:'DM Serif Display',Georgia,serif;font-size:clamp(2.1rem,5.4vw,3.4rem);line-height:1.06;margin-bottom:14px}
+  h1 .stroke{background:linear-gradient(90deg,var(--orange),var(--amber));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .sub{font-size:1.12rem;color:var(--gray-l);max-width:33em;margin:0 auto 30px}
 
-  .prompt{max-width:640px;margin:0 auto;background:var(--card);border:1px solid var(--line);
-    border-radius:18px;padding:10px 10px 10px 20px;display:flex;align-items:center;gap:12px;
-    box-shadow:0 24px 60px -20px rgba(0,0,0,.6);transition:border-color .2s,box-shadow .2s}
-  .prompt:focus-within{border-color:var(--accent);box-shadow:0 24px 70px -18px rgba(255,107,53,.25)}
-  .prompt .pin{color:var(--faint);font-size:1.2rem}
-  .prompt input{flex:1;background:none;border:none;outline:none;color:var(--text);
-    font-family:'Inter Tight';font-size:1.06rem;padding:12px 0}
-  .prompt input::placeholder{color:var(--faint)}
-  .prompt button{background:var(--accent);color:#1a0f08;border:none;border-radius:12px;
-    padding:13px 22px;font-family:'Inter Tight';font-weight:600;font-size:1rem;cursor:pointer;
-    transition:transform .12s,background .2s}
-  .prompt button:hover{background:var(--accent-2);transform:translateY(-1px)}
-  .prompt button:disabled{opacity:.55;cursor:wait;transform:none}
-  .nocard{margin-top:1.5rem;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.06em;color:var(--faint)}
-  .nocard b{color:var(--good)}
-  .alt{margin-top:1rem;font-size:.92rem;color:var(--faint)}
-  .alt a{color:var(--soft);text-decoration:none;border-bottom:1px dotted var(--line)}
+  .drop-zone{border:3px dashed rgba(255,255,255,.15);border-radius:18px;padding:38px 26px;text-align:center;
+    cursor:pointer;transition:.25s;background:rgba(255,255,255,.02)}
+  .drop-zone:hover,.drop-zone.dragover{border-color:var(--blue);background:rgba(59,130,246,.05)}
+  .drop-zone.has-file{border-color:var(--green);border-style:solid}
+  .drop-icon{font-size:2.4rem;margin-bottom:10px}.drop-zone h3{font-size:1.1rem;margin-bottom:6px}
+  .drop-zone p{color:var(--gray);font-size:.88rem}.drop-zone input[type=file]{display:none}
+  .file-info{color:var(--green);font-weight:600;margin-top:10px;font-size:.93rem}
+  .paste-toggle{text-align:center;margin-top:14px}
+  .paste-toggle button{background:none;border:none;color:var(--gray);font-size:.88rem;cursor:pointer;text-decoration:underline;font-family:inherit}
+  .paste-area{display:none;margin-top:14px}.paste-area.active{display:block}
+  .paste-area textarea{width:100%;min-height:150px;padding:15px;border-radius:12px;border:1px solid var(--line);
+    background:var(--card);color:var(--text);font-family:inherit;font-size:.94rem;resize:vertical}
+  .paste-area textarea:focus{outline:none;border-color:var(--blue)}
+  .go-btn{display:block;width:100%;max-width:380px;margin:20px auto 0;padding:15px 28px;
+    background:linear-gradient(135deg,var(--orange),var(--amber));color:#1a1205;border:none;border-radius:13px;
+    font-size:1.03rem;font-weight:800;cursor:pointer;transition:.25s;font-family:inherit}
+  .go-btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 24px rgba(245,158,11,.35)}
+  .go-btn:disabled{opacity:.45;cursor:not-allowed}
+  .second-door{text-align:center;margin-top:16px;font-size:.92rem;color:var(--gray)}
+  .second-door button{background:none;border:none;color:var(--amber);font-weight:600;cursor:pointer;font-family:inherit;font-size:.92rem}
+  .second-door button:hover{text-decoration:underline}
+  .fine{text-align:center;margin-top:14px;color:var(--dim);font-size:.8rem}
+  .err{text-align:center;color:#fca5a5;font-size:.9rem;margin-top:12px;min-height:1.2em}
 
-  .result{max-width:640px;margin:2rem auto 0;text-align:left}
-  .rcard{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:1.6rem}
-  .rhead{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin-bottom:1rem}
-  .big{font-family:'Fraunces',serif;font-weight:600;font-size:2rem;letter-spacing:-.02em;line-height:1}
-  .big .grade{font-size:1.1rem;color:var(--accent-2);margin-left:10px}
-  .bigsub{color:var(--soft);font-size:.95rem;margin:.4rem 0 1.2rem}
-  .rrow{display:flex;justify-content:space-between;align-items:baseline;padding:.6rem 0;border-top:1px solid var(--line);font-size:.93rem}
-  .rrow .k{color:var(--soft);display:flex;gap:8px;align-items:center}
-  .rrow .v{font-family:'IBM Plex Mono',monospace;color:var(--text)}
-  .rrow .v.neg{color:var(--accent-2)}
-  .gate{margin-top:1.2rem;padding:1.1rem 1.3rem;background:rgba(255,107,53,.07);border:1px solid rgba(255,107,53,.3);border-radius:10px;text-align:center}
-  .gate p{font-size:.95rem;color:var(--soft);margin-bottom:.8rem}
-  .gate a{display:inline-block;background:var(--accent);color:#1a0f08;text-decoration:none;font-weight:600;padding:11px 22px;border-radius:10px;font-size:.95rem}
-  .loading{text-align:center;color:var(--faint);font-family:'IBM Plex Mono',monospace;font-size:12px;padding:2rem}
-  .err{text-align:center;color:var(--red);font-size:.92rem;padding:1rem}
+  .loading{display:none;text-align:center;padding:50px 20px}.loading.active{display:block}
+  .spinner{width:58px;height:58px;border:4px solid rgba(245,158,11,.2);border-top-color:var(--amber);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 18px}
+  @keyframes spin{to{transform:rotate(360deg)}}.loading p{color:var(--gray-l)}
+  .convo{display:none;padding-top:8px}.convo.active{display:block}
 
-  .pros{margin:4rem 0 0;text-align:center;padding:1.4rem;border:1px dashed var(--line);border-radius:12px}
-  .pros span{color:var(--faint);font-size:.9rem}
-  .pros a{color:var(--soft);text-decoration:none;border-bottom:1px solid var(--line);margin:0 4px}
-  .trust{text-align:center;margin:3rem 0 0;font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.1em;color:var(--faint);text-transform:uppercase}
-  footer{margin-top:4rem;border-top:1px solid var(--line);padding:2rem 0 4rem;text-align:center;
-    font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--faint);letter-spacing:.05em}
-  @media (max-width:600px){.prompt{flex-direction:column;align-items:stretch;padding:14px}}
+  .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:64px 0 8px}
+  .step{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px}
+  .step .n{font-family:'DM Serif Display',serif;font-size:1.5rem;color:var(--amber)}
+  .step h4{margin:6px 0 5px;font-size:1.02rem}.step p{color:var(--gray);font-size:.9rem}
+  .trust{text-align:center;color:var(--dim);font-size:.86rem;margin:40px 0 8px}
+  .trust b{color:var(--gray)}
+  footer{text-align:center;padding:54px 20px 64px;color:var(--dim);font-size:.86rem}
+  footer a{color:var(--amber);text-decoration:none;font-weight:600}
+  @media(max-width:680px){.steps{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
-
 <nav>
-  <div class="logo">Offer<b>Wise</b></div>
-  <div class="nav-right"><a href="/sample-analysis" target="_blank">Sample report</a><a href="/#professionals">For professionals</a><a href="/login" class="nav-login">Log in</a></div>
+  <a class="logo" href="/">Offer<span class="w">Wise</span></a>
+  <div class="right"><a href="#how">How it works</a><a class="login" href="/login?signup">Log in</a></div>
 </nav>
 
 <div class="wrap">
-  <section class="hero">
-    <div class="eyebrow">Before you make an offer</div>
-    <h1>What is the seller <span class="stroke">not telling you?</span></h1>
-    <p class="sub">Type an address. Get a real read in seconds — no account, no card. Sign up only if you want the full report.</p>
-
-    <div class="prompt">
-      <span class="pin">📍</span>
-      <input id="addr" type="text" placeholder="Paste a property address…  e.g. 123 Main St, San Jose, CA 95148" onkeydown="if(event.key==='Enter')runCheck()" />
-      <button id="go" onclick="runCheck()">Check free →</button>
+  <div id="entryView">
+    <div class="hero">
+      <div class="eyebrow">Free · No signup · Your documents, answered</div>
+      <h1>What is the seller <span class="stroke">not telling you?</span></h1>
+      <p class="sub">Drop your inspection report or seller disclosure and ask it anything. You'll get straight, plain-English answers from your own documents — in seconds, before you sign up for anything.</p>
     </div>
-    <div class="nocard">NO ACCOUNT · <b>NO CARD</b> · RESULTS FIRST</div>
-    <div class="alt">Have the disclosure or inspection PDF? <a href="/login?signup">Upload it for the full analysis →</a></div>
-  </section>
 
+    <div class="drop-zone" id="dropZone">
+      <input type="file" id="fileInput" accept="application/pdf">
+      <div class="drop-icon">📄</div>
+      <h3 id="dropTitle">Drop your inspection report or disclosure</h3>
+      <p>PDF, up to 15 MB. We don't store it unless you create an account.</p>
+      <div class="file-info" id="fileInfo" style="display:none;"></div>
+    </div>
+    <div class="paste-toggle"><button id="pasteToggle" type="button">or paste the text instead</button></div>
+    <div class="paste-area" id="pasteArea">
+      <textarea id="pasteText" placeholder="Paste the section you want to ask about…"></textarea>
+    </div>
+    <button class="go-btn" id="goBtn" disabled>Read my document</button>
+    <div class="second-door">No report yet? <button id="sampleBtn" type="button">Try it on a sample inspection →</button></div>
+    <div class="err" id="entryErr"></div>
+    <div class="fine">Free preview. For the full analysis — every finding cross-checked against the disclosures, with a defensible offer price — you'll create a free account.</div>
+  </div>
 
-  <section class="pros" id="professionals">
-    <span>Inspector, agent, lender, or appraiser?
-      <a href="/for-inspectors">Inspectors</a><a href="/for-agents">Agents</a><a href="/for-contractors">Contractors</a><a href="/enterprise">Enterprise&nbsp;API</a></span>
-  </section>
-  <div class="trust">Trained on real disclosures &amp; inspections · benchmarked vs leading AI models</div>
-  <footer>OFFERWISE™ · INFORMATIONAL — NOT LEGAL OR FINANCIAL ADVICE</footer>
+  <div class="loading" id="loadingView">
+    <div class="spinner"></div>
+    <h3>Reading your document…</h3>
+    <p>Pulling out what matters most.</p>
+  </div>
+
+  <div class="convo" id="convoView"><div id="ow-ask"></div></div>
+
+  <div class="steps" id="how">
+    <div class="step"><div class="n">1</div><h4>Drop a document</h4><p>An inspection report or seller disclosure — no account needed to start.</p></div>
+    <div class="step"><div class="n">2</div><h4>Ask anything</h4><p>Get plain-English answers grounded in your own paperwork, with the source.</p></div>
+    <div class="step"><div class="n">3</div><h4>Know your number</h4><p>When you're ready, the full analysis gives a defensible offer price.</p></div>
+  </div>
+  <div class="trust">Built for buyers. Your documents are <b>processed, not stored</b> unless you create an account.</div>
 </div>
 
+<footer>OfferWise · <a href="/login?signup">Create a free account</a> for the full analysis &amp; your defensible offer</footer>
+
+<script src="/static/ask-widget.js"></script>
 <script>
-function runCheck(){
-  var addr = document.getElementById('addr').value.trim();
-  if(addr.length < 5){
-    document.getElementById('addr').focus();
-    document.getElementById('addr').placeholder = 'Please enter a full address with city and state…';
-    return;
+(function () {
+  var SAMPLE_TEXT = "HOME INSPECTION REPORT — 128 Maple Avenue\n\nROOF: Asphalt shingle roof, original to the home (installed 2015). Several shingles show granule loss and there is minor lifting at the southwest edge. Estimated remaining service life 8-12 years. Recommend monitoring.\n\nFOUNDATION: Poured concrete foundation. Active moisture and a horizontal crack observed at the northeast corner of the basement wall. Efflorescence present. This is a potentially structural concern; recommend evaluation by a licensed structural engineer before closing.\n\nWATER HEATER: 40-gallon gas unit manufactured 2009, past its typical service life. Recommend budgeting for replacement.\n\nELECTRICAL: 200-amp panel, generally serviceable. Two ungrounded outlets noted in the garage; recommend correction by a licensed electrician.\n\nHVAC: Forced-air furnace, 2015, serviced annually per seller. Operating normally at time of inspection.\n\nThe inspector notes this report reflects conditions on the day of inspection and is not a guarantee of future performance.";
+
+  var fileInput=document.getElementById('fileInput'),dropZone=document.getElementById('dropZone'),
+      dropTitle=document.getElementById('dropTitle'),fileInfo=document.getElementById('fileInfo'),
+      pasteToggle=document.getElementById('pasteToggle'),pasteArea=document.getElementById('pasteArea'),
+      pasteText=document.getElementById('pasteText'),goBtn=document.getElementById('goBtn'),
+      sampleBtn=document.getElementById('sampleBtn'),entryErr=document.getElementById('entryErr'),
+      entryView=document.getElementById('entryView'),loadingView=document.getElementById('loadingView'),
+      convoView=document.getElementById('convoView');
+  var selectedFile=null;
+
+  function refreshGo(){ goBtn.disabled=!(selectedFile||pasteText.value.trim().length>40); }
+  dropZone.addEventListener('click',function(){fileInput.click();});
+  dropZone.addEventListener('dragover',function(e){e.preventDefault();dropZone.classList.add('dragover');});
+  dropZone.addEventListener('dragleave',function(){dropZone.classList.remove('dragover');});
+  dropZone.addEventListener('drop',function(e){e.preventDefault();dropZone.classList.remove('dragover');
+    if(e.dataTransfer.files&&e.dataTransfer.files.length){setFile(e.dataTransfer.files[0]);}});
+  fileInput.addEventListener('change',function(){if(fileInput.files&&fileInput.files.length){setFile(fileInput.files[0]);}});
+  function setFile(f){
+    if(f.type!=='application/pdf'&&!f.name.toLowerCase().endsWith('.pdf')){entryErr.textContent='Please choose a PDF, or paste the text instead.';return;}
+    selectedFile=f;entryErr.textContent='';dropZone.classList.add('has-file');dropTitle.textContent='Ready to read';
+    fileInfo.style.display='block';fileInfo.textContent='✓ '+f.name;refreshGo();
   }
-  // Send to the real risk-check results page (same destination as the main home).
-  // That page reads ?address= and renders the full polished result.
-  window.location.href = '/risk-check?address=' + encodeURIComponent(addr);
-}
+  pasteToggle.addEventListener('click',function(){pasteArea.classList.toggle('active');if(pasteArea.classList.contains('active')){pasteText.focus();}});
+  pasteText.addEventListener('input',refreshGo);
+
+  function fileToBase64(f){return new Promise(function(res,rej){var r=new FileReader();
+    r.onload=function(){res(String(r.result).split(',')[1]);};r.onerror=function(){rej(new Error('read failed'));};r.readAsDataURL(f);});}
+
+  function start(body){
+    entryErr.textContent='';goBtn.disabled=true;
+    entryView.style.display='none';loadingView.classList.add('active');
+    fetch('/api/try/start',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})
+      .then(function(r){return r.json().then(function(d){return {ok:r.ok,d:d};});})
+      .then(function(res){
+        loadingView.classList.remove('active');
+        if(!res.ok){entryView.style.display='block';goBtn.disabled=false;
+          entryErr.textContent=(res.d&&res.d.error)?res.d.error:'Something went wrong. Please try again.';return;}
+        onStarted(res.d);
+      }).catch(function(){loadingView.classList.remove('active');entryView.style.display='block';goBtn.disabled=false;
+        entryErr.textContent='Something went wrong. Please try again.';});
+  }
+  goBtn.addEventListener('click',function(){
+    if(selectedFile){fileToBase64(selectedFile).then(function(b64){start({pdf_base64:b64,filename:selectedFile.name});})
+      .catch(function(){goBtn.disabled=false;entryErr.textContent='That file could not be read. Please try another.';});}
+    else{start({text:pasteText.value.trim()});}
+  });
+  sampleBtn.addEventListener('click',function(){start({text:SAMPLE_TEXT});});
+
+  function onStarted(d){
+    convoView.classList.add('active');
+    window.OfferWiseAsk.mount({
+      el:'#ow-ask',endpoint:'/api/try/chat',payload:{token:d.token},
+      contextLabel:'your document',contextPieces:'1 document · no login',
+      intro:d.intro||'I read through your document. Ask me anything about it.',
+      findings:d.findings||[],
+      chips:['Is anything here a dealbreaker?','What should I ask the seller?','What else is in here?'],
+      placeholder:'Ask about your document…',cap:6,
+      remaining:(typeof d.messages_remaining==='number')?d.messages_remaining:6,
+      cta:{text:'Get the full analysis →',href:'/login?signup'}
+    });
+    convoView.scrollIntoView({behavior:'smooth',block:'start'});
+  }
+})();
 </script>
 </body>
 </html>

@@ -5590,31 +5590,10 @@ def try_chat():
         pass
 
     doc_text = sess['text']
-    if len(doc_text) > 60_000:
-        doc_text = doc_text[:60_000]
-
-    system = (
-        "You are OfferWise, a calm, plain-English home-buying guide helping a prospective "
-        "buyer understand a real estate document they just uploaded. Answer ONLY from the "
-        "document text provided. When you reference something, point to where it appears "
-        "(the section, or what the inspector wrote). If the document does not address the "
-        "question, say so plainly and suggest the full OfferWise analysis rather than "
-        "guessing. Never invent findings, costs, or facts that are not in the text. You are "
-        "not a lawyer or a licensed inspector — help them understand and prepare to "
-        "negotiate, but do not give legal advice. Write the way a knowledgeable friend "
-        "would explain it: warm, plain, and conversational, in short paragraphs. You may "
-        "use a short bullet list or bold a key term when it genuinely helps, but never use "
-        "section headers or horizontal-rule separators like '---'. Keep it concise."
-    )
-    prompt = (
-        "DOCUMENT:\n\"\"\"\n" + doc_text + "\n\"\"\"\n\n"
-        "BUYER'S QUESTION: " + message + "\n\n"
-        "Answer using only the document above."
-    )
 
     try:
-        from ai_client import get_ai_response
-        answer = get_ai_response(prompt, max_tokens=600, temperature=0, system=system)
+        from ask_engine import grounded_answer, context_from_document
+        answer = grounded_answer(message, context_from_document(doc_text))
     except Exception as e:
         logging.error(f"try_chat AI error: {e}")
         sess['msg_count'] = max(0, sess['msg_count'] - 1)  # don't burn a turn on our failure
@@ -5625,6 +5604,47 @@ def try_chat():
         'answer': answer,
         'messages_remaining': max(0, _TRY_MAX_MESSAGES - sess['msg_count']),
     })
+
+
+@app.route('/api/report/chat', methods=['POST'])
+@login_required
+@limiter.limit("60 per hour")
+def report_chat():
+    """Answer a logged-in buyer's question grounded in their full analysis —
+    the OfferWise reasoning PLUS their uploaded documents. This is the richest
+    context surface (the one that can explain the offer price)."""
+    data = request.get_json(silent=True) or {}
+    message = (data.get('message') or '').strip()
+    analysis_id = data.get('analysis_id')
+    property_id = data.get('property_id')
+
+    if not message:
+        return jsonify({'error': 'Please type a question.'}), 400
+    if len(message) > 2000:
+        message = message[:2000]
+
+    # Resolve the analysis, ownership-checked.
+    analysis = None
+    if analysis_id:
+        analysis = Analysis.query.filter_by(id=analysis_id, user_id=current_user.id).first()
+    if not analysis and property_id:
+        analysis = (Analysis.query.filter_by(property_id=property_id, user_id=current_user.id)
+                    .order_by(Analysis.created_at.desc()).first())
+    if not analysis:
+        return jsonify({'error': 'not_found',
+                        'message': "I couldn't find that analysis on your account."}), 404
+
+    documents = Document.query.filter_by(property_id=analysis.property_id).all()
+
+    try:
+        from ask_engine import grounded_answer, context_from_analysis
+        answer = grounded_answer(message, context_from_analysis(analysis, documents))
+    except Exception as e:
+        logging.error(f"report_chat AI error: {e}")
+        return jsonify({'error': 'busy',
+                        'message': "I'm having trouble right now. Please try again in a moment."}), 503
+
+    return jsonify({'answer': answer})
 
 
 @app.route('/truth-check')
@@ -8468,8 +8488,9 @@ def signup_redirect():
     return redirect(dest, 301)
 
 
-_AB_COOKIE = 'ow_ab'
-_AB_TEST = 'home_promptfirst'  # name of the running landing-page experiment
+_AB_COOKIE = 'ow_ab2'  # bumped for the on-ramp-hero experiment, so visitors
+                       # pinned to the old prompt-first arm get re-bucketed cleanly
+_AB_TEST = 'home_onramp'  # name of the running landing-page experiment
 
 def _ab_assign_home():
     """Assign a logged-out visitor to a landing-page variant.

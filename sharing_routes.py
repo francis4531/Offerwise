@@ -241,6 +241,39 @@ def view_shared_opinion(token):
     )
 
 
+@sharing_bp.route('/api/share/<token>/chat', methods=['POST'])
+@_limiter.limit("40 per hour")
+def share_chat(token):
+    """Answer a question about a shared analysis, grounded in its snapshot.
+    Public (no login) — for the spouse/agent the buyer shared with."""
+    share = ShareLink.query.filter_by(token=token).first()
+    if not share or not share.is_valid():
+        return jsonify({'error': 'expired',
+                        'message': "This shared analysis is no longer available."}), 410
+
+    data = request.get_json(silent=True) or {}
+    message = (data.get('message') or '').strip()
+    if not message:
+        return jsonify({'error': 'Please type a question.'}), 400
+    if len(message) > 2000:
+        message = message[:2000]
+
+    try:
+        snapshot = json.loads(share.snapshot_json)
+    except Exception:
+        snapshot = {}
+
+    try:
+        from ask_engine import grounded_answer, context_from_snapshot
+        answer = grounded_answer(message, context_from_snapshot(snapshot))
+    except Exception as e:
+        logging.error(f"share_chat AI error: {e}")
+        return jsonify({'error': 'busy',
+                        'message': "I'm having trouble right now. Please try again in a moment."}), 503
+
+    return jsonify({'answer': answer})
+
+
 @sharing_bp.route('/api/share/<token>/react', methods=['POST'])
 @_limiter.limit("5 per hour")
 def react_to_share(token):
