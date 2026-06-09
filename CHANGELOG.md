@@ -5,6 +5,60 @@ Consolidated from 80 individual files on 2026-03-13.
 
 ---
 
+## v5.89.158 — 2026-06-07
+Roll the assistant's name — **Scout** — out to every surface, so the identity is
+consistent from the first touch (home/on-ramp) through the shared view and the full
+report. Previously Scout was only named on /app; the other surfaces still said
+"OfferWise" in the chat.
+
+- ask_engine.py: the shared system prompt now identifies the assistant as Scout, so
+  it refers to itself as Scout in its own answers on every surface (one source of
+  truth — /try, the home v2 hero, the shared view, and /app all flow through it).
+- app.py: both /api/try/start greetings now open with "I'm Scout." (covers /try and
+  the home on-ramp hero, which share that endpoint).
+- static/try.html, static/index-v2.html, templates/shared_opinion.html: each mount
+  now passes assistantName 'Scout' / assistantAvatar 'S', and the greeting introduces
+  Scout by name. The shared-view intro keeps the "OfferWise analysis" framing (that's
+  the product), but Scout is who's speaking.
+- No change to the widget contract or the per-surface CTAs/caps; this is identity
+  only. ask-widget.js still defaults to 'OfferWise' / 'OW' when no name is passed.
+
+Validated: app.py + ask_engine.py compile; the inline JS on all three templated
+surfaces passes node --check (Jinja neutralized for shared_opinion); 16 on-ramp/
+engine tests green. Cumulative over v5.89.157 (the /app Scout mount), so deploying
+this ships both.
+
+
+## v5.89.157 — 2026-06-07
+Mount the Ask assistant — now named **Scout** — into the full report at /app. This
+is the last surface, and the richest: Scout grounds in the buyer's documents PLUS
+the OfferWise reasoning, so it's the only place the chat can actually explain the
+offer price. Closes the discontinuity where the on-ramp/home/shared chat vanished
+the moment a buyer signed up and landed in the real product.
+
+Naming: the assistant is "Scout" (suggestive, ownable — it goes and finds what the
+seller didn't volunteer), replacing the descriptive "OfferWise Assistant."
+
+- static/ask-widget.js: added optional `assistantName` / `assistantAvatar` config
+  (default 'OfferWise' / 'OW', so /try, the shared view, and the home on-ramp are
+  unchanged). /app passes 'Scout' / 'S'.
+- static/app.html: injected a summon-on-demand docked rail OUTSIDE React's #root,
+  so it cannot disturb the ~12k-line report render. A floating "Ask Scout" button
+  opens a right-hand column (the report reflows via #root padding-right on desktop;
+  full-width drawer on mobile); the × collapses it. The widget mounts lazily on
+  first open, grounded via /api/report/chat using window.currentAnalysisResult
+  (analysis_id, falling back to property_id); it re-mounts if the buyer switches
+  analyses. The launcher only appears once an analysis is loaded.
+- No server changes: /api/report/chat was already built, tested, ownership-checked,
+  and rate-limited (60/hr). Request/response contract verified against the widget
+  ({...payload, message} -> {answer}).
+
+Why summon-on-demand: keeps the report full-width until wanted, engages the
+two-column layout only when open, and never fires the assistant for buyers who
+don't ask. Validated: ask-widget.js and the injected init script both pass
+node --check; the 16 on-ramp/engine tests stay green.
+
+
 ## v5.89.156 — 2026-06-07
 Rebuild the v2 home arm as the on-ramp hero — make value the first thing a buyer
 meets, signup the last. This is what makes the on-ramp (and the ad spend driving

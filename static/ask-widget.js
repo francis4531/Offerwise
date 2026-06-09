@@ -159,9 +159,9 @@
     function addMsg(role, text) {
       var row = el('div', 'owask-row ' + (role === 'user' ? 'me' : 'ai'));
       if (role !== 'user') {
-        row.appendChild(el('div', 'owask-ava', 'OW'));
+        row.appendChild(el('div', 'owask-ava', opts.assistantAvatar || 'OW'));
         var col = el('div');
-        col.appendChild(el('div', 'owask-who', 'OfferWise'));
+        col.appendChild(el('div', 'owask-who', opts.assistantName || 'OfferWise'));
         var bub = el('div', 'owask-bub');
         bub.innerHTML = renderRich(text);
         col.appendChild(bub);

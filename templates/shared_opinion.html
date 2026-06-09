@@ -446,9 +446,10 @@
     OfferWiseAsk.mount({
       el: '#ow-ask',
       endpoint: '/api/share/' + encodeURIComponent(OW.token) + '/chat',
+      assistantName: 'Scout', assistantAvatar: 'S',
       contextLabel: 'this shared analysis',
       contextPieces: 'read-only · no login',
-      intro: "This is " + OW.sharer + "'s OfferWise analysis for " + OW.address + ". Ask me anything about it — the findings, the risk, or the offer — and I'll answer from the analysis.",
+      intro: "I'm Scout. This is " + OW.sharer + "'s OfferWise analysis for " + OW.address + ". Ask me anything about it — the findings, the risk, or the offer — and I'll answer from the analysis.",
       chips: ['What stands out most?', "What's the strongest negotiating point?", 'Is the offer price fair?'],
       placeholder: 'Ask about this analysis…',
       footerNote: 'Powered by OfferWise',

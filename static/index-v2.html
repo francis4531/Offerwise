@@ -177,8 +177,9 @@
     convoView.classList.add('active');
     window.OfferWiseAsk.mount({
       el:'#ow-ask',endpoint:'/api/try/chat',payload:{token:d.token},
+      assistantName:'Scout',assistantAvatar:'S',
       contextLabel:'your document',contextPieces:'1 document · no login',
-      intro:d.intro||'I read through your document. Ask me anything about it.',
+      intro:d.intro||"I'm Scout. I read through your document. Ask me anything about it.",
       findings:d.findings||[],
       chips:['Is anything here a dealbreaker?','What should I ask the seller?','What else is in here?'],
       placeholder:'Ask about your document…',cap:6,

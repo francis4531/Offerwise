@@ -5545,9 +5545,9 @@ def try_start():
         pass
 
     if payload:
-        intro = "I read through your document. Here are the things I'd want you to see first — ask me anything about them, or about anything else in it."
+        intro = "I'm Scout. I read through your document. Here are the things I'd want you to see first — ask me anything about them, or about anything else in it."
     else:
-        intro = "I read through your document. Nothing major jumped out on a first pass, which is a good sign — but ask me anything about it and I'll answer from what's actually in the text."
+        intro = "I'm Scout. I read through your document. Nothing major jumped out on a first pass, which is a good sign — but ask me anything about it and I'll answer from what's actually in the text."
 
     return jsonify({
         'token': token,

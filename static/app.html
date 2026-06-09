@@ -12422,5 +12422,72 @@ if ('serviceWorker' in navigator) {
   window.__owSetPaidStatus = function(paid) { _hasPaid = paid; window.__owUserHasPaid = paid; };
 })();
 </script>
+
+<!-- Scout: docked, summon-on-demand "Ask your report" assistant (v5.89.157) -->
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&display=swap" rel="stylesheet">
+<script src="/static/ask-widget.js"></script>
+<script>
+(function(){
+  if (window.__scoutInit) { return; } window.__scoutInit = true;
+  var css = [
+    ".scout-launch{position:fixed;right:22px;bottom:22px;z-index:99996;display:flex;align-items:center;gap:8px;background:linear-gradient(135deg,#f97316,#f59e0b);color:#1a1205;font-weight:800;border:0;border-radius:50px;padding:13px 20px;cursor:pointer;font-family:'DM Sans',-apple-system,sans-serif;font-size:.95rem;box-shadow:0 10px 30px -8px rgba(245,158,11,.6)}",
+    ".scout-launch.scout-hide{display:none}",
+    "body.scout-open .scout-launch{display:none}",
+    ".scout-rail{position:fixed;top:0;right:0;height:100vh;width:392px;max-width:100vw;z-index:99997;background:#101d33;border-left:1px solid rgba(255,255,255,.13);box-shadow:-24px 0 60px -30px rgba(0,0,0,.8);transform:translateX(103%);transition:transform .3s ease;display:flex;flex-direction:column}",
+    "body.scout-open .scout-rail{transform:none}",
+    ".scout-hd{display:flex;align-items:center;justify-content:space-between;padding:15px 16px 11px;border-bottom:1px solid rgba(255,255,255,.08);font-family:'DM Sans',-apple-system,sans-serif}",
+    ".scout-hd b{font-family:'DM Serif Display',Georgia,serif;font-size:1.18rem;color:#eef3fb;display:block;line-height:1.1}",
+    ".scout-sub{font-size:.72rem;color:#6b7c97}",
+    ".scout-x{background:none;border:0;color:#9fb0c9;font-size:1.7rem;line-height:1;cursor:pointer;padding:0 4px}",
+    ".scout-x:hover{color:#eef3fb}",
+    ".scout-mount{flex:1;overflow:auto;padding:14px 14px 20px}",
+    "@media(min-width:961px){#root{transition:padding-right .3s ease}body.scout-open #root{padding-right:392px}}",
+    "@media(max-width:960px){.scout-rail{width:100vw}}"
+  ].join("");
+  var st = document.createElement("style"); st.textContent = css; document.head.appendChild(st);
+
+  var launch = document.createElement("button");
+  launch.type = "button"; launch.className = "scout-launch scout-hide";
+  launch.innerHTML = "\uD83D\uDCAC Ask Scout";
+
+  var rail = document.createElement("div"); rail.className = "scout-rail";
+  rail.innerHTML = '<div class="scout-hd"><div><b>Scout</b><span class="scout-sub">Your OfferWise assistant</span></div><button class="scout-x" type="button" aria-label="Close">\u00D7</button></div><div class="scout-mount"></div>';
+
+  document.body.appendChild(launch);
+  document.body.appendChild(rail);
+  var mountEl = rail.querySelector(".scout-mount");
+  var closeBtn = rail.querySelector(".scout-x");
+  var lastKey = null, mounted = false;
+
+  function ids(){ var r = window.currentAnalysisResult || {}; return { a: r.analysis_id || null, p: r.property_id || null }; }
+  function ready(){ var i = ids(); return !!(i.a || i.p); }
+
+  function openRail(){
+    var i = ids();
+    if (!(i.a || i.p)) { return; }
+    var key = (i.a || "") + ":" + (i.p || "");
+    if (!mounted || key !== lastKey) {
+      mountEl.innerHTML = "";
+      var payload = {}; if (i.a) { payload.analysis_id = i.a; } if (i.p) { payload.property_id = i.p; }
+      window.OfferWiseAsk.mount({
+        el: mountEl, endpoint: "/api/report/chat", payload: payload,
+        assistantName: "Scout", assistantAvatar: "S",
+        contextLabel: "your full analysis", contextPieces: "your documents + OfferWise reasoning",
+        intro: "I'm Scout. I've read your full analysis \u2014 the findings, the risk, and how we landed on your offer number. Ask me anything.",
+        chips: ["Why is my offer this number?", "What's the biggest risk here?", "How do I raise this with the seller?"],
+        placeholder: "Ask about your analysis\u2026",
+        footerNote: "Answers cite your documents and our reasoning"
+      });
+      mounted = true; lastKey = key;
+    }
+    document.body.classList.add("scout-open");
+  }
+  function closeRail(){ document.body.classList.remove("scout-open"); }
+
+  launch.addEventListener("click", openRail);
+  closeBtn.addEventListener("click", closeRail);
+  setInterval(function(){ launch.classList.toggle("scout-hide", !ready()); }, 900);
+})();
+</script>
 </body>
 </html>
