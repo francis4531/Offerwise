@@ -5,6 +5,34 @@ Consolidated from 80 individual files on 2026-03-13.
 
 ---
 
+## v5.89.159 — 2026-06-09
+Two fixes found from a failing risk-check scan ("22580 San Vicente Avenue" →
+"Scan failed — please try again").
+
+1) Risk checker showed a misleading error. The /api/risk-check engine correctly
+   returns a specific 400 for an unresolvable address ("Could not find that address.
+   Please enter a full US street address with city and state."), but the page threw
+   on `!r.ok` before reading the JSON body, so every 400 collapsed to the generic
+   "Scan failed — please try again." That tells the user to retry identical input
+   that will fail again. static/risk-check.html now parses the response body even on
+   non-2xx and surfaces the engine's actual message, so a city-less address gets the
+   real guidance. (static/free-tools.html already did this correctly — unchanged.)
+   The root trigger was an incomplete address with no city/state, which no geocoder
+   can resolve unambiguously; the fix is honest messaging, not silent guessing.
+
+2) Reddit Ads pixel was 404'ing (rdtpixel.js in the console). static/analytics-
+   loader.js loaded the pixel from the stale URL
+   https://www.redditstatic.com/ads/v2/rdtpixel.js, which Reddit retired. Updated to
+   the current https://www.redditstatic.com/ads/pixel.js. The rest of the snippet
+   (init + PageVisit + SignUp + Purchase) was intact, so this one URL restores the
+   full Reddit conversion funnel — worth re-checking attribution on the Reddit Ads
+   campaign after deploy.
+
+Validated: risk-check.html and analytics-loader.js both pass node --check. Cumulative
+over v5.89.156–.158 (home on-ramp hero + Scout on every surface), so deploying this
+ships all of it.
+
+
 ## v5.89.158 — 2026-06-07
 Roll the assistant's name — **Scout** — out to every surface, so the identity is
 consistent from the first touch (home/on-ramp) through the shared view and the full

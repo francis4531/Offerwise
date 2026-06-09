@@ -510,10 +510,21 @@
             body: JSON.stringify({ address: address }),
             signal: controller.signal
         })
-        .then(function(r) { clearTimeout(timeoutId); if (!r.ok) throw new Error('Server returned ' + r.status); return r.json(); })
-        .then(function(data) {
+        .then(function(r) {
+            clearTimeout(timeoutId);
+            return r.json().then(
+                function(data) { return { ok: r.ok, status: r.status, data: data }; },
+                function() { return { ok: r.ok, status: r.status, data: {} }; }
+            );
+        })
+        .then(function(res) {
             clearInterval(statusInterval);
-            if (data.error) { showError(data.error); resetToInput(); return; }
+            var data = res.data || {};
+            if (!res.ok || data.error) {
+                showError(data.error || ('Scan failed (server ' + res.status + ') — please try again.'));
+                resetToInput();
+                return;
+            }
             lastResult = data;
             showResults(data);
         })

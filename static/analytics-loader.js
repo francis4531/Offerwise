@@ -61,7 +61,7 @@
                         var p=w.rdt=function(){p.sendEvent?p.sendEvent.apply(p,arguments):p.callQueue.push(arguments)};
                         p.callQueue=[];
                         var t=d.createElement('script');
-                        t.src='https://www.redditstatic.com/ads/v2/rdtpixel.js';
+                        t.src='https://www.redditstatic.com/ads/pixel.js';
                         t.async=1;
                         var s=d.getElementsByTagName('script')[0];
                         s.parentNode.insertBefore(t,s);
