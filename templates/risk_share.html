@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ s.headline }} | OfferWise</title>
+<meta name="description" content="A free OfferWise risk scan of {{ s.address }} across 11 government databases — {{ s.risk_count }} undisclosed risk(s), Grade {{ s.risk_grade }}. Check any address free.">
+<link rel="canonical" href="{{ share_url }}">
+<meta property="og:type" content="website">
+<meta property="og:title" content="{{ s.headline }}">
+<meta property="og:description" content="{{ s.risk_count }} undisclosed risk(s) found at this address across 11 government databases. Check any address free — no signup.">
+<meta property="og:image" content="{{ og_image }}">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:url" content="{{ share_url }}">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{{ s.headline }}">
+<meta name="twitter:description" content="{{ s.risk_count }} undisclosed risk(s) found across 11 government databases. Check any address free.">
+<meta name="twitter:image" content="{{ og_image }}">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{--bg:#080d18;--card:#111a2e;--line:rgba(255,255,255,.08);--text:#eef3fb;--muted:#9fb0c9;--dim:#6a7c98;
+        --orange:#ff7a30;--amber:#f5a623;--red:#f87171;--yellow:#fbbf24;--blue:#60a5fa}
+  body{font-family:'DM Sans',-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+  .wrap{max-width:780px;margin:0 auto;padding:0 22px}
+  nav{display:flex;align-items:center;justify-content:space-between;max-width:1040px;margin:0 auto;padding:16px 24px}
+  nav .logo{font-weight:800;font-size:1.2rem;text-decoration:none;color:#fff}
+  nav .logo .w{background:linear-gradient(90deg,var(--orange),var(--amber));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  nav a.cta{font-size:.85rem;font-weight:700;color:#1a1205;background:linear-gradient(135deg,var(--orange),var(--amber));padding:9px 16px;border-radius:50px;text-decoration:none}
+  header.hero{padding:34px 0 6px}
+  .eyebrow{display:inline-block;font-size:.72rem;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:var(--amber);
+    background:rgba(245,166,35,.1);border:1px solid rgba(245,166,35,.28);padding:6px 14px;border-radius:50px;margin-bottom:16px}
+  h1{font-family:'DM Serif Display',Georgia,serif;font-size:clamp(1.9rem,4.6vw,2.7rem);line-height:1.1;margin-bottom:10px}
+  .addr{color:var(--muted);font-size:1rem}
+  .stats{display:flex;gap:12px;margin:20px 0 6px;flex-wrap:wrap}
+  .stat{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:13px 18px}
+  .stat .k{font-size:.66rem;color:var(--dim);text-transform:uppercase;letter-spacing:.06em;font-weight:700}
+  .stat .v{font-family:'DM Serif Display',serif;font-size:1.55rem;margin-top:2px}
+  .stat .v.exp{color:#fff}.stat .v.grade{color:var(--orange)}
+  .risk{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-bottom:10px;border-left:3px solid var(--line)}
+  .risk.HIGH{border-left-color:var(--red)}.risk.MODERATE{border-left-color:var(--yellow)}
+  .risk .top{display:flex;align-items:center;gap:9px;margin-bottom:5px}
+  .risk .ic{font-size:1.3rem}.risk .ti{font-weight:700;font-size:1.06rem}
+  .risk .lv{margin-left:auto;font-size:.62rem;font-weight:800;letter-spacing:.04em;text-transform:uppercase;padding:3px 9px;border-radius:50px}
+  .lv.HIGH{background:rgba(248,113,113,.15);color:var(--red)}.lv.MODERATE{background:rgba(251,191,36,.15);color:var(--yellow)}
+  .risk .de{font-size:.92rem;color:var(--muted)}
+  .risk .hide{margin-top:9px;font-size:.88rem;color:#f3c98a;background:rgba(245,166,35,.07);border:1px solid rgba(245,166,35,.18);border-radius:9px;padding:9px 12px}
+  .risk .hide b{color:var(--amber)}
+  .none{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;color:var(--muted)}
+  .cta-block{text-align:center;background:linear-gradient(135deg,rgba(255,122,48,.1),rgba(245,166,35,.05));border:1px solid rgba(255,122,48,.25);border-radius:18px;padding:30px 24px;margin:24px 0}
+  .cta-block h2{font-family:'DM Serif Display',serif;font-size:1.5rem;margin-bottom:8px}
+  .cta-block p{color:var(--muted);margin-bottom:18px}
+  .cta-block a.go{display:inline-block;background:linear-gradient(135deg,var(--orange),var(--amber));color:#1a1205;font-weight:800;font-size:1.02rem;padding:14px 30px;border-radius:13px;text-decoration:none}
+  .cta-block .sec{display:block;margin-top:14px;color:var(--amber);text-decoration:none;font-size:.92rem;font-weight:600}
+  footer{border-top:1px solid var(--line);margin-top:26px;padding:22px 0 50px;color:var(--dim);font-size:.82rem}
+</style>
+</head>
+<body>
+<nav>
+  <a class="logo" href="/">Offer<span class="w">Wise</span></a>
+  <a class="cta" href="/risk-check?src=share">Check an address →</a>
+</nav>
+<div class="wrap">
+  <header class="hero">
+    <div class="eyebrow">What's hiding at this address?</div>
+    <h1>{{ s.headline }}</h1>
+    <div class="addr">{{ s.address }}</div>
+    <div class="stats">
+      <div class="stat"><div class="k">Risk grade</div><div class="v grade">{{ s.risk_grade }}</div></div>
+      <div class="stat"><div class="k">Undisclosed exposure</div><div class="v exp">${{ '{:,}'.format(s.risk_exposure or 0) }}</div></div>
+      <div class="stat"><div class="k">Risks found</div><div class="v">{{ s.risk_count }}</div></div>
+    </div>
+  </header>
+
+  {% if risks %}
+    {% for r in risks %}
+    <div class="risk {{ r.level }}">
+      <div class="top"><span class="ic">{{ r.icon }}</span><span class="ti">{{ r.title }}</span>{% if r.level %}<span class="lv {{ r.level }}">{{ r.level }}</span>{% endif %}</div>
+      {% if r.detail %}<div class="de">{{ r.detail }}</div>{% endif %}
+      {% if r.seller_hide %}<div class="hide"><b>What's hiding:</b> {{ r.seller_hide }}</div>{% endif %}
+    </div>
+    {% endfor %}
+  {% else %}
+    <div class="none">No major risks flagged from the government databases for this address — but the only way to know about <em>your</em> home is to scan its exact address.</div>
+  {% endif %}
+
+  <div class="cta-block">
+    <h2>What's hiding at <em>your</em> address?</h2>
+    <p>Scan any US address free across 11 government databases. No signup, 10 seconds.</p>
+    <a class="go" href="/risk-check?src=share">Check your address →</a>
+    <a class="sec" href="/try?src=share">Buying a home? Get the full analysis with every document cross-checked →</a>
+  </div>
+
+  <footer>
+    Scanned by OfferWise from public government data — FEMA, USGS, EPA, CAL FIRE and more. Risk figures are estimates, not a substitute for a property inspection or professional review.
+  </footer>
+</div>
+</body>
+</html>

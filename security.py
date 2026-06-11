@@ -23,9 +23,11 @@ ALLOWED_ORIGINS = [
     'https://www.getofferwise.ai',
     'https://getofferwise.ai',
     'https://offerwise.onrender.com',
-    'http://localhost:5000',  # Development
-    'http://127.0.0.1:5000',  # Development
 ]
+# Dev origins are trusted only outside production, so prod CSRF validation
+# never accepts a localhost origin.
+if os.environ.get('FLASK_ENV') == 'development':
+    ALLOWED_ORIGINS += ['http://localhost:5000', 'http://127.0.0.1:5000']
 
 # Add any custom origins from environment
 custom_origin = os.environ.get('ALLOWED_ORIGIN')

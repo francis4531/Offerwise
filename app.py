@@ -331,16 +331,20 @@ Compress(app)
 # This allows Flask to properly detect HTTPS from X-Forwarded-Proto header
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
-CORS(app, supports_credentials=True, origins=[
+# PRODUCTION MODE: Controls verbosity and debug features
+PRODUCTION_MODE = os.environ.get('FLASK_ENV') != 'development'
+
+# CORS allow-list. The app serves its frontend same-origin, so production only
+# advertises the real public origins; the localhost dev origins are added only
+# outside production, so they never leak into prod responses.
+_CORS_ORIGINS = [
     'https://www.getofferwise.ai',
     'https://getofferwise.ai',
     'https://offerwise.onrender.com',
-    'http://localhost:5000',
-    'http://127.0.0.1:5000',
-])
-
-# PRODUCTION MODE: Controls verbosity and debug features
-PRODUCTION_MODE = os.environ.get('FLASK_ENV') != 'development'
+]
+if not PRODUCTION_MODE:
+    _CORS_ORIGINS += ['http://localhost:5000', 'http://127.0.0.1:5000']
+CORS(app, supports_credentials=True, origins=_CORS_ORIGINS)
 
 # Dev-only gate: returns 404 in production for debug/test endpoints (admin bypasses)
 def dev_only_gate(f):
@@ -5809,12 +5813,89 @@ def api_risk_check():
 
         track_from_request('risk_check_complete', request, metadata={'grade': result.get('risk_grade')})
         logging.info(f"🔍 Risk check: {result.get('address')} → ${result.get('risk_exposure', 0):,} (Grade {result.get('risk_grade', '?')}) [{result.get('scan_time_ms')}ms]")
+
+        # Persist a shareable result so the link unfurls into a preview card (viral loop)
+        try:
+            from models import SharedRiskCheck
+            src = SharedRiskCheck(
+                token=SharedRiskCheck.new_token(),
+                address=result.get('address'), city=result.get('city'), state=result.get('state'),
+                risk_grade=result.get('risk_grade'), risk_exposure=int(result.get('risk_exposure') or 0),
+                risk_count=int(result.get('risk_count') or 0),
+                headline=_risk_share_headline(result), result_json=json.dumps(result))
+            db.session.add(src)
+            db.session.commit()
+            result['share_token'] = src.token
+            result['share_url'] = request.url_root.rstrip('/') + '/r/' + src.token
+            track_from_request('risk_share_created', request, metadata={'token': src.token})
+        except Exception as _share_e:
+            db.session.rollback()
+            logging.warning(f"risk share persist failed: {_share_e}")
+
         return jsonify(result)
 
     except Exception as e:
         import traceback
         logging.error(f"Risk check error: {e}\n{traceback.format_exc()}")
         return jsonify({'error': 'Risk scan failed. Please try again.'}), 500
+
+
+def _risk_share_headline(result):
+    """Craft a provocative, accurate share headline from a risk-check result."""
+    risks = result.get('risks') or []
+    n = int(result.get('risk_count') or 0)
+    if risks:
+        t = (risks[0].get('title') or '').lower()
+        if 'flood' in t:
+            return "This home may sit in a flood zone the seller won't mention"
+        if 'seismic' in t or 'earthquake' in t or 'fault' in t:
+            return "This home sits near seismic risk a seller doesn't have to disclose"
+        if 'fire' in t or 'wildfire' in t:
+            return "Wildfire risk at this address the listing won't show you"
+        if 'toxic' in t or 'epa' in t or 'superfund' in t or 'environ' in t:
+            return "Toxic-site exposure near this home that isn't on the disclosure"
+        return f"{n} risk{'s' if n != 1 else ''} a seller doesn't have to disclose at this address"
+    return "We scanned 11 government databases on this address — see what's on record"
+
+
+@app.route('/r/<token>')
+def shared_risk_view(token):
+    """Public, shareable risk-check result page (unfurls via the OG card)."""
+    from models import SharedRiskCheck
+    from funnel_tracker import track_from_request
+    src = SharedRiskCheck.query.filter_by(token=token).first()
+    if not src:
+        return redirect('/risk-check')
+    try:
+        src.view_count = (src.view_count or 0) + 1
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+    track_from_request('risk_share_view', request, metadata={'token': token})
+    try:
+        risks = (json.loads(src.result_json).get('risks') or []) if src.result_json else []
+    except Exception:
+        risks = []
+    base = request.url_root.rstrip('/')
+    return render_template('risk_share.html', s=src, risks=risks,
+                           og_image=base + '/r/' + token + '/card.png',
+                           share_url=base + '/r/' + token)
+
+
+@app.route('/r/<token>/card.png')
+def shared_risk_card(token):
+    """Dynamic 1200x630 Open Graph preview image for a shared risk check."""
+    from flask import Response, abort
+    from models import SharedRiskCheck
+    from share_card import render_card
+    src = SharedRiskCheck.query.filter_by(token=token).first()
+    if not src:
+        abort(404)
+    png = render_card(headline=src.headline, address=src.address or '',
+                      grade=src.risk_grade or '?', exposure=src.risk_exposure or 0,
+                      risk_count=src.risk_count or 0)
+    return Response(png, mimetype='image/png',
+                    headers={'Cache-Control': 'public, max-age=86400'})
 
 
 @app.route('/settings')

@@ -1205,6 +1205,7 @@
     </style>
 <!-- Google Analytics loaded by compliance.js after cookie consent -->
     <script src="/static/analytics-loader.js" defer></script>
+    <script src="/static/address-validate.js"></script>
     <!-- Reddit Pixel Base Code -->
     <script>
     !function(w,d){if(!w.rdt){var p=w.rdt=function(){p.sendEvent?p.sendEvent.apply(p,arguments):p.queue.push(arguments)};p.queue=[];var t=d.createElement('script');t.src='https://www.redditstatic.com/ads/pixel.js';t.async=!0;var s=d.getElementsByTagName('script')[0];s.parentNode.insertBefore(t,s)}}(window,document);
@@ -2498,24 +2499,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
         errEl.style.display = 'none';
 
-        if (!addr || addr.length < 10) {
-            errEl.textContent = 'Please enter a full property address (e.g. 742 Oak Street, Austin, TX 78701).';
-            errEl.style.display = 'block';
-            input.focus();
-            return;
-        }
-
-        // Require city (comma) and state (2-letter)
-        if (addr.indexOf(',') === -1 || !/\b[A-Z]{2}\b/i.test(addr)) {
-            errEl.textContent = 'Please include the city and state (e.g. Austin, TX 78701).';
-            errEl.style.display = 'block';
-            input.focus();
-            return;
-        }
-
-        // Require ZIP code
-        if (!/\b\d{5}\b/.test(addr)) {
-            errEl.textContent = 'Please include the 5-digit ZIP code for accurate results.';
+        var _v = window.OWAddress.validate(addr);
+        if (!_v.ok) {
+            errEl.textContent = _v.message;
             errEl.style.display = 'block';
             input.focus();
             return;
@@ -2662,15 +2648,27 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             }
             return false;
         }
-        if (raw.length < 5) {
-            if (input) {
-                input.style.borderColor = '#ef4444';
-                input.placeholder = 'Please enter a full address';
-                setTimeout(function() {
-                    input.style.borderColor = '';
-                    input.placeholder = '📍 Check any address — free';
-                }, 2000);
+        var _v = window.OWAddress.validate(raw);
+        if (!_v.ok) {
+            var form = document.getElementById('topbarAddrForm');
+            if (form) {
+                form.style.position = 'relative';
+                var te = document.getElementById('topbarAddrError');
+                if (!te) {
+                    te = document.createElement('div');
+                    te.id = 'topbarAddrError';
+                    te.style.cssText = 'position:absolute;top:100%;left:0;margin-top:6px;background:#1a0f0f;border:1px solid rgba(239,68,68,0.5);color:#fca5a5;font-size:12px;font-weight:600;line-height:1.4;padding:7px 11px;border-radius:8px;z-index:50;box-shadow:0 6px 18px rgba(0,0,0,0.45);max-width:340px;';
+                    form.appendChild(te);
+                }
+                te.textContent = _v.message;
+                te.style.display = 'block';
+                clearTimeout(window._tbErrT);
+                window._tbErrT = setTimeout(function() {
+                    te.style.display = 'none';
+                    if (input) input.style.borderColor = '';
+                }, 4000);
             }
+            if (input) { input.style.borderColor = '#ef4444'; input.focus(); }
             return false;
         }
         // Detect ZIP for analytics — backend requires one to actually scan

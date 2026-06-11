@@ -5,6 +5,100 @@ Consolidated from 80 individual files on 2026-03-13.
 
 ---
 
+## v5.89.163 — 2026-06-11
+Rebuild the /risk-check result page to the approved redesign. Same data, same
+share-token wiring, same funnel instrumentation — new presentation.
+
+- Decluttered to findings + one action: the eight-button share grid collapses to a
+  single Share / Copy-link row, and Truth Check + the sample report drop to quiet
+  text links beneath one primary "Get my free full analysis" CTA.
+- Modernized to match the /r/<token> share page: DM Serif Display headline, slate
+  cards, orange/amber accents, and the amber "Hiding" reveal under each risk.
+- Findings hit harder: the exposure dollar figure is now the headline; each risk
+  leads with a severity chip and a dollar estimate, and the seller_hide text — the
+  most persuasive content — is surfaced in the reveal instead of buried at the bottom.
+- Preserved intact: the .161 per-result share_url, the animated exposure counter, the
+  data-exit CTA instrumentation (risk_check_cta_click), grade colouring, the ?address=
+  auto-run and the legacy ?r= share landing, and resetScan. The Share button now falls
+  back to clipboard copy on desktop where the native share sheet is unavailable.
+
+## v5.89.162 — 2026-06-11
+Enforce one strict complete-address rule on every address entry point. The homepage
+nav "Check" widget was letting incomplete addresses (no city/state/ZIP) through and
+forwarding them to /risk-check, where they failed downstream — while the hero "Check
+Property" widget rejected the same input up front. Now every door shares one validator.
+
+- static/address-validate.js (new): window.OWAddress.validate(raw) is the single
+  source of truth. A complete address = street + city + 2-letter state + 5-digit ZIP,
+  with a specific message naming whatever is missing.
+- Wired into all three entry points: the hero quick-check widget (submitQuickCheck),
+  the nav-bar widget (submitTopbarAddress — previously only checked length, now shows
+  a clear inline error), and the /risk-check page (startScan — previously required
+  only a ZIP). The /risk-check ?address= auto-run path inherits the same check because
+  it routes through startScan.
+
+For the record: the two homepage address widgets are NOT the same feature. The hero
+"Check Property" widget calls /api/quick-check and renders a property snapshot inline;
+the nav "Check" widget redirects to the /risk-check hazard scan. Same look, different
+backends.
+
+## v5.89.161 — 2026-06-09
+Build the shareable-result viral loop on top of the free risk checker — the bold
+reach play, instrumented from the start. Every scan now becomes a link that unfurls
+into a provocative preview card when shared, turning each person who checks an
+address into a potential distributor instead of a dead end.
+
+The loop: scan an address → get a result → share the link → it unfurls into a
+preview image in iMessage / Reddit / X / Facebook → friends click and check their
+own address → repeat.
+
+- share_card.py (new): renders a 1200×630 PNG Open Graph card per result — brand
+  headline (DM Serif Display), grade, undisclosed-exposure dollars, address, and a
+  "scan any address free" footer. Fonts bundled in static/fonts (DejaVu Sans + DM
+  Serif Display) so it renders identically in production.
+- models.py: new SharedRiskCheck model (token, address, grade, exposure, count,
+  headline, full result_json, view_count). Auto-created on deploy via db.create_all.
+- app.py: /api/risk-check now persists a SharedRiskCheck on success and returns a
+  real share_url + share_token. New GET /r/<token> renders an SSR page with proper
+  og:image / twitter:card meta, the findings (including each risk's "what's hiding"
+  reveal), and CTAs back into the scanner and the full-analysis on-ramp. New GET
+  /r/<token>/card.png serves the dynamic preview image (24h cache). A headline
+  helper crafts a provocative-but-accurate hook from the top risk.
+- static/risk-check.html: the existing Share button now uses the server share_url
+  (the per-result page that unfurls) instead of the old client-only base64 link
+  that didn't preview.
+- templates/risk_share.html (new): the public share page.
+
+Instrumentation (the agreed guardrail, built in): funnel events risk_share_created
+(on scan) and risk_share_view (on a shared link landing), and ?src=share on the
+CTAs, so we can see whether the loop actually loops and converts before scaling it.
+
+Tests: new test_risk_share.py (6) covers the page render + OG tags, the PNG card,
+missing-token redirect/404, and the headline helper. Full suite 22 green. Cumulative
+over v5.89.156–.160.
+
+
+## v5.89.160 — 2026-06-09
+Stop the localhost dev origins from leaking into production. A scan of the live
+site showed prod responses carrying `Access-Control-Allow-Origin: http://127.0.0.1:5000`
+with `Allow-Credentials: true` — a leftover dev origin shipped to prod. Low real-world
+risk (the origin is localhost, so an external attacker can't assume it), but it's a
+misconfiguration a scanner flags and prod shouldn't advertise a dev origin.
+
+- app.py: the flask-cors allow-list now includes only the real public origins
+  (www.getofferwise.ai, getofferwise.ai, offerwise.onrender.com) in production;
+  http://localhost:5000 and http://127.0.0.1:5000 are appended only when
+  FLASK_ENV=development. Moved the PRODUCTION_MODE flag above the CORS call so the
+  gate can use it.
+- security.py: same gate applied to ALLOWED_ORIGINS (the CSRF Origin/Referer
+  allow-list), so production CSRF validation never trusts a localhost origin either.
+  The ALLOWED_ORIGIN env override is unchanged.
+
+Verified both lists flip correctly by environment (prod = 3 real origins; dev adds
+the two localhost origins); app.py + security.py compile; 16 on-ramp/engine tests
+green. Cumulative over v5.89.156–.159.
+
+
 ## v5.89.159 — 2026-06-09
 Two fixes found from a failing risk-check scan ("22580 San Vicente Avenue" →
 "Scan failed — please try again").

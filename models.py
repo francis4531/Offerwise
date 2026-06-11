@@ -4129,3 +4129,34 @@ class SystemSetting(db.Model):
             except Exception:
                 pass
             return False
+
+
+class SharedRiskCheck(db.Model):
+    """A persisted risk-check result with a shareable URL + OG preview card.
+
+    Powers the viral loop: a completed scan becomes /r/<token>, which unfurls
+    into a provocative preview image when shared, sending new visitors back
+    into the scanner.
+    """
+    __tablename__ = 'shared_risk_checks'
+
+    id            = db.Column(db.Integer, primary_key=True)
+    token         = db.Column(db.String(16), unique=True, index=True, nullable=False)
+    created_at    = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+
+    address       = db.Column(db.String(300))
+    city          = db.Column(db.String(120))
+    state         = db.Column(db.String(40))
+    risk_grade    = db.Column(db.String(4))
+    risk_exposure = db.Column(db.Integer, default=0)
+    risk_count    = db.Column(db.Integer, default=0)
+    headline      = db.Column(db.String(300))
+    result_json   = db.Column(db.Text)
+    view_count    = db.Column(db.Integer, default=0)
+
+    @staticmethod
+    def new_token():
+        return secrets.token_urlsafe(8).replace('-', '').replace('_', '')[:10]
+
+    def __repr__(self):
+        return f'<SharedRiskCheck {self.token} {self.risk_grade}>'
