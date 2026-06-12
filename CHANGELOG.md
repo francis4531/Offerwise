@@ -3,6 +3,23 @@
 Historical deployment notes, bug fixes, and architecture decisions.
 Consolidated from 80 individual files on 2026-03-13.
 
+## v5.89.169 — Two-column risk cards on the result page
+
+The risk-check result page now lays its risk cards out in two columns on wider
+screens instead of one tall stack. Only the results view widens (a `rc-results`
+class is added to `<body>` when results render and removed on reset/check-another),
+so the address-input hero keeps its original narrow, centered width.
+
+- `#riskCards` is now a CSS grid: `repeat(2, 1fr)` with a 12px gap, `align-items: start`
+  so each card keeps its natural height rather than stretching to its row-mate.
+- `body.rc-results .container` widens to 960px (from the default 640px) to give the
+  two columns comfortable width; the input hero is unaffected.
+- Collapses back to a single column and the normal 640px width at <= 760px (mobile).
+- Card severity order is preserved: cards fill left-to-right, top-to-bottom, so the
+  two most severe findings sit in the top row.
+
+No data-binding, share, Scout, or instrumentation changes.
+
 ---
 
 ## v5.89.168 — 2026-06-12

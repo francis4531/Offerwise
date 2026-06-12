@@ -145,6 +145,15 @@
         .rr-pin { position:absolute; top:-3px; width:10px; height:10px; border-radius:50%; background:#fff; box-shadow:0 0 0 3px rgba(255,255,255,0.15); transform:translateX(-50%); }
         .rr-sec-label { display:flex; align-items:center; gap:11px; margin:32px 0 14px; color:var(--text-dim); font-size:0.76rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; }
         .rr-sec-label::after { content:""; flex:1; height:1px; background:rgba(255,255,255,0.08); }
+        /* Two-column risk cards on wider screens (v5.89.169). Only the results
+           view widens (body.rc-results); the input hero keeps its narrow width. */
+        body.rc-results .container { max-width: 960px; }
+        #riskCards { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; align-items: start; }
+        #riskCards .rr-risk { margin-bottom: 0; }
+        @media (max-width: 760px) {
+            body.rc-results .container { max-width: 640px; }
+            #riskCards { grid-template-columns: 1fr; }
+        }
         .rr-risk { position:relative; background:linear-gradient(180deg,#111a2e,#0f1830); border:1px solid rgba(255,255,255,0.08); border-left:3px solid #6a7c98; border-radius:16px; padding:18px 20px; margin-bottom:12px; }
         .rr-risk.HIGH,.rr-risk.VERYHIGH { border-left-color:#f87171; }
         .rr-risk.MODERATE { border-left-color:#fbbf24; }
@@ -427,6 +436,7 @@
         var resultsEl = document.getElementById('resultsSection');
         resultsEl.classList.add('active');
         resultsEl.style.display = 'block';
+        document.body.classList.add('rc-results');
 
         // Show AI disclaimer (v5.61.0)
         if (window.OfferWiseCompliance) OfferWiseCompliance.showAIDisclaimer('resultsSection');
@@ -653,12 +663,14 @@
     function showError(msg) { var el = document.getElementById('errorMsg'); el.textContent = msg; el.style.display = 'block'; }
     function hideError() { document.getElementById('errorMsg').style.display = 'none'; }
     function resetToInput() {
+        document.body.classList.remove('rc-results');
         document.getElementById('scanSection').classList.remove('active');
         document.getElementById('heroSection').style.display = 'block';
         document.getElementById('scanBtn').disabled = false;
         document.getElementById('scanBtn').textContent = 'Scan Address';
     }
     function resetScan() {
+        document.body.classList.remove('rc-results');
         document.getElementById('resultsSection').style.display = 'none';
         document.getElementById('resultsSection').classList.remove('active');
         document.getElementById('heroSection').style.display = 'block';
