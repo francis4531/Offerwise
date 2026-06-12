@@ -3,6 +3,28 @@
 Historical deployment notes, bug fixes, and architecture decisions.
 Consolidated from 80 individual files on 2026-03-13.
 
+## v5.89.170 — Disclosure-read result restyled to the risk-check look
+
+The shared Ask widget (`ask-widget.js`) now renders its findings block in the same
+visual language as the risk-check result page (`rr-` styles), so the V2 "read my
+disclosure" result matches the look and feel approved in v5.89.163/.169.
+
+- Finding cards adopt the `rr-risk` treatment: gradient slate background
+  (linear-gradient #111a2e -> #0f1830), 16px radius, 18px padding, and a
+  severity-colored left border (critical red / major amber / moderate blue).
+- The severity chip is now a label sitting on top of each finding rather than
+  inline-left, with slightly larger type to match the risk-check chips.
+- The "Here's what I'd look at first" serif sub-header became the tracked,
+  uppercase section label with a trailing hairline (`rr-sec-label` style), and
+  its copy is now "What I'd look at first".
+- The "Grounded in ..." context strip changed from the amber chip to the neutral
+  tracked pill with the glowing green status dot (`rr-eyebrow` style).
+- Finding body text brightened slightly with added line-height for readability.
+
+Because the widget is shared, this same look now applies on /try, the /app Scout
+rail, the shared-opinion page, and the risk-check rail. No markup, data-binding,
+or instrumentation changes — CSS and one label string only.
+
 ## v5.89.169 — Two-column risk cards on the result page
 
 The risk-check result page now lays its risk cards out in two columns on wider
