@@ -3,6 +3,27 @@
 Historical deployment notes, bug fixes, and architecture decisions.
 Consolidated from 80 individual files on 2026-03-13.
 
+## v5.89.171 — Automatic cache-busting + version stamping
+
+Kills the recurring "I deployed but still see the old version" problem. Static
+assets were referenced with bare URLs (e.g. `/static/ask-widget.js`), so browsers
+and any URL-keyed CDN cached them indefinitely and kept serving stale copies
+after a deploy until a manual hard refresh.
+
+- New `scripts/stamp_assets.py` stamps `?v=<VERSION>` onto every local
+  `/static/*.js` and `/static/*.css` reference across all `static/*.html` and
+  `templates/*.html`. This build stamped 88 references across 37 files. Each
+  deploy now produces fresh URLs, so the new files are fetched immediately and
+  the loaded version is visible in the URL / network tab. External URLs (fonts,
+  CDNs) are never touched. The script is idempotent (re-running replaces the
+  stamp rather than doubling it) and runs as a standard packaging step.
+- The same script refreshes the `component (vX.Y.Z)` header comment in shared JS
+  files. `ask-widget.js` had been frozen at `v5.89.154` for many builds even as
+  its code advanced — it now reports the build version, so opening the file no
+  longer misreports what's actually running.
+
+No behavioral changes — asset URLs and a version comment only.
+
 ## v5.89.170 — Disclosure-read result restyled to the risk-check look
 
 The shared Ask widget (`ask-widget.js`) now renders its findings block in the same
