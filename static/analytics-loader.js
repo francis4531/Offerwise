@@ -54,8 +54,10 @@
             }
 
             // ── Reddit Pixel ─────────────────────────────────────────────
+            // Reddit pixel IDs are "t2_…". An "a2_…" value is an ad-ACCOUNT id,
+            // not a pixel id, and makes redditstatic pixel.js throw a TypeError.
             var rPixel = cfg.reddit_pixel_id;
-            if (rPixel) {
+            if (rPixel && /^t2_/i.test(rPixel)) {
                 !function(w,d){
                     if(!w.rdt){
                         var p=w.rdt=function(){p.sendEvent?p.sendEvent.apply(p,arguments):p.callQueue.push(arguments)};

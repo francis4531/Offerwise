@@ -5,6 +5,55 @@ Consolidated from 80 individual files on 2026-03-13.
 
 ---
 
+## v5.89.166 — 2026-06-11
+Add Scout to the Risk Check page, in both modes.
+
+- Backend: new /api/risk-check/chat endpoint (no login, rate-limited). Two grounding
+  modes, both through the shared ask_engine so the persona and rules match every other
+  surface: a general home-buying helper before a scan (context_from_risk_general —
+  explains what the scan checks, what sellers must and needn't disclose, the risk
+  categories, and steers toward scanning an address), and a result-grounded mode after
+  a scan (context_from_risk_result — answers about the specific property's risks,
+  grade, exposure, and the "what's hiding" reveals). It prefers the persisted .161
+  share token (the server loads the result) and falls back to an inline result.
+- Frontend: an always-available docked "Ask Scout" rail on /risk-check, same pattern as
+  the one on /app. It opens in general mode before a scan and automatically re-grounds
+  on the result the moment a scan completes; the launcher relabels to "Ask Scout about
+  this," and "Check another address" returns it to general mode.
+- Instrumentation: risk_chat_message funnel event, tagged general vs result.
+- Tests: 3 new (empty-message guard, general-mode routing, token→result grounding).
+  Full suite 25 green.
+
+## v5.89.165 — 2026-06-11
+Fix two console errors visible on the homepage.
+
+- Reddit pixel TypeError ("Cannot read properties of undefined (reading 'length')"
+  thrown inside redditstatic pixel.js): the configured value a2_ihx65g62d5n6 is a
+  Reddit ad-ACCOUNT id, not a pixel id — Reddit pixel ids are t2_…. The pixel script
+  chokes on the wrong-format value. analytics-loader.js now initializes the pixel only
+  when the id is t2_… formatted, and the bogus a2_ default is removed (defaults empty).
+  NOTE: Reddit conversion tracking stays off until REDDIT_PIXEL_ID is set to the real
+  t2_ pixel id from Reddit Ads Manager → Events Manager. The a2_ value never tracked —
+  it only threw.
+- Deprecated-meta warning: added <meta name="mobile-web-app-capable" content="yes">
+  next to the legacy apple-mobile-web-app-capable in index.html, app.html, and
+  index-agentic-preview.html.
+
+## v5.89.164 — 2026-06-11
+Fix the risk-check "Scan failed" on incomplete addresses. A 5-digit STREET NUMBER —
+the "22580" in "22580 San Vicente Avenue" — was satisfying the naive \d{5} ZIP check,
+so an address with no real city/state/ZIP looked valid, reached the geocoder, failed
+to resolve, and surfaced a confusing generic error. The shared validator now requires
+the ZIP in the ZIP position (at the end of the address, or in "ST 12345" form), so a
+street number can no longer masquerade as a ZIP. Centralized in address-validate.js,
+so all three entry points (hero, nav, /risk-check) inherit the fix.
+
+Context: production is still v5.89.156, which also predates .159's fix that surfaces the
+geocoder's specific message ("Could not find that address…") instead of the generic
+"Scan failed." Deploying this build clears the screenshot both ways — the incomplete
+address is now caught up front with a clear message, and genuine geocode failures show
+the real reason.
+
 ## v5.89.163 — 2026-06-11
 Rebuild the /risk-check result page to the approved redesign. Same data, same
 share-token wiring, same funnel instrumentation — new presentation.

@@ -5610,6 +5610,52 @@ def try_chat():
     })
 
 
+@app.route('/api/risk-check/chat', methods=['POST'])
+@limiter.limit("40 per hour")
+def risk_check_chat():
+    """Scout on the Risk Check page. Two modes: grounded on a scan result when a
+    token/result is supplied, otherwise a general home-buying helper. No login."""
+    data = request.get_json(silent=True) or {}
+    message = (data.get('message') or '').strip()
+    if not message:
+        return jsonify({'error': 'Please type a question.'}), 400
+    if len(message) > 2000:
+        message = message[:2000]
+
+    # Resolve the property context: a persisted share token (preferred) or an
+    # inline result object; absent either, Scout runs in general mode.
+    result = None
+    token = (data.get('token') or '').strip()
+    if token:
+        try:
+            from models import SharedRiskCheck
+            src = SharedRiskCheck.query.filter_by(token=token).first()
+            if src and src.result_json:
+                result = json.loads(src.result_json)
+        except Exception:
+            result = None
+    if result is None and isinstance(data.get('result'), dict):
+        result = data.get('result')
+
+    try:
+        from ask_engine import grounded_answer, context_from_risk_result, context_from_risk_general
+        ctx = context_from_risk_result(result) if result else context_from_risk_general()
+        answer = grounded_answer(message, ctx)
+    except Exception as e:
+        logging.error(f"risk_check_chat AI error: {e}")
+        return jsonify({'error': 'busy',
+                        'message': "I'm having trouble right now. Please try again in a moment."}), 503
+
+    try:
+        from funnel_tracker import track_from_request
+        track_from_request('risk_chat_message', request,
+                           metadata={'mode': 'result' if result else 'general'})
+    except Exception:
+        pass
+
+    return jsonify({'answer': answer})
+
+
 @app.route('/api/report/chat', methods=['POST'])
 @login_required
 @limiter.limit("60 per hour")
@@ -8704,7 +8750,7 @@ def api_config_analytics():
         'gads_id':              os.environ.get('GOOGLE_ADS_CONVERSION_ID', ''),
         'gads_signup_label':    os.environ.get('GOOGLE_ADS_SIGNUP_LABEL', ''),
         'gads_purchase_label':  os.environ.get('GOOGLE_ADS_PURCHASE_LABEL', ''),
-        'reddit_pixel_id':      os.environ.get('REDDIT_PIXEL_ID', 'a2_ihx65g62d5n6'),
+        'reddit_pixel_id':      os.environ.get('REDDIT_PIXEL_ID', ''),
     })
 
 

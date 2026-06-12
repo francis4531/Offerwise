@@ -62,3 +62,28 @@ def test_headline_picks_flood():
 def test_headline_no_risks():
     h = _risk_share_headline({'risks': [], 'risk_count': 0})
     assert 'government databases' in h.lower()
+
+
+# ── Scout on the Risk Check page (/api/risk-check/chat) ──────────────────────
+import ask_engine  # noqa: E402
+
+
+def test_chat_requires_message(client):
+    assert client.post('/api/risk-check/chat', json={}).status_code == 400
+
+
+def test_chat_general_mode(client, monkeypatch):
+    # echo the grounding context back so we can see which mode was used
+    monkeypatch.setattr(ask_engine, 'grounded_answer', lambda q, ctx, **k: ctx)
+    r = client.post('/api/risk-check/chat', json={'message': 'what does this check?'})
+    assert r.status_code == 200
+    ans = r.get_json()['answer']
+    assert 'Risk Check' in ans and 'OFFERWISE RISK SCAN for this property' not in ans
+
+
+def test_chat_token_grounds_on_result(client, monkeypatch):
+    monkeypatch.setattr(ask_engine, 'grounded_answer', lambda q, ctx, **k: ctx)
+    r = client.post('/api/risk-check/chat', json={'message': 'how bad is it?', 'token': 'testtok123'})
+    assert r.status_code == 200
+    ans = r.get_json()['answer']
+    assert 'Flood Zone' in ans and 'OFFERWISE RISK SCAN' in ans
