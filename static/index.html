@@ -1007,202 +1007,6 @@
         }
         @keyframes owPulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.85)}}
 
-        /* Address Quick Check */
-        .address-quick-check {
-            max-width: 580px;
-            margin: 2rem auto 0;
-            position: relative;
-        }
-        .address-quick-check .aqc-label {
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            color: #64748b;
-            margin-bottom: 10px;
-            font-weight: 600;
-        }
-        .address-quick-check .aqc-bar {
-            display: flex;
-            align-items: center;
-            background: rgba(255,255,255,0.04);
-            border: 1.5px solid rgba(249,115,22,0.25);
-            border-radius: 14px;
-            padding: 6px 6px 6px 18px;
-            transition: border-color 0.25s, box-shadow 0.25s;
-        }
-        .address-quick-check .aqc-bar:focus-within {
-            border-color: #f97316;
-            box-shadow: 0 0 0 3px rgba(249,115,22,0.12), 0 0 24px rgba(249,115,22,0.06);
-        }
-        .address-quick-check .aqc-icon {
-            flex-shrink: 0;
-            font-size: 1rem;
-            margin-right: 10px;
-            color: #64748b;
-        }
-        .address-quick-check input {
-            flex: 1;
-            background: transparent;
-            border: none;
-            outline: none;
-            color: #f1f5f9;
-            font-size: 0.95rem;
-            font-family: inherit;
-            padding: 10px 0;
-        }
-        .address-quick-check input::placeholder {
-            color: #475569;
-        }
-        .address-quick-check .aqc-btn {
-            flex-shrink: 0;
-            padding: 10px 22px;
-            background: linear-gradient(90deg, #f97316, #f59e0b);
-            border: none;
-            border-radius: 10px;
-            color: #fff;
-            font-weight: 700;
-            font-size: 0.85rem;
-            font-family: inherit;
-            cursor: pointer;
-            transition: opacity 0.2s, transform 0.15s;
-            white-space: nowrap;
-        }
-        .address-quick-check .aqc-btn:hover {
-            opacity: 0.92;
-            transform: translateY(-1px);
-        }
-        .address-quick-check .aqc-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none;
-        }
-        .address-quick-check .aqc-sub {
-            font-size: 0.75rem;
-            color: #475569;
-            margin-top: 10px;
-            text-align: center;
-        }
-        .address-quick-check .aqc-sub span {
-            color: #22c55e;
-        }
-        .address-quick-check .aqc-error {
-            color: #ef4444;
-            font-size: 0.8rem;
-            margin-top: 8px;
-            display: none;
-        }
-        /* Quick Results Card */
-        .qr-card {
-            margin-top: 20px;
-            background: linear-gradient(135deg, #0d1117, #111827);
-            border: 1px solid rgba(249,115,22,0.25);
-            border-radius: 16px;
-            overflow: hidden;
-            text-align: left;
-            animation: qrSlideIn 0.4s ease;
-        }
-        @keyframes qrSlideIn {
-            from { opacity: 0; transform: translateY(12px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .qr-header {
-            padding: 18px 22px;
-            border-bottom: 1px solid rgba(255,255,255,0.06);
-        }
-        .qr-header-label {
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            letter-spacing: 1.2px;
-            color: #f97316;
-            font-weight: 700;
-            margin-bottom: 6px;
-        }
-        .qr-header-addr {
-            font-size: 1.1rem;
-            font-weight: 800;
-            color: #f1f5f9;
-        }
-        .qr-grid {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1px;
-            background: rgba(255,255,255,0.04);
-            padding: 0;
-        }
-        .qr-metric {
-            padding: 14px 16px;
-            text-align: center;
-            background: #0d1117;
-            flex: 1 1 120px;
-            min-width: 120px;
-        }
-        .qr-metric-label {
-            font-size: 0.65rem;
-            text-transform: uppercase;
-            letter-spacing: 0.8px;
-            color: #475569;
-            font-weight: 700;
-            margin-bottom: 5px;
-        }
-        .qr-metric-value {
-            font-size: 1.3rem;
-            font-weight: 900;
-            color: #f1f5f9;
-            line-height: 1;
-        }
-        .qr-metric-sub {
-            font-size: 0.68rem;
-            color: #475569;
-            margin-top: 4px;
-        }
-        .qr-section-label {
-            font-size: 0.65rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: #64748b;
-            font-weight: 700;
-            padding: 12px 22px 0;
-            background: #0d1117;
-        }
-        .qr-upgrade {
-            padding: 20px 22px;
-            text-align: center;
-            background: linear-gradient(135deg, rgba(249,115,22,0.08), rgba(245,158,11,0.04));
-            border-top: 1px solid rgba(249,115,22,0.15);
-        }
-        .qr-upgrade-text {
-            font-size: 0.82rem;
-            color: #94a3b8;
-            line-height: 1.6;
-            margin-bottom: 14px;
-        }
-        .qr-upgrade-btn {
-            display: inline-block;
-            padding: 11px 26px;
-            background: linear-gradient(90deg, #f97316, #f59e0b);
-            border-radius: 10px;
-            color: #fff;
-            font-weight: 700;
-            font-size: 0.88rem;
-            text-decoration: none;
-            transition: opacity 0.2s, transform 0.15s;
-        }
-        .qr-upgrade-btn:hover {
-            opacity: 0.92;
-            transform: translateY(-1px);
-        }
-        @media (max-width: 768px) {
-            .address-quick-check { margin-top: 1.25rem; }
-            .address-quick-check .aqc-bar { padding: 5px 5px 5px 14px; border-radius: 12px; }
-            .address-quick-check input { font-size: 0.88rem; }
-            .address-quick-check .aqc-btn { padding: 10px 16px; font-size: 0.8rem; }
-        }
-        @media (max-width: 380px) {
-            .address-quick-check .aqc-bar { flex-wrap: wrap; padding: 10px; gap: 8px; }
-            .address-quick-check input { width: 100%; }
-            .address-quick-check .aqc-btn { width: 100%; text-align: center; }
-            .address-quick-check .aqc-icon { display: none; }
-        }
     </style>
 <!-- Google Analytics loaded by compliance.js after cookie consent -->
     <script src="/static/analytics-loader.js" defer></script>
@@ -1438,20 +1242,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         </div>
         
         <p class="hero-note">No credit card required to sign up. Your first analysis is complimentary.</p>
-
-        <!-- Address Quick Check -->
-        <div class="address-quick-check" id="address-quick-check">
-            <div class="aqc-label">or check any address instantly</div>
-            <div class="aqc-bar">
-                <span class="aqc-icon">📍</span>
-                <input type="text" id="aqc-address" placeholder="742 Oak Street, Austin TX 78701" autocomplete="street-address" />
-                <button class="aqc-btn" id="aqc-submit" onclick="submitQuickCheck()">Check Property →</button>
-            </div>
-            <div class="aqc-sub">
-                <span>●</span> Free — no documents needed. Get market value, flood risk, schools, and more.
-            </div>
-            <div class="aqc-error" id="aqc-error"></div>
-        </div>
 
         <!-- Agent Console Preview -->
         <div class="results-preview" style="font-family:inherit;background:linear-gradient(135deg,#0d1117,#111827);border:1px solid rgba(249,115,22,0.2);text-align:left;padding:0;overflow:hidden;">
@@ -2491,185 +2281,55 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         // backend endpoint remains in place but is no longer called from this page.
     </script>
 <script>
-    // Address Quick Check — redirect to login with address pre-filled
-    function submitQuickCheck() {
-        var input = document.getElementById('aqc-address');
-        var errEl = document.getElementById('aqc-error');
-        var btn = document.getElementById('aqc-submit');
-        var addr = (input.value || '').trim();
-
-        errEl.style.display = 'none';
-
-        var _v = window.OWAddress.validate(addr);
-        if (!_v.ok) {
-            errEl.textContent = _v.message;
-            errEl.style.display = 'block';
-            input.focus();
-            return;
-        }
-
-        btn.disabled = true;
-        btn.textContent = 'Checking...';
-
-        // Show loading indicator below the bar
-        var loadEl = document.getElementById('aqc-loading');
-        if (!loadEl) {
-            loadEl = document.createElement('div');
-            loadEl.id = 'aqc-loading';
-            loadEl.style.cssText = 'margin-top:12px;text-align:center;font-size:13px;color:#94a3b8;';
-            var parent = document.getElementById('address-quick-check');
-            parent.appendChild(loadEl);
-        }
-        loadEl.innerHTML = '<span style="display:inline-block;animation:owPulse 1.5s infinite;">●</span> Querying public records, market data, and environmental sources...';
-        loadEl.style.display = 'block';
-
-        // Clear previous results
-        var prevResults = document.getElementById('aqc-results');
-        if (prevResults) prevResults.remove();
-
-        // Call public API — no auth needed
-        fetch('/api/quick-check', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ address: addr })
-        })
-        .then(function(r) {
-            if (!r.ok) {
-                return r.text().then(function(t) {
-                    var d;
-                    try { d = JSON.parse(t); } catch(e) { d = { error: 'Server error (' + r.status + '). Please try again.' }; }
-                    throw new Error(d.error || 'Request failed');
-                });
-            }
-            return r.json();
-        })
-        .then(function(data) {
-            btn.disabled = false;
-            btn.textContent = 'Check Property →';
-            loadEl.style.display = 'none';
-            renderQuickResults(data);
-        })
-        .catch(function(e) {
-            btn.disabled = false;
-            btn.textContent = 'Check Property →';
-            if (loadEl) loadEl.style.display = 'none';
-            errEl.textContent = e.message || 'Something went wrong. Please try again.';
-            errEl.style.display = 'block';
-        });
-    }
-
-    function renderQuickResults(r) {
-        var container = document.getElementById('aqc-results');
-        if (!container) {
-            container = document.createElement('div');
-            container.id = 'aqc-results';
-            var parent = document.getElementById('address-quick-check');
-            parent.appendChild(container);
-        }
-
-        var mc = r.market_context || {};
-        var env = r.environmental || {};
-        var hood = r.neighborhood || {};
-        var avm = mc.avm_price || 0;
-        var avmLow = mc.avm_price_low || 0;
-        var avmHigh = mc.avm_price_high || 0;
-        var comps = mc.comparables_count || 0;
-        var dom = mc.average_days_on_market || 0;
-        var listings = mc.total_listings || 0;
-        var ppsf = mc.median_price_per_sqft || 0;
-        var permits = r.permit_count || 0;
-        var walkScore = hood.walk_score || 0;
-        var transitScore = hood.transit_score || 0;
-        var schoolRating = hood.school_rating || 0;
-        var schoolName = hood.school_name || '';
-        var floodZone = env.flood_zone || 'Unknown';
-        var wildfire = env.wildfire_risk || 'Unknown';
-        var aqi = env.air_quality_index || 0;
-        var addr = r.property_address || '';
-        var tools = r.tools_succeeded || 0;
-
-        function fmtNum(n) { return n ? n.toLocaleString() : '—'; }
-        function scoreColor(v, good, warn) { return v >= good ? '#22c55e' : v >= warn ? '#f59e0b' : '#ef4444'; }
-
-        var metricCards = '';
-        if (avm > 0) metricCards += '<div class="qr-metric"><div class="qr-metric-label">Est. Market Value</div><div class="qr-metric-value" style="color:#a78bfa;font-size:22px;">$' + fmtNum(avm) + '</div>' + (avmLow > 0 ? '<div class="qr-metric-sub">$' + fmtNum(avmLow) + ' – $' + fmtNum(avmHigh) + '</div>' : '') + '</div>';
-        if (dom > 0) metricCards += '<div class="qr-metric"><div class="qr-metric-label">Avg Days on Market</div><div class="qr-metric-value">' + dom + '</div><div class="qr-metric-sub">days</div></div>';
-        if (comps > 0) metricCards += '<div class="qr-metric"><div class="qr-metric-label">Comparables</div><div class="qr-metric-value">' + comps + '</div><div class="qr-metric-sub">recent sales</div></div>';
-        if (ppsf > 0) metricCards += '<div class="qr-metric"><div class="qr-metric-label">Price / Sq Ft</div><div class="qr-metric-value">$' + Math.round(ppsf) + '</div><div class="qr-metric-sub">median</div></div>';
-        if (walkScore > 0) metricCards += '<div class="qr-metric"><div class="qr-metric-label">Walk Score</div><div class="qr-metric-value" style="color:' + scoreColor(walkScore, 70, 50) + '">' + walkScore + '</div><div class="qr-metric-sub">' + (walkScore >= 70 ? 'Very Walkable' : walkScore >= 50 ? 'Somewhat' : 'Car-Dependent') + '</div></div>';
-        if (transitScore > 0) metricCards += '<div class="qr-metric"><div class="qr-metric-label">Transit Score</div><div class="qr-metric-value" style="color:' + scoreColor(transitScore, 70, 50) + '">' + transitScore + '</div><div class="qr-metric-sub">' + (transitScore >= 70 ? 'Excellent' : transitScore >= 50 ? 'Good' : 'Minimal') + '</div></div>';
-        if (schoolRating > 0) metricCards += '<div class="qr-metric"><div class="qr-metric-label">Schools</div><div class="qr-metric-value" style="color:' + scoreColor(schoolRating, 7, 5) + '">' + schoolRating.toFixed(1) + '</div><div class="qr-metric-sub">' + (schoolName || 'nearby') + '</div></div>';
-
-        // Only show environmental section if we have real data (not all Unknown/0)
-        var envCards = '';
-        var hasRealEnvData = false;
-        if (floodZone && floodZone !== 'Unknown') { envCards += '<div class="qr-metric"><div class="qr-metric-label">Flood Zone</div><div class="qr-metric-value" style="color:' + (floodZone === 'X' || floodZone === 'Zone X' ? '#22c55e' : '#f59e0b') + '">' + floodZone + '</div></div>'; hasRealEnvData = true; }
-        if (wildfire && wildfire !== 'Unknown') { envCards += '<div class="qr-metric"><div class="qr-metric-label">Wildfire</div><div class="qr-metric-value" style="color:' + (wildfire === 'Low' || wildfire === 'Minimal' ? '#22c55e' : wildfire === 'Moderate' ? '#f59e0b' : '#ef4444') + '">' + wildfire + '</div></div>'; hasRealEnvData = true; }
-        if (aqi > 0) { envCards += '<div class="qr-metric"><div class="qr-metric-label">Air Quality</div><div class="qr-metric-value" style="color:' + (aqi <= 50 ? '#22c55e' : aqi <= 100 ? '#f59e0b' : '#ef4444') + '">' + aqi + '</div><div class="qr-metric-sub">' + (aqi <= 50 ? 'Good' : aqi <= 100 ? 'Moderate' : 'Unhealthy') + '</div></div>'; hasRealEnvData = true; }
-        if (permits > 0) { envCards += '<div class="qr-metric"><div class="qr-metric-label">Permits</div><div class="qr-metric-value">' + permits + '</div><div class="qr-metric-sub">on file</div></div>'; hasRealEnvData = true; }
-
-        container.innerHTML = '' +
-            '<div class="qr-card">' +
-                '<div class="qr-header">' +
-                    '<div class="qr-header-label">Property Preview · ' + tools + ' data sources checked</div>' +
-                    '<div class="qr-header-addr">' + addr + '</div>' +
-                '</div>' +
-                '<div class="qr-grid">' + metricCards + '</div>' +
-                (hasRealEnvData ? '<div class="qr-section-label">Environmental & Hazard</div><div class="qr-grid">' + envCards + '</div>' : '') +
-                '<div class="qr-upgrade">' +
-                    '<div class="qr-upgrade-text">Want the full picture? Upload your inspection report and seller disclosure for OfferScore, repair costs, deal-breakers, and a recommended offer price.</div>' +
-                    '<a href="/login?signup" class="qr-upgrade-btn">Get Full Analysis — Free →</a>' +
-                '</div>' +
-            '</div>';
-
-        container.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-
-    // Submit on Enter
-    var aqcInput = document.getElementById('aqc-address');
-    if (aqcInput) {
-        aqcInput.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') { e.preventDefault(); submitQuickCheck(); }
-        });
-    }
-
     // v5.87.91: Top-bar address widget — redirects to /risk-check with the
     // address pre-filled; the risk-check page picks it up from ?address= and
     // auto-scans. Tracking fires both client-side (dataLayer for GA4) and
     // server-side (POST /api/track/feature for the admin dashboard).
+    // Shows a clear validation message for the nav address box. The nav pill has
+    // overflow:hidden, so the message must live on <body> (fixed-position) or it
+    // gets clipped and the user sees nothing.
+    function showTopbarAddrError(input, msg) {
+        var form = document.getElementById('topbarAddrForm');
+        var te = document.getElementById('topbarAddrError');
+        if (!te) {
+            te = document.createElement('div');
+            te.id = 'topbarAddrError';
+            te.setAttribute('role', 'alert');
+            document.body.appendChild(te);
+        }
+        te.style.cssText = 'position:fixed;z-index:100000;background:#1a0f0f;border:1px solid rgba(239,68,68,0.55);color:#fca5a5;font-size:12.5px;font-weight:600;line-height:1.4;padding:8px 12px;border-radius:9px;box-shadow:0 8px 24px rgba(0,0,0,0.5);max-width:320px;font-family:inherit;';
+        te.textContent = msg;
+        te.style.display = 'block';
+        var anchor = input || form;
+        if (anchor) {
+            var r = anchor.getBoundingClientRect();
+            te.style.top = (r.bottom + 7) + 'px';
+            var left = r.left;
+            var maxLeft = (window.innerWidth || 360) - 332;
+            if (left > maxLeft) { left = Math.max(8, maxLeft); }
+            te.style.left = left + 'px';
+        }
+        if (form) { form.style.borderColor = '#ef4444'; }
+        if (input) { input.focus(); }
+        clearTimeout(window._tbErrT);
+        window._tbErrT = setTimeout(function() {
+            var e = document.getElementById('topbarAddrError');
+            if (e) { e.style.display = 'none'; }
+            if (form) { form.style.borderColor = ''; }
+        }, 4500);
+    }
+
     function submitTopbarAddress(e) {
         if (e && e.preventDefault) e.preventDefault();
         var input = document.getElementById('topbarAddrInput');
         var raw = input ? (input.value || '').trim() : '';
         if (!raw) {
-            if (input) {
-                input.style.borderColor = '#ef4444';
-                input.focus();
-                setTimeout(function() { input.style.borderColor = ''; }, 1500);
-            }
+            showTopbarAddrError(input, 'Please enter a full address with city, state, and ZIP.');
             return false;
         }
         var _v = window.OWAddress.validate(raw);
         if (!_v.ok) {
-            var form = document.getElementById('topbarAddrForm');
-            if (form) {
-                form.style.position = 'relative';
-                var te = document.getElementById('topbarAddrError');
-                if (!te) {
-                    te = document.createElement('div');
-                    te.id = 'topbarAddrError';
-                    te.style.cssText = 'position:absolute;top:100%;left:0;margin-top:6px;background:#1a0f0f;border:1px solid rgba(239,68,68,0.5);color:#fca5a5;font-size:12px;font-weight:600;line-height:1.4;padding:7px 11px;border-radius:8px;z-index:50;box-shadow:0 6px 18px rgba(0,0,0,0.45);max-width:340px;';
-                    form.appendChild(te);
-                }
-                te.textContent = _v.message;
-                te.style.display = 'block';
-                clearTimeout(window._tbErrT);
-                window._tbErrT = setTimeout(function() {
-                    te.style.display = 'none';
-                    if (input) input.style.borderColor = '';
-                }, 4000);
-            }
-            if (input) { input.style.borderColor = '#ef4444'; input.focus(); }
+            showTopbarAddrError(input, _v.message);
             return false;
         }
         // Detect ZIP for analytics — backend requires one to actually scan

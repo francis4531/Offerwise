@@ -5,6 +5,28 @@ Consolidated from 80 individual files on 2026-03-13.
 
 ---
 
+## v5.89.168 — 2026-06-12
+Fix the missing error message on the nav-bar address box. The validation added in .162
+was firing, but the error element was appended inside the .topbar-address-widget pill —
+which has overflow:hidden — so the message was created and immediately clipped, and the
+user saw nothing when entering a partial address. The error now renders on <body> as a
+fixed-position message anchored under the box, so it can't be clipped (with viewport
+clamping so it stays on-screen). An empty box now also gets a clear message instead of a
+silent red border flash. The /risk-check page already surfaces a prominent inline error
+via showError, so partial-address feedback is now covered on every address entry point.
+
+## v5.89.167 — 2026-06-12
+Remove the homepage "quick-check" property-preview section. The hero "Check Property"
+widget (/api/quick-check) and the inline PROPERTY PREVIEW panel it rendered — est.
+market value, days on market, comparables, price/sqft, walk score, air quality — added
+little value and competed with the nav "Check" → /risk-check entry, confusing users
+about which address tool does what. Removed its markup, CSS (.address-quick-check and
+the .qr-* result card), and JS (submitQuickCheck, renderQuickResults, the Enter
+handler) from index.html, with div balance and CSS braces verified intact. The nav
+"Check" → /risk-check entry, the unified address validation, and the rest of the hero
+are untouched. The /api/quick-check backend endpoint is now unused — left in place; it
+can be removed in a later cleanup if you want.
+
 ## v5.89.166 — 2026-06-11
 Add Scout to the Risk Check page, in both modes.
 
