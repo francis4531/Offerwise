@@ -65,6 +65,13 @@ class TryOnRampTests(unittest.TestCase):
         self.client = app.test_client()
         # Start each test from a clean session store.
         app_module._TRY_SESSIONS.clear()
+        # Default to the deterministic parser path (no model call). AI-path
+        # tests override ask_engine.extract_findings within their own patch.
+        self._ai_patch = patch('ask_engine.extract_findings', return_value=None)
+        self._ai_patch.start()
+
+    def tearDown(self):
+        self._ai_patch.stop()
 
     def test_try_page_served(self):
         r = self.client.get('/try')
@@ -137,6 +144,47 @@ class TryOnRampTests(unittest.TestCase):
         self.assertNotIn('\u25a1', txt)
         self.assertNotIn('\u2610', txt)
         self.assertNotIn('Comments:', txt)
+
+    def test_start_uses_ai_findings_and_summary(self):
+        ai = {
+            'summary': 'Two disclosed issues stand out in this seller disclosure.',
+            'findings': [
+                {'severity': 'critical',
+                 'text': 'The seller disclosed active foundation movement that needs an engineer before closing.'},
+                {'severity': 'moderate',
+                 'text': 'The roof was disclosed as nearing the end of its service life.'},
+            ],
+        }
+        # Parser finds nothing (typical for a disclosure); the AI still surfaces findings.
+        with patch.object(app_module.parser, 'parse_inspection_report',
+                          return_value=_FakeDoc([], address='9 Oak Ave')), \
+             patch('ask_engine.extract_findings', return_value=ai):
+            d = _start(self.client, text=_LONG_TEXT).get_json()
+        self.assertEqual(d['summary'], ai['summary'])
+        self.assertEqual(len(d['findings']), 2)
+        self.assertEqual(d['findings'][0]['severity'], 'critical')
+        self.assertEqual(d['findings'][1]['text'], ai['findings'][1]['text'])
+
+    def test_start_ai_empty_is_honored_over_parser(self):
+        # AI succeeded but found nothing significant -> trust it, do NOT fall
+        # back to the parser's (often boilerplate) findings.
+        with patch.object(app_module.parser, 'parse_inspection_report',
+                          return_value=_FakeDoc(_SAMPLE_FINDINGS)), \
+             patch('ask_engine.extract_findings',
+                   return_value={'summary': 'This disclosure is relatively clean.', 'findings': []}):
+            d = _start(self.client, text=_LONG_TEXT).get_json()
+        self.assertEqual(d['findings'], [])
+        self.assertEqual(d['summary'], 'This disclosure is relatively clean.')
+
+    def test_start_ai_unavailable_falls_back_to_parser(self):
+        # extract_findings returns None (model down / no key) -> parser path, no summary.
+        with patch.object(app_module.parser, 'parse_inspection_report',
+                          return_value=_FakeDoc(_SAMPLE_FINDINGS)), \
+             patch('ask_engine.extract_findings', return_value=None):
+            d = _start(self.client, text=_LONG_TEXT).get_json()
+        self.assertEqual(len(d['findings']), 3)
+        self.assertEqual(d['findings'][0]['severity'], 'critical')
+        self.assertEqual(d.get('summary', ''), '')
 
     def test_chat_unknown_token_returns_410(self):
         r = self.client.post('/api/try/chat', json={'token': 'nope', 'message': 'hi'})

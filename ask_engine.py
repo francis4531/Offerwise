@@ -47,6 +47,100 @@ def grounded_answer(question, context_text, *, max_tokens=600):
     return get_ai_response(prompt, max_tokens=max_tokens, temperature=0, system=SYSTEM_RULES)
 
 
+# --- AI findings extraction (on-ramp) -------------------------------------
+# The keyword parser only understands inspection reports; on a seller
+# disclosure it returns nothing or surfaces the form's pre-printed boilerplate.
+# This reads ANY property document with the model and returns the genuinely
+# buyer-relevant findings, grounded strictly in the text.
+
+EXTRACT_RULES = (
+    "You are Scout, OfferWise's plain-English home-buying analyst. You are given the full "
+    "text of ONE property document a buyer uploaded — it may be a home inspection report, a "
+    "seller's disclosure (e.g. a TDS or SPQ), a natural-hazard disclosure, or similar. "
+    "Identify the items that genuinely matter to a buyer deciding what to offer: defects, "
+    "damage, safety or structural issues, deferred maintenance, environmental or natural "
+    "hazards, and anything the seller has affirmatively disclosed as a known problem for THIS "
+    "property. Follow these rules strictly:\n"
+    "- Use ONLY what is actually stated in the document. Never invent, never infer beyond the "
+    "text, never add generic advice. If the document is a standard form, do NOT surface its "
+    "pre-printed questions, instructions, or definitions as findings — only items the document "
+    "indicates are actually present, disclosed, or flagged for this property.\n"
+    "- Each finding is a specific, complete sentence describing the actual issue and why it "
+    "matters. No fragments, no enum labels, no raw form language, no ellipses.\n"
+    "- severity is exactly one of: critical, major, moderate. critical = safety, structural, or "
+    "financial dealbreaker; major = significant cost or concern; moderate = worth noting. Do "
+    "not include minor or informational items.\n"
+    "- Return at most 3 findings, most serious first. If the document genuinely raises nothing "
+    "significant for this property, return an empty findings list — never pad it.\n"
+    "- Also write one short summary sentence (18 words or fewer) the buyer reads first, framing "
+    "what the document shows; if nothing significant, say so honestly.\n"
+    "Output ONLY a JSON object, no prose and no markdown fences:\n"
+    '{"summary": "...", "findings": [{"severity": "critical|major|moderate", "text": "..."}]}'
+)
+
+_EXTRACT_SEVERITIES = ('critical', 'major', 'moderate')
+
+
+def _parse_findings_json(raw):
+    """Tolerant parse of the model's JSON object. Returns a normalized dict
+    {'summary', 'findings'} or None if it can't be parsed."""
+    if not raw or not isinstance(raw, str):
+        return None
+    a, b = raw.find('{'), raw.rfind('}')
+    if a == -1 or b <= a:
+        return None
+    try:
+        obj = json.loads(raw[a:b + 1])
+    except Exception:
+        return None
+    if not isinstance(obj, dict):
+        return None
+    summary = obj.get('summary')
+    summary = summary.strip() if isinstance(summary, str) else ''
+    out = []
+    for f in (obj.get('findings') or []):
+        if not isinstance(f, dict):
+            continue
+        sev = str(f.get('severity', '')).strip().lower()
+        sev = {'high': 'major', 'severe': 'critical', 'medium': 'moderate',
+               'low': 'moderate'}.get(sev, sev)
+        txt = f.get('text')
+        txt = txt.strip() if isinstance(txt, str) else ''
+        if sev in _EXTRACT_SEVERITIES and len(txt) >= 12:
+            out.append({'severity': sev, 'text': txt})
+        if len(out) >= 3:
+            break
+    return {'summary': summary, 'findings': out}
+
+
+def extract_findings(text):
+    """AI-extract the buyer-relevant findings from ANY property document.
+
+    Returns {'summary': str, 'findings': [{'severity','text'}]} on a successful
+    model call (findings may be an empty list when the document genuinely raises
+    nothing significant), or None when the model is unavailable or its response
+    can't be parsed — callers should fall back to the keyword parser in that
+    case.
+    """
+    from ai_client import get_ai_response
+    doc = (text or '')
+    if len(doc.strip()) < 80:
+        return None
+    if len(doc) > MAX_CONTEXT_CHARS:
+        doc = doc[:MAX_CONTEXT_CHARS]
+    prompt = (
+        'DOCUMENT:\n"""\n' + doc + '\n"""\n\n'
+        'Extract the findings exactly as specified in your instructions. '
+        'Return only the JSON object.'
+    )
+    try:
+        raw = get_ai_response(prompt, max_tokens=700, temperature=0, system=EXTRACT_RULES)
+    except Exception as e:
+        logging.warning("extract_findings: model unavailable (%s)", e)
+        return None
+    return _parse_findings_json(raw)
+
+
 def context_from_document(text):
     """On-ramp: a single uploaded/pasted document."""
     return "DOCUMENT THE BUYER UPLOADED:\n" + (text or '')

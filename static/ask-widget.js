@@ -1,5 +1,5 @@
 /*!
- * ask-widget.js — OfferWise "Ask your report" component (v5.89.171)
+ * ask-widget.js — OfferWise "Ask your report" component (v5.89.172)
  *
  * One reusable chat widget for every surface where a buyer sees a report:
  *   - the no-login on-ramp (/try)        context: one uploaded document
@@ -38,6 +38,7 @@
     '.owask-ctx b{color:var(--c-muted);font-weight:700}.owask-ctx .owask-pieces{color:#6a7c98;font-weight:600;letter-spacing:.06em}',
     '.owask-fh{display:flex;align-items:center;gap:11px;margin:6px 0 14px;color:var(--c-muted);font-size:.76rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase}',
     '.owask-fh::after{content:"";flex:1;height:1px;background:rgba(255,255,255,.08)}',
+    '.owask-summary{font-family:"DM Serif Display",Georgia,serif;font-size:1.4rem;line-height:1.32;color:var(--c-text);margin:2px 0 16px}',
     '.owask-find{background:linear-gradient(180deg,#111a2e,#0f1830);border:1px solid rgba(255,255,255,.08);',
     'border-left:3px solid #6a7c98;border-radius:16px;padding:16px 18px;margin-bottom:11px}',
     '.owask-find.critical{border-left-color:var(--c-crit)}.owask-find.major{border-left-color:var(--c-maj)}.owask-find.moderate{border-left-color:var(--c-mod)}',
@@ -140,6 +141,11 @@
       ctx.appendChild(el('b', null, 'Grounded in ' + escapeHtml(opts.contextLabel)));
       if (opts.contextPieces) { ctx.appendChild(el('span', 'owask-pieces', escapeHtml(opts.contextPieces))); }
       root.appendChild(ctx);
+    }
+
+    // Report summary headline
+    if (opts.summary) {
+      root.appendChild(el('div', 'owask-summary', escapeHtml(opts.summary)));
     }
 
     // Findings teaser

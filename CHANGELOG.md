@@ -3,6 +3,36 @@
 Historical deployment notes, bug fixes, and architecture decisions.
 Consolidated from 80 individual files on 2026-03-13.
 
+## v5.89.172 — On-ramp now AI-analyzes every upload (disclosures included)
+
+Fixes the uninspiring V2 result when a buyer uploads a *disclosure*. The on-ramp
+parsed every upload with the inspection-report keyword parser, which on a seller
+disclosure returned nothing (Scout fell through to "nothing major jumped out") or
+surfaced the form's pre-printed boilerplate as "findings." Two different engines:
+the V1 top-bar report comes from a public-records hazard scan, while the V2 upload
+reads the document — and it wasn't actually reading disclosures.
+
+- New `ask_engine.extract_findings(text)` reads ANY property document (inspection
+  report, seller disclosure, hazard disclosure) with the model and returns the
+  genuinely buyer-relevant findings plus a one-line summary, grounded strictly in
+  the text. It refuses to surface form boilerplate and returns at most three
+  findings, most serious first. Returns None on any model failure.
+- `/api/try/start` now uses `extract_findings` as the primary findings source and
+  falls back to the keyword parser only if the model is unavailable. A successful
+  but empty AI result is honored (an honest "nothing jumped out") rather than
+  reverting to the parser's noise. The response gains a `summary` field. The
+  structured parser still supplies the property address.
+- The shared Ask widget renders an optional `summary` as a DM Serif report
+  headline above the findings; `/v2` and `/try` pass it through. The result now
+  reads like a short report (summary -> ranked rr- finding cards -> Scout chat)
+  instead of an empty chat box.
+- Tests: +3 in test_try_onramp.py (AI findings used over an empty parser; AI empty
+  result honored over parser noise; clean fallback when the model is down). Suite
+  is now deterministic regardless of whether an API key is present (13 pass).
+
+Cost/latency note: this adds one model call per anonymous upload, bounded by the
+existing 15/hour rate limit on /api/try/start.
+
 ## v5.89.171 — Automatic cache-busting + version stamping
 
 Kills the recurring "I deployed but still see the old version" problem. Static

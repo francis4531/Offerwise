@@ -5521,23 +5521,40 @@ def try_start():
     if len(text) > _TRY_MAX_TEXT:
         text = text[:_TRY_MAX_TEXT]
 
-    findings = []
+    # Structured parse gives us the property address (and a fallback finding
+    # source if the model is unavailable).
+    parsed_findings = []
     address = None
     try:
         doc = parser.parse_inspection_report(text)
-        findings = doc.inspection_findings or []
+        parsed_findings = doc.inspection_findings or []
         address = doc.property_address
     except Exception as e:
         logging.error(f"try_start parse failed: {e}")
 
-    payload = _try_top_findings(findings, limit=3)
+    # Primary: Scout (the AI) reads the document and surfaces the genuinely
+    # buyer-relevant findings. This understands seller disclosures and hazard
+    # reports — not just inspection reports, where the keyword parser comes back
+    # empty or echoes form boilerplate. Falls back to the parser on any failure.
+    import ask_engine
+    summary = ''
+    try:
+        ai = ask_engine.extract_findings(text)
+    except Exception as e:
+        logging.error(f"try_start AI extraction failed: {e}")
+        ai = None
+    if ai is not None:
+        payload = (ai.get('findings') or [])[:3]
+        summary = (ai.get('summary') or '').strip()
+    else:
+        payload = _try_top_findings(parsed_findings, limit=3)
 
     _try_prune()
     token = secrets.token_urlsafe(18)
     _TRY_SESSIONS[token] = {
         'text': text,
         'address': address,
-        'findings_count': len(findings),
+        'findings_count': len(payload),
         'msg_count': 0,
         'created': time.time(),
     }
@@ -5556,6 +5573,7 @@ def try_start():
     return jsonify({
         'token': token,
         'address': address or '',
+        'summary': summary,
         'findings': payload,
         'intro': intro,
         'messages_remaining': _TRY_MAX_MESSAGES,
