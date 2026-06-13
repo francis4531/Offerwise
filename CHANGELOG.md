@@ -3,6 +3,34 @@
 Historical deployment notes, bug fixes, and architecture decisions.
 Consolidated from 80 individual files on 2026-03-13.
 
+## v5.89.173 — On-ramp upload renders in the full risk-check report shell
+
+Brings the no-login document upload to visual parity with the V1 address report.
+Previously the disclosure result was a thin findings teaser; now it renders the
+same report shell as /risk-check, populated by the AI.
+
+- `ask_engine.extract_findings` now returns rich findings — per item a short
+  title, an emoji icon, an estimated repair cost (USD), a detail sentence, and a
+  "why it matters" sentence — plus an overall A-F grade. Still grounded strictly
+  in the document, max three findings, empty when nothing is significant.
+- `/api/try/start` sums the per-item costs into an estimated exposure and returns
+  a `report` ({exposure, grade}) and `reportCta` alongside the findings. If the
+  model is unavailable it degrades to the simple keyword-parser findings with no
+  report shell (unchanged behavior).
+- The shared Ask widget gained a report renderer (opt-in via `report`): an
+  exposure dollar headline, grade/items/exposure stat boxes, two-column cards
+  with icon + level chip + estimated cost + a "Why it matters" box, and a
+  conversion CTA card — then Scout's chat inline below. Mirrors the rr- report
+  styling exactly. Other surfaces that don't pass `report` are unchanged.
+- /v2 and /try pass `report`/`reportCta` through.
+- Tests updated for the rich shape (exposure = sum of costs, grade passthrough,
+  no report on empty/fallback). Suite green (13 on-ramp).
+
+Framing note: because a disclosure is what the seller *did* tell you (the inverse
+of a hazard scan), the copy reads "likely repair exposure" / "What your document
+reveals" / "Why it matters" rather than "undisclosed risk" / "Hiding," and the
+dollar figures are AI estimates (shown with a ~).
+
 ## v5.89.172 — On-ramp now AI-analyzes every upload (disclosures included)
 
 Fixes the uninspiring V2 result when a buyer uploads a *disclosure*. The on-ramp

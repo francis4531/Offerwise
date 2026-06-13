@@ -55,27 +55,33 @@ def grounded_answer(question, context_text, *, max_tokens=600):
 
 EXTRACT_RULES = (
     "You are Scout, OfferWise's plain-English home-buying analyst. You are given the full "
-    "text of ONE property document a buyer uploaded — it may be a home inspection report, a "
-    "seller's disclosure (e.g. a TDS or SPQ), a natural-hazard disclosure, or similar. "
-    "Identify the items that genuinely matter to a buyer deciding what to offer: defects, "
-    "damage, safety or structural issues, deferred maintenance, environmental or natural "
-    "hazards, and anything the seller has affirmatively disclosed as a known problem for THIS "
-    "property. Follow these rules strictly:\n"
+    "text of ONE property document a buyer uploaded — a home inspection report, a seller's "
+    "disclosure (e.g. a TDS or SPQ), a natural-hazard disclosure, or similar. Identify the "
+    "items that genuinely matter to a buyer deciding what to offer: defects, damage, safety or "
+    "structural issues, deferred maintenance, environmental or natural hazards, and anything the "
+    "seller has affirmatively disclosed as a known problem for THIS property. Follow these rules "
+    "strictly:\n"
     "- Use ONLY what is actually stated in the document. Never invent, never infer beyond the "
     "text, never add generic advice. If the document is a standard form, do NOT surface its "
-    "pre-printed questions, instructions, or definitions as findings — only items the document "
-    "indicates are actually present, disclosed, or flagged for this property.\n"
-    "- Each finding is a specific, complete sentence describing the actual issue and why it "
-    "matters. No fragments, no enum labels, no raw form language, no ellipses.\n"
+    "pre-printed questions, instructions, or definitions — only items the document indicates are "
+    "actually present, disclosed, or flagged for this property.\n"
     "- severity is exactly one of: critical, major, moderate. critical = safety, structural, or "
-    "financial dealbreaker; major = significant cost or concern; moderate = worth noting. Do "
-    "not include minor or informational items.\n"
+    "financial dealbreaker; major = significant cost or concern; moderate = worth noting. Never "
+    "include minor or informational items.\n"
+    "- For each finding provide: a short title (3 to 6 words, no trailing punctuation); a single "
+    "relevant emoji as the icon; an integer cost in US dollars estimating the likely repair or "
+    "remediation cost for that item (a reasonable rough estimate is fine; never 0); a detail that "
+    "is one complete, specific sentence describing the actual issue; and a why that is one "
+    "complete sentence on why it matters and what the buyer should verify. No fragments, no enum "
+    "labels, no raw form language, no ellipses.\n"
     "- Return at most 3 findings, most serious first. If the document genuinely raises nothing "
-    "significant for this property, return an empty findings list — never pad it.\n"
-    "- Also write one short summary sentence (18 words or fewer) the buyer reads first, framing "
-    "what the document shows; if nothing significant, say so honestly.\n"
+    "significant, return an empty findings list — never pad it.\n"
+    "- summary: one sentence (18 words or fewer) the buyer reads first, framing what the document "
+    "shows; if nothing significant, say so honestly.\n"
+    "- grade: a single letter A to F for the overall repair burden (A = clean, F = severe).\n"
     "Output ONLY a JSON object, no prose and no markdown fences:\n"
-    '{"summary": "...", "findings": [{"severity": "critical|major|moderate", "text": "..."}]}'
+    '{"summary":"...","grade":"A","findings":[{"severity":"critical|major|moderate",'
+    '"title":"...","icon":"\U0001f527","cost":12000,"detail":"...","why":"..."}]}'
 )
 
 _EXTRACT_SEVERITIES = ('critical', 'major', 'moderate')
@@ -83,7 +89,9 @@ _EXTRACT_SEVERITIES = ('critical', 'major', 'moderate')
 
 def _parse_findings_json(raw):
     """Tolerant parse of the model's JSON object. Returns a normalized dict
-    {'summary', 'findings'} or None if it can't be parsed."""
+    {'summary', 'grade', 'findings':[{severity,title,icon,cost,detail,why}]} or
+    None if it can't be parsed. Every field has a safe fallback so a partial
+    response still renders."""
     if not raw or not isinstance(raw, str):
         return None
     a, b = raw.find('{'), raw.rfind('}')
@@ -104,23 +112,46 @@ def _parse_findings_json(raw):
         sev = str(f.get('severity', '')).strip().lower()
         sev = {'high': 'major', 'severe': 'critical', 'medium': 'moderate',
                'low': 'moderate'}.get(sev, sev)
-        txt = f.get('text')
-        txt = txt.strip() if isinstance(txt, str) else ''
-        if sev in _EXTRACT_SEVERITIES and len(txt) >= 12:
-            out.append({'severity': sev, 'text': txt})
+        detail = f.get('detail') or f.get('text') or ''
+        detail = detail.strip() if isinstance(detail, str) else ''
+        if sev not in _EXTRACT_SEVERITIES or len(detail) < 12:
+            continue
+        title = f.get('title')
+        title = title.strip() if isinstance(title, str) else ''
+        if not title:
+            title = ' '.join(detail.split()[:5])
+        icon = f.get('icon')
+        icon = icon.strip() if isinstance(icon, str) else ''
+        if not icon or len(icon) > 6:
+            icon = '\u26a0\ufe0f'
+        why = f.get('why')
+        why = why.strip() if isinstance(why, str) else ''
+        cost = f.get('cost')
+        try:
+            cost = int(round(float(cost))) if cost is not None else 0
+        except (TypeError, ValueError):
+            cost = 0
+        if cost < 0:
+            cost = 0
+        out.append({'severity': sev, 'title': title, 'icon': icon,
+                    'cost': cost, 'detail': detail, 'why': why})
         if len(out) >= 3:
             break
-    return {'summary': summary, 'findings': out}
+    grade = str(obj.get('grade', '')).strip().upper()[:1]
+    if grade not in ('A', 'B', 'C', 'D', 'F'):
+        worst = out[0]['severity'] if out else None
+        grade = {'critical': 'D', 'major': 'C', 'moderate': 'B'}.get(worst, 'A')
+    return {'summary': summary, 'grade': grade, 'findings': out}
 
 
 def extract_findings(text):
     """AI-extract the buyer-relevant findings from ANY property document.
 
-    Returns {'summary': str, 'findings': [{'severity','text'}]} on a successful
-    model call (findings may be an empty list when the document genuinely raises
-    nothing significant), or None when the model is unavailable or its response
-    can't be parsed — callers should fall back to the keyword parser in that
-    case.
+    Returns {'summary', 'grade', 'findings':[{severity,title,icon,cost,detail,
+    why}]} on a successful model call (findings may be an empty list when the
+    document genuinely raises nothing significant), or None when the model is
+    unavailable or its response can't be parsed — callers should fall back to the
+    keyword parser in that case.
     """
     from ai_client import get_ai_response
     doc = (text or '')
@@ -134,7 +165,7 @@ def extract_findings(text):
         'Return only the JSON object.'
     )
     try:
-        raw = get_ai_response(prompt, max_tokens=700, temperature=0, system=EXTRACT_RULES)
+        raw = get_ai_response(prompt, max_tokens=1100, temperature=0, system=EXTRACT_RULES)
     except Exception as e:
         logging.warning("extract_findings: model unavailable (%s)", e)
         return None

@@ -5538,6 +5538,8 @@ def try_start():
     # empty or echoes form boilerplate. Falls back to the parser on any failure.
     import ask_engine
     summary = ''
+    grade = ''
+    report = None
     try:
         ai = ask_engine.extract_findings(text)
     except Exception as e:
@@ -5546,7 +5548,13 @@ def try_start():
     if ai is not None:
         payload = (ai.get('findings') or [])[:3]
         summary = (ai.get('summary') or '').strip()
+        grade = (ai.get('grade') or '').strip()
+        if payload:
+            exposure = sum(int(f.get('cost') or 0) for f in payload)
+            report = {'exposure': exposure, 'grade': grade}
     else:
+        # Model unavailable: degrade to the simple keyword-parser findings
+        # ({severity,text}); no report shell, no estimated exposure.
         payload = _try_top_findings(parsed_findings, limit=3)
 
     _try_prune()
@@ -5566,18 +5574,29 @@ def try_start():
         pass
 
     if payload:
-        intro = "I'm Scout. I read through your document. Here are the things I'd want you to see first — ask me anything about them, or about anything else in it."
+        intro = "I'm Scout. I read through your document and pulled out the items above — ask me anything about them, or about anything else in it."
     else:
         intro = "I'm Scout. I read through your document. Nothing major jumped out on a first pass, which is a good sign — but ask me anything about it and I'll answer from what's actually in the text."
 
-    return jsonify({
+    resp = {
         'token': token,
         'address': address or '',
         'summary': summary,
         'findings': payload,
         'intro': intro,
         'messages_remaining': _TRY_MAX_MESSAGES,
-    })
+    }
+    if report is not None:
+        resp['report'] = report
+        resp['reportCta'] = {
+            'eyebrow': 'Free first read',
+            'title': "You've seen what's flagged. Now find what to offer.",
+            'body': "Create a free account and OfferWise cross-references the full document against the inspection and comparable sales, surfaces contradictions, and calculates a defensible offer price.",
+            'chips': ['Seller contradiction detection', 'Data-backed offer price', 'Negotiation strategy'],
+            'href': '/analyze',
+            'text': 'Get my free full analysis \u2192',
+        }
+    return jsonify(resp)
 
 
 @app.route('/api/try/chat', methods=['POST'])

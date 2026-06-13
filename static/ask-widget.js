@@ -1,5 +1,5 @@
 /*!
- * ask-widget.js — OfferWise "Ask your report" component (v5.89.172)
+ * ask-widget.js — OfferWise "Ask your report" component (v5.89.173)
  *
  * One reusable chat widget for every surface where a buyer sees a report:
  *   - the no-login on-ramp (/try)        context: one uploaded document
@@ -45,6 +45,36 @@
     '.owask-sev{display:inline-block;font-size:.66rem;font-weight:800;letter-spacing:.05em;text-transform:uppercase;padding:3px 9px;border-radius:7px;margin-bottom:9px}',
     '.owask-sev.critical{background:rgba(248,113,113,.16);color:var(--c-crit)}.owask-sev.major{background:rgba(251,191,36,.16);color:var(--c-maj)}.owask-sev.moderate{background:rgba(96,165,250,.16);color:var(--c-mod)}',
     '.owask-find p{font-size:.95rem;color:#d7e2f1;line-height:1.55;margin:0}',
+    '.owask-find.HIGH{border-left-color:#f87171}.owask-find.MODERATE{border-left-color:#fbbf24}.owask-find.LOW{border-left-color:#34d399}',
+    '.owask-rh1{font-family:"DM Serif Display",Georgia,serif;font-size:clamp(1.7rem,4.6vw,2.5rem);line-height:1.1;letter-spacing:-.01em;margin:2px 0 12px;font-weight:400;color:var(--c-text)}',
+    '.owask-rh1 .n{color:#ff7a30}',
+    '.owask-rsub{color:var(--c-muted);font-size:1rem;max-width:60ch;margin-bottom:4px}',
+    '.owask-rmeta{display:flex;gap:12px;flex-wrap:wrap;margin:18px 0 6px}',
+    '.owask-rchip{background:#111a2e;border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:13px 17px;min-width:104px}',
+    '.owask-rk{font-size:.63rem;color:#6a7c98;text-transform:uppercase;letter-spacing:.07em;font-weight:700;margin-bottom:3px}',
+    '.owask-rv{font-family:"DM Serif Display",serif;font-size:1.5rem;line-height:1;color:var(--c-text)}',
+    '.owask-rgrade.g-a .owask-rv,.owask-rgrade.g-b .owask-rv{color:#34d399}.owask-rgrade.g-c .owask-rv{color:#f5a623}.owask-rgrade.g-d .owask-rv,.owask-rgrade.g-f .owask-rv{color:#f87171}',
+    '.owask-rbar{height:4px;border-radius:3px;margin-top:9px;background:linear-gradient(90deg,#34d399,#fbbf24,#f87171);position:relative}',
+    '.owask-rpin{position:absolute;top:-3px;width:10px;height:10px;border-radius:50%;background:#fff;box-shadow:0 0 0 3px rgba(255,255,255,.15);transform:translateX(-50%)}',
+    '.owask-rgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;align-items:start;margin-bottom:2px}',
+    '@media (max-width:680px){.owask-rgrid{grid-template-columns:1fr}}',
+    '.owask-rtop{display:flex;align-items:center;gap:12px;margin-bottom:8px}',
+    '.owask-ric{font-size:1.5rem;line-height:1}',
+    '.owask-rti{font-weight:700;font-size:1.12rem;letter-spacing:-.01em;color:var(--c-text)}',
+    '.owask-rright{margin-left:auto;text-align:right;flex-shrink:0}',
+    '.owask-rlv{font-size:.6rem;font-weight:800;letter-spacing:.05em;text-transform:uppercase;padding:4px 9px;border-radius:50px;display:inline-block}',
+    '.owask-rlv.HIGH{background:rgba(248,113,113,.16);color:#f87171}.owask-rlv.MODERATE{background:rgba(251,191,36,.15);color:#fbbf24}.owask-rlv.LOW{background:rgba(52,211,153,.15);color:#34d399}',
+    '.owask-rcost{font-size:.82rem;color:var(--c-muted);margin-top:5px;font-weight:600}.owask-rcost b{color:var(--c-text);font-weight:700}',
+    '.owask-rde{font-size:.93rem;color:var(--c-muted);margin-bottom:11px;line-height:1.55}',
+    '.owask-rwhy{display:flex;gap:9px;font-size:.88rem;color:#f3cd96;background:rgba(245,166,35,.07);border:1px solid rgba(245,166,35,.2);border-radius:11px;padding:11px 13px;line-height:1.5}',
+    '.owask-rwhylbl{color:#f5a623;font-weight:800;white-space:nowrap;text-transform:uppercase;font-size:.67rem;letter-spacing:.05em;padding-top:2px}',
+    '.owask-rcta{margin:20px 0 6px;background:linear-gradient(135deg,rgba(249,115,22,.12),rgba(245,158,11,.07));border:1px solid rgba(245,158,11,.3);border-radius:18px;padding:24px;text-align:center}',
+    '.owask-rcta .ey{font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:#f5a623;font-weight:800;margin-bottom:10px}',
+    '.owask-rcta h4{font-family:"DM Serif Display",serif;font-size:1.35rem;font-weight:400;margin:0 0 9px;color:var(--c-text)}',
+    '.owask-rcta p{color:var(--c-muted);font-size:.93rem;max-width:54ch;margin:0 auto 16px}',
+    '.owask-rcta .rchips{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:18px}',
+    '.owask-rcta .rchip{font-size:.8rem;color:var(--c-muted);background:rgba(255,255,255,.04);border:1px solid var(--c-line2);border-radius:50px;padding:7px 13px}',
+    '.owask-rcta a{display:inline-block;background:linear-gradient(135deg,var(--c-orange),var(--c-amber));color:#1a1205;font-weight:800;padding:13px 26px;border-radius:12px;text-decoration:none}',
     '.owask-thread{display:flex;flex-direction:column;gap:14px;margin-top:4px}',
     '.owask-row{display:flex;gap:10px;max-width:92%;animation:owrise .35s ease both}',
     '.owask-row.me{align-self:flex-end;flex-direction:row-reverse;max-width:78%}',
@@ -121,6 +151,73 @@
     return n;
   }
 
+  var _LVL = { critical: 'HIGH', major: 'MODERATE', moderate: 'LOW' };
+  function _gradePct(g) {
+    return { A: 12, B: 32, C: 52, D: 74, F: 92 }[(g || 'C').toUpperCase()] || 52;
+  }
+  function _cap(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : ''; }
+
+  // Render the full report shell (exposure hero -> stat boxes -> rich two-column
+  // cards -> conversion CTA). Used by the no-login on-ramp when opts.report is set.
+  function renderReport(root, opts) {
+    var rep = opts.report || {};
+    var exposure = Number(rep.exposure || 0);
+    var grade = (rep.grade || '').toString().toUpperCase().slice(0, 1) || 'C';
+    var findings = opts.findings || [];
+
+    var h1 = el('div', 'owask-rh1');
+    h1.innerHTML = 'We found <span class="n">~$' + exposure.toLocaleString() +
+      '</span> in likely repair exposure.';
+    root.appendChild(h1);
+    if (opts.summary) { root.appendChild(el('div', 'owask-rsub', escapeHtml(opts.summary))); }
+
+    var meta = el('div', 'owask-rmeta');
+    var gradeChip = el('div', 'owask-rchip owask-rgrade g-' + grade.toLowerCase());
+    gradeChip.innerHTML = '<div class="owask-rk">Repair grade</div>' +
+      '<div class="owask-rv">' + escapeHtml(grade) + '</div>' +
+      '<div class="owask-rbar"><div class="owask-rpin" style="left:' + _gradePct(grade) + '%"></div></div>';
+    meta.appendChild(gradeChip);
+    var cCount = el('div', 'owask-rchip');
+    cCount.innerHTML = '<div class="owask-rk">Items found</div><div class="owask-rv">' + findings.length + '</div>';
+    meta.appendChild(cCount);
+    var cExp = el('div', 'owask-rchip');
+    cExp.innerHTML = '<div class="owask-rk">Est. exposure</div><div class="owask-rv">$' + exposure.toLocaleString() + '</div>';
+    meta.appendChild(cExp);
+    root.appendChild(meta);
+
+    root.appendChild(el('div', 'owask-fh', 'What your document reveals'));
+    var grid = el('div', 'owask-rgrid');
+    findings.forEach(function (f) {
+      var sev = (f.severity || 'moderate');
+      var lvl = _LVL[sev] || 'MODERATE';
+      var card = el('div', 'owask-find ' + lvl);
+      var costHtml = f.cost ? '<div class="owask-rcost">Est. <b>$' + Number(f.cost).toLocaleString() + '</b></div>' : '';
+      card.innerHTML =
+        '<div class="owask-rtop">' +
+          '<span class="owask-ric">' + escapeHtml(f.icon || '\u26a0\ufe0f') + '</span>' +
+          '<span class="owask-rti">' + escapeHtml(f.title || '') + '</span>' +
+          '<span class="owask-rright"><span class="owask-rlv ' + lvl + '">' + escapeHtml(_cap(sev)) + '</span>' + costHtml + '</span>' +
+        '</div>' +
+        (f.detail ? '<div class="owask-rde">' + escapeHtml(f.detail) + '</div>' : '') +
+        (f.why ? '<div class="owask-rwhy"><span class="owask-rwhylbl">Why it matters</span><span>' + escapeHtml(f.why) + '</span></div>' : '');
+      grid.appendChild(card);
+    });
+    root.appendChild(grid);
+
+    if (opts.reportCta) {
+      var c = opts.reportCta;
+      var chips = (c.chips || []).map(function (x) { return '<span class="rchip">' + escapeHtml(x) + '</span>'; }).join('');
+      var cta = el('div', 'owask-rcta');
+      cta.innerHTML =
+        '<div class="ey">' + escapeHtml(c.eyebrow || 'Free first read') + '</div>' +
+        '<h4>' + escapeHtml(c.title || '') + '</h4>' +
+        '<p>' + escapeHtml(c.body || '') + '</p>' +
+        (chips ? '<div class="rchips">' + chips + '</div>' : '') +
+        '<a href="' + escapeHtml(c.href || '/analyze') + '">' + escapeHtml(c.text || 'Get my free full analysis \u2192') + '</a>';
+      root.appendChild(cta);
+    }
+  }
+
   function mount(opts) {
     ensureStyles();
     var root = typeof opts.el === 'string' ? document.querySelector(opts.el) : opts.el;
@@ -143,21 +240,23 @@
       root.appendChild(ctx);
     }
 
-    // Report summary headline
-    if (opts.summary) {
-      root.appendChild(el('div', 'owask-summary', escapeHtml(opts.summary)));
-    }
-
-    // Findings teaser
-    if (opts.findings && opts.findings.length) {
-      root.appendChild(el('div', 'owask-fh', "What I'd look at first"));
-      opts.findings.forEach(function (f) {
-        var sev = (f.severity || 'finding');
-        var card = el('div', 'owask-find ' + sev);
-        card.appendChild(el('span', 'owask-sev ' + sev, escapeHtml(sev)));
-        card.appendChild(el('p', null, escapeHtml(f.text)));
-        root.appendChild(card);
-      });
+    // Rich report shell (on-ramp) OR the simple findings teaser.
+    if (opts.report) {
+      renderReport(root, opts);
+    } else {
+      if (opts.summary) {
+        root.appendChild(el('div', 'owask-summary', escapeHtml(opts.summary)));
+      }
+      if (opts.findings && opts.findings.length) {
+        root.appendChild(el('div', 'owask-fh', "What I'd look at first"));
+        opts.findings.forEach(function (f) {
+          var sev = (f.severity || 'finding');
+          var card = el('div', 'owask-find ' + sev);
+          card.appendChild(el('span', 'owask-sev ' + sev, escapeHtml(sev)));
+          card.appendChild(el('p', null, escapeHtml(f.text)));
+          root.appendChild(card);
+        });
+      }
     }
 
     var thread = el('div', 'owask-thread');

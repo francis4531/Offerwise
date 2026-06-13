@@ -147,12 +147,17 @@ class TryOnRampTests(unittest.TestCase):
 
     def test_start_uses_ai_findings_and_summary(self):
         ai = {
-            'summary': 'Two disclosed issues stand out in this seller disclosure.',
+            'summary': 'Seller discloses an active shower leak and broken pool equipment.',
+            'grade': 'D',
             'findings': [
-                {'severity': 'critical',
-                 'text': 'The seller disclosed active foundation movement that needs an engineer before closing.'},
-                {'severity': 'moderate',
-                 'text': 'The roof was disclosed as nearing the end of its service life.'},
+                {'severity': 'critical', 'icon': '\U0001f4a7', 'title': 'Active master-shower leak',
+                 'cost': 18000,
+                 'detail': 'The seller discloses an active water leak from the shower pan in the master bedroom.',
+                 'why': 'Active leaks cause structural damage and mold; get a moisture inspection before closing.'},
+                {'severity': 'major', 'icon': '\U0001f3ca', 'title': 'Pool and spa equipment failures',
+                 'cost': 14000,
+                 'detail': 'The seller discloses the skimmer pump is not working and the filter pipe handle is broken.',
+                 'why': 'Pool repairs add up fast; price a full equipment inspection.'},
             ],
         }
         # Parser finds nothing (typical for a disclosure); the AI still surfaces findings.
@@ -163,21 +168,28 @@ class TryOnRampTests(unittest.TestCase):
         self.assertEqual(d['summary'], ai['summary'])
         self.assertEqual(len(d['findings']), 2)
         self.assertEqual(d['findings'][0]['severity'], 'critical')
-        self.assertEqual(d['findings'][1]['text'], ai['findings'][1]['text'])
+        self.assertEqual(d['findings'][0]['title'], 'Active master-shower leak')
+        # Report shell: exposure is the sum of costs, grade passed through.
+        self.assertEqual(d['report']['exposure'], 32000)
+        self.assertEqual(d['report']['grade'], 'D')
+        self.assertIn('reportCta', d)
+        self.assertTrue(d['reportCta']['title'])
 
     def test_start_ai_empty_is_honored_over_parser(self):
         # AI succeeded but found nothing significant -> trust it, do NOT fall
-        # back to the parser's (often boilerplate) findings.
+        # back to the parser's (often boilerplate) findings, and send no report.
         with patch.object(app_module.parser, 'parse_inspection_report',
                           return_value=_FakeDoc(_SAMPLE_FINDINGS)), \
              patch('ask_engine.extract_findings',
-                   return_value={'summary': 'This disclosure is relatively clean.', 'findings': []}):
+                   return_value={'summary': 'This disclosure is relatively clean.', 'grade': 'A', 'findings': []}):
             d = _start(self.client, text=_LONG_TEXT).get_json()
         self.assertEqual(d['findings'], [])
         self.assertEqual(d['summary'], 'This disclosure is relatively clean.')
+        self.assertNotIn('report', d)
 
     def test_start_ai_unavailable_falls_back_to_parser(self):
-        # extract_findings returns None (model down / no key) -> parser path, no summary.
+        # extract_findings returns None (model down / no key) -> parser path,
+        # simple findings, no summary, no report shell.
         with patch.object(app_module.parser, 'parse_inspection_report',
                           return_value=_FakeDoc(_SAMPLE_FINDINGS)), \
              patch('ask_engine.extract_findings', return_value=None):
@@ -185,6 +197,7 @@ class TryOnRampTests(unittest.TestCase):
         self.assertEqual(len(d['findings']), 3)
         self.assertEqual(d['findings'][0]['severity'], 'critical')
         self.assertEqual(d.get('summary', ''), '')
+        self.assertNotIn('report', d)
 
     def test_chat_unknown_token_returns_410(self):
         r = self.client.post('/api/try/chat', json={'token': 'nope', 'message': 'hi'})
