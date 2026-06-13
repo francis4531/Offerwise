@@ -1,5 +1,5 @@
 /*!
- * ask-widget.js — OfferWise "Ask your report" component (v5.89.173)
+ * ask-widget.js — OfferWise "Ask your report" component (v5.89.174)
  *
  * One reusable chat widget for every surface where a buyer sees a report:
  *   - the no-login on-ramp (/try)        context: one uploaded document
@@ -257,6 +257,12 @@
           root.appendChild(card);
         });
       }
+    }
+
+    // reportOnly: render just the report shell (no chat). The chat lives in a
+    // separate mount (e.g. a docked Scout rail).
+    if (opts.reportOnly) {
+      return { root: root };
     }
 
     var thread = el('div', 'owask-thread');

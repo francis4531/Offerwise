@@ -3,6 +3,24 @@
 Historical deployment notes, bug fixes, and architecture decisions.
 Consolidated from 80 individual files on 2026-03-13.
 
+## v5.89.174 — V2 on-ramp: Scout moves to the floating rail
+
+On /v2 the report now renders inline on the page and Scout's chat moves into the
+same docked "Ask Scout about this" rail used on /risk-check, instead of sitting
+inline beneath the report.
+
+- ask-widget.js gains a `reportOnly` flag: it renders the report shell (hero,
+  stat boxes, cards, CTA) and returns without the chat thread/composer.
+- index-v2.html mounts the report report-only into #ow-ask, then hands the
+  session (token, intro, remaining) to a Scout rail mirroring the risk-check
+  pattern: a floating launcher (shown once a document is analyzed) that slides in
+  a right-hand panel and lazily mounts the chat against /api/try/chat.
+- The rail reuses the exact risk-check rail styling and open/close behavior;
+  desktop shifts content with padding-right, mobile is a full-width drawer.
+
+/try still shows the chat inline for now (this change targets /v2 as requested);
+it can be switched to the rail the same way on request. Backend unchanged.
+
 ## v5.89.173 — On-ramp upload renders in the full risk-check report shell
 
 Brings the no-login document upload to visual parity with the V1 address report.
