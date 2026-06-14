@@ -1,5 +1,5 @@
 /*!
- * ask-widget.js — OfferWise "Ask your report" component (v5.89.176)
+ * ask-widget.js — OfferWise "Ask your report" component (v5.89.177)
  *
  * One reusable chat widget for every surface where a buyer sees a report:
  *   - the no-login on-ramp (/try)        context: one uploaded document
@@ -401,5 +401,78 @@
     return { send: send, addMsg: addMsg, root: root };
   }
 
-  window.OfferWiseAsk = { mount: mount };
+  // Reusable Scout rail: the single source of truth for how Scout attaches to a
+  // report. Scout is NEVER inline in a report — it always sits as a floating
+  // bottom-right launcher ("Ask Scout about this") that opens a docked rail. Any
+  // report surface calls OfferWiseAsk.mountRail(chatOpts); the report itself
+  // renders inline separately (e.g. via mount({...,reportOnly:true})).
+  function ensureRailStyles() {
+    if (document.getElementById('owask-rail-styles')) { return; }
+    var css = [
+      ".owsr-launch{position:fixed;right:22px;bottom:22px;z-index:99996;display:flex;align-items:center;gap:8px;background:linear-gradient(135deg,#ff7a30,#f59e0b);color:#1a1205;font-weight:800;border:0;border-radius:50px;padding:13px 20px;cursor:pointer;font-family:'DM Sans',-apple-system,sans-serif;font-size:.95rem;box-shadow:0 10px 30px -8px rgba(245,158,11,.6)}",
+      "body.owsr-open .owsr-launch{display:none}",
+      ".owsr-rail{position:fixed;top:0;right:0;height:100vh;width:392px;max-width:100vw;z-index:99997;background:#101d33;border-left:1px solid rgba(255,255,255,.13);box-shadow:-24px 0 60px -30px rgba(0,0,0,.8);transform:translateX(103%);transition:transform .3s ease;display:flex;flex-direction:column}",
+      "body.owsr-open .owsr-rail{transform:none}",
+      ".owsr-hd{display:flex;align-items:center;justify-content:space-between;padding:15px 16px 11px;border-bottom:1px solid rgba(255,255,255,.08);font-family:'DM Sans',-apple-system,sans-serif}",
+      ".owsr-hd b{font-family:'DM Serif Display',Georgia,serif;font-size:1.18rem;color:#eef3fb;display:block;line-height:1.1}",
+      ".owsr-sub{font-size:.72rem;color:#6b7c97}",
+      ".owsr-x{background:none;border:0;color:#9fb0c9;font-size:1.7rem;line-height:1;cursor:pointer;padding:0 4px}",
+      ".owsr-x:hover{color:#eef3fb}",
+      ".owsr-mount{flex:1;overflow:auto;padding:14px 14px 20px}",
+      "@media(min-width:961px){body{transition:padding-right .3s ease}body.owsr-open{padding-right:392px}}",
+      "@media(max-width:960px){.owsr-rail{width:100vw}}"
+    ].join("");
+    var st = document.createElement('style');
+    st.id = 'owask-rail-styles'; st.textContent = css;
+    document.head.appendChild(st);
+  }
+
+  function mountRail(opts) {
+    opts = opts || {};
+    ensureRailStyles();
+    // Single rail per page; remount swaps the chat for a new report.
+    var inst = window.__owAskRail;
+    if (!inst) {
+      var launch = document.createElement('button');
+      launch.type = 'button'; launch.className = 'owsr-launch';
+      var rail = document.createElement('div'); rail.className = 'owsr-rail';
+      rail.innerHTML = '<div class="owsr-hd"><div><b></b><span class="owsr-sub"></span></div>' +
+        '<button class="owsr-x" type="button" aria-label="Close">\u00D7</button></div>' +
+        '<div class="owsr-mount"></div>';
+      document.body.appendChild(launch);
+      document.body.appendChild(rail);
+      var mountEl = rail.querySelector('.owsr-mount');
+      inst = {
+        launch: launch, rail: rail, mountEl: mountEl,
+        titleEl: rail.querySelector('.owsr-hd b'),
+        subEl: rail.querySelector('.owsr-sub'),
+        chatOpts: null, mounted: false,
+        open: function () {
+          if (!inst.mounted && inst.chatOpts) {
+            var co = {}; for (var k in inst.chatOpts) { co[k] = inst.chatOpts[k]; }
+            co.el = mountEl; co.report = null; co.reportCta = null; co.reportOnly = false;
+            mount(co); inst.mounted = true;
+          }
+          document.body.classList.add('owsr-open');
+        },
+        close: function () { document.body.classList.remove('owsr-open'); },
+        show: function () { inst.launch.style.display = ''; },
+        hide: function () { inst.launch.style.display = 'none'; document.body.classList.remove('owsr-open'); }
+      };
+      launch.addEventListener('click', inst.open);
+      rail.querySelector('.owsr-x').addEventListener('click', inst.close);
+      window.__owAskRail = inst;
+    }
+    // Default label honors the rule: always "Ask Scout about this".
+    inst.launch.innerHTML = '\uD83D\uDCAC ' + escapeHtml(opts.launchLabel || 'Ask Scout about this');
+    inst.titleEl.textContent = opts.railTitle || (opts.assistantName || 'Scout');
+    inst.subEl.textContent = opts.railSubtitle || 'Your OfferWise guide';
+    inst.chatOpts = opts;
+    inst.mounted = false;          // new report => remount chat on next open
+    inst.mountEl.innerHTML = '';
+    inst.launch.style.display = '';
+    return inst;
+  }
+
+  window.OfferWiseAsk = { mount: mount, mountRail: mountRail };
 })();

@@ -88,7 +88,7 @@
         .convo { display: none; padding: 8px 20px 60px; }
         .convo.active { display: block; }
     </style>
-    <script src="/static/ask-widget.js?v=5.89.176"></script>
+    <script src="/static/ask-widget.js?v=5.89.177"></script>
 </head>
 <body>
     <nav>
@@ -241,15 +241,19 @@
             convoView.classList.add('active');
             window.OfferWiseAsk.mount({
                 el: '#ow-ask',
+                reportOnly: true,
+                assistantName: 'Scout', assistantAvatar: 'S',
+                summary: d.summary || '',
+                report: d.report || null, reportCta: d.reportCta || null,
+                findings: d.findings || []
+            });
+            window.OfferWiseAsk.mountRail({
                 endpoint: '/api/try/chat',
                 payload: { token: d.token },
                 assistantName: 'Scout', assistantAvatar: 'S',
                 contextLabel: 'your document',
                 contextPieces: '1 document · no login',
-                summary: d.summary || '',
-                report: d.report || null, reportCta: d.reportCta || null,
                 intro: d.intro || "I'm Scout. I read through your document. Ask me anything about it.",
-                findings: d.findings || [],
                 chips: ['Is anything here a dealbreaker?', 'What should I ask the seller?', "What else is in here?"],
                 placeholder: 'Ask about your report…',
                 cap: 6,

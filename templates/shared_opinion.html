@@ -337,11 +337,6 @@
   </div>
   {% endif %}
 
-  <!-- Ask the analysis -->
-  <div class="ask-section animate-in delay-3" style="margin:30px 0;">
-    <div id="ow-ask"></div>
-  </div>
-
   <!-- Reaction Section -->
   <div class="reaction-section animate-in delay-4" id="reactionSection">
     <div class="reaction-question">What's your take?</div>
@@ -434,7 +429,7 @@
   }
 </script>
 
-<script src="/static/ask-widget.js?v=5.89.176"></script>
+<script src="/static/ask-widget.js?v=5.89.177"></script>
 <script>
   (function () {
     if (!window.OfferWiseAsk) { return; }
@@ -443,8 +438,7 @@
       sharer: {{ (sharer_name or 'Someone')|tojson }},
       address: {{ (snapshot.address or 'this property')|tojson }}
     };
-    OfferWiseAsk.mount({
-      el: '#ow-ask',
+    OfferWiseAsk.mountRail({
       endpoint: '/api/share/' + encodeURIComponent(OW.token) + '/chat',
       assistantName: 'Scout', assistantAvatar: 'S',
       contextLabel: 'this shared analysis',

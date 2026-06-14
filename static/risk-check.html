@@ -257,8 +257,8 @@
 }
 
 </style>
-    <script src="/static/analytics-loader.js?v=5.89.176" defer></script>
-    <script src="/static/address-validate.js?v=5.89.176"></script>
+    <script src="/static/analytics-loader.js?v=5.89.177" defer></script>
+    <script src="/static/address-validate.js?v=5.89.177"></script>
   <link rel="canonical" href="https://www.getofferwise.ai/risk-check">
 </head>
 <body>
@@ -786,50 +786,20 @@
         } catch (e) { /* non-fatal */ }
     }, true);
     </script>
-<script src="/static/js/compliance.js?v=5.89.176"></script>
-<script src="/static/ask-widget.js?v=5.89.176"></script>
+<script src="/static/js/compliance.js?v=5.89.177"></script>
+<script src="/static/ask-widget.js?v=5.89.177"></script>
 <script>
 (function(){
   if (window.__rcScoutInit) { return; } window.__rcScoutInit = true;
-  var css = [
-    ".scout-launch{position:fixed;right:22px;bottom:22px;z-index:99996;display:flex;align-items:center;gap:8px;background:linear-gradient(135deg,#ff7a30,#f59e0b);color:#1a1205;font-weight:800;border:0;border-radius:50px;padding:13px 20px;cursor:pointer;font-family:'DM Sans',-apple-system,sans-serif;font-size:.95rem;box-shadow:0 10px 30px -8px rgba(245,158,11,.6)}",
-    "body.scout-open .scout-launch{display:none}",
-    ".scout-rail{position:fixed;top:0;right:0;height:100vh;width:392px;max-width:100vw;z-index:99997;background:#101d33;border-left:1px solid rgba(255,255,255,.13);box-shadow:-24px 0 60px -30px rgba(0,0,0,.8);transform:translateX(103%);transition:transform .3s ease;display:flex;flex-direction:column}",
-    "body.scout-open .scout-rail{transform:none}",
-    ".scout-hd{display:flex;align-items:center;justify-content:space-between;padding:15px 16px 11px;border-bottom:1px solid rgba(255,255,255,.08);font-family:'DM Sans',-apple-system,sans-serif}",
-    ".scout-hd b{font-family:'DM Serif Display',Georgia,serif;font-size:1.18rem;color:#eef3fb;display:block;line-height:1.1}",
-    ".scout-sub{font-size:.72rem;color:#6b7c97}",
-    ".scout-x{background:none;border:0;color:#9fb0c9;font-size:1.7rem;line-height:1;cursor:pointer;padding:0 4px}",
-    ".scout-x:hover{color:#eef3fb}",
-    ".scout-mount{flex:1;overflow:auto;padding:14px 14px 20px}",
-    "@media(min-width:961px){body{transition:padding-right .3s ease}body.scout-open{padding-right:392px}}",
-    "@media(max-width:960px){.scout-rail{width:100vw}}"
-  ].join("");
-  var st = document.createElement("style"); st.textContent = css; document.head.appendChild(st);
 
-  var launch = document.createElement("button");
-  launch.type = "button"; launch.className = "scout-launch";
-  launch.innerHTML = "\uD83D\uDCAC Ask Scout";
-
-  var rail = document.createElement("div"); rail.className = "scout-rail";
-  rail.innerHTML = '<div class="scout-hd"><div><b>Scout</b><span class="scout-sub">Your OfferWise guide</span></div><button class="scout-x" type="button" aria-label="Close">\u00D7</button></div><div class="scout-mount"></div>';
-
-  document.body.appendChild(launch);
-  document.body.appendChild(rail);
-  var mountEl = rail.querySelector(".scout-mount");
-  var closeBtn = rail.querySelector(".scout-x");
-  var currentResult = null, lastKey = null, mounted = false;
-
-  function keyFor(){ return currentResult ? ("r:" + (currentResult.share_token || currentResult.address || "1")) : "general"; }
-
-  function doMount(){
-    mountEl.innerHTML = "";
-    if (currentResult) {
-      var payload = currentResult.share_token ? { token: currentResult.share_token } : { result: currentResult };
-      var findings = (currentResult.risks || []).map(function(r){ return { severity: (r.level || "").toLowerCase(), text: r.title }; });
-      var shortAddr = (currentResult.address || "this property").split(",")[0];
-      window.OfferWiseAsk.mount({
-        el: mountEl, endpoint: "/api/risk-check/chat", payload: payload,
+  function railFor(result){
+    if (result && (result.risks || result.address)) {
+      var payload = result.share_token ? { token: result.share_token } : { result: result };
+      var findings = (result.risks || []).map(function(r){ return { severity: (r.level || "").toLowerCase(), text: r.title }; });
+      var shortAddr = (result.address || "this property").split(",")[0];
+      return {
+        launchLabel: "Ask Scout about this",
+        endpoint: "/api/risk-check/chat", payload: payload,
         assistantName: "Scout", assistantAvatar: "S",
         contextLabel: "this property's scan", contextPieces: "11 government databases",
         intro: "I've read the scan for " + shortAddr + ". Ask me about any of these risks \u2014 what they mean, how serious they are, or what to do about them.",
@@ -837,37 +807,24 @@
         chips: ["What's the most serious risk here?", "What should I ask the seller?", "What does this mean for my offer?"],
         placeholder: "Ask about this scan\u2026",
         footerNote: "Answers come from this address's public-records scan"
-      });
-    } else {
-      window.OfferWiseAsk.mount({
-        el: mountEl, endpoint: "/api/risk-check/chat", payload: {},
-        assistantName: "Scout", assistantAvatar: "S",
-        intro: "I'm Scout. I can explain what this scan checks, what sellers do and don't have to disclose, and help you think through a property. Enter an address above and I'll dig into the specifics for you.",
-        chips: ["What does this scan check?", "What do sellers have to disclose?", "Is this really free?"],
-        placeholder: "Ask me anything\u2026",
-        footerNote: "Scan an address for findings on your specific property"
-      });
+      };
     }
-    mounted = true; lastKey = keyFor();
+    return {
+      launchLabel: "Ask Scout",
+      endpoint: "/api/risk-check/chat", payload: {},
+      assistantName: "Scout", assistantAvatar: "S",
+      intro: "I'm Scout. I can explain what this scan checks, what sellers do and don't have to disclose, and help you think through a property. Enter an address above and I'll dig into the specifics for you.",
+      chips: ["What does this scan check?", "What do sellers have to disclose?", "Is this really free?"],
+      placeholder: "Ask me anything\u2026",
+      footerNote: "Scan an address for findings on your specific property"
+    };
   }
 
-  function openRail(){
-    if (!mounted || lastKey !== keyFor()) { doMount(); }
-    document.body.classList.add("scout-open");
-  }
-  function closeRail(){ document.body.classList.remove("scout-open"); }
-
-  launch.addEventListener("click", openRail);
-  closeBtn.addEventListener("click", closeRail);
+  window.OfferWiseAsk.mountRail(railFor(null));
 
   // showResults() calls this after a scan; resetScan() calls it with null.
   window.__owScoutResult = function(result){
-    currentResult = (result && (result.risks || result.address)) ? result : null;
-    launch.innerHTML = currentResult ? "\uD83D\uDCAC Ask Scout about this" : "\uD83D\uDCAC Ask Scout";
-    if (lastKey !== keyFor()) {
-      if (document.body.classList.contains("scout-open")) { doMount(); }
-      else { mounted = false; }
-    }
+    window.OfferWiseAsk.mountRail(railFor(result));
   };
 })();
 </script>

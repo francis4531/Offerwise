@@ -3,6 +3,33 @@
 Historical deployment notes, bug fixes, and architecture decisions.
 Consolidated from 80 individual files on 2026-03-13.
 
+## v5.89.177 — Scout is never inline: one reusable rail on every report
+
+Policy, enforced in one place: Scout never sits inside a report. Every report
+surface shows the generated report inline and Scout as a floating bottom-right
+launcher reading "Ask Scout about this" that opens a docked rail.
+
+- ask-widget.js: new OfferWiseAsk.mountRail(chatOpts) — the single source of
+  truth for the launcher (position + label), the docked rail panel, and the
+  lazy chat mount. Adds show()/hide() for surfaces that reveal Scout on demand.
+  Default launch label is "Ask Scout about this".
+- try.html: was inline (report + chat together). Now the report renders inline
+  via reportOnly, and the chat moves to the rail. This is the paid-traffic
+  surface.
+- shared_opinion.html: inline chat moved to the rail; the empty inline ask
+  section was removed.
+- app.html, risk-check.html, index-v2.html: their three hand-rolled rails were
+  retired and migrated onto mountRail, so the label is uniformly "Ask Scout
+  about this" wherever a report exists (fixes app.html's "Ask Scout" and
+  risk-check's mixed labels) and there is one rail to maintain. app.html keeps
+  pushing the React #root (not body); index-v2 keeps revealing Scout only after
+  a document is analyzed; risk-check keeps "Ask Scout" for its pre-scan general
+  state and switches to "Ask Scout about this" once a scan exists.
+
+Net: no report ever has Scout inline, the bottom-right "Ask Scout about this"
+launcher is identical everywhere, and any future report surface inherits it by
+calling mountRail. All changed script blocks node-checked; div balance verified.
+
 ## v5.89.176 — No-disclosure flag on the on-ramp + first-party ad attribution
 
 Two gaps found by verifying the on-ramp against real California TDS specimens on
