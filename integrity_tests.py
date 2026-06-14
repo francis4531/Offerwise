@@ -3858,8 +3858,8 @@ class IntegrityTestEngine:
     # =========================================================================
 
     def _test_gtm_deep(self):
-        """Test GTM marketing modules — ad sync, poster, crawler."""
-        for mod_name in ['google_ads_sync', 'reddit_ads_sync', 'reddit_poster',
+        """Test GTM marketing modules — ad sync, crawler."""
+        for mod_name in ['google_ads_sync', 'reddit_ads_sync',
                          'public_doc_crawler']:
             try:
                 __import__(mod_name)

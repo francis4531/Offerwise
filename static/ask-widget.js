@@ -1,5 +1,5 @@
 /*!
- * ask-widget.js — OfferWise "Ask your report" component (v5.89.174)
+ * ask-widget.js — OfferWise "Ask your report" component (v5.89.176)
  *
  * One reusable chat widget for every surface where a buyer sees a report:
  *   - the no-login on-ramp (/try)        context: one uploaded document
@@ -162,12 +162,17 @@
   function renderReport(root, opts) {
     var rep = opts.report || {};
     var exposure = Number(rep.exposure || 0);
+    var hasPrice = exposure > 0;
     var grade = (rep.grade || '').toString().toUpperCase().slice(0, 1) || 'C';
     var findings = opts.findings || [];
 
     var h1 = el('div', 'owask-rh1');
-    h1.innerHTML = 'We found <span class="n">~$' + exposure.toLocaleString() +
-      '</span> in likely repair exposure.';
+    if (hasPrice) {
+      h1.innerHTML = 'We found <span class="n">~$' + exposure.toLocaleString() +
+        '</span> in likely repair exposure.';
+    } else {
+      h1.innerHTML = 'This one is worth a <span class="n">closer look</span> before you offer.';
+    }
     root.appendChild(h1);
     if (opts.summary) { root.appendChild(el('div', 'owask-rsub', escapeHtml(opts.summary))); }
 
@@ -180,9 +185,11 @@
     var cCount = el('div', 'owask-rchip');
     cCount.innerHTML = '<div class="owask-rk">Items found</div><div class="owask-rv">' + findings.length + '</div>';
     meta.appendChild(cCount);
-    var cExp = el('div', 'owask-rchip');
-    cExp.innerHTML = '<div class="owask-rk">Est. exposure</div><div class="owask-rv">$' + exposure.toLocaleString() + '</div>';
-    meta.appendChild(cExp);
+    if (hasPrice) {
+      var cExp = el('div', 'owask-rchip');
+      cExp.innerHTML = '<div class="owask-rk">Est. exposure</div><div class="owask-rv">$' + exposure.toLocaleString() + '</div>';
+      meta.appendChild(cExp);
+    }
     root.appendChild(meta);
 
     root.appendChild(el('div', 'owask-fh', 'What your document reveals'));

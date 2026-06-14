@@ -74,5 +74,37 @@ class AskEngineTests(unittest.TestCase):
         self.assertLess(prompt.count('x'), ask_engine.MAX_CONTEXT_CHARS + 100)
 
 
+class NoDisclosureRuleTests(unittest.TestCase):
+    """v5.89.176: a blanket no-disclosure / as-is seller disclosure must be
+    flagged as its own finding, not reported as 'essentially clean'."""
+
+    def test_extract_rules_carries_as_is_rule(self):
+        rules = ask_engine.EXTRACT_RULES.lower()
+        self.assertIn('as-is', rules)
+        self.assertIn('no material defects', rules)
+        # it must instruct returning a finding for that case, graded C
+        self.assertIn('grade to c', rules)
+
+    def test_parser_keeps_zero_cost_as_is_finding(self):
+        raw = (
+            '{"summary":"Seller disclosed no defects and sells as-is.",'
+            '"grade":"C","findings":[{"severity":"moderate",'
+            '"title":"Sold As-Is, Little Disclosed","icon":"\\ud83d\\udcdd",'
+            '"cost":0,"detail":"The seller marked no known defects across every '
+            'disclosure category and added an as-is clause.",'
+            '"why":"A blanket no-defects disclosure shifts repair risk to the '
+            'buyer, so an independent inspection is essential."}]}'
+        )
+        out = ask_engine._parse_findings_json(raw)
+        self.assertIsNotNone(out)
+        self.assertEqual(out['grade'], 'C')
+        self.assertEqual(len(out['findings']), 1)
+        f = out['findings'][0]
+        self.assertEqual(f['severity'], 'moderate')
+        self.assertEqual(f['cost'], 0)
+        self.assertTrue(f['title'])
+        self.assertTrue(f['why'])
+
+
 if __name__ == '__main__':
     unittest.main()

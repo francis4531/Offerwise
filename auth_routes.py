@@ -139,15 +139,17 @@ def _apply_signup_attribution(user):
     """
     try:
         att = session.pop('signup_attribution', None) or {}
-        if not att and not request.args:
-            return  # nothing to apply
-        # If session didn't have attribution but URL has utm params (rare —
-        # e.g. user lands directly on a register page with UTMs), grab them.
-        if not att:
-            for k in ('utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content', 'gclid'):
-                v = (request.args.get(k) or '').strip()[:255]
-                if v:
-                    att[k] = v
+        # Primary source: the individual session keys written first-touch by the
+        # site-wide capture_ad_attribution before_request (and by the per-route
+        # landing captures). Fall back to the current request's query string for
+        # the rare case of landing directly on a register page with UTMs.
+        for k in ('utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content', 'gclid'):
+            if att.get(k):
+                continue
+            v = session.get(k) or request.args.get(k)
+            v = str(v).strip()[:255] if v else ''
+            if v:
+                att[k] = v
         if not att:
             return
 

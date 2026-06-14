@@ -3,6 +3,74 @@
 Historical deployment notes, bug fixes, and architecture decisions.
 Consolidated from 80 individual files on 2026-03-13.
 
+## v5.89.176 — No-disclosure flag on the on-ramp + first-party ad attribution
+
+Two gaps found by verifying the on-ramp against real California TDS specimens on
+staging and tracing the signup attribution path.
+
+On-ramp report quality (seller disclosures):
+- A completed disclosure where the seller marks "No" across every defect line
+  and/or sells "as-is" was being reported as "essentially clean… a good sign."
+  That is the opposite of the product's job: an all-clear / as-is disclosure is a
+  yellow flag (seller disclosed the legal minimum; repair risk shifts to the
+  buyer). ask_engine.EXTRACT_RULES now treats that pattern as one moderate
+  finding of its own (cost 0 — there is no repair to price), graded C, scoped to
+  seller-disclosure forms only (never inspection reports). The empty-result intro
+  no longer calls an absence of findings "a good sign."
+- ask-widget.js renderReport: when exposure is 0 but findings exist (the as-is
+  case), it shows "This one is worth a closer look before you offer." instead of
+  "~$0 in repair exposure," and drops the exposure stat chip. Per-item cost was
+  already hidden when 0.
+
+First-party ad attribution (route paid traffic to /try and attribute signups):
+- Root cause: the signup_utm_*/signup_gclid columns existed and the signup paths
+  already called _apply_signup_attribution, but its data source was never
+  populated and /try captured nothing — so every column stayed NULL and gclid was
+  never captured anywhere.
+- app.py: new site-wide capture_ad_attribution before_request stashes utm_* +
+  gclid from the query string into the session on first touch (first touch wins,
+  static skipped). Covers /try, /risk-check, home, and any future landing page
+  with no per-route capture to remember, and closes the gclid gap.
+- auth_routes.py: _apply_signup_attribution now reads those individual session
+  keys (with request.args as fallback), so the four signup paths persist the
+  campaign that drove the visit onto the new user row.
+
+Tests: test_attribution.py (6) covers capture, first-touch, and signup
+persistence; test_ask_engine.py adds 2 for the as-is rule and cost-0 parse.
+Related suites green: attribution(6)+ask_engine(8)+try_onramp(13)+risk_share(9).
+
+Next: tag the Google/Reddit ad destination URLs to /try with utm_*/gclid, and
+re-verify the no-disclosure flag on staging against a real all-clear TDS.
+
+## v5.89.175 — Remove dead Reddit auto-poster (script-app API closed)
+
+Reddit closed self-service API access in 2026 (Responsible Builder Policy, Nov
+2025; OAuth/script-app credentials no longer issued for personal scripts; the
+unauthenticated .json endpoints 403 as of May 30 2026). Both auto-post paths the
+code carried are therefore unreachable, so they're removed rather than left as
+broken scaffolding. Reddit posting to r/offerwiseAi now uses Reddit's own native
+scheduled-posts mod tool: drafts are reviewed/approved in admin as before, then
+scheduled directly on Reddit.
+
+Removed:
+- reddit_poster.py (Data API password-grant mode + Devvit pull mode) — entire file.
+- gtm/routes.py: /api/reddit/next-post and /api/reddit/post-confirm Devvit endpoints.
+- app.py: the hourly _reddit_job auto-post job and its scheduler registration.
+- devvit-app/ scaffold (TypeScript Devvit app, never deployed).
+- integrity_tests.py: reddit_poster from the GTM importability check.
+
+Changed:
+- app.py _content_gen_job: no longer imports the poster or auto-approves on
+  "configured"; the daily r/offerwiseAi post is always created as a draft to
+  review and schedule natively.
+
+Unchanged: the GTMSubredditPost draft/approve/posted queue (shared with Facebook
+and Nextdoor), content/social engines, and forum scanner all stay.
+
+Env: REDDIT_POST_API_KEY is no longer read by any code and can be deleted from
+Render. The never-set REDDIT_CLIENT_ID/CLIENT_SECRET/USERNAME/PASSWORD are moot —
+do not add them; Reddit will not issue those credentials.
+
 ## v5.89.174 — V2 on-ramp: Scout moves to the floating rail
 
 On /v2 the report now renders inline on the page and Scout's chat moves into the

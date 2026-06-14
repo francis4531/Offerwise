@@ -2407,6 +2407,38 @@ def enforce_https():
         url = request.url.replace('http://', 'https://', 1)
         return redirect(url, code=301)
 
+
+_OW_ATTR_KEYS = ('utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term')
+
+
+@app.before_request
+def capture_ad_attribution():
+    """First-touch ad attribution, site-wide.
+
+    Stashes utm_* and gclid from the query string into the session on the first
+    request that carries them, so a signup completed later — e.g. a buyer who
+    lands on /try from a Google or Reddit ad, explores, then creates an account —
+    is still attributed to the campaign that drove the visit. First touch wins:
+    existing session values are never overwritten. Running here covers every
+    landing route automatically, including /try and /risk-check, so no per-route
+    capture has to be remembered, and it closes the gap where gclid was never
+    captured at all. Never raises."""
+    try:
+        if request.method != 'GET' or request.path.startswith('/static/'):
+            return
+        args = request.args
+        if not args:
+            return
+        for k in _OW_ATTR_KEYS:
+            v = args.get(k)
+            if v and not session.get(k):
+                session[k] = v[:255]
+        g = args.get('gclid')
+        if g and not session.get('gclid'):
+            session['gclid'] = g[:255]
+    except Exception:
+        pass
+
 # ============================================================================
 # AUTHENTICATION ROUTES (OAuth Only)
 # ============================================================================
@@ -5576,7 +5608,7 @@ def try_start():
     if payload:
         intro = "I'm Scout. I read through your document and pulled out the items above — ask me anything about them, or about anything else in it."
     else:
-        intro = "I'm Scout. I read through your document. Nothing major jumped out on a first pass, which is a good sign — but ask me anything about it and I'll answer from what's actually in the text."
+        intro = "I'm Scout. I read through your document and didn't pull out specific flagged items from the text itself — ask me anything about it and I'll answer from exactly what it says."
 
     resp = {
         'token': token,
@@ -11312,16 +11344,6 @@ def _start_background_schedulers():
                              f"— {result.get('rows_synced', 0)} days, "
                              f"${result.get('spend', 0)} spend")
 
-    def _reddit_job():
-        with app.app_context():
-            from reddit_poster import is_configured, post_next_approved
-            if is_configured():
-                result = post_next_approved(db.session)
-                if result and 'error' not in result:
-                    logging.info(f"📮 Reddit auto-posted: {result.get('title', '?')}")
-                elif result and 'error' in result:
-                    logging.warning(f"📮 Reddit post failed: {result['error']}")
-
     def _forum_scan_job():
         """Scan Reddit for relevant buyer threads, score with Claude, generate reply drafts."""
         with app.app_context():
@@ -11382,7 +11404,6 @@ def _start_background_schedulers():
         with app.app_context():
             try:
                 from gtm.content_engine import generate_daily_post
-                from reddit_poster import is_configured as reddit_is_configured
                 from models import GTMSubredditPost, Analysis
                 from datetime import date as _date
 
@@ -11397,8 +11418,8 @@ def _start_background_schedulers():
                 models_map = {"Analysis": Analysis}
                 post_data  = generate_daily_post(db.session, models_map, today)
 
-                # Auto-approve when Reddit is configured — _reddit_job will pick it up within the hour
-                auto_status = 'approved' if reddit_is_configured() else 'draft'
+                # Always a draft — review in admin, then schedule via Reddit's native scheduled posts
+                auto_status = 'draft'
 
                 post = GTMSubredditPost(
                     title          = post_data['title'],
@@ -11681,8 +11702,6 @@ def _start_background_schedulers():
     _safe_add_job(_b2b_followup_job, 'interval', hours=1,     id='b2b_followup', replace_existing=True)
     # Google Ads: every 6 hours
     _safe_add_job(_ads_job,          'interval', hours=6,     id='ads_sync',     replace_existing=True)
-    # Reddit: every hour
-    _safe_add_job(_reddit_job,       'interval', hours=1,     id='reddit',       replace_existing=True)
     # Lead expiry: daily at 2am PT
     _safe_add_job(_lead_expiry_job,  'cron', hour=2,  minute=0, id='lead_expiry',  replace_existing=True)
 
