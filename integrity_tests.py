@@ -3906,6 +3906,34 @@ class IntegrityTestEngine:
         except Exception as e:
             self._record("AI: ai_client", str(e)[:120], False)
 
+        try:
+            from ask_engine import extract_findings, _parse_findings_json, EXTRACT_RULES
+            self._record("AI: ask_engine importable",
+                "extract_findings + parser present", callable(extract_findings))
+            # v5.89.178: the no-disclosure / as-is rule (added v5.89.176) must
+            # survive — a blanket no-defects disclosure is flagged, not "clean".
+            rules_l = EXTRACT_RULES.lower()
+            self._record("AI: ask_engine EXTRACT_RULES carries as-is rule",
+                "as-is + grade C", ('as-is' in rules_l and 'grade to c' in rules_l))
+            # The parser is pure and deterministic: a moderate, cost-0 as-is
+            # finding with grade C must parse and survive intact.
+            parsed = _parse_findings_json(
+                '{"summary":"Seller disclosed no defects and sells as-is.",'
+                '"grade":"C","findings":[{"severity":"moderate",'
+                '"title":"Sold As-Is, Little Disclosed","icon":"\\ud83d\\udcdd",'
+                '"cost":0,"detail":"Seller marked no known defects across every '
+                'disclosure category and added an as-is clause.",'
+                '"why":"A blanket no-defects disclosure shifts repair risk to the '
+                'buyer, so an independent inspection is essential."}]}'
+            )
+            ok = (bool(parsed) and parsed.get('grade') == 'C'
+                  and len(parsed.get('findings', [])) == 1
+                  and parsed['findings'][0].get('cost') == 0)
+            self._record("AI: ask_engine parses as-is finding (cost 0, grade C)",
+                f"grade={parsed.get('grade') if parsed else None}", ok)
+        except Exception as e:
+            self._record("AI: ask_engine", str(e)[:120], False)
+
     # =========================================================================
     # GROUP 46: COVERAGE SUMMARY
     # =========================================================================

@@ -1101,6 +1101,356 @@
       "parser_result": null,
       "notes": "Monthly enforcement summaries \u2014 shows real disclosure violation patterns DRE enforces.",
       "added_date": "2026-02-22"
+    },
+    {
+      "filename": "open_data_20260614_Falmouth_Select_Board_Meeting_April_27__2026.html",
+      "doc_type": "inspection_report",
+      "source": "Internet Archive",
+      "title": "Falmouth Select Board Meeting April 27, 2026",
+      "crawled_at": "2026-06-14T20:09:53.269111",
+      "metadata": {
+        "source": "Internet Archive",
+        "identifier": "fctvma-Falmouth_Select_Board_Meeting_April_27_2026",
+        "date": "2026-04-28T00:00:00Z",
+        "format": "pdf",
+        "state": "various"
+      }
+    },
+    {
+      "filename": "open_data_20260614_1942__DIE_DEUTSCHE_WOCHENSCHAU__WWII_GERMAN_PROPAGANDA_FILM_.html",
+      "doc_type": "inspection_report",
+      "source": "Internet Archive",
+      "title": "1942 \"DIE DEUTSCHE WOCHENSCHAU\" WWII GERMAN PROPAGANDA FILM CHANNEL DASH VIKTOR LUTZE GG51625",
+      "crawled_at": "2026-06-14T20:09:55.690101",
+      "metadata": {
+        "source": "Internet Archive",
+        "identifier": "youtube-IzAhjXCwQhk",
+        "date": "2026-04-20T00:00:00Z",
+        "format": "pdf",
+        "state": "various"
+      }
+    },
+    {
+      "filename": "open_data_20260614_What_s_in_an_S_unit____Morse_Edition.html",
+      "doc_type": "inspection_report",
+      "source": "Internet Archive",
+      "title": "What's in an S-unit? - Morse Edition",
+      "crawled_at": "2026-06-14T20:09:58.382537",
+      "metadata": {
+        "source": "Internet Archive",
+        "identifier": "20260411.foundations-of-amateur-radio.morse",
+        "date": "2026-04-11T00:00:00Z",
+        "format": "pdf",
+        "state": "various"
+      }
+    },
+    {
+      "filename": "open_data_20260614_What_s_in_an_S_unit_.html",
+      "doc_type": "inspection_report",
+      "source": "Internet Archive",
+      "title": "What's in an S-unit?",
+      "crawled_at": "2026-06-14T20:10:00.925598",
+      "metadata": {
+        "source": "Internet Archive",
+        "identifier": "20260411.foundations-of-amateur-radio",
+        "date": "2026-04-11T00:00:00Z",
+        "format": "pdf",
+        "state": "various"
+      }
+    },
+    {
+      "filename": "open_data_20260614_Forest_and_Beach_Commission_Regular_Meeting___Thursday__Apri.html",
+      "doc_type": "inspection_report",
+      "source": "Internet Archive",
+      "title": "Forest and Beach Commission Regular Meeting - Thursday, April 9, 2026",
+      "crawled_at": "2026-06-14T20:10:03.324391",
+      "metadata": {
+        "source": "Internet Archive",
+        "identifier": "cbsca-Forest_and_Beach_Commission_Regular_Meeting_Thursday_April_9_2026",
+        "date": "2026-04-10T00:00:00Z",
+        "format": "pdf",
+        "state": "various"
+      }
+    },
+    {
+      "filename": "open_data_20260614_Planning_Commission_Regular_Meeting___Wednesday__April_8__20.html",
+      "doc_type": "inspection_report",
+      "source": "Internet Archive",
+      "title": "Planning Commission Regular Meeting - Wednesday, April 8, 2026",
+      "crawled_at": "2026-06-14T20:10:05.789596",
+      "metadata": {
+        "source": "Internet Archive",
+        "identifier": "cbsca-Planning_Commission_Regular_Meeting_Wednesday_April_8_2026",
+        "date": "2026-04-09T00:00:00Z",
+        "format": "pdf",
+        "state": "various"
+      }
+    },
+    {
+      "filename": "open_data_20260614_Forest_and_Beach_Regular_Meeting___Thursday__March_12__2026.html",
+      "doc_type": "inspection_report",
+      "source": "Internet Archive",
+      "title": "Forest and Beach Regular Meeting - Thursday, March 12, 2026",
+      "crawled_at": "2026-06-14T20:10:11.505997",
+      "metadata": {
+        "source": "Internet Archive",
+        "identifier": "cbsca-Forest_and_Beach_Regular_Meeting_-_Thursday_March_12_2026",
+        "date": "2026-03-13T00:00:00Z",
+        "format": "pdf",
+        "state": "various"
+      }
+    },
+    {
+      "filename": "open_data_20260614_Planning_Commission_Regular_Meeting___Wednesday__March_11__2.html",
+      "doc_type": "inspection_report",
+      "source": "Internet Archive",
+      "title": "Planning Commission Regular Meeting - Wednesday, March 11, 2026",
+      "crawled_at": "2026-06-14T20:10:14.025603",
+      "metadata": {
+        "source": "Internet Archive",
+        "identifier": "cbsca-Planning_Commission_Regular_Meeting_-_Wednesday_March_11_2026",
+        "date": "2026-03-12T00:00:00Z",
+        "format": "pdf",
+        "state": "various"
+      }
+    },
+    {
+      "filename": "open_data_20260614_github_com_ripienaar_free_for_dev___2026_03_10_10_10_01.html",
+      "doc_type": "inspection_report",
+      "source": "Internet Archive",
+      "title": "github.com-ripienaar-free-for-dev_-_2026-03-10_10-10-01",
+      "crawled_at": "2026-06-14T20:10:16.308514",
+      "metadata": {
+        "source": "Internet Archive",
+        "identifier": "github.com-ripienaar-free-for-dev_-_2026-03-10_10-10-01",
+        "date": "2026-03-10T00:00:00Z",
+        "format": "pdf",
+        "state": "various"
+      }
+    },
+    {
+      "filename": "open_data_20260614_City_Council___Indio_Water_Authority___4_Feb_2026.html",
+      "doc_type": "inspection_report",
+      "source": "Internet Archive",
+      "title": "City Council / Indio Water Authority - 4 Feb 2026",
+      "crawled_at": "2026-06-14T20:10:19.032552",
+      "metadata": {
+        "source": "Internet Archive",
+        "identifier": "indioca-City_Council_Indio_Water_Authority_-_4_Feb_2026",
+        "date": "2026-02-05T00:00:00Z",
+        "format": "pdf",
+        "state": "various"
+      }
+    },
+    {
+      "filename": "open_data_20260614_City_Council_Public_Meeting_1_27_26.html",
+      "doc_type": "inspection_report",
+      "source": "Internet Archive",
+      "title": "City Council Public Meeting 1-27-26",
+      "crawled_at": "2026-06-14T20:10:21.799802",
+      "metadata": {
+        "source": "Internet Archive",
+        "identifier": "ectpa-City_Council_Public_Meeting_1-27-26",
+        "date": "2026-01-28T00:00:00Z",
+        "format": "pdf",
+        "state": "various"
+      }
+    },
+    {
+      "filename": "open_data_20260614_Planning_Commission_Regular_Meeting___Wednesday__January_21_.html",
+      "doc_type": "inspection_report",
+      "source": "Internet Archive",
+      "title": "Planning Commission Regular Meeting - Wednesday, January 21, 2026",
+      "crawled_at": "2026-06-14T20:10:24.329311",
+      "metadata": {
+        "source": "Internet Archive",
+        "identifier": "cbsca-Planning_Commission_Regular_Meeting_Wednesday_January_21_2026",
+        "date": "2026-01-22T00:00:00Z",
+        "format": "pdf",
+        "state": "various"
+      }
+    },
+    {
+      "filename": "open_data_20260614_MoD_Russia_December_9th_2025.html",
+      "doc_type": "inspection_report",
+      "source": "Internet Archive",
+      "title": "MoD Russia December 9th 2025",
+      "crawled_at": "2026-06-14T20:10:26.996156",
+      "metadata": {
+        "source": "Internet Archive",
+        "identifier": "mo-d-russia-december-9th-2025",
+        "date": "2025-12-09T00:00:00Z",
+        "format": "pdf",
+        "state": "various"
+      }
+    },
+    {
+      "filename": "open_data_20260614_TWIAR_1388_LPFM.html",
+      "doc_type": "inspection_report",
+      "source": "Internet Archive",
+      "title": "TWIAR 1388 LPFM",
+      "crawled_at": "2026-06-14T20:10:29.493691",
+      "metadata": {
+        "source": "Internet Archive",
+        "identifier": "twiar-1388-lpfm",
+        "date": "2025-10-04T00:00:00Z",
+        "format": "pdf",
+        "state": "various"
+      }
+    },
+    {
+      "filename": "open_data_20260614_TWIAR_1388_ONE_HOUR_VERSION.html",
+      "doc_type": "inspection_report",
+      "source": "Internet Archive",
+      "title": "TWIAR 1388 ONE HOUR VERSION",
+      "crawled_at": "2026-06-14T20:10:32.141567",
+      "metadata": {
+        "source": "Internet Archive",
+        "identifier": "twiar-1388-one-hour-version",
+        "date": "2025-10-04T00:00:00Z",
+        "format": "pdf",
+        "state": "various"
+      }
+    },
+    {
+      "filename": "open_data_20260614_TWIAR_1388_NAT.html",
+      "doc_type": "inspection_report",
+      "source": "Internet Archive",
+      "title": "TWIAR 1388 NAT",
+      "crawled_at": "2026-06-14T20:10:34.956545",
+      "metadata": {
+        "source": "Internet Archive",
+        "identifier": "twiar-1388-nat",
+        "date": "2025-10-04T00:00:00Z",
+        "format": "pdf",
+        "state": "various"
+      }
+    },
+    {
+      "filename": "open_data_20260614_LIVE_FROM_INSPECTION_FUEL__The_latest_from_ISN__report_write.html",
+      "doc_type": "inspection_report",
+      "source": "Internet Archive",
+      "title": "LIVE FROM INSPECTION FUEL: The latest from ISN, report writer updates, AI features, and more!",
+      "crawled_at": "2026-06-14T20:10:37.516371",
+      "metadata": {
+        "source": "Internet Archive",
+        "identifier": "9s7zvxlitzlfsm9ebojls2xwbjswyc0washwkw8t",
+        "date": "2025-09-30T00:00:00Z",
+        "format": "pdf",
+        "state": "various"
+      }
+    },
+    {
+      "filename": "open_data_20260614_City_Council_Special_Meeting___9_03_2025.html",
+      "doc_type": "inspection_report",
+      "source": "Internet Archive",
+      "title": "City Council Special Meeting - 9/03/2025",
+      "crawled_at": "2026-06-14T20:10:39.963468",
+      "metadata": {
+        "source": "Internet Archive",
+        "identifier": "cbsca-City_Council_Special_Meeting_-_9_03_2025",
+        "date": "2025-09-04T00:00:00Z",
+        "format": "pdf",
+        "state": "various"
+      }
+    },
+    {
+      "filename": "open_data_20260614_Episode_776__See_What_You_Need_to_See.html",
+      "doc_type": "inspection_report",
+      "source": "Internet Archive",
+      "title": "Episode 776: See What You Need to See",
+      "crawled_at": "2026-06-14T20:10:42.329365",
+      "metadata": {
+        "source": "Internet Archive",
+        "identifier": "7r0o27ovm6dqr3dj28emk9bczkqfapprt1i0ew0o",
+        "date": "2025-08-27T00:00:00Z",
+        "format": "pdf",
+        "state": "various"
+      }
+    },
+    {
+      "filename": "open_data_20260614_github_com_JetBrains_intellij_scala___2025_08_26_16_27_35.html",
+      "doc_type": "inspection_report",
+      "source": "Internet Archive",
+      "title": "github.com-JetBrains-intellij-scala_-_2025-08-26_16-27-35",
+      "crawled_at": "2026-06-14T20:10:44.780983",
+      "metadata": {
+        "source": "Internet Archive",
+        "identifier": "github.com-JetBrains-intellij-scala_-_2025-08-26_16-27-35",
+        "date": "2025-08-26T00:00:00Z",
+        "format": "pdf",
+        "state": "various"
+      }
+    },
+    {
+      "filename": "open_data_20260614_The_Drew___Mike_Show_Collection_2010.html",
+      "doc_type": "disclosure",
+      "source": "Internet Archive",
+      "title": "The Drew & Mike Show Collection 2010",
+      "crawled_at": "2026-06-14T20:10:47.341333",
+      "metadata": {
+        "source": "Internet Archive",
+        "identifier": "the-drew-mike-show-collection-2010",
+        "date": "2026-02-03T00:00:00Z",
+        "format": "pdf",
+        "state": "various"
+      }
+    },
+    {
+      "filename": "open_data_20260614_California_real_estate_practice.html",
+      "doc_type": "disclosure",
+      "source": "Internet Archive",
+      "title": "California real estate practice",
+      "crawled_at": "2026-06-14T20:10:51.317645",
+      "metadata": {
+        "source": "Internet Archive",
+        "identifier": "californiareales00shin",
+        "date": "2006-01-01T00:00:00Z",
+        "format": "pdf",
+        "state": "various"
+      }
+    },
+    {
+      "filename": "open_data_20260614_CIA_Reading_Room_cia_rdp90m01364r000700150001_4__REPORT_OF_A.html",
+      "doc_type": "disclosure",
+      "source": "Internet Archive",
+      "title": "CIA Reading Room cia-rdp90m01364r000700150001-4: REPORT OF AUDIT OF REAL ESTATE AND CONSTRUCTION DIV",
+      "crawled_at": "2026-06-14T20:10:54.831980",
+      "metadata": {
+        "source": "Internet Archive",
+        "identifier": "cia-readingroom-document-cia-rdp90m01364r000700150001-4",
+        "date": "1988-11-09T00:00:00Z",
+        "format": "pdf",
+        "state": "various"
+      }
+    },
+    {
+      "filename": "open_data_20260614_CIA_Reading_Room_cia_rdp90_00530r000501130010_6__VOLUME_2__D.html",
+      "doc_type": "disclosure",
+      "source": "Internet Archive",
+      "title": "CIA Reading Room cia-rdp90-00530r000501130010-6: VOLUME 2: DEPARTMENT OF DEFENSE CIVILIAN PERSONNEL ",
+      "crawled_at": "2026-06-14T20:10:58.696475",
+      "metadata": {
+        "source": "Internet Archive",
+        "identifier": "cia-readingroom-document-cia-rdp90-00530r000501130010-6",
+        "date": "1988-02-01T00:00:00Z",
+        "format": "pdf",
+        "state": "various"
+      }
+    },
+    {
+      "filename": "open_data_20260614_CIA_Reading_Room_cia_rdp79_01194a000100400001_1___INTERNATIO.html",
+      "doc_type": "disclosure",
+      "source": "Internet Archive",
+      "title": "CIA Reading Room cia-rdp79-01194a000100400001-1: 'INTERNATIONAL NARCOTICS CONTROL: A HIGH-PRIORITY P",
+      "crawled_at": "2026-06-14T20:11:03.230005",
+      "metadata": {
+        "source": "Internet Archive",
+        "identifier": "cia-readingroom-document-cia-rdp79-01194a000100400001-1",
+        "date": "1975-05-01T00:00:00Z",
+        "format": "pdf",
+        "state": "various"
+      }
     }
   ],
   "collection_stats": {

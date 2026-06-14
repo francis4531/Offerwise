@@ -3,6 +3,27 @@
 Historical deployment notes, bug fixes, and architecture decisions.
 Consolidated from 80 individual files on 2026-03-13.
 
+## v5.89.178 — Fix CI: ask_engine integrity coverage + deploy extract hygiene
+
+CI went red on the integrity step's module-coverage gate (requires >=95%):
+"Coverage: 102/108 modules (94%) untested=[ask_engine, b2b_followup, card_import,
+daily_tasks, reddit_poster, share_card]". Two root causes:
+
+- ask_engine had no integrity coverage even though v5.89.176 added real logic to
+  it (extract_findings, the as-is parser). integrity_tests._test_ai_modules now
+  imports ask_engine and exercises _parse_findings_json + asserts EXTRACT_RULES
+  still carries the no-disclosure / as-is rule. This is genuine coverage and it
+  alone lifts the ratio to 103/108 = 95%, green even with the stale file present.
+
+- reddit_poster.py (deleted in v5.89.175) was still in the pushed repo. The cause
+  is the local extract step, not the deploy: ow_deploy.sh already rsyncs with
+  --delete, but `tar xzf` into ~/Downloads/offerwise_render does not remove files
+  from a previous extraction, so an old reddit_poster.py lingered in the build dir
+  and rsync faithfully copied it across. Fix is to extract into a clean folder
+  each deploy (documented in docs/DEPLOY.md): rm -rf the folder before tar xzf.
+
+Verified by simulating the CI checkout (stale reddit_poster.py present): all 361
+integrity tests pass, coverage 103/108.
 ## v5.89.177 — Scout is never inline: one reusable rail on every report
 
 Policy, enforced in one place: Scout never sits inside a report. Every report
