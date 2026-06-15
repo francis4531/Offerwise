@@ -1977,13 +1977,12 @@ details.an-drill[open] .an-chev{transform:rotate(90deg)}
         <div class="card-title">📧 User Drip Campaign — Every user's drip state</div>
         <div style="font-size:11px;color:var(--muted);margin-top:2px">Automated: every 15min the system advances eligible users to their next drip step. Reply-to: support@getofferwise.ai · excludes your accounts · flags likely bots</div>
       </div>
-      <div style="display:flex;gap:8px;align-items:center">
+      <div style="display:flex;gap:10px;align-items:center">
+        <span id="dripHealth" style="font-size:11px;color:var(--muted);white-space:nowrap">⚙ checking…</span>
         <button class="btn btn-ghost btn-sm" onclick="loadUserDripList()">↻ Refresh</button>
-        <button class="btn btn-primary btn-sm" onclick="sendAllUserDrip()" id="sendAllDripBtn">✉ Send step 1 to all eligible (one-shot)</button>
       </div>
     </div>
     <div id="userDripBody" class="card-body"><div class="loading-msg"><span class="spinner"></span></div></div>
-    <div id="userDripResult" style="padding:10px 14px;font-size:12px;color:var(--green);display:none"></div>
   </div>
 </div><!-- /view-funnel -->
 
@@ -14688,6 +14687,7 @@ const STAGE_COLORS=['var(--blue)','var(--purple)','var(--purple)','var(--purple)
 async function loadUserDripList() {
   const el = document.getElementById('userDripBody');
   if (!el) return;
+  loadDripHealth();
   el.innerHTML = '<div class="loading-msg"><span class="spinner"></span></div>';
   try {
     // Fetch both list and schedule in parallel
@@ -14736,7 +14736,7 @@ async function loadUserDripList() {
     </div>`;
 
     html += '<div style="overflow-x:auto"><table class="tbl" style="min-width:780px"><thead><tr>';
-    html += '<th>Email</th><th>Joined</th><th>Step</th><th>Last sent</th><th>Next due</th><th>Status</th><th></th></tr></thead><tbody>';
+    html += '<th>Email</th><th>Joined</th><th>Step</th><th>Last sent</th><th>Next due</th><th>Status</th></tr></thead><tbody>';
     users.forEach(u => {
       const bot = u.likely_bot;
       const joined = u.joined ? u.joined.slice(0,10) : '—';
@@ -14782,7 +14782,6 @@ async function loadUserDripList() {
         statusBadge = '<span style="font-size:9px;font-family:var(--mono);color:var(--muted);background:rgba(148,163,184,.1);padding:2px 6px;border-radius:3px">NEW</span>';
       }
 
-      const sendBtn = bot ? '' : `<button class="btn btn-ghost btn-sm" style="font-size:10px" onclick="sendOneDrip(${u.id}, '${escHtml(u.email)}', this)">Send next ✉</button>`;
       html += `<tr style="opacity:${bot?'.45':'1'}">
         <td style="font-size:11px">${escHtml(u.email)}</td>
         <td style="font-size:10px;color:var(--muted)">${joined}</td>
@@ -14790,7 +14789,6 @@ async function loadUserDripList() {
         <td style="font-size:10px;color:var(--muted)">${lastSent}</td>
         <td>${nextDue}</td>
         <td>${statusBadge}</td>
-        <td style="text-align:right">${sendBtn}</td>
       </tr>`;
     });
     html += '</tbody></table></div>';
@@ -14800,49 +14798,30 @@ async function loadUserDripList() {
   }
 }
 
-async function sendOneDrip(userId, email, btn) {
-  if (!confirm('Send drip email 1 to ' + email + '?')) return;
-  btn.disabled = true; btn.textContent = '...';
+async function loadDripHealth() {
+  const hEl = document.getElementById('dripHealth');
+  if (!hEl) return;
   try {
-    const r = await fetch(apiUrl('/api/admin/user-drip/send'), {
-      method: 'POST', headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({user_id: userId})
-    });
-    const d = await r.json();
-    if (d.success) {
-      btn.textContent = '✅ Sent';
-      btn.style.color = 'var(--green)';
-      showToast('✅ Sent to ' + email);
-    } else {
-      btn.textContent = '❌ Failed';
-      btn.style.color = 'var(--red)';
-      showToast('Failed: ' + (d.error || 'unknown'));
+    const r = await fetch(apiUrl('/api/admin/user-drip/health'));
+    const h = await r.json();
+    if (!h.scheduler_on) {
+      hEl.innerHTML = '⏸ Auto-sender OFF (staging/disabled)';
+      hEl.style.color = 'var(--amber)';
+      return;
     }
+    let ago = 'never', stale = true;
+    if (h.last_sent_at) {
+      const t = new Date(h.last_sent_at);
+      ago = _timeAgo(t);
+      stale = (Date.now() - t.getTime()) > 48 * 3600 * 1000;
+    }
+    hEl.innerHTML = '⚙ Auto-sender ON · every ' + h.interval_minutes + ' min · ' +
+                    h.in_sequence + ' in sequence · ' + h.sent_24h +
+                    ' sent in 24h · last send ' + ago;
+    hEl.style.color = stale ? 'var(--amber)' : 'var(--muted)';
   } catch(e) {
-    btn.textContent = '❌'; showToast('Error: ' + e.message);
-  }
-}
-
-async function sendAllUserDrip() {
-  const eligible = document.querySelectorAll('#userDripBody tbody tr:not([style*="opacity:.45"])').length;
-  if (!confirm('Send drip email 1 to all ' + eligible + ' eligible users (bots excluded)?')) return;
-  const btn = document.getElementById('sendAllDripBtn');
-  btn.disabled = true; btn.textContent = 'Sending...';
-  try {
-    const r = await fetch(apiUrl('/api/admin/user-drip/send'), {
-      method: 'POST', headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({send_all: true})
-    });
-    const d = await r.json();
-    const resultEl = document.getElementById('userDripResult');
-    resultEl.style.display = 'block';
-    resultEl.innerHTML = `✅ Sent: <strong>${d.sent}</strong> · Failed: <strong style="color:var(--red)">${d.failed}</strong> · Skipped bots: <strong>${d.skipped}</strong>`;
-    btn.textContent = '✅ Done';
-    showToast('Drip campaign fired — ' + d.sent + ' sent, ' + d.failed + ' failed');
-    loadUserDripList();
-  } catch(e) {
-    btn.disabled = false; btn.textContent = '✉ Send to All Eligible';
-    showToast('Error: ' + e.message);
+    hEl.innerHTML = '⚙ Auto-sender status unavailable';
+    hEl.style.color = 'var(--muted)';
   }
 }
 

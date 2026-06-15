@@ -4904,6 +4904,55 @@ def api_user_drip_send():
     return jsonify({'error': 'Provide user_id or send_all:true'}), 400
 
 
+@admin_bp.route('/api/admin/user-drip/health', methods=['GET'])
+@_api_admin_req_dec
+def api_user_drip_health():
+    """Live auto-sender health (read-only). Answers the only question the drip
+    card needs: is the scheduler running, how many users are in the sequence,
+    and how recently did drip actually send? No side effects, no state changes."""
+    import os as _os
+    from datetime import datetime, timedelta
+    from models import db, User, EmailSendLog
+
+    now = datetime.utcnow()
+    scheduler_on = not (
+        _os.environ.get('DISABLE_SCHEDULER') == '1'
+        or _os.environ.get('APP_ENV', '').strip().lower() in ('staging', 'preview'))
+
+    def _q(fn, default=None):
+        try:
+            return fn()
+        except Exception:
+            return default
+
+    in_sequence = _q(lambda: User.query.filter(
+        ~User.email.endswith('@persona.offerwise.ai'),
+        ~User.email.endswith('@test.offerwise.ai'),
+        db.or_(User.email_unsubscribed.is_(None), User.email_unsubscribed == False),  # noqa: E712
+        db.or_(User.drip_completed.is_(None), User.drip_completed == False),  # noqa: E712
+    ).count(), 0)
+
+    sent_24h = _q(lambda: EmailSendLog.query.filter(
+        EmailSendLog.ts >= now - timedelta(hours=24),
+        EmailSendLog.success.is_(True),
+        EmailSendLog.email_type.like('%drip%'),
+    ).count(), 0)
+
+    last_row = _q(lambda: EmailSendLog.query.filter(
+        EmailSendLog.email_type.like('%drip%'),
+        EmailSendLog.success.is_(True),
+    ).order_by(EmailSendLog.ts.desc()).first(), None)
+    last_sent_at = (last_row.ts.isoformat() + 'Z') if (last_row and last_row.ts) else None
+
+    return jsonify({
+        'scheduler_on': scheduler_on,
+        'interval_minutes': 15,
+        'in_sequence': in_sequence,
+        'sent_24h': sent_24h,
+        'last_sent_at': last_sent_at,
+    })
+
+
 
 @admin_bp.route('/api/admin/agents', methods=['GET'])
 @_api_admin_req_dec

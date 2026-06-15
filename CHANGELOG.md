@@ -3,6 +3,33 @@
 Historical deployment notes, bug fixes, and architecture decisions.
 Consolidated from 80 individual files on 2026-03-13.
 
+## v5.89.180 — Drip admin card: remove the dangerous manual buttons, add a live auto-sender health line
+
+The User Drip card said "Automated: every 15 min" but sat next to two manual
+send buttons that fought the automation. Both called /api/admin/user-drip/send,
+which always fires send_user_drip_step(u, step=1) — and _persist_user_drip_state
+writes user.drip_step = step, so each "send" re-sent the welcome email AND
+rewound the user to step 1, after which the scheduler re-marched them through 2..N
+again. The per-user "Send next" actually sent step 1 (not the next step); "Send
+step 1 to all eligible (one-shot)" blasted step 1 to the most recent 300 accounts
+regardless of where they were in the sequence. A genuine re-spam foot-gun.
+
+Since drip is fully automated in production, both manual controls are removed:
+- Header "Send step 1 to all eligible (one-shot)" button + its result div: gone.
+- Per-user "Send next" button + its table column: gone (table is now read-only:
+  Email · Joined · Step · Last sent · Next due · Status).
+- Dead JS (sendOneDrip, sendAllUserDrip): removed.
+
+Added a live auto-sender health line in the card header, fed by a new read-only
+endpoint GET /api/admin/user-drip/health (no side effects). It reports whether
+the scheduler is on (env-gated: off on staging/preview or DISABLE_SCHEDULER=1),
+the 15-min interval, how many users are in the sequence, how many drip emails
+sent in the last 24h (EmailSendLog email_type LIKE '%drip%', success), and when
+the last drip actually went out. Reads e.g. "⚙ Auto-sender ON · every 15 min ·
+142 in sequence · 9 sent in 24h · last send 12m ago" — and goes amber if the
+scheduler is off or the last send is over 48h stale, so a stuck sender is
+visible at a glance instead of inviting a manual (re-spamming) workaround.
+loadDripHealth() runs on every card load/refresh.
 ## v5.89.179 — Personalize the daily top-7: product signals + two-lane ranked mix
 
 The daily task panel/email was half-personalized: customer chores pulled live
