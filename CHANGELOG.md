@@ -3,6 +3,32 @@
 Historical deployment notes, bug fixes, and architecture decisions.
 Consolidated from 80 individual files on 2026-03-13.
 
+## v5.89.182 — Hotfix: retired Claude model caused 404s across the analysis engine
+
+Sentry surfaced "AI scoring error: 404 Not Found for /v1/messages" from
+gtm.forum_scanner, escalating over 3 hours. Root cause: the model string
+claude-sonnet-4-20250514 (Claude Sonnet 4, May 2025) was retired by the
+provider, so every request naming it returns 404. ai_client had already moved
+to claude-sonnet-4-6, but that migration was never finished — the retired
+string was still hardcoded in 13 files, including the core analysis paths
+(analysis_ai_helper, offerwise_intelligence, optimized_hybrid_cross_reference,
+document_parser), both negotiation modules, agent_briefing_strategy, hybrid_ai,
+admin_routes, the ML labeler/training pipeline, and the forum scanner. The forum
+scanner just failed loudest because it runs as a frequent background job; the
+user-triggered paths would 404 the moment they were hit.
+
+Swept every live call site to the known-good current model claude-sonnet-4-6
+(22 replacements across 14 files). Also aligned two call sites on
+claude-sonnet-4-5-20250929 (ai_output_validator, pdf_handler) to the same model.
+Left ai_cost_tracker's historical pricing keys intact and added a
+claude-sonnet-4-6 price row so cost attribution stays accurate.
+
+Follow-up (not in this hotfix): the durable fix is to stop hardcoding the model
+in 15 places and reference a single shared constant (ai_client.ANTHROPIC_MODEL
+or a zero-dependency model_config), so the next provider retirement is a
+one-line change instead of a production outage. The offline ML tools under
+ml_ingestion still use the bare 'claude-haiku-4-5' alias; harmless to prod but
+worth pinning to the dated id when convenient.
 ## v5.89.181 — Daily Tasks split into two zones: "Do today" vs "Watch / Build"
 
 The daily list was conflating three cadences under one checkbox — daily chores

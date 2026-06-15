@@ -150,7 +150,7 @@ TEXT:
             
             _t0 = time.time()
             response = self.client.messages.create(
-                model="claude-sonnet-4-20250514",
+                model="claude-sonnet-4-6",
                 max_tokens=len(text_to_fix) + 500,
                 messages=[{"role": "user", "content": prompt}]
             )
@@ -301,7 +301,7 @@ Return ONLY JSON:
             
             _t0 = time.time()
             response = self.client.messages.create(
-                model="claude-sonnet-4-20250514",
+                model="claude-sonnet-4-6",
                 max_tokens=1000,
                 messages=[{"role": "user", "content": prompt}]
             )
@@ -606,7 +606,7 @@ Rules:
             
             _t0 = time.time()
             response = self.client.messages.create(
-                model="claude-sonnet-4-20250514",
+                model="claude-sonnet-4-6",
                 max_tokens=2000,
                 messages=[{"role": "user", "content": prompt}]
             )
@@ -647,7 +647,7 @@ Rules:
                                  + "; ".join(v['code'] for v in violations[:5]))
                 log_ai_call(
                     endpoint='external-verification',
-                    model='claude-sonnet-4-20250514',
+                    model='claude-sonnet-4-6',
                     input_summary={'research_keys': list(research_profile.keys()),
                                    'disclosure_len': len(seller_disclosure_text) if seller_disclosure_text else 0},
                     raw_output=raw_text[:2000],

@@ -226,7 +226,7 @@ def _call_claude_for_strategy(
     try:
         _t0 = time.time()
         response = helper.client.messages.create(
-            model="claude-sonnet-4-20250514",
+            model="claude-sonnet-4-6",
             max_tokens=1500,
             messages=[{"role": "user", "content": prompt}],
         )
@@ -636,7 +636,7 @@ Return ONLY the JSON object. No preamble, no markdown, no commentary."""
     try:
         _t0 = time.time()
         response = helper.client.messages.create(
-            model="claude-sonnet-4-20250514",
+            model="claude-sonnet-4-6",
             max_tokens=1500,
             messages=[{"role": "user", "content": prompt}],
         )

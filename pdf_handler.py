@@ -1148,7 +1148,7 @@ INTEGRITY RULES:
             ]
         }]
         with client.messages.stream(
-            model="claude-sonnet-4-5-20250929",
+            model="claude-sonnet-4-6",
             max_tokens=32000,
             messages=_messages_payload,
         ) as _stream:

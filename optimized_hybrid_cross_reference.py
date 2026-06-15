@@ -209,7 +209,7 @@ Respond in JSON:
         # Single AI call - text only (privacy: no raw documents sent to API during analysis)
         _t0 = time.time()
         response = self.ai_client.messages.create(
-            model="claude-sonnet-4-20250514",
+            model="claude-sonnet-4-6",
             max_tokens=3000,
             temperature=0,  # Deterministic: same inputs = same outputs
             messages=[{"role": "user", "content": prompt}]
@@ -250,7 +250,7 @@ Respond in JSON:
                              + "; ".join(v['code'] for v in violations[:5]))
             log_ai_call(
                 endpoint='cross-reference-severity',
-                model='claude-sonnet-4-20250514',
+                model='claude-sonnet-4-6',
                 input_summary={'issue_count': len(all_issues)},
                 raw_output=result_text[:2000],
                 validated_output=ai_data,

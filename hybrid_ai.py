@@ -74,7 +74,7 @@ def _call_llm(prompt: str, system: str = "", max_tokens: int = 4000) -> Optional
         import anthropic
         client = anthropic.Anthropic(api_key=api_key)
         msg = client.messages.create(
-            model="claude-sonnet-4-20250514",
+            model="claude-sonnet-4-6",
             max_tokens=max_tokens,
             system=system or "You are a property analysis expert. Respond only in valid JSON.",
             messages=[{"role": "user", "content": prompt}]

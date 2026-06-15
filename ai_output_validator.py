@@ -477,7 +477,7 @@ def validated_truth_check_call(
 
     Usage:
         analysis, violations = validated_truth_check_call(
-            client, 'claude-sonnet-4-5-20250929', messages,
+            client, 'claude-sonnet-4-6', messages,
             pdf_text=extracted_text, max_tokens=2000
         )
     """

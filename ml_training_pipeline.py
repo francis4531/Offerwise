@@ -628,7 +628,7 @@ Generate these quantities:
 
 Respond with ONLY a JSON array:
 [{{"text": "finding", "category": "cat", "severity": "sev"}}]"""
-                    resp = client.messages.create(model='claude-sonnet-4-20250514', max_tokens=8000,
+                    resp = client.messages.create(model='claude-sonnet-4-6', max_tokens=8000,
                         messages=[{'role': 'user', 'content': prompt}])
                     raw = resp.content[0].text.strip()
                     if raw.startswith('```'):
