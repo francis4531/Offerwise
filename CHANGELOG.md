@@ -3,6 +3,39 @@
 Historical deployment notes, bug fixes, and architecture decisions.
 Consolidated from 80 individual files on 2026-03-13.
 
+## v5.89.179 — Personalize the daily top-7: product signals + two-lane ranked mix
+
+The daily task panel/email was half-personalized: customer chores pulled live
+numbers, but the lone product task was a hardcoded "Ship today's product change"
+with no data behind it. Now both lanes are driven by real signals and the daily
+list is a ranked mix.
+
+New product-facing signal layer in daily_tasks._compute_product_signals (mirrors
+_compute_metrics), all computed defensively from existing tables:
+- Biggest funnel leak: walks real GTMFunnelEvent ladders (on-ramp
+  try_landed -> try_started -> try_findings_shown; risk-check
+  risk_check_start -> risk_check_complete), counts distinct sessions per stage
+  over 7 days, and surfaces the worst consecutive drop with >=15 upstream. The
+  product task now reads e.g. "Biggest funnel leak: 60% drop between landed on
+  /try and started a document (20 reached ... this week)" instead of "ship
+  something", linking to the analytics view.
+- Open bugs: count of Bug.status=='open' with the oldest named (age + severity),
+  linking to the bug list in the tests view.
+- Risk-share loop: SharedRiskCheck created vs view_count over 7 days, flagging
+  whether the share card is pulling clicks before the loop is scaled.
+
+Ranking: _customer_tasks scores each chore by live magnitude (drip backlog,
+one-and-done pool, new signups) so the most pressing rise; _product_tasks scores
+the signals with the funnel leak weighted highest. build_daily_tasks_data ranks
+both lanes, caps the auto list at 7, and always keeps at least the top product
+item — so a day is never entirely customer-facing. If there is no product signal
+at all, it falls back to the generic ship task. Custom tasks are still always
+kept. Task shape is unchanged (id/label/done/custom/dest) plus an optional lane,
+so the email and admin panel render unchanged.
+
+Tests: test_daily_tasks.py (4) covers leak detection, open-bug/loop signals, the
+product-guarantee, and the no-signal fallback. DEFAULT_TASK_DEFS removed (labels
+now live in the scored lane builders).
 ## v5.89.178 — Fix CI: ask_engine integrity coverage + deploy extract hygiene
 
 CI went red on the integrity step's module-coverage gate (requires >=95%):

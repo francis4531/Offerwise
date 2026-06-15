@@ -41,14 +41,8 @@ DEFAULT_EMAIL_TO = (os.environ.get('DAILY_TASKS_EMAIL_TO')
 
 # Fixed recurring tasks. {metric} placeholders are filled from live numbers at
 # build time; missing/failed metrics fall back to '?' so a label still renders.
-DEFAULT_TASK_DEFS = [
-    ('drip',     "Advance the drip queue — {drip_due} user(s) due for their next email"),
-    ('outreach', "Reach out to today's lead batch"),
-    ('followup', "Follow up with used-product users who never ran a 2nd analysis — {one_and_done} in the pool"),
-    ('insights', "Skim Deep Insights — {new_signups} new signup(s) in 24h, {active_7d} active this week"),
-    ('ads',      "Check Google + Reddit ad spend vs results"),
-    ('ship',     "Ship today's product change"),
-]
+# Task labels + scoring now live in _customer_tasks() and _product_tasks()
+# (v5.89.179): the daily list is a ranked two-lane mix, not a fixed template list.
 
 # Where each task is actually executed in the admin app. The panel turns these
 # into a "Go →" control (in-app showView for views, new tab for pages) and the
@@ -218,30 +212,209 @@ def _fmt(v):
     return '?' if v is None else str(v)
 
 
+_STAGE_LABELS = {
+    'try_landed': 'landed on /try',
+    'try_started': 'started a document',
+    'try_findings_shown': 'saw findings',
+    'risk_check_start': 'started a scan',
+    'risk_check_complete': 'got a scan result',
+    'signup': 'signed up',
+    'purchase': 'paid',
+}
+
+# Ordered funnel ladders, real stage names only. The leak detector walks each
+# and surfaces the single worst consecutive drop that has enough upstream volume.
+_FUNNEL_LADDERS = [
+    ('on-ramp', ['try_landed', 'try_started', 'try_findings_shown']),
+    ('risk-check', ['risk_check_start', 'risk_check_complete']),
+]
+
+
+def _stage_label(stage):
+    return _STAGE_LABELS.get(stage, stage.replace('_', ' '))
+
+
+def _compute_product_signals():
+    """Live product-health numbers — where the funnel leaks, what's broken, and
+    how the share loop converts. Each is computed defensively so one failure
+    doesn't sink the rest. Mirrors _compute_metrics for the build side."""
+    from sqlalchemy import func
+    from models import db, GTMFunnelEvent, Bug, SharedRiskCheck
+    now = datetime.utcnow()
+    since = now - timedelta(days=7)
+
+    def _leak():
+        rows = (db.session.query(
+                    GTMFunnelEvent.stage,
+                    func.count(func.distinct(GTMFunnelEvent.session_id)))
+                .filter(GTMFunnelEvent.created_at >= since,
+                        GTMFunnelEvent.session_id.isnot(None))
+                .group_by(GTMFunnelEvent.stage).all())
+        counts = {s: int(c or 0) for s, c in rows}
+        MIN_N = 15
+        worst = None  # (drop_pct, from_stage, to_stage, upstream_n, downstream_n)
+        for _name, ladder in _FUNNEL_LADDERS:
+            for a, b in zip(ladder, ladder[1:]):
+                na, nb = counts.get(a, 0), counts.get(b, 0)
+                if na < MIN_N or nb > na:
+                    continue
+                drop = (na - nb) / na * 100.0
+                if drop <= 0:
+                    continue
+                if worst is None or drop > worst[0]:
+                    worst = (drop, a, b, na, nb)
+        return worst
+
+    def _bugs():
+        q = Bug.query.filter(Bug.status == 'open')
+        total = q.count()
+        if not total:
+            return (0, None, 0, None)
+        oldest = q.order_by(Bug.created_at.asc()).first()
+        age_d = (now - oldest.created_at).days if oldest and oldest.created_at else 0
+        return (total, (oldest.title if oldest else None), age_d,
+                (oldest.severity if oldest else None))
+
+    def _loop():
+        shares = SharedRiskCheck.query.filter(
+            SharedRiskCheck.created_at >= since).all()
+        created = len(shares)
+        views = sum(int(getattr(s, 'view_count', 0) or 0) for s in shares)
+        return (created, views)
+
+    bugs = _safe(_bugs, (0, None, 0, None)) or (0, None, 0, None)
+    created, views = _safe(_loop, (0, 0)) or (0, 0)
+    return {
+        'leak': _safe(_leak),
+        'open_bugs': bugs[0], 'bug_oldest_title': bugs[1],
+        'bug_oldest_age': bugs[2], 'bug_oldest_sev': bugs[3],
+        'share_created_7d': created, 'share_views_7d': views,
+    }
+
+
+def _customer_tasks(fill, m):
+    """Customer-lane tasks, scored by live magnitude so the most pressing rise."""
+    def n(x):
+        try:
+            return int(x)
+        except Exception:
+            return 0
+    defs = [
+        ('outreach', "Reach out to today's lead batch", 60),
+        ('drip', "Advance the drip queue — {drip_due} user(s) due for their next email",
+         45 + n(m.get('drip_due'))),
+        ('followup', "Follow up with used-product users who never ran a 2nd "
+                     "analysis — {one_and_done} in the pool",
+         38 + min(n(m.get('one_and_done')), 30)),
+        ('ads', "Check Google + Reddit ad spend vs results", 30),
+        ('insights', "Skim Deep Insights — {new_signups} new signup(s) in 24h, "
+                     "{active_7d} active this week",
+         20 + n(m.get('new_signups'))),
+    ]
+    out = []
+    for tid, tmpl, score in defs:
+        try:
+            label = tmpl.format(**fill)
+        except Exception:
+            label = tmpl
+        out.append({'id': tid, 'label': label, 'dest': TASK_DESTS.get(tid),
+                    'lane': 'customer', 'score': float(score)})
+    return out
+
+
+def _product_tasks(ps):
+    """Product-lane tasks computed from live signals. Falls back to a generic
+    ship task only when there is no signal at all, so the day is never entirely
+    customer-facing."""
+    out = []
+    leak = ps.get('leak')
+    if leak:
+        drop, frm, to, na, _nb = leak
+        out.append({
+            'id': 'leak',
+            'label': (f"Biggest funnel leak: {drop:.0f}% drop between "
+                      f"{_stage_label(frm)} and {_stage_label(to)} "
+                      f"({na} reached '{_stage_label(frm)}' this week). "
+                      f"Highest-leverage product fix today."),
+            'dest': {'view': 'analytics'},
+            'lane': 'product', 'score': 70.0 + min(drop, 60.0) * 0.5,
+        })
+    nbugs = ps.get('open_bugs') or 0
+    if nbugs:
+        title = ps.get('bug_oldest_title') or 'see the tracker'
+        age = ps.get('bug_oldest_age') or 0
+        sev = (ps.get('bug_oldest_sev') or '').strip()
+        sev_txt = (sev + ' ') if sev else ''
+        out.append({
+            'id': 'bugs',
+            'label': (f"{nbugs} open bug{'s' if nbugs != 1 else ''} — oldest is "
+                      f"{age} day{'s' if age != 1 else ''} old: {sev_txt}{title}."),
+            'dest': {'view': 'tests', 'anchor': 'allBugsSection'},
+            'lane': 'product', 'score': 35.0 + min(nbugs * 5, 25) + min(age, 20),
+        })
+    created = ps.get('share_created_7d') or 0
+    views = ps.get('share_views_7d') or 0
+    if created:
+        if views == 0:
+            tail = ("no one has clicked through yet, so the share card isn't "
+                    "pulling visitors back.")
+        else:
+            tail = (f"{views} view{'s' if views != 1 else ''} so far — watch the "
+                    f"view-to-signup step before scaling the loop.")
+        out.append({
+            'id': 'loop',
+            'label': (f"Risk-share loop: {created} share"
+                      f"{'s' if created != 1 else ''} created this week, {tail}"),
+            'dest': {'view': 'analytics'},
+            'lane': 'product', 'score': 25.0 + min(created, 20),
+        })
+    if not out:
+        out.append({'id': 'ship', 'label': "Ship today's product change",
+                    'dest': None, 'lane': 'product', 'score': 40.0})
+    return out
+
+
 def build_daily_tasks_data(when=None):
-    """Assemble the full payload used by both the panel and the email."""
+    """Assemble the full payload used by both the panel and the email.
+
+    The daily list is a ranked mix of two lanes: customer-facing chores scored
+    by live magnitude, and product-facing work computed from real signals (the
+    biggest funnel leak, open bugs, the share loop). The auto list caps at
+    TARGET and always keeps at least the top product item, so a day is never
+    entirely customer-facing. Manually added (custom) tasks are always kept."""
     when = when or datetime.utcnow()
     metrics = _compute_metrics()
+    psig = _safe(_compute_product_signals, {}) or {}
     fill = {k: _fmt(v) for k, v in metrics.items()}
-
     done = set(get_done_ids(when))
+
+    cust = _customer_tasks(fill, metrics)
+    prod = _product_tasks(psig)
+
+    TARGET = 7
+    ranked = sorted(cust + prod, key=lambda t: t.get('score', 0), reverse=True)
+    chosen = ranked[:TARGET]
+    if prod and not any(t.get('lane') == 'product' for t in chosen):
+        top_prod = max(prod, key=lambda t: t.get('score', 0))
+        if chosen:
+            chosen[-1] = top_prod
+        else:
+            chosen = [top_prod]
+
     tasks = []
-    for tid, template in DEFAULT_TASK_DEFS:
-        try:
-            label = template.format(**fill)
-        except Exception:
-            label = template
-        tasks.append({'id': tid, 'label': label, 'done': tid in done,
-                      'custom': False, 'dest': TASK_DESTS.get(tid)})
+    for t in chosen:
+        tasks.append({'id': t['id'], 'label': t['label'], 'done': t['id'] in done,
+                      'custom': False, 'dest': t.get('dest'), 'lane': t.get('lane')})
     for text in get_extra_tasks():
         eid = _extra_id(text)
         tasks.append({'id': eid, 'label': text, 'done': eid in done,
-                      'custom': True, 'dest': None})
+                      'custom': True, 'dest': None, 'lane': 'custom'})
 
     completed = sum(1 for t in tasks if t['done'])
     return {
         'date': when.strftime('%Y-%m-%d'),
         'metrics': metrics,
+        'product_signals': psig,
         'tasks': tasks,
         'completed': completed,
         'total': len(tasks),
