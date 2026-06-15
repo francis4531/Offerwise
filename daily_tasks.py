@@ -293,7 +293,10 @@ def _compute_product_signals():
 
 
 def _customer_tasks(fill, m):
-    """Customer-lane tasks, scored by live magnitude so the most pressing rise."""
+    """Customer-lane chores you do and tick off (the 'do' zone), scored by live
+    magnitude so the most pressing rise. Drip and insights are intentionally not
+    line items — their live numbers already show in the metric chips above the
+    list, so repeating them as tasks just added noise."""
     def n(x):
         try:
             return int(x)
@@ -301,15 +304,10 @@ def _customer_tasks(fill, m):
             return 0
     defs = [
         ('outreach', "Reach out to today's lead batch", 60),
-        ('drip', "Advance the drip queue — {drip_due} user(s) due for their next email",
-         45 + n(m.get('drip_due'))),
         ('followup', "Follow up with used-product users who never ran a 2nd "
                      "analysis — {one_and_done} in the pool",
          38 + min(n(m.get('one_and_done')), 30)),
         ('ads', "Check Google + Reddit ad spend vs results", 30),
-        ('insights', "Skim Deep Insights — {new_signups} new signup(s) in 24h, "
-                     "{active_7d} active this week",
-         20 + n(m.get('new_signups'))),
     ]
     out = []
     for tid, tmpl, score in defs:
@@ -318,7 +316,7 @@ def _customer_tasks(fill, m):
         except Exception:
             label = tmpl
         out.append({'id': tid, 'label': label, 'dest': TASK_DESTS.get(tid),
-                    'lane': 'customer', 'score': float(score)})
+                    'lane': 'customer', 'zone': 'do', 'score': float(score)})
     return out
 
 
@@ -337,7 +335,7 @@ def _product_tasks(ps):
                       f"({na} reached '{_stage_label(frm)}' this week). "
                       f"Highest-leverage product fix today."),
             'dest': {'view': 'analytics'},
-            'lane': 'product', 'score': 70.0 + min(drop, 60.0) * 0.5,
+            'lane': 'product', 'zone': 'watch', 'score': 70.0 + min(drop, 60.0) * 0.5,
         })
     nbugs = ps.get('open_bugs') or 0
     if nbugs:
@@ -350,7 +348,7 @@ def _product_tasks(ps):
             'label': (f"{nbugs} open bug{'s' if nbugs != 1 else ''} — oldest is "
                       f"{age} day{'s' if age != 1 else ''} old: {sev_txt}{title}."),
             'dest': {'view': 'tests', 'anchor': 'allBugsSection'},
-            'lane': 'product', 'score': 35.0 + min(nbugs * 5, 25) + min(age, 20),
+            'lane': 'product', 'zone': 'watch', 'score': 35.0 + min(nbugs * 5, 25) + min(age, 20),
         })
     created = ps.get('share_created_7d') or 0
     views = ps.get('share_views_7d') or 0
@@ -366,58 +364,59 @@ def _product_tasks(ps):
             'label': (f"Risk-share loop: {created} share"
                       f"{'s' if created != 1 else ''} created this week, {tail}"),
             'dest': {'view': 'analytics'},
-            'lane': 'product', 'score': 25.0 + min(created, 20),
+            'lane': 'product', 'zone': 'watch', 'score': 25.0 + min(created, 20),
         })
     if not out:
         out.append({'id': 'ship', 'label': "Ship today's product change",
-                    'dest': None, 'lane': 'product', 'score': 40.0})
+                    'dest': None, 'lane': 'product', 'zone': 'watch', 'score': 40.0})
     return out
 
 
 def build_daily_tasks_data(when=None):
     """Assemble the full payload used by both the panel and the email.
 
-    The daily list is a ranked mix of two lanes: customer-facing chores scored
-    by live magnitude, and product-facing work computed from real signals (the
-    biggest funnel leak, open bugs, the share loop). The auto list caps at
-    TARGET and always keeps at least the top product item, so a day is never
-    entirely customer-facing. Manually added (custom) tasks are always kept."""
+    The list is split into two zones. The 'do' zone is the customer chores you
+    complete and tick off (outreach, follow-up, ad check) plus any custom tasks;
+    only these count toward done/total. The 'watch' zone is product signals you
+    watch or build toward (biggest funnel leak, open bugs, the share loop) — no
+    checkbox, capped, always at least one (a generic ship task when nothing is
+    flagged). Drip and insights are not line items; their numbers live in the
+    metric chips. Task shape adds an optional 'zone' but is otherwise unchanged."""
     when = when or datetime.utcnow()
     metrics = _compute_metrics()
     psig = _safe(_compute_product_signals, {}) or {}
     fill = {k: _fmt(v) for k, v in metrics.items()}
     done = set(get_done_ids(when))
 
-    cust = _customer_tasks(fill, metrics)
-    prod = _product_tasks(psig)
-
-    TARGET = 7
-    ranked = sorted(cust + prod, key=lambda t: t.get('score', 0), reverse=True)
-    chosen = ranked[:TARGET]
-    if prod and not any(t.get('lane') == 'product' for t in chosen):
-        top_prod = max(prod, key=lambda t: t.get('score', 0))
-        if chosen:
-            chosen[-1] = top_prod
-        else:
-            chosen = [top_prod]
+    do_src = sorted(_customer_tasks(fill, metrics),
+                    key=lambda t: t.get('score', 0), reverse=True)
+    WATCH_CAP = 5
+    watch_src = sorted(_product_tasks(psig),
+                       key=lambda t: t.get('score', 0), reverse=True)[:WATCH_CAP]
 
     tasks = []
-    for t in chosen:
+    for t in do_src:
         tasks.append({'id': t['id'], 'label': t['label'], 'done': t['id'] in done,
-                      'custom': False, 'dest': t.get('dest'), 'lane': t.get('lane')})
+                      'custom': False, 'dest': t.get('dest'),
+                      'lane': t.get('lane'), 'zone': 'do'})
     for text in get_extra_tasks():
         eid = _extra_id(text)
         tasks.append({'id': eid, 'label': text, 'done': eid in done,
-                      'custom': True, 'dest': None, 'lane': 'custom'})
+                      'custom': True, 'dest': None, 'lane': 'custom', 'zone': 'do'})
+    for t in watch_src:
+        tasks.append({'id': t['id'], 'label': t['label'], 'done': False,
+                      'custom': False, 'dest': t.get('dest'),
+                      'lane': t.get('lane'), 'zone': 'watch'})
 
-    completed = sum(1 for t in tasks if t['done'])
+    do_items = [t for t in tasks if t['zone'] == 'do']
+    completed = sum(1 for t in do_items if t['done'])
     return {
         'date': when.strftime('%Y-%m-%d'),
         'metrics': metrics,
         'product_signals': psig,
         'tasks': tasks,
         'completed': completed,
-        'total': len(tasks),
+        'total': len(do_items),
         'email_to': get_email_to(),
         'email_enabled': email_enabled(),
     }
@@ -464,20 +463,42 @@ def render_daily_tasks_email_html(data, dashboard_url=None):
         + '</tr></table>'
     )
 
-    rows = ''
+    def zone_header(txt):
+        return (f'<tr><td style="padding:16px 0 4px;">'
+                f'<span style="font-size:11px;font-weight:700;letter-spacing:.06em;'
+                f'text-transform:uppercase;color:#6b7b8d;">{txt}</span></td></tr>')
+
+    do_rows = ''
+    watch_rows = ''
     for t in data['tasks']:
-        box = '✅' if t['done'] else '⬜️'
-        color = '#6b7b8d' if t['done'] else '#c9d1d9'
-        deco = 'line-through' if t['done'] else 'none'
         url = _dest_url(t.get('dest'), base, key)
         label = t['label']
-        if url and not t['done']:
-            label = (f'<a href="{url}" style="color:#58a6ff;text-decoration:none;">'
-                     f'{label} <span style="color:#6b7b8d;">→</span></a>')
-        rows += (f'<tr><td style="padding:9px 0;border-bottom:1px solid #1b2130;">'
-                 f'<span style="font-size:15px;">{box}</span> '
-                 f'<span style="color:{color};font-size:14px;text-decoration:{deco};">{label}</span>'
-                 f'</td></tr>')
+        if t.get('zone') == 'watch':
+            dot = {'leak': '#d29922', 'bugs': '#f85149', 'loop': '#58a6ff'}.get(t['id'], '#6b7b8d')
+            if url:
+                label = (f'<a href="{url}" style="color:#58a6ff;text-decoration:none;">'
+                         f'{label} <span style="color:#6b7b8d;">→</span></a>')
+            watch_rows += (f'<tr><td style="padding:9px 0;border-bottom:1px solid #1b2130;">'
+                           f'<span style="color:{dot};font-size:16px;line-height:1;">&bull;</span> '
+                           f'<span style="color:#c9d1d9;font-size:14px;">{label}</span></td></tr>')
+        else:
+            box = '✅' if t['done'] else '⬜️'
+            color = '#6b7b8d' if t['done'] else '#c9d1d9'
+            deco = 'line-through' if t['done'] else 'none'
+            if url and not t['done']:
+                label = (f'<a href="{url}" style="color:#58a6ff;text-decoration:none;">'
+                         f'{label} <span style="color:#6b7b8d;">→</span></a>')
+            do_rows += (f'<tr><td style="padding:9px 0;border-bottom:1px solid #1b2130;">'
+                        f'<span style="font-size:15px;">{box}</span> '
+                        f'<span style="color:{color};font-size:14px;text-decoration:{deco};">{label}</span>'
+                        f'</td></tr>')
+
+    if not watch_rows:
+        watch_rows = ('<tr><td style="padding:9px 0;color:#6b7b8d;font-size:13px;">'
+                      'Nothing flagged — funnel, bugs, and share loop are all quiet.</td></tr>')
+
+    rows = (zone_header('✅ Do today') + do_rows
+            + zone_header('👀 Watch / build') + watch_rows)
 
     return f"""
     <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;

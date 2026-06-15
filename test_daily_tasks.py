@@ -96,23 +96,30 @@ class TwoLaneRankingTests(unittest.TestCase):
         db.session.rollback()
         self.ctx.pop()
 
-    def test_product_task_present_when_signal_exists(self):
+    def test_zones_and_watch_signal(self):
         now = datetime.utcnow()
         _seed_leak(now)
         data = daily_tasks.build_daily_tasks_data()
-        ids = [t['id'] for t in data['tasks']]
-        lanes = {t.get('lane') for t in data['tasks']}
-        self.assertIn('leak', ids)
-        self.assertIn('product', lanes)
-        self.assertIn('customer', lanes)
-        self.assertLessEqual(len([t for t in data['tasks'] if not t['custom']]), 7)
+        zones = {t.get('zone') for t in data['tasks']}
+        self.assertEqual(zones, {'do', 'watch'})
+        leak = [t for t in data['tasks'] if t['id'] == 'leak']
+        self.assertTrue(leak)
+        self.assertEqual(leak[0]['zone'], 'watch')
+        self.assertFalse(leak[0]['done'])  # watch items are never tickable
+        do_ids = {t['id'] for t in data['tasks'] if t['zone'] == 'do'}
+        self.assertIn('outreach', do_ids)
+        self.assertNotIn('drip', do_ids)      # drip dropped as a line item
+        self.assertNotIn('insights', do_ids)  # insights dropped as a line item
+        # total/completed count only the tickable 'do' zone
+        self.assertEqual(data['total'],
+                         len([t for t in data['tasks'] if t['zone'] == 'do']))
 
-    def test_fallback_ship_task_when_no_signal(self):
-        # empty tables -> no product signal -> generic ship task still present
+    def test_fallback_ship_is_watch(self):
         data = daily_tasks.build_daily_tasks_data()
-        product = [t for t in data['tasks'] if t.get('lane') == 'product']
-        self.assertTrue(product, "a day must never be entirely customer-facing")
-        self.assertIn('ship', [t['id'] for t in product])
+        watch = [t for t in data['tasks'] if t.get('zone') == 'watch']
+        self.assertTrue(watch, "watch zone must never be empty")
+        self.assertIn('ship', [t['id'] for t in watch])
+        self.assertTrue(all(not t['done'] for t in watch))
 
 
 if __name__ == '__main__':

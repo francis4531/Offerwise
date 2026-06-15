@@ -3,6 +3,32 @@
 Historical deployment notes, bug fixes, and architecture decisions.
 Consolidated from 80 individual files on 2026-03-13.
 
+## v5.89.181 — Daily Tasks split into two zones: "Do today" vs "Watch / Build"
+
+The daily list was conflating three cadences under one checkbox — daily chores
+you complete, multi-day product priorities you build toward, and watch-only
+health numbers — which made it unclear how to actually use each morning. It is
+now two explicit zones in both the admin panel and the daily email.
+
+Do today (the only tickable zone): the customer chores you complete and check
+off — reach out to the lead batch, follow up with one-and-done users, check ad
+spend — plus any custom tasks you add. Done/total now counts only these.
+
+Watch / Build (no checkbox): the product signals you watch or build toward —
+biggest funnel leak, open bugs, the share loop — each with a severity dot and a
+Go to the relevant view. They persist until fixed, so they are never ticked or
+reset daily. Capped at 5, always at least one (a generic ship task, or a "all
+quiet" line when nothing is flagged).
+
+Drip and insights are no longer line items: their live numbers already appear in
+the metric chips at the top of the panel, so repeating them as tasks was noise.
+
+Implementation: daily_tasks.py tags each task with zone ('do'/'watch'),
+_customer_tasks is do-only (outreach/followup/ads), _product_tasks is watch-only,
+build_daily_tasks_data assembles by zone and counts only do-items toward
+done/total. The admin owdtRender and the email renderer both group into the two
+zones (checkboxes for do, dots for watch). Tests updated: test_daily_tasks.py (4)
+now asserts the zone split, do-only counting, and the watch fallback.
 ## v5.89.180 — Drip admin card: remove the dangerous manual buttons, add a live auto-sender health line
 
 The User Drip card said "Automated: every 15 min" but sat next to two manual

@@ -1025,21 +1025,35 @@ label{font-size:11px;color:var(--muted);display:block;margin-bottom:4px;font-wei
         + chip('Active 7d', m.active_7d) + chip('1-and-done', m.one_and_done)
         + chip('Mail 24h', (m.mail_sent==null?'?':m.mail_sent)+'/'+(m.mail_failed==null?'?':m.mail_failed)) + '</div>';
       window._owdtDests = {};
+      var doRows = '', watchRows = '';
       (d.tasks||[]).forEach(function(t){
         if(t.dest) window._owdtDests[t.id] = t.dest;
-        var checked = t.done ? 'checked' : '';
-        var style = t.done ? 'color:var(--muted);text-decoration:line-through' : 'color:var(--fg,#e2e8f0)';
-        var go = (t.dest && !t.done) ? '<span onclick="owdtGo(\''+t.id+'\')" title="Go to where you do this" style="cursor:pointer;color:var(--accent,#58a6ff);font-size:12px;white-space:nowrap">Go →</span>' : '';
-        html += '<div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--line,#1b2130)">'
-          + '<input type="checkbox" '+checked+' onclick="owdtToggle(\''+t.id+'\','+(!t.done)+')" style="width:16px;height:16px;cursor:pointer">'
-          + '<span style="flex:1;font-size:13px;'+style+'">'+esc(t.label)+'</span>'
-          + go
-          + (t.custom ? '<span onclick="owdtRemove(\''+t.id+'\')" title="remove" style="cursor:pointer;color:var(--muted);font-size:13px">✕</span>' : '')
-          + '</div>';
+        if(t.zone === 'watch'){
+          var dot = ({leak:'var(--amber,#d29922)', bugs:'var(--red,#f85149)', loop:'var(--accent,#58a6ff)'})[t.id] || 'var(--muted)';
+          var wgo = t.dest ? '<span onclick="owdtGo(\''+t.id+'\')" title="Go to where you act on this" style="cursor:pointer;color:var(--accent,#58a6ff);font-size:12px;white-space:nowrap">Go →</span>' : '';
+          watchRows += '<div style="display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px solid var(--line,#1b2130)">'
+            + '<span style="width:7px;height:7px;border-radius:50%;margin-top:6px;flex:none;background:'+dot+'"></span>'
+            + '<span style="flex:1;font-size:13px;line-height:1.45;color:var(--fg,#e2e8f0)">'+esc(t.label)+'</span>'
+            + wgo + '</div>';
+        } else {
+          var checked = t.done ? 'checked' : '';
+          var style = t.done ? 'color:var(--muted);text-decoration:line-through' : 'color:var(--fg,#e2e8f0)';
+          var go = (t.dest && !t.done) ? '<span onclick="owdtGo(\''+t.id+'\')" title="Go to where you do this" style="cursor:pointer;color:var(--accent,#58a6ff);font-size:12px;white-space:nowrap">Go →</span>' : '';
+          doRows += '<div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--line,#1b2130)">'
+            + '<input type="checkbox" '+checked+' onclick="owdtToggle(\''+t.id+'\','+(!t.done)+')" style="width:16px;height:16px;cursor:pointer">'
+            + '<span style="flex:1;font-size:13px;'+style+'">'+esc(t.label)+'</span>'
+            + go
+            + (t.custom ? '<span onclick="owdtRemove(\''+t.id+'\')" title="remove" style="cursor:pointer;color:var(--muted);font-size:13px">✕</span>' : '')
+            + '</div>';
+        }
       });
+      var zoneHead = function(txt, mt){ return '<div style="display:flex;align-items:center;gap:8px;margin:'+(mt||'6px')+' 0 4px"><span style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)">'+txt+'</span><span style="flex:1;height:1px;background:var(--line,#1e2d45)"></span></div>'; };
+      html += zoneHead('✅ Do today') + doRows;
       html += '<div style="display:flex;gap:8px;margin-top:12px">'
         + '<input id="owdtNew" type="text" placeholder="Add a task…" style="flex:1;padding:6px 10px;font-size:12px;background:var(--bg2,#0f1623);border:1px solid var(--line,#1e2d45);border-radius:6px;color:var(--fg,#e2e8f0)" onkeydown="if(event.key===\'Enter\')owdtAdd()">'
         + '<button class="btn btn-ghost btn-sm" onclick="owdtAdd()">Add</button></div>';
+      html += zoneHead('👀 Watch / Build', '18px')
+        + (watchRows || '<div style="font-size:12px;color:var(--muted);padding:8px 0">Nothing flagged — funnel, bugs, and share loop are all quiet.</div>');
       var b = document.getElementById('owdtBody'); if(b) b.innerHTML = html;
     };
     if (document.readyState !== 'loading') owdtLoad();
