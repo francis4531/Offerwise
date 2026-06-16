@@ -16,6 +16,7 @@ parser runs first; this LLM path runs only when that comes up (near-)empty, so w
 don't pay for a call on formats the keyword parser already handles.
 """
 from __future__ import annotations
+from model_config import HAIKU
 
 import json
 import logging
@@ -25,7 +26,7 @@ from typing import Any, Dict, List, Optional
 logger = logging.getLogger(__name__)
 
 INSPECTION_EXTRACT_MODEL = os.environ.get(
-    "INSPECTION_EXTRACT_MODEL", "claude-haiku-4-5-20251001"
+    "INSPECTION_EXTRACT_MODEL", HAIKU
 )
 
 # Silent hazards: latent risks a seller disclosure structurally cannot reveal.

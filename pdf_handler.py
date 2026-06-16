@@ -3,6 +3,7 @@ OfferWise Production PDF Handler
 Robust PDF text extraction with fallback strategies including OCR for scanned documents
 """
 
+from model_config import SONNET
 import pdfplumber
 import PyPDF2
 from typing import Optional, Dict, Any
@@ -1148,7 +1149,7 @@ INTEGRITY RULES:
             ]
         }]
         with client.messages.stream(
-            model="claude-sonnet-4-6",
+            model=SONNET,
             max_tokens=32000,
             messages=_messages_payload,
         ) as _stream:

@@ -27,6 +27,7 @@ Design choices:
   briefing LLM cost shows up alongside the rest of the system.
 """
 from __future__ import annotations
+from model_config import SONNET
 
 import json
 import logging
@@ -226,7 +227,7 @@ def _call_claude_for_strategy(
     try:
         _t0 = time.time()
         response = helper.client.messages.create(
-            model="claude-sonnet-4-6",
+            model=SONNET,
             max_tokens=1500,
             messages=[{"role": "user", "content": prompt}],
         )
@@ -636,7 +637,7 @@ Return ONLY the JSON object. No preamble, no markdown, no commentary."""
     try:
         _t0 = time.time()
         response = helper.client.messages.create(
-            model="claude-sonnet-4-6",
+            model=SONNET,
             max_tokens=1500,
             messages=[{"role": "user", "content": prompt}],
         )

@@ -3,6 +3,7 @@ OfferWise Intelligence System - Master Integration
 Complete pipeline from PDF documents to actionable insights
 """
 
+from model_config import SONNET
 from typing import Dict, Any, Optional, List
 from dataclasses import dataclass, asdict
 import json
@@ -162,7 +163,7 @@ Valid concerns: foundation, roof, hvac, mold, electrical, plumbing, pest, safety
         try:
             client = anthropic.Anthropic(api_key=anthropic_api_key)
             message = client.messages.create(
-                model="claude-sonnet-4-6",
+                model=SONNET,
                 max_tokens=1000,
                 temperature=0,
                 messages=[{"role": "user", "content": prompt}]

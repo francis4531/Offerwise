@@ -5,6 +5,7 @@ Extracted from app.py to reduce monolith size.
 Contains all /api/admin/* and /admin/* routes.
 """
 
+from model_config import SONNET
 import os
 import re
 import json
@@ -10810,7 +10811,7 @@ Respond with ONLY a JSON array:
 [{{"text": "finding", "category": "cat", "severity": "sev"}}]"""
 
             resp = client.messages.create(
-                model='claude-sonnet-4-6', max_tokens=8000,
+                model=SONNET, max_tokens=8000,
                 messages=[{'role': 'user', 'content': prompt}]
             )
             raw = resp.content[0].text.strip()
@@ -11642,7 +11643,7 @@ Generate these quantities:
 
 Respond with ONLY a JSON array:
 [{{"text": "finding", "category": "cat", "severity": "sev"}}]"""
-                        resp = client.messages.create(model='claude-sonnet-4-6', max_tokens=8000,
+                        resp = client.messages.create(model=SONNET, max_tokens=8000,
                             messages=[{'role': 'user', 'content': prompt}])
                         raw = resp.content[0].text.strip()
                         if raw.startswith('```'): raw = raw.split('\n', 1)[-1]
@@ -15869,7 +15870,7 @@ Respond with ONLY a JSON array, no other text:
 
         try:
             resp = client.messages.create(
-                model='claude-sonnet-4-6',
+                model=SONNET,
                 max_tokens=4000,
                 messages=[{'role': 'user', 'content': prompt}],
             )

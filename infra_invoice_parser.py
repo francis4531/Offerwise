@@ -24,6 +24,7 @@ Design notes:
     manual vendor selection on the costs page.
 """
 from __future__ import annotations
+from model_config import HAIKU
 
 import json
 import logging
@@ -165,7 +166,7 @@ def parse_invoice_email(
         prompt_full = _PROMPT.replace('{email_content}', email_content)
         # Haiku 4.5 — the cheapest current model that does structured extraction well
         msg = anthropic_client.messages.create(
-            model='claude-haiku-4-5-20251001',
+            model=HAIKU,
             max_tokens=512,
             messages=[{'role': 'user', 'content': prompt_full}],
         )

@@ -19,6 +19,7 @@ Called via:
 Steps: finding_classifier, contradiction_detector, cost_predictor, post_training
 """
 
+from model_config import SONNET
 import argparse
 import json as _json
 import os
@@ -628,7 +629,7 @@ Generate these quantities:
 
 Respond with ONLY a JSON array:
 [{{"text": "finding", "category": "cat", "severity": "sev"}}]"""
-                    resp = client.messages.create(model='claude-sonnet-4-6', max_tokens=8000,
+                    resp = client.messages.create(model=SONNET, max_tokens=8000,
                         messages=[{'role': 'user', 'content': prompt}])
                     raw = resp.content[0].text.strip()
                     if raw.startswith('```'):

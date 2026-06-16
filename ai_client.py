@@ -13,13 +13,14 @@ confined to one model family. On a transient error (429/500/503/529) the call
 retries with a short backoff, then raises RuntimeError.
 """
 
+from model_config import SONNET
 import logging
 import os
 import time
 
 logger = logging.getLogger(__name__)
 
-ANTHROPIC_MODEL = "claude-sonnet-4-6"
+ANTHROPIC_MODEL = SONNET
 RETRY_STATUSES  = {429, 500, 503, 529}
 MAX_ATTEMPTS    = 3
 

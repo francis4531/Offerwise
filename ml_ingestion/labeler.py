@@ -32,6 +32,7 @@ Default batch size 20 keeps responses well under max_tokens so we don't
 repeat the v5.86.73 truncation mistake.
 """
 from __future__ import annotations
+from model_config import SONNET
 
 import json
 import os
@@ -48,14 +49,14 @@ class BaseLabeler(BaseIngestionJob):
       JOB_TYPE: str  — 'reextract' or 'relabel'
       SOURCE_NAME: str  — version tag
       BATCH_SIZE: int = 20
-      MODEL: str = 'claude-sonnet-4-6'
+      MODEL: str = SONNET
       MAX_TOKENS: int = 8000
 
     And implement: get_batch(), build_prompt(), parse_response(), save_result()
     """
 
     BATCH_SIZE = 20
-    MODEL = 'claude-sonnet-4-6'
+    MODEL = SONNET
     MAX_TOKENS = 8000
     MAX_BATCHES_PER_RUN: Optional[int] = None  # None = no cap
 

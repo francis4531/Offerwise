@@ -3,6 +3,28 @@
 Historical deployment notes, bug fixes, and architecture decisions.
 Consolidated from 80 individual files on 2026-03-13.
 
+## v5.89.183 — Centralize Claude model ids so a retirement can't cause another outage
+
+Follow-up to the .182 hotfix. The root cause of that outage was the model id
+being hardcoded in ~20 files, so a single provider retirement broke paths all
+over the app and the fix meant editing every one. This removes that failure mode.
+
+New model_config.py is the single source of truth — SONNET, HAIKU, OPUS, and a
+DEFAULT, with zero imports so anything can import it without circular-import
+risk. Every call site now imports the tier it needs instead of hardcoding a
+dated string: 24 files repointed (SONNET for the analysis engine, admin, app,
+forum scanner, negotiation, etc.; HAIKU for the cheap parsers — permit_lookup,
+infra_invoice_parser, the inspection extractor, and the ML labelers). The bare
+'claude-haiku-4-5' aliases in the ml_ingestion tools are now pinned to the dated
+HAIKU id too. ai_client keeps ANTHROPIC_MODEL as a name (now = SONNET) for
+compatibility. The ai_cost_tracker pricing keys stay as literal strings on
+purpose (they must match what's billed); model_config and that table are now the
+only two places any raw model id appears.
+
+Result: the next provider retirement is a one-line change in model_config.py
+instead of a repo-wide sweep. Verified: all 24 files compile, every constant is
+imported where used, the 13 core AI modules import with no NameError, all 361
+integrity tests pass, and the focused suites stay green.
 ## v5.89.182 — Hotfix: retired Claude model caused 404s across the analysis engine
 
 Sentry surfaced "AI scoring error: 404 Not Found for /v1/messages" from

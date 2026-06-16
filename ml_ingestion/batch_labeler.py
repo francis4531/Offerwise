@@ -26,13 +26,14 @@ differences are:
   - MAX_BATCH_WAIT_SECONDS: safety ceiling to give up if batch stalls
     (default 3 hours — well below Anthropic's 24h guarantee)
 
-  - MODEL: default 'claude-haiku-4-5'
+  - MODEL: default HAIKU
 
 Pricing note: cache_control is NOT used in this class. Haiku 4.5 requires
 4,096 tokens minimum for caching to activate, and our relabel prompt is ~1,500.
 Batch API alone gets us the 50% discount we care about.
 """
 from __future__ import annotations
+from model_config import HAIKU
 
 import json
 import os
@@ -54,7 +55,7 @@ class BaseBatchLabeler(BaseIngestionJob):
     """
 
     BATCH_SIZE = 20
-    MODEL = 'claude-haiku-4-5'
+    MODEL = HAIKU
     MAX_TOKENS = 4096  # per individual request — output only
     MAX_BATCHES_PER_RUN: Optional[int] = None
 

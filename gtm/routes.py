@@ -5,6 +5,7 @@ Extracted from app.py to reduce monolith size.
 Contains all /api/gtm/* routes and the /admin/gtm page.
 """
 
+from model_config import SONNET
 import logging
 import time
 import functools
@@ -295,7 +296,7 @@ Return ONLY the HTML content, no preamble or code fences."""
                 'anthropic-version': '2023-06-01',
             },
             json={
-                'model': 'claude-sonnet-4-6',
+                'model': SONNET,
                 'max_tokens': 2000,
                 'messages': [{'role': 'user', 'content': prompt}],
             },

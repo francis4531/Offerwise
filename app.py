@@ -19,6 +19,7 @@ OfferWise - Complete Application with Authentication and Storage
 # flush ensures the line is written even if Python crashes microseconds
 # later, and printing happens before any logging configuration so we
 # don't depend on Python's logging system being initialized.
+from model_config import SONNET
 import sys as _sys, time as _time, os as _os
 _BOOT_T0 = _time.time()
 def _boot(msg):
@@ -6553,7 +6554,7 @@ What is NOT a legitimate red flag:
         for _truth_attempt in range(2):
             try:
                 response = client.messages.create(
-                    model="claude-sonnet-4-6",
+                    model=SONNET,
                     max_tokens=2000,
                     messages=[{
                         "role": "user",
@@ -6630,7 +6631,7 @@ What is NOT a legitimate red flag:
         _usage = getattr(response, 'usage', None)
         log_ai_call(
             endpoint='truth-check',
-            model='claude-sonnet-4-6',
+            model=SONNET,
             input_summary={'pdf_size_b64': len(pdf_base64),
                            'grounding_text_len': len(_pdf_text_for_grounding) if _pdf_text_for_grounding else 0},
             raw_output=response_text[:2000],
@@ -8346,7 +8347,7 @@ SUBJECT: [subject line here]
         try:
             mcp_client = anthropic.Anthropic(api_key=os.environ.get('ANTHROPIC_API_KEY', ''))
             mcp_response = mcp_client.beta.messages.create(
-                model='claude-sonnet-4-6',
+                model=SONNET,
                 max_tokens=200,
                 mcp_servers=[{'type': 'url', 'url': gmail_mcp_url, 'name': 'gmail'}],
                 messages=[{
@@ -8393,7 +8394,7 @@ SUBJECT: [subject line here]
             from ai_cost_tracker import log_ai_call
             log_ai_call(
                 db.session, user_id=current_user.id,
-                model='claude-sonnet-4-6', feature='gmail_objection_letter',
+                model=SONNET, feature='gmail_objection_letter',
                 input_tokens=0, output_tokens=0,
             )
         except Exception:
@@ -8497,7 +8498,7 @@ def calendar_schedule_deadlines():
             try:
                 mcp_client = anthropic.Anthropic(api_key=os.environ.get('ANTHROPIC_API_KEY', ''))
                 mcp_response = mcp_client.beta.messages.create(
-                    model='claude-sonnet-4-6',
+                    model=SONNET,
                     max_tokens=200,
                     mcp_servers=[{'type': 'url', 'url': gcal_mcp_url, 'name': 'google-calendar'}],
                     messages=[{

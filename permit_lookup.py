@@ -50,6 +50,7 @@ Public API:
         }
 """
 from __future__ import annotations
+from model_config import HAIKU, SONNET
 import json
 import logging
 import os
@@ -63,7 +64,7 @@ CACHE_DAYS = int(os.environ.get('PERMIT_CACHE_DAYS', '90'))
 
 # Claude config. Use Haiku for cost; permit lookup is structured Q&A,
 # not creative work.
-PERMIT_MODEL = os.environ.get('PERMIT_LOOKUP_MODEL', 'claude-haiku-4-5-20251001')
+PERMIT_MODEL = os.environ.get('PERMIT_LOOKUP_MODEL', HAIKU)
 
 # v5.87.83: Fee web-search enrichment. When enabled, findings that are
 # permit_required='required' or 'likely' get a follow-up web search for
@@ -77,7 +78,7 @@ FEE_WEB_SEARCH_ENABLED = os.environ.get(
 
 # Model for the fee enrichment call. Sonnet is more reliable for structured
 # extraction from search results; Haiku sometimes fabricates. Override-able.
-FEE_SEARCH_MODEL = os.environ.get('PERMIT_FEE_SEARCH_MODEL', 'claude-sonnet-4-6')
+FEE_SEARCH_MODEL = os.environ.get('PERMIT_FEE_SEARCH_MODEL', SONNET)
 
 # Imported at module level so tests can patch permit_lookup.get_anthropic_client.
 # In production this is a thin wrapper that returns an Anthropic client (or None

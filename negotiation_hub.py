@@ -29,6 +29,7 @@ except ImportError:
     anthropic.APIError = Exception
     anthropic.RateLimitError = Exception
     anthropic.APIConnectionError = Exception
+from model_config import SONNET
 import os
 import logging
 import time
@@ -221,7 +222,7 @@ class NegotiationHub:
         
         _t0 = time.time()
         response = self.client.messages.create(
-            model="claude-sonnet-4-6",
+            model=SONNET,
             max_tokens=4000,
             messages=[{"role": "user", "content": prompt}]
         )

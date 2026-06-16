@@ -47,6 +47,7 @@ Cost estimate:
   Total: ~$3-5 for one full run
 """
 from __future__ import annotations
+from model_config import HAIKU
 
 import json
 from typing import Optional
@@ -244,7 +245,7 @@ class StateDiverseSynthesizerV1(BaseBatchLabeler):
     JOB_TYPE = 'synthesize'
     SOURCE_NAME = 'ai_state_synthetic_v1'
     BATCH_SIZE = 20
-    MODEL = 'claude-haiku-4-5'
+    MODEL = HAIKU
 
     def __init__(self, config: Optional[dict] = None):
         super().__init__(config)

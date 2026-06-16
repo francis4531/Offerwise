@@ -28,6 +28,7 @@ Design notes:
 """
 
 from __future__ import annotations
+from model_config import SONNET
 import json
 import logging
 import os
@@ -341,7 +342,7 @@ Output ONLY the 2-4 sentences. Nothing else."""
         # infra, returns synthesized text. The model decides whether to
         # search and how many queries to run.
         resp = client.messages.create(
-            model='claude-sonnet-4-6',
+            model=SONNET,
             max_tokens=600,
             tools=[{
                 'type': 'web_search_20250305',

@@ -20,6 +20,7 @@ Usage:
     findings, violations = validate_cross_reference_findings(findings, disclosure_text, inspection_text)
 """
 
+from model_config import SONNET
 import json
 import logging
 import os
@@ -477,7 +478,7 @@ def validated_truth_check_call(
 
     Usage:
         analysis, violations = validated_truth_check_call(
-            client, 'claude-sonnet-4-6', messages,
+            client, SONNET, messages,
             pdf_text=extracted_text, max_tokens=2000
         )
     """

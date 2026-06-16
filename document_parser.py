@@ -3,6 +3,7 @@ OfferWise Document Parser v3.0 - COMPLETE REWRITE
 Problem-first extraction: Only identifies actual issues, not noise.
 """
 
+from model_config import SONNET
 from dataclasses import dataclass
 from typing import List, Dict, Optional, Tuple
 from enum import Enum
@@ -369,7 +370,7 @@ INSPECTION REPORT:
         
         try:
             response = client.messages.create(
-                model='claude-sonnet-4-6',
+                model=SONNET,
                 max_tokens=4000,
                 messages=[{'role': 'user', 'content': prompt}],
             )

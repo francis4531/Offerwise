@@ -30,6 +30,7 @@ Cost estimate:
   Total: ~$7 for one full pass
 """
 from __future__ import annotations
+from model_config import HAIKU
 
 import json
 from typing import Optional
@@ -215,7 +216,7 @@ class RelabelerV1(BaseBatchLabeler):
     JOB_TYPE = 'relabel'
     SOURCE_NAME = 'relabel_v1'
     BATCH_SIZE = 20
-    MODEL = 'claude-haiku-4-5'
+    MODEL = HAIKU
 
     def __init__(self, config: Optional[dict] = None):
         super().__init__(config)

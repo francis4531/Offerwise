@@ -14,6 +14,7 @@ Flow:
 Respects crawler policy: public data only, no login/auth, rate-limited.
 """
 
+from model_config import SONNET
 import json
 import logging
 import os
@@ -752,7 +753,7 @@ Return ONLY the JSON, no other text."""
                 'content-type': 'application/json',
             },
             json={
-                'model': 'claude-sonnet-4-6',
+                'model': SONNET,
                 'max_tokens': 800,
                 'messages': [{'role': 'user', 'content': prompt}],
             },
