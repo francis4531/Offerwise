@@ -3,6 +3,35 @@
 Historical deployment notes, bug fixes, and architecture decisions.
 Consolidated from 80 individual files on 2026-03-13.
 
+## v5.89.184 — Migrate + centralize the AirNow air-quality endpoint ahead of its retirement
+
+AirNow is retiring /aq/observation/latLong/current/ on 2026-09-30. OfferWise
+called it in two places — the Risk Check tool (risk_check_engine.check_air_quality)
+and full analysis (property_research_agent.AirQualityTool) — each with its own
+copy of the request. After the retirement those calls would have failed silently
+(both wrap the request in try/except and return None), quietly dropping AQI from
+analyses and risk checks.
+
+New air_quality.py is the single source of truth: get_current_aqi(lat, lng) is
+the one place the AirNow URL and request live, and both call sites now use it
+(their AQI parsing is unchanged). The endpoint is migrated to the new
+/aq/observation/current/ziplatlong/ service.
+
+Because AirNow's per-service input docs are behind an account login and these
+services launched 2026-06-17, the new endpoint's exact parameter names could not
+be publicly confirmed at migration time. AirNow runs both endpoints in parallel
+until 2026-09-30, so the helper calls the NEW endpoint first and falls back to
+the retiring one if the new call errors or returns a non-observation body. That
+guarantees no silent AQI loss even if a parameter name differs — data still
+flows via the legacy endpoint during the window. Once the new endpoint is
+confirmed in the AirNow dashboard, delete _LEGACY_URL and the fallback before
+2026-09-30 (one edit, one file).
+
+Note: _make_request was only requests.get + a User-Agent (no retries/counters),
+and the admin airnow_*_calls figures are derived from analysis/risk-check counts,
+so centralizing changed no behavior or metrics. Tests: test_air_quality.py (5)
+covers new-first ordering, fallback on error, fallback on non-list body, the
+no-key path, and total failure.
 ## v5.89.183 — Centralize Claude model ids so a retirement can't cause another outage
 
 Follow-up to the .182 hotfix. The root cause of that outage was the model id

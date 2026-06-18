@@ -19,6 +19,7 @@ from datetime import datetime
 from math import radians, sin, cos, sqrt, atan2
 
 import requests
+from air_quality import get_current_aqi
 
 logger = logging.getLogger(__name__)
 
@@ -493,23 +494,10 @@ def check_california_hazards(lat, lng, state):
 
 def check_air_quality(lat, lng):
     """EPA AirNow current AQI. Needs AIRNOW_API_KEY."""
-    api_key = os.environ.get('AIRNOW_API_KEY')
-    if not api_key:
+    data = get_current_aqi(lat, lng, user_agent='OfferWise/1.0 (risk-check)')
+    if not data:
         return None
     try:
-        resp = requests.get(
-            'https://www.airnowapi.org/aq/observation/latLong/current/',
-            params={
-                'format': 'application/json',
-                'latitude': lat, 'longitude': lng,
-                'distance': 25, 'API_KEY': api_key
-            },
-            headers={'User-Agent': 'OfferWise/1.0 (risk-check)'},
-            timeout=15
-        )
-        data = resp.json()
-        if not data:
-            return None
         worst = max(data, key=lambda x: x.get('AQI', 0))
         aqi = worst.get('AQI', 0)
         cat = worst.get('Category', {}).get('Name', 'Unknown')
@@ -522,7 +510,7 @@ def check_air_quality(lat, lng):
         return {'aqi': aqi, 'category': cat, 'level': level,
                 'detail': f'Current Air Quality Index: {aqi} ({cat}).'}
     except Exception as e:
-        logger.warning(f"Air quality check failed: {e}")
+        logger.warning(f"Air quality parse failed: {e}")
         return None
 
 

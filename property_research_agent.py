@@ -39,6 +39,7 @@ from typing import Any, Dict, List, Optional, Tuple
 from zoneinfo import ZoneInfo
 
 import requests
+from air_quality import get_current_aqi
 
 logger = logging.getLogger(__name__)
 
@@ -923,19 +924,9 @@ class AirQualityTool(ResearchTool):
             )
         
         try:
-            resp = self._make_request(
-                'https://www.airnowapi.org/aq/observation/latLong/current/',
-                params={
-                    'format': 'application/json',
-                    'latitude': profile.latitude,
-                    'longitude': profile.longitude,
-                    'distance': 25,
-                    'API_KEY': api_key
-                },
-                timeout=15
-            )
-            data = resp.json()
-            
+            data = get_current_aqi(profile.latitude, profile.longitude,
+                                   user_agent='OfferWise/1.0 (analysis)')
+
             if not data:
                 return ToolResult(
                     tool_name=self.name, status=ToolStatus.SUCCESS,
