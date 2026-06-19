@@ -3,6 +3,22 @@
 Historical deployment notes, bug fixes, and architecture decisions.
 Consolidated from 80 individual files on 2026-03-13.
 
+## v5.89.185 — Bring down the non-control home page (end the home_onramp A/B)
+
+The home_onramp landing-page A/B (50/50 control index.html vs v2 index-v2.html,
+sticky via the ow_ab2 cookie) is now off. Added a single kill-switch,
+_AB_HOME_ENABLED = False:
+- _ab_assign_home() short-circuits to control for every visitor, including
+  anyone still carrying a v2 cookie (the stale cookie is simply ignored, not
+  honored), so no one is served index-v2.html.
+- the /v2 and /home-v2 preview routes redirect to / (control) instead of
+  serving the variant, so the non-control page isn't reachable anywhere.
+- the / route is unchanged; it now always receives 'control' from assignment.
+
+index-v2.html and the experiment code are kept intact behind the flag, so this
+is fully reversible — flip _AB_HOME_ENABLED back to True to resume the split, or
+later promote v2 deliberately if its numbers warranted it. No data model or
+funnel changes; existing v2-tagged funnel rows are untouched.
 ## v5.89.184 — Migrate + centralize the AirNow air-quality endpoint ahead of its retirement
 
 AirNow is retiring /aq/observation/latLong/current/ on 2026-09-30. OfferWise

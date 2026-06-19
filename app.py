@@ -8689,6 +8689,12 @@ _AB_COOKIE = 'ow_ab2'  # bumped for the on-ramp-hero experiment, so visitors
                        # pinned to the old prompt-first arm get re-bucketed cleanly
 _AB_TEST = 'home_onramp'  # name of the running landing-page experiment
 
+# Experiment kill-switch. When False, the home_onramp A/B is OFF: every visitor
+# (including anyone still carrying a v2 cookie) is served control (index.html),
+# and the /v2 + /home-v2 preview routes redirect to control. The index-v2.html
+# file is kept, so flipping this back to True resumes the split unchanged.
+_AB_HOME_ENABLED = False
+
 def _ab_assign_home():
     """Assign a logged-out visitor to a landing-page variant.
 
@@ -8700,6 +8706,8 @@ def _ab_assign_home():
     Never raises — any failure falls back to ('control', False).
     """
     try:
+        if not _AB_HOME_ENABLED:
+            return 'control', False  # experiment off: everyone gets control
         existing = request.cookies.get(_AB_COOKIE)
         if existing in ('control', 'v2'):
             return existing, False
@@ -8721,6 +8729,8 @@ def index_v2_candidate():
     """Prompt-first home A/B candidate (index-v2.html). Served at /v2 so it can
     be tested against the live home at / without replacing it. Wires the existing
     no-login /api/risk-check and /api/quick-check endpoints. v5.89.109."""
+    if not _AB_HOME_ENABLED:
+        return redirect('/')  # experiment off: v2 is down, send to control
     # mirror the funnel/UTM capture the live index does, so A/B metrics compare
     referral_code = request.args.get('ref')
     if referral_code:
