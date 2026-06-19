@@ -3,6 +3,23 @@
 Historical deployment notes, bug fixes, and architecture decisions.
 Consolidated from 80 individual files on 2026-03-13.
 
+## v5.89.186 — Fix CI: restore integrity module-coverage above 95%
+
+CI run #1271 (v5.89.185) failed on the test job. Root cause was the integrity
+module-coverage gate, not the recent feature work: adding model_config.py
+(v5.89.183) and air_quality.py (v5.89.184) introduced two new modules with no
+integrity coverage, dropping the attestation from 103/107 (96.3%) to 103/109
+(94.5%) — under the 95% threshold the gate enforces. Everything else in the test
+job (py_compile, ruff lint, 575 unit tests, integration) was already green.
+
+Added _test_config_modules to integrity_tests.py, registered before the coverage
+summary, which imports and exercises both new modules: it asserts model_config's
+SONNET/HAIKU/OPUS are non-empty strings with DEFAULT == SONNET, and that
+air_quality exposes the new ziplatlong endpoint as primary with the retiring
+latLong endpoint as the documented fallback plus a callable get_current_aqi.
+Because the coverage check counts a module as tested when integrity_tests.py
+imports it, this is real coverage rather than an attestation stub. Coverage is
+back to 105/109 (96.3%); integrity now reports All 363 tests passed.
 ## v5.89.185 — Bring down the non-control home page (end the home_onramp A/B)
 
 The home_onramp landing-page A/B (50/50 control index.html vs v2 index-v2.html,

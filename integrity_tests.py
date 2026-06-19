@@ -112,6 +112,7 @@ class IntegrityTestEngine:
             ("Access Gate",            self._test_access_gate),
             ("Relabel Pipeline",       self._test_relabel_pipeline),
             ("Reasoning Layer",        self._test_reasoning_layer),
+            ("Config Modules",         self._test_config_modules),
             ("Coverage Summary",       self._test_coverage_summary),
         ]
 
@@ -4383,6 +4384,33 @@ class IntegrityTestEngine:
                          len(asset.national_base) >= 50 and unique)
         except Exception as e:
             self._record("Reasoning: checklist_loader", str(e)[:200], False)
+
+    def _test_config_modules(self):
+        """Centralized config + integration-helper modules (v5.89.186).
+
+        Covers model_config (the single source of truth for Claude model ids,
+        added in v5.89.183) and air_quality (the centralized AirNow helper added
+        in v5.89.184). Imported here so the coverage attestation reflects them.
+        """
+        try:
+            from model_config import SONNET, HAIKU, OPUS, DEFAULT
+            ok = (all(isinstance(m, str) and m for m in (SONNET, HAIKU, OPUS))
+                  and DEFAULT == SONNET)
+            self._record("Config: model_config tiers valid",
+                         f"default={DEFAULT}", ok)
+        except Exception as e:
+            self._record("Config: model_config", str(e)[:120], False)
+
+        try:
+            from air_quality import (get_current_aqi, AIRNOW_CURRENT_URL,
+                                     _LEGACY_URL)
+            ok = ('observation/current/ziplatlong' in AIRNOW_CURRENT_URL
+                  and 'observation/latLong/current' in _LEGACY_URL
+                  and callable(get_current_aqi))
+            self._record("Config: air_quality endpoints + helper",
+                         "new primary, legacy fallback", ok)
+        except Exception as e:
+            self._record("Config: air_quality", str(e)[:120], False)
 
     def _test_coverage_summary(self):
         """Generate module coverage summary for the admin dashboard.
