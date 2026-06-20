@@ -3,6 +3,30 @@
 Historical deployment notes, bug fixes, and architecture decisions.
 Consolidated from 80 individual files on 2026-03-13.
 
+## v5.89.188 — HOTFIX: pin Babel standalone to 7.29.7 (app would not mount)
+
+CRITICAL external break, not tied to any OfferWise change. /app loaded
+@babel/standalone from unpkg UNVERSIONED (.../babel.min.js). unpkg auto-upgraded
+that to Babel 8.0.2, whose preset-react now defaults to the AUTOMATIC JSX runtime.
+That injects `import { jsx } from "react/jsx-runtime"` into the in-browser-compiled
+output; appended as a classic <script>, the browser throws "Cannot use import
+statement outside a module", no JSX compiles, and React never mounts — every
+visitor stuck on the static "Loading OfferWise..." placeholder. Would have broken
+.186 too the moment Babel 8 hit the CDN.
+
+Fix:
+- Pin CDN to @babel/standalone@7.29.7 (classic runtime -> React.createElement, no
+  injected import). Verified by compiling the full app.html babel block with the
+  exact pinned file: no jsx-runtime import, classic createElement output.
+- sw.js: CACHE_NAME was constant 'offerwise-v5' and never changed across deploys,
+  so the precached shell could serve a stale/broken app.html to returning visitors
+  even after a fix ships. Version-stamped it ('offerwise-v5.89.188') so each deploy
+  invalidates the old shell. Keep in lockstep with VERSION.
+
+Lesson: unversioned CDN deps are a latent outage. react/react-dom/pdf.js are all
+pinned; @babel/standalone was the lone exception. The v5.89.187 report tabs are
+unaffected by this fix and ship intact.
+
 ## v5.89.187 — Report tabs (iteration 1): tabbed layout for the analysis report
 
 UX feedback flagged the analysis report as "too long to read." Rather than

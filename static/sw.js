@@ -1,7 +1,12 @@
-// OfferWise AI — Service Worker v5.74.95
+// OfferWise AI — Service Worker v5.89.188
 // Caches static assets for fast loading. Analysis calls always go to network.
+//
+// CACHE_NAME is version-stamped so every deploy invalidates the old shell.
+// Previously it was a constant ('offerwise-v5'), so the precached app.html
+// never refreshed across deploys — returning visitors could be served a stale
+// (even broken) shell indefinitely. Keep this in lockstep with VERSION.
 
-const CACHE_NAME = 'offerwise-v5';
+const CACHE_NAME = 'offerwise-v5.89.188';
 
 // Assets to cache on install (shell)
 const SHELL_ASSETS = [
