@@ -3,6 +3,35 @@
 Historical deployment notes, bug fixes, and architecture decisions.
 Consolidated from 80 individual files on 2026-03-13.
 
+## v5.89.187 — Report tabs (iteration 1): tabbed layout for the analysis report
+
+UX feedback flagged the analysis report as "too long to read." Rather than
+restructure the ~3,000-line React report block (high white-screen risk, not
+verifiable without a browser), this is an additive, reversible first pass.
+
+- New self-contained <OwReportTabs> component (own state; no coupling to the
+  OfferWise component). On tab change it walks up to the nearest .ow-results
+  ancestor and sets data-tab; CSS keys section visibility off that attribute.
+- Rendered as a sibling between the verdict/hero (stays pinned, always visible)
+  and the math section.
+- Four tabs wired to existing section ids:
+    Price       -> #ow-math, #ow-market
+    Condition   -> #ow-repairs, #ow-reserve
+    Disclosures -> #ow-disclosure, #ow-reasoning
+    Negotiate   -> #ow-walk, #ow-toolkit
+- Graceful degradation: with no [data-tab] set (e.g. JS failure), nothing is
+  hidden and the full report renders. Component is try/catch-wrapped, can't throw.
+
+Risk/Environmental ("Risk Indicators", "Environmental & Hazard") are NOT tabbed
+this pass — they render through blocks with no ow- section-id wrapper (nearest
+ancestor is the React root), so they can't be id-targeted without adding
+wrappers. They stay in natural position; seeing where they land on staging
+informs iteration 2 (locate render call, add wrapper/id, add a 5th Risk tab).
+
+Validated by compiling the text/babel block with @babel/preset-react (clean).
+Visual/runtime correctness to be verified on staging. Reversible: remove the
+<OwReportTabs/> usage + the CSS block to restore the linear report.
+
 ## v5.89.186 — Fix CI: restore integrity module-coverage above 95%
 
 CI run #1271 (v5.89.185) failed on the test job. Root cause was the integrity
