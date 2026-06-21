@@ -4954,6 +4954,56 @@ def api_user_drip_health():
     })
 
 
+@admin_bp.route('/api/admin/reddit-ads/health', methods=['GET'])
+@_api_admin_req_dec
+def api_reddit_ads_health():
+    """Live Reddit Ads sync health (read-only). Surfaces the three things that go
+    wrong silently: is it configured, can it currently authenticate (the 403 that
+    only showed up in Sentry), and how fresh is the spend data. The token check is
+    a real refresh attempt with a short timeout — this endpoint only loads when the
+    Ad Performance view is opened, so it is infrequent and tells the truth instead
+    of guessing from staleness. No writes, no state changes."""
+    from datetime import date as _date
+
+    def _q(fn, default=None):
+        try:
+            return fn()
+        except Exception:
+            return default
+
+    try:
+        from reddit_ads_sync import is_configured
+        configured = bool(is_configured())
+    except Exception:
+        configured = False
+
+    token_ok = None
+    token_error = None
+    if configured:
+        try:
+            from reddit_ads_sync import _get_access_token
+            _get_access_token()
+            token_ok = True
+        except Exception as e:
+            token_ok = False
+            token_error = str(e)[:140]
+
+    from models import GTMAdPerformance
+    last_row = _q(lambda: GTMAdPerformance.query.filter_by(channel='reddit_ads')
+                  .order_by(GTMAdPerformance.date.desc()).first(), None)
+    last_sync_date = last_row.date.isoformat() if (last_row and last_row.date) else None
+    stale_days = None
+    if last_row and last_row.date:
+        stale_days = _q(lambda: (_date.today() - last_row.date).days, None)
+
+    return jsonify({
+        'configured': configured,
+        'token_ok': token_ok,
+        'token_error': token_error,
+        'last_sync_date': last_sync_date,
+        'stale_days': stale_days,
+    })
+
 
 @admin_bp.route('/api/admin/agents', methods=['GET'])
 @_api_admin_req_dec

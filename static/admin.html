@@ -2013,6 +2013,7 @@ details.an-drill[open] .an-chev{transform:rotate(90deg)}
       <button class="btn btn-ghost btn-sm" onclick="syncRedditAds()" style="color:var(--orange)">🟠 Sync Reddit Ads</button>
       <button class="btn btn-ghost btn-sm" onclick="syncRedditAds(7)" style="color:var(--orange)">Reddit 7d</button>
       <button class="btn btn-ghost btn-sm" onclick="debugRedditAds()" style="color:var(--muted);font-size:10px">🔬 Debug</button>
+      <span id="redditSyncHealth" style="font-size:11px;color:var(--muted);white-space:nowrap">📡 checking…</span>
     </div>
   </div>
 
@@ -5238,7 +5239,7 @@ function showView(view, el) {
   if (view === 'partners')     { /* loaded by showPartnerTab */ }
   if (view === 'outreach')     { oReloadAll(); }
   if (view === 'analytics')    { loadAnalytics(); loadWaitlist(); loadSurveys(); loadFunnel(); loadConversionDebug(); loadAbHome(); loadUserDripList(); loadEntryCliff(); loadRiskCheckExit(); renderPanelHealth(); }
-  if (view === 'adperf')       { loadAds(); loadGadsStatus(); }
+  if (view === 'adperf')       { loadAds(); loadGadsStatus(); loadRedditSyncHealth(); }
 
   if (view === 'tests')        { updateBugCount(); loadAllBugs(); loadPersonas(); loadPostgresTestHistory(); }
   if (view === 'ml-training')  { loadModelHealth(); loadDataSources(); loadMLHistory(); loadAgentHistory(); loadMLSnapshots(); checkPendingTraining(); checkAgentStatus(); loadMLCrawlList(); loadMLIngestionJobs(); }
@@ -14835,6 +14836,35 @@ async function loadDripHealth() {
     hEl.style.color = stale ? 'var(--amber)' : 'var(--muted)';
   } catch(e) {
     hEl.innerHTML = '⚙ Auto-sender status unavailable';
+    hEl.style.color = 'var(--muted)';
+  }
+}
+
+async function loadRedditSyncHealth() {
+  const hEl = document.getElementById('redditSyncHealth');
+  if (!hEl) return;
+  try {
+    const r = await fetch(apiUrl('/api/admin/reddit-ads/health'));
+    const h = await r.json();
+    if (!h.configured) {
+      hEl.innerHTML = '📡 Reddit sync · not configured';
+      hEl.style.color = 'var(--muted)';
+      return;
+    }
+    if (h.token_ok === false) {
+      hEl.innerHTML = '📡 Reddit sync · ⚠ AUTH FAILING' + (h.token_error ? ' (' + h.token_error + ')' : '');
+      hEl.style.color = 'var(--red)';
+      return;
+    }
+    let ago = 'no data yet', stale = true;
+    if (h.last_sync_date) {
+      ago = _timeAgo(new Date(h.last_sync_date + 'T00:00:00Z'));
+      stale = (h.stale_days != null && h.stale_days > 2);
+    }
+    hEl.innerHTML = '📡 Reddit sync · auth OK · data through ' + (h.last_sync_date || '—') + ' (' + ago + ')';
+    hEl.style.color = stale ? 'var(--amber)' : 'var(--muted)';
+  } catch(e) {
+    hEl.innerHTML = '📡 Reddit sync status unavailable';
     hEl.style.color = 'var(--muted)';
   }
 }

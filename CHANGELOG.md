@@ -3,6 +3,52 @@
 Historical deployment notes, bug fixes, and architecture decisions.
 Consolidated from 80 individual files on 2026-03-13.
 
+## v5.89.190 — Deploy safety: completeness guard in ow_deploy.sh
+
+Root-cause fix for the v5.89.186 incident class. ow_deploy.sh runs
+`rsync -a --delete` against the extracted build tree, so any file missing from
+the tree is deleted from the deploy clone (and the live service). A truncated
+tarball extract thus becomes mass deletion of live modules — that is how a bad
+download dropped analysis_routes.py / ml_inference.py and crash-looped staging.
+
+Added a completeness guard that runs BEFORE the rsync and aborts (exit 1) if the
+build tree looks incomplete:
+- Required-file check: VERSION, app.py, analysis_routes.py, ml_inference.py,
+  b2b_followup.py, model_config.py, static/{app,admin}.html, static/sw.js,
+  requirements.txt. Any missing -> abort with the list (catches the exact
+  incident: the dropped tail-of-extract modules).
+- File-count floor (450; a complete build is ~590) as a coarse net for gross
+  early truncation.
+Tested both ways: full tree passes; a tree missing analysis_routes.py /
+ml_inference.py aborts with exit 1 before any --delete.
+
+The manual extract guard in the deploy command block still applies; this is the
+durable in-script version that runs every deploy whether or not it is remembered.
+
+sw.js CACHE_NAME -> v5.89.190 (lockstep with VERSION).
+
+## v5.89.189 — Admin: Reddit Ads sync-health line (catch the 403 before Sentry does)
+
+A persistent [REDDIT-AUTH] 403 (token refresh forbidden) was failing the Reddit
+spend sync silently — only Sentry surfaced it, and stale spend just looked like
+"no spend." Added a read-only health line to the Ad Performance header, same
+pattern as the drip auto-sender health.
+
+- New GET /api/admin/reddit-ads/health (admin-gated, read-only): reports
+  configured, token_ok (a real refresh attempt, short timeout), token_error,
+  last_sync_date, stale_days. Only fires when the Ad Performance view opens, so
+  the live token probe stays infrequent.
+- admin.html: #redditSyncHealth span in the Ad Performance header +
+  loadRedditSyncHealth() (mirrors loadDripHealth). Renders "not configured"
+  (muted) / "AUTH FAILING (<err>)" (red) / "auth OK - data through <date> (X ago)"
+  (amber if >2 days stale). Wired into showView('adperf').
+
+This does not fix the 403 itself — that is a Reddit-side re-auth (regenerate
+REDDIT_ADS_REFRESH_TOKEN / confirm the app's authorization on the ad account). It
+just makes the failure visible in-product instead of only in Sentry.
+
+sw.js CACHE_NAME -> v5.89.189 (lockstep with VERSION, per .188).
+
 ## v5.89.188 — HOTFIX: pin Babel standalone to 7.29.7 (app would not mount)
 
 CRITICAL external break, not tied to any OfferWise change. /app loaded

@@ -46,6 +46,36 @@ else
 fi
 git pull --ff-only origin staging 2>/dev/null || true
 
+# ── Completeness guard (v5.89.190) ──────────────────────────────────────────
+# The rsync below uses --delete: it mirrors $BUILD exactly, so ANY file missing
+# from the build tree is deleted from the deploy clone (and thus the live
+# service). A truncated/partial tarball extract therefore becomes mass deletion
+# of live modules — this is exactly the v5.89.186 incident, where a half-finished
+# extract dropped analysis_routes.py / ml_inference.py and crash-looped staging.
+# Refuse to proceed if the build tree looks incomplete, BEFORE any --delete runs.
+_required=(VERSION app.py analysis_routes.py ml_inference.py b2b_followup.py model_config.py static/app.html static/admin.html static/sw.js requirements.txt)
+_missing=()
+for _f in "${_required[@]}"; do
+  [ -f "$BUILD/$_f" ] || _missing+=("$_f")
+done
+if [ "${#_missing[@]}" -gt 0 ]; then
+  echo "✗ ABORT — build tree '$BUILD' is missing required files:"
+  printf '      %s\n' "${_missing[@]}"
+  echo "  Almost always a truncated/partial tarball extract. NOT deploying —"
+  echo "  rsync --delete would mirror these gaps and delete the live modules."
+  echo "  Re-download the tarball (verify md5), re-extract, and retry."
+  exit 1
+fi
+_count="$(find "$BUILD" -type f -not -path '*/.git/*' -not -path '*/__pycache__/*' -not -name '*.pyc' | wc -l | tr -d ' ')"
+_min_files=450
+if [ "$_count" -lt "$_min_files" ]; then
+  echo "✗ ABORT — build tree has only $_count files (floor is $_min_files)."
+  echo "  A complete build is ~590 files; this looks like an incomplete extract."
+  echo "  NOT deploying (rsync --delete unsafe). Re-extract and retry."
+  exit 1
+fi
+echo "✓ Completeness guard passed — $_count files, all required modules present."
+
 # Sync the new build over the working tree: --delete propagates removed files,
 # --exclude keeps the real git history intact.
 rsync -a --delete --exclude='.git/' "$BUILD"/ "$OW_REPO"/
