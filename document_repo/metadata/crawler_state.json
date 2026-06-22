@@ -11099,53 +11099,53 @@
     "37ee34734b8c235fafaa642eeeaaf7a1": {
       "url": "https://www.hud.gov/program_offices/housing/mfh/rems/remsinspecscores",
       "source": "public_records",
-      "failed_at": "2026-06-21T19:27:22.768205",
+      "failed_at": "2026-06-22T00:09:52.862323",
       "error": "404 Client Error: Not Found for url: https://www.hud.gov/program_offices/housing/mfh/rems/remsinspecscores"
     }
   },
   "last_run": {
     "courtlistener": {
-      "timestamp": "2026-06-21T19:26:42.065239",
+      "timestamp": "2026-06-22T00:09:11.735672",
       "docs_found": 0,
       "docs_downloaded": 0
     },
     "inspector_samples": {
-      "timestamp": "2026-06-21T19:26:51.127484",
+      "timestamp": "2026-06-22T00:09:21.541650",
       "docs_found": 0,
       "docs_downloaded": 0
     },
     "state_complaints": {
-      "timestamp": "2026-06-21T19:27:21.643721",
+      "timestamp": "2026-06-22T00:09:52.101634",
       "docs_found": 0,
       "docs_downloaded": 0
     },
     "public_records": {
-      "timestamp": "2026-06-21T19:27:24.769551",
+      "timestamp": "2026-06-22T00:09:54.863548",
       "docs_found": 3,
       "docs_downloaded": 0
     },
     "open_data": {
-      "timestamp": "2026-06-21T19:27:35.240123",
+      "timestamp": "2026-06-22T00:10:03.626928",
       "docs_found": 0,
       "docs_downloaded": 0
     },
     "permit_records": {
-      "timestamp": "2026-06-21T19:27:04.548103",
+      "timestamp": "2026-06-22T00:09:34.569215",
       "docs_found": 0,
       "docs_downloaded": 0
     },
     "pest_reports": {
-      "timestamp": "2026-06-21T19:27:12.108063",
+      "timestamp": "2026-06-22T00:09:41.494400",
       "docs_found": 0,
       "docs_downloaded": 0
     },
     "specialist_reports": {
-      "timestamp": "2026-06-21T19:27:18.986563",
+      "timestamp": "2026-06-22T00:09:49.625463",
       "docs_found": 0,
       "docs_downloaded": 0
     },
     "reference_material": {
-      "timestamp": "2026-06-21T19:27:21.643642",
+      "timestamp": "2026-06-22T00:09:52.101585",
       "docs_found": 0,
       "docs_downloaded": 0
     }

@@ -10,6 +10,11 @@ def test_pdf_parser():
     """Test PDF parsing with the complex disclosure document"""
     
     pdf_path = '/mnt/user-data/uploads/Pendleton_Disclosures.pdf'
+
+    import os
+    if not os.path.exists(pdf_path):
+        import pytest
+        pytest.skip(f"sample disclosure PDF not present ({pdf_path}); fixture-dependent test")
     
     print("="*80)
     print("Testing Improved PDF Parser")

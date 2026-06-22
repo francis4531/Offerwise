@@ -663,13 +663,13 @@ def test_notify_no_linked_professionals_no_crash():
 
 # ── register_monitoring_jobs ──────────────────────────────────────────────────
 
-def test_register_monitoring_jobs_adds_four_jobs():
+def test_register_monitoring_jobs_registers_all_jobs():
     from agentic_monitor import register_monitoring_jobs
     from app import app
     scheduler = MagicMock()
     with app.app_context():
         register_monitoring_jobs(scheduler)
-    assert scheduler.add_job.call_count == 5
+    assert scheduler.add_job.call_count == 6
 
 def test_register_monitoring_jobs_uses_cron():
     from agentic_monitor import register_monitoring_jobs

@@ -3,6 +3,25 @@
 Historical deployment notes, bug fixes, and architecture decisions.
 Consolidated from 80 individual files on 2026-03-13.
 
+## v5.89.194 — Clear cheap test quarantine (16 → 12); ~64 tests back in CI
+
+Repaired and re-admitted 4 quarantined files.
+- test_agentic_monitor.py: stale assertion (expected 5 monitor jobs; the code
+  registers 6) corrected. +63 tests.
+- test_pdf_parser.py: now skips cleanly when its sample disclosure PDF isn't
+  present (CI has no fixture file) instead of erroring.
+- test_server.py / test_advanced.py: already harmless (1 skip / 0 tests);
+  un-quarantined.
+- test_all_60_workflows.py: investigated and re-quarantined with a precise note.
+  It sets ANTHROPIC_API_KEY at import, which flips the no-key truth-check path in
+  test_adversarial_pdfs and fails 3 of its tests; recovering its 290 tests needs
+  an isolated step (e2e-style) so its import side effects don't leak. Also added a
+  real-stripe skipif to its webhook-signature test for that future un-quarantine.
+
+Quarantine: 16 → 12 (docs/TEST_QUARANTINE.md updated with causes + fixes).
+Verified: non-e2e marker 1,643 passed / 0 failed; total gated ~2,001.
+Test-infra only; no app or behaviour change. sw.js CACHE_NAME -> v5.89.194.
+
 ## v5.89.193 — Wire the orphaned test suite into CI (66 files) + anti-drift gate
 
 The coverage audit found 82 of 100 test files weren't run by CI — ~41k lines of

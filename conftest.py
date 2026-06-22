@@ -62,15 +62,14 @@ for _pkg in ('anthropic', 'anthropic.types', 'google.cloud.vision',
 #     the oauth concurrency / ratelimit-race suites
 #   need external fixtures or secrets (Stripe keys, recorded HTTP cassettes):
 #     credits/payments, analyze cassettes
-#   collection/import errors (reference moved or missing code):
-#     advanced, forum_scanner, server
-#   single rotted assertion (repair or delete the one stale test):
-#     agentic_monitor, all_60_workflows, pdf_parser, personas_page
-#   broad drift (assertions against changed behaviour):
-#     coverage_final, coverage_gaps, e2e_onboarding_drip
+#   behaviour drift (assertions against changed behaviour — real repair needed):
+#     coverage_final, coverage_gaps, e2e_onboarding_drip, forum_scanner,
+#     personas_page (/thesis is now access-gated)
+#   process-isolation conflict (needs its own pytest process):
+#     all_60_workflows sets ANTHROPIC_API_KEY at import, which flips the
+#     no-key truth-check path in test_adversarial_pdfs and fails 3 of its tests.
+#     Recover it later by running it in an isolated step (like the e2e split).
 collect_ignore = [
-    "test_advanced.py",
-    "test_agentic_monitor.py",
     "test_all_60_workflows.py",
     "test_coverage_final.py",
     "test_coverage_gaps.py",
@@ -82,9 +81,7 @@ collect_ignore = [
     "test_e2e_oauth_subcancel_concurrency.py",
     "test_e2e_onboarding_drip.py",
     "test_forum_scanner.py",
-    "test_pdf_parser.py",
     "test_personas_page.py",
-    "test_server.py",
 ]
 
 
