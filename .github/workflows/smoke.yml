@@ -1,0 +1,41 @@
+name: OfferWise Smoke (prod mount)
+
+# Why scheduled: the worst frontend outage this product has had (the Babel 8
+# white-screen) happened with NO deploy — an unpinned CDN dependency upgraded
+# under a static URL. A push-triggered check can't catch that. This runs on a
+# timer against live prod and fails (→ GitHub notifies the repo owner) the moment
+# the app stops mounting, deploy or not.
+
+on:
+  schedule:
+    - cron: '0 */2 * * *'   # every 2 hours. Tunable: '0 * * * *' hourly, or
+                            # '*/30 * * * *' every 30 min. Each run installs
+                            # Chromium (~1-2 min of Actions time), so on a private
+                            # repo weigh frequency against your monthly minutes.
+  workflow_dispatch:
+    inputs:
+      url:
+        description: 'URL to smoke (default: prod /app)'
+        required: false
+        default: 'https://www.getofferwise.ai/app'
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Playwright + Chromium
+        run: |
+          pip install playwright
+          python -m playwright install --with-deps chromium
+
+      - name: Smoke — does the app mount? (fails on the Babel white-screen signature)
+        run: |
+          python scripts/smoke_test.py \
+            --url "${{ github.event.inputs.url || 'https://www.getofferwise.ai/app' }}" \
+            --timeout 40

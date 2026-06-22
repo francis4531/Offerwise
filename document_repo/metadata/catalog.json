@@ -1451,6 +1451,20 @@
         "format": "pdf",
         "state": "various"
       }
+    },
+    {
+      "filename": "open_data_20260621_Forest_and_Beach_Commission_Regular_Meeting___June_11__2026.html",
+      "doc_type": "inspection_report",
+      "source": "Internet Archive",
+      "title": "Forest and Beach Commission Regular Meeting - June 11, 2026",
+      "crawled_at": "2026-06-21T18:47:56.246518",
+      "metadata": {
+        "source": "Internet Archive",
+        "identifier": "cbsca-Forest_and_Beach_Commission_Regular_Meeting_June_11_2026",
+        "date": "2026-06-12T00:00:00Z",
+        "format": "pdf",
+        "state": "various"
+      }
     }
   ],
   "collection_stats": {

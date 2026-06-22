@@ -19,3 +19,6 @@ testpaths = ["."]
 python_files = "test_*.py"
 python_functions = "test_*"
 addopts = "-v --tb=short"
+markers = [
+    "e2e: end-to-end tests; CI runs these in an isolated step with their own DB",
+]

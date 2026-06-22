@@ -9371,6 +9371,1362 @@
         "format": "pdf",
         "state": "various"
       }
+    },
+    "2aab355a910568a4939cdfae25545899": {
+      "url": "https://www.courtlistener.com/docket/73509380/",
+      "source": "courtlistener",
+      "doc_type": "reference",
+      "discovered_at": "2026-06-21T18:46:14.055093",
+      "metadata": {
+        "case_name": "West Bend Insurance Company v. Shaker Parkway Collective LLC",
+        "court": "District Court, N.D. Ohio",
+        "date_filed": "2026-06-19",
+        "docket_number": "1:26-cv-01407",
+        "docket_id": 73509380,
+        "source": "CourtListener/RECAP",
+        "format": "docket_reference",
+        "state": "unknown",
+        "note": "Docket discovered \u2014 exhibits may contain inspection/disclosure docs. Review manually or use PACER."
+      }
+    },
+    "06b51dd0ae84aae7bb9c71070260ac80": {
+      "url": "https://www.courtlistener.com/docket/73509259/",
+      "source": "courtlistener",
+      "doc_type": "reference",
+      "discovered_at": "2026-06-21T18:46:14.055171",
+      "metadata": {
+        "case_name": "United States v. Olukoga",
+        "court": "District Court, D. Rhode Island",
+        "date_filed": "2026-06-18",
+        "docket_number": "1:26-cr-00058",
+        "docket_id": 73509259,
+        "source": "CourtListener/RECAP",
+        "format": "docket_reference",
+        "state": "unknown",
+        "note": "Docket discovered \u2014 exhibits may contain inspection/disclosure docs. Review manually or use PACER."
+      }
+    },
+    "6a1b6d6d522ce38b2d366d9d2224086e": {
+      "url": "https://www.courtlistener.com/docket/73507314/",
+      "source": "courtlistener",
+      "doc_type": "reference",
+      "discovered_at": "2026-06-21T18:46:14.055228",
+      "metadata": {
+        "case_name": "Robideau v. Federal Cartridge Company",
+        "court": "District Court, D. Minnesota",
+        "date_filed": "2026-06-18",
+        "docket_number": "0:26-cv-03022",
+        "docket_id": 73507314,
+        "source": "CourtListener/RECAP",
+        "format": "docket_reference",
+        "state": "unknown",
+        "note": "Docket discovered \u2014 exhibits may contain inspection/disclosure docs. Review manually or use PACER."
+      }
+    },
+    "6f1034f0eabf870e263a9a492b8617e3": {
+      "url": "https://www.courtlistener.com/docket/73506275/",
+      "source": "courtlistener",
+      "doc_type": "reference",
+      "discovered_at": "2026-06-21T18:46:14.055283",
+      "metadata": {
+        "case_name": "STOLTZ v. NOVO NORDISK INC.",
+        "court": "District Court, E.D. Pennsylvania",
+        "date_filed": "2026-06-18",
+        "docket_number": "2:26-cv-04238",
+        "docket_id": 73506275,
+        "source": "CourtListener/RECAP",
+        "format": "docket_reference",
+        "state": "unknown",
+        "note": "Docket discovered \u2014 exhibits may contain inspection/disclosure docs. Review manually or use PACER."
+      }
+    },
+    "5737a957845624ff925334aaf1913d54": {
+      "url": "https://www.courtlistener.com/docket/73502436/",
+      "source": "courtlistener",
+      "doc_type": "reference",
+      "discovered_at": "2026-06-21T18:46:14.055337",
+      "metadata": {
+        "case_name": "Doe I v. Starbucks Corporation",
+        "court": "District Court, W.D. Washington",
+        "date_filed": "2026-06-18",
+        "docket_number": "2:26-cv-02126",
+        "docket_id": 73502436,
+        "source": "CourtListener/RECAP",
+        "format": "docket_reference",
+        "state": "unknown",
+        "note": "Docket discovered \u2014 exhibits may contain inspection/disclosure docs. Review manually or use PACER."
+      }
+    },
+    "29699d69f333ac51672c5f3ec03df081": {
+      "url": "https://www.courtlistener.com/docket/73502178/",
+      "source": "courtlistener",
+      "doc_type": "reference",
+      "discovered_at": "2026-06-21T18:46:14.055435",
+      "metadata": {
+        "case_name": "United States v. Approximately 15.17 Acres in Newton County, Missouri",
+        "court": "District Court, W.D. Missouri",
+        "date_filed": "2026-06-18",
+        "docket_number": "3:26-cv-05052",
+        "docket_id": 73502178,
+        "source": "CourtListener/RECAP",
+        "format": "docket_reference",
+        "state": "unknown",
+        "note": "Docket discovered \u2014 exhibits may contain inspection/disclosure docs. Review manually or use PACER."
+      }
+    },
+    "582f7df466a3080de996611eb573d717": {
+      "url": "https://www.courtlistener.com/docket/73498851/",
+      "source": "courtlistener",
+      "doc_type": "reference",
+      "discovered_at": "2026-06-21T18:46:14.055490",
+      "metadata": {
+        "case_name": "DAVIDSON v. NOVO NORDISK INC.",
+        "court": "District Court, E.D. Pennsylvania",
+        "date_filed": "2026-06-17",
+        "docket_number": "2:26-cv-04190",
+        "docket_id": 73498851,
+        "source": "CourtListener/RECAP",
+        "format": "docket_reference",
+        "state": "unknown",
+        "note": "Docket discovered \u2014 exhibits may contain inspection/disclosure docs. Review manually or use PACER."
+      }
+    },
+    "9988f3348e8718bc371a9fac195cf556": {
+      "url": "https://www.courtlistener.com/docket/73498526/",
+      "source": "courtlistener",
+      "doc_type": "reference",
+      "discovered_at": "2026-06-21T18:46:14.055556",
+      "metadata": {
+        "case_name": "ZIMBLER v. NOVO NORDISK INC.",
+        "court": "District Court, E.D. Pennsylvania",
+        "date_filed": "2026-06-17",
+        "docket_number": "2:26-cv-04188",
+        "docket_id": 73498526,
+        "source": "CourtListener/RECAP",
+        "format": "docket_reference",
+        "state": "unknown",
+        "note": "Docket discovered \u2014 exhibits may contain inspection/disclosure docs. Review manually or use PACER."
+      }
+    },
+    "bd7d9112dbdb158c2722fae32f32daf0": {
+      "url": "https://www.courtlistener.com/docket/73493680/",
+      "source": "courtlistener",
+      "doc_type": "reference",
+      "discovered_at": "2026-06-21T18:46:14.055609",
+      "metadata": {
+        "case_name": "ELGAMMAL v. MULLIN",
+        "court": "District Court, District of Columbia",
+        "date_filed": "2026-06-16",
+        "docket_number": "1:26-cv-02126",
+        "docket_id": 73493680,
+        "source": "CourtListener/RECAP",
+        "format": "docket_reference",
+        "state": "unknown",
+        "note": "Docket discovered \u2014 exhibits may contain inspection/disclosure docs. Review manually or use PACER."
+      }
+    },
+    "9c3765b28cb278fcc4d40820e6186c50": {
+      "url": "https://www.courtlistener.com/docket/73492159/",
+      "source": "courtlistener",
+      "doc_type": "reference",
+      "discovered_at": "2026-06-21T18:46:14.055662",
+      "metadata": {
+        "case_name": "PALLADINO v. NOVO NORDISK INC.",
+        "court": "District Court, E.D. Pennsylvania",
+        "date_filed": "2026-06-16",
+        "docket_number": "2:26-cv-04164",
+        "docket_id": 73492159,
+        "source": "CourtListener/RECAP",
+        "format": "docket_reference",
+        "state": "unknown",
+        "note": "Docket discovered \u2014 exhibits may contain inspection/disclosure docs. Review manually or use PACER."
+      }
+    },
+    "6544600c5b094cdfe28e85dda4b78b38": {
+      "url": "https://www.courtlistener.com/docket/73491925/",
+      "source": "courtlistener",
+      "doc_type": "reference",
+      "discovered_at": "2026-06-21T18:46:14.055937",
+      "metadata": {
+        "case_name": "Scottsdale Insurance Company v. A&A Elevated Construction LLC",
+        "court": "District Court, W.D. Washington",
+        "date_filed": "2026-06-16",
+        "docket_number": "2:26-cv-02101",
+        "docket_id": 73491925,
+        "source": "CourtListener/RECAP",
+        "format": "docket_reference",
+        "state": "unknown",
+        "note": "Docket discovered \u2014 exhibits may contain inspection/disclosure docs. Review manually or use PACER."
+      }
+    },
+    "6588fdc31b18e3669c7f0bb9696a0538": {
+      "url": "https://www.courtlistener.com/docket/73491250/",
+      "source": "courtlistener",
+      "doc_type": "reference",
+      "discovered_at": "2026-06-21T18:46:14.056009",
+      "metadata": {
+        "case_name": "JANE DOE v. HOLLIDAYSBURG AREA SCHOOL DISTRICT",
+        "court": "District Court, W.D. Pennsylvania",
+        "date_filed": "2026-06-16",
+        "docket_number": "3:26-cv-01142",
+        "docket_id": 73491250,
+        "source": "CourtListener/RECAP",
+        "format": "docket_reference",
+        "state": "unknown",
+        "note": "Docket discovered \u2014 exhibits may contain inspection/disclosure docs. Review manually or use PACER."
+      }
+    },
+    "c8b047c3d3f7653e886ba7a8fd546764": {
+      "url": "https://www.courtlistener.com/docket/73489535/",
+      "source": "courtlistener",
+      "doc_type": "reference",
+      "discovered_at": "2026-06-21T18:46:14.056170",
+      "metadata": {
+        "case_name": "Wilks v. ALLSTATE PROPERTY & CASUALTY INSURANCE COMPANY",
+        "court": "District Court, E.D. Pennsylvania",
+        "date_filed": "2026-06-16",
+        "docket_number": "2:26-cv-04154",
+        "docket_id": 73489535,
+        "source": "CourtListener/RECAP",
+        "format": "docket_reference",
+        "state": "unknown",
+        "note": "Docket discovered \u2014 exhibits may contain inspection/disclosure docs. Review manually or use PACER."
+      }
+    },
+    "8ce2f643e1da98140c28cc4c40fee395": {
+      "url": "https://www.courtlistener.com/docket/73489556/",
+      "source": "courtlistener",
+      "doc_type": "reference",
+      "discovered_at": "2026-06-21T18:46:14.056226",
+      "metadata": {
+        "case_name": "United States v. Dygdon",
+        "court": "District Court, S.D. New York",
+        "date_filed": "2026-06-15",
+        "docket_number": "1:26-cr-00251",
+        "docket_id": 73489556,
+        "source": "CourtListener/RECAP",
+        "format": "docket_reference",
+        "state": "unknown",
+        "note": "Docket discovered \u2014 exhibits may contain inspection/disclosure docs. Review manually or use PACER."
+      }
+    },
+    "a387845f0b5ec8a07f383b1a6a37c7f2": {
+      "url": "https://www.courtlistener.com/docket/73489555/",
+      "source": "courtlistener",
+      "doc_type": "reference",
+      "discovered_at": "2026-06-21T18:46:14.056278",
+      "metadata": {
+        "case_name": "United States v. Dygdon",
+        "court": "District Court, S.D. New York",
+        "date_filed": "2026-06-15",
+        "docket_number": "1:26-cr-00251",
+        "docket_id": 73489555,
+        "source": "CourtListener/RECAP",
+        "format": "docket_reference",
+        "state": "unknown",
+        "note": "Docket discovered \u2014 exhibits may contain inspection/disclosure docs. Review manually or use PACER."
+      }
+    },
+    "30ea52dc3ae7d4f580a0a0b0476300c2": {
+      "url": "https://www.courtlistener.com/docket/73489550/",
+      "source": "courtlistener",
+      "doc_type": "reference",
+      "discovered_at": "2026-06-21T18:46:14.056330",
+      "metadata": {
+        "case_name": "United States v. Dygdon",
+        "court": "District Court, S.D. New York",
+        "date_filed": "2026-06-15",
+        "docket_number": "1:26-cr-00251",
+        "docket_id": 73489550,
+        "source": "CourtListener/RECAP",
+        "format": "docket_reference",
+        "state": "unknown",
+        "note": "Docket discovered \u2014 exhibits may contain inspection/disclosure docs. Review manually or use PACER."
+      }
+    },
+    "b166ab2973a4d2bb697a124f184db13d": {
+      "url": "https://www.courtlistener.com/docket/73488561/",
+      "source": "courtlistener",
+      "doc_type": "reference",
+      "discovered_at": "2026-06-21T18:46:14.056383",
+      "metadata": {
+        "case_name": "Pouchert v. De Vries",
+        "court": "District Court, E.D. Wisconsin",
+        "date_filed": "2026-06-15",
+        "docket_number": "2:26-cv-01074",
+        "docket_id": 73488561,
+        "source": "CourtListener/RECAP",
+        "format": "docket_reference",
+        "state": "unknown",
+        "note": "Docket discovered \u2014 exhibits may contain inspection/disclosure docs. Review manually or use PACER."
+      }
+    },
+    "7420cfb90e5d87bb93df51c4997813ee": {
+      "url": "https://www.courtlistener.com/docket/73487760/",
+      "source": "courtlistener",
+      "doc_type": "reference",
+      "discovered_at": "2026-06-21T18:46:14.056435",
+      "metadata": {
+        "case_name": "Andrea Irene Steele",
+        "court": "United States Bankruptcy Court, E.D. Texas",
+        "date_filed": "2026-06-15",
+        "docket_number": "26-06012",
+        "docket_id": 73487760,
+        "source": "CourtListener/RECAP",
+        "format": "docket_reference",
+        "state": "unknown",
+        "note": "Docket discovered \u2014 exhibits may contain inspection/disclosure docs. Review manually or use PACER."
+      }
+    },
+    "43f0a5728c540ee032b580faf3d13797": {
+      "url": "https://www.courtlistener.com/docket/73486651/",
+      "source": "courtlistener",
+      "doc_type": "reference",
+      "discovered_at": "2026-06-21T18:46:14.056489",
+      "metadata": {
+        "case_name": "PulseLink Systems, LLC v. Hewlett Packard Enterprise Company",
+        "court": "District Court, E.D. Texas",
+        "date_filed": "2026-06-15",
+        "docket_number": "2:26-cv-00475",
+        "docket_id": 73486651,
+        "source": "CourtListener/RECAP",
+        "format": "docket_reference",
+        "state": "unknown",
+        "note": "Docket discovered \u2014 exhibits may contain inspection/disclosure docs. Review manually or use PACER."
+      }
+    },
+    "e36e235aa90726e41c934e37ec9bad77": {
+      "url": "https://www.courtlistener.com/docket/73486638/",
+      "source": "courtlistener",
+      "doc_type": "reference",
+      "discovered_at": "2026-06-21T18:46:14.056547",
+      "metadata": {
+        "case_name": "United States v. Moreno",
+        "court": "District Court, D. New Mexico",
+        "date_filed": "2026-06-15",
+        "docket_number": "2:26-cr-02798",
+        "docket_id": 73486638,
+        "source": "CourtListener/RECAP",
+        "format": "docket_reference",
+        "state": "unknown",
+        "note": "Docket discovered \u2014 exhibits may contain inspection/disclosure docs. Review manually or use PACER."
+      }
+    },
+    "f748f3c3bacebedbfa797b45537dceb7": {
+      "url": "https://www.courtlistener.com/docket/73508840/",
+      "source": "courtlistener",
+      "doc_type": "reference",
+      "discovered_at": "2026-06-21T18:46:19.620610",
+      "metadata": {
+        "case_name": "Wolfson v. Peck",
+        "court": "District Court, S.D. New York",
+        "date_filed": "2026-06-19",
+        "docket_number": "1:26-cv-05196",
+        "docket_id": 73508840,
+        "source": "CourtListener/RECAP",
+        "format": "docket_reference",
+        "state": "unknown",
+        "note": "Docket discovered \u2014 exhibits may contain inspection/disclosure docs. Review manually or use PACER."
+      }
+    },
+    "3c87e1d4e6ae960e531b2e631393f21e": {
+      "url": "https://www.courtlistener.com/docket/73506354/",
+      "source": "courtlistener",
+      "doc_type": "reference",
+      "discovered_at": "2026-06-21T18:46:19.620683",
+      "metadata": {
+        "case_name": "Rosenbaum v. Eli Lilly and Company",
+        "court": "District Court, E.D. Pennsylvania",
+        "date_filed": "2026-06-18",
+        "docket_number": "2:26-cv-04239",
+        "docket_id": 73506354,
+        "source": "CourtListener/RECAP",
+        "format": "docket_reference",
+        "state": "unknown",
+        "note": "Docket discovered \u2014 exhibits may contain inspection/disclosure docs. Review manually or use PACER."
+      }
+    },
+    "7933781b76f2b55d7d1f5303c133f851": {
+      "url": "https://www.courtlistener.com/docket/73500946/",
+      "source": "courtlistener",
+      "doc_type": "reference",
+      "discovered_at": "2026-06-21T18:46:19.620744",
+      "metadata": {
+        "case_name": "STUCK v. NOVO NORDISK INC.",
+        "court": "District Court, E.D. Pennsylvania",
+        "date_filed": "2026-06-18",
+        "docket_number": "2:26-cv-04197",
+        "docket_id": 73500946,
+        "source": "CourtListener/RECAP",
+        "format": "docket_reference",
+        "state": "unknown",
+        "note": "Docket discovered \u2014 exhibits may contain inspection/disclosure docs. Review manually or use PACER."
+      }
+    },
+    "61439bc1b058355c8f46363ad31927bc": {
+      "url": "https://www.courtlistener.com/docket/73493019/",
+      "source": "courtlistener",
+      "doc_type": "reference",
+      "discovered_at": "2026-06-21T18:46:19.620804",
+      "metadata": {
+        "case_name": "Moore v. Hsing",
+        "court": "District Court, S.D. Florida",
+        "date_filed": "2026-06-16",
+        "docket_number": "9:26-cv-80720",
+        "docket_id": 73493019,
+        "source": "CourtListener/RECAP",
+        "format": "docket_reference",
+        "state": "unknown",
+        "note": "Docket discovered \u2014 exhibits may contain inspection/disclosure docs. Review manually or use PACER."
+      }
+    },
+    "7d903ea14dd90e8726fa3d2d6f7be9ab": {
+      "url": "https://www.courtlistener.com/docket/73487400/",
+      "source": "courtlistener",
+      "doc_type": "reference",
+      "discovered_at": "2026-06-21T18:46:19.620860",
+      "metadata": {
+        "case_name": "Chowdhury v. Target Corporation",
+        "court": "District Court, E.D. New York",
+        "date_filed": "2026-06-15",
+        "docket_number": "1:26-cv-03580",
+        "docket_id": 73487400,
+        "source": "CourtListener/RECAP",
+        "format": "docket_reference",
+        "state": "unknown",
+        "note": "Docket discovered \u2014 exhibits may contain inspection/disclosure docs. Review manually or use PACER."
+      }
+    },
+    "73c354a25bed45d689e5323faa11ddd2": {
+      "url": "https://www.courtlistener.com/docket/73483860/",
+      "source": "courtlistener",
+      "doc_type": "reference",
+      "discovered_at": "2026-06-21T18:46:19.620912",
+      "metadata": {
+        "case_name": "McCants v. Buncombe County Detention",
+        "court": "District Court, W.D. North Carolina",
+        "date_filed": "2026-06-15",
+        "docket_number": "1:26-cv-00173",
+        "docket_id": 73483860,
+        "source": "CourtListener/RECAP",
+        "format": "docket_reference",
+        "state": "unknown",
+        "note": "Docket discovered \u2014 exhibits may contain inspection/disclosure docs. Review manually or use PACER."
+      }
+    },
+    "99ad2e629d06ccca5b8c0bdf191a8241": {
+      "url": "https://www.courtlistener.com/docket/73482598/",
+      "source": "courtlistener",
+      "doc_type": "reference",
+      "discovered_at": "2026-06-21T18:46:19.620966",
+      "metadata": {
+        "case_name": "MORRISON v. BOEHRINGER INGELHEIM PHARMACEUTICALS, INC.",
+        "court": "District Court, E.D. Pennsylvania",
+        "date_filed": "2026-06-15",
+        "docket_number": "2:26-cv-04091",
+        "docket_id": 73482598,
+        "source": "CourtListener/RECAP",
+        "format": "docket_reference",
+        "state": "unknown",
+        "note": "Docket discovered \u2014 exhibits may contain inspection/disclosure docs. Review manually or use PACER."
+      }
+    },
+    "ea7640d989fbdac2d19c3264c88e1af3": {
+      "url": "https://www.courtlistener.com/docket/73482309/",
+      "source": "courtlistener",
+      "doc_type": "reference",
+      "discovered_at": "2026-06-21T18:46:19.621018",
+      "metadata": {
+        "case_name": "Moser v. Nessel",
+        "court": "District Court, W.D. Michigan",
+        "date_filed": "2026-06-14",
+        "docket_number": "1:26-cv-01850",
+        "docket_id": 73482309,
+        "source": "CourtListener/RECAP",
+        "format": "docket_reference",
+        "state": "unknown",
+        "note": "Docket discovered \u2014 exhibits may contain inspection/disclosure docs. Review manually or use PACER."
+      }
+    },
+    "aba264a0dadbbc05db2a8d185c85205e": {
+      "url": "https://www.courtlistener.com/docket/73481762/",
+      "source": "courtlistener",
+      "doc_type": "reference",
+      "discovered_at": "2026-06-21T18:46:19.621071",
+      "metadata": {
+        "case_name": "KNAUSS v. BOEHRINGER INGELHEIM PHARMACEUTICALS, INC.",
+        "court": "District Court, E.D. Pennsylvania",
+        "date_filed": "2026-06-13",
+        "docket_number": "2:26-cv-04087",
+        "docket_id": 73481762,
+        "source": "CourtListener/RECAP",
+        "format": "docket_reference",
+        "state": "unknown",
+        "note": "Docket discovered \u2014 exhibits may contain inspection/disclosure docs. Review manually or use PACER."
+      }
+    },
+    "2a7af219e67723eab350ab9a698c3480": {
+      "url": "https://www.courtlistener.com/docket/73483750/",
+      "source": "courtlistener",
+      "doc_type": "reference",
+      "discovered_at": "2026-06-21T18:46:19.621123",
+      "metadata": {
+        "case_name": "McCray v. United States of America",
+        "court": "District Court, D. Oregon",
+        "date_filed": "2026-06-12",
+        "docket_number": "3:26-cv-01193",
+        "docket_id": 73483750,
+        "source": "CourtListener/RECAP",
+        "format": "docket_reference",
+        "state": "unknown",
+        "note": "Docket discovered \u2014 exhibits may contain inspection/disclosure docs. Review manually or use PACER."
+      }
+    },
+    "b32339956f8f5f982d6df6476b471f4a": {
+      "url": "https://www.courtlistener.com/docket/73481464/",
+      "source": "courtlistener",
+      "doc_type": "reference",
+      "discovered_at": "2026-06-21T18:46:19.621175",
+      "metadata": {
+        "case_name": "Guerra v. Danone North America, PBC",
+        "court": "District Court, S.D. Florida",
+        "date_filed": "2026-06-12",
+        "docket_number": "9:26-cv-80706",
+        "docket_id": 73481464,
+        "source": "CourtListener/RECAP",
+        "format": "docket_reference",
+        "state": "unknown",
+        "note": "Docket discovered \u2014 exhibits may contain inspection/disclosure docs. Review manually or use PACER."
+      }
+    },
+    "db92e19f71de26e531428170afa8984b": {
+      "url": "https://www.courtlistener.com/docket/73481049/",
+      "source": "courtlistener",
+      "doc_type": "reference",
+      "discovered_at": "2026-06-21T18:46:19.621233",
+      "metadata": {
+        "case_name": "Maybrook Fire District, NY v. 3M Company",
+        "court": "District Court, S.D. New York",
+        "date_filed": "2026-06-12",
+        "docket_number": "7:26-cv-05016",
+        "docket_id": 73481049,
+        "source": "CourtListener/RECAP",
+        "format": "docket_reference",
+        "state": "unknown",
+        "note": "Docket discovered \u2014 exhibits may contain inspection/disclosure docs. Review manually or use PACER."
+      }
+    },
+    "2be8766dffeed0def595cd6f1f7efd4e": {
+      "url": "https://www.courtlistener.com/docket/73510306/",
+      "source": "courtlistener",
+      "doc_type": "reference",
+      "discovered_at": "2026-06-21T18:46:25.211527",
+      "metadata": {
+        "case_name": "Jocilyn Tashay Meredith",
+        "court": "United States Bankruptcy Court, D. New Jersey",
+        "date_filed": "2026-06-19",
+        "docket_number": "26-17131",
+        "docket_id": 73510306,
+        "source": "CourtListener/RECAP",
+        "format": "docket_reference",
+        "state": "unknown",
+        "note": "Docket discovered \u2014 exhibits may contain inspection/disclosure docs. Review manually or use PACER."
+      }
+    },
+    "a01a5788ace65207f97bc856b25e8183": {
+      "url": "https://www.courtlistener.com/docket/73507218/",
+      "source": "courtlistener",
+      "doc_type": "reference",
+      "discovered_at": "2026-06-21T18:46:25.211609",
+      "metadata": {
+        "case_name": "Utherverse Digital, Inc. v. Ubisoft, Inc.",
+        "court": "District Court, N.D. California",
+        "date_filed": "2026-06-18",
+        "docket_number": "3:26-cv-06098",
+        "docket_id": 73507218,
+        "source": "CourtListener/RECAP",
+        "format": "docket_reference",
+        "state": "unknown",
+        "note": "Docket discovered \u2014 exhibits may contain inspection/disclosure docs. Review manually or use PACER."
+      }
+    },
+    "89d157315f5c160f03a34cfc1f4d3b38": {
+      "url": "https://www.courtlistener.com/docket/73506636/",
+      "source": "courtlistener",
+      "doc_type": "reference",
+      "discovered_at": "2026-06-21T18:46:25.211665",
+      "metadata": {
+        "case_name": "OptimNet LLC v. Amazon.com Services LLC",
+        "court": "District Court, W.D. Washington",
+        "date_filed": "2026-06-18",
+        "docket_number": "2:26-cv-02141",
+        "docket_id": 73506636,
+        "source": "CourtListener/RECAP",
+        "format": "docket_reference",
+        "state": "unknown",
+        "note": "Docket discovered \u2014 exhibits may contain inspection/disclosure docs. Review manually or use PACER."
+      }
+    },
+    "a5aec0d759605bf12b3a72bf87626111": {
+      "url": "https://www.courtlistener.com/docket/73506620/",
+      "source": "courtlistener",
+      "doc_type": "reference",
+      "discovered_at": "2026-06-21T18:46:25.211719",
+      "metadata": {
+        "case_name": "Pitt v. Madison Square Garden Sports Corp.",
+        "court": "District Court, S.D. New York",
+        "date_filed": "2026-06-18",
+        "docket_number": "1:26-cv-05184",
+        "docket_id": 73506620,
+        "source": "CourtListener/RECAP",
+        "format": "docket_reference",
+        "state": "unknown",
+        "note": "Docket discovered \u2014 exhibits may contain inspection/disclosure docs. Review manually or use PACER."
+      }
+    },
+    "49eb216e98874d71e1101948f8cec9a1": {
+      "url": "https://www.courtlistener.com/docket/73506262/",
+      "source": "courtlistener",
+      "doc_type": "reference",
+      "discovered_at": "2026-06-21T18:46:25.211773",
+      "metadata": {
+        "case_name": "Stephen Aiello v. Black Rock Coffee Bar, Inc.",
+        "court": "District Court, S.D. New York",
+        "date_filed": "2026-06-18",
+        "docket_number": "1:26-cv-05181",
+        "docket_id": 73506262,
+        "source": "CourtListener/RECAP",
+        "format": "docket_reference",
+        "state": "unknown",
+        "note": "Docket discovered \u2014 exhibits may contain inspection/disclosure docs. Review manually or use PACER."
+      }
+    },
+    "10c97a0c5579f05decb829db34c13636": {
+      "url": "https://www.courtlistener.com/docket/73505914/",
+      "source": "courtlistener",
+      "doc_type": "reference",
+      "discovered_at": "2026-06-21T18:46:25.211826",
+      "metadata": {
+        "case_name": "WALLACE v. NOVO NORDISK A/S",
+        "court": "District Court, E.D. Pennsylvania",
+        "date_filed": "2026-06-18",
+        "docket_number": "2:26-cv-04224",
+        "docket_id": 73505914,
+        "source": "CourtListener/RECAP",
+        "format": "docket_reference",
+        "state": "unknown",
+        "note": "Docket discovered \u2014 exhibits may contain inspection/disclosure docs. Review manually or use PACER."
+      }
+    },
+    "8d21dab21998296ed41ce45e57957ff1": {
+      "url": "https://www.courtlistener.com/docket/73505820/",
+      "source": "courtlistener",
+      "doc_type": "reference",
+      "discovered_at": "2026-06-21T18:46:25.211879",
+      "metadata": {
+        "case_name": "KRAFT-HIATT v. NOVO NORDISK A/S",
+        "court": "District Court, E.D. Pennsylvania",
+        "date_filed": "2026-06-18",
+        "docket_number": "2:26-cv-04223",
+        "docket_id": 73505820,
+        "source": "CourtListener/RECAP",
+        "format": "docket_reference",
+        "state": "unknown",
+        "note": "Docket discovered \u2014 exhibits may contain inspection/disclosure docs. Review manually or use PACER."
+      }
+    },
+    "520a9b94888b47bf6d4ccc4f14b8e2bc": {
+      "url": "https://www.courtlistener.com/docket/73505209/",
+      "source": "courtlistener",
+      "doc_type": "reference",
+      "discovered_at": "2026-06-21T18:46:25.211934",
+      "metadata": {
+        "case_name": "Ross v. Norada Capital Management LLC",
+        "court": "District Court, C.D. California",
+        "date_filed": "2026-06-18",
+        "docket_number": "8:26-cv-01579",
+        "docket_id": 73505209,
+        "source": "CourtListener/RECAP",
+        "format": "docket_reference",
+        "state": "unknown",
+        "note": "Docket discovered \u2014 exhibits may contain inspection/disclosure docs. Review manually or use PACER."
+      }
+    },
+    "e23d9fe6499a0857a59b87cdd9201b20": {
+      "url": "https://www.courtlistener.com/docket/73504472/",
+      "source": "courtlistener",
+      "doc_type": "reference",
+      "discovered_at": "2026-06-21T18:46:25.211990",
+      "metadata": {
+        "case_name": "WBE LINE SERVICES, LLC v. MARSH & MCLENNAN AGENCY, LLC, as Parent Company and/or Successor to MCGRIFF INSURANCE SERVICES, LLC",
+        "court": "District Court, E.D. Pennsylvania",
+        "date_filed": "2026-06-18",
+        "docket_number": "2:26-cv-04230",
+        "docket_id": 73504472,
+        "source": "CourtListener/RECAP",
+        "format": "docket_reference",
+        "state": "unknown",
+        "note": "Docket discovered \u2014 exhibits may contain inspection/disclosure docs. Review manually or use PACER."
+      }
+    },
+    "f95f75471f9b562c619f066ae16b23c5": {
+      "url": "https://www.courtlistener.com/docket/73503007/",
+      "source": "courtlistener",
+      "doc_type": "reference",
+      "discovered_at": "2026-06-21T18:46:25.212087",
+      "metadata": {
+        "case_name": "Ashab Khan",
+        "court": "United States Bankruptcy Court, E.D. Pennsylvania",
+        "date_filed": "2026-06-18",
+        "docket_number": "26-12622",
+        "docket_id": 73503007,
+        "source": "CourtListener/RECAP",
+        "format": "docket_reference",
+        "state": "unknown",
+        "note": "Docket discovered \u2014 exhibits may contain inspection/disclosure docs. Review manually or use PACER."
+      }
+    },
+    "8a84dce2d232a089182fcd1b849701b5": {
+      "url": "https://www.courtlistener.com/docket/73501454/",
+      "source": "courtlistener",
+      "doc_type": "reference",
+      "discovered_at": "2026-06-21T18:46:25.212143",
+      "metadata": {
+        "case_name": "DEFENDING EDUCATION v. ANGUIANO",
+        "court": "District Court, C.D. California",
+        "date_filed": "2026-06-18",
+        "docket_number": "8:26-cv-01574",
+        "docket_id": 73501454,
+        "source": "CourtListener/RECAP",
+        "format": "docket_reference",
+        "state": "unknown",
+        "note": "Docket discovered \u2014 exhibits may contain inspection/disclosure docs. Review manually or use PACER."
+      }
+    },
+    "3f7b91698d2768e064a28d73a83be638": {
+      "url": "https://www.courtlistener.com/docket/73501150/",
+      "source": "courtlistener",
+      "doc_type": "reference",
+      "discovered_at": "2026-06-21T18:46:25.212196",
+      "metadata": {
+        "case_name": "United States v. BRYANT",
+        "court": "District Court, District of Columbia",
+        "date_filed": "2026-06-18",
+        "docket_number": "1:26-mj-00103",
+        "docket_id": 73501150,
+        "source": "CourtListener/RECAP",
+        "format": "docket_reference",
+        "state": "unknown",
+        "note": "Docket discovered \u2014 exhibits may contain inspection/disclosure docs. Review manually or use PACER."
+      }
+    },
+    "d95a17aa855f63c9e44bb7c589c247d0": {
+      "url": "https://www.courtlistener.com/docket/73501149/",
+      "source": "courtlistener",
+      "doc_type": "reference",
+      "discovered_at": "2026-06-21T18:46:25.212249",
+      "metadata": {
+        "case_name": "United States v. BRYANT",
+        "court": "District Court, District of Columbia",
+        "date_filed": "2026-06-18",
+        "docket_number": "1:26-mj-00103",
+        "docket_id": 73501149,
+        "source": "CourtListener/RECAP",
+        "format": "docket_reference",
+        "state": "unknown",
+        "note": "Docket discovered \u2014 exhibits may contain inspection/disclosure docs. Review manually or use PACER."
+      }
+    },
+    "429460925815e1ddb905d0b1e197acdc": {
+      "url": "https://www.courtlistener.com/docket/73501148/",
+      "source": "courtlistener",
+      "doc_type": "reference",
+      "discovered_at": "2026-06-21T18:46:25.212301",
+      "metadata": {
+        "case_name": "United States v. BRYANT",
+        "court": "District Court, District of Columbia",
+        "date_filed": "2026-06-18",
+        "docket_number": "1:26-mj-00103",
+        "docket_id": 73501148,
+        "source": "CourtListener/RECAP",
+        "format": "docket_reference",
+        "state": "unknown",
+        "note": "Docket discovered \u2014 exhibits may contain inspection/disclosure docs. Review manually or use PACER."
+      }
+    },
+    "a3bca47c718b4b0f620edda81c6dfb09": {
+      "url": "https://www.courtlistener.com/docket/73501147/",
+      "source": "courtlistener",
+      "doc_type": "reference",
+      "discovered_at": "2026-06-21T18:46:25.212352",
+      "metadata": {
+        "case_name": "United States v. BRYANT",
+        "court": "District Court, District of Columbia",
+        "date_filed": "2026-06-18",
+        "docket_number": "1:26-mj-00103",
+        "docket_id": 73501147,
+        "source": "CourtListener/RECAP",
+        "format": "docket_reference",
+        "state": "unknown",
+        "note": "Docket discovered \u2014 exhibits may contain inspection/disclosure docs. Review manually or use PACER."
+      }
+    },
+    "7d4a950b3a6fca7aee9bd16bec0ccef9": {
+      "url": "https://www.courtlistener.com/docket/73501026/",
+      "source": "courtlistener",
+      "doc_type": "reference",
+      "discovered_at": "2026-06-21T18:46:25.212408",
+      "metadata": {
+        "case_name": "United States v. BRYANT",
+        "court": "District Court, District of Columbia",
+        "date_filed": "2026-06-18",
+        "docket_number": "1:26-mj-00103",
+        "docket_id": 73501026,
+        "source": "CourtListener/RECAP",
+        "format": "docket_reference",
+        "state": "unknown",
+        "note": "Docket discovered \u2014 exhibits may contain inspection/disclosure docs. Review manually or use PACER."
+      }
+    },
+    "94ba9549d977568d091d212136e2a24f": {
+      "url": "https://www.courtlistener.com/docket/73500986/",
+      "source": "courtlistener",
+      "doc_type": "reference",
+      "discovered_at": "2026-06-21T18:46:25.212461",
+      "metadata": {
+        "case_name": "Heycock v. Sony Corporation of America",
+        "court": "District Court, N.D. California",
+        "date_filed": "2026-06-18",
+        "docket_number": "3:26-cv-06016",
+        "docket_id": 73500986,
+        "source": "CourtListener/RECAP",
+        "format": "docket_reference",
+        "state": "unknown",
+        "note": "Docket discovered \u2014 exhibits may contain inspection/disclosure docs. Review manually or use PACER."
+      }
+    },
+    "ce4d62337f627beecdec0fe86e93386b": {
+      "url": "https://www.courtlistener.com/docket/73510225/",
+      "source": "courtlistener",
+      "doc_type": "reference",
+      "discovered_at": "2026-06-21T18:46:30.880976",
+      "metadata": {
+        "case_name": "Park v. Victoria Development Company, A California Limited Partnership",
+        "court": "District Court, C.D. California",
+        "date_filed": "2026-06-19",
+        "docket_number": "8:26-cv-01592",
+        "docket_id": 73510225,
+        "source": "CourtListener/RECAP",
+        "format": "docket_reference",
+        "state": "unknown",
+        "note": "Docket discovered \u2014 exhibits may contain inspection/disclosure docs. Review manually or use PACER."
+      }
+    },
+    "d8c15011d7dfafb5ddb219f38f313493": {
+      "url": "https://www.courtlistener.com/docket/73508980/",
+      "source": "courtlistener",
+      "doc_type": "reference",
+      "discovered_at": "2026-06-21T18:46:30.881111",
+      "metadata": {
+        "case_name": "Ademi Enterprises LLC v. AmTrust Insurance Company",
+        "court": "District Court, W.D. Wisconsin",
+        "date_filed": "2026-06-19",
+        "docket_number": "3:26-cv-00572",
+        "docket_id": 73508980,
+        "source": "CourtListener/RECAP",
+        "format": "docket_reference",
+        "state": "unknown",
+        "note": "Docket discovered \u2014 exhibits may contain inspection/disclosure docs. Review manually or use PACER."
+      }
+    },
+    "8694caf8f2ff304081b071f83ed1a0f6": {
+      "url": "https://www.courtlistener.com/docket/73502825/",
+      "source": "courtlistener",
+      "doc_type": "reference",
+      "discovered_at": "2026-06-21T18:46:30.881231",
+      "metadata": {
+        "case_name": "United States v. PHILADELPHIA",
+        "court": "District Court, E.D. Pennsylvania",
+        "date_filed": "2026-06-18",
+        "docket_number": "2:26-cv-04208",
+        "docket_id": 73502825,
+        "source": "CourtListener/RECAP",
+        "format": "docket_reference",
+        "state": "unknown",
+        "note": "Docket discovered \u2014 exhibits may contain inspection/disclosure docs. Review manually or use PACER."
+      }
+    },
+    "34b2bc8287a1c3c3573518ca1b84e74b": {
+      "url": "https://www.courtlistener.com/docket/73498426/",
+      "source": "courtlistener",
+      "doc_type": "reference",
+      "discovered_at": "2026-06-21T18:46:30.881447",
+      "metadata": {
+        "case_name": "WALKER v. ELI LILLY AND COMPANY INC.",
+        "court": "District Court, E.D. Pennsylvania",
+        "date_filed": "2026-06-17",
+        "docket_number": "2:26-cv-04186",
+        "docket_id": 73498426,
+        "source": "CourtListener/RECAP",
+        "format": "docket_reference",
+        "state": "unknown",
+        "note": "Docket discovered \u2014 exhibits may contain inspection/disclosure docs. Review manually or use PACER."
+      }
+    },
+    "9771322ca7847591021a6d715214e9ca": {
+      "url": "https://www.courtlistener.com/docket/73497826/",
+      "source": "courtlistener",
+      "doc_type": "reference",
+      "discovered_at": "2026-06-21T18:46:30.881562",
+      "metadata": {
+        "case_name": "United States v. Alpha Care Medical, LLC",
+        "court": "District Court, D. Delaware",
+        "date_filed": "2026-06-17",
+        "docket_number": "1:26-cv-00707",
+        "docket_id": 73497826,
+        "source": "CourtListener/RECAP",
+        "format": "docket_reference",
+        "state": "unknown",
+        "note": "Docket discovered \u2014 exhibits may contain inspection/disclosure docs. Review manually or use PACER."
+      }
+    },
+    "a924ede426a08d5356d05b1ad9c158dd": {
+      "url": "https://www.courtlistener.com/docket/73496194/",
+      "source": "courtlistener",
+      "doc_type": "reference",
+      "discovered_at": "2026-06-21T18:46:30.881758",
+      "metadata": {
+        "case_name": "Zimpfer v. ELI LILLY & COMPANY",
+        "court": "District Court, E.D. Pennsylvania",
+        "date_filed": "2026-06-17",
+        "docket_number": "2:26-cv-04174",
+        "docket_id": 73496194,
+        "source": "CourtListener/RECAP",
+        "format": "docket_reference",
+        "state": "unknown",
+        "note": "Docket discovered \u2014 exhibits may contain inspection/disclosure docs. Review manually or use PACER."
+      }
+    },
+    "8191c5ae24c58ec0e7a6fbdc8d46828f": {
+      "url": "https://www.courtlistener.com/docket/73494261/",
+      "source": "courtlistener",
+      "doc_type": "reference",
+      "discovered_at": "2026-06-21T18:46:30.881877",
+      "metadata": {
+        "case_name": "www.ai.law Corp. v. Butler Labs, Inc.",
+        "court": "District Court, N.D. California",
+        "date_filed": "2026-06-17",
+        "docket_number": "3:26-cv-05930",
+        "docket_id": 73494261,
+        "source": "CourtListener/RECAP",
+        "format": "docket_reference",
+        "state": "unknown",
+        "note": "Docket discovered \u2014 exhibits may contain inspection/disclosure docs. Review manually or use PACER."
+      }
+    },
+    "67691c02b6559a6ebbe656e5fdf8e08a": {
+      "url": "https://www.courtlistener.com/docket/73497038/",
+      "source": "courtlistener",
+      "doc_type": "reference",
+      "discovered_at": "2026-06-21T18:46:30.881984",
+      "metadata": {
+        "case_name": "Aldana v. Shaikhet al",
+        "court": "District Court, M.D. Florida",
+        "date_filed": "2026-06-16",
+        "docket_number": "8:26-cv-01745",
+        "docket_id": 73497038,
+        "source": "CourtListener/RECAP",
+        "format": "docket_reference",
+        "state": "unknown",
+        "note": "Docket discovered \u2014 exhibits may contain inspection/disclosure docs. Review manually or use PACER."
+      }
+    },
+    "55410e7a19eee03254917658fdc98a08": {
+      "url": "https://www.courtlistener.com/docket/73491998/",
+      "source": "courtlistener",
+      "doc_type": "reference",
+      "discovered_at": "2026-06-21T18:46:30.882097",
+      "metadata": {
+        "case_name": "Marotto v. Walmart Inc.",
+        "court": "District Court, D. Connecticut",
+        "date_filed": "2026-06-16",
+        "docket_number": "3:26-cv-00959",
+        "docket_id": 73491998,
+        "source": "CourtListener/RECAP",
+        "format": "docket_reference",
+        "state": "unknown",
+        "note": "Docket discovered \u2014 exhibits may contain inspection/disclosure docs. Review manually or use PACER."
+      }
+    },
+    "9145b7585ee0100685edf6a430d87aa9": {
+      "url": "https://www.courtlistener.com/docket/73490642/",
+      "source": "courtlistener",
+      "doc_type": "reference",
+      "discovered_at": "2026-06-21T18:46:30.882210",
+      "metadata": {
+        "case_name": "Choulagh v. Unique Vacations, Inc.",
+        "court": "District Court, E.D. Michigan",
+        "date_filed": "2026-06-16",
+        "docket_number": "2:26-cv-12007",
+        "docket_id": 73490642,
+        "source": "CourtListener/RECAP",
+        "format": "docket_reference",
+        "state": "unknown",
+        "note": "Docket discovered \u2014 exhibits may contain inspection/disclosure docs. Review manually or use PACER."
+      }
+    },
+    "812a1e0920d050a85a28986452c43fb1": {
+      "url": "https://www.courtlistener.com/docket/73489798/",
+      "source": "courtlistener",
+      "doc_type": "reference",
+      "discovered_at": "2026-06-21T18:46:30.882313",
+      "metadata": {
+        "case_name": "PENALVER CARMONA v. JAMISON",
+        "court": "District Court, E.D. Pennsylvania",
+        "date_filed": "2026-06-16",
+        "docket_number": "2:26-cv-04155",
+        "docket_id": 73489798,
+        "source": "CourtListener/RECAP",
+        "format": "docket_reference",
+        "state": "unknown",
+        "note": "Docket discovered \u2014 exhibits may contain inspection/disclosure docs. Review manually or use PACER."
+      }
+    },
+    "f834237a9aa582b70199e19bdab69483": {
+      "url": "https://www.courtlistener.com/docket/73498644/",
+      "source": "courtlistener",
+      "doc_type": "reference",
+      "discovered_at": "2026-06-21T18:46:48.046565",
+      "metadata": {
+        "case_name": "Nixon v. Tan Oak Financial",
+        "court": "District Court, M.D. Florida",
+        "date_filed": "2026-06-17",
+        "docket_number": "8:26-cv-01771",
+        "docket_id": 73498644,
+        "source": "CourtListener/RECAP",
+        "format": "docket_reference",
+        "state": "unknown",
+        "note": "Docket discovered \u2014 exhibits may contain inspection/disclosure docs. Review manually or use PACER."
+      }
+    },
+    "be38432e0b84c9d069513981d70d35b1": {
+      "url": "https://www.courtlistener.com/docket/73497518/",
+      "source": "courtlistener",
+      "doc_type": "reference",
+      "discovered_at": "2026-06-21T18:46:48.046638",
+      "metadata": {
+        "case_name": "PRESIDIO MUNICIPAL DEVELOPMENT DISTRICT v. DEPARTMENT OF HOMELAND SECURITY",
+        "court": "District Court, District of Columbia",
+        "date_filed": "2026-06-17",
+        "docket_number": "1:26-cv-02146",
+        "docket_id": 73497518,
+        "source": "CourtListener/RECAP",
+        "format": "docket_reference",
+        "state": "unknown",
+        "note": "Docket discovered \u2014 exhibits may contain inspection/disclosure docs. Review manually or use PACER."
+      }
+    },
+    "e6b6a7bb6d0b571089b442685b007a46": {
+      "url": "https://www.courtlistener.com/docket/73494355/",
+      "source": "courtlistener",
+      "doc_type": "reference",
+      "discovered_at": "2026-06-21T18:46:48.046692",
+      "metadata": {
+        "case_name": "Shakespeare v. Anthropic PBC",
+        "court": "District Court, N.D. California",
+        "date_filed": "2026-06-17",
+        "docket_number": "3:26-cv-05931",
+        "docket_id": 73494355,
+        "source": "CourtListener/RECAP",
+        "format": "docket_reference",
+        "state": "unknown",
+        "note": "Docket discovered \u2014 exhibits may contain inspection/disclosure docs. Review manually or use PACER."
+      }
+    },
+    "db5993527782ca6f883cf7afce9f8b78": {
+      "url": "https://www.courtlistener.com/docket/73493771/",
+      "source": "courtlistener",
+      "doc_type": "reference",
+      "discovered_at": "2026-06-21T18:46:48.046752",
+      "metadata": {
+        "case_name": "United States v. Sabassi",
+        "court": "District Court, S.D. California",
+        "date_filed": "2026-06-16",
+        "docket_number": "3:26-mj-03580",
+        "docket_id": 73493771,
+        "source": "CourtListener/RECAP",
+        "format": "docket_reference",
+        "state": "unknown",
+        "note": "Docket discovered \u2014 exhibits may contain inspection/disclosure docs. Review manually or use PACER."
+      }
+    },
+    "d4eeb99c0d9d8c1c91c127729d163556": {
+      "url": "https://www.courtlistener.com/docket/73492053/",
+      "source": "courtlistener",
+      "doc_type": "reference",
+      "discovered_at": "2026-06-21T18:46:48.046811",
+      "metadata": {
+        "case_name": "Pagan v. Lu",
+        "court": "District Court, E.D. New York",
+        "date_filed": "2026-06-16",
+        "docket_number": "1:26-cv-03608",
+        "docket_id": 73492053,
+        "source": "CourtListener/RECAP",
+        "format": "docket_reference",
+        "state": "unknown",
+        "note": "Docket discovered \u2014 exhibits may contain inspection/disclosure docs. Review manually or use PACER."
+      }
+    },
+    "88200caba65a846b2cdff7c048c72c29": {
+      "url": "https://www.courtlistener.com/docket/73490781/",
+      "source": "courtlistener",
+      "doc_type": "reference",
+      "discovered_at": "2026-06-21T18:46:48.046863",
+      "metadata": {
+        "case_name": "Hirschberger v. Narayen",
+        "court": "District Court, N.D. California",
+        "date_filed": "2026-06-16",
+        "docket_number": "5:26-cv-05882",
+        "docket_id": 73490781,
+        "source": "CourtListener/RECAP",
+        "format": "docket_reference",
+        "state": "unknown",
+        "note": "Docket discovered \u2014 exhibits may contain inspection/disclosure docs. Review manually or use PACER."
+      }
+    },
+    "85e02622da36ec06acae405cb6b43ea9": {
+      "url": "https://www.courtlistener.com/docket/73489516/",
+      "source": "courtlistener",
+      "doc_type": "reference",
+      "discovered_at": "2026-06-21T18:46:48.046916",
+      "metadata": {
+        "case_name": "(PS) McMillian v. Walmart Inc.",
+        "court": "District Court, E.D. California",
+        "date_filed": "2026-06-15",
+        "docket_number": "2:26-cv-02170",
+        "docket_id": 73489516,
+        "source": "CourtListener/RECAP",
+        "format": "docket_reference",
+        "state": "unknown",
+        "note": "Docket discovered \u2014 exhibits may contain inspection/disclosure docs. Review manually or use PACER."
+      }
+    },
+    "b3ba15fd4979c7dd995fc6e1964b8774": {
+      "url": "https://www.courtlistener.com/docket/73484222/",
+      "source": "courtlistener",
+      "doc_type": "reference",
+      "discovered_at": "2026-06-21T18:46:48.046969",
+      "metadata": {
+        "case_name": "NATIONAL PARKS CONSERVATION ASSOCIATION",
+        "court": "District Court, District of Columbia",
+        "date_filed": "2026-06-15",
+        "docket_number": "1:26-cv-02103",
+        "docket_id": 73484222,
+        "source": "CourtListener/RECAP",
+        "format": "docket_reference",
+        "state": "unknown",
+        "note": "Docket discovered \u2014 exhibits may contain inspection/disclosure docs. Review manually or use PACER."
+      }
+    },
+    "6da09cfdf7e80490dbd7c57de958f543": {
+      "url": "https://www.courtlistener.com/docket/73332254/",
+      "source": "courtlistener",
+      "doc_type": "reference",
+      "discovered_at": "2026-06-21T18:46:53.657160",
+      "metadata": {
+        "case_name": "Greenwood Leflore Hospital v. Bradshaw",
+        "court": "District Court, S.D. Mississippi",
+        "date_filed": "2026-05-12",
+        "docket_number": "3:26-cv-00336",
+        "docket_id": 73332254,
+        "source": "CourtListener/RECAP",
+        "format": "docket_reference",
+        "state": "unknown",
+        "note": "Docket discovered \u2014 exhibits may contain inspection/disclosure docs. Review manually or use PACER."
+      }
+    },
+    "9dde19c677448ac3613bb9a925beba8d": {
+      "url": "https://www.courtlistener.com/docket/73497514/",
+      "source": "courtlistener",
+      "doc_type": "reference",
+      "discovered_at": "2026-06-21T18:46:59.330617",
+      "metadata": {
+        "case_name": "Cornellier v. Rivian, LLC",
+        "court": "District Court, C.D. California",
+        "date_filed": "2026-06-17",
+        "docket_number": "8:26-cv-01564",
+        "docket_id": 73497514,
+        "source": "CourtListener/RECAP",
+        "format": "docket_reference",
+        "state": "unknown",
+        "note": "Docket discovered \u2014 exhibits may contain inspection/disclosure docs. Review manually or use PACER."
+      }
+    },
+    "a7642f4d66fb4ad37cf020804807d886": {
+      "url": "https://www.courtlistener.com/docket/73496170/",
+      "source": "courtlistener",
+      "doc_type": "reference",
+      "discovered_at": "2026-06-21T18:46:59.330698",
+      "metadata": {
+        "case_name": "Evans v. United States of America",
+        "court": "District Court, S.D. Florida",
+        "date_filed": "2026-06-17",
+        "docket_number": "1:26-cv-24244",
+        "docket_id": 73496170,
+        "source": "CourtListener/RECAP",
+        "format": "docket_reference",
+        "state": "unknown",
+        "note": "Docket discovered \u2014 exhibits may contain inspection/disclosure docs. Review manually or use PACER."
+      }
+    },
+    "7d99aecd17cdf10142ceeefab8c18ea5": {
+      "url": "https://www.courtlistener.com/docket/73487780/",
+      "source": "courtlistener",
+      "doc_type": "reference",
+      "discovered_at": "2026-06-21T18:46:59.330763",
+      "metadata": {
+        "case_name": "CareFirst of Maryland, Inc. v. Rappaport",
+        "court": "District Court, D. Maryland",
+        "date_filed": "2026-06-15",
+        "docket_number": "1:26-cv-02391",
+        "docket_id": 73487780,
+        "source": "CourtListener/RECAP",
+        "format": "docket_reference",
+        "state": "unknown",
+        "note": "Docket discovered \u2014 exhibits may contain inspection/disclosure docs. Review manually or use PACER."
+      }
+    },
+    "74ea0d308b3090d136ea385b13f34179": {
+      "url": "https://www.courtlistener.com/docket/73486903/",
+      "source": "courtlistener",
+      "doc_type": "reference",
+      "discovered_at": "2026-06-21T18:46:59.330822",
+      "metadata": {
+        "case_name": "Matthew Scott Sharp",
+        "court": "United States Bankruptcy Court, N.D. Texas",
+        "date_filed": "2026-06-15",
+        "docket_number": "26-42625",
+        "docket_id": 73486903,
+        "source": "CourtListener/RECAP",
+        "format": "docket_reference",
+        "state": "unknown",
+        "note": "Docket discovered \u2014 exhibits may contain inspection/disclosure docs. Review manually or use PACER."
+      }
+    },
+    "8684c2bb3ff28eac4bf69cce11f01c83": {
+      "url": "https://www.courtlistener.com/docket/73483909/",
+      "source": "courtlistener",
+      "doc_type": "reference",
+      "discovered_at": "2026-06-21T18:46:59.330877",
+      "metadata": {
+        "case_name": "JOHN DOE R.J. v. CHURCH OF JESUS CHRIST OF LATTER-DAY SAINTS",
+        "court": "District Court, D. New Jersey",
+        "date_filed": "2026-06-15",
+        "docket_number": "1:26-cv-07097",
+        "docket_id": 73483909,
+        "source": "CourtListener/RECAP",
+        "format": "docket_reference",
+        "state": "unknown",
+        "note": "Docket discovered \u2014 exhibits may contain inspection/disclosure docs. Review manually or use PACER."
+      }
+    },
+    "4518d7b0862fa54ba881e446f0da66fc": {
+      "url": "https://www.courtlistener.com/docket/73482874/",
+      "source": "courtlistener",
+      "doc_type": "reference",
+      "discovered_at": "2026-06-21T18:46:59.330930",
+      "metadata": {
+        "case_name": "Kyprianos v. McCandless",
+        "court": "District Court, E.D. Michigan",
+        "date_filed": "2026-06-15",
+        "docket_number": "4:26-cv-11978",
+        "docket_id": 73482874,
+        "source": "CourtListener/RECAP",
+        "format": "docket_reference",
+        "state": "unknown",
+        "note": "Docket discovered \u2014 exhibits may contain inspection/disclosure docs. Review manually or use PACER."
+      }
+    },
+    "e96be180a1e06e7307bbb1bec29a1ba1": {
+      "url": "https://archive.org/details/cbsca-Forest_and_Beach_Commission_Regular_Meeting_June_11_2026",
+      "source": "open_data",
+      "doc_type": "inspection_report",
+      "discovered_at": "2026-06-21T18:47:48.800571",
+      "metadata": {
+        "source": "Internet Archive",
+        "identifier": "cbsca-Forest_and_Beach_Commission_Regular_Meeting_June_11_2026",
+        "date": "2026-06-12T00:00:00Z",
+        "format": "pdf",
+        "state": "various"
+      }
+    },
+    "19193744209c1fa51ba8499ec8d76c1c": {
+      "url": "https://www.courtlistener.com/docket/73508533/",
+      "source": "courtlistener",
+      "doc_type": "reference",
+      "discovered_at": "2026-06-21T19:14:17.461611",
+      "metadata": {
+        "case_name": "DAVIS v. PFIZER INC",
+        "court": "District Court, N.D. Florida",
+        "date_filed": "2026-06-19",
+        "docket_number": "3:26-cv-04321",
+        "docket_id": 73508533,
+        "source": "CourtListener/RECAP",
+        "format": "docket_reference",
+        "state": "unknown",
+        "note": "Docket discovered \u2014 exhibits may contain inspection/disclosure docs. Review manually or use PACER."
+      }
+    },
+    "688a45cf99593115914034dfb886f16f": {
+      "url": "https://www.courtlistener.com/docket/73508379/",
+      "source": "courtlistener",
+      "doc_type": "reference",
+      "discovered_at": "2026-06-21T19:14:17.461682",
+      "metadata": {
+        "case_name": "MOORE v. PFIZER INC",
+        "court": "District Court, N.D. Florida",
+        "date_filed": "2026-06-19",
+        "docket_number": "3:26-cv-04320",
+        "docket_id": 73508379,
+        "source": "CourtListener/RECAP",
+        "format": "docket_reference",
+        "state": "unknown",
+        "note": "Docket discovered \u2014 exhibits may contain inspection/disclosure docs. Review manually or use PACER."
+      }
+    },
+    "28161f21511e84d0c69c6167fcd74c79": {
+      "url": "https://www.courtlistener.com/docket/73506708/",
+      "source": "courtlistener",
+      "doc_type": "reference",
+      "discovered_at": "2026-06-21T19:14:17.461700",
+      "metadata": {
+        "case_name": "BENNETT v. ELI LILLY AND COMPANY",
+        "court": "District Court, E.D. Pennsylvania",
+        "date_filed": "2026-06-18",
+        "docket_number": "2:26-cv-04242",
+        "docket_id": 73506708,
+        "source": "CourtListener/RECAP",
+        "format": "docket_reference",
+        "state": "unknown",
+        "note": "Docket discovered \u2014 exhibits may contain inspection/disclosure docs. Review manually or use PACER."
+      }
+    },
+    "fce8a5269e84cbfcd2a7593b364503a9": {
+      "url": "https://www.courtlistener.com/docket/73501121/",
+      "source": "courtlistener",
+      "doc_type": "reference",
+      "discovered_at": "2026-06-21T19:14:17.461721",
+      "metadata": {
+        "case_name": "Cornejo v. Bureau of Alcohol Tobacco Firearms & Explosives",
+        "court": "District Court, E.D. Wisconsin",
+        "date_filed": "2026-06-17",
+        "docket_number": "2:26-cv-01088",
+        "docket_id": 73501121,
+        "source": "CourtListener/RECAP",
+        "format": "docket_reference",
+        "state": "unknown",
+        "note": "Docket discovered \u2014 exhibits may contain inspection/disclosure docs. Review manually or use PACER."
+      }
     }
   },
   "downloaded": {
@@ -9723,74 +11079,88 @@
         "format": "pdf",
         "state": "various"
       }
+    },
+    "037be4f6d662b930ef88dbbb0f98198a": {
+      "url": "https://archive.org/download/cbsca-Forest_and_Beach_Commission_Regular_Meeting_June_11_2026",
+      "source": "open_data",
+      "filename": "open_data_20260621_Forest_and_Beach_Commission_Regular_Meeting___June_11__2026.html",
+      "doc_type": "inspection_report",
+      "downloaded_at": "2026-06-21T18:47:56.245697",
+      "metadata": {
+        "source": "Internet Archive",
+        "identifier": "cbsca-Forest_and_Beach_Commission_Regular_Meeting_June_11_2026",
+        "date": "2026-06-12T00:00:00Z",
+        "format": "pdf",
+        "state": "various"
+      }
     }
   },
   "failed": {
     "37ee34734b8c235fafaa642eeeaaf7a1": {
       "url": "https://www.hud.gov/program_offices/housing/mfh/rems/remsinspecscores",
       "source": "public_records",
-      "failed_at": "2026-06-14T20:09:40.823370",
+      "failed_at": "2026-06-21T19:27:22.768205",
       "error": "404 Client Error: Not Found for url: https://www.hud.gov/program_offices/housing/mfh/rems/remsinspecscores"
     }
   },
   "last_run": {
     "courtlistener": {
-      "timestamp": "2026-06-14T20:08:52.612418",
-      "docs_found": 138,
+      "timestamp": "2026-06-21T19:26:42.065239",
+      "docs_found": 0,
       "docs_downloaded": 0
     },
     "inspector_samples": {
-      "timestamp": "2026-06-14T20:09:05.756101",
+      "timestamp": "2026-06-21T19:26:51.127484",
       "docs_found": 0,
       "docs_downloaded": 0
     },
     "state_complaints": {
-      "timestamp": "2026-06-14T20:09:39.588655",
+      "timestamp": "2026-06-21T19:27:21.643721",
       "docs_found": 0,
       "docs_downloaded": 0
     },
     "public_records": {
-      "timestamp": "2026-06-14T20:09:42.824718",
+      "timestamp": "2026-06-21T19:27:24.769551",
       "docs_found": 3,
       "docs_downloaded": 0
     },
     "open_data": {
-      "timestamp": "2026-06-14T20:11:05.231491",
-      "docs_found": 25,
-      "docs_downloaded": 25
+      "timestamp": "2026-06-21T19:27:35.240123",
+      "docs_found": 0,
+      "docs_downloaded": 0
     },
     "permit_records": {
-      "timestamp": "2026-06-14T20:09:21.769002",
+      "timestamp": "2026-06-21T19:27:04.548103",
       "docs_found": 0,
       "docs_downloaded": 0
     },
     "pest_reports": {
-      "timestamp": "2026-06-14T20:09:28.953920",
+      "timestamp": "2026-06-21T19:27:12.108063",
       "docs_found": 0,
       "docs_downloaded": 0
     },
     "specialist_reports": {
-      "timestamp": "2026-06-14T20:09:36.950114",
+      "timestamp": "2026-06-21T19:27:18.986563",
       "docs_found": 0,
       "docs_downloaded": 0
     },
     "reference_material": {
-      "timestamp": "2026-06-14T20:09:39.588615",
+      "timestamp": "2026-06-21T19:27:21.643642",
       "docs_found": 0,
       "docs_downloaded": 0
     }
   },
   "corpus_stats": {
-    "total_inspection_reports": 56,
+    "total_inspection_reports": 57,
     "total_disclosures": 13,
     "total_other": 3,
     "formats_seen": {
-      "pdf": 48,
+      "pdf": 49,
       "html": 24
     },
     "states_covered": {
       "CA": 3,
-      "various": 25
+      "various": 26
     },
     "inspector_software": {
       "InterNACHI": 16,

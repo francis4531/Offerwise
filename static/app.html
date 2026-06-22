@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>OfferWise AI™ — Property Analysis</title>
-    <script src="/static/gtm-loader.js?v=5.89.190"></script>
+    <script src="/static/gtm-loader.js?v=5.89.193"></script>
 <!-- /GTM head -->
     <script>if(window.location.hostname==='getofferwise.ai')window.location.replace('https://www.getofferwise.ai'+window.location.pathname+window.location.search);</script>
     <link rel="icon" type="image/svg+xml" href="/static/logo-icon-only.svg">
@@ -21,7 +21,7 @@
     <link rel="preconnect" href="https://unpkg.com" crossorigin>
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/results-theme.css?v=5.89.190">
+    <link rel="stylesheet" href="/static/results-theme.css?v=5.89.193">
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone@7.29.7/babel.min.js"></script>
@@ -685,7 +685,7 @@
         .ow-strategy-grid { grid-template-columns: 1fr !important; }
       }
     </style>
-    <script src="/static/analytics-loader.js?v=5.89.190" defer></script>
+    <script src="/static/analytics-loader.js?v=5.89.193" defer></script>
     <!-- Reddit Pixel Base Code -->
     <script>
     !function(w,d){if(!w.rdt){var p=w.rdt=function(){p.sendEvent?p.sendEvent.apply(p,arguments):p.queue.push(arguments)};p.queue=[];var t=d.createElement('script');t.src='https://www.redditstatic.com/ads/pixel.js';t.async=!0;var s=d.getElementsByTagName('script')[0];s.parentNode.insertBefore(t,s)}}(window,document);
@@ -769,6 +769,29 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 >{label}</button>
               ))}
             </div>
+          );
+        }
+
+        // v5.89.191 — Report light/dark toggle. Self-contained, opt-in, persisted.
+        // Defaults to dark; if anything here fails, data-theme is never set and the
+        // report stays dark (the token defaults).
+        function OwThemeToggle() {
+          const [light, setLight] = useState(() => {
+            try { return localStorage.getItem('ow_report_theme') === 'light'; } catch(e) { return false; }
+          });
+          const ref = React.useRef(null);
+          React.useLayoutEffect(() => {
+            try {
+              let el = ref.current;
+              while (el && !(el.classList && el.classList.contains('ow-results'))) el = el.parentElement;
+              if (el) el.setAttribute('data-theme', light ? 'light' : 'dark');
+              localStorage.setItem('ow_report_theme', light ? 'light' : 'dark');
+            } catch(e) {}
+          }, [light]);
+          return (
+            <button ref={ref} className="ow-theme-toggle" onClick={() => setLight(v => !v)} title="Toggle light / dark report">
+              {light ? '\u2600 Light' : '\u263e Dark'}
+            </button>
           );
         }
 
@@ -4838,7 +4861,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
               };
 
               return (
-                <div className="ow-results" style={{ background:'#0a0e1a', color:'white', minHeight:'100vh', margin:0, padding:0, paddingTop:'52px', position:'relative', overflowX:'clip' }}>
+                <div className="ow-results" style={{ background:'var(--ow-bg-deep)', color:'var(--ow-text)', minHeight:'100vh', margin:0, padding:0, paddingTop:'52px', position:'relative', overflowX:'clip' }}>
 
                   {/* Watermark */}
                   <div className="ow-report-brand">OfferWise™ · Patent Pending</div>
@@ -4853,21 +4876,21 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                           <span style={{ fontSize:'15px', fontWeight:800, background:'linear-gradient(90deg,#f97316,#f59e0b)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent' }}>OfferWise AI<sup style={{ fontSize: 'var(--ow-fs-micro)', verticalAlign:'super', marginLeft:'1px', WebkitTextFillColor:'#f59e0b' }}>™</sup></span>
                         </a>
                         <div style={{ width:'1px', height:'20px', background:'rgba(51,65,85,0.7)', marginRight:'20px' }} />
-                        <a href='/pricing' style={{ color:'#64748b', textDecoration:'none', fontSize: 'var(--ow-fs-meta)', fontWeight:600, marginRight:'16px' }}>Pricing</a>
-                        <a href='/dashboard' style={{ color:'#64748b', textDecoration:'none', fontSize: 'var(--ow-fs-meta)', fontWeight:600, marginRight:'16px' }}>Dashboard</a>
-                        <a href='/settings' style={{ color:'#64748b', textDecoration:'none', fontSize: 'var(--ow-fs-meta)', fontWeight:600, marginRight:'16px' }}>My Account</a>
+                        <a href='/pricing' style={{ color:'var(--ow-muted-dim)', textDecoration:'none', fontSize: 'var(--ow-fs-meta)', fontWeight:600, marginRight:'16px' }}>Pricing</a>
+                        <a href='/dashboard' style={{ color:'var(--ow-muted-dim)', textDecoration:'none', fontSize: 'var(--ow-fs-meta)', fontWeight:600, marginRight:'16px' }}>Dashboard</a>
+                        <a href='/settings' style={{ color:'var(--ow-muted-dim)', textDecoration:'none', fontSize: 'var(--ow-fs-meta)', fontWeight:600, marginRight:'16px' }}>My Account</a>
                         <button onClick={() => checkCreditsAndStartAnalysis()} style={{ color:'#60a5fa', background:'none', border:'none', cursor:'pointer', fontSize: 'var(--ow-fs-meta)', fontWeight:600, fontFamily:'inherit', marginRight:'16px', padding:0 }}>New Analysis</button>
                       </div>
 
                       {/* CENTER: Analysis metrics */}
                       <div style={{ display:'flex', alignItems:'center', gap:'4px', flex:1, justifyContent:'center', flexWrap:'wrap' }}>
                         <div style={{ display:'flex', alignItems:'center', gap:'5px' }}>
-                          <span style={{ color:'#475569', fontSize: 'var(--ow-fs-micro)', fontWeight:600 }}>OfferScore™</span>
+                          <span style={{ color:'var(--ow-line-strong)', fontSize: 'var(--ow-fs-micro)', fontWeight:600 }}>OfferScore™</span>
                           <span style={{ color: osColor, fontSize: 'var(--ow-fs-card-title)', fontWeight:900 }}>{offerScoreValue}</span>
                         </div>
                         <div style={{ width:'1px', height:'18px', background:'rgba(51,65,85,0.6)', margin:'0 6px' }} />
                         <div style={{ display:'flex', alignItems:'center', gap:'5px' }}>
-                          <span style={{ color:'#475569', fontSize: 'var(--ow-fs-micro)', fontWeight:600 }}>Offer</span>
+                          <span style={{ color:'var(--ow-line-strong)', fontSize: 'var(--ow-fs-micro)', fontWeight:600 }}>Offer</span>
                           {userHasPaid
                             ? <span style={{ color:'#60a5fa', fontSize: 'var(--ow-fs-body)', fontWeight:800 }}>{recOffer ? `$${Math.round(recOffer).toLocaleString()}` : 'N/A'}</span>
                             : <span style={{ color:'#f97316', fontSize: 'var(--ow-fs-meta)', fontWeight:700, cursor:'pointer' }} onClick={() => window.location.href='/pricing'}>🔒 Unlock</span>
@@ -4876,14 +4899,14 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                         {avgRepairCost > 0 && (<>
                           <div style={{ width:'1px', height:'18px', background:'rgba(51,65,85,0.6)', margin:'0 6px' }} />
                           <div style={{ display:'flex', alignItems:'center', gap:'5px' }}>
-                            <span style={{ color:'#475569', fontSize: 'var(--ow-fs-micro)', fontWeight:600 }}>Repairs</span>
+                            <span style={{ color:'var(--ow-line-strong)', fontSize: 'var(--ow-fs-micro)', fontWeight:600 }}>Repairs</span>
                             <span style={{ color:'#f59e0b', fontSize: 'var(--ow-fs-small)', fontWeight:700 }}>${Math.round(avgRepairCost/1000)}K</span>
                           </div>
                         </>)}
                         {savings > 0 && userHasPaid && (<>
                           <div style={{ width:'1px', height:'18px', background:'rgba(51,65,85,0.6)', margin:'0 6px' }} />
                           <div style={{ display:'flex', alignItems:'center', gap:'5px' }}>
-                            <span style={{ color:'#475569', fontSize: 'var(--ow-fs-micro)', fontWeight:600 }}>Save</span>
+                            <span style={{ color:'var(--ow-line-strong)', fontSize: 'var(--ow-fs-micro)', fontWeight:600 }}>Save</span>
                             <span style={{ color:'#22c55e', fontSize: 'var(--ow-fs-small)', fontWeight:700 }}>${Math.round(savings/1000)}K</span>
                           </div>
                         </>)}
@@ -4891,8 +4914,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
                       {/* RIGHT: Actions + logout */}
                       <div style={{ display:'flex', alignItems:'center', gap:'8px', flexShrink:0 }}>
-                        <button onClick={() => window.scrollTo({top:0,behavior:'smooth'})} style={{ padding:'5px 10px', background:'rgba(51,65,85,0.4)', border:'1px solid rgba(51,65,85,0.6)', borderRadius:'6px', color:'#64748b', fontSize: 'var(--ow-fs-eyebrow)', fontWeight:600, cursor:'pointer', fontFamily:'inherit' }}>↑ Top</button>
-                        <button onClick={() => userHasPaid ? window.generatePrintReport() : window.location.href='/pricing?message=Upgrade+to+download+your+full+report+as+PDF'} style={{ padding:'5px 12px', background: userHasPaid ? 'linear-gradient(135deg,#3b82f6,#2563eb)' : 'rgba(51,65,85,0.6)', border: userHasPaid ? 'none' : '1px solid #334155', borderRadius:'6px', color: userHasPaid ? 'white' : '#475569', fontSize: 'var(--ow-fs-eyebrow)', fontWeight:600, cursor:'pointer', fontFamily:'inherit' }}>{userHasPaid ? '📄 PDF' : '🔒 PDF'}</button>
+                        <button onClick={() => window.scrollTo({top:0,behavior:'smooth'})} style={{ padding:'5px 10px', background:'rgba(51,65,85,0.4)', border:'1px solid rgba(51,65,85,0.6)', borderRadius:'6px', color:'var(--ow-muted-dim)', fontSize: 'var(--ow-fs-eyebrow)', fontWeight:600, cursor:'pointer', fontFamily:'inherit' }}>↑ Top</button>
+                        <button onClick={() => userHasPaid ? window.generatePrintReport() : window.location.href='/pricing?message=Upgrade+to+download+your+full+report+as+PDF'} style={{ padding:'5px 12px', background: userHasPaid ? 'linear-gradient(135deg,#3b82f6,#2563eb)' : 'rgba(51,65,85,0.6)', border: userHasPaid ? 'none' : '1px solid var(--ow-line-2)', borderRadius:'6px', color: userHasPaid ? 'white' : 'var(--ow-line-strong)', fontSize: 'var(--ow-fs-eyebrow)', fontWeight:600, cursor:'pointer', fontFamily:'inherit' }}>{userHasPaid ? '📄 PDF' : '🔒 PDF'}</button>
                         <a href='/logout' style={{ padding:'5px 12px', background:'linear-gradient(135deg,#ef4444,#dc2626)', borderRadius:'6px', color:'white', fontSize: 'var(--ow-fs-eyebrow)', fontWeight:700, textDecoration:'none' }}>Logout</a>
                       </div>
                     </div>
@@ -4933,7 +4956,49 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                           --ow-amber:      #f59e0b;
                           --ow-blue:       #60a5fa;
                           --ow-purple:     #a78bfa;
+                          --ow-text-strong: #f1f5f9;
+                          --ow-text-2:      #e2e8f0;
+                          --ow-text-body-2: #cbd5e1;
+                          --ow-muted-2:     #94a3b8;
+                          --ow-muted-dim:   #64748b;
+                          --ow-bg-deep:     #0a0e1a;
+                          --ow-surface-2:   #1e293b;
+                          --ow-line-2:      #334155;
+                          --ow-line-strong: #475569;
                         }
+
+                        /* v5.89.191 — Report light theme (iteration 1). Opt-in via
+                           the toggle; dark stays default. Only the token VALUES change
+                           here, scoped to [data-theme="light"], so dark mode is byte-
+                           identical. Accents (red/amber/green/blue/orange) keep their
+                           hex — they already read on white. */
+                        .ow-results[data-theme="light"] {
+                          --ow-bg:         #ffffff;
+                          --ow-bg-deep:    #ffffff;
+                          --ow-panel:      #f8fafc;
+                          --ow-panel-2:    #f1f5f9;
+                          --ow-surface-2:  #f1f5f9;
+                          --ow-line:       #e2e8f0;
+                          --ow-line-soft:  #eef2f7;
+                          --ow-line-2:     #e2e8f0;
+                          --ow-line-strong:#cbd5e1;
+                          --ow-text:       #1e293b;
+                          --ow-text-strong:#0f172a;
+                          --ow-text-2:     #1e293b;
+                          --ow-text-body:  #334155;
+                          --ow-text-body-2:#475569;
+                          --ow-muted:      #64748b;
+                          --ow-muted-2:    #64748b;
+                          --ow-muted-dim:  #94a3b8;
+                          --ow-dim:        #94a3b8;
+                        }
+                        .ow-theme-toggle {
+                          background: transparent; border: 1px solid var(--ow-line);
+                          color: var(--ow-muted); border-radius: 8px; padding: 6px 12px;
+                          font-size: 12px; font-weight: 600; cursor: pointer;
+                          font-family: inherit; margin-left: 8px;
+                        }
+                        .ow-theme-toggle:hover { color: var(--ow-text); border-color: var(--ow-line-strong); }
 
                         /* ── Hero ──────────────────────────────────────── */
                         .ow-hero {
@@ -5002,7 +5067,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                           cursor: pointer; transition: all .15s ease;
                           text-decoration: none;
                         }
-                        .ow-btn:hover { background: rgba(255,255,255,.08); border-color: #2a3654; }
+                        .ow-btn:hover { background: rgba(255,255,255,.08); border-color: var(--ow-surface-2); }
                         .ow-btn.primary {
                           /* v5.89.23: standardized to the 90deg gradient
                              used on the OfferWatch and Share buttons. Was a
@@ -5804,7 +5869,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                                   {labelDefs.map(d => {
                                     const [x,y] = vertex(d.i, R + 8);
                                     return (
-                                      <text key={d.i} x={x.toFixed(1)} y={(y + d.dy).toFixed(1)} textAnchor={d.anchor} fontSize="9" fontWeight="600" fill="#8a99b8" fontFamily="'DM Sans', -apple-system, system-ui, sans-serif" letterSpacing="0.04em">
+                                      <text key={d.i} x={x.toFixed(1)} y={(y + d.dy).toFixed(1)} textAnchor={d.anchor} fontSize="9" fontWeight="600" fill="var(--ow-muted)" fontFamily="'DM Sans', -apple-system, system-ui, sans-serif" letterSpacing="0.04em">
                                         {(dnaScores[d.i].label || '').toUpperCase()}
                                       </text>
                                     );
@@ -5835,9 +5900,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
                       {/* Huge OfferScore */}
                       <div style={{ background:'linear-gradient(135deg, rgba(15,23,42,0.6) 0%, rgba(26,10,46,0.6) 100%)', padding:'24px', borderRadius:'14px', marginTop:'12px', marginBottom:'0', textAlign:'center', border:'1px solid rgba(124,58,237,0.2)' }}>
-                        <div style={{ fontSize: 'var(--ow-fs-eyebrow)', fontWeight:700, textTransform:'uppercase', letterSpacing:'0.12em', color:'#475569', marginBottom:'8px' }}>OfferScore™</div>
+                        <div style={{ fontSize: 'var(--ow-fs-eyebrow)', fontWeight:700, textTransform:'uppercase', letterSpacing:'0.12em', color:'var(--ow-line-strong)', marginBottom:'8px' }}>OfferScore™</div>
                         <div style={{ fontSize:'clamp(64px,14vw,96px)', fontWeight:900, lineHeight:1, letterSpacing:'-4px', color: osColor, marginBottom:'6px' }}>{offerScoreValue}</div>
-                        <div style={{ fontSize: 'var(--ow-fs-body)', fontWeight:600, color:'#64748b' }}>
+                        <div style={{ fontSize: 'var(--ow-fs-body)', fontWeight:600, color:'var(--ow-muted-dim)' }}>
                           {offerScoreValue >= 70 ? '✅ Solid position — buy with confidence' : offerScoreValue >= 40 ? '⚠️ Proceed with caution — issues found' : '🚨 Walk away — risk profile too high'}
                         </div>
                       </div>
@@ -5846,11 +5911,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                       {avgRepairCost > 0 && (
                         <div style={{ background:'rgba(245,158,11,0.07)', border:'1px solid rgba(245,158,11,0.15)', borderRadius:'12px', padding:'14px 20px', marginTop:'12px', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
                           <div>
-                            <div style={{ fontSize: 'var(--ow-fs-micro)', fontWeight:700, textTransform:'uppercase', letterSpacing:'0.1em', color:'#475569', marginBottom:'4px' }}>Repair Exposure</div>
+                            <div style={{ fontSize: 'var(--ow-fs-micro)', fontWeight:700, textTransform:'uppercase', letterSpacing:'0.1em', color:'var(--ow-line-strong)', marginBottom:'4px' }}>Repair Exposure</div>
                             <div style={{ fontSize: 'var(--ow-fs-stat-num)', fontWeight:900, color:'#f59e0b', letterSpacing:'-1px' }}>${Math.round(avgRepairCost/1000)}K</div>
                           </div>
                           <div style={{ textAlign:'right' }}>
-                            <div style={{ fontSize: 'var(--ow-fs-micro)', fontWeight:700, textTransform:'uppercase', letterSpacing:'0.1em', color:'#475569', marginBottom:'4px' }}>Systems Flagged</div>
+                            <div style={{ fontSize: 'var(--ow-fs-micro)', fontWeight:700, textTransform:'uppercase', letterSpacing:'0.1em', color:'var(--ow-line-strong)', marginBottom:'4px' }}>Systems Flagged</div>
                             <div style={{ fontSize: 'var(--ow-fs-stat-num)', fontWeight:900, color:'#f59e0b' }}>{repairBreakdown.length}</div>
                           </div>
                         </div>
@@ -5858,22 +5923,22 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
                       {/* Unlock card */}
                       <div style={{ margin:'0 0 20px', background:'linear-gradient(135deg, rgba(249,115,22,0.1), rgba(245,158,11,0.06))', border:'1px solid rgba(249,115,22,0.3)', borderRadius:'16px', padding:'24px', textAlign:'center' }}>
-                        <div style={{ fontSize:'var(--ow-fs-card-title)', fontWeight:800, color:'#f1f5f9', marginBottom:'6px' }}>
+                        <div style={{ fontSize:'var(--ow-fs-card-title)', fontWeight:800, color:'var(--ow-text-strong)', marginBottom:'6px' }}>
                           {avgRepairCost > 0 ? `$${Math.round(avgRepairCost/1000)}K in repairs found. What's your number?` : 'Your full analysis is ready.'}
                         </div>
-                        <div style={{ fontSize: 'var(--ow-fs-small)', color:'#64748b', marginBottom:'16px', lineHeight:1.6 }}>
+                        <div style={{ fontSize: 'var(--ow-fs-small)', color:'var(--ow-muted-dim)', marginBottom:'16px', lineHeight:1.6 }}>
                           Upgrade to see your offer price, negotiation playbook, and everything we found in the documents.
                         </div>
                         <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'8px', marginBottom:'16px', textAlign:'left' }}>
                           {['💰 Offer price (3 options)', '📋 Full verdict', '🎯 Negotiation playbook', '🔍 Seller transparency', '⛔ Deal breaker detail', '🔭 OfferWatch™ alerts'].map((item, i) => (
-                            <div key={i} style={{ fontSize: 'var(--ow-fs-meta)', color:'#475569', padding:'7px 10px', background:'rgba(255,255,255,0.03)', borderRadius:'7px' }}>{item}</div>
+                            <div key={i} style={{ fontSize: 'var(--ow-fs-meta)', color:'var(--ow-line-strong)', padding:'7px 10px', background:'rgba(255,255,255,0.03)', borderRadius:'7px' }}>{item}</div>
                           ))}
                         </div>
                         <div style={{ display:'flex', gap:'10px', justifyContent:'center', flexWrap:'wrap' }}>
                           <a href="/pricing" className="ow-btn primary">Unlock — $9/mo →</a>
                           <a href="/pricing" className="ow-btn">See all plans</a>
                         </div>
-                        <div style={{ fontSize: 'var(--ow-fs-eyebrow)', color:'#334155', marginTop:'10px' }}>Starter $9 · Pro $19 · Unlimited $49 · Cancel anytime</div>
+                        <div style={{ fontSize: 'var(--ow-fs-eyebrow)', color:'var(--ow-line-2)', marginTop:'10px' }}>Starter $9 · Pro $19 · Unlimited $49 · Cancel anytime</div>
 
                         {/* ONE-CLICK PAYWALL REASON ROW */}
                         {(() => {
@@ -5896,15 +5961,15 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                           return (
                             <div style={{ marginTop:'16px', paddingTop:'14px', borderTop:'1px solid rgba(51,65,85,0.3)' }}>
                               {paywallReason ? (
-                                <div style={{ fontSize: 'var(--ow-fs-meta)', color:'#475569', textAlign:'center' }}>
+                                <div style={{ fontSize: 'var(--ow-fs-meta)', color:'var(--ow-line-strong)', textAlign:'center' }}>
                                   Got it — thanks for the feedback.
                                 </div>
                               ) : (
                                 <>
-                                  <div style={{ fontSize: 'var(--ow-fs-eyebrow)', color:'#475569', textAlign:'center', marginBottom:'8px' }}>Not today — why not?</div>
+                                  <div style={{ fontSize: 'var(--ow-fs-eyebrow)', color:'var(--ow-line-strong)', textAlign:'center', marginBottom:'8px' }}>Not today — why not?</div>
                                   <div style={{ display:'flex', gap:'6px', justifyContent:'center', flexWrap:'wrap' }}>
                                     {reasons.map(r => (
-                                      <button key={r.key} onClick={() => logReason(r.key)} style={{ padding:'5px 12px', background:'rgba(255,255,255,0.04)', border:'1px solid rgba(51,65,85,0.35)', borderRadius:'6px', fontSize: 'var(--ow-fs-eyebrow)', color:'#64748b', cursor:'pointer', fontFamily:'inherit', transition:'all 0.15s' }}
+                                      <button key={r.key} onClick={() => logReason(r.key)} style={{ padding:'5px 12px', background:'rgba(255,255,255,0.04)', border:'1px solid rgba(51,65,85,0.35)', borderRadius:'6px', fontSize: 'var(--ow-fs-eyebrow)', color:'var(--ow-muted-dim)', cursor:'pointer', fontFamily:'inherit', transition:'all 0.15s' }}
                                         onMouseOver={e => e.currentTarget.style.borderColor='#f97316'}
                                         onMouseOut={e => e.currentTarget.style.borderColor='rgba(51,65,85,0.35)'}
                                       >{r.label}</button>
@@ -5922,6 +5987,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                   )}
 
                   <OwReportTabs />
+
+                  <div style={{ maxWidth:'920px', margin:'8px auto 0', padding:'0 24px', textAlign:'right' }}>
+                    <OwThemeToggle />
+                  </div>
 
                   {/* v5.88.99: The Math section — woven design step 2.
                       Renders the line-itemed discount breakdown from
@@ -5992,40 +6061,40 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
                     return (
                       <div id="ow-math" style={{ maxWidth:'920px', margin:'0 auto', padding:'40px 24px 0' }}>
-                        <div style={{ fontSize: 'var(--ow-fs-eyebrow)', fontWeight:700, textTransform:'uppercase', letterSpacing:'0.12em', color:'#94a3b8', marginBottom:'10px' }}>The math</div>
+                        <div style={{ fontSize: 'var(--ow-fs-eyebrow)', fontWeight:700, textTransform:'uppercase', letterSpacing:'0.12em', color:'var(--ow-muted-2)', marginBottom:'10px' }}>The math</div>
                         <h2 className="ow-section-title" style={{ margin:'0 0 4px' }}>How we got to ${recoTotal.toLocaleString()}</h2>
-                        <p style={{ fontSize: 'var(--ow-fs-body)', color:'#94a3b8', margin:'0 0 22px', maxWidth:'640px', lineHeight:1.6 }}>
+                        <p style={{ fontSize: 'var(--ow-fs-body)', color:'var(--ow-muted-2)', margin:'0 0 22px', maxWidth:'640px', lineHeight:1.6 }}>
                           Every line below is justified by a section in this report. Each amount is something you can defend in a counter — it's not a hunch.
                         </p>
                         <div style={{ background:'rgba(15,23,42,0.5)', border:'1px solid rgba(51,65,85,0.5)', borderRadius:'14px', padding:'24px 28px' }}>
                           {/* Asking */}
-                          <div style={{ display:'grid', gridTemplateColumns:'1fr auto', gap:'18px', padding:'11px 0', fontSize: 'var(--ow-fs-body)', color:'#cbd5e1' }}>
+                          <div style={{ display:'grid', gridTemplateColumns:'1fr auto', gap:'18px', padding:'11px 0', fontSize: 'var(--ow-fs-body)', color:'var(--ow-text-body-2)' }}>
                             <div>Asking price</div>
-                            <div style={{ fontVariantNumeric: 'tabular-nums', color:'#f1f5f9', fontWeight:600 }}>${askingPrice.toLocaleString()}</div>
+                            <div style={{ fontVariantNumeric: 'tabular-nums', color:'var(--ow-text-strong)', fontWeight:600 }}>${askingPrice.toLocaleString()}</div>
                           </div>
 
                           {hasBreakdown ? lineItems.map((li, i) => (
-                            <div key={li.key} style={{ display:'grid', gridTemplateColumns:'1fr auto', gap:'18px', padding:'11px 0', borderTop:'1px solid rgba(51,65,85,0.3)', fontSize: 'var(--ow-fs-body)', color:'#cbd5e1' }}>
+                            <div key={li.key} style={{ display:'grid', gridTemplateColumns:'1fr auto', gap:'18px', padding:'11px 0', borderTop:'1px solid rgba(51,65,85,0.3)', fontSize: 'var(--ow-fs-body)', color:'var(--ow-text-body-2)' }}>
                               <div>
                                 {li.label}
-                                <span style={{ display:'block', fontSize: 'var(--ow-fs-meta)', color:'#64748b', marginTop:'3px', fontWeight:400 }}>→ {li.basis}</span>
+                                <span style={{ display:'block', fontSize: 'var(--ow-fs-meta)', color:'var(--ow-muted-dim)', marginTop:'3px', fontWeight:400 }}>→ {li.basis}</span>
                               </div>
                               <div style={{ fontVariantNumeric: 'tabular-nums', color:'#ef4444', fontWeight:600 }}>−${li.amount.toLocaleString()}</div>
                             </div>
                           )) : (
                             // Fallback when discount_breakdown is missing — show
                             // the single-line summary instead of inventing items.
-                            <div style={{ display:'grid', gridTemplateColumns:'1fr auto', gap:'18px', padding:'11px 0', borderTop:'1px solid rgba(51,65,85,0.3)', fontSize: 'var(--ow-fs-body)', color:'#cbd5e1' }}>
+                            <div style={{ display:'grid', gridTemplateColumns:'1fr auto', gap:'18px', padding:'11px 0', borderTop:'1px solid rgba(51,65,85,0.3)', fontSize: 'var(--ow-fs-body)', color:'var(--ow-text-body-2)' }}>
                               <div>
                                 Total discount from asking
-                                <span style={{ display:'block', fontSize: 'var(--ow-fs-meta)', color:'#64748b', marginTop:'3px', fontWeight:400 }}>Based on combined repair, market, and risk factors</span>
+                                <span style={{ display:'block', fontSize: 'var(--ow-fs-meta)', color:'var(--ow-muted-dim)', marginTop:'3px', fontWeight:400 }}>Based on combined repair, market, and risk factors</span>
                               </div>
                               <div style={{ fontVariantNumeric: 'tabular-nums', color:'#ef4444', fontWeight:600 }}>−${displayedDiscount.toLocaleString()}</div>
                             </div>
                           )}
 
                           {/* Headline total */}
-                          <div style={{ display:'grid', gridTemplateColumns:'1fr auto', gap:'18px', marginTop:'8px', paddingTop:'16px', borderTop:'1px solid rgba(51,65,85,0.6)', fontSize: 'var(--ow-fs-card-title)', fontWeight:700, color:'#f1f5f9' }}>
+                          <div style={{ display:'grid', gridTemplateColumns:'1fr auto', gap:'18px', marginTop:'8px', paddingTop:'16px', borderTop:'1px solid rgba(51,65,85,0.6)', fontSize: 'var(--ow-fs-card-title)', fontWeight:700, color:'var(--ow-text-strong)' }}>
                             <div>Recommended offer</div>
                             <div style={{ fontVariantNumeric: 'tabular-nums', color:'#22c55e', fontWeight:700, fontSize:'19px' }}>${recoTotal.toLocaleString()}</div>
                           </div>
@@ -6033,7 +6102,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                           {/* Reconciliation warning — only shown when line items
                               don't match the headline. Quiet, not alarming. */}
                           {hasBreakdown && !reconciles && (
-                            <div style={{ marginTop:'10px', padding:'9px 12px', background:'rgba(245,158,11,0.06)', border:'1px solid rgba(245,158,11,0.2)', borderRadius:'7px', fontSize: 'var(--ow-fs-eyebrow)', color:'#94a3b8' }}>
+                            <div style={{ marginTop:'10px', padding:'9px 12px', background:'rgba(245,158,11,0.06)', border:'1px solid rgba(245,158,11,0.2)', borderRadius:'7px', fontSize: 'var(--ow-fs-eyebrow)', color:'var(--ow-muted-2)' }}>
                               Note: the line items above sum to ${lineSum.toLocaleString()}, while the headline reflects ${displayedDiscount.toLocaleString()} total discount. The headline is authoritative — additional small adjustments (rounding, caps) may not be itemized.
                             </div>
                           )}
@@ -6053,16 +6122,16 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                             const _conOffer = offer_strategy?.conservative_offer || (askingPrice > 0 ? Math.round(recOffer + (askingPrice - recOffer) * 0.4) : null);
                             const tierCard = (kind, label, value, sub) => {
                               const colors = {
-                                aggressive:   { accent:'#22c55e', bg:'rgba(15,23,42,0.4)', valColor:'#f1f5f9' },
+                                aggressive:   { accent:'#22c55e', bg:'rgba(15,23,42,0.4)', valColor:'var(--ow-text-strong)' },
                                 recommended:  { accent:'#60a5fa', bg:'rgba(96,165,250,0.06)', valColor:'#60a5fa' },
-                                conservative: { accent:'#f59e0b', bg:'rgba(15,23,42,0.4)', valColor:'#f1f5f9' },
+                                conservative: { accent:'#f59e0b', bg:'rgba(15,23,42,0.4)', valColor:'var(--ow-text-strong)' },
                               };
                               const c = colors[kind];
                               return (
                                 <div style={{ padding:'14px 16px', borderRadius:'12px', background:c.bg, border: kind === 'recommended' ? `1px solid ${c.accent}80` : '1px solid rgba(51,65,85,0.5)', borderLeft:`3px solid ${c.accent}` }}>
                                   <div style={{ fontSize: 'var(--ow-fs-micro)', fontWeight:700, textTransform:'uppercase', letterSpacing:'0.08em', color:c.accent, marginBottom:'4px' }}>{label}</div>
                                   <div style={{ fontSize: 'var(--ow-fs-stat-num)', fontWeight:800, color:c.valColor, letterSpacing:'-0.01em', marginBottom: sub ? '4px' : 0, fontVariantNumeric: 'tabular-nums' }}>${value.toLocaleString()}</div>
-                                  {sub && <div style={{ fontSize: 'var(--ow-fs-eyebrow)', color:'#94a3b8', fontWeight:500 }}>{sub}</div>}
+                                  {sub && <div style={{ fontSize: 'var(--ow-fs-eyebrow)', color:'var(--ow-muted-2)', fontWeight:500 }}>{sub}</div>}
                                 </div>
                               );
                             };
@@ -6080,8 +6149,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                               the line below which the deal stops being
                               defensible. */}
                           {walkAwayPrice && !isWalkAway && (
-                            <div style={{ marginTop:'14px', textAlign:'right', fontSize: 'var(--ow-fs-small)', color:'#94a3b8' }}>
-                              <strong style={{ color:'#f1f5f9', fontWeight:600 }}>Don't pay more than:</strong> ${Math.round(walkAwayPrice).toLocaleString()} <span style={{ color:'#64748b' }}>— walk if the price climbs above this</span>
+                            <div style={{ marginTop:'14px', textAlign:'right', fontSize: 'var(--ow-fs-small)', color:'var(--ow-muted-2)' }}>
+                              <strong style={{ color:'var(--ow-text-strong)', fontWeight:600 }}>Don't pay more than:</strong> ${Math.round(walkAwayPrice).toLocaleString()} <span style={{ color:'var(--ow-muted-dim)' }}>— walk if the price climbs above this</span>
                             </div>
                           )}
                         </div>
@@ -6165,7 +6234,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                                   {labelDefs.map(d => {
                                     const [x,y] = vertex(d.i, R + 8);
                                     return (
-                                      <text key={d.i} x={x.toFixed(1)} y={(y + d.dy).toFixed(1)} textAnchor={d.anchor} fontSize="9" fontWeight="600" fill="#8a99b8" fontFamily="'DM Sans', -apple-system, system-ui, sans-serif" letterSpacing="0.04em">
+                                      <text key={d.i} x={x.toFixed(1)} y={(y + d.dy).toFixed(1)} textAnchor={d.anchor} fontSize="9" fontWeight="600" fill="var(--ow-muted)" fontFamily="'DM Sans', -apple-system, system-ui, sans-serif" letterSpacing="0.04em">
                                         {(dnaScores[d.i].label || '').toUpperCase()}
                                       </text>
                                     );
@@ -6175,11 +6244,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                             };
 
                             return (
-                              <details style={{ marginBottom:'24px', background:'#1e293b', border:'1px solid #334155', borderRadius:'12px', padding:'14px 18px' }}>
+                              <details style={{ marginBottom:'24px', background:'var(--ow-surface-2)', border:'1px solid var(--ow-line-2)', borderRadius:'12px', padding:'14px 18px' }}>
                                 <summary style={{ cursor:'pointer', display:'flex', justifyContent:'space-between', alignItems:'baseline', listStyle:'none', gap:'8px' }}>
                                   <div>
-                                    <div style={{ fontSize: 'var(--ow-fs-micro)', color:'#64748b', fontWeight:700, textTransform:'uppercase', letterSpacing:'0.10em', marginBottom:'2px' }}>Property Risk DNA™ · numeric view</div>
-                                    <div style={{ fontSize: 'var(--ow-fs-meta)', color:'#94a3b8' }}>
+                                    <div style={{ fontSize: 'var(--ow-fs-micro)', color:'var(--ow-muted-dim)', fontWeight:700, textTransform:'uppercase', letterSpacing:'0.10em', marginBottom:'2px' }}>Property Risk DNA™ · numeric view</div>
+                                    <div style={{ fontSize: 'var(--ow-fs-meta)', color:'var(--ow-muted-2)' }}>
                                       Show five-axis breakdown
                                     </div>
                                   </div>
@@ -6190,7 +6259,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                                       right-side chevron placement used on
                                       every other collapsible section card. */}
                                   <div style={{ display:'flex', alignItems:'center', gap:'12px' }}>
-                                    <div style={{ fontSize:'var(--ow-fs-card-title)', fontWeight:800, color: _compositeColor, lineHeight:1, letterSpacing:'-0.01em' }}>{_composite}<span style={{ fontSize: 'var(--ow-fs-micro)', color:'#64748b', fontWeight:500 }}> / 100</span></div>
+                                    <div style={{ fontSize:'var(--ow-fs-card-title)', fontWeight:800, color: _compositeColor, lineHeight:1, letterSpacing:'-0.01em' }}>{_composite}<span style={{ fontSize: 'var(--ow-fs-micro)', color:'var(--ow-muted-dim)', fontWeight:500 }}> / 100</span></div>
                                     <span className="ow-expand-chevron">▾</span>
                                   </div>
                                 </summary>
@@ -6210,7 +6279,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                                       return (
                                         <div key={i} style={{ display:'flex', alignItems:'center', gap:'8px', padding:'6px 0', borderTop: i > 0 ? '1px solid rgba(51,65,85,0.25)' : 'none' }}>
                                           <div style={{ width:'90px', flexShrink:0 }}>
-                                            <div style={{ fontSize: 'var(--ow-fs-meta)', color:'#e2e8f0', fontWeight:600 }}>{d.label}</div>
+                                            <div style={{ fontSize: 'var(--ow-fs-meta)', color:'var(--ow-text-2)', fontWeight:600 }}>{d.label}</div>
                                           </div>
                                           <div style={{ flex:1, height:'5px', background:'rgba(51,65,85,0.5)', borderRadius:'3px', overflow:'hidden' }}>
                                             <div style={{ height:'100%', width:`${Math.max(6,d.score)}%`, background: c, borderRadius:'3px' }} />
@@ -6219,7 +6288,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                                         </div>
                                       );
                                     })}
-                                    <div style={{ fontSize: 'var(--ow-fs-micro)', color:'#64748b', fontWeight:500, marginTop:'10px', textAlign:'center' }}>Higher = greater risk · Patent Pending</div>
+                                    <div style={{ fontSize: 'var(--ow-fs-micro)', color:'var(--ow-muted-dim)', fontWeight:500, marginTop:'10px', textAlign:'center' }}>Higher = greater risk · Patent Pending</div>
                                   </div>
                                 </div>
                               </details>
@@ -6241,10 +6310,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                                 <div style={{ fontSize: 'var(--ow-fs-small)', fontWeight:700, textTransform:'uppercase', letterSpacing:'0.08em', color:'#f97316', marginBottom:'12px' }}>Evidence & Details</div>
                                 <div style={{ display:'flex', flexDirection:'column', gap:'8px', marginBottom:'16px', textAlign:'left' }}>
                                   {['🔒 Deal breakers & repair cost breakdown', '🔒 Seller transparency score & red flags'].map((row, i) => (
-                                    <div key={i} style={{ padding:'10px 14px', background:'rgba(255,255,255,0.03)', border:'1px solid rgba(51,65,85,0.4)', borderRadius:'8px', fontSize: 'var(--ow-fs-small)', color:'#334155', display:'flex', alignItems:'center', gap:'8px' }}>{row}</div>
+                                    <div key={i} style={{ padding:'10px 14px', background:'rgba(255,255,255,0.03)', border:'1px solid rgba(51,65,85,0.4)', borderRadius:'8px', fontSize: 'var(--ow-fs-small)', color:'var(--ow-line-2)', display:'flex', alignItems:'center', gap:'8px' }}>{row}</div>
                                   ))}
                                 </div>
-                                <div style={{ fontSize: 'var(--ow-fs-meta)', color:'#475569', marginBottom:'14px' }}>+ Cross-reference · Negotiation toolkit · Offer price · Full verdict</div>
+                                <div style={{ fontSize: 'var(--ow-fs-meta)', color:'var(--ow-line-strong)', marginBottom:'14px' }}>+ Cross-reference · Negotiation toolkit · Offer price · Full verdict</div>
                                 <span style={{ display:'inline-block', padding:'9px 22px', background:'linear-gradient(90deg,#f97316,#f59e0b)', borderRadius:'8px', fontWeight:700, fontSize: 'var(--ow-fs-small)', color:'white' }}>Unlock for $9/mo →</span>
                               </div>
                             ) : (
@@ -6302,7 +6371,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                             section-sub above — keeping the inline one for
                             users with the ECard collapsed by default, but
                             it can be removed once the design stabilizes. */}
-                        <div style={{ marginBottom:'16px', padding:'12px 14px', background:'rgba(15,23,42,0.4)', border:'1px solid rgba(51,65,85,0.4)', borderLeft:'3px solid #f59e0b', borderRadius:'7px', fontSize: 'var(--ow-fs-small)', color:'#cbd5e1', lineHeight:1.6 }}>
+                        <div style={{ marginBottom:'16px', padding:'12px 14px', background:'rgba(15,23,42,0.4)', border:'1px solid rgba(51,65,85,0.4)', borderLeft:'3px solid #f59e0b', borderRadius:'7px', fontSize: 'var(--ow-fs-small)', color:'var(--ow-text-body-2)', lineHeight:1.6 }}>
                           These came directly out of the inspection report — not predictions, documented findings. Use them as the floor of your repair credit ask.
                         </div>
                         {repairBreakdown.length > 0 ? (
@@ -6311,7 +6380,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                             {(repairMetro || repairMultiplier > 0) && (
                               <div style={{ display:'flex', alignItems:'center', gap:'8px', padding:'10px 14px', background:'rgba(59,130,246,0.08)', borderRadius:'8px', marginBottom:'16px', border:'1px solid rgba(59,130,246,0.15)' }}>
                                 <span style={{ fontSize: 'var(--ow-fs-strong)' }}>📍</span>
-                                <div style={{ fontSize: 'var(--ow-fs-small)', color:'#94a3b8', lineHeight:1.5 }}>
+                                <div style={{ fontSize: 'var(--ow-fs-small)', color:'var(--ow-muted-2)', lineHeight:1.5 }}>
                                   <strong style={{ color:'#60a5fa' }}>{repairMetro || 'Your area'}</strong> pricing
                                   {repairMultiplier > 0 && ` — ${repairMultiplier > 1 ? (((repairMultiplier - 1) * 100).toFixed(0) + '% above') : (((1 - repairMultiplier) * 100).toFixed(0) + '% below')} national average`}
                                   {repairEstimate.property_year_built && ` · Age-adjusted for ${2026 - repairEstimate.property_year_built}-year-old home`}
@@ -6320,7 +6389,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                             )}
                             
                             {/* Severity legend */}
-                            <div style={{ display:'flex', gap:'16px', marginBottom:'14px', fontSize: 'var(--ow-fs-eyebrow)', color:'#64748b' }}>
+                            <div style={{ display:'flex', gap:'16px', marginBottom:'14px', fontSize: 'var(--ow-fs-eyebrow)', color:'var(--ow-muted-dim)' }}>
                               <span><span style={{ display:'inline-block', width:'8px', height:'8px', borderRadius:'2px', background:'#ef4444', marginRight:'4px' }}></span>Critical</span>
                               <span><span style={{ display:'inline-block', width:'8px', height:'8px', borderRadius:'2px', background:'#f59e0b', marginRight:'4px' }}></span>Major</span>
                               <span><span style={{ display:'inline-block', width:'8px', height:'8px', borderRadius:'2px', background:'#22c55e', marginRight:'4px' }}></span>Moderate/Minor</span>
@@ -6336,9 +6405,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                                     <div style={{ display:'flex', alignItems:'center', gap:'8px' }}>
                                       <div style={{ width:'4px', height:'24px', borderRadius:'2px', background:sevColor, flexShrink:0 }} />
                                       <div>
-                                        <div style={{ fontSize: 'var(--ow-fs-body)', fontWeight:600, color:'#e2e8f0' }}>{item.system}</div>
+                                        <div style={{ fontSize: 'var(--ow-fs-body)', fontWeight:600, color:'var(--ow-text-2)' }}>{item.system}</div>
                                         {item.description && item.description.length > 5 && !item.description.startsWith(item.system) && (
-                                          <div style={{ fontSize: 'var(--ow-fs-meta)', color:'#64748b', marginTop:'2px' }}>{item.description.slice(0, 80)}</div>
+                                          <div style={{ fontSize: 'var(--ow-fs-meta)', color:'var(--ow-muted-dim)', marginTop:'2px' }}>{item.description.slice(0, 80)}</div>
                                         )}
                                         <div style={{ display:'flex', gap:'4px', flexWrap:'wrap', marginTop:'4px' }}>
                                           {item.safety && <span style={{ fontSize: 'var(--ow-fs-micro)', fontWeight:700, padding:'1px 6px', borderRadius:'4px', background:'rgba(239,68,68,0.1)', color:'#ef4444' }}>⚠️ Safety</span>}
@@ -6348,8 +6417,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                                       </div>
                                     </div>
                                     <div style={{ textAlign:'right', flexShrink:0 }}>
-                                      <div style={{ fontSize: 'var(--ow-fs-body)', fontWeight:700, color:'#e2e8f0' }}>{formatCost(item.low)} – {formatCost(item.high)}</div>
-                                      <div style={{ fontSize: 'var(--ow-fs-eyebrow)', color:'#64748b' }}>{item.severity}</div>
+                                      <div style={{ fontSize: 'var(--ow-fs-body)', fontWeight:700, color:'var(--ow-text-2)' }}>{formatCost(item.low)} – {formatCost(item.high)}</div>
+                                      <div style={{ fontSize: 'var(--ow-fs-eyebrow)', color:'var(--ow-muted-dim)' }}>{item.severity}</div>
                                     </div>
                                   </div>
                                   <div style={{ height:'4px', background:'rgba(51,65,85,0.3)', borderRadius:'2px', overflow:'hidden', marginLeft:'12px' }}>
@@ -6361,12 +6430,12 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                             
                             {/* Total summary */}
                             <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'14px 0', marginTop:'8px', borderTop:'2px solid rgba(51,65,85,0.4)' }}>
-                              <div style={{ fontSize: 'var(--ow-fs-body)', fontWeight:700, color:'#94a3b8' }}>TOTAL ESTIMATED</div>
+                              <div style={{ fontSize: 'var(--ow-fs-body)', fontWeight:700, color:'var(--ow-muted-2)' }}>TOTAL ESTIMATED</div>
                               <div style={{ textAlign:'right' }}>
                                 <div style={{ fontSize:'var(--ow-fs-card-title)', fontWeight:800, color:'#f59e0b' }}>
                                   ${(repairEstimate.total_low || risk_score?.total_repair_cost_low || 0).toLocaleString()} – ${(repairEstimate.total_high || risk_score?.total_repair_cost_high || 0).toLocaleString()}
                                 </div>
-                                <div style={{ fontSize: 'var(--ow-fs-meta)', color:'#64748b' }}>
+                                <div style={{ fontSize: 'var(--ow-fs-meta)', color:'var(--ow-muted-dim)' }}>
                                   avg ${(repairEstimate.total_avg || Math.round(avgRepairCost)).toLocaleString()}
                                 </div>
                               </div>
@@ -6374,7 +6443,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                             
                             {/* Methodology */}
                             {repairMethodology && (
-                              <div style={{ marginTop:'12px', fontSize: 'var(--ow-fs-meta)', color:'#475569', lineHeight:1.6, padding:'12px', background:'rgba(15,23,42,0.5)', borderRadius:'8px', borderLeft:'3px solid rgba(96,165,250,0.3)' }}>
+                              <div style={{ marginTop:'12px', fontSize: 'var(--ow-fs-meta)', color:'var(--ow-line-strong)', lineHeight:1.6, padding:'12px', background:'rgba(15,23,42,0.5)', borderRadius:'8px', borderLeft:'3px solid rgba(96,165,250,0.3)' }}>
                                 📊 {repairMethodology}
                               </div>
                             )}
@@ -6383,19 +6452,19 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                             {permitItems.length > 0 && (
                               <div style={{ marginTop:'20px', padding:'16px', background:'rgba(15,23,42,0.6)', border:'1px solid rgba(245,158,11,0.18)', borderRadius:'10px' }}>
                                 <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'6px' }}>
-                                  <div style={{ display:'flex', alignItems:'center', gap:'8px', fontSize: 'var(--ow-fs-body)', fontWeight:700, color:'#e2e8f0' }}>
+                                  <div style={{ display:'flex', alignItems:'center', gap:'8px', fontSize: 'var(--ow-fs-body)', fontWeight:700, color:'var(--ow-text-2)' }}>
                                     <span style={{ color:'#f59e0b', fontSize: 'var(--ow-fs-strong)' }}>📋</span>
                                     Permit Requirements
                                   </div>
-                                  <div style={{ fontSize: 'var(--ow-fs-small)', color:'#94a3b8' }}>
+                                  <div style={{ fontSize: 'var(--ow-fs-small)', color:'var(--ow-muted-2)' }}>
                                     <strong style={{ color:'#f59e0b', fontVariantNumeric: 'tabular-nums' }}>
                                       {permitsRequiredCount} of {permitItems.length}
                                     </strong> repairs need permits
                                   </div>
                                 </div>
-                                <div style={{ fontSize: 'var(--ow-fs-meta)', color:'#64748b', margin:'0 0 12px' }}>
+                                <div style={{ fontSize: 'var(--ow-fs-meta)', color:'var(--ow-muted-dim)', margin:'0 0 12px' }}>
                                   Permit fees, requirements, and consequences of skipping.
-                                  {permitJurisdiction && <> Verified for <strong style={{ color:'#94a3b8' }}>{permitJurisdiction}</strong>.</>}
+                                  {permitJurisdiction && <> Verified for <strong style={{ color:'var(--ow-muted-2)' }}>{permitJurisdiction}</strong>.</>}
                                 </div>
 
                                 <div>
@@ -6424,13 +6493,13 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                                           {ic.ch}
                                         </div>
                                         <div style={{ minWidth:0 }}>
-                                          <div style={{ fontSize: 'var(--ow-fs-small)', fontWeight:600, color:'#e2e8f0', marginBottom:'2px' }}>
+                                          <div style={{ fontSize: 'var(--ow-fs-small)', fontWeight:600, color:'var(--ow-text-2)', marginBottom:'2px' }}>
                                             <span style={{ color:'#f59e0b', fontWeight:700 }}>{p.system}</span>
-                                            <span style={{ color:'#94a3b8', fontWeight:500 }}> · {titleMap[p.permit_required] || 'Permit status'}</span>
+                                            <span style={{ color:'var(--ow-muted-2)', fontWeight:500 }}> · {titleMap[p.permit_required] || 'Permit status'}</span>
                                             <span style={{ display:'inline-block', fontSize: 'var(--ow-fs-micro)', fontWeight:700, letterSpacing:'0.5px', padding:'1px 5px', borderRadius:'4px', marginLeft:'6px', verticalAlign:'1px', background:confBg, color:confColor, fontVariantNumeric: 'tabular-nums' }}>{confLabel}</span>
                                           </div>
                                           {p.consequences && (
-                                            <div style={{ fontSize: 'var(--ow-fs-meta)', color:'#94a3b8', lineHeight:1.55 }}>
+                                            <div style={{ fontSize: 'var(--ow-fs-meta)', color:'var(--ow-muted-2)', lineHeight:1.55 }}>
                                               {p.consequences}
                                             </div>
                                           )}
@@ -6444,7 +6513,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                                         <div style={{ textAlign:'right', alignSelf:'start' }}>
                                           {showCost ? (
                                             <>
-                                              <div style={{ fontSize: 'var(--ow-fs-meta)', fontWeight:700, color:'#e2e8f0', whiteSpace:'nowrap', background:'rgba(245,158,11,0.06)', padding:'4px 10px', borderRadius:'6px', border:'1px solid rgba(245,158,11,0.2)', fontVariantNumeric: 'tabular-nums' }}>
+                                              <div style={{ fontSize: 'var(--ow-fs-meta)', fontWeight:700, color:'var(--ow-text-2)', whiteSpace:'nowrap', background:'rgba(245,158,11,0.06)', padding:'4px 10px', borderRadius:'6px', border:'1px solid rgba(245,158,11,0.2)', fontVariantNumeric: 'tabular-nums' }}>
                                                 ${p.permit_cost_low.toLocaleString()} – ${p.permit_cost_high.toLocaleString()}
                                               </div>
                                               {p.fee_source_url ? (
@@ -6452,13 +6521,13 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                                                   via {p.fee_source_label || 'official source'} ↗
                                                 </a>
                                               ) : (
-                                                <div style={{ marginTop:'4px', fontSize: 'var(--ow-fs-micro)', color:'#64748b', textAlign:'right' }}>
+                                                <div style={{ marginTop:'4px', fontSize: 'var(--ow-fs-micro)', color:'var(--ow-muted-dim)', textAlign:'right' }}>
                                                   estimated
                                                 </div>
                                               )}
                                             </>
                                           ) : (
-                                            <div style={{ fontSize: 'var(--ow-fs-meta)', color:'#64748b', whiteSpace:'nowrap', padding:'4px 10px', opacity:0.8, fontVariantNumeric: 'tabular-nums' }}>
+                                            <div style={{ fontSize: 'var(--ow-fs-meta)', color:'var(--ow-muted-dim)', whiteSpace:'nowrap', padding:'4px 10px', opacity:0.8, fontVariantNumeric: 'tabular-nums' }}>
                                               {p.permit_required === 'not_required' ? 'none' : '— if needed'}
                                             </div>
                                           )}
@@ -6470,23 +6539,23 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
                                 {(permitTotalLow > 0 || permitTotalHigh > 0) && (
                                   <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', paddingTop:'12px', marginTop:'12px', borderTop:'1px solid rgba(51,65,85,0.4)' }}>
-                                    <div style={{ fontSize: 'var(--ow-fs-meta)', fontWeight:700, color:'#94a3b8', letterSpacing:'0.5px' }}>TOTAL PERMIT FEES</div>
+                                    <div style={{ fontSize: 'var(--ow-fs-meta)', fontWeight:700, color:'var(--ow-muted-2)', letterSpacing:'0.5px' }}>TOTAL PERMIT FEES</div>
                                     <div style={{ fontSize: 'var(--ow-fs-body)', fontWeight:800, color:'#f59e0b', fontVariantNumeric: 'tabular-nums' }}>
                                       ${permitTotalLow.toLocaleString()} – ${permitTotalHigh.toLocaleString()}
                                     </div>
                                   </div>
                                 )}
 
-                                <div style={{ marginTop:'10px', fontSize: 'var(--ow-fs-eyebrow)', color:'#475569', lineHeight:1.5 }}>
+                                <div style={{ marginTop:'10px', fontSize: 'var(--ow-fs-eyebrow)', color:'var(--ow-line-strong)', lineHeight:1.5 }}>
                                   Permit knowledge generated per-jurisdiction at analysis time, refreshed every 90 days. Not a substitute for licensed contractor or building department guidance.
                                 </div>
                               </div>
                             )}
                           </div>
                         ) : (
-                          <div style={{ fontSize: 'var(--ow-fs-body)', color:'#94a3b8' }}>
+                          <div style={{ fontSize: 'var(--ow-fs-body)', color:'var(--ow-muted-2)' }}>
                             Total estimated: <strong>${(risk_score?.total_repair_cost_low||0).toLocaleString()} – ${(risk_score?.total_repair_cost_high||0).toLocaleString()}</strong>
-                            <div style={{ marginTop:'8px', fontSize: 'var(--ow-fs-small)', color:'#475569' }}>Per-system breakdown will be available when analysis includes detailed findings with cost estimates.</div>
+                            <div style={{ marginTop:'8px', fontSize: 'var(--ow-fs-small)', color:'var(--ow-line-strong)' }}>Per-system breakdown will be available when analysis includes detailed findings with cost estimates.</div>
                           </div>
                         )}
                       </ECard>
@@ -6533,7 +6602,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                                 const sevColor = sev.includes('critical') ? '#ef4444'
                                                 : sev.includes('major')    ? '#f97316'
                                                 : sev.includes('moderate') ? '#f59e0b'
-                                                : '#94a3b8';
+                                                : 'var(--ow-muted-2)';
                                 const sevLabel = sev ? sev.charAt(0).toUpperCase() + sev.slice(1) : '';
                                 const cost = (i.cost_low && i.cost_high) ? `${_usd(i.cost_low)}–${_usd(i.cost_high)}` : '';
                                 return (
@@ -6543,7 +6612,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                                       {i.silent_hazard && <span style={{ fontSize: 'var(--ow-fs-micro)', fontWeight:700, textTransform:'uppercase', letterSpacing:'0.06em', padding:'3px 8px', borderRadius:'4px', background:'rgba(239,68,68,0.12)', color:'#ef4444', border:'1px solid rgba(239,68,68,0.3)' }}>Hidden risk</span>}
                                       {cost && <span style={{ fontSize: 'var(--ow-fs-meta)', fontWeight:700, color:'#f59e0b' }}>{cost}</span>}
                                     </div>
-                                    <div style={{ color:'#e2e8f0', fontSize: 'var(--ow-fs-small)', lineHeight:1.5 }}>{i.title}</div>
+                                    <div style={{ color:'var(--ow-text-2)', fontSize: 'var(--ow-fs-small)', lineHeight:1.5 }}>{i.title}</div>
                                   </div>
                                 );
                               })}
@@ -6551,11 +6620,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                                 <div style={{ marginTop:'16px', padding:'14px 16px', background:'rgba(96,165,250,0.06)', border:'1px solid rgba(96,165,250,0.25)', borderRadius:'8px' }}>
                                   <div style={{ fontSize: 'var(--ow-fs-micro)', fontWeight:700, textTransform:'uppercase', letterSpacing:'0.06em', color:'#60a5fa', marginBottom:'6px' }}>Offer handoff</div>
                                   <div style={{ display:'grid', gridTemplateColumns:'auto 1fr', gap:'4px 12px', fontSize: 'var(--ow-fs-small)', lineHeight:1.5 }}>
-                                    <div style={{ color:'#64748b', fontWeight:600, whiteSpace:'nowrap' }}>Price-adjustment basis:</div>
-                                    <div style={{ color:'#f1f5f9', fontWeight:700 }}>{_usd(offer.price_adjustment_low)}–{_usd(offer.price_adjustment_high)}</div>
+                                    <div style={{ color:'var(--ow-muted-dim)', fontWeight:600, whiteSpace:'nowrap' }}>Price-adjustment basis:</div>
+                                    <div style={{ color:'var(--ow-text-strong)', fontWeight:700 }}>{_usd(offer.price_adjustment_low)}–{_usd(offer.price_adjustment_high)}</div>
                                     {(offer.buyer_held_reserve || []).length > 0 && (<>
-                                      <div style={{ color:'#64748b', fontWeight:600, whiteSpace:'nowrap' }}>Buyer-held reserve:</div>
-                                      <div style={{ color:'#94a3b8' }}>separate from the price ask</div>
+                                      <div style={{ color:'var(--ow-muted-dim)', fontWeight:600, whiteSpace:'nowrap' }}>Buyer-held reserve:</div>
+                                      <div style={{ color:'var(--ow-muted-2)' }}>separate from the price ask</div>
                                     </>)}
                                   </div>
                                 </div>
@@ -6580,8 +6649,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                           {/* v5.89.0: framing intro — additive, not
                               competing. Treat this as a reserve fund built
                               into the offer, not a separate ask. */}
-                          <div style={{ marginBottom:'16px', padding:'12px 14px', background:'rgba(167,139,250,0.05)', border:'1px solid rgba(167,139,250,0.18)', borderLeft:'3px solid #a78bfa', borderRadius:'7px', fontSize: 'var(--ow-fs-small)', color:'#cbd5e1', lineHeight:1.6 }}>
-                            These <strong style={{ color:'#f1f5f9' }}>aren't in the inspection</strong>. They're things our model thinks are likely given what the inspection <em style={{ color:'#f1f5f9', fontStyle:'normal', fontWeight:600 }}>did</em> find. Treat this as a reserve fund built into your offer, not a separate ask.
+                          <div style={{ marginBottom:'16px', padding:'12px 14px', background:'rgba(167,139,250,0.05)', border:'1px solid rgba(167,139,250,0.18)', borderLeft:'3px solid #a78bfa', borderRadius:'7px', fontSize: 'var(--ow-fs-small)', color:'var(--ow-text-body-2)', lineHeight:1.6 }}>
+                            These <strong style={{ color:'var(--ow-text-strong)' }}>aren't in the inspection</strong>. They're things our model thinks are likely given what the inspection <em style={{ color:'var(--ow-text-strong)', fontStyle:'normal', fontWeight:600 }}>did</em> find. Treat this as a reserve fund built into your offer, not a separate ask.
                           </div>
                           {predictedIssues.slice(0,6).map((issue, idx) => {
                             const text = typeof issue === 'string' ? issue : (issue.predicted_issue || issue.prediction || issue.description || issue.title || issue.issue || '');
@@ -6597,11 +6666,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                             return text ? (
                               <div key={idx} style={{ padding:'10px 0', borderBottom:'1px solid rgba(51,65,85,0.3)' }}>
                                 <div style={{ display:'flex', alignItems:'flex-start', gap:'10px' }}>
-                                  <div style={{ width:'6px', height:'6px', borderRadius:'50%', marginTop:'7px', flexShrink:0, background:'#94a3b8' }} />
+                                  <div style={{ width:'6px', height:'6px', borderRadius:'50%', marginTop:'7px', flexShrink:0, background:'var(--ow-muted-2)' }} />
                                   <div>
-                                    <div style={{ fontSize: 'var(--ow-fs-body)', color:'#e2e8f0', lineHeight:1.5 }}>{text}</div>
+                                    <div style={{ fontSize: 'var(--ow-fs-body)', color:'var(--ow-text-2)', lineHeight:1.5 }}>{text}</div>
                                     {subText && <div style={{ fontSize: 'var(--ow-fs-meta)', color:'#f59e0b', fontWeight:600, marginTop:'2px' }}>{subText}</div>}
-                                    {reason && <div style={{ fontSize: 'var(--ow-fs-meta)', color:'#64748b', marginTop:'4px', lineHeight:1.5, fontStyle:'normal' }}>{reason}</div>}
+                                    {reason && <div style={{ fontSize: 'var(--ow-fs-meta)', color:'var(--ow-muted-dim)', marginTop:'4px', lineHeight:1.5, fontStyle:'normal' }}>{reason}</div>}
                                   </div>
                                 </div>
                               </div>
@@ -6654,7 +6723,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                               The seller signed a legally-binding disclosure
                               document. Each contradiction is a place that
                               document was wrong. That's the buyer's leverage. */}
-                          <div style={{ marginBottom:'16px', padding:'12px 14px', background:'rgba(239,68,68,0.04)', border:'1px solid rgba(239,68,68,0.18)', borderLeft:'3px solid #ef4444', borderRadius:'7px', fontSize: 'var(--ow-fs-small)', color:'#cbd5e1', lineHeight:1.6 }}>
+                          <div style={{ marginBottom:'16px', padding:'12px 14px', background:'rgba(239,68,68,0.04)', border:'1px solid rgba(239,68,68,0.18)', borderLeft:'3px solid #ef4444', borderRadius:'7px', fontSize: 'var(--ow-fs-small)', color:'var(--ow-text-body-2)', lineHeight:1.6 }}>
                             The seller signed a legally-binding disclosure document. The inspection found {contradictions.length} {contradictions.length === 1 ? 'issue' : 'issues'} that document missed or misrepresented. This is your strongest negotiation lever — they were wrong in specific places, in writing.
                           </div>
                           {/* v5.88.96: Rich contradiction cards. Previously rendered
@@ -6673,7 +6742,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                             const sevColor = sev.includes('critical') ? '#ef4444'
                                             : sev.includes('major')   ? '#f97316'
                                             : sev.includes('moderate')? '#f59e0b'
-                                            : '#94a3b8';
+                                            : 'var(--ow-muted-2)';
                             const sevLabel = sev ? sev.charAt(0).toUpperCase() + sev.slice(1) : '';
                             const category = (finding.category || discItem.category || '').toString().replace(/_/g, ' ');
                             const categoryLabel = category ? category.charAt(0).toUpperCase() + category.slice(1) : 'Cross-reference';
@@ -6697,10 +6766,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                                   {costRange && <span style={{ fontSize: 'var(--ow-fs-meta)', fontWeight:700, color:'#f59e0b' }}>{costRange}</span>}
                                 </div>
                                 <div style={{ display:'grid', gridTemplateColumns:'auto 1fr', gap:'4px 12px', fontSize: 'var(--ow-fs-small)', lineHeight:1.5 }}>
-                                  <div style={{ color:'#64748b', fontWeight:600, whiteSpace:'nowrap' }}>Seller disclosed:</div>
-                                  <div style={{ color:'#94a3b8' }}>{sellerSaid}</div>
-                                  <div style={{ color:'#64748b', fontWeight:600, whiteSpace:'nowrap' }}>Inspector found:</div>
-                                  <div style={{ color:'#e2e8f0' }}>{findingDesc}</div>
+                                  <div style={{ color:'var(--ow-muted-dim)', fontWeight:600, whiteSpace:'nowrap' }}>Seller disclosed:</div>
+                                  <div style={{ color:'var(--ow-muted-2)' }}>{sellerSaid}</div>
+                                  <div style={{ color:'var(--ow-muted-dim)', fontWeight:600, whiteSpace:'nowrap' }}>Inspector found:</div>
+                                  <div style={{ color:'var(--ow-text-2)' }}>{findingDesc}</div>
                                 </div>
                               </div>
                             );
@@ -6773,23 +6842,23 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                           {/* Temperature + leverage strip */}
                           <div style={{ display:'flex', gap:'10px', marginBottom:'18px', flexWrap:'wrap' }}>
                             <div style={{ flex:1, minWidth:'120px', background:'rgba(15,23,42,0.5)', border:'1px solid rgba(51,65,85,0.4)', borderRadius:'8px', padding:'12px 14px' }}>
-                              <div style={{ fontSize: 'var(--ow-fs-eyebrow)', color:'#64748b', textTransform:'uppercase', letterSpacing:'0.5px', marginBottom:'4px' }}>Market Temp</div>
+                              <div style={{ fontSize: 'var(--ow-fs-eyebrow)', color:'var(--ow-muted-dim)', textTransform:'uppercase', letterSpacing:'0.5px', marginBottom:'4px' }}>Market Temp</div>
                               <div style={{ fontSize:'15px', fontWeight:700, color: tempColor }}>{tempLabel}</div>
                             </div>
                             <div style={{ flex:1, minWidth:'120px', background:'rgba(15,23,42,0.5)', border:'1px solid rgba(51,65,85,0.4)', borderRadius:'8px', padding:'12px 14px' }}>
-                              <div style={{ fontSize: 'var(--ow-fs-eyebrow)', color:'#64748b', textTransform:'uppercase', letterSpacing:'0.5px', marginBottom:'4px' }}>Your Leverage</div>
+                              <div style={{ fontSize: 'var(--ow-fs-eyebrow)', color:'var(--ow-muted-dim)', textTransform:'uppercase', letterSpacing:'0.5px', marginBottom:'4px' }}>Your Leverage</div>
                               <div style={{ fontSize:'15px', fontWeight:700, color: leverageColor, textTransform:'capitalize' }}>{buyerLeverage || '—'}</div>
                             </div>
                             {avgDom > 0 && (
                               <div style={{ flex:1, minWidth:'120px', background:'rgba(15,23,42,0.5)', border:'1px solid rgba(51,65,85,0.4)', borderRadius:'8px', padding:'12px 14px' }}>
-                                <div style={{ fontSize: 'var(--ow-fs-eyebrow)', color:'#64748b', textTransform:'uppercase', letterSpacing:'0.5px', marginBottom:'4px' }}>Avg Days on Market</div>
-                                <div style={{ fontSize:'15px', fontWeight:700, color:'#e2e8f0' }}>{Math.round(avgDom)} days</div>
+                                <div style={{ fontSize: 'var(--ow-fs-eyebrow)', color:'var(--ow-muted-dim)', textTransform:'uppercase', letterSpacing:'0.5px', marginBottom:'4px' }}>Avg Days on Market</div>
+                                <div style={{ fontSize:'15px', fontWeight:700, color:'var(--ow-text-2)' }}>{Math.round(avgDom)} days</div>
                               </div>
                             )}
                             {totalListings > 0 && (
                               <div style={{ flex:1, minWidth:'120px', background:'rgba(15,23,42,0.5)', border:'1px solid rgba(51,65,85,0.4)', borderRadius:'8px', padding:'12px 14px' }}>
-                                <div style={{ fontSize: 'var(--ow-fs-eyebrow)', color:'#64748b', textTransform:'uppercase', letterSpacing:'0.5px', marginBottom:'4px' }}>Listings in ZIP</div>
-                                <div style={{ fontSize:'15px', fontWeight:700, color:'#e2e8f0' }}>{Math.round(totalListings)}</div>
+                                <div style={{ fontSize: 'var(--ow-fs-eyebrow)', color:'var(--ow-muted-dim)', textTransform:'uppercase', letterSpacing:'0.5px', marginBottom:'4px' }}>Listings in ZIP</div>
+                                <div style={{ fontSize:'15px', fontWeight:700, color:'var(--ow-text-2)' }}>{Math.round(totalListings)}</div>
                               </div>
                             )}
                           </div>
@@ -6797,26 +6866,26 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                           {/* AVM row */}
                           {avm > 0 && (
                             <div style={{ background:'rgba(15,23,42,0.4)', border:'1px solid rgba(51,65,85,0.4)', borderRadius:'10px', padding:'16px 18px', marginBottom:'14px' }}>
-                              <div style={{ fontSize: 'var(--ow-fs-meta)', color:'#64748b', fontWeight:600, textTransform:'uppercase', letterSpacing:'0.5px', marginBottom:'10px' }}>Automated Valuation (AVM)</div>
+                              <div style={{ fontSize: 'var(--ow-fs-meta)', color:'var(--ow-muted-dim)', fontWeight:600, textTransform:'uppercase', letterSpacing:'0.5px', marginBottom:'10px' }}>Automated Valuation (AVM)</div>
                               <div style={{ display:'flex', alignItems:'baseline', gap:'10px', flexWrap:'wrap' }}>
-                                <div style={{ fontSize: 'var(--ow-fs-section-title)', fontWeight:800, color:'#e2e8f0' }}>${avm.toLocaleString()}</div>
+                                <div style={{ fontSize: 'var(--ow-fs-section-title)', fontWeight:800, color:'var(--ow-text-2)' }}>${avm.toLocaleString()}</div>
                                 {avmLow > 0 && avmHigh > 0 && (
-                                  <div style={{ fontSize: 'var(--ow-fs-small)', color:'#64748b' }}>range ${Math.round(avmLow/1000)}K – ${Math.round(avmHigh/1000)}K</div>
+                                  <div style={{ fontSize: 'var(--ow-fs-small)', color:'var(--ow-muted-dim)' }}>range ${Math.round(avmLow/1000)}K – ${Math.round(avmHigh/1000)}K</div>
                                 )}
                               </div>
                               <div style={{ display:'flex', gap:'20px', marginTop:'10px', flexWrap:'wrap' }}>
                                 {askingPrice > 0 && avm > 0 && (
                                   <div style={{ fontSize: 'var(--ow-fs-small)' }}>
-                                    <span style={{ color:'#64748b' }}>Asking price is </span>
+                                    <span style={{ color:'var(--ow-muted-dim)' }}>Asking price is </span>
                                     <span style={{ fontWeight:700, color: askOverAvm ? '#f59e0b' : '#22c55e' }}>
                                       {askOverAvm ? `$${Math.round(Math.abs(askingPrice - avm)).toLocaleString()} above` : `$${Math.round(Math.abs(askingPrice - avm)).toLocaleString()} below`}
                                     </span>
-                                    <span style={{ color:'#64748b' }}> estimated value</span>
+                                    <span style={{ color:'var(--ow-muted-dim)' }}> estimated value</span>
                                   </div>
                                 )}
                                 {marketAdj !== 0 && (
                                   <div style={{ fontSize: 'var(--ow-fs-small)' }}>
-                                    <span style={{ color:'#64748b' }}>Market adjustment to offer: </span>
+                                    <span style={{ color:'var(--ow-muted-dim)' }}>Market adjustment to offer: </span>
                                     <span style={{ fontWeight:700, color: marketAdj < 0 ? '#22c55e' : '#f59e0b' }}>
                                       {marketAdj < 0 ? `−$${Math.round(Math.abs(marketAdj)).toLocaleString()}` : `+$${Math.round(marketAdj).toLocaleString()}`}
                                     </span>
@@ -6829,14 +6898,14 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                           {/* Comp benchmarks */}
                           {(compMedian > 0 || compAvgPpsqft > 0 || bedMatchMedian > 0) && (
                             <div style={{ marginBottom:'14px' }}>
-                              <div style={{ fontSize: 'var(--ow-fs-meta)', color:'#64748b', fontWeight:600, textTransform:'uppercase', letterSpacing:'0.5px', marginBottom:'10px' }}>
+                              <div style={{ fontSize: 'var(--ow-fs-meta)', color:'var(--ow-muted-dim)', fontWeight:600, textTransform:'uppercase', letterSpacing:'0.5px', marginBottom:'10px' }}>
                                 Comparable Sales Benchmarks {compCount > 0 ? `(${compCount} comps within 5 miles)` : ''}
                               </div>
                               <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(140px, 1fr))', gap:'8px' }}>
                                 {compMedian > 0 && (
                                   <div style={{ background:'rgba(15,23,42,0.5)', border:'1px solid rgba(51,65,85,0.3)', borderRadius:'8px', padding:'12px 14px' }}>
-                                    <div style={{ fontSize: 'var(--ow-fs-eyebrow)', color:'#64748b', marginBottom:'3px' }}>Comp Median Price</div>
-                                    <div style={{ fontSize: 'var(--ow-fs-card-title)', fontWeight:700, color:'#e2e8f0' }}>${Math.round(compMedian/1000)}K</div>
+                                    <div style={{ fontSize: 'var(--ow-fs-eyebrow)', color:'var(--ow-muted-dim)', marginBottom:'3px' }}>Comp Median Price</div>
+                                    <div style={{ fontSize: 'var(--ow-fs-card-title)', fontWeight:700, color:'var(--ow-text-2)' }}>${Math.round(compMedian/1000)}K</div>
                                     {askingPrice > 0 && compMedian > 0 && (
                                       <div style={{ fontSize: 'var(--ow-fs-eyebrow)', color: askOverComps ? '#f59e0b' : '#22c55e', fontWeight:600, marginTop:'2px' }}>
                                         Asking {askOverComps ? `+${Math.abs(askVsComps).toFixed(1)}%` : `−${Math.abs(askVsComps).toFixed(1)}%`} vs comps
@@ -6846,24 +6915,24 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                                 )}
                                 {compAvgPpsqft > 0 && (
                                   <div style={{ background:'rgba(15,23,42,0.5)', border:'1px solid rgba(51,65,85,0.3)', borderRadius:'8px', padding:'12px 14px' }}>
-                                    <div style={{ fontSize: 'var(--ow-fs-eyebrow)', color:'#64748b', marginBottom:'3px' }}>Comp Avg $/sqft</div>
-                                    <div style={{ fontSize: 'var(--ow-fs-card-title)', fontWeight:700, color:'#e2e8f0' }}>${Math.round(compAvgPpsqft)}</div>
+                                    <div style={{ fontSize: 'var(--ow-fs-eyebrow)', color:'var(--ow-muted-dim)', marginBottom:'3px' }}>Comp Avg $/sqft</div>
+                                    <div style={{ fontSize: 'var(--ow-fs-card-title)', fontWeight:700, color:'var(--ow-text-2)' }}>${Math.round(compAvgPpsqft)}</div>
                                     {medianPpsqft > 0 && (
-                                      <div style={{ fontSize: 'var(--ow-fs-eyebrow)', color:'#64748b', marginTop:'2px' }}>ZIP median ${Math.round(medianPpsqft)}/sqft</div>
+                                      <div style={{ fontSize: 'var(--ow-fs-eyebrow)', color:'var(--ow-muted-dim)', marginTop:'2px' }}>ZIP median ${Math.round(medianPpsqft)}/sqft</div>
                                     )}
                                   </div>
                                 )}
                                 {bedMatchMedian > 0 && (
                                   <div style={{ background:'rgba(15,23,42,0.5)', border:'1px solid rgba(51,65,85,0.3)', borderRadius:'8px', padding:'12px 14px' }}>
-                                    <div style={{ fontSize: 'var(--ow-fs-eyebrow)', color:'#64748b', marginBottom:'3px' }}>Same-Bed Median</div>
-                                    <div style={{ fontSize: 'var(--ow-fs-card-title)', fontWeight:700, color:'#e2e8f0' }}>${Math.round(bedMatchMedian/1000)}K</div>
-                                    <div style={{ fontSize: 'var(--ow-fs-eyebrow)', color:'#64748b', marginTop:'2px' }}>homes with same bed count</div>
+                                    <div style={{ fontSize: 'var(--ow-fs-eyebrow)', color:'var(--ow-muted-dim)', marginBottom:'3px' }}>Same-Bed Median</div>
+                                    <div style={{ fontSize: 'var(--ow-fs-card-title)', fontWeight:700, color:'var(--ow-text-2)' }}>${Math.round(bedMatchMedian/1000)}K</div>
+                                    <div style={{ fontSize: 'var(--ow-fs-eyebrow)', color:'var(--ow-muted-dim)', marginTop:'2px' }}>homes with same bed count</div>
                                   </div>
                                 )}
                                 {compAvgDom > 0 && (
                                   <div style={{ background:'rgba(15,23,42,0.5)', border:'1px solid rgba(51,65,85,0.3)', borderRadius:'8px', padding:'12px 14px' }}>
-                                    <div style={{ fontSize: 'var(--ow-fs-eyebrow)', color:'#64748b', marginBottom:'3px' }}>Comp Avg Days to Sell</div>
-                                    <div style={{ fontSize: 'var(--ow-fs-card-title)', fontWeight:700, color:'#e2e8f0' }}>{compAvgDom} days</div>
+                                    <div style={{ fontSize: 'var(--ow-fs-eyebrow)', color:'var(--ow-muted-dim)', marginBottom:'3px' }}>Comp Avg Days to Sell</div>
+                                    <div style={{ fontSize: 'var(--ow-fs-card-title)', fontWeight:700, color:'var(--ow-text-2)' }}>{compAvgDom} days</div>
                                   </div>
                                 )}
                               </div>
@@ -6902,7 +6971,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
                           {/* Market rationale */}
                           {marketRationale && (
-                            <div style={{ background:'rgba(59,130,246,0.06)', border:'1px solid rgba(59,130,246,0.15)', borderRadius:'8px', padding:'12px 14px', fontSize: 'var(--ow-fs-small)', color:'#94a3b8', lineHeight:1.6 }}>
+                            <div style={{ background:'rgba(59,130,246,0.06)', border:'1px solid rgba(59,130,246,0.15)', borderRadius:'8px', padding:'12px 14px', fontSize: 'var(--ow-fs-small)', color:'var(--ow-muted-2)', lineHeight:1.6 }}>
                               <span style={{ fontWeight:600, color:'#60a5fa' }}>📌 Why this matters: </span>{marketRationale}
                             </div>
                           )}
@@ -6915,7 +6984,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                             if (topComps.length === 0) return null;
                             return (
                               <div style={{ marginTop:'16px' }}>
-                                <div style={{ fontSize: 'var(--ow-fs-meta)', color:'#64748b', fontWeight:600, textTransform:'uppercase', letterSpacing:'0.5px', marginBottom:'10px' }}>
+                                <div style={{ fontSize: 'var(--ow-fs-meta)', color:'var(--ow-muted-dim)', fontWeight:600, textTransform:'uppercase', letterSpacing:'0.5px', marginBottom:'10px' }}>
                                   Recent Sold Comps
                                 </div>
                                 <div style={{ border:'1px solid rgba(51,65,85,0.4)', borderRadius:'8px', overflow:'hidden' }}>
@@ -6927,8 +6996,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                                     return (
                                       <div key={i} style={{ display:'grid', gridTemplateColumns:'1fr auto', alignItems:'center', padding:'10px 14px', background: i % 2 === 0 ? 'rgba(15,23,42,0.4)' : 'transparent', borderBottom: i < topComps.length - 1 ? '1px solid rgba(51,65,85,0.2)' : 'none' }}>
                                         <div>
-                                          <div style={{ fontSize: 'var(--ow-fs-small)', color:'#e2e8f0', fontWeight:500 }}>{shortAddr}</div>
-                                          <div style={{ fontSize: 'var(--ow-fs-eyebrow)', color:'#475569', marginTop:'2px' }}>
+                                          <div style={{ fontSize: 'var(--ow-fs-small)', color:'var(--ow-text-2)', fontWeight:500 }}>{shortAddr}</div>
+                                          <div style={{ fontSize: 'var(--ow-fs-eyebrow)', color:'var(--ow-line-strong)', marginTop:'2px' }}>
                                             {comp.bedrooms > 0 && `${comp.bedrooms}bd `}
                                             {comp.bathrooms > 0 && `${comp.bathrooms}ba `}
                                             {comp.sqft > 0 && `· ${comp.sqft.toLocaleString()} sqft `}
@@ -6937,15 +7006,15 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                                           </div>
                                         </div>
                                         <div style={{ textAlign:'right' }}>
-                                          <div style={{ fontSize: 'var(--ow-fs-body)', fontWeight:700, color:'#e2e8f0' }}>${comp.price.toLocaleString()}</div>
-                                          {ppsqft > 0 && <div style={{ fontSize: 'var(--ow-fs-eyebrow)', color:'#64748b' }}>${ppsqft}/sqft</div>}
+                                          <div style={{ fontSize: 'var(--ow-fs-body)', fontWeight:700, color:'var(--ow-text-2)' }}>${comp.price.toLocaleString()}</div>
+                                          {ppsqft > 0 && <div style={{ fontSize: 'var(--ow-fs-eyebrow)', color:'var(--ow-muted-dim)' }}>${ppsqft}/sqft</div>}
                                         </div>
                                       </div>
                                     );
                                   })}
                                 </div>
                                 {comps.length > 5 && (
-                                  <div style={{ fontSize: 'var(--ow-fs-meta)', color:'#475569', marginTop:'6px', textAlign:'right' }}>
+                                  <div style={{ fontSize: 'var(--ow-fs-meta)', color:'var(--ow-line-strong)', marginTop:'6px', textAlign:'right' }}>
                                     +{comps.length - 5} more comps used in valuation
                                   </div>
                                 )}
@@ -7039,7 +7108,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                             </summary>
 
                             <div style={{ background:'var(--ow-panel)', border:'1px solid var(--ow-line)', borderTop:'0', borderRadius:'0 0 14px 14px', padding:'4px 26px 24px', marginTop:'-4px' }}>
-                              <p style={{ margin:'12px 0 16px', fontSize: 'var(--ow-fs-body)', color:'#cbd5e1', lineHeight:1.6 }}>
+                              <p style={{ margin:'12px 0 16px', fontSize: 'var(--ow-fs-body)', color:'var(--ow-text-body-2)', lineHeight:1.6 }}>
                                 {_isWalkVerdict
                                   ? <>This property's combination of issues puts it outside a defensible offer. Specifically:</>
                                   : <>You should not be afraid to walk from this deal. Real-estate inventory exists. This isn't the only house. Here are the conditions under which we would walk:</>}
@@ -7047,16 +7116,16 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
                               <ul style={{ listStyle:'none', padding:0, margin:'0 0 18px' }}>
                                 {_conditions.map((c, i) => (
-                                  <li key={i} style={{ padding:'13px 0 13px 22px', borderTop: i > 0 ? '1px solid var(--ow-line)' : '0', position:'relative', fontSize: 'var(--ow-fs-body)', color:'#cbd5e1', lineHeight:1.55 }}>
+                                  <li key={i} style={{ padding:'13px 0 13px 22px', borderTop: i > 0 ? '1px solid var(--ow-line)' : '0', position:'relative', fontSize: 'var(--ow-fs-body)', color:'var(--ow-text-body-2)', lineHeight:1.55 }}>
                                     <span style={{ position:'absolute', left:0, top:'14px', color:'#ef4444', fontWeight:700, fontSize: 'var(--ow-fs-small)' }}>✕</span>
-                                    <span style={{ color:'#f1f5f9', fontWeight:700 }}>{c.headline}</span>
-                                    <span style={{ display:'block', marginTop:'3px', color:'#94a3b8', fontSize: 'var(--ow-fs-small)' }}>{c.detail}</span>
+                                    <span style={{ color:'var(--ow-text-strong)', fontWeight:700 }}>{c.headline}</span>
+                                    <span style={{ display:'block', marginTop:'3px', color:'var(--ow-muted-2)', fontSize: 'var(--ow-fs-small)' }}>{c.detail}</span>
                                   </li>
                                 ))}
                               </ul>
 
                               {!_isWalkVerdict && (
-                                <div style={{ padding:'14px 18px', background:'rgba(239,68,68,0.08)', borderLeft:'3px solid #ef4444', borderRadius:'6px', fontStyle:'italic', color:'#f1f5f9', fontSize: 'var(--ow-fs-body)', lineHeight:1.5, marginBottom:'8px' }}>
+                                <div style={{ padding:'14px 18px', background:'rgba(239,68,68,0.08)', borderLeft:'3px solid #ef4444', borderRadius:'6px', fontStyle:'italic', color:'var(--ow-text-strong)', fontSize: 'var(--ow-fs-body)', lineHeight:1.5, marginBottom:'8px' }}>
                                   Most buyers overpay because they fall in love with the house and nobody tells them walking is acceptable. Walking is acceptable.
                                 </div>
                               )}
@@ -7066,21 +7135,21 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                                   note they don't change the offer math. */}
                               {positiveFindings.length > 0 && (
                                 <div style={{ borderTop:'1px solid rgba(51,65,85,0.4)', paddingTop:'18px', marginTop:'18px' }}>
-                                  <div style={{ fontSize: 'var(--ow-fs-eyebrow)', fontWeight:700, textTransform:'uppercase', letterSpacing:'0.08em', color:'#94a3b8', marginBottom:'12px' }}>
+                                  <div style={{ fontSize: 'var(--ow-fs-eyebrow)', fontWeight:700, textTransform:'uppercase', letterSpacing:'0.08em', color:'var(--ow-muted-2)', marginBottom:'12px' }}>
                                     What this property HAS going for it
                                   </div>
                                   <ul style={{ listStyle:'none', padding:0, margin:'0 0 12px' }}>
                                     {positiveFindings.slice(0, 6).map((pf, idx) => {
                                       const text = typeof pf === 'string' ? pf : (pf.description || pf.finding || pf.title || pf.explanation || pf.text || 'Positive finding');
                                       return (
-                                        <li key={idx} style={{ padding:'5px 0 5px 22px', position:'relative', fontSize: 'var(--ow-fs-body)', color:'#cbd5e1' }}>
+                                        <li key={idx} style={{ padding:'5px 0 5px 22px', position:'relative', fontSize: 'var(--ow-fs-body)', color:'var(--ow-text-body-2)' }}>
                                           <span style={{ position:'absolute', left:0, color:'#22c55e', fontWeight:700 }}>+</span>
                                           {text}
                                         </li>
                                       );
                                     })}
                                   </ul>
-                                  <div style={{ fontSize: 'var(--ow-fs-small)', color:'#64748b', fontStyle:'italic' }}>
+                                  <div style={{ fontSize: 'var(--ow-fs-small)', color:'var(--ow-muted-dim)', fontStyle:'italic' }}>
                                     These don't change the recommended offer. They're already priced into the math.
                                   </div>
                                 </div>
@@ -7108,8 +7177,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                         spent the report building. */}
 
                     {/* Disclaimer */}
-                    <div style={{ fontSize: 'var(--ow-fs-meta)', color:'#475569', lineHeight:1.6, padding:'20px', background:'rgba(30,41,59,0.3)', borderRadius:'10px', margin:'32px 0 0', border:'1px solid #334155' }}>
-                      <strong style={{ color:'#64748b' }}>Important:</strong> This analysis is based on the documents you provided and publicly available data. It is not a substitute for professional inspection, legal, or financial advice. Always consult qualified professionals before making real estate decisions.
+                    <div style={{ fontSize: 'var(--ow-fs-meta)', color:'var(--ow-line-strong)', lineHeight:1.6, padding:'20px', background:'rgba(30,41,59,0.3)', borderRadius:'10px', margin:'32px 0 0', border:'1px solid var(--ow-line-2)' }}>
+                      <strong style={{ color:'var(--ow-muted-dim)' }}>Important:</strong> This analysis is based on the documents you provided and publicly available data. It is not a substitute for professional inspection, legal, or financial advice. Always consult qualified professionals before making real estate decisions.
                     </div>
 
 
@@ -7195,8 +7264,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                           {!userHasPaid && (
                             <div onClick={() => window.location.href='/pricing'} style={{ background:'rgba(249,115,22,0.06)', border:'1px solid rgba(249,115,22,0.2)', borderRadius:'12px', padding:'20px 24px', marginBottom:'12px', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'space-between', gap:'16px' }}>
                               <div>
-                                <div style={{ fontSize: 'var(--ow-fs-body)', fontWeight:700, color:'#f1f5f9', marginBottom:'4px' }}>🔒 4-step negotiation playbook</div>
-                                <div style={{ fontSize: 'var(--ow-fs-meta)', color:'#64748b' }}>Repair breakdown · Negotiation checklist · Offer calculator · Draft addendum — unlock from $9/mo</div>
+                                <div style={{ fontSize: 'var(--ow-fs-body)', fontWeight:700, color:'var(--ow-text-strong)', marginBottom:'4px' }}>🔒 4-step negotiation playbook</div>
+                                <div style={{ fontSize: 'var(--ow-fs-meta)', color:'var(--ow-muted-dim)' }}>Repair breakdown · Negotiation checklist · Offer calculator · Draft addendum — unlock from $9/mo</div>
                               </div>
                               <span style={{ padding:'8px 18px', background:'linear-gradient(90deg,#f97316,#f59e0b)', borderRadius:'8px', fontWeight:700, fontSize: 'var(--ow-fs-small)', color:'white', whiteSpace:'nowrap' }}>Unlock $9/mo →</span>
                             </div>
@@ -7333,9 +7402,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                           {/* -- PANEL 2: Repair Breakdown -- */}
                           <div id="ow-repair-panel" style={{ display: 'none', background: 'rgba(15,23,42,0.8)', border: '1px solid rgba(245,158,11,0.2)', borderRadius: '14px', padding: '20px', marginBottom: '10px' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                              <div style={{ fontSize: 'var(--ow-fs-body)', fontWeight: 700, color: '#f1f5f9' }}>🔧 Repair Cost Breakdown</div>
+                              <div style={{ fontSize: 'var(--ow-fs-body)', fontWeight: 700, color: 'var(--ow-text-strong)' }}>🔧 Repair Cost Breakdown</div>
                               <button onClick={() => document.getElementById('ow-repair-panel').style.display='none'}
-                                style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', fontSize: '18px', lineHeight: 1 }}>✕</button>
+                                style={{ background: 'none', border: 'none', color: 'var(--ow-muted-dim)', cursor: 'pointer', fontSize: '18px', lineHeight: 1 }}>✕</button>
                             </div>
                             {repairLines.length > 0 ? (
                               <div>
@@ -7344,7 +7413,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                                     <div>
                                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '3px' }}>
                                         <span style={{ fontSize: 'var(--ow-fs-body)' }}>{item.contractor.icon}</span>
-                                        <span style={{ fontSize: 'var(--ow-fs-small)', fontWeight: 600, color: '#f1f5f9', textTransform: 'capitalize' }}>{item.system}</span>
+                                        <span style={{ fontSize: 'var(--ow-fs-small)', fontWeight: 600, color: 'var(--ow-text-strong)', textTransform: 'capitalize' }}>{item.system}</span>
                                         {item.severity === 'critical' && <span style={{ fontSize: 'var(--ow-fs-micro)', fontWeight: 700, background: 'rgba(239,68,68,0.15)', color: '#ef4444', padding: '1px 6px', borderRadius: '4px' }}>CRITICAL</span>}
                                         {item.severity === 'major' && <span style={{ fontSize: 'var(--ow-fs-micro)', fontWeight: 700, background: 'rgba(245,158,11,0.15)', color: '#f59e0b', padding: '1px 6px', borderRadius: '4px' }}>MAJOR</span>}
                                       </div>
@@ -7353,8 +7422,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                                         {item.insurability && <span style={{ fontSize: 'var(--ow-fs-micro)', fontWeight:700, padding:'1px 6px', borderRadius:'4px', background:'rgba(96,165,250,0.1)', color:'#60a5fa' }}>🏦 Insurability</span>}
                                         {item.specialist && <span style={{ fontSize: 'var(--ow-fs-micro)', fontWeight:700, padding:'1px 6px', borderRadius:'4px', background:'rgba(167,139,250,0.1)', color:'#a78bfa' }}>👷 Specialist</span>}
                                       </div>
-                                      <div style={{ fontSize: 'var(--ow-fs-eyebrow)', color: '#64748b' }}>{item.contractor.trade}</div>
-                                      {item.description && <div style={{ fontSize: 'var(--ow-fs-eyebrow)', color: '#475569', marginTop: '3px', lineHeight: 1.4 }}>{item.description}</div>}
+                                      <div style={{ fontSize: 'var(--ow-fs-eyebrow)', color: 'var(--ow-muted-dim)' }}>{item.contractor.trade}</div>
+                                      {item.description && <div style={{ fontSize: 'var(--ow-fs-eyebrow)', color: 'var(--ow-line-strong)', marginTop: '3px', lineHeight: 1.4 }}>{item.description}</div>}
                                     </div>
                                     <div style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '6px' }}>
                                       <div style={{ fontSize: 'var(--ow-fs-body)', fontWeight: 700, color: '#f59e0b' }}>
@@ -7377,13 +7446,13 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                                         <button
                                           id={`fb-y-${i}`}
                                           onClick={() => window.owSubmitIssueFeedback(i, item, 'confirmed')}
-                                          style={{ fontSize: 'var(--ow-fs-micro)', padding: '3px 8px', borderRadius: '4px', border: '1px solid rgba(34,197,94,0.25)', background: 'rgba(34,197,94,0.05)', color: '#64748b', cursor: 'pointer', fontFamily: 'inherit' }}
+                                          style={{ fontSize: 'var(--ow-fs-micro)', padding: '3px 8px', borderRadius: '4px', border: '1px solid rgba(34,197,94,0.25)', background: 'rgba(34,197,94,0.05)', color: 'var(--ow-muted-dim)', cursor: 'pointer', fontFamily: 'inherit' }}
                                           title="I found this in my inspection report"
                                         >✓ Found</button>
                                         <button
                                           id={`fb-n-${i}`}
                                           onClick={() => window.owSubmitIssueFeedback(i, item, 'not_found')}
-                                          style={{ fontSize: 'var(--ow-fs-micro)', padding: '3px 8px', borderRadius: '4px', border: '1px solid rgba(239,68,68,0.2)', background: 'rgba(239,68,68,0.04)', color: '#64748b', cursor: 'pointer', fontFamily: 'inherit' }}
+                                          style={{ fontSize: 'var(--ow-fs-micro)', padding: '3px 8px', borderRadius: '4px', border: '1px solid rgba(239,68,68,0.2)', background: 'rgba(239,68,68,0.04)', color: 'var(--ow-muted-dim)', cursor: 'pointer', fontFamily: 'inherit' }}
                                           title="This was not in my inspection report"
                                         >✗ Not found</button>
                                       </div>
@@ -7391,33 +7460,33 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                                   </div>
                                 ))}
                                 <div style={{ marginTop: '16px', padding: '12px 14px', background: 'rgba(245,158,11,0.08)', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                  <span style={{ fontSize: 'var(--ow-fs-small)', fontWeight: 700, color: '#f1f5f9' }}>Total estimated repairs</span>
+                                  <span style={{ fontSize: 'var(--ow-fs-small)', fontWeight: 700, color: 'var(--ow-text-strong)' }}>Total estimated repairs</span>
                                   <span style={{ fontSize: '15px', fontWeight: 800, color: '#f59e0b' }}>${Math.round(avgRepairCost/1000)}K avg</span>
                                 </div>
-                                <div style={{ marginTop: '10px', fontSize: 'var(--ow-fs-eyebrow)', color: '#475569', lineHeight: 1.5 }}>
+                                <div style={{ marginTop: '10px', fontSize: 'var(--ow-fs-eyebrow)', color: 'var(--ow-line-strong)', lineHeight: 1.5 }}>
                                   💡 Use these figures when requesting repair credits or price reductions from the seller. Each line item is a separate negotiation ask backed by your inspection report.
                                 </div>
                               </div>
                             ) : (
-                              <div style={{ color: '#64748b', fontSize: 'var(--ow-fs-small)' }}>No itemized repair breakdown available for this analysis.</div>
+                              <div style={{ color: 'var(--ow-muted-dim)', fontSize: 'var(--ow-fs-small)' }}>No itemized repair breakdown available for this analysis.</div>
                             )}
                           </div>
 
                           {/* -- PANEL 3: Negotiation Checklist -- */}
                           <div id="ow-neg-panel" style={{ display: 'none', background: 'rgba(15,23,42,0.8)', border: '1px solid rgba(34,197,94,0.2)', borderRadius: '14px', padding: '20px', marginBottom: '10px' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-                              <div style={{ fontSize: 'var(--ow-fs-body)', fontWeight: 700, color: '#f1f5f9' }}>📋 Negotiation Checklist</div>
+                              <div style={{ fontSize: 'var(--ow-fs-body)', fontWeight: 700, color: 'var(--ow-text-strong)' }}>📋 Negotiation Checklist</div>
                               <button onClick={() => document.getElementById('ow-neg-panel').style.display='none'}
-                                style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', fontSize: '18px', lineHeight: 1 }}>✕</button>
+                                style={{ background: 'none', border: 'none', color: 'var(--ow-muted-dim)', cursor: 'pointer', fontSize: '18px', lineHeight: 1 }}>✕</button>
                             </div>
-                            <div style={{ fontSize: 'var(--ow-fs-eyebrow)', color: '#64748b', marginBottom: '16px' }}>Share this list with your agent — each item is a documented ask backed by your inspection and disclosure reports.</div>
+                            <div style={{ fontSize: 'var(--ow-fs-eyebrow)', color: 'var(--ow-muted-dim)', marginBottom: '16px' }}>Share this list with your agent — each item is a documented ask backed by your inspection and disclosure reports.</div>
                             {negItems.length > 0 ? (
                               <div>
                                 {negItems.map((item, i) => (
                                   <div key={i} style={{ display: 'flex', gap: '10px', padding: '10px 0', borderBottom: i < negItems.length - 1 ? '1px solid rgba(51,65,85,0.4)' : 'none', alignItems: 'flex-start' }}>
                                     <span style={{ fontSize: 'var(--ow-fs-small)', flexShrink: 0, marginTop: '1px' }}>{item.type === 'dealbreaker' ? '⛔' : '🎯'}</span>
                                     <div style={{ flex: 1 }}>
-                                      <div style={{ fontSize: 'var(--ow-fs-small)', color: '#e2e8f0', lineHeight: 1.45 }}>{item.text}</div>
+                                      <div style={{ fontSize: 'var(--ow-fs-small)', color: 'var(--ow-text-2)', lineHeight: 1.45 }}>{item.text}</div>
                                       {item.cost && <div style={{ fontSize: 'var(--ow-fs-eyebrow)', color: '#f59e0b', marginTop: '3px', fontWeight: 600 }}>Est. cost: {item.cost}</div>}
                                     </div>
                                   </div>
@@ -7442,16 +7511,16 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                               </div>
                               </div>
                             ) : (
-                              <div style={{ color: '#64748b', fontSize: 'var(--ow-fs-small)' }}>No negotiation points extracted for this analysis.</div>
+                              <div style={{ color: 'var(--ow-muted-dim)', fontSize: 'var(--ow-fs-small)' }}>No negotiation points extracted for this analysis.</div>
                             )}
                           </div>
 
                           {/* -- PANEL 4: Offer Calculator -- */}
                           <div id="ow-calc-panel" style={{ display: 'none', background: 'rgba(15,23,42,0.8)', border: '1px solid rgba(139,92,246,0.2)', borderRadius: '14px', padding: '20px', marginBottom: '10px' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                              <div style={{ fontSize: 'var(--ow-fs-body)', fontWeight: 700, color: '#f1f5f9' }}>🧮 Offer Price Calculator</div>
+                              <div style={{ fontSize: 'var(--ow-fs-body)', fontWeight: 700, color: 'var(--ow-text-strong)' }}>🧮 Offer Price Calculator</div>
                               <button onClick={() => document.getElementById('ow-calc-panel').style.display='none'}
-                                style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', fontSize: '18px', lineHeight: 1 }}>✕</button>
+                                style={{ background: 'none', border: 'none', color: 'var(--ow-muted-dim)', cursor: 'pointer', fontSize: '18px', lineHeight: 1 }}>✕</button>
                             </div>
                             <div id="ow-calc-body"></div>
                           </div>
@@ -7492,9 +7561,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     <div className="ow-after-grid">
                     <div className="ow-after-col">
                     <div>
-                      <div style={{ fontSize: 'var(--ow-fs-eyebrow)', fontWeight:700, textTransform:'uppercase', letterSpacing:'0.12em', color:'#94a3b8', marginBottom:'4px' }}>After you offer</div>
+                      <div style={{ fontSize: 'var(--ow-fs-eyebrow)', fontWeight:700, textTransform:'uppercase', letterSpacing:'0.12em', color:'var(--ow-muted-2)', marginBottom:'4px' }}>After you offer</div>
                       <h2 className="ow-section-title" style={{ fontSize: 'var(--ow-fs-section-title)', margin:'0 0 4px' }}>OfferWatch™ keeps watching</h2>
-                      <p style={{ fontSize: 'var(--ow-fs-small)', color:'#94a3b8', margin:'0 0 10px', maxWidth:'680px', lineHeight:1.45 }}>
+                      <p style={{ fontSize: 'var(--ow-fs-small)', color:'var(--ow-muted-2)', margin:'0 0 10px', maxWidth:'680px', lineHeight:1.45 }}>
                         Daily checks for the signals below — react before the seller's agent does.
                       </p>
                     </div>
@@ -7545,11 +7614,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                               <span style={{ fontSize: '1.3rem' }}>🔭</span>
                               <div>
-                                <div style={{ fontSize: 'var(--ow-fs-small)', fontWeight: 700, color: '#f1f5f9' }}>
+                                <div style={{ fontSize: 'var(--ow-fs-small)', fontWeight: 700, color: 'var(--ow-text-strong)' }}>
                                   OfferWatch™
                                   {unread > 0 && <span style={{ marginLeft: '8px', background: '#ef4444', color: 'white', fontSize: 'var(--ow-fs-micro)', fontWeight: 700, padding: '2px 7px', borderRadius: '10px' }}>{unread} new</span>}
                                 </div>
-                                <div style={{ fontSize: 'var(--ow-fs-eyebrow)', color: '#475569' }}>
+                                <div style={{ fontSize: 'var(--ow-fs-eyebrow)', color: 'var(--ow-line-strong)' }}>
                                   {owAlerts && owAlerts.length === 0 ? 'Monitoring daily · no alerts yet' : `${owAlerts.length} alert${owAlerts.length!==1?'s':''} · checking daily for price drops, comps, permits, seismic events`}
                                 </div>
                               </div>
@@ -7565,12 +7634,12 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                                   <span style={{ fontSize: '1.2rem', flexShrink: 0, marginTop: '1px' }}>{typeIcon(alert.alert_type)}</span>
                                   <div style={{ flex: 1, minWidth: 0 }}>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '3px', flexWrap: 'wrap' }}>
-                                      <span style={{ fontSize: 'var(--ow-fs-small)', fontWeight: alert.read_at ? 600 : 700, color: alert.read_at ? '#94a3b8' : '#f1f5f9' }}>{alert.title}</span>
+                                      <span style={{ fontSize: 'var(--ow-fs-small)', fontWeight: alert.read_at ? 600 : 700, color: alert.read_at ? 'var(--ow-muted-2)' : 'var(--ow-text-strong)' }}>{alert.title}</span>
                                       <span style={{ fontSize: 'var(--ow-fs-micro)', fontWeight: 700, color: sevColor(alert.severity), background: `${sevColor(alert.severity)}18`, padding: '2px 7px', borderRadius: '6px', flexShrink: 0 }}>{alert.severity}</span>
                                       {!alert.read_at && <span style={{ width: '7px', height: '7px', background: '#60a5fa', borderRadius: '50%', flexShrink: 0 }} />}
                                     </div>
-                                    {alert.body && <div style={{ fontSize: 'var(--ow-fs-meta)', color: '#64748b', lineHeight: 1.55 }}>{alert.body}</div>}
-                                    <div style={{ fontSize: 'var(--ow-fs-micro)', color: '#334155', marginTop: '4px' }}>{new Date(alert.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'2-digit',minute:'2-digit'})}</div>
+                                    {alert.body && <div style={{ fontSize: 'var(--ow-fs-meta)', color: 'var(--ow-muted-dim)', lineHeight: 1.55 }}>{alert.body}</div>}
+                                    <div style={{ fontSize: 'var(--ow-fs-micro)', color: 'var(--ow-line-2)', marginTop: '4px' }}>{new Date(alert.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'2-digit',minute:'2-digit'})}</div>
                                   </div>
                                 </div>
                               ))}
@@ -7757,8 +7826,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                       <div className="ow-after-banner">
                       <div style={{ margin:'24px 0 20px', padding:'16px 20px', background:'linear-gradient(135deg, rgba(249,115,22,0.12), rgba(245,158,11,0.08))', border:'1px solid rgba(249,115,22,0.35)', borderRadius:'12px', display:'flex', alignItems:'center', justifyContent:'space-between', gap:'16px', flexWrap:'wrap' }}>
                         <div>
-                          <div style={{ fontSize: 'var(--ow-fs-body)', fontWeight:800, color:'#f1f5f9', marginBottom:'3px' }}>Your offer number is locked — unlock it for $9/mo</div>
-                          <div style={{ fontSize: 'var(--ow-fs-meta)', color:'#94a3b8' }}>Offer price · Full negotiation playbook · Seller transparency deep-dive · Unlimited analyses</div>
+                          <div style={{ fontSize: 'var(--ow-fs-body)', fontWeight:800, color:'var(--ow-text-strong)', marginBottom:'3px' }}>Your offer number is locked — unlock it for $9/mo</div>
+                          <div style={{ fontSize: 'var(--ow-fs-meta)', color:'var(--ow-muted-2)' }}>Offer price · Full negotiation playbook · Seller transparency deep-dive · Unlimited analyses</div>
                         </div>
                         <a href="/pricing" style={{ flexShrink:0, padding:'10px 22px', background:'linear-gradient(90deg,#f97316,#f59e0b)', borderRadius:'8px', fontWeight:700, fontSize: 'var(--ow-fs-small)', color:'white', textDecoration:'none', whiteSpace:'nowrap' }}>Unlock full report →</a>
                       </div>
@@ -7780,7 +7849,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                         instead of a closing section. */}
                     <div className="ow-after-col">
                     <div>
-                      <div style={{ fontSize: 'var(--ow-fs-eyebrow)', fontWeight:700, textTransform:'uppercase', letterSpacing:'0.12em', color:'#94a3b8', marginBottom:'4px' }}>One more thing</div>
+                      <div style={{ fontSize: 'var(--ow-fs-eyebrow)', fontWeight:700, textTransform:'uppercase', letterSpacing:'0.12em', color:'var(--ow-muted-2)', marginBottom:'4px' }}>One more thing</div>
                       <h2 className="ow-section-title" style={{ fontSize: 'var(--ow-fs-section-title)', margin:'0 0 6px' }}>Share the love</h2>
                       {(savings > 0 || avgRepairCost > 0) && (
                         <p style={{ fontSize: 'var(--ow-fs-body)', color:'#94a3b8', margin:'0 0 14px', maxWidth:'680px', lineHeight:1.6 }}>
@@ -12369,7 +12438,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </script>
     
     <!-- Async Upload Manager - Handles PDF uploads with real-time progress -->
-    <script src="/static/async-upload-manager.js?v=5.89.190"></script>
+    <script src="/static/async-upload-manager.js?v=5.89.193"></script>
     
     <!-- Floating Support Button -->
     <a href="/contact" id="support-button" style="
@@ -12394,8 +12463,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <span style="font-size: 16px;">💬</span>
         Help
     </a>
-<script src="/static/js/compliance.js?v=5.89.190"></script>
-<script src="/static/js/analytics.js?v=5.89.190" defer></script>
+<script src="/static/js/compliance.js?v=5.89.193"></script>
+<script src="/static/js/analytics.js?v=5.89.193" defer></script>
 <script>
 // Scroll reveal for premium results animations
 (function() {
@@ -12482,7 +12551,7 @@ if ('serviceWorker' in navigator) {
 
 <!-- Scout: docked, summon-on-demand "Ask your report" assistant (v5.89.157) -->
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&display=swap" rel="stylesheet">
-<script src="/static/ask-widget.js?v=5.89.190"></script>
+<script src="/static/ask-widget.js?v=5.89.193"></script>
 <script>
 (function(){
   if (window.__scoutInit) { return; } window.__scoutInit = true;

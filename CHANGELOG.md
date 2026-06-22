@@ -3,6 +3,83 @@
 Historical deployment notes, bug fixes, and architecture decisions.
 Consolidated from 80 individual files on 2026-03-13.
 
+## v5.89.193 — Wire the orphaned test suite into CI (66 files) + anti-drift gate
+
+The coverage audit found 82 of 100 test files weren't run by CI — ~41k lines of
+written tests gating nothing, including the whole e2e suite. Classified all 82:
+66 pass clean, 16 fail/error. This wires in the 66 and restructures CI so tests
+can't silently drift out again.
+
+- CI now auto-discovers tests by marker instead of an opt-in file list:
+  `pytest -m "not e2e"` (1,612 tests) and `pytest -m "e2e"` (370, isolated DB).
+  New test files join the gate automatically — no list to forget. Gated tests go
+  from 575 to ~1,937.
+- The unit and e2e suites contaminate each other's global state in one process
+  (2 tests failed only when everything ran together), so e2e runs in its own
+  step/DB; conftest auto-marks any test_e2e_*.py with the `e2e` marker.
+- 16 rotted files are quarantined centrally via `collect_ignore` in conftest.py,
+  documented with causes and fixes in docs/TEST_QUARANTINE.md. They cluster:
+  oauth concurrency (need Postgres), payments/cassettes (need secrets/fixtures),
+  3 collection errors, 4 single-assertion rots, 3 drifted.
+- Fixed a latent CI bug: the old steps piped `pytest | tail`, masking pytest's
+  exit code — a failing test would NOT have failed CI. New steps use
+  `set -o pipefail`.
+
+Verified: non-e2e 1,579 passed, e2e 358 passed, 0 quarantined collected.
+Test-infra only; no app or behaviour change.
+
+## v5.89.192 — Regression guard: browser smoke test + frontend CI checks
+
+Direct answer to "how are we preventing regressions" — closes the frontend gap
+the Babel-8 white-screen exposed (no automated test caught the app failing to
+mount; a human noticing a white screen was the whole safety net).
+
+- scripts/smoke_test.py: headless-Chromium check that the app actually MOUNTS.
+  Hard-fails on the white-screen signature ("Cannot use import statement outside
+  a module" / appendChild). Validated both ways: passes live prod, fails a
+  recreated Babel-8 build.
+- .github/workflows/smoke.yml: runs the smoke against prod /app every 30 minutes
+  and on manual dispatch. This guards EXTERNAL breaks — the Babel-8 outage
+  happened with NO deploy (an unpinned CDN upgraded), which only a scheduled
+  monitor can catch. A failure notifies the repo owner.
+- scripts/check_frontend.js + a `frontend` job in ci.yml: push-time guard that
+  fails the build if @babel/standalone is ever un-pinned or the inline JSX stops
+  compiling. Catches code-side breaks before prod.
+
+Two layers — push-time (code-side) and scheduled (external/runtime); neither needs
+the backend. Validated locally end to end.
+
+sw.js CACHE_NAME -> v5.89.192.
+
+## v5.89.191 — Report light theme, iteration 1 (blind; QA on staging)
+
+On-screen light/dark toggle for the analysis report. Approach: tokenize, don't
+re-skin. The report body hardcoded 36 distinct colors; the text/surface/line ones
+(163 placements) are now var(--ow-*) tokens, with a [data-theme="light"] override
+that redefines the token VALUES. Dark mode is unchanged — every token's dark value
+equals the hex it replaced (zero drift); accents (red/amber/green/blue/orange)
+keep their hex since they read on white.
+
+- New tokens: --ow-text-strong, --ow-text-2, --ow-text-body-2, --ow-muted-2,
+  --ow-muted-dim, --ow-bg-deep, --ow-surface-2, --ow-line-2, --ow-line-strong.
+- Light override scoped to .ow-results[data-theme="light"].
+- New <OwThemeToggle> (self-contained, mirrors OwReportTabs): walks up to
+  .ow-results, sets data-theme, persists to localStorage, defaults to dark.
+  Graceful — if the JS fails, data-theme is never set and the report stays dark.
+- Container .ow-results bg/text tokenized so the surface itself flips.
+
+KNOWN iteration-1 gaps (expected — blind first pass, QA on staging):
+- Risk/Environmental render from blocks outside the tokenized range, so their
+  colors will not flip yet (same boundary as the tabs).
+- The hero gradient is a class style left dark for now.
+- Same-hex-different-role: a few elements may land wrong in light mode (e.g. a
+  border that shared a text color). These are the QA targets.
+
+Validated: full babel block compiles with pinned 7.29.7, no import injected.
+Visual correctness to be ground out on staging. Fully reversible (dark unchanged).
+
+sw.js CACHE_NAME -> v5.89.191.
+
 ## v5.89.190 — Deploy safety: completeness guard in ow_deploy.sh
 
 Root-cause fix for the v5.89.186 incident class. ow_deploy.sh runs
