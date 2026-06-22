@@ -17,9 +17,12 @@ from models import db
 # Alembic Config object
 config = context.config
 
-# Set up logging from alembic.ini
+# Set up logging from alembic.ini. disable_existing_loggers=False is required:
+# the default (True) would disable every logger already created by the app
+# (e.g. verifier_service, hunter_service) when migrations run at startup,
+# silencing application logging in production.
 if config.config_file_name is not None:
-    fileConfig(config.config_file_name)
+    fileConfig(config.config_file_name, disable_existing_loggers=False)
 
 # Set target metadata from our models
 target_metadata = db.metadata

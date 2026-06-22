@@ -108,6 +108,16 @@ jobs:
           set -o pipefail
           python -m pytest -m "e2e" -p no:cacheprovider --tb=short 2>&1 | tail -120
 
+      - name: Run isolated suite (all_60_workflows — sets env at import)
+        env:
+          FLASK_ENV: testing
+          SECRET_KEY: test-secret-key-for-ci
+          DATABASE_URL: sqlite:///test_isolated.db
+          PYTEST_ISOLATED: "1"
+        run: |
+          set -o pipefail
+          python -m pytest test_all_60_workflows.py -p no:cacheprovider --tb=short 2>&1 | tail -120
+
       - name: Run integrity tests
         env:
           FLASK_ENV: testing

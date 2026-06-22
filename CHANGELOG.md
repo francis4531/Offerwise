@@ -3,6 +3,62 @@
 Historical deployment notes, bug fixes, and architecture decisions.
 Consolidated from 80 individual files on 2026-03-13.
 
+## v5.89.197 — One-command interactive deploy (scripts/ow_ship.sh)
+
+Shipping is now one step, not several. scripts/ow_ship.sh finds the newest build
+tarball in ~/Downloads, verifies + extracts it, runs the staging deploy, then
+PAUSES and asks before promoting to production — the staging-first safety
+checkpoint is preserved as an explicit y/N confirmation. Answer anything but y
+and it stops at staging (production untouched).
+
+- Newest-build selection is version-aware (v5.89.196 beats v5.89.95); or pass a
+  version / path explicitly: `~/ow_ship.sh 5.89.197`.
+- Verifies the archive (gzip -t) and the Babel pin before deploying; delegates
+  the real work to scripts/ow_deploy.sh and scripts/ow_promote.sh (unchanged).
+- Non-destructively flags when a build ships a newer launcher than you're running.
+- docs/DEPLOY.md documents the one-command flow.
+
+Carries the v5.89.196 fix (Alembic disable_existing_loggers=False — restores
+application logging after migrations and greens CI). sw.js CACHE_NAME -> v5.89.197.
+
+## v5.89.196 — Fix CI failure: Alembic was disabling app loggers (real bug)
+
+The .195 push reddened CI: test_hunter_service and test_verifier_service's
+test_safe_log_error_redacts_key failed. Root cause was real, not a test quirk.
+
+alembic/env.py called fileConfig(config.config_file_name), which defaults to
+disable_existing_loggers=True — so when migrations run at app startup, Alembic
+disabled every logger the app had already created (verifier_service,
+hunter_service, ...). Those redaction tests use assertLogs, which then captured
+nothing and failed. It only surfaced in CI because conftest stubs alembic locally
+(fileConfig is a no-op) while CI installs the real library. The same disabling
+also silenced application logging in production after migrations ran.
+
+Fix: fileConfig(config.config_file_name, disable_existing_loggers=False) — the
+standard remedy for this well-known Alembic gotcha.
+
+Verified against a full real-dependency install matching CI: non-e2e 1,651 passed,
+e2e 367, isolated 291, integrity 363 — all green, 0 failures.
+Test/infra + one-line migration-logging fix. sw.js CACHE_NAME -> v5.89.196.
+
+## v5.89.195 — Recover all_60_workflows via an isolated CI step (+290 tests)
+
+test_all_60_workflows can't share a process: it sets ANTHROPIC_API_KEY at import,
+which flips the no-key truth-check path in test_adversarial_pdfs and fails 3 of
+its tests. A marker can't fix this (pytest imports every collected module before
+marker selection), so the file is gated out of normal collection and run alone.
+
+- conftest.py: test_all_60_workflows is added to collect_ignore unless
+  PYTEST_ISOLATED=1, so normal runs never import it (adversarial stays green).
+- ci.yml: new isolated step sets PYTEST_ISOLATED=1 and runs the file alone in its
+  own DB/process; the non-e2e selector is back to plain `-m "not e2e"`. Removed the
+  unused `isolated` marker.
+- Net: 290 tests rejoin the gate (its 1 webhook test skips without real stripe).
+
+Verified: normal mode collects 0 from all_60; isolated mode 290 passed, 1 skipped.
+Quarantine now 11 (docs/TEST_QUARANTINE.md updated). Total gated ~2,291.
+Test-infra only; no app or behaviour change. sw.js CACHE_NAME -> v5.89.195.
+
 ## v5.89.194 — Clear cheap test quarantine (16 → 12); ~64 tests back in CI
 
 Repaired and re-admitted 4 quarantined files.

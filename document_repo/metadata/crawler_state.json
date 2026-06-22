@@ -10727,6 +10727,23 @@
         "state": "unknown",
         "note": "Docket discovered \u2014 exhibits may contain inspection/disclosure docs. Review manually or use PACER."
       }
+    },
+    "6ccb139c8331ba469a038ecf5241ac86": {
+      "url": "https://www.courtlistener.com/docket/73511178/",
+      "source": "courtlistener",
+      "doc_type": "reference",
+      "discovered_at": "2026-06-22T00:44:59.234825",
+      "metadata": {
+        "case_name": "David Anthony Faulks",
+        "court": "United States Bankruptcy Court, D. New Jersey",
+        "date_filed": "2026-06-21",
+        "docket_number": "26-17139",
+        "docket_id": 73511178,
+        "source": "CourtListener/RECAP",
+        "format": "docket_reference",
+        "state": "unknown",
+        "note": "Docket discovered \u2014 exhibits may contain inspection/disclosure docs. Review manually or use PACER."
+      }
     }
   },
   "downloaded": {
@@ -11099,53 +11116,53 @@
     "37ee34734b8c235fafaa642eeeaaf7a1": {
       "url": "https://www.hud.gov/program_offices/housing/mfh/rems/remsinspecscores",
       "source": "public_records",
-      "failed_at": "2026-06-22T00:09:52.862323",
+      "failed_at": "2026-06-22T05:57:33.333555",
       "error": "404 Client Error: Not Found for url: https://www.hud.gov/program_offices/housing/mfh/rems/remsinspecscores"
     }
   },
   "last_run": {
     "courtlistener": {
-      "timestamp": "2026-06-22T00:09:11.735672",
+      "timestamp": "2026-06-22T05:56:49.354775",
       "docs_found": 0,
       "docs_downloaded": 0
     },
     "inspector_samples": {
-      "timestamp": "2026-06-22T00:09:21.541650",
+      "timestamp": "2026-06-22T05:56:59.416516",
       "docs_found": 0,
       "docs_downloaded": 0
     },
     "state_complaints": {
-      "timestamp": "2026-06-22T00:09:52.101634",
+      "timestamp": "2026-06-22T05:57:31.801644",
       "docs_found": 0,
       "docs_downloaded": 0
     },
     "public_records": {
-      "timestamp": "2026-06-22T00:09:54.863548",
+      "timestamp": "2026-06-22T05:57:35.335703",
       "docs_found": 3,
       "docs_downloaded": 0
     },
     "open_data": {
-      "timestamp": "2026-06-22T00:10:03.626928",
+      "timestamp": "2026-06-22T05:57:44.423002",
       "docs_found": 0,
       "docs_downloaded": 0
     },
     "permit_records": {
-      "timestamp": "2026-06-22T00:09:34.569215",
+      "timestamp": "2026-06-22T05:57:13.789322",
       "docs_found": 0,
       "docs_downloaded": 0
     },
     "pest_reports": {
-      "timestamp": "2026-06-22T00:09:41.494400",
+      "timestamp": "2026-06-22T05:57:21.719359",
       "docs_found": 0,
       "docs_downloaded": 0
     },
     "specialist_reports": {
-      "timestamp": "2026-06-22T00:09:49.625463",
+      "timestamp": "2026-06-22T05:57:28.669085",
       "docs_found": 0,
       "docs_downloaded": 0
     },
     "reference_material": {
-      "timestamp": "2026-06-22T00:09:52.101585",
+      "timestamp": "2026-06-22T05:57:31.801595",
       "docs_found": 0,
       "docs_downloaded": 0
     }

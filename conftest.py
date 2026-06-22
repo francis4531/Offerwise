@@ -65,12 +65,14 @@ for _pkg in ('anthropic', 'anthropic.types', 'google.cloud.vision',
 #   behaviour drift (assertions against changed behaviour — real repair needed):
 #     coverage_final, coverage_gaps, e2e_onboarding_drip, forum_scanner,
 #     personas_page (/thesis is now access-gated)
-#   process-isolation conflict (needs its own pytest process):
-#     all_60_workflows sets ANTHROPIC_API_KEY at import, which flips the
-#     no-key truth-check path in test_adversarial_pdfs and fails 3 of its tests.
-#     Recover it later by running it in an isolated step (like the e2e split).
+# NOTE: test_all_60_workflows is handled specially below — it is collect-ignored
+# (so it is never even IMPORTED) in normal runs, because it sets ANTHROPIC_API_KEY
+# at import, which flips the no-key truth-check path in test_adversarial_pdfs.
+# pytest imports every collected module during collection, so deselecting by marker
+# is not enough — the module must not be imported at all. Its dedicated CI step
+# sets PYTEST_ISOLATED=1 to make it collectable there (and only there).
+import os as _os
 collect_ignore = [
-    "test_all_60_workflows.py",
     "test_coverage_final.py",
     "test_coverage_gaps.py",
     "test_e2e_analyze_cassettes.py",
@@ -83,6 +85,13 @@ collect_ignore = [
     "test_forum_scanner.py",
     "test_personas_page.py",
 ]
+# test_all_60_workflows sets ANTHROPIC_API_KEY at import, which flips the no-key
+# truth-check path in test_adversarial_pdfs. Marker deselection is not enough —
+# pytest imports every collected module during collection — so we ignore it
+# entirely in normal runs and only allow collection in its dedicated isolated CI
+# step, which sets PYTEST_ISOLATED=1 and targets the file explicitly.
+if _os.environ.get("PYTEST_ISOLATED") != "1":
+    collect_ignore.append("test_all_60_workflows.py")
 
 
 def pytest_addoption(parser):

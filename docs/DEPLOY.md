@@ -1,3 +1,23 @@
+# Deploying OfferWise
+
+## One command (recommended)
+
+Save the launcher once:  it lives at `scripts/ow_ship.sh` in any build, or use the
+bootstrap Claude provides. Then every deploy is a single interactive command:
+
+    ~/ow_ship.sh                 # newest tarball in ~/Downloads
+    ~/ow_ship.sh 5.89.196        # a specific version
+
+It finds the newest build in ~/Downloads, verifies + extracts it, pushes to
+staging, then PAUSES and asks before promoting to production — answer `y` only
+after you've eyeballed https://offerwise-staging.onrender.com. Answer anything
+else and it stops at staging (production untouched).
+
+The manual two-step flow below still works and is what ow_ship.sh calls under the
+hood (scripts/ow_deploy.sh then scripts/ow_promote.sh).
+
+---
+
 # OfferWise — Deploy & Staging Guide (v5.89.132)
 
 This replaces the old `git init && … && git push render main --force` flow.
