@@ -3,6 +3,59 @@
 Historical deployment notes, bug fixes, and architecture decisions.
 Consolidated from 80 individual files on 2026-03-13.
 
+## v5.89.199 — Risk-check "read" + "your move" UI (Phase 2)
+
+Renders the interpretive layer on the risk-check result page, driven by the
+v5.89.198 area benchmark. Turns the page's arc from fear→fear→fear→ask into
+fear→orient→triage→leverage→right-sized step.
+
+static/risk-check.html:
+- "What this means for you" — a calm blue advisor panel (deliberately distinct
+  from the red alarm cards) between the grade/exposure stats and the cards. Three
+  moves: the pattern (area vs asset), start here (triage = top risk by cost,
+  already sorted by the engine), and the grade in context — ADAPTIVE on
+  benchmark.case (typical / worse / better), with a qualitative fallback when
+  benchmark is null so it degrades gracefully.
+- "Your move" atop the CTA: reframes the exposure as an opening position + a
+  no-homework next step (one question to ask the listing agent, templated per
+  top-risk category).
+- Hidden entirely on clean (0-risk) results.
+
+Validated: inline JS passes node --check, divs balance 57/57, and all six render
+paths (typical/worse/better/null/single-risk/zero) produce correct copy.
+
+Deferred (separate task): the /r/<token> share page mirror — it shows someone
+else's result, so "your move" needs its own framing rather than a copy-paste.
+
+Validate the case calls + rendered copy together on staging before promote.
+sw.js CACHE_NAME -> v5.89.199.
+
+## v5.89.198 — Area benchmark engine (Phase 1: the data behind "homes nearby average a D")
+
+Builds the neighbourhood benchmark the risk-check "read" layer will display.
+Engine-only; no UI yet (Phase 2 renders it after this is validated on staging).
+
+- risk_check_engine.run_area_benchmark(): samples 16 nearby points, scores each
+  with the EXACT per-address scorer (grade is now a shared _grade_for() helper so
+  the two can't drift), and reports where the target sits in the local
+  distribution as case ∈ {typical, worse, better} — adaptive, because most
+  addresses are typical for their area (the honest asset-vs-area point).
+- Cost control: a ~2km grid cell-cache around the geographic checks. The 16
+  sample points collapse to ~5–6 real scans (hazard queries use 1–50km radii, so
+  results are identical across ~2km); county-level checks (disasters, radon) are
+  fetched once and reused. The cache also warms nearby individual scans.
+- Wired into /api/risk-check via run_risk_check(address, include_benchmark=True);
+  off by default elsewhere so chat/context callers stay fast. Never raises —
+  returns benchmark=None on any failure, so the core scan can't break or stall.
+- test_area_benchmark.py: 20 tests (grade-ladder parity, sampling/quantization,
+  the three cases, graceful None, attach helper). Network-free via mocks.
+
+API response gains: benchmark={sample_n, area_median_grade, area_grade_range,
+target_grade, case, radius_miles} or null.
+
+Next: deploy, eyeball case calls on real CA addresses on staging, tune percentile
+thresholds, then build the Phase 2 UI. sw.js CACHE_NAME -> v5.89.198.
+
 ## v5.89.197 — One-command interactive deploy (scripts/ow_ship.sh)
 
 Shipping is now one step, not several. scripts/ow_ship.sh finds the newest build

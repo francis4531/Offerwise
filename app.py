@@ -5921,7 +5921,7 @@ def api_risk_check():
         if not address or len(address) < 5:
             return jsonify({'error': 'Please enter a full street address.'}), 400
 
-        result = run_risk_check(address)
+        result = run_risk_check(address, include_benchmark=True)
 
         if result.get('error'):
             logging.warning(f"🔍 Risk check geocode fail: '{address}' → {result['error']}")

@@ -14,6 +14,7 @@ import json
 import logging
 import os
 import time
+import threading
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
 from math import radians, sin, cos, sqrt, atan2
@@ -742,6 +743,23 @@ def check_radon_zone(county, state):
         logger.warning(f"Radon zone check failed: {e}")
         return None
 
+def _grade_for(total):
+    """Letter grade from total dollar exposure. Single source of truth — the
+    per-address scan and the area benchmark must use the same ladder, so neither
+    can drift from the other."""
+    if total >= 60000:
+        return 'F'
+    if total >= 40000:
+        return 'D'
+    if total >= 25000:
+        return 'C'
+    if total >= 10000:
+        return 'B'
+    if total > 0:
+        return 'B+'
+    return 'A'
+
+
 def calculate_risk_exposure(flood, earthquakes, disasters, ca_hazards, air_quality,
                             epa_environmental=None, radon=None):
     """Aggregate all risk checks into a total dollar exposure + risk cards."""
@@ -888,19 +906,8 @@ def calculate_risk_exposure(flood, earthquakes, disasters, ca_hazards, air_quali
             'seller_hide': 'Radon is an invisible, odorless radioactive gas — the #2 cause of lung cancer after smoking. Most sellers have never tested for it. In most states, radon disclosure is not required even if levels are known to be elevated.'
         })
 
-    # Grade
-    if total >= 60000:
-        grade = 'F'
-    elif total >= 40000:
-        grade = 'D'
-    elif total >= 25000:
-        grade = 'C'
-    elif total >= 10000:
-        grade = 'B'
-    elif total > 0:
-        grade = 'B+'
-    else:
-        grade = 'A'
+    # Grade — single source of truth shared with the area benchmark
+    grade = _grade_for(total)
 
     return {
         'total_exposure': total,
@@ -911,11 +918,178 @@ def calculate_risk_exposure(flood, earthquakes, disasters, ca_hazards, air_quali
 
 
 # ---------------------------------------------------------------------------
+# AREA BENCHMARK (v5.89.198) — grade the neighbourhood around an address so the
+# result can say "homes within a mile average a D", honestly and adaptively.
+# Reuses the exact per-address scorer; the only new work is sampling nearby
+# points and caching the geographic layers per coarse grid cell (they barely
+# move under a mile, and county-level checks are identical across the sample).
+# ---------------------------------------------------------------------------
+
+_cell_cache = {}                       # (cell_key, check_name) -> {'val', 'ts'}
+_cell_lock = threading.Lock()
+
+BENCH_RINGS = ((0.4, 8), (0.9, 8))     # (radius_miles, points) — 16 neighbours
+BENCH_CELL_DEG = 0.02                   # ~2km grid for the geographic-layer cache.
+                                        # Safe to be coarse: hazard queries use 1–50km
+                                        # radii, so results are identical across ~2km;
+                                        # this just avoids re-fetching the same data.
+BENCH_MIN_SAMPLES = 6                   # below this we don't claim a benchmark
+BENCH_POOL_BUDGET_S = 8                 # hard wall-time ceiling for the area scan
+_GRADE_ORDER = {'A': 0, 'B+': 1, 'B': 2, 'C': 3, 'D': 4, 'F': 5}
+_ORDER_GRADE = {v: k for k, v in _GRADE_ORDER.items()}
+
+
+def _cell_key(lat, lng):
+    return f"{round(lat / BENCH_CELL_DEG)}|{round(lng / BENCH_CELL_DEG)}"
+
+
+def _cell_cached(lat, lng, name, fn, *args):
+    """Per-grid-cell memo for a geographic check. Points within ~1km share a
+    result, so a 16-point sample collapses onto a handful of real API calls.
+    Also warms the cache for nearby individual scans."""
+    key = (_cell_key(lat, lng), name)
+    now = time.time()
+    with _cell_lock:
+        hit = _cell_cache.get(key)
+        if hit and now - hit['ts'] < CACHE_TTL:
+            return hit['val']
+    try:
+        val = fn(*args)
+    except Exception as e:
+        logger.debug(f"benchmark cell check {name} failed: {e}")
+        val = None
+    with _cell_lock:
+        _cell_cache[key] = {'val': val, 'ts': now}
+    return val
+
+
+def _bench_sample_points(lat, lng):
+    """Ring sample of nearby coordinates (excludes the centre/target)."""
+    pts = []
+    cos_lat = cos(radians(lat)) or 1e-6
+    for radius_mi, n in BENCH_RINGS:
+        dlat = radius_mi / 69.0
+        dlng = radius_mi / (69.0 * cos_lat)
+        for i in range(n):
+            theta = 2 * 3.141592653589793 * i / n
+            pts.append((lat + dlat * cos(theta), lng + dlng * sin(theta)))
+    return pts
+
+
+def _score_cell(lat, lng, state, shared_disasters, shared_radon):
+    """Total dollar exposure for one grid cell — reuses the real scorer.
+    air_quality is omitted: it carries no exposure weight."""
+    flood = _cell_cached(lat, lng, 'flood', check_fema_flood, lat, lng)
+    quakes = _cell_cached(lat, lng, 'eq', check_earthquakes, lat, lng)
+    epa = _cell_cached(lat, lng, 'epa', check_epa_environmental, lat, lng)
+    ca = None
+    if state in ('CA', 'California'):
+        ca = _cell_cached(lat, lng, 'ca', check_california_hazards, lat, lng, state)
+    exp = calculate_risk_exposure(
+        flood=flood, earthquakes=quakes, disasters=shared_disasters,
+        ca_hazards=ca, air_quality=None, epa_environmental=epa, radon=shared_radon,
+    )
+    return exp['total_exposure']
+
+
+def run_area_benchmark(lat, lng, state, county, target_exposure,
+                       shared_disasters=None, shared_radon=None):
+    """Grade ~16 nearby points and locate the target in that distribution.
+
+    Returns the benchmark schema dict, or None if it can't be computed honestly.
+    Never raises — the caller treats None as 'no benchmark' and the UI falls back
+    to qualitative copy."""
+    try:
+        # County-level layers are identical across the sample — fetch once,
+        # reusing the target scan's results when provided.
+        if shared_disasters is None:
+            shared_disasters = check_disaster_history(state, county)
+        if shared_radon is None:
+            shared_radon = check_radon_zone(county, state)
+
+        # Collapse the sample onto distinct grid cells; score each cell once.
+        cells = {}
+        for (plat, plng) in _bench_sample_points(lat, lng):
+            cells.setdefault(_cell_key(plat, plng), (plat, plng))
+
+        cell_exposure = {}
+        with ThreadPoolExecutor(max_workers=8) as pool:
+            futs = {pool.submit(_score_cell, c[0], c[1], state,
+                                shared_disasters, shared_radon): ck
+                    for ck, c in cells.items()}
+            try:
+                for fut in as_completed(futs, timeout=BENCH_POOL_BUDGET_S):
+                    try:
+                        cell_exposure[futs[fut]] = fut.result()
+                    except Exception:
+                        pass
+            except TimeoutError:
+                logger.warning("benchmark: area scan timed out, using partial sample")
+
+        # Each sample point inherits its cell's exposure; add the target centre.
+        sample = [cell_exposure[_cell_key(p[0], p[1])]
+                  for p in _bench_sample_points(lat, lng)
+                  if _cell_key(p[0], p[1]) in cell_exposure]
+        sample.append(target_exposure)
+        if len(sample) < BENCH_MIN_SAMPLES:
+            return None
+
+        sample.sort()
+        n = len(sample)
+        median_exp = sample[n // 2] if n % 2 else (sample[n // 2 - 1] + sample[n // 2]) / 2
+        area_median_grade = _grade_for(median_exp)
+        bands_present = sorted({_GRADE_ORDER[_grade_for(e)] for e in sample})
+        area_range = f"{_ORDER_GRADE[bands_present[0]]}–{_ORDER_GRADE[bands_present[-1]]}"
+
+        def _pct(p):
+            return sample[min(n - 1, max(0, int(round((p / 100.0) * (n - 1)))))]
+        p25, p75 = _pct(25), _pct(75)
+
+        target_grade = _grade_for(target_exposure)
+        tband, mband = _GRADE_ORDER[target_grade], _GRADE_ORDER[area_median_grade]
+        if target_exposure > p75 and tband - mband >= 1:
+            case = 'worse'
+        elif target_exposure < p25 and mband - tband >= 1:
+            case = 'better'
+        else:
+            case = 'typical'
+
+        return {
+            'sample_n': n,
+            'area_median_grade': area_median_grade,
+            'area_grade_range': area_range,
+            'target_grade': target_grade,
+            'case': case,
+            'radius_miles': BENCH_RINGS[-1][0],
+        }
+    except Exception as e:
+        logger.warning(f"run_area_benchmark error: {e}")
+        return None
+
+
+def _attach_benchmark(result):
+    """Attach result['benchmark'] in place. Safe on error/partial results."""
+    if not result or result.get('error'):
+        return result
+    result['benchmark'] = run_area_benchmark(
+        result['latitude'], result['longitude'], result['state'], result['county'],
+        target_exposure=result['risk_exposure'],
+        shared_disasters=result.get('disaster_summary'),
+        shared_radon=result.get('radon'),
+    )
+    return result
+
+
+# ---------------------------------------------------------------------------
 # MAIN ENTRY POINT
 # ---------------------------------------------------------------------------
 
-def run_risk_check(address):
-    """Run a full risk check on an address. Returns structured result dict."""
+def run_risk_check(address, include_benchmark=False):
+    """Run a full risk check on an address. Returns structured result dict.
+
+    include_benchmark=True attaches result['benchmark'] (a bounded neighbourhood
+    scan). Off by default so callers that don't render it (chat context, etc.)
+    stay fast."""
     # Check cache
     import hashlib
     cache_key = hashlib.md5(address.lower().strip().encode()).hexdigest()
@@ -923,7 +1097,11 @@ def run_risk_check(address):
         entry = _cache[cache_key]
         if time.time() - entry['ts'] < CACHE_TTL:
             logger.info(f"Risk check cache hit: {address}")
-            return entry['result']
+            result = entry['result']
+            if include_benchmark and not result.get('benchmark'):
+                _attach_benchmark(result)
+                entry['result'] = result
+            return result
 
     start = time.time()
 
@@ -1019,6 +1197,9 @@ def run_risk_check(address):
         'source_count': len(source_list),
         'sources': ', '.join(source_list),
     }
+
+    if include_benchmark:
+        _attach_benchmark(result)
 
     # Cache
     _cache[cache_key] = {'result': result, 'ts': time.time()}

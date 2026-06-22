@@ -179,6 +179,24 @@
         .rr-badge { display:inline-block; font-size:0.65rem; font-weight:800; letter-spacing:0.1em; text-transform:uppercase; color:#f5a623; background:rgba(245,166,35,0.1); border:1px solid rgba(245,166,35,0.3); padding:5px 12px; border-radius:50px; margin-bottom:14px; }
         .rr-primary-h2 { font-family:'DM Serif Display',serif; font-size:1.6rem; line-height:1.15; margin-bottom:10px; font-weight:400; }
         .rr-primary-p { color:var(--text-dim); font-size:0.97rem; max-width:52ch; margin:0 auto 18px; line-height:1.6; }
+
+        /* The "read" layer — calm advisor voice, deliberately distinct from the alarm cards */
+        .rr-read { background:rgba(59,130,246,0.06); border:1px solid rgba(59,130,246,0.22); border-left:3px solid var(--primary); border-radius:16px; padding:20px 22px 6px; margin:22px 0 26px; }
+        .rr-read-eyebrow { font-size:0.72rem; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; color:#5b9bd5; margin-bottom:14px; }
+        .rr-read-move { padding-bottom:15px; margin-bottom:15px; border-bottom:1px solid rgba(255,255,255,0.05); }
+        .rr-read-move:last-child { border-bottom:0; }
+        .rr-read-ml { font-size:0.66rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--text-dim); margin-bottom:6px; }
+        .rr-read-move p { margin:0; font-size:0.96rem; line-height:1.55; color:#d7e0ee; }
+        .rr-k2 { color:#fff; font-weight:600; }
+
+        /* "Your move" — sits atop the CTA, reframes the number + a no-homework step */
+        .rr-yourmove { text-align:left; border-bottom:1px solid rgba(255,255,255,0.08); padding-bottom:18px; margin-bottom:20px; }
+        .rr-ym-eyebrow { font-size:0.72rem; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; color:var(--accent); margin-bottom:12px; }
+        .rr-ym-lead { font-size:1.02rem; line-height:1.6; color:#e4dcd0; margin:0 0 14px; }
+        .rr-k3 { color:#fff; font-weight:700; }
+        .rr-ym-ask { display:flex; gap:9px; font-size:0.89rem; color:#f3cd96; background:rgba(245,166,35,0.07); border:1px solid rgba(245,166,35,0.2); border-radius:11px; padding:11px 13px; line-height:1.5; text-align:left; }
+        .rr-ym-ask-lbl { color:#f5a623; font-weight:800; white-space:nowrap; text-transform:uppercase; font-size:0.67rem; letter-spacing:0.05em; padding-top:2px; }
+        .rr-ym-ask i { color:#fff; font-style:italic; }
         .rr-feats { display:flex; gap:9px; justify-content:center; flex-wrap:wrap; margin-bottom:22px; }
         .rr-feats span { font-size:0.8rem; color:var(--text); background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08); padding:7px 13px; border-radius:50px; }
         .rr-btn-primary { display:inline-block; background:linear-gradient(135deg,#ff7a30,#f5a623); color:#1a1205; font-weight:800; font-size:1.04rem; padding:15px 34px; border-radius:14px; text-decoration:none; box-shadow:0 10px 30px rgba(255,122,48,0.25); transition:all 0.15s; }
@@ -257,8 +275,8 @@
 }
 
 </style>
-    <script src="/static/analytics-loader.js?v=5.89.197" defer></script>
-    <script src="/static/address-validate.js?v=5.89.197"></script>
+    <script src="/static/analytics-loader.js?v=5.89.199" defer></script>
+    <script src="/static/address-validate.js?v=5.89.199"></script>
   <link rel="canonical" href="https://www.getofferwise.ai/risk-check">
 </head>
 <body>
@@ -316,6 +334,8 @@
                 </div>
             </div>
 
+            <div id="rrRead" class="rr-read fade-up" style="display:none"></div>
+
             <div class="rr-sec-label" id="findingsLabel">What the seller doesn't have to tell you</div>
             <div id="riskCards"></div>
 
@@ -323,6 +343,7 @@
                  loud CTA; Truth Check + Sample are quiet secondary links. The
                  data-exit tags drive the risk_check_cta_click instrumentation. -->
             <section class="rr-primary fade-up delay-2">
+                <div id="rrYourMove" class="rr-yourmove" style="display:none"></div>
                 <div class="rr-badge">Free first analysis</div>
                 <h2 class="rr-primary-h2" id="upgradeTitleText">You found the risks. Now find what to offer.</h2>
                 <p class="rr-primary-p" id="upgradeDescText">This scan reads public databases. Upload the seller's disclosure and inspection report and OfferWise cross-references every line to surface contradictions and calculate a defensible offer price.</p>
@@ -431,6 +452,73 @@
 
     document.getElementById('addressInput').addEventListener('keypress', function(e) { if (e.key === 'Enter') startScan(); });
 
+    // One-question prompts the buyer can use today, by top-risk category.
+    var RR_ASK = {
+        fault_zone: 'Has the foundation been seismically retrofitted, and can I see the Alquist-Priolo disclosure?',
+        earthquake: 'Has the home been seismically retrofitted or bolted to its foundation?',
+        flood: 'Is the property in a FEMA flood zone, and has it ever flooded or had a flood claim?',
+        wildfire: "What's the wildfire hazard rating here, and is insurance available and affordable?",
+        superfund: 'Has the soil or groundwater here ever been tested, given the nearby contamination?',
+        tri: 'Has the soil or groundwater here ever been tested, given the nearby industrial releases?',
+        hazwaste: 'Has the soil or groundwater here ever been tested, given the nearby waste handlers?',
+        brownfields: 'Has the soil or groundwater here ever been tested, given the nearby brownfield sites?',
+        radon: 'Has the home been tested for radon, and can I see the results?',
+        disasters: 'Has the property had prior storm or disaster damage, or any insurance claims?'
+    };
+
+    function rrFirstSentence(s) {
+        if (!s) return '';
+        var i = s.indexOf('. ');
+        return i === -1 ? s : s.slice(0, i + 1);
+    }
+
+    // Block A — the "read": orient (area vs asset), triage (start here), grade in context.
+    function renderRead(data) {
+        var el = document.getElementById('rrRead');
+        if (!el) return;
+        if (!data.risk_count || !data.risks || !data.risks.length) { el.style.display = 'none'; return; }
+        var top = data.risks[0];
+        var others = data.risk_count - 1;
+        var bm = data.benchmark;
+        var grade = data.risk_grade;
+
+        var ctx;
+        var artCap = (grade === 'A' || grade === 'F') ? 'An' : 'A';
+        if (bm && bm.case === 'typical') {
+            ctx = artCap + ' <span class="rr-k2">' + grade + '</span> here is about par for the corridor — homes within a mile run <span class="rr-k2">' + bm.area_grade_range + '</span>. The question isn\'t whether the area is risky, it\'s whether the price reflects it.';
+        } else if (bm && bm.case === 'worse') {
+            ctx = 'This address grades <span class="rr-k2">' + grade + '</span>; typical nearby is <span class="rr-k2">' + bm.area_median_grade + '</span>. It sits at the higher-risk end of the block — worth understanding why before you offer.';
+        } else if (bm && bm.case === 'better') {
+            ctx = 'This address actually grades better than most within a mile (<span class="rr-k2">' + bm.area_grade_range + '</span>). Still real risk, but less than the corridor norm.';
+        } else {
+            ctx = 'The <span class="rr-k2">' + grade + '</span> reflects the area\'s exposure, not a flaw unique to this home — the question is whether the price accounts for it.';
+        }
+
+        el.innerHTML =
+            '<div class="rr-read-eyebrow">What this means for you</div>'
+          + '<div class="rr-read-move"><div class="rr-read-ml">The pattern</div>'
+          + '<p>These risks come from the <span class="rr-k2">surrounding area</span> — nearby faults, EPA sites, industrial facilities — so most homes around here carry the same exposure. That\'s not a reason to walk; it\'s the reason the <span class="rr-k2">price should reflect it</span>.</p></div>'
+          + '<div class="rr-read-move"><div class="rr-read-ml">Start here</div>'
+          + '<p>One is worth your attention first: <span class="rr-k2">' + top.title + '</span>. ' + rrFirstSentence(top.seller_hide) + (others > 0 ? ' The other ' + others + ' are context.' : '') + '</p></div>'
+          + '<div class="rr-read-move"><div class="rr-read-ml">The grade, in context</div>'
+          + '<p>' + ctx + '</p></div>';
+        el.style.display = '';
+    }
+
+    // Block B — "your move": reframe the number as leverage + a no-homework step.
+    function renderYourMove(data) {
+        var el = document.getElementById('rrYourMove');
+        if (!el) return;
+        if (!data.risk_count || !data.risks || !data.risks.length) { el.style.display = 'none'; return; }
+        var top = data.risks[0];
+        var ask = RR_ASK[top.category] || ('What\'s been done about the biggest item above — ' + top.title + '?');
+        el.innerHTML =
+            '<div class="rr-ym-eyebrow">Your move</div>'
+          + '<p class="rr-ym-lead">That <span class="rr-k3">$' + data.risk_exposure.toLocaleString() + ' isn\'t a verdict — it\'s your opening position.</span> Findings like these are what buyers use to negotiate the price down, or get the seller to pay for retrofits and inspections.</p>'
+          + '<div class="rr-ym-ask"><span class="rr-ym-ask-lbl">Ask the agent</span><span>No disclosure yet? Ask the listing agent one thing: <i>&ldquo;' + ask + '&rdquo;</i> How they answer tells you most of what you need.</span></div>';
+        el.style.display = '';
+    }
+
     function showResults(data) {
         document.getElementById('scanSection').classList.remove('active');
         var resultsEl = document.getElementById('resultsSection');
@@ -494,6 +582,9 @@
                 + '<p>No major environmental or disaster risks surfaced from government databases. There may still be risks only visible in the seller\'s disclosure and inspection report — that\'s exactly what the full analysis is for.</p></div>';
         }
         document.getElementById('riskCards').innerHTML = html;
+
+        renderRead(data);
+        renderYourMove(data);
 
         // Per-result share page from .161 (falls back to the legacy ?r= link)
         var sd = { e: data.risk_exposure, g: data.risk_grade, n: data.risk_count, c: data.city || '', s: data.state || '' };
@@ -786,8 +877,8 @@
         } catch (e) { /* non-fatal */ }
     }, true);
     </script>
-<script src="/static/js/compliance.js?v=5.89.197"></script>
-<script src="/static/ask-widget.js?v=5.89.197"></script>
+<script src="/static/js/compliance.js?v=5.89.199"></script>
+<script src="/static/ask-widget.js?v=5.89.199"></script>
 <script>
 (function(){
   if (window.__rcScoutInit) { return; } window.__rcScoutInit = true;
