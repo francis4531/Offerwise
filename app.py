@@ -5398,6 +5398,27 @@ def zillow_landing():
         pass
     return send_from_directory('static', 'zillow-landing.html')
 
+@app.route('/reddit')
+@app.route('/from/reddit')
+def reddit_landing():
+    """Vanity entry for the organic Reddit community GTM. In-thread ad links get
+    you banned, so people type this URL from a comment instead. Stamping
+    source=reddit/medium=community makes the visit land in its own
+    'reddit_organic' bucket — distinct from paid reddit_ads — and carries the
+    attribution to a later signup. Serves the risk checker, the tool Reddit
+    homebuyers actually want."""
+    try:
+        from funnel_tracker import track_from_request
+        track_from_request('visit', request, source='reddit', medium='community',
+                           metadata={'landing': 'reddit'})
+        # First-touch: don't overwrite an existing campaign already in session
+        if not session.get('utm_source'):
+            session['utm_source'] = 'reddit'
+            session['utm_medium'] = 'community'
+    except Exception:
+        pass
+    return send_from_directory('static', 'risk-check.html')
+
 @app.route('/free-tools')
 def free_tools_page():
     """Free tools hub — all free tools in one tabbed dashboard."""

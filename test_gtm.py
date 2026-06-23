@@ -34,6 +34,7 @@ from content_engine import _gen_what_were_seeing, _gen_first_timer_tuesday
 from content_engine import _gen_did_you_know, _gen_real_numbers
 from content_engine import _gen_red_flag_friday, _gen_community_qa, _gen_weekly_digest
 from conversion_intel import _normalize_channel
+from funnel_tracker import _extract_source
 
 
 class TestPillarRotation(unittest.TestCase):
@@ -234,6 +235,9 @@ class TestChannelNormalization(unittest.TestCase):
     def test_reddit_variants(self):
         self.assertEqual(_normalize_channel('reddit'), 'reddit_ads')
         self.assertEqual(_normalize_channel('Reddit'), 'reddit_ads')
+        # organic community GTM (medium=community) is distinct from paid ads
+        self.assertEqual(_normalize_channel('reddit', 'community'), 'reddit_organic')
+        self.assertEqual(_normalize_channel('reddit', 'social'), 'reddit_ads')
 
     def test_direct_variants(self):
         self.assertEqual(_normalize_channel('direct'), 'direct')
@@ -255,6 +259,48 @@ class TestChannelNormalization(unittest.TestCase):
 
     def test_whitespace(self):
         self.assertEqual(_normalize_channel('  google  '), 'google_ads')
+
+
+class _FakeArgs(dict):
+    def get(self, k, d=''):
+        return dict.get(self, k, d)
+
+
+class _FakeReq:
+    """Minimal stand-in for a Flask request: just .args and .headers."""
+    def __init__(self, args=None, headers=None):
+        self.args = _FakeArgs(args or {})
+        self.headers = _FakeArgs(headers or {})
+
+
+class TestGclidAttribution(unittest.TestCase):
+    """Google Ads auto-tagging sends ?gclid with no utm_*; the visit must still
+    attribute to google_ads instead of falling through to direct/organic."""
+
+    def test_gclid_attributes_to_google_cpc(self):
+        src, med, _ = _extract_source(_FakeReq(args={'gclid': 'ABC123'}))
+        self.assertEqual(src, 'google')
+        self.assertEqual(med, 'cpc')
+        self.assertEqual(_normalize_channel(src, med), 'google_ads')
+
+    def test_gbraid_and_wbraid_ios_variants(self):
+        for key in ('gbraid', 'wbraid'):
+            src, med, _ = _extract_source(_FakeReq(args={key: 'X'}))
+            self.assertEqual(_normalize_channel(src, med), 'google_ads', key)
+
+    def test_explicit_utm_source_wins_over_gclid(self):
+        src, med, _ = _extract_source(
+            _FakeReq(args={'gclid': 'X', 'utm_source': 'newsletter', 'utm_medium': 'email'}))
+        self.assertEqual(src, 'newsletter')
+
+    def test_no_gclid_no_utm_no_referer_is_direct(self):
+        src, med, _ = _extract_source(_FakeReq())
+        self.assertEqual(_normalize_channel(src, med), 'direct')
+
+    def test_gclid_beats_stripped_referer(self):
+        # A real paid click: gclid present, referer empty/stripped -> google_ads, not direct
+        src, med, _ = _extract_source(_FakeReq(args={'gclid': 'X'}, headers={'Referer': ''}))
+        self.assertEqual(_normalize_channel(src, med), 'google_ads')
 
 
 if __name__ == '__main__':

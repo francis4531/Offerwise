@@ -70,6 +70,15 @@ def _extract_source(request):
     # Truncate to 500 chars for storage
     referrer_url = raw_referrer[:500] if raw_referrer else ''
 
+    # Google Ads auto-tagging sends ?gclid (or gbraid/wbraid on iOS) with NO utm_*.
+    # Without this the paid click has no utm_source and a stripped referer, so it
+    # falls through to 'direct'/'organic' and the ad spend is invisible at the
+    # visit level (signup attribution still worked via the session gclid stash,
+    # which is why visits.google_ads was 0 while signups.google_ads was not).
+    if not source and (request.args.get('gclid') or request.args.get('gbraid')
+                       or request.args.get('wbraid')):
+        source, medium = 'google', 'cpc'
+
     if not source:
         referer = raw_referrer.lower()
         if 'google' in referer:
@@ -189,8 +198,12 @@ def is_test_account(email_or_user):
 
     return False
 
-def track_from_request(stage, request, user_id=None, metadata=None):
-    """Record a funnel event, auto-extracting source from the request."""
+def track_from_request(stage, request, user_id=None, metadata=None, source=None, medium=None):
+    """Record a funnel event, auto-extracting source from the request.
+
+    source/medium can be passed explicitly to force attribution — used by vanity
+    entry routes (e.g. /reddit) where the visitor types the URL with no utm_*, so
+    the referer/utm auto-detection would otherwise mislabel the visit 'direct'."""
     # Skip persona/test accounts — they pollute funnel metrics
     if user_id:
         try:
@@ -211,7 +224,9 @@ def track_from_request(stage, request, user_id=None, metadata=None):
         logger.debug(f"Funnel bot filter: skipping {stage} from {ua[:50]}")
         return
 
-    source, medium, referrer_url = _extract_source(request)
+    ext_source, ext_medium, referrer_url = _extract_source(request)
+    source = source or ext_source
+    medium = medium or ext_medium
     # Merge referrer_url into metadata
     if referrer_url:
         metadata = dict(metadata or {})

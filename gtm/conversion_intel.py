@@ -594,8 +594,10 @@ def _normalize_channel(source: str, medium: str = "") -> str:
     source = (source or "").lower().strip()
     medium = (medium or "").lower().strip()
 
-    # Reddit (always paid/social)
+    # Reddit: medium 'community' = organic posts/comments (our GTM); else paid ads
     if "reddit" in source:
+        if medium == "community":
+            return "reddit_organic"
         return "reddit_ads"
 
     # Zillow (paid display ads)

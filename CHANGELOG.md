@@ -3,6 +3,54 @@
 Historical deployment notes, bug fixes, and architecture decisions.
 Consolidated from 80 individual files on 2026-03-13.
 
+## v5.89.202 — /reddit attribution path: make the organic Reddit GTM legible
+
+You drive real traffic from homebuying subreddits but can't link in-thread (bans),
+so people type the URL and land as unmeasurable 'direct'. This gives that channel
+its own door and its own bucket.
+
+- New routes /reddit and /from/reddit (mirror /from/zillow): stamp
+  source=reddit / medium=community, first-touch into the session for signup
+  attribution, and serve the risk checker (the tool Reddit buyers want).
+- funnel_tracker.track_from_request() gains optional source/medium overrides so a
+  typed URL with no utm_* still attributes correctly instead of falling to 'direct'.
+- _normalize_channel() now splits reddit by medium: 'community' -> 'reddit_organic'
+  (your GTM), everything else -> 'reddit_ads' (paid). So /api/admin/traffic shows
+  the community effort SEPARATE from the paid Reddit Ads campaign — the whole point.
+
+Say "run it free at getofferwise.ai/reddit" (a sayable sentence, not a markdown
+link). Within a week the reddit_organic row answers the question you couldn't: do
+warm, hand-engaged Reddit visitors convert better than the 6% blended rate (funnel's
+fine, just averaged down) or the same near-zero (the drop-off is real and specific).
+
+test_gtm.py: reddit organic/paid split covered. 40/40 pass. sw.js CACHE_NAME -> v5.89.202.
+
+DEFERRED (separate, by design): the "how did you hear" survey question. Infra exists
+(PMFSurvey model, /api/survey/pmf, the agent-onboarding question to mirror), but it
+needs a model column + migration + the React survey edit in app.html — a schema
+change not worth bundling into an attribution route.
+## v5.89.201 — Fix Google Ads attribution (gclid) so paid traffic stops hiding in "direct"
+
+Google Ads auto-tagging lands clicks as ?gclid=... with no utm_source/utm_medium.
+_extract_source() (funnel_tracker.py) only read utm_* and the Referer, so every
+paid click fell through to 'direct' (or 'organic' when the referer contained
+"google") — making ~514 clicks / ~$1.77k of spend invisible at the visit level.
+Signup attribution still worked (gclid is stashed in the session and written to
+User.signup_gclid), which is why visits.google_ads was 0 while signups.google_ads
+was not — the exact discrepancy seen in /api/admin/traffic.
+
+Fix: _extract_source now treats gclid / gbraid / wbraid (the iOS privacy variants)
+as paid google → source='google', medium='cpc' → _normalize_channel → 'google_ads'.
+Runs before the referer fallback, so it also rescues paid clicks that were being
+mislabeled 'organic'.
+
+Forward-only: visits already logged as direct/organic can't be reclassified (no
+gclid was stored on those visit rows). Attribution is correct from this deploy on.
+
+test_gtm.py: TestGclidAttribution (5 tests) — gclid/gbraid/wbraid → google_ads,
+explicit utm wins over gclid, no-signal → direct, gclid beats a stripped referer.
+40/40 in test_gtm.py pass. sw.js CACHE_NAME -> v5.89.201.
+
 ## v5.89.200 — Report light theme fix (iteration 2): the toggle now actually lightens
 
 The Light/Dark toggle flipped text colours but several backgrounds stayed hardcoded
