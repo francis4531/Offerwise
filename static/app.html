@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>OfferWise AI™ — Property Analysis</title>
-    <script src="/static/gtm-loader.js?v=5.89.199"></script>
+    <script src="/static/gtm-loader.js?v=5.89.200"></script>
 <!-- /GTM head -->
     <script>if(window.location.hostname==='getofferwise.ai')window.location.replace('https://www.getofferwise.ai'+window.location.pathname+window.location.search);</script>
     <link rel="icon" type="image/svg+xml" href="/static/logo-icon-only.svg">
@@ -21,7 +21,7 @@
     <link rel="preconnect" href="https://unpkg.com" crossorigin>
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/results-theme.css?v=5.89.199">
+    <link rel="stylesheet" href="/static/results-theme.css?v=5.89.200">
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone@7.29.7/babel.min.js"></script>
@@ -685,7 +685,7 @@
         .ow-strategy-grid { grid-template-columns: 1fr !important; }
       }
     </style>
-    <script src="/static/analytics-loader.js?v=5.89.199" defer></script>
+    <script src="/static/analytics-loader.js?v=5.89.200" defer></script>
     <!-- Reddit Pixel Base Code -->
     <script>
     !function(w,d){if(!w.rdt){var p=w.rdt=function(){p.sendEvent?p.sendEvent.apply(p,arguments):p.queue.push(arguments)};p.queue=[];var t=d.createElement('script');t.src='https://www.redditstatic.com/ads/pixel.js';t.async=!0;var s=d.getElementsByTagName('script')[0];s.parentNode.insertBefore(t,s)}}(window,document);
@@ -4885,12 +4885,12 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                       {/* CENTER: Analysis metrics */}
                       <div style={{ display:'flex', alignItems:'center', gap:'4px', flex:1, justifyContent:'center', flexWrap:'wrap' }}>
                         <div style={{ display:'flex', alignItems:'center', gap:'5px' }}>
-                          <span style={{ color:'var(--ow-line-strong)', fontSize: 'var(--ow-fs-micro)', fontWeight:600 }}>OfferScore™</span>
+                          <span style={{ color:'var(--ow-text-faint)', fontSize: 'var(--ow-fs-micro)', fontWeight:600 }}>OfferScore™</span>
                           <span style={{ color: osColor, fontSize: 'var(--ow-fs-card-title)', fontWeight:900 }}>{offerScoreValue}</span>
                         </div>
                         <div style={{ width:'1px', height:'18px', background:'rgba(51,65,85,0.6)', margin:'0 6px' }} />
                         <div style={{ display:'flex', alignItems:'center', gap:'5px' }}>
-                          <span style={{ color:'var(--ow-line-strong)', fontSize: 'var(--ow-fs-micro)', fontWeight:600 }}>Offer</span>
+                          <span style={{ color:'var(--ow-text-faint)', fontSize: 'var(--ow-fs-micro)', fontWeight:600 }}>Offer</span>
                           {userHasPaid
                             ? <span style={{ color:'#60a5fa', fontSize: 'var(--ow-fs-body)', fontWeight:800 }}>{recOffer ? `$${Math.round(recOffer).toLocaleString()}` : 'N/A'}</span>
                             : <span style={{ color:'#f97316', fontSize: 'var(--ow-fs-meta)', fontWeight:700, cursor:'pointer' }} onClick={() => window.location.href='/pricing'}>🔒 Unlock</span>
@@ -4899,14 +4899,14 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                         {avgRepairCost > 0 && (<>
                           <div style={{ width:'1px', height:'18px', background:'rgba(51,65,85,0.6)', margin:'0 6px' }} />
                           <div style={{ display:'flex', alignItems:'center', gap:'5px' }}>
-                            <span style={{ color:'var(--ow-line-strong)', fontSize: 'var(--ow-fs-micro)', fontWeight:600 }}>Repairs</span>
+                            <span style={{ color:'var(--ow-text-faint)', fontSize: 'var(--ow-fs-micro)', fontWeight:600 }}>Repairs</span>
                             <span style={{ color:'#f59e0b', fontSize: 'var(--ow-fs-small)', fontWeight:700 }}>${Math.round(avgRepairCost/1000)}K</span>
                           </div>
                         </>)}
                         {savings > 0 && userHasPaid && (<>
                           <div style={{ width:'1px', height:'18px', background:'rgba(51,65,85,0.6)', margin:'0 6px' }} />
                           <div style={{ display:'flex', alignItems:'center', gap:'5px' }}>
-                            <span style={{ color:'var(--ow-line-strong)', fontSize: 'var(--ow-fs-micro)', fontWeight:600 }}>Save</span>
+                            <span style={{ color:'var(--ow-text-faint)', fontSize: 'var(--ow-fs-micro)', fontWeight:600 }}>Save</span>
                             <span style={{ color:'#22c55e', fontSize: 'var(--ow-fs-small)', fontWeight:700 }}>${Math.round(savings/1000)}K</span>
                           </div>
                         </>)}
@@ -4965,6 +4965,14 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                           --ow-surface-2:   #1e293b;
                           --ow-line-2:      #334155;
                           --ow-line-strong: #475569;
+                          --ow-hero-1:      #14203a;
+                          --ow-hero-2:      #0e1830;
+                          --ow-glass-40:    rgba(15,23,42,.4);
+                          --ow-glass-50:    rgba(15,23,42,.5);
+                          --ow-glass-60:    rgba(15,23,42,.6);
+                          --ow-glass-purple:rgba(26,10,46,.6);
+                          --ow-text-faint:  #475569;
+                          --ow-text-faint2: #334155;
                         }
 
                         /* v5.89.191 — Report light theme (iteration 1). Opt-in via
@@ -4991,6 +4999,14 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                           --ow-muted-2:    #64748b;
                           --ow-muted-dim:  #94a3b8;
                           --ow-dim:        #94a3b8;
+                          --ow-hero-1:     #ffffff;
+                          --ow-hero-2:     #f1f5f9;
+                          --ow-glass-40:   rgba(241,245,249,.7);
+                          --ow-glass-50:   rgba(241,245,249,.82);
+                          --ow-glass-60:   rgba(248,250,252,.9);
+                          --ow-glass-purple:rgba(243,240,255,.85);
+                          --ow-text-faint: #64748b;
+                          --ow-text-faint2:#64748b;
                         }
                         .ow-theme-toggle {
                           background: transparent; border: 1px solid var(--ow-line);
@@ -4998,7 +5014,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                           font-size: 12px; font-weight: 600; cursor: pointer;
                           font-family: inherit; margin-left: 8px;
                         }
-                        .ow-theme-toggle:hover { color: var(--ow-text); border-color: var(--ow-line-strong); }
+                        .ow-theme-toggle:hover { color: var(--ow-text); border-color: var(--ow-text-faint); }
 
                         /* ── Hero ──────────────────────────────────────── */
                         .ow-hero {
@@ -5009,7 +5025,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                           background:
                             radial-gradient(1200px 400px at 0% 0%, rgba(249,115,22,.10), transparent 60%),
                             radial-gradient(800px 300px at 100% 100%, rgba(167,139,250,.08), transparent 60%),
-                            linear-gradient(180deg, #14203a 0%, #0e1830 100%);
+                            linear-gradient(180deg, var(--ow-hero-1) 0%, var(--ow-hero-2) 100%);
                           border: 1px solid var(--ow-line);
                         }
                         .ow-hero .ow-eyebrow {
@@ -5540,7 +5556,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                         .ow-ask blockquote {
                           margin: 0 0 14px;
                           padding: 12px 14px;
-                          background: rgba(15,23,42,.5);
+                          background: var(--ow-glass-50);
                           border-left: 2px solid var(--ow-accent);
                           border-radius: 4px;
                           color: var(--ow-text-body);
@@ -5899,8 +5915,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                       </div>
 
                       {/* Huge OfferScore */}
-                      <div style={{ background:'linear-gradient(135deg, rgba(15,23,42,0.6) 0%, rgba(26,10,46,0.6) 100%)', padding:'24px', borderRadius:'14px', marginTop:'12px', marginBottom:'0', textAlign:'center', border:'1px solid rgba(124,58,237,0.2)' }}>
-                        <div style={{ fontSize: 'var(--ow-fs-eyebrow)', fontWeight:700, textTransform:'uppercase', letterSpacing:'0.12em', color:'var(--ow-line-strong)', marginBottom:'8px' }}>OfferScore™</div>
+                      <div style={{ background:'linear-gradient(135deg, var(--ow-glass-60) 0%, var(--ow-glass-purple) 100%)', padding:'24px', borderRadius:'14px', marginTop:'12px', marginBottom:'0', textAlign:'center', border:'1px solid rgba(124,58,237,0.2)' }}>
+                        <div style={{ fontSize: 'var(--ow-fs-eyebrow)', fontWeight:700, textTransform:'uppercase', letterSpacing:'0.12em', color:'var(--ow-text-faint)', marginBottom:'8px' }}>OfferScore™</div>
                         <div style={{ fontSize:'clamp(64px,14vw,96px)', fontWeight:900, lineHeight:1, letterSpacing:'-4px', color: osColor, marginBottom:'6px' }}>{offerScoreValue}</div>
                         <div style={{ fontSize: 'var(--ow-fs-body)', fontWeight:600, color:'var(--ow-muted-dim)' }}>
                           {offerScoreValue >= 70 ? '✅ Solid position — buy with confidence' : offerScoreValue >= 40 ? '⚠️ Proceed with caution — issues found' : '🚨 Walk away — risk profile too high'}
@@ -5911,11 +5927,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                       {avgRepairCost > 0 && (
                         <div style={{ background:'rgba(245,158,11,0.07)', border:'1px solid rgba(245,158,11,0.15)', borderRadius:'12px', padding:'14px 20px', marginTop:'12px', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
                           <div>
-                            <div style={{ fontSize: 'var(--ow-fs-micro)', fontWeight:700, textTransform:'uppercase', letterSpacing:'0.1em', color:'var(--ow-line-strong)', marginBottom:'4px' }}>Repair Exposure</div>
+                            <div style={{ fontSize: 'var(--ow-fs-micro)', fontWeight:700, textTransform:'uppercase', letterSpacing:'0.1em', color:'var(--ow-text-faint)', marginBottom:'4px' }}>Repair Exposure</div>
                             <div style={{ fontSize: 'var(--ow-fs-stat-num)', fontWeight:900, color:'#f59e0b', letterSpacing:'-1px' }}>${Math.round(avgRepairCost/1000)}K</div>
                           </div>
                           <div style={{ textAlign:'right' }}>
-                            <div style={{ fontSize: 'var(--ow-fs-micro)', fontWeight:700, textTransform:'uppercase', letterSpacing:'0.1em', color:'var(--ow-line-strong)', marginBottom:'4px' }}>Systems Flagged</div>
+                            <div style={{ fontSize: 'var(--ow-fs-micro)', fontWeight:700, textTransform:'uppercase', letterSpacing:'0.1em', color:'var(--ow-text-faint)', marginBottom:'4px' }}>Systems Flagged</div>
                             <div style={{ fontSize: 'var(--ow-fs-stat-num)', fontWeight:900, color:'#f59e0b' }}>{repairBreakdown.length}</div>
                           </div>
                         </div>
@@ -5931,14 +5947,14 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                         </div>
                         <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'8px', marginBottom:'16px', textAlign:'left' }}>
                           {['💰 Offer price (3 options)', '📋 Full verdict', '🎯 Negotiation playbook', '🔍 Seller transparency', '⛔ Deal breaker detail', '🔭 OfferWatch™ alerts'].map((item, i) => (
-                            <div key={i} style={{ fontSize: 'var(--ow-fs-meta)', color:'var(--ow-line-strong)', padding:'7px 10px', background:'rgba(255,255,255,0.03)', borderRadius:'7px' }}>{item}</div>
+                            <div key={i} style={{ fontSize: 'var(--ow-fs-meta)', color:'var(--ow-text-faint)', padding:'7px 10px', background:'rgba(255,255,255,0.03)', borderRadius:'7px' }}>{item}</div>
                           ))}
                         </div>
                         <div style={{ display:'flex', gap:'10px', justifyContent:'center', flexWrap:'wrap' }}>
                           <a href="/pricing" className="ow-btn primary">Unlock — $9/mo →</a>
                           <a href="/pricing" className="ow-btn">See all plans</a>
                         </div>
-                        <div style={{ fontSize: 'var(--ow-fs-eyebrow)', color:'var(--ow-line-2)', marginTop:'10px' }}>Starter $9 · Pro $19 · Unlimited $49 · Cancel anytime</div>
+                        <div style={{ fontSize: 'var(--ow-fs-eyebrow)', color:'var(--ow-text-faint2)', marginTop:'10px' }}>Starter $9 · Pro $19 · Unlimited $49 · Cancel anytime</div>
 
                         {/* ONE-CLICK PAYWALL REASON ROW */}
                         {(() => {
@@ -5961,12 +5977,12 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                           return (
                             <div style={{ marginTop:'16px', paddingTop:'14px', borderTop:'1px solid rgba(51,65,85,0.3)' }}>
                               {paywallReason ? (
-                                <div style={{ fontSize: 'var(--ow-fs-meta)', color:'var(--ow-line-strong)', textAlign:'center' }}>
+                                <div style={{ fontSize: 'var(--ow-fs-meta)', color:'var(--ow-text-faint)', textAlign:'center' }}>
                                   Got it — thanks for the feedback.
                                 </div>
                               ) : (
                                 <>
-                                  <div style={{ fontSize: 'var(--ow-fs-eyebrow)', color:'var(--ow-line-strong)', textAlign:'center', marginBottom:'8px' }}>Not today — why not?</div>
+                                  <div style={{ fontSize: 'var(--ow-fs-eyebrow)', color:'var(--ow-text-faint)', textAlign:'center', marginBottom:'8px' }}>Not today — why not?</div>
                                   <div style={{ display:'flex', gap:'6px', justifyContent:'center', flexWrap:'wrap' }}>
                                     {reasons.map(r => (
                                       <button key={r.key} onClick={() => logReason(r.key)} style={{ padding:'5px 12px', background:'rgba(255,255,255,0.04)', border:'1px solid rgba(51,65,85,0.35)', borderRadius:'6px', fontSize: 'var(--ow-fs-eyebrow)', color:'var(--ow-muted-dim)', cursor:'pointer', fontFamily:'inherit', transition:'all 0.15s' }}
@@ -6066,7 +6082,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                         <p style={{ fontSize: 'var(--ow-fs-body)', color:'var(--ow-muted-2)', margin:'0 0 22px', maxWidth:'640px', lineHeight:1.6 }}>
                           Every line below is justified by a section in this report. Each amount is something you can defend in a counter — it's not a hunch.
                         </p>
-                        <div style={{ background:'rgba(15,23,42,0.5)', border:'1px solid rgba(51,65,85,0.5)', borderRadius:'14px', padding:'24px 28px' }}>
+                        <div style={{ background:'var(--ow-glass-50)', border:'1px solid rgba(51,65,85,0.5)', borderRadius:'14px', padding:'24px 28px' }}>
                           {/* Asking */}
                           <div style={{ display:'grid', gridTemplateColumns:'1fr auto', gap:'18px', padding:'11px 0', fontSize: 'var(--ow-fs-body)', color:'var(--ow-text-body-2)' }}>
                             <div>Asking price</div>
@@ -6310,10 +6326,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                                 <div style={{ fontSize: 'var(--ow-fs-small)', fontWeight:700, textTransform:'uppercase', letterSpacing:'0.08em', color:'#f97316', marginBottom:'12px' }}>Evidence & Details</div>
                                 <div style={{ display:'flex', flexDirection:'column', gap:'8px', marginBottom:'16px', textAlign:'left' }}>
                                   {['🔒 Deal breakers & repair cost breakdown', '🔒 Seller transparency score & red flags'].map((row, i) => (
-                                    <div key={i} style={{ padding:'10px 14px', background:'rgba(255,255,255,0.03)', border:'1px solid rgba(51,65,85,0.4)', borderRadius:'8px', fontSize: 'var(--ow-fs-small)', color:'var(--ow-line-2)', display:'flex', alignItems:'center', gap:'8px' }}>{row}</div>
+                                    <div key={i} style={{ padding:'10px 14px', background:'rgba(255,255,255,0.03)', border:'1px solid rgba(51,65,85,0.4)', borderRadius:'8px', fontSize: 'var(--ow-fs-small)', color:'var(--ow-text-faint2)', display:'flex', alignItems:'center', gap:'8px' }}>{row}</div>
                                   ))}
                                 </div>
-                                <div style={{ fontSize: 'var(--ow-fs-meta)', color:'var(--ow-line-strong)', marginBottom:'14px' }}>+ Cross-reference · Negotiation toolkit · Offer price · Full verdict</div>
+                                <div style={{ fontSize: 'var(--ow-fs-meta)', color:'var(--ow-text-faint)', marginBottom:'14px' }}>+ Cross-reference · Negotiation toolkit · Offer price · Full verdict</div>
                                 <span style={{ display:'inline-block', padding:'9px 22px', background:'linear-gradient(90deg,#f97316,#f59e0b)', borderRadius:'8px', fontWeight:700, fontSize: 'var(--ow-fs-small)', color:'white' }}>Unlock for $9/mo →</span>
                               </div>
                             ) : (
@@ -6371,7 +6387,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                             section-sub above — keeping the inline one for
                             users with the ECard collapsed by default, but
                             it can be removed once the design stabilizes. */}
-                        <div style={{ marginBottom:'16px', padding:'12px 14px', background:'rgba(15,23,42,0.4)', border:'1px solid rgba(51,65,85,0.4)', borderLeft:'3px solid #f59e0b', borderRadius:'7px', fontSize: 'var(--ow-fs-small)', color:'var(--ow-text-body-2)', lineHeight:1.6 }}>
+                        <div style={{ marginBottom:'16px', padding:'12px 14px', background:'var(--ow-glass-40)', border:'1px solid rgba(51,65,85,0.4)', borderLeft:'3px solid #f59e0b', borderRadius:'7px', fontSize: 'var(--ow-fs-small)', color:'var(--ow-text-body-2)', lineHeight:1.6 }}>
                           These came directly out of the inspection report — not predictions, documented findings. Use them as the floor of your repair credit ask.
                         </div>
                         {repairBreakdown.length > 0 ? (
@@ -6443,14 +6459,14 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                             
                             {/* Methodology */}
                             {repairMethodology && (
-                              <div style={{ marginTop:'12px', fontSize: 'var(--ow-fs-meta)', color:'var(--ow-line-strong)', lineHeight:1.6, padding:'12px', background:'rgba(15,23,42,0.5)', borderRadius:'8px', borderLeft:'3px solid rgba(96,165,250,0.3)' }}>
+                              <div style={{ marginTop:'12px', fontSize: 'var(--ow-fs-meta)', color:'var(--ow-text-faint)', lineHeight:1.6, padding:'12px', background:'var(--ow-glass-50)', borderRadius:'8px', borderLeft:'3px solid rgba(96,165,250,0.3)' }}>
                                 📊 {repairMethodology}
                               </div>
                             )}
 
                             {/* v5.87.82: Permit Requirements subsection */}
                             {permitItems.length > 0 && (
-                              <div style={{ marginTop:'20px', padding:'16px', background:'rgba(15,23,42,0.6)', border:'1px solid rgba(245,158,11,0.18)', borderRadius:'10px' }}>
+                              <div style={{ marginTop:'20px', padding:'16px', background:'var(--ow-glass-60)', border:'1px solid rgba(245,158,11,0.18)', borderRadius:'10px' }}>
                                 <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'6px' }}>
                                   <div style={{ display:'flex', alignItems:'center', gap:'8px', fontSize: 'var(--ow-fs-body)', fontWeight:700, color:'var(--ow-text-2)' }}>
                                     <span style={{ color:'#f59e0b', fontSize: 'var(--ow-fs-strong)' }}>📋</span>
@@ -6546,7 +6562,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                                   </div>
                                 )}
 
-                                <div style={{ marginTop:'10px', fontSize: 'var(--ow-fs-eyebrow)', color:'var(--ow-line-strong)', lineHeight:1.5 }}>
+                                <div style={{ marginTop:'10px', fontSize: 'var(--ow-fs-eyebrow)', color:'var(--ow-text-faint)', lineHeight:1.5 }}>
                                   Permit knowledge generated per-jurisdiction at analysis time, refreshed every 90 days. Not a substitute for licensed contractor or building department guidance.
                                 </div>
                               </div>
@@ -6555,7 +6571,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                         ) : (
                           <div style={{ fontSize: 'var(--ow-fs-body)', color:'var(--ow-muted-2)' }}>
                             Total estimated: <strong>${(risk_score?.total_repair_cost_low||0).toLocaleString()} – ${(risk_score?.total_repair_cost_high||0).toLocaleString()}</strong>
-                            <div style={{ marginTop:'8px', fontSize: 'var(--ow-fs-small)', color:'var(--ow-line-strong)' }}>Per-system breakdown will be available when analysis includes detailed findings with cost estimates.</div>
+                            <div style={{ marginTop:'8px', fontSize: 'var(--ow-fs-small)', color:'var(--ow-text-faint)' }}>Per-system breakdown will be available when analysis includes detailed findings with cost estimates.</div>
                           </div>
                         )}
                       </ECard>
@@ -6997,7 +7013,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                                       <div key={i} style={{ display:'grid', gridTemplateColumns:'1fr auto', alignItems:'center', padding:'10px 14px', background: i % 2 === 0 ? 'rgba(15,23,42,0.4)' : 'transparent', borderBottom: i < topComps.length - 1 ? '1px solid rgba(51,65,85,0.2)' : 'none' }}>
                                         <div>
                                           <div style={{ fontSize: 'var(--ow-fs-small)', color:'var(--ow-text-2)', fontWeight:500 }}>{shortAddr}</div>
-                                          <div style={{ fontSize: 'var(--ow-fs-eyebrow)', color:'var(--ow-line-strong)', marginTop:'2px' }}>
+                                          <div style={{ fontSize: 'var(--ow-fs-eyebrow)', color:'var(--ow-text-faint)', marginTop:'2px' }}>
                                             {comp.bedrooms > 0 && `${comp.bedrooms}bd `}
                                             {comp.bathrooms > 0 && `${comp.bathrooms}ba `}
                                             {comp.sqft > 0 && `· ${comp.sqft.toLocaleString()} sqft `}
@@ -7014,7 +7030,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                                   })}
                                 </div>
                                 {comps.length > 5 && (
-                                  <div style={{ fontSize: 'var(--ow-fs-meta)', color:'var(--ow-line-strong)', marginTop:'6px', textAlign:'right' }}>
+                                  <div style={{ fontSize: 'var(--ow-fs-meta)', color:'var(--ow-text-faint)', marginTop:'6px', textAlign:'right' }}>
                                     +{comps.length - 5} more comps used in valuation
                                   </div>
                                 )}
@@ -7177,7 +7193,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                         spent the report building. */}
 
                     {/* Disclaimer */}
-                    <div style={{ fontSize: 'var(--ow-fs-meta)', color:'var(--ow-line-strong)', lineHeight:1.6, padding:'20px', background:'rgba(30,41,59,0.3)', borderRadius:'10px', margin:'32px 0 0', border:'1px solid var(--ow-line-2)' }}>
+                    <div style={{ fontSize: 'var(--ow-fs-meta)', color:'var(--ow-text-faint)', lineHeight:1.6, padding:'20px', background:'rgba(30,41,59,0.3)', borderRadius:'10px', margin:'32px 0 0', border:'1px solid var(--ow-line-2)' }}>
                       <strong style={{ color:'var(--ow-muted-dim)' }}>Important:</strong> This analysis is based on the documents you provided and publicly available data. It is not a substitute for professional inspection, legal, or financial advice. Always consult qualified professionals before making real estate decisions.
                     </div>
 
@@ -7423,7 +7439,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                                         {item.specialist && <span style={{ fontSize: 'var(--ow-fs-micro)', fontWeight:700, padding:'1px 6px', borderRadius:'4px', background:'rgba(167,139,250,0.1)', color:'#a78bfa' }}>👷 Specialist</span>}
                                       </div>
                                       <div style={{ fontSize: 'var(--ow-fs-eyebrow)', color: 'var(--ow-muted-dim)' }}>{item.contractor.trade}</div>
-                                      {item.description && <div style={{ fontSize: 'var(--ow-fs-eyebrow)', color: 'var(--ow-line-strong)', marginTop: '3px', lineHeight: 1.4 }}>{item.description}</div>}
+                                      {item.description && <div style={{ fontSize: 'var(--ow-fs-eyebrow)', color: 'var(--ow-text-faint)', marginTop: '3px', lineHeight: 1.4 }}>{item.description}</div>}
                                     </div>
                                     <div style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '6px' }}>
                                       <div style={{ fontSize: 'var(--ow-fs-body)', fontWeight: 700, color: '#f59e0b' }}>
@@ -7463,7 +7479,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                                   <span style={{ fontSize: 'var(--ow-fs-small)', fontWeight: 700, color: 'var(--ow-text-strong)' }}>Total estimated repairs</span>
                                   <span style={{ fontSize: '15px', fontWeight: 800, color: '#f59e0b' }}>${Math.round(avgRepairCost/1000)}K avg</span>
                                 </div>
-                                <div style={{ marginTop: '10px', fontSize: 'var(--ow-fs-eyebrow)', color: 'var(--ow-line-strong)', lineHeight: 1.5 }}>
+                                <div style={{ marginTop: '10px', fontSize: 'var(--ow-fs-eyebrow)', color: 'var(--ow-text-faint)', lineHeight: 1.5 }}>
                                   💡 Use these figures when requesting repair credits or price reductions from the seller. Each line item is a separate negotiation ask backed by your inspection report.
                                 </div>
                               </div>
@@ -7618,7 +7634,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                                   OfferWatch™
                                   {unread > 0 && <span style={{ marginLeft: '8px', background: '#ef4444', color: 'white', fontSize: 'var(--ow-fs-micro)', fontWeight: 700, padding: '2px 7px', borderRadius: '10px' }}>{unread} new</span>}
                                 </div>
-                                <div style={{ fontSize: 'var(--ow-fs-eyebrow)', color: 'var(--ow-line-strong)' }}>
+                                <div style={{ fontSize: 'var(--ow-fs-eyebrow)', color: 'var(--ow-text-faint)' }}>
                                   {owAlerts && owAlerts.length === 0 ? 'Monitoring daily · no alerts yet' : `${owAlerts.length} alert${owAlerts.length!==1?'s':''} · checking daily for price drops, comps, permits, seismic events`}
                                 </div>
                               </div>
@@ -7639,7 +7655,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                                       {!alert.read_at && <span style={{ width: '7px', height: '7px', background: '#60a5fa', borderRadius: '50%', flexShrink: 0 }} />}
                                     </div>
                                     {alert.body && <div style={{ fontSize: 'var(--ow-fs-meta)', color: 'var(--ow-muted-dim)', lineHeight: 1.55 }}>{alert.body}</div>}
-                                    <div style={{ fontSize: 'var(--ow-fs-micro)', color: 'var(--ow-line-2)', marginTop: '4px' }}>{new Date(alert.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'2-digit',minute:'2-digit'})}</div>
+                                    <div style={{ fontSize: 'var(--ow-fs-micro)', color: 'var(--ow-text-faint2)', marginTop: '4px' }}>{new Date(alert.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'2-digit',minute:'2-digit'})}</div>
                                   </div>
                                 </div>
                               ))}
@@ -12438,7 +12454,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </script>
     
     <!-- Async Upload Manager - Handles PDF uploads with real-time progress -->
-    <script src="/static/async-upload-manager.js?v=5.89.199"></script>
+    <script src="/static/async-upload-manager.js?v=5.89.200"></script>
     
     <!-- Floating Support Button -->
     <a href="/contact" id="support-button" style="
@@ -12463,8 +12479,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <span style="font-size: 16px;">💬</span>
         Help
     </a>
-<script src="/static/js/compliance.js?v=5.89.199"></script>
-<script src="/static/js/analytics.js?v=5.89.199" defer></script>
+<script src="/static/js/compliance.js?v=5.89.200"></script>
+<script src="/static/js/analytics.js?v=5.89.200" defer></script>
 <script>
 // Scroll reveal for premium results animations
 (function() {
@@ -12551,7 +12567,7 @@ if ('serviceWorker' in navigator) {
 
 <!-- Scout: docked, summon-on-demand "Ask your report" assistant (v5.89.157) -->
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&display=swap" rel="stylesheet">
-<script src="/static/ask-widget.js?v=5.89.199"></script>
+<script src="/static/ask-widget.js?v=5.89.200"></script>
 <script>
 (function(){
   if (window.__scoutInit) { return; } window.__scoutInit = true;

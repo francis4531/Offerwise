@@ -3,6 +3,30 @@
 Historical deployment notes, bug fixes, and architecture decisions.
 Consolidated from 80 individual files on 2026-03-13.
 
+## v5.89.200 — Report light theme fix (iteration 2): the toggle now actually lightens
+
+The Light/Dark toggle flipped text colours but several backgrounds stayed hardcoded
+dark, so "light" mode rendered dark-text-on-dark-background — unreadable. Root cause:
+.191 tokenized text but missed 7 hardcoded dark backgrounds (most visibly the hero
+card's base gradient #14203a→#0e1830) plus 24 labels that used border tokens as text
+colour (light-grey-on-light in light mode).
+
+Fix — everything routed through theme tokens whose DARK defaults equal the exact
+previous values (dark mode is byte-identical) and whose light values flip:
+- .ow-hero base gradient → var(--ow-hero-1/2); the orange/purple glows are preserved.
+- .ow-ask blockquote + 5 inline-style panels (OfferScore, asking box, inspection
+  note, repair methodology, permits) → var(--ow-glass-40/50/60/purple). Inline styles
+  can't be overridden by CSS, so they reference the tokens directly.
+- 24 text usages of --ow-line-strong / --ow-line-2 (borders-used-as-text) → new
+  --ow-text-faint / --ow-text-faint2 (dark #475569/#334155 unchanged; light #64748b).
+- The translucent-white buttons (rgba(255,255,255,.04)) needed no change — they read
+  correctly once the hero behind them flips.
+
+Validated: 0 hardcoded dark backgrounds and 0 border-token-as-text remain in the
+report; every new dark token equals the value it replaced (dark byte-identical); the
+715KB report JSX compiles clean under the pinned @babel/standalone 7.29.7 (classic
+runtime). sw.js CACHE_NAME -> v5.89.200.
+
 ## v5.89.199 — Risk-check "read" + "your move" UI (Phase 2)
 
 Renders the interpretive layer on the risk-check result page, driven by the
