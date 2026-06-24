@@ -121,7 +121,9 @@ def _extract_source(request):
     return source, medium, referrer_url
 
 
-TEST_EMAIL_DOMAINS = ('@persona.offerwise.ai', '@test.offerwise.ai')
+# (The canonical test/persona/e2e domain list lives in app.TEST_EMAIL_DOMAINS;
+# track_from_request reads it directly so there is no second copy to drift.
+# is_test_account below is the richer detector used by the Buyers admin view.)
 
 # v5.88.25: Comprehensive test-account detection. Used by the Buyers
 # admin view (and elsewhere) to filter out test users so the view
@@ -208,8 +210,13 @@ def track_from_request(stage, request, user_id=None, metadata=None, source=None,
     if user_id:
         try:
             from models import User as _User
+            # Single source of truth: read the canonical exclusion list from app
+            # (lazy import — app is already loaded at request time; same pattern
+            # admin_routes uses) so write-time skip and the read-time funnel
+            # exclusion can never drift. NULL-safe on email.
+            from app import TEST_EMAIL_DOMAINS as _TEST_DOMAINS
             _u = _User.query.get(user_id)
-            if _u and any(_u.email.endswith(d) for d in TEST_EMAIL_DOMAINS):
+            if _u and _u.email and any(_u.email.endswith(d) for d in _TEST_DOMAINS):
                 return
         except Exception:
             pass

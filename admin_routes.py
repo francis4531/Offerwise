@@ -61,6 +61,37 @@ def _set_cached_ml_data_counts(data):
     _ML_DATA_CACHE['ts'] = _time.time()
 
 
+# ── Test-account exclusion: one place computes the ids ───────────────────────
+# Every admin surface that filters out test/persona/e2e accounts excludes them
+# BY ID using these helpers. Excluding by id is NULL-email-safe (a NULL email
+# simply isn't in the set), unlike a per-domain `~email.endswith(...)` which
+# silently drops NULL-email users. The domain list comes from the single source
+# of truth in app.TEST_EMAIL_DOMAINS (which includes .test.example.com).
+def _test_user_ids(domains):
+    """Return ids of users whose email ends with any suffix in `domains`."""
+    domains = tuple(d for d in (domains or ()) if d)
+    if not domains:
+        return []
+    from sqlalchemy import or_ as _or
+    clauses = [User.email.endswith(d) for d in domains]
+    return [r[0] for r in db.session.query(User.id).filter(_or(*clauses)).all()]
+
+
+def _canonical_test_domains():
+    """The single source of truth for test/persona/e2e domains. Lazy import —
+    app is already loaded at request time, so this avoids a circular import."""
+    try:
+        from app import TEST_EMAIL_DOMAINS as _TD
+        return tuple(_TD)
+    except Exception:
+        return ()
+
+
+def _canonical_test_user_ids():
+    """Ids of test/persona/e2e accounts, per the canonical domain list."""
+    return _test_user_ids(_canonical_test_domains())
+
+
 def _send_email(*args, **kwargs):
     """Lazy wrapper for app.send_email to avoid circular imports."""
     from app import send_email
@@ -364,6 +395,13 @@ def admin_revenue_summary():
     from models import APIKey, User, Inspector, Contractor
     from sqlalchemy import func as _func
 
+    # Revenue must exclude test/persona/e2e accounts AND company accounts
+    # (@persona.ai, @getofferwise.ai) so a manually-flipped or internal account
+    # never shows up as paying. Built on the canonical domain list (so it picks
+    # up .test.example.com too) and excluded by id (NULL-email-safe).
+    _rev_test_ids = _test_user_ids(_canonical_test_domains() + ('@persona.ai', '@getofferwise.ai'))
+    _rev_excl = [~User.id.in_(_rev_test_ids)] if _rev_test_ids else []
+
     # ── Inspector subscriptions ────────────────────────────────
     INSPECTOR_PRO_MRR = 49.0
     # Require a real Stripe subscription — excludes test accounts that were
@@ -371,10 +409,7 @@ def admin_revenue_summary():
     inspectors_pro = Inspector.query.filter_by(plan='inspector_pro').join(
         User, Inspector.user_id == User.id
     ).filter(
-        ~User.email.endswith('@persona.offerwise.ai'),
-        ~User.email.endswith('@test.offerwise.ai'),
-        ~User.email.endswith('@persona.ai'),
-        ~User.email.endswith('@getofferwise.ai'),
+        *_rev_excl,
         User.stripe_subscription_id.isnot(None),
         User.stripe_subscription_id != '',
         User.subscription_status == 'active',
@@ -398,9 +433,7 @@ def admin_revenue_summary():
     buyer_counts = {}
     for plan, price in BUYER_MRR_MAP.items():
         count = User.query.filter_by(subscription_plan=plan).filter(
-            ~User.email.endswith('@persona.offerwise.ai'),
-            ~User.email.endswith('@test.offerwise.ai'),
-            ~User.email.endswith('@getofferwise.ai'),
+            *_rev_excl,
             User.stripe_subscription_id.isnot(None),
             User.stripe_subscription_id != '',
             User.subscription_status == 'active',
@@ -4621,7 +4654,7 @@ def api_onboarding_funnel():
 def api_funnel_debug():
     """Deep funnel analysis — maps every buyer signup through conversion steps."""
     from models import User, Property
-    from sqlalchemy import func as _func, or_ as _or
+    from sqlalchemy import func as _func
     from datetime import datetime, timedelta
 
     try:
@@ -4630,19 +4663,10 @@ def api_funnel_debug():
     except Exception:
         _has_credit_txn = False
 
-    # Exclude test/persona/e2e accounts before counting, using the same
-    # TEST_EMAIL_DOMAINS source of truth as the canonical /api/admin/funnel.
+    # Exclude test/persona/e2e accounts before counting (single source of truth).
     # Previously this sampled the last 200 buyers including seed accounts, which
-    # padded the headline "Total Users" count. Mirror the canonical's id-based
-    # exclusion (not a NULL-unsafe NOT LIKE) so users with no email are kept.
-    try:
-        from app import TEST_EMAIL_DOMAINS as _TEST_DOMAINS
-    except Exception:
-        _TEST_DOMAINS = ()
-    _test_ids = []
-    if _TEST_DOMAINS:
-        _clauses = [User.email.endswith(_d) for _d in _TEST_DOMAINS]
-        _test_ids = [r[0] for r in db.session.query(User.id).filter(_or(*_clauses)).all()]
+    # padded the headline "Total Users" count. Excluding by id is NULL-email-safe.
+    _test_ids = _canonical_test_user_ids()
 
     # All real buyer users ordered by signup date (test accounts removed)
     _q = User.query.filter(User.tier != None)
@@ -4768,10 +4792,14 @@ def api_user_drip_list():
     BOT_PATTERNS = ['test@', 'example.com', 'mailinator', 'guerrilla', 'tempmail',
                     'throwaway', 'fakeinbox', 'sharklasers', 'dispostable', 'yopmail']
 
-    users = User.query.filter(
-        ~User.email.endswith('@persona.offerwise.ai'),
-        ~User.email.endswith('@test.offerwise.ai')
-    ).order_by(User.created_at.desc()).limit(300).all()
+    # Exclude test/persona/e2e accounts using the single canonical source.
+    # The old inline ~endswith filters missed .test.example.com and dropped any
+    # NULL-email user; excluding by id avoids both.
+    _test_ids = _canonical_test_user_ids()
+    _q = User.query
+    if _test_ids:
+        _q = _q.filter(~User.id.in_(_test_ids))
+    users = _q.order_by(User.created_at.desc()).limit(300).all()
     result = []
     now = datetime.utcnow()
     for u in users:
@@ -4891,10 +4919,11 @@ def api_user_drip_send():
                         'email': u.email, 'success': success})
 
     if data.get('send_all'):
-        users = User.query.filter(
-        ~User.email.endswith('@persona.offerwise.ai'),
-        ~User.email.endswith('@test.offerwise.ai')
-    ).order_by(User.created_at.desc()).limit(300).all()
+        _test_ids = _canonical_test_user_ids()
+        _q = User.query
+        if _test_ids:
+            _q = _q.filter(~User.id.in_(_test_ids))
+        users = _q.order_by(User.created_at.desc()).limit(300).all()
         sent = 0; failed = 0; skipped = 0; results = []
         for u in users:
             if u.email in EXCLUDE:
@@ -4941,12 +4970,16 @@ def api_user_drip_health():
         except Exception:
             return default
 
-    in_sequence = _q(lambda: User.query.filter(
-        ~User.email.endswith('@persona.offerwise.ai'),
-        ~User.email.endswith('@test.offerwise.ai'),
-        db.or_(User.email_unsubscribed.is_(None), User.email_unsubscribed == False),  # noqa: E712
-        db.or_(User.drip_completed.is_(None), User.drip_completed == False),  # noqa: E712
-    ).count(), 0)
+    try:
+        _canon_ids = _canonical_test_user_ids()
+    except Exception:
+        _canon_ids = []
+    _seq_conds = []
+    if _canon_ids:
+        _seq_conds.append(~User.id.in_(_canon_ids))
+    _seq_conds.append(db.or_(User.email_unsubscribed.is_(None), User.email_unsubscribed == False))  # noqa: E712
+    _seq_conds.append(db.or_(User.drip_completed.is_(None), User.drip_completed == False))  # noqa: E712
+    in_sequence = _q(lambda: User.query.filter(*_seq_conds).count(), 0)
 
     sent_24h = _q(lambda: EmailSendLog.query.filter(
         EmailSendLog.ts >= now - timedelta(hours=24),

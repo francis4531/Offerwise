@@ -3,6 +3,44 @@
 Historical deployment notes, bug fixes, and architecture decisions.
 Consolidated from 80 individual files on 2026-03-13.
 
+## v5.89.205 — Remove top-bar risk-check widget; finish the test-account single source
+
+Two things: clean the homepage top bar, and close the test-account-exclusion loop
+so there is exactly one place that decides what a test/persona/e2e account is.
+
+Homepage (static/index.html):
+- Removed the inline "Check any address — free" address widget (and its compact
+  /risk-check fallback button) from the top nav. The risk check stays reachable
+  under Products → Free Tools. Also removed the now-orphaned CSS (.topbar-address-*
+  rules + their responsive media queries) and JS (submitTopbarAddress /
+  showTopbarAddrError). The shared script block's signup-CTA instrumentation
+  (v5.89.117) was preserved. Top bar now reads Products · Resources · Pricing ·
+  Login · Analyze Free. (A separate mobile-only /risk-check banner was left as-is.)
+
+Test-account exclusion — one source of truth (admin_routes.py, funnel_tracker.py):
+- New helpers in admin_routes: _canonical_test_domains() reads the single source
+  (app.TEST_EMAIL_DOMAINS, incl. .test.example.com); _test_user_ids(domains) and
+  _canonical_test_user_ids() return ids to exclude. Excluding by id is
+  NULL-email-safe, unlike the old per-domain ~email.endswith(...) which silently
+  dropped NULL-email users.
+- Routed every admin exclusion site through them: /api/admin/funnel-debug,
+  user-drip/list, user-drip/send (the send_all path — test/e2e accounts could
+  previously receive drip emails), and user-drip/health.
+- /api/admin/revenue kept its stricter intent: it excludes the canonical domains
+  PLUS company domains (@persona.ai, @getofferwise.ai) so internal/manually-flipped
+  accounts never count as paying. Now built on the canonical list (so it also picks
+  up .test.example.com) and excluded by id; the buyer-subscriptions query, which
+  had been missing @persona.ai, is now consistent with the inspector query.
+- funnel_tracker.track_from_request now reads app.TEST_EMAIL_DOMAINS (lazy import)
+  instead of a stale local 2-domain tuple that missed .test.example.com; the
+  duplicate tuple was removed. The comprehensive is_test_account() detector used by
+  the Buyers admin view is unchanged.
+
+Tests: test_funnel_debug_exclusion.py extended with helper tests — canonical set
+matches the 3 canonical domains; the revenue set additionally excludes the company
+domains; empty domains return empty. test_funnel_canonical.py (7) and
+test_e2e_buyers_filter.py unchanged and green.
+
 ## v5.89.204 — Dashboard consolidation Phase 2: every funnel surface reads the one source
 
 Phase 1 built the canonical /api/admin/funnel (test/persona/e2e accounts removed

@@ -9,7 +9,7 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="OfferWise">
     <title>OfferWise - AI-Powered Property Analysis for Smarter Offers</title>
-    <script src="/static/gtm-loader.js?v=5.89.204"></script>
+    <script src="/static/gtm-loader.js?v=5.89.205"></script>
 <!-- /GTM head -->
     <script>if(window.location.hostname==='getofferwise.ai')window.location.replace('https://www.getofferwise.ai'+window.location.pathname+window.location.search);</script>
     <meta name="description" content="Stop overpaying for real estate. Upload your inspection report and seller disclosure - get your optimal offer price in 60 seconds.">
@@ -210,90 +210,6 @@
         
         .nav-links a:hover { color: white; }
 
-        /* v5.87.91: Inline address-check widget in top nav (Reading 2 — keep all mega-menus) */
-        .topbar-address-widget {
-            display: inline-flex;
-            align-items: stretch;
-            background: rgba(15, 23, 42, 0.7);
-            border: 1.5px solid var(--accent);
-            border-radius: 8px;
-            overflow: hidden;
-            height: 36px;
-            margin: 0;
-            transition: box-shadow 0.15s, border-color 0.15s;
-            flex: 0 1 auto;
-            /* v5.87.92: widened so a typical US address (~45 chars) fits */
-            min-width: 280px;
-            max-width: 380px;
-        }
-        .topbar-address-widget:focus-within {
-            border-color: #fbbf24;
-            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15);
-        }
-        .topbar-address-input {
-            background: transparent;
-            border: 0;
-            color: #e2e8f0;
-            padding: 0 12px;
-            font-size: 0.85rem;
-            outline: none;
-            flex: 1 1 auto;
-            min-width: 0;
-            font-family: inherit;
-        }
-        .topbar-address-input::placeholder {
-            color: #64748b;
-        }
-        .topbar-address-btn {
-            background: linear-gradient(135deg, #f59e0b, #ef4444);
-            color: #fff;
-            border: 0;
-            padding: 0 12px;
-            font-weight: 700;
-            font-size: 0.75rem;
-            cursor: pointer;
-            white-space: nowrap;
-            font-family: inherit;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            transition: filter 0.15s;
-        }
-        .topbar-address-btn:hover { filter: brightness(1.1); }
-        .topbar-address-btn-arrow {
-            font-weight: 400;
-            margin-left: 1px;
-        }
-
-        /* Compact button — hidden by default; shown when nav is cramped */
-        .topbar-address-compact {
-            display: none;
-            background: rgba(245, 158, 11, 0.1);
-            border: 1px solid var(--accent);
-            color: var(--accent) !important;
-            padding: 6px 12px !important;
-            border-radius: 7px;
-            font-size: 0.8rem !important;
-            font-weight: 600 !important;
-            text-decoration: none;
-            white-space: nowrap;
-            transition: background 0.15s;
-        }
-        .topbar-address-compact:hover {
-            background: rgba(245, 158, 11, 0.18);
-        }
-
-        /* Tablet — collapse the full widget to a compact button */
-        @media (max-width: 1100px) {
-            .topbar-address-widget { display: none; }
-            .topbar-address-compact { display: inline-block; }
-        }
-
-        /* Small mobile — hide both; nav-links wraps anyway */
-        @media (max-width: 540px) {
-            .topbar-address-compact { display: none; }
-        }
-        
         .btn {
             display: inline-block;
             padding: 0.75rem 1.5rem;
@@ -1009,8 +925,8 @@
 
     </style>
 <!-- Google Analytics loaded by compliance.js after cookie consent -->
-    <script src="/static/analytics-loader.js?v=5.89.204" defer></script>
-    <script src="/static/address-validate.js?v=5.89.204"></script>
+    <script src="/static/analytics-loader.js?v=5.89.205" defer></script>
+    <script src="/static/address-validate.js?v=5.89.205"></script>
     <!-- Reddit Pixel Base Code -->
     <script>
     !function(w,d){if(!w.rdt){var p=w.rdt=function(){p.sendEvent?p.sendEvent.apply(p,arguments):p.queue.push(arguments)};p.queue=[];var t=d.createElement('script');t.src='https://www.redditstatic.com/ads/pixel.js';t.async=!0;var s=d.getElementsByTagName('script')[0];s.parentNode.insertBefore(t,s)}}(window,document);
@@ -1125,24 +1041,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 </div>
 
                 <a href="#pricing">Pricing</a>
-
-                <!-- v5.87.91: Inline address-check widget -->
-                <!-- Reading 2: keeps all existing nav items, adds widget alongside -->
-                <form class="topbar-address-widget" id="topbarAddrForm" onsubmit="return submitTopbarAddress(event)" role="search" aria-label="Free address check">
-                    <input
-                        type="text"
-                        id="topbarAddrInput"
-                        class="topbar-address-input"
-                        placeholder="📍 Check any address — free"
-                        autocomplete="street-address"
-                        spellcheck="false"
-                        aria-label="Property address (free check)">
-                    <button type="submit" class="topbar-address-btn" aria-label="Check property">
-                        Check<span class="topbar-address-btn-arrow">→</span>
-                    </button>
-                </form>
-                <!-- Compact button shown when nav is too narrow for full widget -->
-                <a href="/risk-check" class="topbar-address-compact" aria-label="Check property risk" title="Check any address (free)">📍 Check</a>
 
                 <a href="/login" class="login-link">Login</a>
                 <a href="/login?signup" class="btn btn-accent" style="padding: 0.6rem 1.25rem; color: #fff;">Analyze Free →</a>
@@ -2281,100 +2179,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         // backend endpoint remains in place but is no longer called from this page.
     </script>
 <script>
-    // v5.87.91: Top-bar address widget — redirects to /risk-check with the
-    // address pre-filled; the risk-check page picks it up from ?address= and
-    // auto-scans. Tracking fires both client-side (dataLayer for GA4) and
-    // server-side (POST /api/track/feature for the admin dashboard).
-    // Shows a clear validation message for the nav address box. The nav pill has
-    // overflow:hidden, so the message must live on <body> (fixed-position) or it
-    // gets clipped and the user sees nothing.
-    function showTopbarAddrError(input, msg) {
-        var form = document.getElementById('topbarAddrForm');
-        var te = document.getElementById('topbarAddrError');
-        if (!te) {
-            te = document.createElement('div');
-            te.id = 'topbarAddrError';
-            te.setAttribute('role', 'alert');
-            document.body.appendChild(te);
-        }
-        te.style.cssText = 'position:fixed;z-index:100000;background:#1a0f0f;border:1px solid rgba(239,68,68,0.55);color:#fca5a5;font-size:12.5px;font-weight:600;line-height:1.4;padding:8px 12px;border-radius:9px;box-shadow:0 8px 24px rgba(0,0,0,0.5);max-width:320px;font-family:inherit;';
-        te.textContent = msg;
-        te.style.display = 'block';
-        var anchor = input || form;
-        if (anchor) {
-            var r = anchor.getBoundingClientRect();
-            te.style.top = (r.bottom + 7) + 'px';
-            var left = r.left;
-            var maxLeft = (window.innerWidth || 360) - 332;
-            if (left > maxLeft) { left = Math.max(8, maxLeft); }
-            te.style.left = left + 'px';
-        }
-        if (form) { form.style.borderColor = '#ef4444'; }
-        if (input) { input.focus(); }
-        clearTimeout(window._tbErrT);
-        window._tbErrT = setTimeout(function() {
-            var e = document.getElementById('topbarAddrError');
-            if (e) { e.style.display = 'none'; }
-            if (form) { form.style.borderColor = ''; }
-        }, 4500);
-    }
-
-    function submitTopbarAddress(e) {
-        if (e && e.preventDefault) e.preventDefault();
-        var input = document.getElementById('topbarAddrInput');
-        var raw = input ? (input.value || '').trim() : '';
-        if (!raw) {
-            showTopbarAddrError(input, 'Please enter a full address with city, state, and ZIP.');
-            return false;
-        }
-        var _v = window.OWAddress.validate(raw);
-        if (!_v.ok) {
-            showTopbarAddrError(input, _v.message);
-            return false;
-        }
-        // Detect ZIP for analytics — backend requires one to actually scan
-        var hasZip = /\b\d{5}\b/.test(raw);
-
-        // GA4 / dataLayer (client-side only)
-        try {
-            if (window.dataLayer) {
-                window.dataLayer.push({
-                    event: 'topbar_address_submit',
-                    address_length: raw.length,
-                    has_zip: hasZip,
-                });
-            }
-        } catch (e) { /* non-fatal */ }
-
-        // v5.87.95: server-side tracking via existing /api/track/feature
-        // endpoint. Fire-and-forget — do NOT await this; redirect should
-        // happen even if tracking fails. keepalive=true ensures the request
-        // completes after navigation.
-        try {
-            fetch('/api/track/feature', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                keepalive: true,
-                body: JSON.stringify({
-                    feature: 'topbar_address_widget',
-                    action: 'submit',
-                    meta: {
-                        address_length: raw.length,
-                        has_zip: hasZip,
-                        viewport_w: window.innerWidth || null,
-                        referrer: document.referrer || null,
-                    },
-                }),
-            }).catch(function() { /* non-fatal */ });
-        } catch (e) { /* non-fatal */ }
-
-        // Redirect with address as query param. Done after the tracking
-        // calls so they get fired before navigation cancels in-flight
-        // requests. keepalive=true on the fetch keeps it alive across
-        // navigation.
-        window.location.href = '/risk-check?address=' + encodeURIComponent(raw);
-        return false;
-    }
 
     // v5.89.117: CTA-click instrumentation. The 95% Visit→first-action drop hides
     // two very different populations: people who never had intent, and people who
@@ -2409,7 +2213,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         } catch (e) { /* non-fatal */ }
     }, true);
 </script>
-<script src="/static/js/compliance.js?v=5.89.204"></script>
-<script src="/static/js/analytics.js?v=5.89.204" defer></script>
+<script src="/static/js/compliance.js?v=5.89.205"></script>
+<script src="/static/js/analytics.js?v=5.89.205" defer></script>
 </body>
 </html>

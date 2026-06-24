@@ -104,5 +104,80 @@ class TestFunnelDebugExcludesTestAccounts(unittest.TestCase):
         self.assertEqual({r['email'] for r in d['users']}, {'real@example.org'})
 
 
+class TestExclusionHelpers(unittest.TestCase):
+    """The single-source helpers every admin surface routes through."""
+    @classmethod
+    def setUpClass(cls):
+        try:
+            from app import app
+            from models import db, User
+            import admin_routes
+            cls.app = app
+            cls.db = db
+            cls.User = User
+            cls.admin_routes = admin_routes
+            with app.app_context():
+                db.create_all()
+            cls.available = True
+        except Exception as e:
+            cls.available = False
+            cls.skip_reason = str(e)
+
+    def setUp(self):
+        if not self.available:
+            self.skipTest(f"App not available: {self.skip_reason}")
+        with self.app.app_context():
+            self.User.query.delete()
+            self.db.session.commit()
+
+    def tearDown(self):
+        with self.app.app_context():
+            self.User.query.delete()
+            self.db.session.commit()
+
+    def _seed(self, *emails):
+        ids = {}
+        with self.app.app_context():
+            for e in emails:
+                u = self.User(email=e, tier='free')
+                self.db.session.add(u)
+                self.db.session.commit()
+                ids[e] = u.id
+        return ids
+
+    def test_canonical_helper_matches_canonical_domains(self):
+        ids = self._seed('real@gmail.com', 'p@persona.offerwise.ai',
+                         't@test.offerwise.ai', 'e@x.test.example.com',
+                         'company@getofferwise.ai', 'persona@persona.ai')
+        with self.app.app_context():
+            got = set(self.admin_routes._canonical_test_user_ids())
+        # canonical excludes the 3 canonical domains but NOT the company ones
+        self.assertEqual(got, {ids['p@persona.offerwise.ai'],
+                               ids['t@test.offerwise.ai'],
+                               ids['e@x.test.example.com']})
+
+    def test_revenue_set_also_excludes_company_domains(self):
+        # Revenue uses canonical + (@persona.ai, @getofferwise.ai). It must
+        # still pick up .test.example.com (the canonical part) AND the company
+        # domains — narrowing it would risk counting company accounts as paying.
+        ids = self._seed('real@gmail.com', 'p@persona.offerwise.ai',
+                         'e@x.test.example.com', 'company@getofferwise.ai',
+                         'persona@persona.ai')
+        domains = self.admin_routes._canonical_test_domains() + ('@persona.ai', '@getofferwise.ai')
+        with self.app.app_context():
+            got = set(self.admin_routes._test_user_ids(domains))
+        self.assertEqual(got, {ids['p@persona.offerwise.ai'],
+                               ids['e@x.test.example.com'],
+                               ids['company@getofferwise.ai'],
+                               ids['persona@persona.ai']})
+        self.assertNotIn(ids['real@gmail.com'], got)
+
+    def test_empty_domains_returns_empty(self):
+        self._seed('real@gmail.com')
+        with self.app.app_context():
+            self.assertEqual(self.admin_routes._test_user_ids(()), [])
+            self.assertEqual(self.admin_routes._test_user_ids(None), [])
+
+
 if __name__ == '__main__':
     unittest.main()
