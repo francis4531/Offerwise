@@ -3,6 +3,34 @@
 Historical deployment notes, bug fixes, and architecture decisions.
 Consolidated from 80 individual files on 2026-03-13.
 
+## v5.89.203 — Dashboard consolidation Phase 1: one funnel, one source of truth
+
+The admin telemetry computes the same funnel four ways (Core Insights, Funnel
+Insights, entry-cliff, funnel-debug), counts test/persona/e2e accounts as real
+users, and shows conversion rates at volumes where they're noise (1766.7%, 800%).
+This builds the single source of truth those panels should read.
+
+- New /api/admin/funnel: the canonical visit -> ... -> purchase spine, computed
+  ONCE. Test/persona/e2e accounts excluded BEFORE counting. Conversion rates
+  suppressed per-step when the prior stage is under 100 (rate_suppressed) so the UI
+  shows counts, not noise. Insights (biggest drop, overall conversion) derive from
+  the same numbers — count-first, never a rate under low volume.
+- Fixed TEST_EMAIL_DOMAINS: added '.test.example.com' so the e2e/cassette accounts
+  (inflating every count, incl. "110 total users") are excluded everywhere the
+  exclusion is used, not just the persona/test.offerwise.ai domains.
+- _funnel_view is pure; test_funnel_canonical.py covers it (7 tests: rate
+  computation, per-step suppression, the real dashboard numbers, low-volume caveat,
+  empty-safe).
+
+On the real numbers: Visited 2004 -> Started 121 (-94%) -> Completed 51 (-58%), then
+Signed up 24 / Analysis 3 / Purchased 1 with rates HIDDEN (too few), biggest drop
+"Visited -> Started (1883 lost)", "2004 visits -> 3 analyses -> 1 purchased". No
+fabricated percentages.
+
+Phase 2 (separate, staging-validated): repoint the admin.html funnel panels to this
+endpoint and DELETE the duplicate computations — the visual subtraction. Held for a
+browser-validated pass because editing the 22k-line admin IIFE blind (the
+window-export gotcha) is exactly what shouldn't ship on faith. sw.js CACHE_NAME -> v5.89.203.
 ## v5.89.202 — /reddit attribution path: make the organic Reddit GTM legible
 
 You drive real traffic from homebuying subreddits but can't link in-thread (bans),

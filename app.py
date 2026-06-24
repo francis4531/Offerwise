@@ -464,7 +464,7 @@ except Exception as e:
 # Developer accounts — get 500 credits, enterprise tier, auto-refill
 _DEV_EMAILS_DEFAULT = os.environ.get('ADMIN_EMAILS', ADMIN_EMAIL)
 # Persona / test account domains — excluded from all analytics and telemetry
-TEST_EMAIL_DOMAINS = ('@persona.offerwise.ai', '@test.offerwise.ai')
+TEST_EMAIL_DOMAINS = ('@persona.offerwise.ai', '@test.offerwise.ai', '.test.example.com')
 
 DEVELOPER_EMAILS = [e.strip().lower() for e in os.environ.get('DEVELOPER_EMAILS', _DEV_EMAILS_DEFAULT).split(',') if e.strip()]
 
@@ -9790,6 +9790,107 @@ def admin_daily_activity():
         return jsonify({'daily': daily})
     except Exception:
         return jsonify({'error': 'Failed to load daily activity'}), 500
+
+
+# ── Single source of truth: THE funnel ─────────────────────────────────────
+# One ordered spine, computed once, test/persona/e2e accounts excluded BEFORE
+# counting, conversion rates suppressed below a denominator where they're just
+# noise. Every funnel panel should read this endpoint instead of re-deriving its
+# own — that is the whole point of consolidating the dashboard.
+_CANON_FUNNEL_STAGES = [
+    ('visit',               'Visited'),
+    ('risk_check_start',    'Started a risk check'),
+    ('risk_check_complete', 'Completed a risk check'),
+    ('signup',              'Signed up'),
+    ('address_entered',     'Entered an address'),
+    ('analysis_complete',   'Completed an analysis'),
+    ('pricing_view',        'Viewed pricing'),
+    ('purchase',            'Purchased'),
+]
+_RATE_MIN_DENOM = 100  # below this many in the prior stage, a % is noise — counts only
+
+
+def _funnel_view(stage_counts, min_denom=_RATE_MIN_DENOM):
+    """Pure: {stage: count} -> ordered funnel with drop-offs and honest insights.
+
+    A step's drop_pct is computed only when the PRIOR stage clears min_denom;
+    otherwise rate_suppressed is set so the UI shows the count and not a
+    meaningless percentage. Insights are derived once, from these same numbers."""
+    rows, prev = [], None
+    for key, label in _CANON_FUNNEL_STAGES:
+        count = int(stage_counts.get(key, 0) or 0)
+        step = {'stage': key, 'label': label, 'count': count,
+                'drop_pct': None, 'rate_suppressed': False}
+        if prev is not None:
+            if prev >= min_denom and prev > 0:
+                step['drop_pct'] = round((1 - count / prev) * 100, 1)
+            else:
+                step['rate_suppressed'] = True
+        rows.append(step)
+        prev = count
+
+    visits = int(stage_counts.get('visit', 0) or 0)
+    analyses = int(stage_counts.get('analysis_complete', 0) or 0)
+    purchases = int(stage_counts.get('purchase', 0) or 0)
+    low_volume = visits < min_denom
+
+    insights = []
+    biggest = None
+    for i in range(1, len(rows)):
+        lost = rows[i - 1]['count'] - rows[i]['count']
+        if biggest is None or lost > biggest[0]:
+            biggest = (lost, rows[i - 1]['label'], rows[i]['label'])
+    if biggest and biggest[0] > 0:
+        insights.append({'kind': 'drop',
+                         'text': f"Biggest drop-off: {biggest[1]} → {biggest[2]} "
+                                 f"({biggest[0]} lost)."})
+    conv = f"{visits} visits → {analyses} analyses → {purchases} purchased."
+    if low_volume:
+        conv += (" Volume is below the bar where conversion rates mean anything — "
+                 "read the counts, not the percentages.")
+    insights.append({'kind': 'conversion', 'text': conv})
+
+    return {
+        'stages': rows,
+        'low_volume': low_volume,
+        'rate_min_denominator': min_denom,
+        'insights': insights,
+        'totals': {'visits': visits, 'analyses': analyses, 'purchases': purchases},
+    }
+
+
+@app.route('/api/admin/funnel')
+@api_admin_required
+def api_canonical_funnel():
+    """THE funnel — single source of truth. Test/persona/e2e accounts are excluded
+    before counting; rates are suppressed under the volume bar. Other funnel panels
+    should read this rather than each computing their own slightly-different number."""
+    try:
+        from models import GTMFunnelEvent
+        from sqlalchemy import func, or_
+        days = int(request.args.get('days', 30))
+        cutoff = datetime.utcnow() - timedelta(days=days)
+
+        test_clauses = [User.email.endswith(d) for d in TEST_EMAIL_DOMAINS]
+        test_ids = [r[0] for r in db.session.query(User.id).filter(or_(*test_clauses)).all()]
+
+        q = (db.session.query(GTMFunnelEvent.stage, func.count(GTMFunnelEvent.id))
+             .filter(GTMFunnelEvent.created_at >= cutoff))
+        if test_ids:
+            q = q.filter(or_(GTMFunnelEvent.user_id.is_(None),
+                             ~GTMFunnelEvent.user_id.in_(test_ids)))
+        stage_counts = {stage: cnt for stage, cnt in q.group_by(GTMFunnelEvent.stage).all()}
+
+        view = _funnel_view(stage_counts)
+        view['period_days'] = days
+        view['excluded_test_accounts'] = len(test_ids)
+        view['note'] = ('Counts are raw events with test/persona/e2e accounts removed. '
+                        'This is the single source of truth — other funnel panels are '
+                        'being migrated to read it.')
+        return jsonify(view)
+    except Exception as e:
+        logger.error(f"canonical funnel error: {e}")
+        return jsonify({'error': 'funnel computation failed'}), 500
 
 
 @app.route('/api/analytics')
