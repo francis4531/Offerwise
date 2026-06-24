@@ -4621,7 +4621,7 @@ def api_onboarding_funnel():
 def api_funnel_debug():
     """Deep funnel analysis — maps every buyer signup through conversion steps."""
     from models import User, Property
-    from sqlalchemy import func as _func
+    from sqlalchemy import func as _func, or_ as _or
     from datetime import datetime, timedelta
 
     try:
@@ -4630,10 +4630,25 @@ def api_funnel_debug():
     except Exception:
         _has_credit_txn = False
 
-    # All buyer users ordered by signup date
-    users = User.query.filter(
-        User.tier != None
-    ).order_by(User.created_at.desc()).limit(200).all()
+    # Exclude test/persona/e2e accounts before counting, using the same
+    # TEST_EMAIL_DOMAINS source of truth as the canonical /api/admin/funnel.
+    # Previously this sampled the last 200 buyers including seed accounts, which
+    # padded the headline "Total Users" count. Mirror the canonical's id-based
+    # exclusion (not a NULL-unsafe NOT LIKE) so users with no email are kept.
+    try:
+        from app import TEST_EMAIL_DOMAINS as _TEST_DOMAINS
+    except Exception:
+        _TEST_DOMAINS = ()
+    _test_ids = []
+    if _TEST_DOMAINS:
+        _clauses = [User.email.endswith(_d) for _d in _TEST_DOMAINS]
+        _test_ids = [r[0] for r in db.session.query(User.id).filter(_or(*_clauses)).all()]
+
+    # All real buyer users ordered by signup date (test accounts removed)
+    _q = User.query.filter(User.tier != None)
+    if _test_ids:
+        _q = _q.filter(~User.id.in_(_test_ids))
+    users = _q.order_by(User.created_at.desc()).limit(200).all()
 
     rows = []
     for u in users:

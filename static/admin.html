@@ -1920,16 +1920,11 @@ details.an-drill[open] .an-chev{transform:rotate(90deg)}
   </div>
   <div class="card">
     <div class="card-body">
-      <div id="funnelViz" style="display:flex;gap:8px;align-items:flex-end;height:180px;margin-bottom:16px"></div>
-      <div id="funnelRates" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;font-size:11px"></div>
-      <div id="funnelTable" style="font-size:12px"></div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:10px">Single source of truth — reads <code>/api/admin/funnel</code>. Test/persona/e2e accounts are removed before counting, and a conversion rate is hidden whenever the prior stage is too small for a percentage to mean anything.</div>
+      <div id="canonicalFunnel"><div class="loading-msg"><span class="spinner"></span></div></div>
     </div>
   </div>
-  <div class="section-head" style="margin-top:8px"><div class="section-title" style="font-size:13px">🔄 The Funnel — coarse to fine</div></div>
-  <div class="card" style="margin-top:12px">
-    <div class="card-head"><div class="card-title">📊 Funnel Insights</div></div>
-    <div id="funnelInsights" class="card-body" style="font-size:12px;color:var(--muted)"></div>
-  </div>
+  <div class="section-head" style="margin-top:8px"><div class="section-title" style="font-size:13px">🔎 Drill-downs — diagnose the drops</div></div>
   <!-- Conversion Debug (moved up to follow Insights — stage-by-stage detail) -->
   <div class="card" style="margin-top:12px" id="convDebugCard">
     <div class="card-head">
@@ -15259,174 +15254,82 @@ async function loadOnboardingStepFunnel() {
   }
 }
 
+// ── Canonical funnel renderer (Phase 2): every funnel surface now reads the one
+// /api/admin/funnel source of truth instead of each re-deriving its own number.
+var _FUNNEL_BAR_COLORS=['var(--blue)','var(--purple)','var(--purple)','var(--green)','var(--blue)','var(--green)','var(--yellow)','var(--green)'];
+
+function _funnelDropCell(s){
+  // First stage has no prior stage, so no drop cell. When the prior stage is
+  // below the volume bar the rate is suppressed server-side; say so plainly
+  // rather than printing a meaningless percentage.
+  if(s.rate_suppressed) return '<span style="color:var(--gray);font-size:.78rem">rate hidden — too few</span>';
+  if(s.drop_pct===null||s.drop_pct===undefined) return '';
+  var pct=s.drop_pct;
+  var col=pct>50?'var(--red)':pct>30?'var(--yellow)':'var(--green)';
+  return '<span style="color:'+col+'">-'+pct+'%</span>';
+}
+
+function renderCoreInsights(insights){
+  var el=document.getElementById('analyticsCoreInsight');
+  if(!el) return;
+  if(!insights||!insights.length){
+    el.innerHTML='<div class="an-insight-hd">💡 Core insights</div><div class="an-insight-row"><span>Not enough data yet — insights appear as the funnel fills up.</span></div>';
+    return;
+  }
+  var icons={drop:'🚨',conversion:'📊'};
+  el.innerHTML='<div class="an-insight-hd">💡 Core insights</div>'+
+    insights.map(function(i){
+      var ic=icons[i.kind]||'💡';
+      return '<div class="an-insight-row"><span class="an-insight-ic">'+ic+'</span><span>'+(i.text||'')+'</span></div>';
+    }).join('');
+}
+
 async function loadFunnel(){
   const days=document.getElementById('funnelDays').value;
+  const panel=document.getElementById('canonicalFunnel');
   try{
-    const r=await fetch(apiUrl('/api/gtm/funnel?days='+days));
+    const r=await fetch(apiUrl('/api/admin/funnel?days='+days));
     if(!r.ok) throw new Error('API error');
     const d=await r.json();
-    
-    const maxVal=Math.max(...STAGES.map(s=>d.stages[s]||0),1);
-    const viz=document.getElementById('funnelViz');
-    viz.innerHTML=STAGES.map((s,i)=>{
-      const cnt=d.stages[s]||0;
+    const stages=Array.isArray(d.stages)?d.stages:[];
+    const maxVal=Math.max.apply(null,stages.map(function(s){return s.count||0;}).concat([1]));
+
+    const viz=stages.map(function(s,i){
+      const cnt=s.count||0;
       const h=Math.max(8,cnt/maxVal*160);
+      const col=_FUNNEL_BAR_COLORS[i%_FUNNEL_BAR_COLORS.length];
       return '<div class="funnel-stage">'+
         '<div class="funnel-count">'+cnt+'</div>'+
-        '<div class="funnel-bar" style="height:'+h+'px;background:'+STAGE_COLORS[i]+'"></div>'+
-        '<div class="funnel-name">'+STAGE_LABELS[i]+'</div>'+
+        '<div class="funnel-bar" style="height:'+h+'px;background:'+col+'"></div>'+
+        '<div class="funnel-name">'+(s.label||s.stage||'')+'</div>'+
       '</div>';
     }).join('');
-    
-    // Conversion rates
-    const rates=d.conversion_rates||{};
-    document.getElementById('funnelRates').innerHTML=Object.entries(rates).filter(([k,v])=>v>0).map(([k,v])=>{
-      const parts=k.split('_to_');
-      return '<div style="font-size:.78rem;color:var(--gray)">'+parts[0]+' → '+parts[1]+': <strong style="color:var(--yellow)">'+v+'%</strong></div>';
-    }).join('');
-    
-    // Detailed table grouped by funnel section
-    const sections=[
-      {title:'🔍 Free Tools (Top of Funnel)',stages:['visit','risk_check_start','risk_check_complete','truth_check_start','truth_check_complete']},
-      {title:'📧 Capture & Signup',stages:['email_capture','signup']},
-      {title:'📊 Core Analysis',stages:['app_page_view','address_entered','upload_started','upload_complete','analysis_started','analysis_complete']},
-      {title:'💰 Monetization',stages:['pricing_view','purchase']},
-    ];
-    let tbl='<table style="width:100%;border-collapse:collapse;font-size:.85rem;">';
-    tbl+='<tr style="border-bottom:1px solid var(--border);"><th style="text-align:left;padding:8px;color:var(--gray)">Stage</th><th style="text-align:right;padding:8px;color:var(--gray)">Count</th><th style="text-align:right;padding:8px;color:var(--gray)">Drop-off</th></tr>';
-    let prevCount=null;
-    for(const sec of sections){
-      tbl+='<tr><td colspan="3" style="padding:12px 8px 4px;font-weight:700;color:var(--text);font-size:.9rem">'+sec.title+'</td></tr>';
-      for(const s of sec.stages){
-        const cnt=d.stages[s]||0;
-        const lbl=STAGE_LABELS[STAGES.indexOf(s)]||s;
-        let dropoff='';
-        if(prevCount!==null&&prevCount>0){
-          const pct=Math.round((1-cnt/prevCount)*100);
-          if(pct>0) dropoff='<span style="color:'+(pct>50?'var(--red)':pct>30?'var(--yellow)':'var(--green)')+'">-'+pct+'%</span>';
-        }
-        tbl+='<tr style="border-bottom:1px solid rgba(255,255,255,.04)"><td style="padding:6px 8px;color:var(--text)">'+lbl+'</td><td style="text-align:right;padding:6px 8px;font-weight:700;color:var(--text)">'+cnt+'</td><td style="text-align:right;padding:6px 8px">'+dropoff+'</td></tr>';
-        if(cnt>0) prevCount=cnt;
-      }
-    }
-    tbl+='</table>';
-    document.getElementById('funnelTable').innerHTML=tbl;
-    
-    // Auto-generated insights
-    const insights=[];
-    const stages=d.stages||{};
-    const visits=stages.visit||0;
-    const appViews=stages.app_page_view||0;
-    const addressEntered=stages.address_entered||0;
-    const uploadStart=stages.upload_started||0;
-    const uploadDone=stages.upload_complete||0;
-    const analyzeStart=stages.analysis_started||0;
-    const analyzeComplete=stages.analysis_complete||0;
-    const pricingViews=stages.pricing_view||0;
-    const purchases=stages.purchase||0;
-    const signups=stages.signup||0;
-    const riskStarts=stages.risk_check_start||0;
-    
-    // Biggest drop-off
-    const funnelPairs=[
-      {from:'Visit',to:'Risk Check',a:visits,b:riskStarts},
-      {from:'App View',to:'Address Entered',a:appViews,b:addressEntered},
-      {from:'Address',to:'Upload Start',a:addressEntered,b:uploadStart},
-      {from:'Upload Start',to:'Upload Done',a:uploadStart,b:uploadDone},
-      {from:'Upload Done',to:'Analysis',a:uploadDone,b:analyzeStart},
-      {from:'Results',to:'Pricing',a:analyzeComplete,b:pricingViews},
-    ].filter(p=>p.a>0);
-    
-    if(funnelPairs.length>0){
-      const validPairs = funnelPairs.filter(p => p.b <= p.a); // Skip inflated downstream numbers
-      if(validPairs.length > 0) {
-        const worst=validPairs.reduce((w,p)=>{const drop=1-p.b/p.a;return drop>w.drop?{...p,drop}:w;},{drop:0});
-        if(worst.drop>0.3){
-          insights.push({icon:'🚨',color:'var(--red)',text:`Biggest drop-off: <strong>${worst.from} → ${worst.to}</strong> (${Math.round(worst.drop*100)}% lost). This is where most users abandon the flow.`});
-        }
-      }
-    }
-    
-    // App view to address (onboarding friction)
-    if(appViews>2&&addressEntered>0){
-      const rate=Math.round(addressEntered/appViews*100);
-      if(rate<30) insights.push({icon:'⚠️',color:'var(--yellow)',text:`Only <strong>${rate}%</strong> of users who open the app enter an address. The onboarding form may have too much friction.`});
-      else if(rate>=60) insights.push({icon:'✅',color:'var(--green)',text:`<strong>${rate}%</strong> of app viewers enter an address — solid engagement with the analysis tool.`});
-    }
-    
-    // Upload completion rate
-    if(uploadStart>0){
-      const rate=Math.round(uploadDone/uploadStart*100);
-      if(rate>=90) insights.push({icon:'✅',color:'var(--green)',text:`Upload success rate: <strong>${rate}%</strong> — document processing is reliable.`});
-      else if(rate<70) insights.push({icon:'⚠️',color:'var(--yellow)',text:`Upload completion: only <strong>${rate}%</strong>. Users may be struggling with document uploads or PDF parsing.`});
-    }
-    
-    // Pricing views vs completions
-    // pricingViews and analyzeComplete are different event populations, so the
-    // ratio can exceed 100% (repeat views, results re-renders, bots). Never
-    // present a clamped "100%" — report the honest relationship instead.
-    if(analyzeComplete>0&&pricingViews>0){
-      if(pricingViews > analyzeComplete){
-        insights.push({icon:'⚠️',color:'var(--yellow)',text:`Pricing page: <strong>${pricingViews} views</strong> vs ${analyzeComplete} analysis completions — more views than completions (repeat views or bots). ${purchases>0?purchases+' converted.':'0 purchases so far.'} Not a clean per-user rate.`});
-      } else {
-        const ratio=Math.round(pricingViews/analyzeComplete*100);
-        insights.push({icon:'💰',color:'var(--yellow)',text:`<strong>${ratio}%</strong> of completed analyses led to a pricing view (${pricingViews}/${analyzeComplete}). ${purchases>0?purchases+' converted to purchase.':'No purchases yet — pricing page may need optimization.'}`});
-      }
-    }
-    
-    // Overall funnel health
-    if(visits>5&&analyzeComplete>0){
-      const overallRate=Math.round(analyzeComplete/visits*100);
-      insights.push({icon:'📊',color:'var(--blue)',text:`Overall conversion: <strong>${overallRate}%</strong> of visitors complete an analysis (${visits} visits → ${analyzeComplete} analyses).`});
-    }
-    
-    // Free tool engagement
-    if(visits>5&&riskStarts===0){
-      insights.push({icon:'🔍',color:'var(--yellow)',text:'No Risk Check usage despite '+visits+' visitors. Consider making the free tools more prominent on the homepage.'});
-    } else if(riskStarts>0 && (stages.risk_check_complete||0)>0) {
-      const riskComplRate = Math.round((stages.risk_check_complete||0)/riskStarts*100);
-      if(riskComplRate>=80) insights.push({icon:'✅',color:'var(--green)',text:`Risk Check completion: <strong>${riskComplRate}%</strong> — users who start it finish it.`});
-    }
-    
-    // Signup funnel
-    if(signups>0 && appViews>0) {
-      const signupToApp = Math.round(appViews/signups*100);
-      const multiple = Math.round(appViews/signups);
-      if(signupToApp > 200) insights.push({icon:'📱',color:'var(--blue)',text:`App opened <strong>${multiple}x</strong> per signup on average (${appViews} views / ${signups} signups). At low signup counts this can be a few heavy users rather than broad repeat engagement — read with the absolute numbers in mind.`});
-    }
-    
-    // Analysis completion rate
-    // Only valid as a percentage when completions are a subset of starts.
-    // Cross-population event counts can make complete > start (re-renders,
-    // re-analyses, differing dedup) — in that case a % is meaningless, so we
-    // report honest raw counts instead of a fake (>100%) rate.
-    if(analyzeStart > 0) {
-      if((analyzeComplete||0) > analyzeStart) {
-        insights.push({icon:'⚠️',color:'var(--yellow)',text:`Analysis events don't pair cleanly: <strong>${analyzeComplete} completions</strong> vs ${analyzeStart} starts (completions exceed starts — likely re-renders or re-analyses firing 'complete' without a matching 'start'). Showing raw counts, not a rate.`});
-      } else {
-        const complRate = Math.round((analyzeComplete||0)/analyzeStart*100);
-        if(complRate >= 90) insights.push({icon:'✅',color:'var(--green)',text:`Analysis completion: <strong>${complRate}%</strong> (${analyzeComplete}/${analyzeStart}) — the engine reliably finishes what it starts.`});
-        else if(complRate < 70) insights.push({icon:'🚨',color:'var(--red)',text:`Analysis completion: only <strong>${complRate}%</strong> — ${analyzeStart - (analyzeComplete||0)} analyses failed or timed out. Check error logs.`});
-      }
-    }
-    
-    if(insights.length===0){
-      insights.push({icon:'📊',color:'var(--gray)',text:'Not enough data yet for insights. Keep driving traffic — insights will appear as the funnel fills up.'});
-    }
-    
-    document.getElementById('funnelInsights').innerHTML=
-      '<div style="font-size:.85rem;font-weight:600;color:var(--text);margin-bottom:12px;">💡 Funnel Insights</div>'+
-      insights.map(i=>'<div style="display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:.85rem;line-height:1.6;"><span style="font-size:16px;flex-shrink:0;">'+i.icon+'</span><span style="color:var(--text);">'+i.text+'</span></div>').join('');
 
-    // v5.89.139: surface the same core insights at the top of the Analytics page.
-    var _topIns=document.getElementById('analyticsCoreInsight');
-    if(_topIns){
-      _topIns.innerHTML='<div class="an-insight-hd">💡 Core insights</div>'+
-        insights.slice(0,4).map(function(i){return '<div class="an-insight-row"><span class="an-insight-ic">'+i.icon+'</span><span>'+i.text+'</span></div>';}).join('');
-    }
-    
+    let tbl='<table style="width:100%;border-collapse:collapse;font-size:.85rem;margin-top:16px">';
+    tbl+='<tr style="border-bottom:1px solid var(--border)"><th style="text-align:left;padding:8px;color:var(--gray)">Stage</th><th style="text-align:right;padding:8px;color:var(--gray)">Count</th><th style="text-align:right;padding:8px;color:var(--gray)">Drop-off</th></tr>';
+    stages.forEach(function(s){
+      tbl+='<tr style="border-bottom:1px solid rgba(255,255,255,.04)">'+
+        '<td style="padding:6px 8px;color:var(--text)">'+(s.label||s.stage||'')+'</td>'+
+        '<td style="text-align:right;padding:6px 8px;font-weight:700;color:var(--text)">'+(s.count||0)+'</td>'+
+        '<td style="text-align:right;padding:6px 8px">'+_funnelDropCell(s)+'</td>'+
+      '</tr>';
+    });
+    tbl+='</table>';
+
+    const tot=d.totals||{};
+    let note='<div style="font-size:11px;color:var(--muted);margin-top:12px">'+
+      (tot.visits||0)+' visits → '+(tot.analyses||0)+' analyses → '+(tot.purchases||0)+' purchased'+
+      ' · '+(d.excluded_test_accounts||0)+' test/persona/e2e accounts excluded'+
+      (d.low_volume?' · volume is below the bar where conversion rates mean anything — read the counts, not the percentages':'')+
+      '</div>';
+
+    if(panel) panel.innerHTML='<div style="display:flex;gap:8px;align-items:flex-end;height:180px;margin-bottom:8px">'+viz+'</div>'+tbl+note;
+
+    renderCoreInsights(d.insights||[]);
   }catch(e){
-    document.getElementById('funnelViz').innerHTML='<div class="empty"><div class="icon">📊</div>No funnel data yet. Events will populate as users interact with the site.</div>';
+    if(panel) panel.innerHTML='<div class="empty"><div class="icon">📊</div>No funnel data yet. Events will populate as users interact with the site.</div>';
+    var _ci=document.getElementById('analyticsCoreInsight');
+    if(_ci) _ci.innerHTML='<div class="an-insight-hd">💡 Core insights</div><div class="an-insight-row"><span>Funnel data unavailable right now.</span></div>';
   }
 }
 

@@ -3,6 +3,43 @@
 Historical deployment notes, bug fixes, and architecture decisions.
 Consolidated from 80 individual files on 2026-03-13.
 
+## v5.89.204 — Dashboard consolidation Phase 2: every funnel surface reads the one source
+
+Phase 1 built the canonical /api/admin/funnel (test/persona/e2e accounts removed
+before counting, conversion rates suppressed below a denominator where they're
+just noise). Phase 2 retires the duplicate funnel computations in admin.html and
+points the survivors at that endpoint, so the dashboard stops reporting the same
+funnel three slightly-different ways.
+
+Frontend (static/admin.html):
+- The 15-stage "Funnel Deep Dive" viz/rates/table is replaced by a single
+  #canonicalFunnel panel that renders the canonical 8 stages. Where the prior
+  stage is too small for a percentage to mean anything it prints "rate hidden —
+  too few" instead of a number.
+- The literal-duplicate "Funnel Insights" card is deleted.
+- "Core insights" now renders /api/admin/funnel.insights (the same insights the
+  endpoint derives once) instead of recomputing its own.
+- "Where Signups Die", "Entry Cliff" and "Risk Check Exit" are kept and demoted
+  to clearly-labeled drill-downs under a "Drill-downs — diagnose the drops"
+  header. loadFunnel no longer computes a parallel insights array.
+
+Backend rider (admin_routes.py /api/admin/funnel-debug):
+- It sampled the last 200 buyers including seed accounts, which padded the
+  headline buyer count. It now excludes test/persona/e2e accounts using the same
+  TEST_EMAIL_DOMAINS source of truth as the canonical funnel, via the canonical's
+  id-based (NULL-email-safe) exclusion rather than a NOT-LIKE.
+
+Tests: test_funnel_debug_exclusion.py (3) seeds real + test-domain users and
+asserts the test-domain ones are gone from both total_buyers and the rows, and
+that the rider reads app.TEST_EMAIL_DOMAINS (guarding against .test.example.com
+drift). test_funnel_canonical.py (7) unchanged and green.
+
+Known follow-ups (out of scope here): funnel_tracker.py and
+/api/admin/user-drip/list still carry their own divergent copies of the
+test-domain exclusion — both miss .test.example.com and use the NULL-unsafe
+NOT-endswith form. Reconcile to the single source separately (watch for circular
+imports from funnel_tracker).
+
 ## v5.89.203 — Dashboard consolidation Phase 1: one funnel, one source of truth
 
 The admin telemetry computes the same funnel four ways (Core Insights, Funnel
