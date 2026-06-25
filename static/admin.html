@@ -1924,6 +1924,21 @@ details.an-drill[open] .an-chev{transform:rotate(90deg)}
       <div id="canonicalFunnel"><div class="loading-msg"><span class="spinner"></span></div></div>
     </div>
   </div>
+  <div class="card" style="margin-top:12px" id="telemetryIntegrityCard">
+    <div class="card-head">
+      <div class="card-title">🩺 Telemetry Integrity — can you trust these numbers?</div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <select id="tiDays" onchange="loadTelemetryIntegrity()" style="width:auto;padding:3px 8px;font-size:11px">
+          <option value="30">30 days</option><option value="90" selected>90 days</option><option value="180">180 days</option>
+        </select>
+        <button class="btn btn-ghost btn-sm" onclick="loadTelemetryIntegrity()">↻ Refresh</button>
+      </div>
+    </div>
+    <div class="card-body">
+      <div style="font-size:11px;color:var(--muted);margin-bottom:10px">In-DB consistency audit via <code>/api/admin/telemetry-integrity</code> — no external connector. Proves whether the funnel events are internally consistent: missing or double-fired hooks, unbucketed channels, and test/internal traffic that leaked past exclusion. This is consistency, not whether the numbers match reality (that needs Stripe/GA reconciliation).</div>
+      <div id="telemetryIntegrityBody"><div class="loading-msg"><span class="spinner"></span></div></div>
+    </div>
+  </div>
   <div class="section-head" style="margin-top:8px"><div class="section-title" style="font-size:13px">🔎 Drill-downs — diagnose the drops</div></div>
   <!-- Conversion Debug (moved up to follow Insights — stage-by-stage detail) -->
   <div class="card" style="margin-top:12px" id="convDebugCard">
@@ -5233,7 +5248,7 @@ function showView(view, el) {
   if (view === 'users')        { loadUsersList(); loadAnalytics(); }
   if (view === 'partners')     { /* loaded by showPartnerTab */ }
   if (view === 'outreach')     { oReloadAll(); }
-  if (view === 'analytics')    { loadAnalytics(); loadWaitlist(); loadSurveys(); loadFunnel(); loadConversionDebug(); loadAbHome(); loadUserDripList(); loadEntryCliff(); loadRiskCheckExit(); renderPanelHealth(); }
+  if (view === 'analytics')    { loadAnalytics(); loadWaitlist(); loadSurveys(); loadFunnel(); loadTelemetryIntegrity(); loadConversionDebug(); loadAbHome(); loadUserDripList(); loadEntryCliff(); loadRiskCheckExit(); renderPanelHealth(); }
   if (view === 'adperf')       { loadAds(); loadGadsStatus(); loadRedditSyncHealth(); }
 
   if (view === 'tests')        { updateBugCount(); loadAllBugs(); loadPersonas(); loadPostgresTestHistory(); }
@@ -15282,6 +15297,46 @@ function renderCoreInsights(insights){
       var ic=icons[i.kind]||'💡';
       return '<div class="an-insight-row"><span class="an-insight-ic">'+ic+'</span><span>'+(i.text||'')+'</span></div>';
     }).join('');
+}
+
+function _tiStatusMeta(s){
+  if(s==='pass') return {c:'var(--green)',bg:'var(--green-dim)',icon:'\u2713'};
+  if(s==='warn') return {c:'var(--amber)',bg:'var(--amber-dim)',icon:'\u26a0'};
+  if(s==='fail') return {c:'var(--red)',bg:'var(--red-dim)',icon:'\u2715'};
+  return {c:'var(--muted)',bg:'rgba(255,255,255,.06)',icon:'\u00b7'};
+}
+function _tiEscape(t){return String(t==null?'':t).replace(/[&<>]/g,function(m){return ({'&':'&amp;','<':'&lt;','>':'&gt;'})[m];});}
+async function loadTelemetryIntegrity(){
+  var sel=document.getElementById('tiDays');
+  var days=sel?sel.value:90;
+  var panel=document.getElementById('telemetryIntegrityBody');
+  if(!panel) return;
+  try{
+    var r=await fetch(apiUrl('/api/admin/telemetry-integrity?days='+days));
+    if(!r.ok) throw new Error('API error');
+    var d=await r.json();
+    var checks=Array.isArray(d.checks)?d.checks:[];
+    var om=_tiStatusMeta(d.overall);
+    var banner='<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:6px;background:'+om.bg+';margin-bottom:12px">'+
+      '<span style="font-size:18px;color:'+om.c+'">'+om.icon+'</span>'+
+      '<div><div style="font-weight:700;color:'+om.c+';text-transform:uppercase;font-size:13px;letter-spacing:.04em">'+_tiEscape(d.overall)+'</div>'+
+      '<div style="font-size:11px;color:var(--muted)">'+(d.event_count||0)+' events over '+_tiEscape((d.period&&d.period.days)||days)+' days</div></div></div>';
+    var rows=checks.map(function(c){
+      var m=_tiStatusMeta(c.status);
+      var detail='';
+      if(c.detail && Object.keys(c.detail).length){
+        detail='<details style="margin-top:6px"><summary style="font-size:11px;color:var(--muted);cursor:pointer">detail</summary>'+
+          '<pre style="font-size:11px;color:var(--gray);white-space:pre-wrap;margin:6px 0 0;font-family:var(--mono)">'+_tiEscape(JSON.stringify(c.detail,null,2))+'</pre></details>';
+      }
+      return '<div style="display:flex;gap:10px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.04)">'+
+        '<span style="flex-shrink:0;width:20px;height:20px;border-radius:4px;background:'+m.bg+';color:'+m.c+';display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700">'+m.icon+'</span>'+
+        '<div style="flex:1"><div style="font-weight:600;color:var(--text);font-size:13px">'+_tiEscape(c.title)+'</div>'+
+        '<div style="font-size:12px;color:var(--muted);margin-top:2px">'+_tiEscape(c.summary)+'</div>'+detail+'</div></div>';
+    }).join('');
+    panel.innerHTML=banner+rows;
+  }catch(e){
+    panel.innerHTML='<div class="empty"><div class="icon">\ud83e\ude7a</div>Integrity report unavailable. Deploy v5.89.210+ and confirm the endpoint is live.</div>';
+  }
 }
 
 async function loadFunnel(){

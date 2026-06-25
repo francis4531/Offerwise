@@ -9893,6 +9893,35 @@ def api_canonical_funnel():
         return jsonify({'error': 'funnel computation failed'}), 500
 
 
+@app.route('/api/admin/telemetry-integrity')
+@api_admin_required
+def api_telemetry_integrity():
+    """In-DB integrity audit of the funnel event store. Proves whether the funnel
+    numbers are internally consistent — no external connector required. Reuses the
+    SAME test-account exclusion the canonical funnel uses to compute the write-time
+    leak, and reads RAW events (no exclusion) so the leaks are measurable."""
+    try:
+        from models import GTMFunnelEvent
+        from sqlalchemy import or_
+        from telemetry_integrity import build_integrity_report
+        days = int(request.args.get('days', 30))
+        cutoff = datetime.utcnow() - timedelta(days=days)
+
+        # Same exclusion source as the canonical funnel — so a test_user_id flagged
+        # here is the same one excluded there (no drift).
+        test_clauses = [User.email.endswith(d) for d in TEST_EMAIL_DOMAINS]
+        test_ids = [r[0] for r in db.session.query(User.id).filter(or_(*test_clauses)).all()]
+
+        rows = (GTMFunnelEvent.query
+                .filter(GTMFunnelEvent.created_at >= cutoff)
+                .all())
+        report = build_integrity_report(rows, test_ids, days=days)
+        return jsonify(report)
+    except Exception as e:
+        logger.error(f"telemetry integrity error: {e}")
+        return jsonify({'error': 'integrity computation failed'}), 500
+
+
 @app.route('/api/analytics')
 @api_admin_required
 def get_analytics():

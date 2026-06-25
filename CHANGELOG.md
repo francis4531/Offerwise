@@ -3,6 +3,62 @@
 Historical deployment notes, bug fixes, and architecture decisions.
 Consolidated from 80 individual files on 2026-03-13.
 
+## v5.89.211 — Telemetry Integrity admin panel (UI for the .210 engine)
+
+Wires the v5.89.210 integrity endpoint into the admin UI. New card in the Funnel
+view (under the canonical funnel — "can you trust these numbers?") that reads
+GET /api/admin/telemetry-integrity and renders the seven checks: an overall
+pass/warn/fail banner (green/amber/red) plus a per-check row with title, plain
+summary, and an expandable raw-detail block. Own days selector defaulting to 90
+(30 can show false zero-stage warnings in a quiet month); loads with the
+Analytics view and on refresh.
+
+Implementation notes (admin.html discipline): vanilla-JS, no new top-level nav —
+a self-contained card to keep blast radius small. loadTelemetryIntegrity() is a
+top-level function adjacent to loadFunnel() (same global scope, reachable from the
+inline handlers without a window export). Validated: the JS block and the full
+enclosing <script> pass node --check; div balance across admin.html stays exactly
+0 (2952/2952). The card copy states plainly that this proves internal
+consistency, not agreement with reality — that still needs Stripe/GA
+reconciliation. No backend or production code paths changed.
+
+## v5.89.210 — Telemetry integrity engine (prove the funnel numbers, no connectors)
+
+The funnel event store (GTMFunnelEvent) is populated by ~33 hand-placed track()
+calls across 584 routes and has no independent in-DB floor to check itself —
+so a missing or double-firing emitter, unbucketed attribution, or leaked
+test/internal traffic goes unseen and the admin numbers silently lie. This adds
+an in-DB integrity audit that needs NO external connector (no GA4/Stripe/ads
+APIs).
+
+New telemetry_integrity.py — a PURE function build_integrity_report(rows,
+test_user_ids) (no Flask/DB/IO, fully unit-tested) that runs seven checks over
+the raw in-window events:
+- coverage: known stages at zero; CRITICAL stages (signup/purchase/
+  analysis_complete) at zero = fail (the "GA4 logged 1 key event in 6 months"
+  symptom, caught from inside).
+- start_complete: completions with no matching start, counted by DISTINCT
+  SESSION (the only ironclad monotonic invariant — raw event counts are NOT
+  monotonic because chat stages legitimately out-number their parent).
+- duplicates: once-per-session stages firing twice for the same session;
+  fail on purchase/signup (revenue/identity), warn elsewhere.
+- source_bucketing: NULL/empty source = events invisible to every channel report.
+- test_write_leak: events from a test user_id present in the raw table — the
+  read-time funnel still excludes them, but it proves the WRITE-time skip drifted.
+- internal_source: anonymous events from tooling sources (tagassistant, staging,
+  localhost) that the user_id-based exclusion can't catch — the exact pollution
+  seen in GA4.
+- fanout: once-per-session stages with >1.5 events/session (over-firing).
+
+New route GET /api/admin/telemetry-integrity?days=N (admin-only) reuses the
+canonical funnel's exact test-account exclusion to compute the write leak, reads
+RAW events so leaks are measurable, and returns the report as JSON. Verified
+end-to-end against the real model: seeded pollution trips exactly the right
+checks. test_telemetry_integrity.py: 15 hermetic tests (healthy dataset all-green;
+each pollution trips its own check). No production code paths changed — read-only
+audit. A "Telemetry Integrity" admin panel rendering this JSON is the next step;
+the endpoint is usable now via admin_key.
+
 ## v5.89.209 — Behavior-drift backlog: 4 quarantined suites fixed + a real coverage finding
 
 Cleared the four behavior-drift suites that were quarantined for red tests.
