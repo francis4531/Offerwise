@@ -275,15 +275,14 @@
 }
 
 </style>
-    <script src="/static/analytics-loader.js?v=5.89.212" defer></script>
-    <script src="/static/address-validate.js?v=5.89.212"></script>
+    <script src="/static/analytics-loader.js?v=5.89.213" defer></script>
+    <script src="/static/address-validate.js?v=5.89.213"></script>
   <link rel="canonical" href="https://www.getofferwise.ai/risk-check">
 </head>
 <body>
     <nav class="nav">
         <a href="/" class="nav-logo">Offer<span>Wise</span></a>
         <div class="nav-links">
-            <a href="/truth-check">Truth Check</a>
             <a href="/login?signup">Sign Up</a>
         </div>
     </nav>
@@ -339,9 +338,11 @@
             <div class="rr-sec-label" id="findingsLabel">What the seller doesn't have to tell you</div>
             <div id="riskCards"></div>
 
-            <!-- POST-RESULT CONVERSION: ONE primary action. Signup is the single
-                 loud CTA; Truth Check + Sample are quiet secondary links. The
-                 data-exit tags drive the risk_check_cta_click instrumentation. -->
+            <!-- POST-RESULT CONVERSION: ONE door. Signup (full analysis) is the
+                 single loud CTA; only Sample remains as a quiet preview link.
+                 Truth Check moved to the Free Tools page (v5.89.213) so the
+                 risk-check flow forks to one product. The data-exit tags drive
+                 the risk_check_cta_click instrumentation. -->
             <section class="rr-primary fade-up delay-2">
                 <div id="rrYourMove" class="rr-yourmove" style="display:none"></div>
                 <div class="rr-badge">Free first analysis</div>
@@ -350,7 +351,6 @@
                 <div class="rr-feats"><span>🔍 Seller contradiction detection</span><span>💰 Data-backed offer price</span><span>📋 Negotiation strategy</span></div>
                 <a href="/login?signup" class="rr-btn-primary" data-exit="signup">Get my free full analysis →</a>
                 <div class="rr-secondaries">
-                    <a href="/truth-check" data-exit="truth_check">Run a free Truth Check on the disclosure</a>
                     <a href="/sample-analysis" data-exit="sample">See a sample report</a>
                 </div>
             </section>
@@ -877,8 +877,8 @@
         } catch (e) { /* non-fatal */ }
     }, true);
     </script>
-<script src="/static/js/compliance.js?v=5.89.212"></script>
-<script src="/static/ask-widget.js?v=5.89.212"></script>
+<script src="/static/js/compliance.js?v=5.89.213"></script>
+<script src="/static/ask-widget.js?v=5.89.213"></script>
 <script>
 (function(){
   if (window.__rcScoutInit) { return; } window.__rcScoutInit = true;

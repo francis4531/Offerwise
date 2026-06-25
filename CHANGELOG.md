@@ -3,6 +3,17 @@
 Historical deployment notes, bug fixes, and architecture decisions.
 Consolidated from 80 individual files on 2026-03-13.
 
+## v5.89.213 — One door on risk-check (Truth Check → Free Tools)
+
+Consolidation toward a single product flow. The risk-check page (where Reddit
+traffic lands) was forking visitors to multiple surfaces; removed the Truth Check
+links from both the top nav and the post-result secondary exits. Truth Check was
+already a tab in the Free Tools page, so this is a removal from risk-check, not a
+move — it still lives at /free-tools. The risk-check flow now forks to one
+product door: "Get my free full analysis" (signup), with "See a sample report"
+kept as a quiet preview. No backend change. Verified: div balance 0, Truth Check
+still present in free-tools.html.
+
 ## v5.89.212 — Fix the report light/dark toggle (it set the attribute; the CSS ignored it)
 
 The report theme toggle looked dead because of two parallel token systems. The
