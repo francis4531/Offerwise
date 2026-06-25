@@ -5405,8 +5405,8 @@ def reddit_landing():
     you banned, so people type this URL from a comment instead. Stamping
     source=reddit/medium=community makes the visit land in its own
     'reddit_organic' bucket — distinct from paid reddit_ads — and carries the
-    attribution to a later signup. Serves the risk checker, the tool Reddit
-    homebuyers actually want."""
+    attribution to a later signup. Serves the shared ad landing (same page as
+    /from/zillow) so paid/organic ad entries converge on one door."""
     try:
         from funnel_tracker import track_from_request
         track_from_request('visit', request, source='reddit', medium='community',
@@ -5417,7 +5417,7 @@ def reddit_landing():
             session['utm_medium'] = 'community'
     except Exception:
         pass
-    return send_from_directory('static', 'risk-check.html')
+    return send_from_directory('static', 'zillow-landing.html')
 
 @app.route('/free-tools')
 def free_tools_page():
@@ -5532,7 +5532,7 @@ def try_onramp_page():
         track_from_request('try_landed', request)
     except Exception:
         pass
-    return send_from_directory('static', 'try.html')
+    return redirect('/free-tools')
 
 
 @app.route('/api/try/start', methods=['POST'])
@@ -5795,7 +5795,7 @@ def truth_check_page():
     
     share_param = request.args.get('r')
     if not share_param:
-        return send_from_directory('static', 'truth-check.html')
+        return redirect('/free-tools?tab=truth')
     
     # Decode shared result for OG tags
     try:
@@ -5860,7 +5860,7 @@ def risk_check_page():
 
     share_param = request.args.get('r')
     if not share_param:
-        return send_from_directory('static', 'risk-check.html')
+        return redirect('/free-tools?tab=risk')
 
     # Decode shared result for OG tags
     try:

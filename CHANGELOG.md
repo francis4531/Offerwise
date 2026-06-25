@@ -3,6 +3,33 @@
 Historical deployment notes, bug fixes, and architecture decisions.
 Consolidated from 80 individual files on 2026-03-13.
 
+## v5.89.214 — Consolidate free tools under one hub + fix the zillow-landing dead CTAs
+
+Funnel consolidation toward one product, plus a real conversion-killing bug.
+
+Routing (app.py):
+- /try, /risk-check, /truth-check now redirect into the /free-tools hub
+  (/free-tools?tab=risk / ?tab=truth). Share links are preserved: when ?r= is
+  present the page still serves its dynamic OG tags, so the viral loop is intact;
+  only direct visits redirect. Added ?tab= deep-link support to free-tools.html
+  so the redirects land on the right tool.
+- /reddit and /from/reddit (one shared handler) now serve the same landing as
+  /from/zillow (zillow-landing.html), keeping reddit_organic attribution. All ad
+  entries converge on one page.
+- Games tab kept (per request).
+
+Bug fix (zillow-landing.html) — likely a significant conversion leak: all three
+primary CTAs were broken. The nav "Get started free" pointed at /register, which
+is NOT a route (404). The two hero/footer primary buttons had a mangled
+double-URL (/login?signup and /register concatenated with duplicated utm params)
+from a botched find-replace. All three now point to /login?signup (with zillow
+utm preserved on the primaries). This page is now the landing for BOTH zillow and
+reddit traffic, so the fix matters double.
+
+Verified end-to-end: redirects resolve correctly, ?r= share links still 200
+without redirecting, CTAs contain 0 /register and 0 mangled URLs, free-tools
+script passes node --check, div balance 0.
+
 ## v5.89.213 — One door on risk-check (Truth Check → Free Tools)
 
 Consolidation toward a single product flow. The risk-check page (where Reddit
