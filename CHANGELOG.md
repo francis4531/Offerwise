@@ -3,6 +3,22 @@
 Historical deployment notes, bug fixes, and architecture decisions.
 Consolidated from 80 individual files on 2026-03-13.
 
+## v5.89.218 — Shared ad landing is the (de-branded) pitch page + /zillow
+
+By decision, the single ad landing is the pitch page, not the risk-check tool.
+Reverses .217's page choice (keeps the merge structure). /zillow, /from/zillow,
+/reddit, /from/reddit all serve zillow-landing.html now; direct /risk-check still
+serves the risk-check tool with its trap hero. /zillow was already wired as a
+decorator on zillow_landing; confirmed it serves the shared page. Per-route
+attribution preserved (reddit_organic vs zillow utm stamped before serving).
+
+De-brand: hero first line "You found the home on Zillow" -> "You found the home
+you love", so the page reads right for reddit + any source. Eyebrow was already
+"For Homebuyers Nationwide". No other visible Zillow copy on the page.
+
+Verified: all 4 ad routes 200 -> de-branded landing, /risk-check still trap hero,
+reddit attribution intact, route/attribution/topbar tests pass.
+
 ## v5.89.217 — Merge all ad landings into one page + trap-framed hero
 
 One front door for paid/organic traffic. /from/zillow, /reddit, and /from/reddit

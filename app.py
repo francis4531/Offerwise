@@ -5382,8 +5382,9 @@ def sample_analysis():
 @app.route('/zillow')
 @app.route('/from/zillow')
 def zillow_landing():
-    """Zillow ad entry. Stamps utm params for attribution, then serves the
-    merged risk-check landing (v5.89.217: all ad sources share one page)."""
+    """Shared ad landing (/zillow, /from/zillow). Stamps utm for attribution,
+    then serves zillow-landing.html — the one page all ad sources share
+    (v5.89.218). Reddit converges here too via reddit_landing."""
     try:
         from funnel_tracker import track_from_request
         track_from_request('visit', request, metadata={'landing': 'zillow'})
@@ -5397,7 +5398,7 @@ def zillow_landing():
             session['utm_medium'] = 'display'
     except Exception:
         pass
-    return send_from_directory('static', 'risk-check.html')
+    return send_from_directory('static', 'zillow-landing.html')
 
 @app.route('/reddit')
 @app.route('/from/reddit')
@@ -5406,9 +5407,9 @@ def reddit_landing():
     you banned, so people type this URL from a comment instead. Stamping
     source=reddit/medium=community makes the visit land in its own
     'reddit_organic' bucket — distinct from paid reddit_ads — and carries the
-    attribution to a later signup. Serves the merged risk-check landing — the
-    same page as /from/zillow and direct /risk-check, so every ad source
-    converges on one door (v5.89.217)."""
+    attribution to a later signup. Serves the shared ad landing (zillow-landing
+    .html) — the same page as /zillow and /from/zillow, so every ad source
+    converges on one door (v5.89.218)."""
     try:
         from funnel_tracker import track_from_request
         track_from_request('visit', request, source='reddit', medium='community',
@@ -5419,7 +5420,7 @@ def reddit_landing():
             session['utm_medium'] = 'community'
     except Exception:
         pass
-    return send_from_directory('static', 'risk-check.html')
+    return send_from_directory('static', 'zillow-landing.html')
 
 @app.route('/free-tools')
 def free_tools_page():
