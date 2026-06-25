@@ -3,6 +3,23 @@
 Historical deployment notes, bug fixes, and architecture decisions.
 Consolidated from 80 individual files on 2026-03-13.
 
+## v5.89.212 — Fix the report light/dark toggle (it set the attribute; the CSS ignored it)
+
+The report theme toggle looked dead because of two parallel token systems. The
+toggle (OwThemeToggle in app.html) correctly set data-theme="light" on the
+.ow-results container and the in-app <style> flipped its --ow-bg/--ow-text
+tokens — but the report's actual colors come from results-theme.css, which
+defines a SEPARATE token set (--ow-navy/--ow-white/--ow-slate) on :root, applies
+them with !important, and had ZERO data-theme awareness. So the attribute flipped
+and nothing visibly changed. Root-caused by reading both stylesheets, not guessing.
+
+Fix is CSS-only (no JS change — the toggle was never the bug): appended a
+.ow-results[data-theme="light"] block to results-theme.css that remaps the
+background/text tokens to light values, plus light overrides for the three rules
+that hardcode dark colors (property header gradient, .section-nav, .sticky-summary-bar).
+Accents keep their hex. Dark mode is byte-identical — the new rules are inert
+unless data-theme="light" is present. Verified: CSS braces balance (51/51).
+
 ## v5.89.211 — Telemetry Integrity admin panel (UI for the .210 engine)
 
 Wires the v5.89.210 integrity endpoint into the admin UI. New card in the Funnel

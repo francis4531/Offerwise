@@ -347,3 +347,35 @@
     color: #1e293b !important;
   }
 }
+
+/* ──────────────────────────────────────────────
+   Light theme — v5.89.212
+   Opt-in via the report toggle, which sets data-theme="light" on .ow-results.
+   The toggle was always setting the attribute correctly; this file just never
+   responded to it (its background/text tokens live on :root with no light
+   variant, applied with !important). This remaps those tokens for the report
+   subtree and overrides the few rules that hardcode dark colors. Dark mode is
+   byte-identical — these rules are inert unless data-theme="light" is present.
+   Accents (blue/purple/green/amber/red) keep their hex; they read on white.
+   ────────────────────────────────────────────── */
+.ow-results[data-theme="light"] {
+  --ow-navy:        #ffffff;
+  --ow-navy-light:  #f8fafc;
+  --ow-navy-card:   #f1f5f9;
+  --ow-slate:       #64748b;
+  --ow-slate-light: #475569;
+  --ow-white:       #1e293b;
+}
+/* Property header bar — hardcoded dark gradient → light */
+.ow-results[data-theme="light"] > div:first-child > div:nth-child(2) {
+  background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%) !important;
+  border-bottom: 1px solid rgba(100, 116, 139, 0.18) !important;
+}
+/* Section nav pills — hardcoded dark fill → light */
+.ow-results[data-theme="light"] .section-nav {
+  background: rgba(241, 245, 249, 0.8) !important;
+}
+/* Sticky summary bar — hardcoded dark fill → light */
+.ow-results[data-theme="light"] .sticky-summary-bar {
+  background: rgba(255, 255, 255, 0.92) !important;
+}
