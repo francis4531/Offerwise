@@ -3,6 +3,28 @@
 Historical deployment notes, bug fixes, and architecture decisions.
 Consolidated from 80 individual files on 2026-03-13.
 
+## v5.89.217 — Merge all ad landings into one page + trap-framed hero
+
+One front door for paid/organic traffic. /from/zillow, /reddit, and /from/reddit
+now all serve the standalone risk-check page (same as direct /risk-check),
+retiring the separate zillow-landing. Per-route attribution is preserved: each
+handler still stamps its own source before serving (zillow utm vs reddit_organic),
+so the funnel can still tell the channels apart even though they share a page.
+The zillow-landing.html file is now unused (left in place, harmless).
+
+Hero rewrite (risk-check.html), source-neutral and trap-framed: kept the strong
+"What's Hiding at This Address?" hook; replaced the database-list subhead (the
+mechanism) with the stakes — "A listing won't tell you about the flood zones,
+fault lines, toxic sites, and disaster history that can cost tens of thousands
+after you've signed. Find them before you make your offer." Honest to what the
+tool actually checks (environmental/location risk), no source-specific words.
+
+Note: this is a first-pass hero pending the buyer-language survey — the framing
+direction is set (catastrophic-risk, loss-aversion, pre-offer), exact words TBD.
+
+Verified: all 4 routes 200 → merged page, zillow utm still stamped, 0 zillow refs
+on the page, 59 route/attribution/topbar tests pass.
+
 ## v5.89.216 — Fix the 5 stale tests from the .214/.215 routing changes (CI green)
 
 CI on .214 flagged 5 failures. All were stale tests asserting old routing, zero

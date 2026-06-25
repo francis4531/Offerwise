@@ -5382,7 +5382,8 @@ def sample_analysis():
 @app.route('/zillow')
 @app.route('/from/zillow')
 def zillow_landing():
-    """Zillow ad landing page — tracks utm params for attribution."""
+    """Zillow ad entry. Stamps utm params for attribution, then serves the
+    merged risk-check landing (v5.89.217: all ad sources share one page)."""
     try:
         from funnel_tracker import track_from_request
         track_from_request('visit', request, metadata={'landing': 'zillow'})
@@ -5396,7 +5397,7 @@ def zillow_landing():
             session['utm_medium'] = 'display'
     except Exception:
         pass
-    return send_from_directory('static', 'zillow-landing.html')
+    return send_from_directory('static', 'risk-check.html')
 
 @app.route('/reddit')
 @app.route('/from/reddit')
@@ -5405,8 +5406,9 @@ def reddit_landing():
     you banned, so people type this URL from a comment instead. Stamping
     source=reddit/medium=community makes the visit land in its own
     'reddit_organic' bucket — distinct from paid reddit_ads — and carries the
-    attribution to a later signup. Serves the shared ad landing (same page as
-    /from/zillow) so paid/organic ad entries converge on one door."""
+    attribution to a later signup. Serves the merged risk-check landing — the
+    same page as /from/zillow and direct /risk-check, so every ad source
+    converges on one door (v5.89.217)."""
     try:
         from funnel_tracker import track_from_request
         track_from_request('visit', request, source='reddit', medium='community',
@@ -5417,7 +5419,7 @@ def reddit_landing():
             session['utm_medium'] = 'community'
     except Exception:
         pass
-    return send_from_directory('static', 'zillow-landing.html')
+    return send_from_directory('static', 'risk-check.html')
 
 @app.route('/free-tools')
 def free_tools_page():
