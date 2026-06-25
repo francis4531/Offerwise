@@ -74,9 +74,12 @@ class TryOnRampTests(unittest.TestCase):
         self._ai_patch.stop()
 
     def test_try_page_served(self):
+        # v5.89.214: /try was consolidated under the free-tools hub. The
+        # standalone on-ramp page was retired; a direct hit now redirects to
+        # /free-tools. (The /api/try/* endpoints below are unchanged.)
         r = self.client.get('/try')
-        self.assertEqual(r.status_code, 200)
-        self.assertIn(b'Drop your inspection report', r.data)
+        self.assertEqual(r.status_code, 302)
+        self.assertIn('/free-tools', r.headers.get('Location', ''))
 
     def test_start_with_text_returns_token_and_findings(self):
         with patch.object(app_module.parser, 'parse_inspection_report',

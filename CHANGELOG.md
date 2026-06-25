@@ -3,6 +3,25 @@
 Historical deployment notes, bug fixes, and architecture decisions.
 Consolidated from 80 individual files on 2026-03-13.
 
+## v5.89.216 — Fix the 5 stale tests from the .214/.215 routing changes (CI green)
+
+CI on .214 flagged 5 failures. All were stale tests asserting old routing, zero
+real regressions:
+- 4x test_topbar_widget.py::TestRiskCheckAddressPrefill expected /risk-check to
+  render 200 with the address-prefill JS. These were red under .214's redirect
+  and are GREEN again under .215, which restored the standalone for direct hits.
+  No code change needed here — .215 already fixed them.
+- 1x test_try_onramp.py::test_try_page_served asserted /try serves 200 with the
+  on-ramp HTML. /try now redirects to /free-tools by design (.214 consolidation),
+  so the test was stale. Updated it to assert the 302 → /free-tools redirect and
+  documented why. The /api/try/* tests are unchanged and still pass.
+
+Verified the siblings the CI did NOT flag are genuinely fine, not silently
+broken: test_attribution (/try still stamps utm/gclid before redirecting —
+attribution intact), test_critical_paths + test_integration (/truth-check 302 is
+within their accepted status set). No stale /reddit or zillow-CTA tests exist.
+Runtime is identical to .215; this build only updates one test + version.
+
 ## v5.89.215 — Keep the polished risk-check standalone for direct visitors
 
 Partial reversal of .214 routing, by decision. Direct hits to /risk-check now
