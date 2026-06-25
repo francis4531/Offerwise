@@ -3,6 +3,21 @@
 Historical deployment notes, bug fixes, and architecture decisions.
 Consolidated from 80 individual files on 2026-03-13.
 
+## v5.89.215 — Keep the polished risk-check standalone for direct visitors
+
+Partial reversal of .214 routing, by decision. Direct hits to /risk-check now
+serve the rich standalone again (dollar exposure headline, advisor read/your-move
+layer, share buttons, one-door CTA) instead of redirecting to the simpler
+free-tools Risk tab. The wedge tool stays premium for the people who land on it.
+
+Unchanged from .214: /truth-check and /try still consolidate into the free-tools
+hub (?tab=truth and the default hub). The ?r= share branch on /risk-check still
+serves OG previews. /reddit and /from/reddit still serve the shared zillow landing
+(that routing decision is still open).
+
+Net: risk-check premium for direct visitors; truth-check and try under the hub.
+Verified: /risk-check 200 standalone, /truth-check 302 ?tab=truth, /try 302 hub.
+
 ## v5.89.214 — Consolidate free tools under one hub + fix the zillow-landing dead CTAs
 
 Funnel consolidation toward one product, plus a real conversion-killing bug.

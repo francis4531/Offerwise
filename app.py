@@ -5860,7 +5860,7 @@ def risk_check_page():
 
     share_param = request.args.get('r')
     if not share_param:
-        return redirect('/free-tools?tab=risk')
+        return send_from_directory('static', 'risk-check.html')
 
     # Decode shared result for OG tags
     try:
