@@ -123,7 +123,7 @@ class TestRedditFetching(unittest.TestCase):
                         'score': p.get('score', 10),
                         'num_comments': p.get('num_comments', 5),
                         'permalink': f"/r/test/comments/{p.get('id', i)}/title/",
-                        'created_utc': 1700000000 + i,
+                        'created_utc': int((datetime.utcnow() - timedelta(hours=1)).timestamp()) + i,
                         'stickied': False,
                         'is_self': True,
                     }}
@@ -159,7 +159,7 @@ class TestRedditFetching(unittest.TestCase):
                     'id': 'real1', 'title': 'My inspection question', 'selftext': 'Help',
                     'author': 'user', 'score': 5, 'num_comments': 3,
                     'permalink': '/r/test/comments/real1/question/',
-                    'created_utc': 1700000001, 'stickied': False, 'is_self': True,
+                    'created_utc': int((datetime.utcnow() - timedelta(hours=1)).timestamp()), 'stickied': False, 'is_self': True,
                 }},
             ]}
         }
@@ -210,25 +210,36 @@ class TestRedditFetching(unittest.TestCase):
         posts = _fetch_reddit_public('homebuying', 10)
         self.assertEqual(posts, [])
 
+    @patch('gtm.forum_scanner._fetch_reddit_pullpush', return_value=[])
     @patch('gtm.forum_scanner._reddit_has_oauth', return_value=True)
     @patch('gtm.forum_scanner._fetch_reddit_oauth')
     @patch('gtm.forum_scanner._fetch_reddit_public')
-    def test_uses_oauth_when_configured(self, mock_public, mock_oauth, mock_has_oauth):
-        """fetch_reddit_posts() uses OAuth path when credentials present."""
+    def test_uses_oauth_when_configured(self, mock_public, mock_oauth,
+                                        mock_has_oauth, mock_pullpush):
+        """fetch_reddit_posts() uses the OAuth path when credentials present.
+
+        PullPush is the primary fetch now (mocked empty here to force the
+        Reddit-API fallback), and the fallback loops over new+hot — so the
+        OAuth fetch runs once per sort, i.e. twice."""
         from gtm.forum_scanner import fetch_reddit_posts
         mock_oauth.return_value = [{'reddit_id': 'x1', 'title': 'test'}]
-        posts = fetch_reddit_posts('FirstTimeHomeBuyer', limit=5)
-        mock_oauth.assert_called_once()
+        fetch_reddit_posts('FirstTimeHomeBuyer', limit=5)
+        self.assertEqual(mock_oauth.call_count, 2)
         mock_public.assert_not_called()
 
+    @patch('gtm.forum_scanner._fetch_reddit_pullpush', return_value=[])
+    @patch('gtm.forum_scanner._reddit_has_client_creds', return_value=False)
     @patch('gtm.forum_scanner._reddit_has_oauth', return_value=False)
     @patch('gtm.forum_scanner._fetch_reddit_public')
-    def test_uses_public_when_no_oauth(self, mock_public, mock_has_oauth):
-        """fetch_reddit_posts() falls back to public when no OAuth creds."""
+    def test_uses_public_when_no_oauth(self, mock_public, mock_has_oauth,
+                                       mock_has_creds, mock_pullpush):
+        """fetch_reddit_posts() falls back to public JSON when neither OAuth
+        nor client-creds are configured. PullPush is mocked empty to force the
+        fallback, which loops new+hot — so public runs twice."""
         from gtm.forum_scanner import fetch_reddit_posts
         mock_public.return_value = []
         fetch_reddit_posts('homebuying', limit=5)
-        mock_public.assert_called_once()
+        self.assertEqual(mock_public.call_count, 2)
 
     def test_oauth_configured_false_without_env_vars(self):
         """_reddit_has_oauth() returns False when env vars not set."""
@@ -517,9 +528,14 @@ class TestAIScoring(unittest.TestCase):
         """Verify draft prompt instructs AI not to include URLs (policy check)."""
         import inspect, gtm.forum_scanner as fs
         source = inspect.getsource(fs.ai_score_and_draft)
-        self.assertIn('URL', source,
-                      "Draft prompt should mention URL restriction")
-        self.assertIn('url', source.lower())
+        lower = source.lower()
+        # The comment-draft prompt forbids linking out. Wording changed from
+        # "URL" to "any link" in the v5.89 rewrite; assert the restriction by
+        # intent rather than an exact word so this stays robust to rewording.
+        self.assertTrue('link' in lower or 'url' in lower,
+                        "Draft prompt should restrict links/URLs")
+        self.assertIn('never mention', lower,
+                      "Draft prompt should explicitly forbid mentioning links/product")
 
     def test_min_ai_score_constant(self):
         from gtm.forum_scanner import MIN_AI_SCORE
@@ -714,6 +730,7 @@ class TestScanPipeline(unittest.TestCase):
     @patch('gtm.forum_scanner.fetch_biggerpockets_posts')
     @patch('gtm.forum_scanner.fetch_reddit_posts')
     @patch('gtm.forum_scanner.ai_score_and_draft')
+    @patch('gtm.forum_scanner.ANTHROPIC_API_KEY', 'test-key')
     def test_draft_created_for_high_score(self, mock_ai, mock_reddit, mock_bp):
         """AI score >= MIN_AI_SCORE creates a GTMRedditDraft."""
         from gtm.forum_scanner import run_scan, MIN_AI_SCORE
@@ -742,6 +759,7 @@ class TestScanPipeline(unittest.TestCase):
     @patch('gtm.forum_scanner.fetch_biggerpockets_posts')
     @patch('gtm.forum_scanner.fetch_reddit_posts')
     @patch('gtm.forum_scanner.ai_score_and_draft')
+    @patch('gtm.forum_scanner.ANTHROPIC_API_KEY', 'test-key')
     def test_no_draft_for_low_score(self, mock_ai, mock_reddit, mock_bp):
         """AI score < MIN_AI_SCORE does not create a draft."""
         from gtm.forum_scanner import run_scan, MIN_AI_SCORE

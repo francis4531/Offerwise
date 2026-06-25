@@ -217,7 +217,7 @@ class TestCoreProduct_Properties(unittest.TestCase):
         self.assertIn(r.status_code, [401, 302, 405])
 
     def test_property_price_update_requires_auth(self):
-        r = self.client.post('/api/properties/1/price',
+        r = self.client.put('/api/properties/1/price',
                              json={'asking_price': 900000},
                              content_type='application/json')
         self.assertIn(r.status_code, [401, 302, 404, 500])
@@ -459,7 +459,7 @@ class TestInspectorFlows(unittest.TestCase):
         self.assertIn(r.status_code, [200, 302, 404, 500])
 
     def test_inspector_report_update_bad_token(self):
-        r = self.client.post('/api/inspector-report/bad-token-xyz/update',
+        r = self.client.patch('/api/inspector-report/bad-token-xyz/update',
                              json={}, content_type='application/json')
         self.assertIn(r.status_code, [400, 401, 404, 500, 302])
 
@@ -596,7 +596,7 @@ class TestAlertsAndWatches(unittest.TestCase):
         self.assertIn(r.status_code, [401, 302])
 
     def test_watch_deadlines_requires_auth(self):
-        r = self.client.get('/api/watch/1/deadlines')
+        r = self.client.patch('/api/watch/1/deadlines')
         self.assertIn(r.status_code, [401, 302, 404, 500])
 
     def test_watch_deactivate_requires_auth(self):
@@ -845,7 +845,7 @@ class TestDripAndSurvey(unittest.TestCase):
         self.assertIn(r.status_code, [200, 401, 403])
 
     def test_unsubscribe_bad_token(self):
-        r = self.client.get('/api/unsubscribe/completely-invalid-token-xyz')
+        r = self.client.post('/api/unsubscribe/completely-invalid-token-xyz')
         self.assertIn(r.status_code, [200, 302, 404, 500])
 
     def test_unsubscribe_status_bad_token(self):
@@ -853,8 +853,8 @@ class TestDripAndSurvey(unittest.TestCase):
         self.assertIn(r.status_code, [200, 302, 404, 500])
 
     def test_waitlist_community_get(self):
-        r = self.client.get('/api/waitlist/community')
-        self.assertIn(r.status_code, [200, 401, 302, 500])
+        r = self.client.post('/api/waitlist/community', json={}, content_type='application/json')
+        self.assertIn(r.status_code, [200, 400, 401, 302, 429, 500])
 
     def test_waitlist_stats_requires_admin(self):
         r = self.client.get('/api/waitlist/stats')

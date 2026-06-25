@@ -49,9 +49,13 @@ os.environ.setdefault('ADMIN_KEY', 'test-admin-pay-e2e')
 os.environ['RATELIMIT_ENABLED'] = 'false'
 
 import os as _os
-_db_path = 'test_e2e_pay.db'
-if _os.path.exists(_db_path):
-    _os.remove(_db_path)
+# Flask puts a relative sqlite path under instance/, so the live DB is usually
+# instance/test_e2e_pay.db, not ./test_e2e_pay.db. Remove BOTH at import so a
+# re-run starts clean — otherwise stale rows (e.g. an Inspector keyed to a
+# reused user id) trip UNIQUE constraints on the second run.
+for _db_path in ('test_e2e_pay.db', _os.path.join('instance', 'test_e2e_pay.db')):
+    if _os.path.exists(_db_path):
+        _os.remove(_db_path)
 
 
 def _unique_email(prefix='test'):
@@ -544,8 +548,21 @@ class TestStripeWebhook(unittest.TestCase):
         cls.app = app
         cls.db = db
         cls.User = User
+        # The handler calls stripe.Webhook.construct_event and then indexes the
+        # returned event. CI installs the real stripe package (a hard dependency),
+        # so these run for real there. In a deps-less local run conftest swaps in
+        # a lightweight stub whose Webhook.construct_event returns a
+        # non-subscriptable object and whose error classes aren't real exceptions;
+        # detect that and skip rather than redden.
+        import stripe as _stripe
+        cls._stripe_real = isinstance(
+            getattr(getattr(_stripe, 'error', None), 'SignatureVerificationError', None),
+            type,
+        )
 
     def setUp(self):
+        if not getattr(self, '_stripe_real', True):
+            self.skipTest('real stripe package not installed (conftest stub active)')
         self.client = self.app.test_client(use_cookies=False)
         with self.app.app_context():
             self.User.query.filter(

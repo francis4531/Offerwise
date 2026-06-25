@@ -118,6 +118,21 @@ jobs:
           set -o pipefail
           python -m pytest test_all_60_workflows.py -p no:cacheprovider --tb=short 2>&1 | tail -120
 
+      - name: Run isolated drift suite (per-file DBs — these set env at import)
+        env:
+          FLASK_ENV: testing
+          SECRET_KEY: test-secret-key-for-ci
+          PYTEST_ISOLATED: "1"
+        run: |
+          set -o pipefail
+          fail=0
+          for f in test_coverage_final.py test_coverage_gaps.py \
+                   test_e2e_onboarding_drip.py test_forum_scanner.py; do
+            echo "===== isolated run: $f ====="
+            python -m pytest "$f" -p no:cacheprovider --tb=short 2>&1 | tail -60 || fail=1
+          done
+          exit $fail
+
       - name: Run integrity tests
         env:
           FLASK_ENV: testing

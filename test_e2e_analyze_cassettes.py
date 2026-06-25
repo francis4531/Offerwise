@@ -120,6 +120,32 @@ def _has_cassette(name):
     return (CASSETTE_DIR / name).exists()
 
 
+def _skip_unless_replay_deps(test, need_pdf=False):
+    """Skip a replay test unless its real deps are installed.
+
+    CI installs vcrpy and PyPDF2 (both in requirements.txt), so replays run for
+    real there. In a deps-less local run, vcrpy is simply absent and conftest
+    swaps a no-op stub in for PyPDF2 — which makes _extract() return empty text,
+    so /api/analyze correctly routes to address_only and the 'full' assertions
+    fail confusingly. Detect that and skip with a clear reason instead.
+    """
+    try:
+        import vcr
+        if not isinstance(getattr(vcr, 'VCR', None), type):
+            test.skipTest('vcrpy not installed')
+    except Exception:
+        test.skipTest('vcrpy not installed')
+    if need_pdf:
+        try:
+            import PyPDF2
+            # Real PyPDF2.PdfReader is a class; the conftest stub yields an
+            # instance, so isinstance(..., type) cleanly distinguishes them.
+            if not isinstance(getattr(PyPDF2, 'PdfReader', None), type):
+                test.skipTest('PyPDF2 not installed (conftest stub active)')
+        except Exception:
+            test.skipTest('PyPDF2 not installed')
+
+
 def _cleanup_test_users(db, User, Property, Analysis):
     """v5.88.29: robust cleanup that won't crash the test if foreign-key
     constraints block a User delete.
@@ -221,6 +247,7 @@ class TestAddressOnlyCassette(unittest.TestCase):
         cls.Analysis = Analysis
 
     def setUp(self):
+        _skip_unless_replay_deps(self, need_pdf=False)
         if not _has_cassette('analyze_address_only.yaml'):
             self.skipTest(
                 'Cassette analyze_address_only.yaml not yet recorded. '
@@ -343,6 +370,7 @@ class TestCleanDisclosureCassette(unittest.TestCase):
         cls.Analysis = Analysis
 
     def setUp(self):
+        _skip_unless_replay_deps(self, need_pdf=True)
         if not _has_cassette('analyze_clean_disclosure.yaml'):
             self.skipTest(
                 'Cassette analyze_clean_disclosure.yaml not yet recorded. '
@@ -437,6 +465,7 @@ class TestNightmareDisclosureCassette(unittest.TestCase):
         cls.Analysis = Analysis
 
     def setUp(self):
+        _skip_unless_replay_deps(self, need_pdf=True)
         if not _has_cassette('analyze_nightmare_disclosure.yaml'):
             self.skipTest(
                 'Cassette analyze_nightmare_disclosure.yaml not yet recorded.'
@@ -548,6 +577,7 @@ class TestFullCleanCassette(unittest.TestCase):
         cls.Analysis = Analysis
 
     def setUp(self):
+        _skip_unless_replay_deps(self, need_pdf=True)
         if not _has_cassette('analyze_full_clean.yaml'):
             self.skipTest(
                 'Cassette analyze_full_clean.yaml not yet recorded. '
@@ -638,6 +668,7 @@ class TestFullNightmareCassette(unittest.TestCase):
         cls.Analysis = Analysis
 
     def setUp(self):
+        _skip_unless_replay_deps(self, need_pdf=True)
         if not _has_cassette('analyze_full_nightmare.yaml'):
             self.skipTest(
                 'Cassette analyze_full_nightmare.yaml not yet recorded. '

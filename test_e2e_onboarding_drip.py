@@ -516,6 +516,22 @@ class TestUnsubscribe(unittest.TestCase):
 # RESEND_ENGAGEMENT_WEBHOOK_SECRET env var and responds with {status: 'ok'}
 # on success.
 
+# v5.89.209: svix (svix==1.40.0 in requirements.txt) signs the test requests
+# AND backs the handler's verification. When it's absent locally, the signing
+# helper raises ImportError and the handler fail-closes with 503 instead of
+# verifying — so the three tests that depend on it are skipped rather than
+# reported as failures. CI installs svix and runs them for real.
+try:
+    import svix  # noqa: F401
+    _HAVE_SVIX = True
+except ImportError:
+    _HAVE_SVIX = False
+
+
+_SKIP_SVIX = unittest.skipUnless(
+    _HAVE_SVIX, "svix not installed (in requirements.txt; CI runs these)")
+
+
 class TestResendWebhook(unittest.TestCase):
     # v5.88.69: Build the test secret at runtime rather than as a string
     # literal in the source file. GitHub's secret scanner flags any literal
@@ -576,6 +592,7 @@ class TestResendWebhook(unittest.TestCase):
             'Missing webhook secret must return 503 (fail-closed). '
             'If we returned 200, anyone could spoof engagement events.')
 
+    @_SKIP_SVIX
     def test_resend_webhook_falls_back_to_generic_secret(self):
         """v5.88.70: When RESEND_ENGAGEMENT_WEBHOOK_SECRET is unset but
         the generic RESEND_WEBHOOK_SECRET is set, the handler must use
@@ -603,6 +620,7 @@ class TestResendWebhook(unittest.TestCase):
             f'Fallback to RESEND_WEBHOOK_SECRET must succeed; got '
             f'{r.status_code}: {r.get_data(as_text=True)[:200]}')
 
+    @_SKIP_SVIX
     def test_resend_webhook_invalid_signature_returns_401(self):
         """A request with the secret configured but a bad signature must
         be rejected with 401. This is the primary security check —
@@ -639,6 +657,7 @@ class TestResendWebhook(unittest.TestCase):
             )
         self.assertEqual(r.status_code, 401)
 
+    @_SKIP_SVIX
     def test_resend_webhook_valid_signature_persists_event(self):
         """End-to-end happy path: valid svix signature → event persisted
         to EmailEvent → 200 with {status: 'ok'}. This exercises the

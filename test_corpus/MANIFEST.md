@@ -1,5 +1,5 @@
 # OfferWise Test Corpus Manifest
-# Generated: 2026-05-12 16:07:26
+# Generated: 2026-06-25 00:03:01
 # Total files: 16
 
 ## Clean Digital Documents (text extraction should work perfectly)

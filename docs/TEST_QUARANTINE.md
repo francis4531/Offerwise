@@ -24,8 +24,26 @@ Fix: run against a Postgres service container (see run_postgres_tests.py), or pu
 them behind a `postgres` marker and a dedicated CI job with a Postgres service.
 
 ## Needs external fixtures or secrets
-- test_e2e_credits_payments.py   (Stripe; needs test keys or a stripe mock)
-- test_e2e_analyze_cassettes.py  (recorded HTTP cassettes missing/stale)
+(none currently)
+
+Recovered:
+- test_e2e_credits_payments.py — RE-ADMITTED v5.89.205. It never needed Stripe
+  keys; it already mocks Stripe via patch('app.stripe...'). It only failed when
+  the real stripe package was absent (conftest's stub returns a non-subscriptable
+  object for Webhook.construct_event). stripe is a hard dependency (requirements
+  pins stripe==7.9.0), so CI has it and all 36 tests run for real; the webhook
+  class now skips gracefully if only the stub is present. Also fixed a cleanup bug
+  that removed ./test_e2e_pay.db while Flask wrote instance/test_e2e_pay.db, which
+  leaked an Inspector row and tripped a UNIQUE constraint on re-run.
+- test_e2e_analyze_cassettes.py — RE-ADMITTED v5.89.206. The cassettes were NOT
+  missing/stale: all 5 are present and valid, and all 8 tests pass with the real
+  deps installed. It only failed locally because conftest stubs PyPDF2 (so the
+  doc-extraction helper returned empty text and /api/analyze correctly downgraded
+  to address_only) and because vcrpy wasn't installed. Both vcrpy (>=5.1.0) and
+  PyPDF2 (==3.0.1) are in requirements.txt, so CI runs the full replays for real;
+  the replay tests now skip gracefully when those deps are only conftest stubs.
+  Re-record (record_cassettes.py, needs ANTHROPIC_API_KEY) after prompt/orchestrator
+  changes, per the file's own lifecycle note.
 
 ## Behaviour drift (assertions against changed behaviour — real repair needed)
 - test_forum_scanner.py        (6 failing; Reddit fetch/draft behaviour changed)

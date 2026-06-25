@@ -1,13 +1,10 @@
 """
-test_topbar_widget.py — v5.87.91
+test_topbar_widget.py — v5.89.205
 
-Tests for the inline address-check widget in the top nav of index.html
-and the address pre-fill on /risk-check.
-
-These tests verify HTML structure (markup is present where expected)
-plus integration (the destination route handles the ?address= param
-without crashing). The actual scanner flow is exercised by the existing
-test_integration.py — we don't re-test the API here.
+The inline address/risk-check widget was REMOVED from the top nav in
+v5.89.205 (the risk check now lives under Products -> Free Tools). This file
+now asserts the widget is gone and the nav is intact, and still verifies the
+/risk-check page's own ?address= pre-fill (which is independent of the widget).
 """
 import os
 import unittest
@@ -18,7 +15,9 @@ os.environ.setdefault('DATABASE_URL', 'sqlite:///test_topbar.db')
 
 
 class TestTopbarWidgetMarkup(unittest.TestCase):
-    """The widget is server-side static HTML — verify markup is present."""
+    """v5.89.205 removed the inline top-bar address/risk-check widget. Assert
+    it (and its CSS/JS) are gone, the rest of the nav is intact, and the
+    signup-CTA instrumentation that shared the widget's <script> survived."""
 
     @classmethod
     def setUpClass(cls):
@@ -35,49 +34,42 @@ class TestTopbarWidgetMarkup(unittest.TestCase):
         if not self.available:
             self.skipTest(f"App not available: {self.skip_reason}")
 
-    def test_homepage_contains_topbar_widget_form(self):
+    def test_topbar_address_widget_is_removed(self):
         r = self.client.get('/')
         self.assertEqual(r.status_code, 200)
         body = r.data.decode('utf-8')
-        # Form must be present
-        self.assertIn('id="topbarAddrForm"', body)
-        # Input must have the right autocomplete attribute for browser address
-        # autofill (street-address is the WHATWG standard token)
-        self.assertIn('autocomplete="street-address"', body)
-        self.assertIn('id="topbarAddrInput"', body)
-        # Submit handler must be wired
-        self.assertIn('submitTopbarAddress', body)
+        # The form, its compact /risk-check fallback, and the JS handler are gone
+        self.assertNotIn('id="topbarAddrForm"', body)
+        self.assertNotIn('id="topbarAddrInput"', body)
+        self.assertNotIn('submitTopbarAddress', body)
+        self.assertNotIn('class="topbar-address-compact"', body)
 
-    def test_homepage_contains_compact_button_fallback(self):
-        """The compact button is shown via @media query when the nav is too
-        narrow for the full widget. The link must exist in markup so the
-        responsive CSS has something to reveal."""
+    def test_topbar_widget_styles_are_removed(self):
         r = self.client.get('/')
         body = r.data.decode('utf-8')
-        self.assertIn('class="topbar-address-compact"', body)
-        self.assertIn('href="/risk-check"', body)
+        # Orphaned CSS for the widget should be gone too
+        self.assertNotIn('.topbar-address-widget', body)
+        self.assertNotIn('.topbar-address-input', body)
+        self.assertNotIn('.topbar-address-btn', body)
 
-    def test_homepage_widget_keeps_existing_pricing_login_cta(self):
-        """Reading 2 — we keep ALL existing nav items. Widget is added
-        alongside, not replacing anything."""
+    def test_topbar_nav_items_intact(self):
+        """Removing the widget must not disturb the rest of the nav."""
         r = self.client.get('/')
         body = r.data.decode('utf-8')
-        # Existing items must still be there
         self.assertIn('href="#pricing"', body)
         self.assertIn('href="/login"', body)
         self.assertIn('Analyze Free', body)
-        # And mega-menus must still be there
         self.assertIn('Products', body)
         self.assertIn('Resources', body)
 
-    def test_homepage_widget_styles_are_inline(self):
-        """The widget CSS must be present in the page so rendering
-        doesn't depend on a separate stylesheet that might 404."""
+    def test_risk_check_still_reachable_and_cta_tracking_kept(self):
+        """The risk check stays reachable under Free Tools, and the
+        signup-CTA tracking that shared the widget's <script> block survived
+        the removal."""
         r = self.client.get('/')
         body = r.data.decode('utf-8')
-        self.assertIn('.topbar-address-widget', body)
-        self.assertIn('.topbar-address-input', body)
-        self.assertIn('.topbar-address-btn', body)
+        self.assertIn('/free-tools', body)
+        self.assertIn('signup_cta_click', body)
 
 
 class TestRiskCheckAddressPrefill(unittest.TestCase):

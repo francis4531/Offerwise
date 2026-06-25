@@ -73,16 +73,10 @@ for _pkg in ('anthropic', 'anthropic.types', 'google.cloud.vision',
 # sets PYTEST_ISOLATED=1 to make it collectable there (and only there).
 import os as _os
 collect_ignore = [
-    "test_coverage_final.py",
-    "test_coverage_gaps.py",
-    "test_e2e_analyze_cassettes.py",
-    "test_e2e_credits_payments.py",
     "test_e2e_oauth_concurrency.py",
     "test_e2e_oauth_ratelimit_races.py",
     "test_e2e_oauth_ratelimits_concurrency.py",
     "test_e2e_oauth_subcancel_concurrency.py",
-    "test_e2e_onboarding_drip.py",
-    "test_forum_scanner.py",
     "test_personas_page.py",
 ]
 # test_all_60_workflows sets ANTHROPIC_API_KEY at import, which flips the no-key
@@ -90,8 +84,25 @@ collect_ignore = [
 # pytest imports every collected module during collection — so we ignore it
 # entirely in normal runs and only allow collection in its dedicated isolated CI
 # step, which sets PYTEST_ISOLATED=1 and targets the file explicitly.
+#
+# v5.89.209: the four files below were quarantined for behavior drift, which is
+# now fixed — each PASSES in isolation. But they each set DATABASE_URL at import
+# and share the app's single DB engine, so they CONTAMINATE co-running files in
+# one process (the per-module app reset is not sufficient: forum_scanner inherits
+# the first file's DB and its magic-link/quota assertions then see polluted rows).
+# Same category as test_all_60_workflows: kept out of the shared "not e2e"/"e2e"
+# runs and collected only in a dedicated isolated step (PYTEST_ISOLATED=1, one
+# file per process). Making them safely co-runnable in the shared suite is a
+# separate test-infra task (give each its own engine / transactional rollback).
+_ISOLATED_ONLY = [
+    "test_all_60_workflows.py",
+    "test_coverage_final.py",
+    "test_coverage_gaps.py",
+    "test_e2e_onboarding_drip.py",
+    "test_forum_scanner.py",
+]
 if _os.environ.get("PYTEST_ISOLATED") != "1":
-    collect_ignore.append("test_all_60_workflows.py")
+    collect_ignore.extend(_ISOLATED_ONLY)
 
 
 def pytest_addoption(parser):
