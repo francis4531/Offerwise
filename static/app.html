@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>OfferWise AI™ — Property Analysis</title>
-    <script src="/static/gtm-loader.js?v=5.89.221"></script>
+    <script src="/static/gtm-loader.js?v=5.89.222"></script>
 <!-- /GTM head -->
     <script>if(window.location.hostname==='getofferwise.ai')window.location.replace('https://www.getofferwise.ai'+window.location.pathname+window.location.search);</script>
     <link rel="icon" type="image/svg+xml" href="/static/logo-icon-only.svg">
@@ -21,7 +21,7 @@
     <link rel="preconnect" href="https://unpkg.com" crossorigin>
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/results-theme.css?v=5.89.221">
+    <link rel="stylesheet" href="/static/results-theme.css?v=5.89.222">
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone@7.29.7/babel.min.js"></script>
@@ -685,7 +685,7 @@
         .ow-strategy-grid { grid-template-columns: 1fr !important; }
       }
     </style>
-    <script src="/static/analytics-loader.js?v=5.89.221" defer></script>
+    <script src="/static/analytics-loader.js?v=5.89.222" defer></script>
     <!-- Reddit Pixel Base Code -->
     <script>
     !function(w,d){if(!w.rdt){var p=w.rdt=function(){p.sendEvent?p.sendEvent.apply(p,arguments):p.queue.push(arguments)};p.queue=[];var t=d.createElement('script');t.src='https://www.redditstatic.com/ads/pixel.js';t.async=!0;var s=d.getElementsByTagName('script')[0];s.parentNode.insertBefore(t,s)}}(window,document);
@@ -773,6 +773,24 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         }
 
         // v5.89.191 — Report light/dark toggle. Self-contained, opt-in, persisted.
+        // v5.89.222 — Hero CTAs ("Send to my agent", "Should I walk away?") point at
+        // sections that live under the Negotiate tab and are display:none on other
+        // tabs, so a plain anchor jump silently did nothing. Activate the Negotiate
+        // tab via its real button (updates React tab state -> data-tab -> CSS reveals
+        // the section), then scroll to the target once it's visible.
+        function owJumpToNegotiate(targetId) {
+          try {
+            var ts = document.querySelectorAll('.ow-report-tab');
+            for (var i = 0; i < ts.length; i++) {
+              if (ts[i].textContent.trim() === 'Negotiate') { ts[i].click(); break; }
+            }
+          } catch (e) {}
+          setTimeout(function () {
+            var el = document.getElementById(targetId);
+            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }, 60);
+        }
+
         // Default report theme is DARK, always (v5.89.220). Light is a per-session
         // toggle and is intentionally NOT persisted, so every report opens dark
         // regardless of any prior choice. If anything here fails, data-theme is
@@ -5819,8 +5837,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                             {/* CTAs — anchors to inline sections below */}
                             <div className="ow-ctas">
                               <a className="ow-btn primary" href="#ow-math">View the math ↓</a>
-                              <a className="ow-btn" href="#ow-toolkit">Send to my agent</a>
-                              <a className="ow-btn danger" href="#ow-walk">Should I walk away?</a>
+                              <a className="ow-btn" href="#ow-toolkit" onClick={(e) => { e.preventDefault(); owJumpToNegotiate('ow-toolkit'); }}>Send to my agent</a>
+                              <a className="ow-btn danger" href="#ow-walk" onClick={(e) => { e.preventDefault(); owJumpToNegotiate('ow-walk'); }}>Should I walk away?</a>
                             </div>
                           </div>
 
@@ -12453,7 +12471,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </script>
     
     <!-- Async Upload Manager - Handles PDF uploads with real-time progress -->
-    <script src="/static/async-upload-manager.js?v=5.89.221"></script>
+    <script src="/static/async-upload-manager.js?v=5.89.222"></script>
     
     <!-- Floating Support Button -->
     <a href="/contact" id="support-button" style="
@@ -12478,8 +12496,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <span style="font-size: 16px;">💬</span>
         Help
     </a>
-<script src="/static/js/compliance.js?v=5.89.221"></script>
-<script src="/static/js/analytics.js?v=5.89.221" defer></script>
+<script src="/static/js/compliance.js?v=5.89.222"></script>
+<script src="/static/js/analytics.js?v=5.89.222" defer></script>
 <script>
 // Scroll reveal for premium results animations
 (function() {
@@ -12566,7 +12584,7 @@ if ('serviceWorker' in navigator) {
 
 <!-- Scout: docked, summon-on-demand "Ask your report" assistant (v5.89.157) -->
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&display=swap" rel="stylesheet">
-<script src="/static/ask-widget.js?v=5.89.221"></script>
+<script src="/static/ask-widget.js?v=5.89.222"></script>
 <script>
 (function(){
   if (window.__scoutInit) { return; } window.__scoutInit = true;

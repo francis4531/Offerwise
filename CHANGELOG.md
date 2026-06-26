@@ -3,6 +3,22 @@
 Historical deployment notes, bug fixes, and architecture decisions.
 Consolidated from 80 individual files on 2026-03-13.
 
+## v5.89.222 — Fix the dead hero CTAs on the report ("Send to my agent" / "Should I walk away?")
+
+Both hero buttons did nothing. Root cause: they were plain anchor jump-links
+(href="#ow-toolkit" / "#ow-walk") to sections that live under the Negotiate tab.
+The report's tab CSS sets those sections to display:none unless data-tab="negotiate"
+(lines 731-740), and you cannot scroll a browser to a display:none element — so
+on the default Price tab the click silently failed. ("View the math" worked
+because #ow-math is on the Price tab.)
+
+Fix: a small owJumpToNegotiate(targetId) helper clicks the real Negotiate tab
+button (so React tab state updates -> data-tab flips -> CSS reveals the section
+AND the tab highlights correctly), then scrolls to the target once visible. Wired
+both hero CTAs to it. No tab-state refactor; uses the existing tab button so
+behavior stays consistent. Helper braces balanced; div balance unchanged (16,
+a pre-existing JSX artifact, identical to baseline).
+
 ## v5.89.221 — Content engine: hard data gate, kill the fabricated fallback
 
 Triggered by a live Reddit post that shipped "Average properties have 0.0
