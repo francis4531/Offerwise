@@ -3,6 +3,53 @@
 Historical deployment notes, bug fixes, and architecture decisions.
 Consolidated from 80 individual files on 2026-03-13.
 
+## v5.89.221 — Content engine: hard data gate, kill the fabricated fallback
+
+Triggered by a live Reddit post that shipped "Average properties have 0.0
+findings" and presented invented averages as "from our data." Root cause was
+two-fold and both violated the marketing-copy standard (accurate / credible /
+unique): (1) the live path computed total_findings/recent_count and shipped
+whatever came out, including 0.0, because templates used .get(key, 8) which only
+catches a MISSING key, not a present-zero; (2) _fallback_stats() returned
+curated/INVENTED numbers (avg_findings 8.3, $18,500, "hundreds of analyses")
+that content presented as real.
+
+Fix (chosen: gate hard):
+- _fallback_stats() no longer fabricates. It returns {source: insufficient,
+  data_backed: False} with NO numbers.
+- collect_aggregate_stats() sets data_backed = recent_count >= MIN_DATA_SAMPLE
+  (30) AND avg_findings > 0. Below that, nothing is data-backed.
+- generate_post() (the chokepoint) returns None when not data_backed; the
+  facebook/nextdoor generators and every entry point (daily, multichannel,
+  platform) propagate the None and skip rather than emit unbacked claims.
+- gtm/routes.py: single-post returns {status: insufficient_data}; batch tracks
+  a distinct insufficient_data list. No crash on None.
+
+Net: until there is a real, sufficient sample, the engine publishes NOTHING
+rather than inventing authority. The "0.0 findings" line and the curated
+fabrications can no longer ship.
+
+Tests: rewrote the stale fabrication assertions across test_gtm.py and
+test_gtm_content.py (they asserted source=='curated' and the invented numbers).
+They now assert the unbacked marker + a data_backed fixture for generation
+quality, plus a regression test that "0.0 findings" never ships. 133 pass.
+
+## v5.89.220 — Default the analysis report to dark, always
+
+The report theme toggle (OwThemeToggle) was initializing from a persisted
+localStorage value, so once anyone toggled to light it would re-open light on
+every later report. Changed the default to dark unconditionally: the toggle now
+starts at dark on every load, and the light choice is a per-session toggle that
+is no longer persisted. Also set data-theme="dark" directly on the .ow-results
+container so the first paint is dark with no flash, independent of effect timing.
+
+Net: every analysis report opens in dark; the user can still switch to light for
+that view, but dark is always the default again. Light styling itself is
+unchanged (the [data-theme="light"] rules from .212 still apply when toggled).
+
+Verified: useState(false) default, 0 ow_report_theme refs left, container themed,
+toggle still flips, component braces balanced.
+
 ## v5.89.219 — Retire 2 stale integrity checks for the removed topbar widget (#727/#728)
 
 The Integrity suite had been flagging two failures every run since .205, both

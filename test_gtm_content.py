@@ -37,34 +37,20 @@ class TestContentPillars(unittest.TestCase):
 
 
 class TestFallbackStats(unittest.TestCase):
-    """Test the curated fallback stats used when live data is thin."""
+    """v5.89.221: fallback no longer fabricates — returns an UNBACKED marker."""
 
-    def test_fallback_stats_complete(self):
+    def test_fallback_is_unbacked(self):
         from gtm.content_engine import _fallback_stats
         stats = _fallback_stats()
-        self.assertEqual(stats['source'], 'curated')
-        self.assertIn('avg_offer_score', stats)
-        self.assertIn('avg_repair_cost', stats)
-        self.assertIn('avg_transparency_score', stats)
-        self.assertIn('top_categories', stats)
-        self.assertIn('deal_breakers_pct', stats)
-        self.assertIn('avg_findings_per_property', stats)
+        self.assertEqual(stats['source'], 'insufficient')
+        self.assertFalse(stats.get('data_backed'))
 
-    def test_fallback_stats_reasonable_values(self):
+    def test_fallback_has_no_fabricated_numbers(self):
         from gtm.content_engine import _fallback_stats
         stats = _fallback_stats()
-        self.assertGreater(stats['avg_offer_score'], 0)
-        self.assertLess(stats['avg_offer_score'], 100)
-        self.assertGreater(stats['avg_repair_cost'], 0)
-        self.assertGreater(len(stats['top_categories']), 3)
-
-    def test_fallback_categories_have_structure(self):
-        from gtm.content_engine import _fallback_stats
-        stats = _fallback_stats()
-        for cat in stats['top_categories']:
-            self.assertIn('name', cat)
-            self.assertIn('total', cat)
-            self.assertIn('critical', cat)
+        for k in ('avg_findings_per_property', 'avg_repair_cost',
+                  'avg_offer_score', 'top_categories', 'deal_breakers_pct'):
+            self.assertNotIn(k, stats, f"Fabricated key leaked: {k}")
 
 
 class TestTemplateGenerators(unittest.TestCase):
@@ -137,35 +123,64 @@ class TestTemplateGenerators(unittest.TestCase):
 class TestPostGeneration(unittest.TestCase):
     """Test the generate_daily_post entry point."""
 
-    def test_generate_returns_required_fields(self):
+    # A data-backed stats fixture (TEST ONLY — real published content must come
+    # from real data). Lets us exercise generation quality without a live DB.
+    @staticmethod
+    def _backed_stats():
+        return {
+            'source': 'live', 'data_backed': True,
+            'total_analyses': 120, 'recent_count': 60, 'period_days': 30,
+            'avg_offer_score': 62, 'avg_repair_cost': 18500,
+            'avg_transparency_score': 64, 'most_common_tier': 'moderate',
+            'tier_distribution': {'moderate': 18, 'elevated': 14, 'low': 10, 'high': 6, 'critical': 2},
+            'top_categories': [
+                {'name': 'Plumbing', 'total': 38, 'critical': 5, 'major': 12},
+                {'name': 'Electrical', 'total': 31, 'critical': 8, 'major': 10},
+                {'name': 'Roofing', 'total': 28, 'critical': 3, 'major': 15},
+            ],
+            'avg_findings_per_property': 8.3, 'deal_breakers_pct': 16,
+            'properties_with_deal_breakers': 8,
+        }
+
+    def test_gated_when_no_data(self):
+        """v5.89.221: no real sample -> no post (no fabrication)."""
         from gtm.content_engine import generate_daily_post
-        post = generate_daily_post(None, {}, date(2026, 3, 2))
-        required = ['title', 'body', 'pillar', 'pillar_label', 'flair', 'scheduled_date']
-        for field in required:
+        self.assertIsNone(generate_daily_post(None, {}, date(2026, 3, 2)))
+
+    def test_generate_returns_required_fields(self):
+        from gtm.content_engine import generate_post, get_pillar_for_date
+        d = date(2026, 3, 2)
+        post = generate_post(get_pillar_for_date(d), self._backed_stats(), d)
+        for field in ['title', 'body', 'pillar', 'pillar_label', 'flair']:
             self.assertIn(field, post, f"Missing field '{field}'")
 
     def test_generate_each_day_of_week(self):
-        from gtm.content_engine import generate_daily_post
+        from gtm.content_engine import generate_post, get_pillar_for_date
         for i in range(7):
             d = date(2026, 3, 2) + timedelta(days=i)
-            post = generate_daily_post(None, {}, d)
+            post = generate_post(get_pillar_for_date(d), self._backed_stats(), d)
             self.assertGreater(len(post['title']), 10)
             self.assertGreater(len(post['body']), 200)
-            self.assertEqual(post['scheduled_date'], d)
 
     def test_no_truncation_or_fragments(self):
         """Quality rule: all content must be complete sentences."""
-        from gtm.content_engine import generate_daily_post
+        from gtm.content_engine import generate_post, get_pillar_for_date
         for i in range(7):
             d = date(2026, 3, 2) + timedelta(days=i)
-            post = generate_daily_post(None, {}, d)
-            # Should not end with "..." (truncation)
+            post = generate_post(get_pillar_for_date(d), self._backed_stats(), d)
             self.assertFalse(post['body'].rstrip().endswith('...'),
                              f"Body truncated for {d}: ends with '...'")
-            # Should not contain raw enum names
             for bad in ['_ENUM', '_STATUS', 'None_', 'NaN']:
                 self.assertNotIn(bad, post['body'],
                                  f"Raw output '{bad}' found in body for {d}")
+
+    def test_no_zero_findings_line(self):
+        """Regression for the '0.0 findings' bug — must never ship."""
+        from gtm.content_engine import generate_post, get_pillar_for_date
+        for i in range(7):
+            d = date(2026, 3, 2) + timedelta(days=i)
+            post = generate_post(get_pillar_for_date(d), self._backed_stats(), d)
+            self.assertNotIn('0.0 findings', post['body'])
 
 
 class TestCollectAggregateStats(unittest.TestCase):
@@ -174,12 +189,16 @@ class TestCollectAggregateStats(unittest.TestCase):
     def test_fallback_when_no_analysis_model(self):
         from gtm.content_engine import collect_aggregate_stats
         stats = collect_aggregate_stats(None, {})
-        self.assertEqual(stats['source'], 'curated')
+        self.assertFalse(stats.get('data_backed'))
+        self.assertEqual(stats['source'], 'insufficient')
+        # No fabricated numbers leak through
+        self.assertNotIn('avg_findings_per_property', stats)
 
     def test_fallback_when_model_missing(self):
         from gtm.content_engine import collect_aggregate_stats
         stats = collect_aggregate_stats(None, {"Analysis": None})
-        self.assertEqual(stats['source'], 'curated')
+        self.assertFalse(stats.get('data_backed'))
+        self.assertEqual(stats['source'], 'insufficient')
 
 
 if __name__ == '__main__':

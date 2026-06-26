@@ -83,6 +83,12 @@ def get_pillar_for_date(target_date: date) -> dict:
 
 # ── Aggregate Data Collection ──────────────────────────────────────
 
+# Minimum real recent analyses required before the engine will make ANY
+# statistical claim ("average X findings", "$Y repair cost"). Below this,
+# data-citing content is suppressed, never fabricated. (v5.89.221)
+MIN_DATA_SAMPLE = 30
+
+
 def collect_aggregate_stats(db_session, models: dict) -> dict:
     """
     Pull anonymized aggregate statistics from analysis data.
@@ -186,6 +192,7 @@ def collect_aggregate_stats(db_session, models: dict) -> dict:
             'avg_findings_per_property': round(total_findings / recent_count, 1) if recent_count else 0,
             'deal_breakers_pct': round((deal_breakers_count / recent_count) * 100, 1) if recent_count else 0,
             'properties_with_deal_breakers': deal_breakers_count,
+            'data_backed': recent_count >= MIN_DATA_SAMPLE and (round(total_findings / recent_count, 1) if recent_count else 0) > 0,
         }
         
     except Exception as e:
@@ -194,27 +201,19 @@ def collect_aggregate_stats(db_session, models: dict) -> dict:
 
 
 def _fallback_stats():
-    """Curated realistic stats when we don't have enough live data."""
+    """No live data (or too little) — return an explicitly UNBACKED marker.
+
+    v5.89.221: this used to return curated/invented "realistic" numbers
+    (avg_findings 8.3, $18,500, "hundreds of analyses") which content then
+    presented as "from our data." That fabricated authority and failed the
+    accuracy + credibility bar. It now returns NO numbers and data_backed=False,
+    so generators refuse to make data claims instead of inventing them.
+    """
     return {
-        'source': 'curated',
-        'total_analyses': 'hundreds',
-        'recent_count': 50,
-        'period_days': 30,
-        'avg_offer_score': 62,
-        'avg_repair_cost': 18500,
-        'avg_transparency_score': 64,
-        'tier_distribution': {'moderate': 18, 'elevated': 14, 'low': 10, 'high': 6, 'critical': 2},
-        'most_common_tier': 'moderate',
-        'top_categories': [
-            {'name': 'Plumbing', 'total': 38, 'critical': 5, 'major': 12},
-            {'name': 'Electrical', 'total': 31, 'critical': 8, 'major': 10},
-            {'name': 'Roofing', 'total': 28, 'critical': 3, 'major': 15},
-            {'name': 'HVAC', 'total': 25, 'critical': 6, 'major': 8},
-            {'name': 'Foundation', 'total': 19, 'critical': 9, 'major': 7},
-        ],
-        'avg_findings_per_property': 8.3,
-        'deal_breakers_pct': 16,
-        'properties_with_deal_breakers': 8,
+        'source': 'insufficient',
+        'data_backed': False,
+        'recent_count': 0,
+        'total_analyses': 0,
     }
 
 
@@ -268,7 +267,11 @@ def generate_post(pillar: dict, stats: dict, target_date: date, db_session=None)
     Returns {title, body, pillar, pillar_label, flair, data_summary, topic_key}.
     """
     key = pillar['key']
-    
+
+    # v5.89.221: hard data gate — no post when stats aren't backed by a real sample.
+    if not stats.get('data_backed'):
+        return None
+
     generator = TEMPLATE_GENERATORS.get(key, _gen_community_qa)
     title, body, topic_key = generator(stats, target_date, db_session)
     
@@ -764,6 +767,8 @@ def generate_daily_post(db_session, models: dict, target_date: date = None) -> d
     pillar = get_pillar_for_date(target_date)
     stats = collect_aggregate_stats(db_session, models)
     post = generate_post(pillar, stats, target_date, db_session)
+    if post is None:
+        return None  # insufficient real data — suppress rather than fabricate
     post['scheduled_date'] = target_date
     
     return post
@@ -786,6 +791,8 @@ def generate_facebook_post(pillar: dict, stats: dict, target_date: date,
     Generate a Facebook group post for the given content pillar.
     Plain text, conversational, no markdown. Ends with soft CTA.
     """
+    if not stats.get('data_backed'):
+        return None  # v5.89.221: no data claims without a real sample
     key = pillar['key']
     top_cat = stats.get('top_categories', [{}])[0]
     avg_repair = stats.get('avg_repair_cost', 18500)
@@ -918,6 +925,8 @@ def generate_nextdoor_post(pillar: dict, stats: dict, target_date: date,
     shorter, neighborhood-focused, neighbour-to-neighbour tone.
     No markdown, no links in body (Nextdoor strips them), CTA at end.
     """
+    if not stats.get('data_backed'):
+        return None  # v5.89.221: no data claims without a real sample
     key = pillar['key']
     avg_repair   = stats.get('avg_repair_cost', 18500)
     transparency = stats.get('avg_transparency_score', 64)
@@ -1008,17 +1017,22 @@ def generate_multichannel_posts(db_session, models_map: dict,
 
     if 'reddit' in platforms:
         post = generate_post(pillar, stats, target_date, db_session)
-        post['platform'] = 'reddit'
-        post['scheduled_date'] = target_date
-        results['reddit'] = post
+        if post is not None:
+            post['platform'] = 'reddit'
+            post['scheduled_date'] = target_date
+            results['reddit'] = post
 
     if 'facebook' in platforms:
-        results['facebook'] = generate_facebook_post(pillar, stats, target_date,
-                                                      group_name='', db_session=db_session)
+        fb = generate_facebook_post(pillar, stats, target_date,
+                                    group_name='', db_session=db_session)
+        if fb is not None:
+            results['facebook'] = fb
 
     if 'nextdoor' in platforms:
-        results['nextdoor'] = generate_nextdoor_post(pillar, stats, target_date,
-                                                      neighborhood='', db_session=db_session)
+        nd = generate_nextdoor_post(pillar, stats, target_date,
+                                    neighborhood='', db_session=db_session)
+        if nd is not None:
+            results['nextdoor'] = nd
 
     return results
 
@@ -1212,6 +1226,8 @@ def generate_post_for_platform(
 
     # Generate base post (Reddit format)
     post = generate_post(pillar, stats, target_date, db_session)
+    if post is None:
+        return None  # insufficient real data — suppress rather than fabricate
 
     # Adapt body for target platform
     post['body'] = _adapt_body_for_platform(post['body'], platform, stats)

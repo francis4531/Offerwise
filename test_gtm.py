@@ -33,6 +33,26 @@ from content_engine import get_pillar_for_date, PILLARS, _fallback_stats, genera
 from content_engine import _gen_what_were_seeing, _gen_first_timer_tuesday
 from content_engine import _gen_did_you_know, _gen_real_numbers
 from content_engine import _gen_red_flag_friday, _gen_community_qa, _gen_weekly_digest
+
+
+def _backed_stats():
+    """data_backed=True fixture for exercising generators in tests (TEST ONLY —
+    real published content must come from real data)."""
+    return {
+        'source': 'live', 'data_backed': True,
+        'total_analyses': 120, 'recent_count': 60, 'period_days': 30,
+        'avg_offer_score': 62, 'avg_repair_cost': 18500,
+        'avg_transparency_score': 64, 'most_common_tier': 'moderate',
+        'tier_distribution': {'moderate': 18, 'elevated': 14, 'low': 10, 'high': 6, 'critical': 2},
+        'top_categories': [
+            {'name': 'Plumbing', 'total': 38, 'critical': 5, 'major': 12},
+            {'name': 'Electrical', 'total': 31, 'critical': 8, 'major': 10},
+            {'name': 'Roofing', 'total': 28, 'critical': 3, 'major': 15},
+        ],
+        'avg_findings_per_property': 8.3, 'deal_breakers_pct': 16,
+        'properties_with_deal_breakers': 8,
+    }
+
 from conversion_intel import _normalize_channel
 from funnel_tracker import _extract_source
 
@@ -93,41 +113,23 @@ class TestPillarRotation(unittest.TestCase):
 # ─────────────────────────────────────────────────────────────────────
 
 class TestFallbackStats(unittest.TestCase):
-    """Test the curated fallback stats used when DB has no data."""
+    """v5.89.221: the no-data fallback returns an UNBACKED marker, not fabricated
+    stats. Content refuses to make data claims rather than inventing them."""
 
     def setUp(self):
         self.stats = _fallback_stats()
 
-    def test_source_is_curated(self):
-        self.assertEqual(self.stats['source'], 'curated')
+    def test_source_is_insufficient(self):
+        self.assertEqual(self.stats['source'], 'insufficient')
 
-    def test_has_all_required_fields(self):
-        required = [
-            'total_analyses', 'recent_count', 'period_days',
-            'avg_offer_score', 'avg_repair_cost', 'avg_transparency_score',
-            'tier_distribution', 'most_common_tier', 'top_categories',
-            'avg_findings_per_property', 'deal_breakers_pct',
-        ]
-        for key in required:
-            self.assertIn(key, self.stats, f"Missing key: {key}")
+    def test_not_data_backed(self):
+        self.assertFalse(self.stats.get('data_backed'))
 
-    def test_tier_distribution_sums_to_recent(self):
-        tiers = self.stats['tier_distribution']
-        total = sum(tiers.values())
-        self.assertEqual(total, self.stats['recent_count'])
-
-    def test_top_categories_are_realistic(self):
-        cats = self.stats['top_categories']
-        self.assertGreaterEqual(len(cats), 3)
-        for cat in cats:
-            self.assertIn('name', cat)
-            self.assertIn('total', cat)
-            self.assertGreater(cat['total'], 0)
-
-    def test_numeric_values_are_positive(self):
-        self.assertGreater(self.stats['avg_offer_score'], 0)
-        self.assertGreater(self.stats['avg_repair_cost'], 0)
-        self.assertGreater(self.stats['avg_transparency_score'], 0)
+    def test_no_fabricated_numbers(self):
+        for key in ('avg_offer_score', 'avg_repair_cost', 'avg_transparency_score',
+                    'tier_distribution', 'top_categories', 'avg_findings_per_property',
+                    'deal_breakers_pct'):
+            self.assertNotIn(key, self.stats, f"Fabricated key leaked: {key}")
 
 
 # ─────────────────────────────────────────────────────────────────────
@@ -145,7 +147,7 @@ class TestTemplateGeneration(unittest.TestCase):
             _gen_did_you_know, _gen_real_numbers,
             _gen_red_flag_friday, _gen_community_qa, _gen_weekly_digest,
         )
-        cls._stats = _fallback_stats()
+        cls._stats = _backed_stats()
         cls.generate_post = generate_post
         cls.get_pillar = get_pillar_for_date
         cls.generators = {
@@ -168,7 +170,7 @@ class TestTemplateGeneration(unittest.TestCase):
             'community_qa': _gen_community_qa,
             'weekly_digest': _gen_weekly_digest,
         }
-        stats = _fallback_stats()
+        stats = _backed_stats()
         for key, gen in generators.items():
             title, body, topic_key = gen(stats, date(2026, 3, 2))
             self.assertIsInstance(title, str, f"{key}: title not string")
@@ -181,7 +183,7 @@ class TestTemplateGeneration(unittest.TestCase):
         # Ensure no ANTHROPIC_API_KEY so we get template path
         old_key = os.environ.pop('ANTHROPIC_API_KEY', None)
         try:
-            post = generate_post(pillar, _fallback_stats(), date(2026, 3, 2))
+            post = generate_post(pillar, _backed_stats(), date(2026, 3, 2))
         finally:
             if old_key:
                 os.environ['ANTHROPIC_API_KEY'] = old_key
@@ -196,7 +198,7 @@ class TestTemplateGeneration(unittest.TestCase):
             for i in range(7):
                 d = date(2026, 3, 2) + timedelta(days=i)
                 pillar = get_pillar_for_date(d)
-                post = generate_post(pillar, _fallback_stats(), d)
+                post = generate_post(pillar, _backed_stats(), d)
                 self.assertIsInstance(post['title'], str,
                     f"Day {i} ({d.strftime('%A')}): title not string")
         finally:
@@ -210,7 +212,7 @@ class TestTemplateGeneration(unittest.TestCase):
             for i in range(7):
                 d = date(2026, 3, 2) + timedelta(days=i)
                 pillar = get_pillar_for_date(d)
-                post = generate_post(pillar, _fallback_stats(), d)
+                post = generate_post(pillar, _backed_stats(), d)
                 self.assertNotIn('...', post['title'],
                     f"Day {i}: title contains truncation")
                 self.assertFalse(post['body'].strip().endswith('...'),
