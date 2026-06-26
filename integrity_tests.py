@@ -1697,49 +1697,16 @@ class IntegrityTestEngine:
             self._record("v5.87.86: gsc_fetch module healthy",
                          f"import failed: {e}", False, error=str(e))
 
-        # v5.87.91: Topbar address widget on index.html
-        try:
-            import os as _os
-            html_path = _os.path.join(_os.path.dirname(__file__), 'static', 'index.html')
-            with open(html_path, 'r') as f:
-                html = f.read()
-            has_form = 'id="topbarAddrForm"' in html
-            has_input = 'id="topbarAddrInput"' in html
-            has_handler = 'submitTopbarAddress' in html
-            has_compact = 'class="topbar-address-compact"' in html
-            ok = has_form and has_input and has_handler and has_compact
-            self._record(
-                "v5.87.91: topbar address widget present in index.html",
-                "form + input + handler + compact-fallback markup all found",
-                ok,
-                error=(
-                    f"missing: "
-                    f"{'form ' if not has_form else ''}"
-                    f"{'input ' if not has_input else ''}"
-                    f"{'handler ' if not has_handler else ''}"
-                    f"{'compact ' if not has_compact else ''}"
-                ).strip() if not ok else None
-            )
-        except Exception as e:
-            self._record("v5.87.91: topbar address widget present in index.html",
-                         f"file check failed: {e}", False, error=str(e))
-
-        # v5.87.95: Topbar widget tracking + admin funnel endpoint
-        try:
-            from admin_routes import admin_topbar_widget
-            with open(_os.path.join(_os.path.dirname(__file__), 'static', 'index.html')) as f:
-                idx_html = f.read()
-            has_server_track = "'/api/track/feature'" in idx_html and 'topbar_address_widget' in idx_html
-            ok = callable(admin_topbar_widget) and has_server_track
-            self._record(
-                "v5.87.95: topbar admin funnel + server tracking",
-                "admin_topbar_widget endpoint + server-side /api/track/feature call from widget submit",
-                ok,
-                error="topbar admin or server tracking missing" if not ok else None
-            )
-        except Exception as e:
-            self._record("v5.87.95: topbar admin funnel + server tracking",
-                         f"check failed: {e}", False, error=str(e))
+        # v5.87.91 / v5.87.95: Topbar address widget integrity checks — RETIRED.
+        # The homepage top-bar address widget was intentionally removed in
+        # v5.89.205 (its markup, CSS, and submitTopbarAddress JS were deleted and
+        # the entry point moved to Products -> Free Tools). These two checks still
+        # asserted the widget's presence, so they failed on every run since .205
+        # (bugs #727 / #728). Retired in v5.89.219 to match the shipped product.
+        # NOTE: admin_topbar_widget + the 'topbar_address_widget' FeatureEvent
+        # aggregation in admin_routes.py are now orphaned (they aggregate events
+        # the deleted widget can no longer emit) — candidate for a follow-up
+        # dead-code cleanup.
 
         # Check migration stamp exists on persistent disk (skip in CI — no /var/data)
         stamp_path = '/var/data/db_migrated_v5.80.15'

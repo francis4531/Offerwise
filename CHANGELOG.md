@@ -3,6 +3,29 @@
 Historical deployment notes, bug fixes, and architecture decisions.
 Consolidated from 80 individual files on 2026-03-13.
 
+## v5.89.219 — Retire 2 stale integrity checks for the removed topbar widget (#727/#728)
+
+The Integrity suite had been flagging two failures every run since .205, both
+real-but-stale: integrity_tests.py still asserted the homepage top-bar address
+widget (v5.87.91: form/input/handler/compact markup in index.html; v5.87.95:
+the widget's server tracking + admin funnel endpoint). But that widget was
+intentionally removed in v5.89.205 — .205 deleted the markup, CSS, and
+submitTopbarAddress JS and rewrote test_topbar_widget.py, but missed these two
+checks in integrity_tests.py. So they have been failing against a feature that
+no longer exists. Confirmed: 0/4 widget markers in index.html.
+
+Retired both checks with a documenting comment (not silently deleted). The
+integrity suite tallies dynamically, so removing two checks just lowers the
+total — no count assertion breaks. This clears the red Integrity suite.
+
+Flagged for follow-up (not done here): admin_topbar_widget + the
+'topbar_address_widget' FeatureEvent aggregation in admin_routes.py are now
+orphaned dead code (they aggregate events the deleted widget can't emit).
+
+Note: this is unrelated to the dashboard's transient "Failed to fetch" — that
+was a client network blip (ERR_NETWORK_CHANGED). These two were genuine stale
+assertions surfaced in the bug tracker.
+
 ## v5.89.218 — Shared ad landing is the (de-branded) pitch page + /zillow
 
 By decision, the single ad landing is the pitch page, not the risk-check tool.
