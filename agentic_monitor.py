@@ -2182,17 +2182,6 @@ Return ONLY the JSON array. No preamble, no explanation."""
         _notify_linked_professionals(watch, pro_title, pro_body, watch.address, "📅")
 
 
-def _job_daily_tasks_email():
-    """v5.89.128: email the founder their daily task list each morning.
-    Delegates to daily_tasks.send_daily_tasks_email (respects the on/off
-    SystemSetting and never raises)."""
-    try:
-        from daily_tasks import send_daily_tasks_email
-        send_daily_tasks_email()
-    except Exception as e:
-        logger.warning(f"[DailyTasks] email job error (non-fatal): {e}")
-
-
 def register_monitoring_jobs(scheduler):
     """Call this from app.py after the existing scheduler jobs are registered.
 
@@ -2237,11 +2226,7 @@ def register_monitoring_jobs(scheduler):
         _with_ctx(_job_permit_monitor), 'cron', hour=7, minute=45,
         id='agentic_permit', replace_existing=True
     )
-    scheduler.add_job(
-        _with_ctx(_job_daily_tasks_email), 'cron', hour=8, minute=0,
-        id='daily_tasks_email', replace_existing=True
-    )
-    logger.info("✅ Agentic monitoring jobs registered (deadlines@6:45, comps, earthquake, price, permit, daily-tasks@8:00) — v5.86.95 app_context wrapped")
+    logger.info("✅ Agentic monitoring jobs registered (deadlines@6:45, comps, earthquake, price, permit) — v5.86.95 app_context wrapped")
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

@@ -3,6 +3,28 @@
 Historical deployment notes, bug fixes, and architecture decisions.
 Consolidated from 80 individual files on 2026-03-13.
 
+## v5.89.223 — Remove the founder daily-tasks to-do list (panel + morning email + backend)
+
+Per founder: a published to-do list at the top of the Today page is not helpful —
+in an agentic product the work should be automated, not listed for a human to
+check off. Removed the whole feature, not just the visible card:
+
+- static/admin.html: deleted the "Daily Tasks" panel (#dailyTasksCard) and its
+  entire IIFE script (owdtLoad/Render/Toggle/Add/Remove/SendEmail/Go). The Today
+  page now opens straight on the key metrics. The ?go= deep-link handler keeps
+  working via its own built-in fallback (it no longer depends on owdtScrollInto).
+- agentic_monitor.py: removed _job_daily_tasks_email and its 8:00am scheduler
+  registration. THE MORNING TASK EMAIL WILL NO LONGER BE SENT. Job count 6 -> 5;
+  registration log line updated.
+- admin_routes.py: removed _dt_actor and all five /api/admin/daily-tasks endpoints
+  (GET, /toggle, /extra, /settings, /send).
+- Deleted daily_tasks.py and test_daily_tasks.py (module had no other consumers).
+
+Tests: full collection clean (2160, no import orphans); updated
+test_agentic_monitor job-count assertion to 5; monitor + critical + integration +
+e2e-admin suites pass. Orphaned SystemSetting rows (daily_tasks_email_to/enabled)
+are inert and left as-is.
+
 ## v5.89.222 — Fix the dead hero CTAs on the report ("Send to my agent" / "Should I walk away?")
 
 Both hero buttons did nothing. Root cause: they were plain anchor jump-links

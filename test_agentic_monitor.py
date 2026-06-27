@@ -669,7 +669,8 @@ def test_register_monitoring_jobs_registers_all_jobs():
     scheduler = MagicMock()
     with app.app_context():
         register_monitoring_jobs(scheduler)
-    assert scheduler.add_job.call_count == 6
+    # v5.89.223: daily_tasks_email job removed (founder to-do list retired) -> 5 jobs
+    assert scheduler.add_job.call_count == 5
 
 def test_register_monitoring_jobs_uses_cron():
     from agentic_monitor import register_monitoring_jobs
