@@ -3,6 +3,63 @@
 Historical deployment notes, bug fixes, and architecture decisions.
 Consolidated from 80 individual files on 2026-03-13.
 
+## v5.89.225 — Measure the repair-cost baseline-fallback rate by category
+
+The long-term fix for "ranges too wide" is to narrow them at the source, and the
+first step is knowing WHICH defect classes the ML cost model is blind on. The
+engine prices a finding with ML only when confidence clears the threshold (0.85);
+below that it falls back to a category baseline — a wide prior. Every wide line
+is a fallback. This ships durable instrumentation to measure that, by category.
+
+Built as a permanent admin feature, not a throwaway probe:
+- models.py: new append-only table CostPricingProvenance (auto-created via
+  db.create_all — no migration). One row per finding priced, with category,
+  severity, source (ml | baseline_lowconf | baseline_noml | doc | preset),
+  confidence, and the threshold in effect.
+- offerwise_intelligence.py: the pricing loop now records each finding's outcome
+  at the decision point, including the predictor-not-ready case (all baseline).
+  Capture is wrapped so telemetry can never break an analysis.
+- cost_provenance.py: a PURE aggregator (aggregate_provenance) split from a thin
+  DB wrapper (baseline_fallback_by_category) — fallback rate per category, ranked
+  worst-first, with doc/preset excluded from the rate (not model decisions).
+- app.py: GET /api/admin/cost-provenance?days=30|90|180|all (logger.warning, no
+  Sentry page on handled error).
+- admin.html: panel in the ML Training view (matches telemetry-integrity
+  conventions) — overall fallback, ML/baseline/doc/preset counts, threshold, and
+  the ranked per-category bars. Empty state until analyses run.
+
+Honest limitation by design: forward-looking. Findings aren't persisted with a
+cost source, so older analyses can't be reconstructed — fabricating a backfill
+would be exactly the false-precision we gate against. The panel fills in as real
+analyses run, which makes the ranked "fix these first" list a real artifact
+rather than a guess.
+
+Tests: test_cost_provenance.py — hermetic aggregator coverage (rates, worst-first
+ordering, doc/preset exclusion, uncategorized bucket, latest-threshold, full
+fallback) plus a DB round-trip through the real model + writer. 11 pass; full
+suite collects clean (2171); analysis/report/integrity suites green.
+
+## v5.89.224 — Make wide repair ranges useful: decompose the spread, name the driver
+
+User feedback: the cost ranges are too wide to act on. Short-term fix (no model
+retraining): stop presenting a wide band as if it were an answer, and reframe it
+as the decision it actually is. New callout in the Confirmed Repairs card
+decomposes the total spread across the per-item lows/highs ALREADY shown, finds
+the 1-2 items driving most of the width, and tells the buyer exactly what to do:
+get a firm quote on those items first; everything else is already tight.
+
+- Pure decomposition — invents no numbers. Uses repairBreakdown item spreads.
+- Only shows when the swing is genuinely wide (>= $5K) and decomposable; degrades
+  to nothing when item-level low/high isn't available (avg-only fallback path).
+- Single-item case is named honestly as a category estimate that only a contractor
+  bid can pin down, rather than dressed up as precision.
+- Additive only; reuses existing style tokens, no report CSS/layout changes.
+
+This addresses the trust signal behind the complaint (a wide range reads as
+"we looked at the category, not your house") by routing attention to where the
+real uncertainty is. The durable fix — defect-specific conditioning to narrow
+ranges at the source — remains the deferred retraining (corpus is 67% general).
+
 ## v5.89.223 — Remove the founder daily-tasks to-do list (panel + morning email + backend)
 
 Per founder: a published to-do list at the top of the Today page is not helpful —

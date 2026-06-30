@@ -677,6 +677,13 @@ class OfferWiseIntelligence:
             try:
                 from ml_inference import get_cost_predictor
                 cp = get_cost_predictor()
+                # v5.89.225: capture per-finding pricing provenance (ml vs
+                # baseline) so we can measure the fallback rate by category.
+                _prov = []
+                def _catsev(_f):
+                    _c = _f.category.value if hasattr(_f.category, 'value') else str(_f.category or '')
+                    _s = _f.severity.value if hasattr(_f.severity, 'value') else str(_f.severity or '')
+                    return (_c or None), (_s or None)
                 if cp.is_ready():
                     t0 = time.time()
                     # Extract zip from address (5-digit pattern). Address is
@@ -691,9 +698,15 @@ class OfferWiseIntelligence:
                         # Respect document-extracted costs — they're a stated fact
                         if getattr(finding, 'cost_from_document', False):
                             ml_cost_skipped_doc += 1
+                            _pc, _ps = _catsev(finding)
+                            _prov.append({'category': _pc, 'severity': _ps, 'source': 'doc',
+                                          'confidence': None, 'threshold': COST_CONFIDENCE_THRESHOLD})
                             continue
                         # Skip if cost was already filled in elsewhere
                         if finding.estimated_cost_low and finding.estimated_cost_high:
+                            _pc, _ps = _catsev(finding)
+                            _prov.append({'category': _pc, 'severity': _ps, 'source': 'preset',
+                                          'confidence': None, 'threshold': COST_CONFIDENCE_THRESHOLD})
                             continue
 
                         cat_str = finding.category.value if hasattr(finding.category, 'value') else str(finding.category or '')
@@ -707,6 +720,9 @@ class OfferWiseIntelligence:
                             property_price=property_price,
                         )
                         if not result.get('used_ml'):
+                            _prov.append({'category': (cat_str or None), 'severity': (sev_str or None),
+                                          'source': 'baseline_noml', 'confidence': None,
+                                          'threshold': COST_CONFIDENCE_THRESHOLD})
                             continue
 
                         ml_conf = result.get('confidence', 0.0)
@@ -714,15 +730,40 @@ class OfferWiseIntelligence:
                             finding.estimated_cost_low = result.get('cost_low')
                             finding.estimated_cost_high = result.get('cost_high')
                             ml_cost_predicted += 1
+                            _prov.append({'category': (cat_str or None), 'severity': (sev_str or None),
+                                          'source': 'ml', 'confidence': ml_conf,
+                                          'threshold': COST_CONFIDENCE_THRESHOLD})
                         else:
                             # Below threshold — defer to downstream baseline
                             ml_cost_low_conf += 1
+                            _prov.append({'category': (cat_str or None), 'severity': (sev_str or None),
+                                          'source': 'baseline_lowconf', 'confidence': ml_conf,
+                                          'threshold': COST_CONFIDENCE_THRESHOLD})
 
                     timing['ml_cost_predict'] = time.time() - t0
                     if ml_cost_predicted > 0 or ml_cost_low_conf > 0:
                         logger.info(f"💰 ML Cost Predictor: {ml_cost_predicted} priced (conf ≥ 0.85), "
                                     f"{ml_cost_low_conf} deferred to baseline (low conf), "
                                     f"{ml_cost_skipped_doc} skipped (doc-stated)")
+                else:
+                    # v5.89.225: predictor not ready -> every finding falls to
+                    # baseline. Record that honestly so the rate is not blank.
+                    for finding in inspection_doc.inspection_findings:
+                        if not getattr(finding, "description", None):
+                            continue
+                        if getattr(finding, "cost_from_document", False):
+                            continue
+                        _pc, _ps = _catsev(finding)
+                        _prov.append({"category": _pc, "severity": _ps,
+                                      "source": "baseline_noml", "confidence": None,
+                                      "threshold": COST_CONFIDENCE_THRESHOLD})
+                # v5.89.225: persist provenance (forward-looking; never fatal)
+                if _prov:
+                    try:
+                        from cost_provenance import record_pricing_provenance
+                        record_pricing_provenance(_prov)
+                    except Exception:
+                        pass
             except Exception as cp_err:
                 logger.debug(f"ML cost prediction skipped: {cp_err}")
         

@@ -9925,6 +9925,26 @@ def api_telemetry_integrity():
         return jsonify({'error': 'integrity computation failed'}), 500
 
 
+@app.route('/api/admin/cost-provenance')
+@api_admin_required
+def api_cost_provenance():
+    """Repair-cost pricing provenance: the baseline-fallback rate BY CATEGORY.
+    Shows which defect classes the ML cost model can't price confidently and so
+    falls back to wide category priors — the ranked 'fix these first' list.
+    Forward-looking: reflects analyses run since instrumentation shipped
+    (v5.89.225); findings aren't persisted with a source, so older runs can't be
+    reconstructed."""
+    try:
+        from cost_provenance import baseline_fallback_by_category
+        days_arg = str(request.args.get('days', '90')).lower()
+        window = None if days_arg == 'all' else int(days_arg)
+        report = baseline_fallback_by_category(db.session, window_days=window)
+        return jsonify(report)
+    except Exception as e:
+        logger.warning(f"cost provenance error: {e}")
+        return jsonify({'error': 'provenance computation failed'}), 500
+
+
 @app.route('/api/analytics')
 @api_admin_required
 def get_analytics():

@@ -3094,6 +3094,25 @@ details.an-drill[open] .an-chev{transform:rotate(90deg)}
 
     </div>
   </div>
+  <!-- Cost Pricing Provenance (v5.89.225) — baseline-fallback rate by category -->
+  <div class="card" id="costProvenanceCard" style="margin-top:12px">
+    <div class="card-head">
+      <div class="card-title">📐 Repair-Cost Pricing Provenance — baseline-fallback by category</div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <select id="cpvDays" onchange="loadCostProvenance()" style="width:auto;padding:3px 8px;font-size:11px">
+          <option value="30">30 days</option>
+          <option value="90" selected>90 days</option>
+          <option value="180">180 days</option>
+          <option value="all">All time</option>
+        </select>
+        <button class="btn btn-ghost btn-sm" onclick="loadCostProvenance()">↻ Refresh</button>
+      </div>
+    </div>
+    <div class="card-body">
+      <div style="font-size:11px;color:var(--muted);margin-bottom:10px">Of the findings the ML cost model tried to price, what fraction fell back to a wide category baseline (confidence below the live threshold) — broken down by defect category. A high rate means the model is blind on that class and pricing it as a category prior, which is what a too-wide range is. This is the ranked "fix these first" list for narrowing ranges at the source. Forward-looking: counts analyses run since v5.89.225. Via <code>/api/admin/cost-provenance</code>.</div>
+      <div id="costProvenanceBody"><div class="loading-msg"><span class="spinner"></span></div></div>
+    </div>
+  </div>
 
 </div><!-- /view-ml-training -->
 
@@ -5132,7 +5151,7 @@ function showView(view, el) {
   if (view === 'adperf')       { loadAds(); loadGadsStatus(); loadRedditSyncHealth(); }
 
   if (view === 'tests')        { updateBugCount(); loadAllBugs(); loadPersonas(); loadPostgresTestHistory(); }
-  if (view === 'ml-training')  { loadModelHealth(); loadDataSources(); loadMLHistory(); loadAgentHistory(); loadMLSnapshots(); checkPendingTraining(); checkAgentStatus(); loadMLCrawlList(); loadMLIngestionJobs(); }
+  if (view === 'ml-training')  { loadModelHealth(); loadDataSources(); loadMLHistory(); loadAgentHistory(); loadMLSnapshots(); checkPendingTraining(); checkAgentStatus(); loadMLCrawlList(); loadMLIngestionJobs(); loadCostProvenance(); }
   if (view === 'costs') {
     var lnk = document.getElementById('apiCostsOpenLink');
     if (lnk) lnk.href = '/admin/api-costs?admin_key=' + adminKey;
@@ -15216,6 +15235,57 @@ async function loadTelemetryIntegrity(){
     panel.innerHTML=banner+rows;
   }catch(e){
     panel.innerHTML='<div class="empty"><div class="icon">\ud83e\ude7a</div>Integrity report unavailable. Deploy v5.89.210+ and confirm the endpoint is live.</div>';
+  }
+}
+
+async function loadCostProvenance(){
+  var sel=document.getElementById('cpvDays');
+  var days=sel?sel.value:'90';
+  var panel=document.getElementById('costProvenanceBody');
+  if(!panel) return;
+  var esc=function(s){return (s==null?'':String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');};
+  var pct=function(x){return (x==null)?'—':(Math.round(x*1000)/10)+'%';};
+  try{
+    var r=await fetch(apiUrl('/api/admin/cost-provenance?days='+days));
+    if(!r.ok) throw new Error('API error');
+    var d=await r.json();
+    if(!d.instrumented){
+      panel.innerHTML='<div class="empty"><div class="icon">\ud83d\udcd0</div>No pricing provenance recorded yet for this window. It fills in as analyses run (forward-looking since v5.89.225). Run an analysis to seed the first rows.</div>';
+      return;
+    }
+    var t=d.totals||{};
+    var rate=t.fallback_rate;
+    var rateColor=rate==null?'var(--muted)':(rate>=0.5?'#f85149':rate>=0.25?'#d29922':'#3fb950');
+    var banner='<div style="display:flex;gap:18px;flex-wrap:wrap;align-items:center;padding:12px 14px;border-radius:8px;background:var(--bg2,#0f1623);border:1px solid var(--line,#1e2d45);margin-bottom:14px">'+
+      '<div><div style="font-family:var(--mono);font-size:22px;font-weight:800;color:'+rateColor+'">'+pct(rate)+'</div><div style="font-size:10px;color:var(--muted)">overall fallback</div></div>'+
+      '<div><div style="font-family:var(--mono);font-size:22px;font-weight:700;color:var(--text)">'+(t.ml||0)+'</div><div style="font-size:10px;color:var(--muted)">ML-priced</div></div>'+
+      '<div><div style="font-family:var(--mono);font-size:22px;font-weight:700;color:var(--text)">'+(t.baseline||0)+'</div><div style="font-size:10px;color:var(--muted)">baseline</div></div>'+
+      '<div><div style="font-family:var(--mono);font-size:22px;font-weight:700;color:var(--muted)">'+(t.doc||0)+' / '+(t.preset||0)+'</div><div style="font-size:10px;color:var(--muted)">doc / preset</div></div>'+
+      '<div style="margin-left:auto;text-align:right"><div style="font-size:10px;color:var(--muted)">threshold</div><div style="font-family:var(--mono);font-size:14px;color:var(--text)">'+(d.threshold!=null?d.threshold:'—')+'</div></div>'+
+      '</div>';
+    var cats=Array.isArray(d.by_category)?d.by_category:[];
+    if(!cats.length){
+      panel.innerHTML=banner+'<div style="font-size:12px;color:var(--muted);padding:8px 0">Findings recorded, but none reached a model pricing decision yet (all doc-stated or preset).</div>';
+      return;
+    }
+    var rows=cats.map(function(c){
+      var fr=c.fallback_rate;
+      var col=fr>=0.5?'#f85149':fr>=0.25?'#d29922':'#3fb950';
+      var w=Math.max(4,Math.round(fr*100));
+      return '<div style="padding:9px 0;border-bottom:1px solid var(--line,#1b2130)">'+
+        '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px">'+
+          '<div style="font-size:13px;font-weight:600;color:var(--text)">'+esc(c.category)+'</div>'+
+          '<div style="display:flex;align-items:center;gap:10px">'+
+            '<span style="font-size:11px;color:var(--muted)">'+c.baseline+'/'+c.priced+' baseline'+(c.avg_ml_confidence!=null?(' \u00b7 ML conf '+c.avg_ml_confidence):'')+'</span>'+
+            '<span style="font-family:var(--mono);font-size:14px;font-weight:700;color:'+col+';min-width:46px;text-align:right">'+pct(fr)+'</span>'+
+          '</div>'+
+        '</div>'+
+        '<div style="height:6px;background:var(--line,#1b2130);border-radius:3px;overflow:hidden"><div style="height:100%;width:'+w+'%;background:'+col+';border-radius:3px"></div></div>'+
+        '</div>';
+    }).join('');
+    panel.innerHTML=banner+'<div style="font-size:11px;color:var(--muted);margin-bottom:6px">Worst first \u2014 highest fallback rate (most category-prior pricing) at top. These are the defect classes to prioritize for the conditioned retrain.</div>'+rows;
+  }catch(e){
+    panel.innerHTML='<div class="empty"><div class="icon">\ud83d\udcd0</div>Provenance unavailable. Deploy v5.89.225+ and confirm the endpoint is live.</div>';
   }
 }
 

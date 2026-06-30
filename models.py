@@ -460,6 +460,45 @@ class FeatureEvent(db.Model):
 
 
 
+class CostPricingProvenance(db.Model):
+    """One row per inspection finding that passed through repair-cost pricing.
+
+    Records whether the finding was priced by the ML cost model (confidence at
+    or above the live threshold) or fell back to the category baseline (low
+    confidence, or no usable model output). This is what lets admin measure the
+    baseline-fallback RATE BY CATEGORY — i.e. which defect classes the model is
+    blind on and therefore pricing as wide category priors. Append-only
+    telemetry; auto-created by db.create_all (no migration). Captured forward
+    from when instrumentation ships — provenance can't be reconstructed for
+    analyses that ran before it, since findings aren't persisted with a source.
+
+    source values:
+      'ml'               — ML priced it, confidence >= threshold (tight estimate)
+      'baseline_lowconf' — ML ran but confidence < threshold -> deferred to baseline
+      'baseline_noml'    — ML model unavailable / no usable output -> baseline
+      'doc'              — cost stated in the document; pricing skipped (not a miss)
+      'preset'           — already priced upstream before the ML pass (not a miss)
+
+    The fallback RATE counts (baseline_lowconf + baseline_noml) over
+    (ml + baseline_lowconf + baseline_noml). 'doc' and 'preset' are recorded for
+    completeness but excluded from the rate — they aren't model decisions.
+    """
+    __tablename__ = 'cost_pricing_provenance'
+
+    id          = db.Column(db.Integer, primary_key=True)
+    created_at  = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+    analysis_id = db.Column(db.Integer, nullable=True, index=True)
+
+    category    = db.Column(db.String(50), nullable=True, index=True)  # 'foundation', 'hvac', ...
+    severity    = db.Column(db.String(20), nullable=True)              # 'critical'|'major'|'minor'
+    source      = db.Column(db.String(24), nullable=False, index=True)
+    confidence  = db.Column(db.Float, nullable=True)                   # ML confidence when ML ran
+    threshold   = db.Column(db.Float, nullable=True)                   # the bar in effect (e.g. 0.85)
+
+    def __repr__(self):
+        return f'<CostPricingProvenance {self.category}/{self.source} conf={self.confidence}>'
+
+
 class MagicLink(db.Model):
     """Passwordless magic link tokens"""
     __tablename__ = 'magic_links'

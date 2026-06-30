@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>OfferWise AI™ — Property Analysis</title>
-    <script src="/static/gtm-loader.js?v=5.89.223"></script>
+    <script src="/static/gtm-loader.js?v=5.89.225"></script>
 <!-- /GTM head -->
     <script>if(window.location.hostname==='getofferwise.ai')window.location.replace('https://www.getofferwise.ai'+window.location.pathname+window.location.search);</script>
     <link rel="icon" type="image/svg+xml" href="/static/logo-icon-only.svg">
@@ -21,7 +21,7 @@
     <link rel="preconnect" href="https://unpkg.com" crossorigin>
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/results-theme.css?v=5.89.223">
+    <link rel="stylesheet" href="/static/results-theme.css?v=5.89.225">
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone@7.29.7/babel.min.js"></script>
@@ -685,7 +685,7 @@
         .ow-strategy-grid { grid-template-columns: 1fr !important; }
       }
     </style>
-    <script src="/static/analytics-loader.js?v=5.89.223" defer></script>
+    <script src="/static/analytics-loader.js?v=5.89.225" defer></script>
     <!-- Reddit Pixel Base Code -->
     <script>
     !function(w,d){if(!w.rdt){var p=w.rdt=function(){p.sendEvent?p.sendEvent.apply(p,arguments):p.queue.push(arguments)};p.queue=[];var t=d.createElement('script');t.src='https://www.redditstatic.com/ads/pixel.js';t.async=!0;var s=d.getElementsByTagName('script')[0];s.parentNode.insertBefore(t,s)}}(window,document);
@@ -6474,6 +6474,44 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                               </div>
                             </div>
                             
+                            {/* v5.89.224 — Honest range reframe. A wide total is
+                                only useful if it says WHERE the uncertainty sits
+                                and what to do about it. Decompose the spread across
+                                the per-item lows/highs shown above; name the 1-2
+                                items driving most of it; turn the band into "get a
+                                quote on these." No invented numbers — pure
+                                decomposition of figures already on screen. */}
+                            {(() => {
+                              const items = (repairBreakdown || []).filter(it => (it.high || 0) > (it.low || 0));
+                              if (items.length === 0) return null;
+                              const totalSpread = items.reduce((s, it) => s + ((it.high || 0) - (it.low || 0)), 0);
+                              if (totalSpread < 5000) return null;
+                              const fmt = (v) => v >= 1000 ? `$${Math.round(v / 1000)}K` : `$${Math.round(v).toLocaleString()}`;
+                              const ranked = items
+                                .map(it => ({ system: it.system, spread: (it.high || 0) - (it.low || 0) }))
+                                .sort((a, b) => b.spread - a.spread);
+                              let body;
+                              if (ranked.length === 1) {
+                                body = <>This estimate is essentially one item — <strong>{ranked[0].system}</strong> — and its {fmt(ranked[0].spread)} range is wide because it's a category estimate, not a measured quote. A firm contractor bid on this is the only thing that pins it down. Get one before you set your number.</>;
+                              } else {
+                                const useTwo = ranked[1].spread > totalSpread * 0.15;
+                                const top = ranked.slice(0, useTwo ? 2 : 1);
+                                const topSpread = top.reduce((s, t) => s + t.spread, 0);
+                                const topShare = Math.round(topSpread / totalSpread * 100);
+                                const residual = totalSpread - topSpread;
+                                const names = top.map(t => t.system).join(' and ');
+                                body = top.length === 1
+                                  ? <>About {topShare}% of the {fmt(totalSpread)} swing in this estimate is a single item: <strong>{names}</strong>. A firm quote on that one thing removes most of the uncertainty — the other findings are already within {fmt(residual)} of each other. Get that quote first, then the number is solid enough to negotiate on.</>
+                                  : <>Most of the {fmt(totalSpread)} swing — about {topShare}% — comes from two items: <strong>{names}</strong>. Those are the two to get firm quotes on. Everything else is already within {fmt(residual)} of each other, so once those land your number is solid.</>;
+                              }
+                              return (
+                                <div style={{ marginTop:'14px', padding:'12px 14px', background:'var(--ow-glass-40)', border:'1px solid rgba(51,65,85,0.4)', borderLeft:'3px solid #60a5fa', borderRadius:'7px', fontSize:'var(--ow-fs-small)', color:'var(--ow-text-body-2)', lineHeight:1.6 }}>
+                                  <div style={{ fontWeight:700, color:'#60a5fa', marginBottom:'4px' }}>Why the range is wide — and how to close it</div>
+                                  {body}
+                                </div>
+                              );
+                            })()}
+
                             {/* Methodology */}
                             {repairMethodology && (
                               <div style={{ marginTop:'12px', fontSize: 'var(--ow-fs-meta)', color:'var(--ow-text-faint)', lineHeight:1.6, padding:'12px', background:'var(--ow-glass-50)', borderRadius:'8px', borderLeft:'3px solid rgba(96,165,250,0.3)' }}>
@@ -12471,7 +12509,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </script>
     
     <!-- Async Upload Manager - Handles PDF uploads with real-time progress -->
-    <script src="/static/async-upload-manager.js?v=5.89.223"></script>
+    <script src="/static/async-upload-manager.js?v=5.89.225"></script>
     
     <!-- Floating Support Button -->
     <a href="/contact" id="support-button" style="
@@ -12496,8 +12534,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <span style="font-size: 16px;">💬</span>
         Help
     </a>
-<script src="/static/js/compliance.js?v=5.89.223"></script>
-<script src="/static/js/analytics.js?v=5.89.223" defer></script>
+<script src="/static/js/compliance.js?v=5.89.225"></script>
+<script src="/static/js/analytics.js?v=5.89.225" defer></script>
 <script>
 // Scroll reveal for premium results animations
 (function() {
@@ -12584,7 +12622,7 @@ if ('serviceWorker' in navigator) {
 
 <!-- Scout: docked, summon-on-demand "Ask your report" assistant (v5.89.157) -->
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&display=swap" rel="stylesheet">
-<script src="/static/ask-widget.js?v=5.89.223"></script>
+<script src="/static/ask-widget.js?v=5.89.225"></script>
 <script>
 (function(){
   if (window.__scoutInit) { return; } window.__scoutInit = true;
