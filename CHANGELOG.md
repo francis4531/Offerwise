@@ -3,6 +3,36 @@
 Historical deployment notes, bug fixes, and architecture decisions.
 Consolidated from 80 individual files on 2026-03-13.
 
+## v5.89.226 — Fix redundant disclosure analysis in the report (two engines, same tab)
+
+Serious-bug fix in the core analysis report. The Disclosures tab was rendering the
+disclosure-vs-inspection analysis TWICE: "What the Checklist Checked" (from
+result.reasoning, the reasoning layer behind the OFFERWISE_REASONING_IN_REPORT
+flag) and "What the Seller Didn't Tell You" (from cross_reference.contradictions,
+the older section). Both answer the same question — what the seller's disclosure
+missed or misrepresented versus what the inspection found. The reasoning layer was
+rolled out behind a flag but the older cross_reference section was never suppressed,
+so with the flag on a buyer saw both, stacked in one tab. The checklist section's
+pieces also echoed outward (its priced issues mirror Confirmed Repairs, its hidden
+risks mirror the Hidden-Issue Reserve, its offer-handoff mirrors The Math), making
+it the redundant duplicate.
+
+Fix: the two sections are now mutually exclusive. A rollout flag that introduces a
+section overlapping an existing one is meant to supersede it, not stack on top — so
+the older cross_reference section yields to the flagged reasoning layer when it is
+present (the reasoning view is also richer: claim polarity, silent-hazard flags,
+offer handoff). Applied identically in both renderers:
+- Report (app.html, on-screen tabs): #ow-disclosure guard now also requires
+  !(result.reasoning && Array.isArray(result.reasoning.claims)).
+- PDF/print (app.html, string template): disclosureSection is '' when the reasoning
+  layer is active (_reasoningActive), mirroring the on-screen behavior.
+
+Both gates match the reasoning section's own render condition exactly, so EXACTLY
+ONE disclosure-analysis section always renders. Flag-off behavior is unchanged
+(the report shows "What the Seller Didn't Tell You" exactly as before); no data is
+lost in either state. Reversible single-condition change if the intended keeper is
+the opposite section.
+
 ## v5.89.225 — Measure the repair-cost baseline-fallback rate by category
 
 The long-term fix for "ranges too wide" is to narrow them at the source, and the
