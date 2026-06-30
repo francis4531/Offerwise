@@ -3,6 +3,62 @@
 Historical deployment notes, bug fixes, and architecture decisions.
 Consolidated from 80 individual files on 2026-03-13.
 
+## v5.89.227 — Robust AI JSON handling: kill the silent truncation fallback (root-cause of the bad real-deal reports)
+
+Fixes the live production error `Failed to parse AI response: Unterminated string`
+on `/api/analyze` (logger `optimized_hybrid_cross_reference`) — and the much
+bigger problem hiding behind it.
+
+Root cause. The cross-reference engine capped the model at `max_tokens=3000`,
+then asked it to emit one JSON object per issue plus a summary. On issue-heavy
+real deals the output ran past the budget, the JSON cut off mid-string, and
+`json.loads` raised. The `except` branch then returned the original, un-enhanced
+data and the report silently fell back to RAW keyword-matcher output — the
+mis-categorized, mis-priced output (e.g. carbon-monoxide-under-Foundation,
+clean-result-priced-as-critical-repair). It fired on exactly the content-rich
+properties where the analysis matters most, and surfaced only as a Sentry line.
+This silent fallback is very plausibly the mechanism behind the Pendleton
+head-to-head loss. The deeper cause: NO call site in the codebase read
+`stop_reason`, so truncation was never even detectable.
+
+Fix — `ai_json.py`, a reusable robust structured-output utility used by every
+JSON-returning Claude call:
+- captures `stop_reason`; treats `max_tokens` as a definitive truncation signal;
+- retries once at a higher ceiling on truncation (resolves the common case);
+- extracts JSON from prose / ```json fences;
+- best-effort repairs a genuinely truncated payload (closes the unterminated
+  string, drops a dangling key/comma, balances brackets) so the findings that
+  fully serialized survive instead of the whole analysis being lost;
+- NEVER raises and NEVER silently returns garbage — returns an `AIJsonResult`
+  the caller must inspect (`.ok`);
+- records an `AIParseEvent` row per call (append-only, auto-created via
+  `db.create_all`, same forward-looking provenance pattern as v5.89.225) so the
+  parse-failure / truncation RATE is measurable per endpoint
+  (`parse_failure_rate_by_endpoint`).
+
+Wiring. `optimized_hybrid_cross_reference._single_ai_analysis` now calls
+`call_ai_json` (budget 8000, ceiling 16000, truncation retry on, cost tracking
+preserved via a per-call hook). On a genuine parse failure it no longer dresses
+raw rules output up as a finished analysis: it returns rules-only with
+`ai_enhanced=False`, a new field on `CrossReferenceReport` (default True), so
+downstream can render an honest "analysis incomplete" state. The degrade is now
+surfaced + instrumented, not swallowed.
+
+Scope note. This is the shared foundation for the model-as-pass engine rebuild —
+that path emits more structured output and truncates sooner, so robust handling
+is mandatory there. The ~10 other `json.loads(resp.content[0].text)` call sites
+(analysis_ai_helper, negotiation_hub, agent_briefing_strategy,
+property_research_agent, ml_training_pipeline, reasoning/inspection_llm_extractor)
+are the same latent bug and should migrate to `call_ai_json` next.
+
+Also staged the 2839 Pendleton specimens as the canonical regression fixture at
+`test_corpus/regression_pendleton/` (inspection.pdf, disclosures.pdf).
+
+Tests: `test_ai_json.py` (9) pins fence/prose extraction, recovery of the exact
+truncated-array signature, truncation→higher-budget retry, transport failure
+surfaced not raised, and the cost-track hook. Existing `test_cross_reference.py`
+(11) unchanged and green.
+
 ## v5.89.226 — Fix redundant disclosure analysis in the report (two engines, same tab)
 
 Serious-bug fix in the core analysis report. The Disclosures tab was rendering the

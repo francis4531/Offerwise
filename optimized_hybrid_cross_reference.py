@@ -111,6 +111,7 @@ class OptimizedHybridCrossReferenceEngine:
                 rules_report.undisclosed_issues = ai_results['undisclosed']
                 rules_report.transparency_score = ai_results['transparency_score']
                 rules_report.summary = ai_results['summary']
+                rules_report.ai_enhanced = ai_results.get('ai_enhanced', True)
                 
                 logger.info("  ✅ AI analysis complete (optimized)")
                 
@@ -207,40 +208,49 @@ Respond in JSON:
   "summary": "..."
 }}"""
 
-        # Single AI call - text only (privacy: no raw documents sent to API during analysis)
-        _t0 = time.time()
-        response = self.ai_client.messages.create(
-            model=SONNET,
-            max_tokens=3000,
-            temperature=0,  # Deterministic: same inputs = same outputs
-            messages=[{"role": "user", "content": prompt}]
-        )
+        # Single AI call — robust JSON handling (ai_json):
+        #  - max_tokens raised from 3000 (which truncated on issue-heavy real
+        #    deals -> "Unterminated string" -> silent fallback to raw rules out)
+        #  - truncation-aware: retries once at a higher ceiling on stop_reason=max_tokens
+        #  - never silently degrades: a genuine parse failure is surfaced + instrumented
+        from ai_json import call_ai_json
         try:
             from ai_cost_tracker import track_ai_call as _track
-            _track(response, "cross-reference", (time.time() - _t0) * 1000)
         except Exception:
-            pass
-        
-        # Parse response
-        try:
-            result_text = response.content[0].text.strip()
-            
-            # Extract JSON from response
-            if "```json" in result_text:
-                result_text = result_text.split("```json")[1].split("```")[0].strip()
-            elif "```" in result_text:
-                result_text = result_text.split("```")[1].split("```")[0].strip()
-            
-            ai_data = json.loads(result_text)
-        except Exception as e:
-            logger.error(f"Failed to parse AI response: {e}")
-            # Return original data unchanged
+            _track = None
+
+        parsed = call_ai_json(
+            prompt,
+            max_tokens=8000,
+            temperature=0,                 # deterministic: same inputs = same outputs
+            model=SONNET,
+            ai_client=self.ai_client,
+            endpoint='cross-reference',
+            retry_on_truncation=True,
+            max_tokens_ceiling=16000,
+            track=(lambda r, ms: _track(r, "cross-reference", ms)) if _track else None,
+        )
+
+        if not parsed.ok:
+            # Unparseable even after a higher-budget retry and salvage. Do NOT
+            # dress raw rules output up as a finished AI analysis — surface the
+            # degrade so downstream can show an honest "analysis incomplete"
+            # state. (call_ai_json already recorded an AIParseEvent row.)
+            logger.error(
+                "Cross-ref AI unparseable — serving rules-only, marked not-enhanced "
+                f"(stop_reason={parsed.stop_reason} truncated={parsed.truncated} "
+                f"chars={parsed.output_chars})"
+            )
             return {
                 'contradictions': contradictions,
                 'undisclosed': undisclosed,
                 'transparency_score': report.transparency_score,
-                'summary': report.summary
+                'summary': report.summary,
+                'ai_enhanced': False,
             }
+
+        result_text = parsed.raw_text
+        ai_data = parsed.data
         
         # === AI OUTPUT VALIDATION (v5.60.2) ===
         try:
@@ -291,7 +301,8 @@ Respond in JSON:
             'contradictions': contradictions,
             'undisclosed': undisclosed,
             'transparency_score': ai_data.get('transparency_score', report.transparency_score),
-            'summary': ai_data.get('summary', report.summary)
+            'summary': ai_data.get('summary', report.summary),
+            'ai_enhanced': True,
         }
 
 

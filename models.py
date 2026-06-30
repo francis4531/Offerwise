@@ -499,6 +499,40 @@ class CostPricingProvenance(db.Model):
         return f'<CostPricingProvenance {self.category}/{self.source} conf={self.confidence}>'
 
 
+class AIParseEvent(db.Model):
+    """One row per JSON-returning Claude call routed through ai_json.call_ai_json.
+
+    Records whether the model's structured output parsed, whether it was
+    truncated (stop_reason == 'max_tokens'), and whether it only survived via
+    repair. This is what lets admin measure the parse-failure / truncation RATE
+    BY ENDPOINT — i.e. which AI surfaces are silently degrading on issue-heavy
+    real deals. Before this, truncation was invisible: no call site read
+    stop_reason, and the worst offender swallowed the parse error into a silent
+    fallback to raw rules output.
+
+    Append-only telemetry; auto-created by db.create_all (no migration).
+    Forward-looking — there is no honest way to backfill calls that ran before
+    instrumentation, since responses aren't persisted.
+    """
+    __tablename__ = 'ai_parse_event'
+
+    id           = db.Column(db.Integer, primary_key=True)
+    created_at   = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+    analysis_id  = db.Column(db.Integer, nullable=True, index=True)
+
+    endpoint     = db.Column(db.String(50), nullable=True, index=True)   # 'cross-reference', ...
+    model        = db.Column(db.String(50), nullable=True)
+    stop_reason  = db.Column(db.String(24), nullable=True, index=True)   # 'end_turn'|'max_tokens'|...
+    ok           = db.Column(db.Boolean, nullable=False, default=False, index=True)
+    truncated    = db.Column(db.Boolean, nullable=False, default=False, index=True)
+    repaired     = db.Column(db.Boolean, nullable=False, default=False)
+    output_chars = db.Column(db.Integer, nullable=True)
+    attempts     = db.Column(db.Integer, nullable=True)
+
+    def __repr__(self):
+        return f'<AIParseEvent {self.endpoint} ok={self.ok} truncated={self.truncated}>'
+
+
 class MagicLink(db.Model):
     """Passwordless magic link tokens"""
     __tablename__ = 'magic_links'

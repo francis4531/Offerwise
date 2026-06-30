@@ -28,6 +28,7 @@ class CrossReferenceReport:
     risk_score: float  # 0-100, higher is worse
     summary: str
     transparency_applicable: bool = True  # False when no disclosure was provided — transparency cannot be judged
+    ai_enhanced: bool = True  # False when the AI severity/summary pass failed to parse — report is raw rules output, not a finished analysis. Downstream may render an honest "analysis incomplete" state instead of dressing up keyword buckets.
 
 
 class CrossReferenceEngine:
