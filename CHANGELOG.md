@@ -3,6 +3,174 @@
 Historical deployment notes, bug fixes, and architecture decisions.
 Consolidated from 80 individual files on 2026-03-13.
 
+## v5.89.231 — AVM corroboration gate: suppress the uncorroborated valuation (the $1.59M-on-a-$900K-house fabrication)
+
+Opened up the cost engine. Two findings:
+
+The repair-cost estimator is healthy — no change. Baselines are tightened
+(~1.5x spread, RSMeans-2026-anchored, per category/severity) and every reasoning
+group maps to a real category via CATEGORY_ALIASES (foundation_structure ->
+foundation, hvac_systems -> hvac, roof_exterior -> roof, ...), not the generic
+fallback. The offer number is also anchored on the asking price, not the AVM —
+so the $1.59M never set the offer.
+
+The fabrication was the AVM narrative. `avm_price` was RentCast's value passed
+through at face value with ZERO corroboration against the asking price or the
+comp median, feeding a user-facing "43% below AVM — the market may already be
+discounting" claim. When RentCast returns a bad or address-mismatched value, a
+confident, misleading discount claim shipped. This is the tight-but-fabricated
+failure mode hard-gated out of the content engine in v5.89.221, still live here.
+Root enabler: nothing cross-checked the AVM against an independent signal.
+
+Fix (chosen behavior: suppress). Added a corroboration gate in
+`market_intelligence`: an AVM is trusted only if it agrees with the independent
+comp median (within 25%, >=3 sold comps) or, when comps are thin, with the
+asking price (within 20%). A distrusted AVM is SUPPRESSED — `avm_price` zeroed,
+value range cleared, market temperature not set from it — so no "% below AVM"
+claim can ship. The raw value + reason are retained (`avm_price_raw`,
+`avm_trusted`, `avm_suppression_reason`) for telemetry, and surfaced in the
+market result. With the AVM suppressed, positioning rests on the corroborated
+comp median (`asking_vs_comps_pct`) and the offer on repair/risk/transparency —
+honest, not fabricated. The trusted-AVM path is unchanged (a corroborated AVM
+still drives its rationale and gap).
+
+Not addressed (separate, tracked): a distrusted AVM currently falls back to
+comp-based positioning only; a comp-derived valuation estimate (median $/sqft x
+sqft) as an explicit replacement was option (2) and was not chosen. Bad-address
+matching upstream (a likely cause of outlier AVMs) is a research-agent concern,
+not fixed here.
+
+Tests: `test_avm_gate.py` (7) pins the $1.59M suppression, the corroborated-AVM
+keep, the comps-thin asking fallback, and that the offer rationale emits no
+below-AVM claim when suppressed. 61 passing across the related suite; the
+trusted-AVM path verified intact.
+
+## v5.89.230 — Water-intrusion split: a disclosed shower leak no longer masks an undisclosed kitchen leak
+
+Closes the granularity gap the disclosure harness surfaced in v5.89.229. #1
+(master-bath shower leak, seller-disclosed) and #2 (kitchen leak, undisclosed)
+both landed on the single `structure.water_intrusion_history` item, so the
+cross-reference labeled the whole thing `corroborated` and the undisclosed
+kitchen gap vanished from the moat list.
+
+Two coordinated changes:
+
+1. Checklist granularity. Added `structure.water_intrusion_kitchen` and
+   `structure.water_intrusion_bath` (mirroring the parent item's §3.5 anatomy;
+   group foundation_structure, importance major, disclosure required). Only these
+   two were genuinely missing — roof/ceiling water already maps to
+   `roof.leak_evidence` and subarea moisture to `crawlspace.vapor_barrier_moisture`,
+   so no duplication. `structure.water_intrusion_history` remains the fallback for
+   water not tied to a covered location. Form-field-map entries added for both
+   (SPQ 10), and the LLM extractor prompt now routes kitchen vs bath water to the
+   specific items.
+
+2. Cluster key now includes disclosure_status. Even split into two items, both
+   are (negotiation_lever, foundation_structure) and would re-merge — and the
+   merge picks the highest-leverage status, mislabeling the disclosed shower leak
+   as undisclosed. The real fix is general: a "seller disclosed it" finding and a
+   "seller hid it" finding in the SAME system are different negotiation stories
+   and must be separate issues. `_cluster_key` for group-clustered classes
+   (negotiation_lever, pre_close_required_action) now keys on
+   (class, group, disclosure_status). Reserve/silent still cluster by class only.
+
+Result: #1 -> its own issue, `corroborated`; #2 -> its own issue, `undisclosed`,
+and the kitchen leak now appears in the "what the seller didn't tell you" list.
+All eight Pendleton disclosure checks pass with no WARN.
+
+Count metadata updated to match the two new items: form-field-map
+`deterministic_items` 47 -> 49, resolved CA/SFH checklist 70 -> 72 (test
+expectations updated accordingly).
+
+Tests: 54 passing across the reasoning pipeline + Pendleton gate, cost_bands,
+report_bridge, cross-reference, the extractor, ai_json, and the form-field map.
+
+## v5.89.229 — Wire the disclosure (TDS/SPQ) side into the Pendleton gate; fix the dropped "what the seller didn't tell you" list
+
+Builds the disclosure↔inspection cross-reference into the regression harness —
+the literal moat sentence — and, in doing so, caught a real bug that was wiping
+that exact output from every analysis.
+
+Harness (Layer B). Now feeds canonical TDS/SPQ disclosure readings alongside the
+inspection readings, grounded in the real Pendleton forms: SPQ 10 discloses the
+master-bedroom shower-pan leak (-> the water finding is `corroborated`), TDS C.1
+answers "no" to environmental hazards while the inspection flags a pre-1978
+asbestos risk (-> `contradiction`), and the FPE panel / detached flue / active
+supply leak are seller-silent (-> `undisclosed`). The gate now asserts
+`disclosure_status` per finding, exercising all of corroborated / undisclosed /
+contradiction. Result: PASS on all eight checks.
+
+Bug fixed (shipped in every analysis). `reasoning/cost_bands._rebuild_offer_with_costs`
+was a parallel copy of `issue_derivation._build_offer` that omitted the
+`undisclosed_titles` block. Since `populate_cost_bands` runs on every analysis,
+it silently overwrote the offer and dropped the moat list — the
+"what the seller didn't tell you" (undisclosed + contradiction) concerns — from
+every report. Classic logic drift: the disclosure block was added to
+`_build_offer` but never to its duplicate. Fix removes the duplicate entirely
+and reuses `_build_offer` (bands are already populated at that point, so its cost
+sums are correct) — single source of offer assembly, drift-proof. The moat list
+now populates correctly (Electrical/FPE, Plumbing/leak, Environmental/asbestos).
+
+Findings surfaced by the harness (tracked, not yet actioned):
+ - #1 and #2 still collapse into `structure.water_intrusion_history`: the
+   disclosed shower leak (#1) labels the cluster `corroborated` and masks the
+   undisclosed KITCHEN gap (#2). Needs finer, location-aware water-intrusion
+   items to separate them. Flagged as a WARN in the harness.
+ - The LLM extractor's `_SILENT_HAZARD_ITEMS` marks asbestos/lead/mold silent,
+   but the reasoning layer (correctly) treats them as disclosable and therefore
+   contradiction-eligible, not silent. The extractor's flag is dead in the
+   reasoning path (readings drop it); worth reconciling to avoid confusion.
+
+Tests: 45 passing across cost_bands, the reasoning pipeline + Pendleton gate,
+ai_json, the extractor, cross-reference, and report_bridge.
+
+## v5.89.228 — Robust the moat front-end + prove the reasoning core on Pendleton
+
+Establishes that the `reasoning/` package — not a new engine — is the path off
+the keyword cross-reference, and removes the first blocker.
+
+Moat front-end robusted. `reasoning/inspection_llm_extractor` (the format-general
+LLM extractor that reads any-vendor inspection text into the checklist
+vocabulary) had the SAME truncation bug as the live engine: `max_tokens=4000` +
+`_strip_fences` + `json.loads`, and on failure it returned `[]` — silently
+losing the inspection moat on long reports and falling back to the keyword
+parser. Migrated it to `ai_json.call_ai_json` (budget 8000, ceiling 16000,
+truncation retry, salvage, surfaced + instrumented under endpoint
+`inspection-extract`). Telemetry now writes only inside a Flask app context, so
+offline harnesses and unit tests stay hermetic.
+
+Canonical regression gate. `reasoning_pendleton_regression.py` scores the
+`reasoning/` engine against the 7-finding answer key from the head-to-head, in
+two layers:
+ - Layer B (offline, no key): feeds the pipeline canonical inspection readings
+   and checks the derived Issues + OfferHandoff. Isolates reasoning from the
+   model: given correct readings, does the engine classify correctly?
+ - Layer A (staging, needs key + PDFs): real PDF text -> LLM extractor ->
+   pipeline -> same scorer. The end-to-end gate.
+`test_reasoning_pendleton.py` runs Layer B in CI.
+
+Result (Layer B). PASS on the full answer key. The reasoning core surfaces the
+FPE panel (#3) AND flags it a silent hazard — the live engine buried it as
+"Electrical · Moderate"; the detached flue / CO risk (#3b) AND flags it silent —
+the live engine filed CO under Foundation & Structure; the active leak +
+galvanized pipe (#6); and the water-intrusion pattern (#1/#2). It correctly does
+NOT flag a foundation concern for #4 (verified sill anchors) — the live engine
+invented a $90K reserve there. Four derived issues, two silent hazards, a
+structured offer split (price-adjustment vs reserve vs pre-close vs silent).
+
+What this does and does not prove. It proves the reasoning ARCHITECTURE is sound
+given correct readings — the right engine to finish. It does NOT yet prove
+extraction fidelity on the real PDF (Layer A, staging) or fix the cost numbers:
+`cost_bands` reuses the existing repair-cost estimator, so the wide/fabricated
+pricing ($1.59M AVM, $90K-on-bolted-foundation) is a separate, still-open track.
+Also noted: #1 and #2 both collapse into `structure.water_intrusion_history` —
+the disclosed-vs-undisclosed distinction needs the TDS (disclosure) readings
+wired in alongside the inspection readings to sharpen the contradiction
+narrative.
+
+Tests: 33 passing across the reasoning gate, ai_json, the extractor,
+cross-reference, and the reasoning pipeline.
+
 ## v5.89.227 — Robust AI JSON handling: kill the silent truncation fallback (root-cause of the bad real-deal reports)
 
 Fixes the live production error `Failed to parse AI response: Unterminated string`

@@ -28,7 +28,7 @@ def test_pure_pipeline_produces_claims_and_issues():
     s = r.summary()
     assert s["claims"] == 5          # all 5 recognized readings -> claims
     assert s["issues"] >= 1          # the 'yes' (concern) claims cluster into issues
-    assert s["resolved_items"] == 70
+    assert s["resolved_items"] == 72
     assert s["persisted"] == {}      # nothing persisted in pure mode
 
 

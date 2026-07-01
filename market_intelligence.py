@@ -344,6 +344,14 @@ class MarketIntelligence:
         self.value_range_low        = 0
         self.value_range_high       = 0
         self.avm_confidence_range_pct = 0.0
+        # AVM corroboration gate (v5.89.231): a single-source AVM is only allowed
+        # to drive value/discount narrative if it agrees with an independent
+        # signal (comp median, or asking when comps are thin). A distrusted AVM is
+        # SUPPRESSED (avm_price zeroed); the raw value + reason are kept here for
+        # telemetry, and no "% below AVM" claim ships.
+        self.avm_trusted            = True
+        self.avm_price_raw          = 0
+        self.avm_suppression_reason = ''
 
         # Comp statistics
         self.comp_count             = 0
@@ -375,6 +383,35 @@ class MarketIntelligence:
         if self.market:
             d['market'] = self.market.__dict__
         return d
+
+
+# AVM corroboration gate thresholds. A single-source AVM (RentCast) must agree
+# with an independent signal to be trusted. Comp median is the strong,
+# independent corroborator; asking price is a weak sanity check when comps are
+# thin (asking is seller-set, not independent). Divergence beyond these bands =>
+# the AVM is an outlier and is suppressed rather than shipped as a confident
+# "% below market" claim (see v5.89.231).
+_AVM_COMP_TOL = 0.25      # trusted if within 25% of comp median (>=3 sold comps)
+_AVM_ASKING_TOL = 0.20    # else trusted if within 20% of asking price
+
+
+def _avm_is_corroborated(avm: int, asking: int, comp_median: int, comp_count: int):
+    """Return (trusted, reason). A distrusted AVM must not drive any narrative."""
+    if avm <= 0:
+        return True, ''  # nothing to gate
+    if comp_count >= 3 and comp_median > 0:
+        dev = abs(avm - comp_median) / comp_median
+        if dev <= _AVM_COMP_TOL:
+            return True, ''
+        return False, (f"AVM ${avm:,} is {round(dev * 100)}% from the comp "
+                       f"median ${comp_median:,} ({comp_count} sold comps)")
+    if asking > 0:
+        dev = abs(avm - asking) / asking
+        if dev <= _AVM_ASKING_TOL:
+            return True, ''
+        return False, (f"AVM ${avm:,} is {round(dev * 100)}% from asking "
+                       f"${asking:,} with no comp corroboration")
+    return False, f"AVM ${avm:,} cannot be corroborated (no comps, no asking price)"
 
 
 class MarketIntelligenceEngine:
@@ -478,6 +515,25 @@ class MarketIntelligenceEngine:
             distressed = mi.foreclosure_count + mi.short_sale_count
             mi.distressed_pct = round(distressed / n * 100, 1) if n > 0 else 0
 
+        # Corroboration gate: an AVM that diverges wildly from the independent
+        # comp median (or, without comps, from the asking price) is untrustworthy.
+        # Suppress it entirely — zero the value so nothing downstream (temperature,
+        # "% below AVM" rationale, value range) can ship a fabricated claim. Keep
+        # the raw value + reason for telemetry. (v5.89.231)
+        if avm > 0:
+            trusted, reason = _avm_is_corroborated(
+                avm, asking_price, mi.comp_median_price, mi.comp_count)
+            if not trusted:
+                mi.avm_price_raw = avm
+                mi.avm_trusted = False
+                mi.avm_suppression_reason = reason
+                mi.avm_price = 0
+                mi.value_range_low = 0
+                mi.value_range_high = 0
+                mi.avm_confidence_range_pct = 0.0
+                avm = 0  # neutralize the local before it sets market temperature
+                logger.warning(f"[MARKET] AVM suppressed — {reason}")
+
         # AVM vs asking
         if avm > 0 and asking_price > 0:
             asking_vs_avm = (asking_price - avm) / avm * 100
@@ -532,12 +588,13 @@ def apply_market_adjustment(recommended_offer: float, asking_price: float,
     if avm <= 0 and comps <= 0:
         return {'market_applied': False}
 
-    # Reference price: prefer AVM, fall back to comp median
+    # Reference price for display fallback: prefer AVM, else comp median.
     ref_price = avm if avm > 0 else comps
 
-    # Asking vs AVM
-    asking_vs_avm_pct = round((asking_price - ref_price) / ref_price * 100, 1) \
-        if ref_price > 0 else 0.0
+    # "% vs AVM" is an AVM claim — emit it only when we have a trusted AVM (the
+    # corroboration gate zeroes distrusted ones). Otherwise positioning rests on
+    # comparable sales (asking_vs_comps_pct), not a fabricated AVM gap.
+    asking_vs_avm_pct = round((asking_price - avm) / avm * 100, 1) if avm > 0 else 0.0
 
     # Market adjustment: nudge offer toward fair value
     # Hot market  → loosen discount slightly (max -1%)
@@ -588,6 +645,8 @@ def apply_market_adjustment(recommended_offer: float, asking_price: float,
         'comp_median_price':       comps,
         'comp_count':              comp_count,
         'asking_vs_avm_pct':       asking_vs_avm_pct,
+        'avm_trusted':             getattr(market_intel, 'avm_trusted', True),
+        'avm_suppression_reason':  getattr(market_intel, 'avm_suppression_reason', ''),
         'market_adjustment_amount': market_adjustment_amount,
         'market_adjustment_pct':   adj_pct,
         'adjusted_offer':          adjusted_offer,

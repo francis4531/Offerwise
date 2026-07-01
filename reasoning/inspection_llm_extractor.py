@@ -75,7 +75,10 @@ Rules:
 - Prefer specificity: a Federal Pacific/Stab-Lok panel -> electrical.panel_brand_safety;
   aluminum branch wiring -> electrical.wiring_material; a cracked/leaking flue or
   CO risk -> hvac.flue_venting_integrity; pre-1978 asbestos/lead -> the
-  environmental.* items; an active water leak -> plumbing.active_leaks.
+  environmental.* items; an active water leak -> plumbing.active_leaks; kitchen
+  water evidence (floor warping at the fridge/sink, cabinet/subfloor staining) ->
+  structure.water_intrusion_kitchen; bath/shower water (shower-pan/tub/fixture
+  leaks, moisture-damaged sills) -> structure.water_intrusion_bath.
 - Be honest: if uncertain, omit rather than guess.
 
 Respond with ONLY a JSON array of these objects. No preamble, no markdown fences.
@@ -129,20 +132,32 @@ def extract_inspection_findings_llm(
 
     allowed = set(checklist_ids)
     prompt = _build_prompt(checklist_ids, report_text)
-    try:
-        resp = client.messages.create(
-            model=model or INSPECTION_EXTRACT_MODEL,
-            max_tokens=4000,
-            messages=[{"role": "user", "content": prompt}],
+
+    # Robust structured-output handling (ai_json): a 44-page report easily
+    # overran the old max_tokens=4000 -> truncated array -> json.loads failed ->
+    # this returned [] and the pipeline silently lost the inspection moat. Now:
+    # higher budget + retry on truncation + salvage, and parse failure is
+    # surfaced + instrumented (endpoint 'inspection-extract') rather than
+    # masquerading as "no findings".
+    from ai_json import call_ai_json
+    parsed = call_ai_json(
+        prompt,
+        max_tokens=8000,
+        temperature=0,
+        model=model or INSPECTION_EXTRACT_MODEL,
+        ai_client=client,
+        endpoint='inspection-extract',
+        retry_on_truncation=True,
+        max_tokens_ceiling=16000,
+    )
+    if not parsed.ok or not isinstance(parsed.data, list):
+        logger.warning(
+            "inspection LLM extract: unparseable or not a list "
+            "(stop_reason=%s truncated=%s chars=%s err=%s)",
+            parsed.stop_reason, parsed.truncated, parsed.output_chars, parsed.error,
         )
-        raw = _strip_fences(resp.content[0].text or "")
-        data = json.loads(raw)
-        if not isinstance(data, list):
-            logger.warning("inspection LLM extract: expected array, got %s", type(data))
-            return []
-    except Exception as e:
-        logger.warning("inspection LLM extract failed: %s", e)
         return []
+    data = parsed.data
 
     readings: List[Dict[str, Any]] = []
     seen: Dict[str, Dict[str, Any]] = {}

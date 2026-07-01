@@ -7,7 +7,7 @@ source_forms:
 - title_report
 - CLUE
 coverage:
-  deterministic_items: 47
+  deterministic_items: 49
   locator_cited: 21
   locator_inferred: 16
   needs_form_specimen: 10
@@ -110,6 +110,26 @@ mappings:
   locator_confidence: cited
   value_semantics:
     positive_reading: present | yes | IN-zone | disclosed
+    polarity_when_positive: unfavorable
+    polarity_when_negative: favorable
+  also_inspection: false
+- item_id: structure.water_intrusion_kitchen
+  group: foundation_structure
+  form: TDS_or_SPQ
+  locator: SPQ 10
+  locator_confidence: cited
+  value_semantics:
+    positive_reading: present | yes | disclosed
+    polarity_when_positive: unfavorable
+    polarity_when_negative: favorable
+  also_inspection: false
+- item_id: structure.water_intrusion_bath
+  group: foundation_structure
+  form: TDS_or_SPQ
+  locator: SPQ 10
+  locator_confidence: cited
+  value_semantics:
+    positive_reading: present | yes | disclosed
     polarity_when_positive: unfavorable
     polarity_when_negative: favorable
   also_inspection: false

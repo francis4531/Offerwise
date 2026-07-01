@@ -15,8 +15,8 @@ import os
 def test_map_loads_and_covers_items():
     fmap = load_form_field_map()
     assert fmap.version == "v0.1"
-    assert fmap.coverage.get("deterministic_items") == 47
-    assert len(fmap.item_ids()) == 47
+    assert fmap.coverage.get("deterministic_items") == 49
+    assert len(fmap.item_ids()) == 49
 
 
 def test_map_file_present():

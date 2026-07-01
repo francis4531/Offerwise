@@ -62,6 +62,13 @@ class DerivedIssue:
     cost_band_high: Optional[float] = None
     disclosure_risk: bool = False
     group: str = "general"
+    # disclosure cross-reference status vs the seller's TDS/SPQ for this concern:
+    # 'corroborated'        — seller disclosed it AND the inspection confirms it
+    # 'contradiction'       — seller answered clean/no, the inspection found it
+    # 'undisclosed'         — the inspection found it, the seller said nothing
+    #                         (incl. items a TDS structurally can't cover, e.g. panel brand)
+    # 'disclosed_not_found' — seller disclosed it, the inspection didn't independently find it
+    disclosure_status: Optional[str] = None
 
     def to_dict(self) -> Dict[str, Any]:
         d = self.__dict__.copy()
@@ -80,6 +87,9 @@ class OfferHandoff:
     pre_close_action_titles: List[str] = field(default_factory=list)
     # surfaced prominently regardless of class
     silent_hazard_titles: List[str] = field(default_factory=list)
+    # the moat list: concerns the seller did NOT disclose (undisclosed) or
+    # actively answered clean on (contradiction) — "what the seller didn't tell you"
+    undisclosed_titles: List[str] = field(default_factory=list)
 
     def to_dict(self) -> Dict[str, Any]:
         return self.__dict__.copy()
@@ -162,12 +172,15 @@ def assign_decision_class(item: Any) -> Dict[str, Any]:
             "disclosure_required": dos == "required"}
 
 
-def _cluster_key(dc: str, group: str) -> tuple:
-    # negotiation levers and pre-close cures cluster by (class, group) — remedy is
-    # system-specific; reserve and silent hazards cluster by class only (one
-    # "hold money / verify" decision regardless of topic).
+def _cluster_key(dc: str, group: str, disclosure_status: Optional[str] = None) -> tuple:
+    # negotiation levers and pre-close cures cluster by (class, group, disclosure):
+    # a "seller disclosed it" finding and a "seller hid it" finding in the SAME
+    # system are different negotiation stories and must stay separate issues (so a
+    # disclosed shower leak can't mask an undisclosed kitchen leak). reserve and
+    # silent hazards cluster by class only (one "hold money / verify" decision
+    # regardless of topic).
     if dc in ("negotiation_lever", "pre_close_required_action"):
-        return (dc, group)
+        return (dc, group, disclosure_status)
     return (dc,)
 
 
@@ -220,12 +233,60 @@ def _human_title(dc: str, group: str) -> str:
     return g
 
 
+# Disclosure cross-reference: rank by negotiation leverage (most leverage first).
+_DISCLOSURE_PRIORITY = {
+    "contradiction": 3, "undisclosed": 2, "corroborated": 1, "disclosed_not_found": 0,
+}
+
+
+def _claim_field(c, name):
+    return getattr(c, name, None) if not isinstance(c, dict) else c.get(name)
+
+
+def _disclosure_status_by_item(claims: List[Any]) -> Dict[str, str]:
+    """Compare what the SELLER said (TDS/SPQ claims) against what the INSPECTION
+    found, per checklist item, to label each concern. This is the moat: it turns
+    "a finding" into "the seller disclosed X / said nothing / said it was fine."
+
+    A claim is inspection-sourced when source_form starts with 'INSPECTION';
+    anything else (TDS, SPQ, NHD, ...) is a disclosure source. polarity
+    'contradicts' = a concern is present; 'supports' = checked clean.
+    """
+    insp_concern: set = set()
+    disc_concern: set = set()
+    disc_clean: set = set()
+    for c in claims:
+        iid = _claim_field(c, "checklist_item_id")
+        if not iid:
+            continue
+        polarity = _claim_field(c, "polarity")
+        src = (_claim_field(c, "source_form") or "").upper()
+        is_inspection = src.startswith("INSPECTION")
+        if polarity == "contradicts":
+            (insp_concern if is_inspection else disc_concern).add(iid)
+        elif polarity == "supports" and not is_inspection:
+            disc_clean.add(iid)
+
+    status: Dict[str, str] = {}
+    for iid in insp_concern:
+        if iid in disc_concern:
+            status[iid] = "corroborated"
+        elif iid in disc_clean:
+            status[iid] = "contradiction"
+        else:
+            status[iid] = "undisclosed"
+    for iid in disc_concern - insp_concern:
+        status[iid] = "disclosed_not_found"
+    return status
+
+
 def derive_issues(claims: List[Any], checklist_by_id: Dict[str, Any]) -> IssueDerivationResult:
     """
     claims: Claim-like objects/dicts with .checklist_item_id and .polarity
             (only polarity == 'contradicts' — a concern present — feeds Issues).
     checklist_by_id: {item_id: ChecklistItem} from the resolved checklist.
     """
+    dstat = _disclosure_status_by_item(claims)
     clusters: Dict[tuple, Dict[str, Any]] = {}
 
     for c in claims:
@@ -237,13 +298,14 @@ def derive_issues(claims: List[Any], checklist_by_id: Dict[str, Any]) -> IssueDe
         if item is None:
             continue
         a = assign_decision_class(item)
-        key = _cluster_key(a["decision_class"], a["group"])
+        key = _cluster_key(a["decision_class"], a["group"], dstat.get(iid))
         cl = clusters.setdefault(key, {
             "decision_class": a["decision_class"], "group": a["group"],
             "items": [], "severities": [], "silent": False, "disclosure_risk": False,
         })
-        cl["items"].append(iid)
-        cl["severities"].append(a["severity"])
+        if iid not in cl["items"]:
+            cl["items"].append(iid)
+            cl["severities"].append(a["severity"])
         cl["silent"] = cl["silent"] or a["silent_hazard_flag"]
         cl["disclosure_risk"] = cl["disclosure_risk"] or a["disclosure_required"]
 
@@ -262,6 +324,12 @@ def derive_issues(claims: List[Any], checklist_by_id: Dict[str, Any]) -> IssueDe
         rolled = _escalate(max_sev, len(high_groups))
         dc = cl["decision_class"]
         title = _human_title(dc, cl["group"])
+        # cluster disclosure status = highest-leverage status among its items
+        statuses = [dstat.get(iid) for iid in cl["items"] if dstat.get(iid)]
+        cluster_status = (
+            max(statuses, key=lambda s: _DISCLOSURE_PRIORITY.get(s, -1))
+            if statuses else None
+        )
         issues.append(DerivedIssue(
             decision_class=dc,
             title=title,
@@ -271,6 +339,7 @@ def derive_issues(claims: List[Any], checklist_by_id: Dict[str, Any]) -> IssueDe
             claim_item_ids=cl["items"],
             disclosure_risk=cl["disclosure_risk"],
             group=cl["group"],
+            disclosure_status=cluster_status,
         ))
 
     return IssueDerivationResult(issues=issues, offer=_build_offer(issues))
@@ -281,6 +350,9 @@ def _build_offer(issues: List[DerivedIssue]) -> OfferHandoff:
     for iss in issues:
         if iss.silent_hazard_flag or iss.decision_class == "silent_hazard":
             offer.silent_hazard_titles.append(iss.title)
+        # the moat: what the seller did not tell you
+        if iss.disclosure_status in ("undisclosed", "contradiction"):
+            offer.undisclosed_titles.append(iss.title)
         if iss.decision_class == "negotiation_lever":
             offer.price_adjustment_issue_titles.append(iss.title)
             offer.price_adjustment_low += iss.cost_band_low or 0.0

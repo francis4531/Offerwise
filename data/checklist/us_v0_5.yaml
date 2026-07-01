@@ -569,7 +569,7 @@ national_base:
   - foundation.type
 - id: structure.water_intrusion_history
   question: Is there evidence of past water intrusion into the structure?
-  description: Dry/old stains, prior-repair evidence, floor warping indicating historic leaks (distinct from active leaks). SPQ 10.A is the canonical disclosure source.
+  description: Dry/old stains, prior-repair evidence, floor warping indicating historic leaks (distinct from active leaks). Fallback for water intrusion not tied to a covered location — kitchen -> structure.water_intrusion_kitchen, bath -> structure.water_intrusion_bath, roof/ceiling -> roof.leak_evidence, subarea -> crawlspace.vapor_barrier_moisture. SPQ 10.A is the canonical disclosure source.
   group: foundation_structure
   answer_type: enum
   importance: major
@@ -590,6 +590,48 @@ national_base:
   - plumbing.active_leaks
   - environmental.mold_risk
   - roof.skylight_penetration_integrity
+- id: structure.water_intrusion_kitchen
+  question: Is there evidence of water intrusion at the kitchen (floor, cabinets, under-sink)?
+  description: Kitchen-specific water evidence — floor warping at the refrigerator/sink, cabinet/subfloor staining, appliance supply leaks. Separated from the general history item so a disclosed leak elsewhere cannot mask an undisclosed kitchen leak. SPQ 10.A / TDS B if known.
+  group: foundation_structure
+  answer_type: enum
+  importance: major
+  cost_impact: yes
+  compliance_basis:
+    basis: legal_requirement
+    citation: C.A.R. SPQ 10.A (water intrusion) + TDS B/C if known. Civil Code §1102 et seq.
+  disclosure_obligation_state: required
+  severity_when_negative: major
+  unanswered_implication: seller_should_disclose
+  applicability:
+    jurisdictions:
+    - '*'
+    property_types:
+    - SFH
+  related_items:
+  - structure.water_intrusion_history
+  - plumbing.active_leaks
+- id: structure.water_intrusion_bath
+  question: Is there evidence of water intrusion at a bathroom (shower pan, tub, fixtures)?
+  description: Bathroom-specific water evidence — shower-pan/enclosure leaks, tub/fixture leaks, moisture-damaged sills/subfloor. Separated from the general history item so location-specific disclosure can be cross-referenced (a disclosed shower leak vs an undisclosed kitchen leak). SPQ 10.A / TDS B if known.
+  group: foundation_structure
+  answer_type: enum
+  importance: major
+  cost_impact: yes
+  compliance_basis:
+    basis: legal_requirement
+    citation: C.A.R. SPQ 10.A (water intrusion) + TDS B/C if known. Civil Code §1102 et seq.
+  disclosure_obligation_state: required
+  severity_when_negative: major
+  unanswered_implication: seller_should_disclose
+  applicability:
+    jurisdictions:
+    - '*'
+    property_types:
+    - SFH
+  related_items:
+  - structure.water_intrusion_history
+  - plumbing.active_leaks
 - id: structure.chimney_fireplace_condition
   question: Are chimneys/fireplaces sound (no cracking, separation, flue defects)?
   description: Masonry/metal chimney condition, firebox/flue integrity, seismic separation.

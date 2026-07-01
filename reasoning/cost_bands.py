@@ -17,7 +17,7 @@ from __future__ import annotations
 
 from typing import Any, List, Optional
 
-from .issue_derivation import IssueDerivationResult, DerivedIssue, OfferHandoff
+from .issue_derivation import IssueDerivationResult, DerivedIssue, OfferHandoff, _build_offer
 
 
 def populate_cost_bands(
@@ -79,22 +79,9 @@ def populate_cost_bands(
             # one issue failing must not break the rest
             continue
 
-    # recompute the offer handoff now that bands are populated
-    result.offer = _rebuild_offer_with_costs(result.issues)
+    # Recompute the offer now that bands are populated. Reuse _build_offer (the
+    # single source of offer assembly) rather than a parallel copy — bands are
+    # populated so its cost sums are correct, and this keeps the disclosure moat
+    # list (undisclosed_titles) from drifting out, as a duplicate rebuild did.
+    result.offer = _build_offer(result.issues)
     return result
-
-
-def _rebuild_offer_with_costs(issues: List[DerivedIssue]) -> OfferHandoff:
-    offer = OfferHandoff()
-    for iss in issues:
-        if iss.silent_hazard_flag or iss.decision_class == "silent_hazard":
-            offer.silent_hazard_titles.append(iss.title)
-        if iss.decision_class == "negotiation_lever":
-            offer.price_adjustment_issue_titles.append(iss.title)
-            offer.price_adjustment_low += iss.cost_band_low or 0.0
-            offer.price_adjustment_high += iss.cost_band_high or 0.0
-        elif iss.decision_class == "due_diligence_and_reserve":
-            offer.reserve_issue_titles.append(iss.title)
-        elif iss.decision_class == "pre_close_required_action":
-            offer.pre_close_action_titles.append(iss.title)
-    return offer

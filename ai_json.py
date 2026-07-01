@@ -448,10 +448,19 @@ def call_ai_json(
 # ---------------------------------------------------------------------------
 
 def record_parse_event(result: AIJsonResult, *, endpoint=None, model=None, analysis_id=None) -> int:
-    """Persist one AIParseEvent row. Returns 1 on write, 0 otherwise. Never raises."""
+    """Persist one AIParseEvent row. Returns 1 on write, 0 otherwise. Never raises.
+
+    Writes only inside an active Flask app context (i.e. real request/analysis
+    paths). Outside one — unit tests, offline harnesses — it skips cleanly
+    without importing app or touching a session."""
     try:
-        from app import db
-        from models import AIParseEvent
+        from flask import has_app_context
+        if not has_app_context():
+            return 0
+    except Exception:
+        return 0
+    try:
+        from models import db, AIParseEvent
     except Exception as e:
         logger.debug(f"[ai_json] db/model unavailable, skipping telemetry: {e}")
         return 0
@@ -473,7 +482,7 @@ def record_parse_event(result: AIJsonResult, *, endpoint=None, model=None, analy
     except Exception as e:
         logger.warning(f"[ai_json] telemetry write failed (non-fatal): {e}")
         try:
-            from app import db
+            from models import db
             db.session.rollback()
         except Exception:
             pass
@@ -488,8 +497,7 @@ def parse_failure_rate_by_endpoint(window_days: int = 30) -> list[dict]:
     Empty list on any error.
     """
     try:
-        from app import db
-        from models import AIParseEvent
+        from models import db, AIParseEvent
         from datetime import datetime, timedelta
     except Exception:
         return []
