@@ -1065,8 +1065,31 @@ class RentCastTool(ResearchTool):
                     'last_seen': comp.get('lastSeenDate', '') or '',
                 })
             
+            # AVM corroboration gate at the SOURCE (v5.89.232). A single-source
+            # RentCast AVM that is a clear outlier vs the comp median is
+            # suppressed HERE, so it can never reach the AI narrative
+            # (analysis_ai_helper) or any profile summary — the v5.89.231 gate
+            # only covered the structured market path and left this hole. Comps-
+            # only + conservative; the asking-aware backstop still runs in
+            # market_intelligence.
+            from avm_gate import avm_is_comp_outlier, comp_median as _comp_median
+            _sold_prices = [c['price'] for c in comps_data
+                            if str(c.get('status', '')).lower() not in ('active', 'for sale')]
+            _cmed = _comp_median(_sold_prices)
+            avm_suppressed = False
+            avm_suppression_reason = ''
+            avm_price_raw = profile.estimated_value or 0
+            is_outlier, _reason = avm_is_comp_outlier(avm_price_raw, _cmed, len(_sold_prices))
+            if is_outlier:
+                avm_suppressed = True
+                avm_suppression_reason = _reason
+                profile.estimated_value = None
+                est = 0
+                logger.warning(f"   ⚠️  AVM suppressed at source — {_reason}")
+
+            _avm_disp = f"${profile.estimated_value:,}" if profile.estimated_value else "suppressed"
             logger.info(f"   🏠 RentCast: {profile.bedrooms}bd/{profile.bathrooms}ba, "
-                        f"AVM=${profile.estimated_value:,}, {len(comps_data)} comps")
+                        f"AVM={_avm_disp}, {len(comps_data)} comps")
             
             # Distressed sale breakdown
             foreclosures = len([c for c in comps_data if c.get('listing_type') == 'Foreclosure'])
@@ -1087,10 +1110,14 @@ class RentCastTool(ResearchTool):
                     'property_type': profile.property_type,
                     'estimated_value': profile.estimated_value,
                     'assessed_value': profile.tax_assessed_value,
-                    # AVM with confidence range
-                    'avm_price': int(data.get('price', 0) or 0),
-                    'avm_price_low': int(data.get('priceRangeLow', 0) or 0),
-                    'avm_price_high': int(data.get('priceRangeHigh', 0) or 0),
+                    # AVM with confidence range — suppressed together when the
+                    # source gate flags the AVM as a comp outlier.
+                    'avm_price': 0 if avm_suppressed else int(data.get('price', 0) or 0),
+                    'avm_price_low': 0 if avm_suppressed else int(data.get('priceRangeLow', 0) or 0),
+                    'avm_price_high': 0 if avm_suppressed else int(data.get('priceRangeHigh', 0) or 0),
+                    'avm_suppressed': avm_suppressed,
+                    'avm_suppression_reason': avm_suppression_reason,
+                    'avm_price_raw': avm_price_raw,
                     # Full comparables
                     'comparables': comps_data,
                     # Distressed sale counts

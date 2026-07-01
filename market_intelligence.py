@@ -385,33 +385,7 @@ class MarketIntelligence:
         return d
 
 
-# AVM corroboration gate thresholds. A single-source AVM (RentCast) must agree
-# with an independent signal to be trusted. Comp median is the strong,
-# independent corroborator; asking price is a weak sanity check when comps are
-# thin (asking is seller-set, not independent). Divergence beyond these bands =>
-# the AVM is an outlier and is suppressed rather than shipped as a confident
-# "% below market" claim (see v5.89.231).
-_AVM_COMP_TOL = 0.25      # trusted if within 25% of comp median (>=3 sold comps)
-_AVM_ASKING_TOL = 0.20    # else trusted if within 20% of asking price
-
-
-def _avm_is_corroborated(avm: int, asking: int, comp_median: int, comp_count: int):
-    """Return (trusted, reason). A distrusted AVM must not drive any narrative."""
-    if avm <= 0:
-        return True, ''  # nothing to gate
-    if comp_count >= 3 and comp_median > 0:
-        dev = abs(avm - comp_median) / comp_median
-        if dev <= _AVM_COMP_TOL:
-            return True, ''
-        return False, (f"AVM ${avm:,} is {round(dev * 100)}% from the comp "
-                       f"median ${comp_median:,} ({comp_count} sold comps)")
-    if asking > 0:
-        dev = abs(avm - asking) / asking
-        if dev <= _AVM_ASKING_TOL:
-            return True, ''
-        return False, (f"AVM ${avm:,} is {round(dev * 100)}% from asking "
-                       f"${asking:,} with no comp corroboration")
-    return False, f"AVM ${avm:,} cannot be corroborated (no comps, no asking price)"
+from avm_gate import avm_is_corroborated  # single source of truth for the gate
 
 
 class MarketIntelligenceEngine:
@@ -521,7 +495,7 @@ class MarketIntelligenceEngine:
         # "% below AVM" rationale, value range) can ship a fabricated claim. Keep
         # the raw value + reason for telemetry. (v5.89.231)
         if avm > 0:
-            trusted, reason = _avm_is_corroborated(
+            trusted, reason = avm_is_corroborated(
                 avm, asking_price, mi.comp_median_price, mi.comp_count)
             if not trusted:
                 mi.avm_price_raw = avm

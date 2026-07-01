@@ -837,6 +837,24 @@ class OfferWiseIntelligence:
             inspection_doc
         )
         timing['cross_reference'] = time.time() - t0
+
+        # Shadow-run the reasoning/ engine (flag OFFERWISE_REASONING_SHADOW, off by
+        # default). Measures reasoning vs the live engine on real traffic — Layer A
+        # at scale. Fully swallowed: it can NEVER affect the live result. (v5.89.233)
+        import os as _os
+        if _os.environ.get('OFFERWISE_REASONING_SHADOW', '').lower() in ('1', 'true', 'yes', 'on'):
+            try:
+                from reasoning_shadow import run_reasoning_shadow
+                run_reasoning_shadow(
+                    inspection_text=inspection_report_text,
+                    disclosure_text=seller_disclosure_text,
+                    property_address=property_address,
+                    property_price=property_price,
+                    live_cross_ref=cross_ref,
+                    analysis_id=getattr(self, '_current_analysis_id', None),
+                )
+            except Exception as _shadow_e:
+                logger.warning(f"[SHADOW] wire failed (non-fatal): {_shadow_e}")
         
         # 🤖 Step 2b: External Verification — AI cross-references documents against public records
         # PATENT-WORTHY: Claude reasons about what the seller said vs what government data shows

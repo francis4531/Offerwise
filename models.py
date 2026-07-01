@@ -533,6 +533,46 @@ class AIParseEvent(db.Model):
         return f'<AIParseEvent {self.endpoint} ok={self.ok} truncated={self.truncated}>'
 
 
+class ShadowComparison(db.Model):
+    """One row per analysis when the reasoning/ engine is shadow-run alongside the
+    live keyword engine (flag OFFERWISE_REASONING_SHADOW). Records, on REAL
+    traffic, what each engine surfaced — the Layer A validation at scale: does the
+    reasoning engine (LLM extraction + issue derivation) surface the findings the
+    live engine does, and more? The shadow never affects the user-facing result.
+
+    Append-only; auto-created by db.create_all (no migration).
+    """
+    __tablename__ = 'shadow_comparison'
+
+    id            = db.Column(db.Integer, primary_key=True)
+    created_at    = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+    analysis_id   = db.Column(db.Integer, nullable=True, index=True)
+
+    jurisdiction  = db.Column(db.String(8), nullable=True)
+    property_type = db.Column(db.String(8), nullable=True)
+
+    # live keyword engine
+    live_contradictions = db.Column(db.Integer, nullable=True)
+    live_undisclosed    = db.Column(db.Integer, nullable=True)
+
+    # reasoning/ engine
+    extractor_ok        = db.Column(db.Boolean, nullable=False, default=False, index=True)
+    extractor_readings  = db.Column(db.Integer, nullable=True)
+    reasoning_issues        = db.Column(db.Integer, nullable=True)
+    reasoning_silent_hazards= db.Column(db.Integer, nullable=True)
+    reasoning_undisclosed   = db.Column(db.Integer, nullable=True)
+    reasoning_offer_low     = db.Column(db.Integer, nullable=True)
+    reasoning_offer_high    = db.Column(db.Integer, nullable=True)
+
+    ok      = db.Column(db.Boolean, nullable=False, default=False, index=True)  # shadow ran end-to-end
+    error   = db.Column(db.String(300), nullable=True)
+    notes   = db.Column(db.Text, nullable=True)   # short divergence summary
+    elapsed_ms = db.Column(db.Integer, nullable=True)
+
+    def __repr__(self):
+        return f'<ShadowComparison a={self.analysis_id} issues={self.reasoning_issues} ok={self.ok}>'
+
+
 class MagicLink(db.Model):
     """Passwordless magic link tokens"""
     __tablename__ = 'magic_links'

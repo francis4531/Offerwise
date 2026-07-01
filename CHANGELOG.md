@@ -3,6 +3,85 @@
 Historical deployment notes, bug fixes, and architecture decisions.
 Consolidated from 80 individual files on 2026-03-13.
 
+## v5.89.233 — Shadow-wire: run reasoning/ alongside the live engine on real traffic (Layer A at scale)
+
+Wires the reasoning/ engine to run in SHADOW next to the live keyword engine on
+real analyses, so we can measure — on real deals, not just Pendleton — whether
+reasoning surfaces what the live engine does and more. This is Layer A validation
+in production: the LLM inspection extractor runs on the real inspection text, the
+reasoning pipeline derives issues, and a ShadowComparison row is recorded.
+
+Safety (production is live, so this is non-negotiable):
+ - OFF by default. Runs only when OFFERWISE_REASONING_SHADOW is truthy.
+ - CANNOT affect the user-facing result. Invoked after the live cross-reference;
+   its return is ignored; every path (extractor, pipeline, persist) is swallowed.
+ - Persistence writes only inside a Flask app context; never raises.
+
+Pieces:
+ - `reasoning_shadow.py`: `run_reasoning_shadow` (never raises), a pure
+   `build_comparison`, jurisdiction inference from the address (default CA),
+   and `shadow_summary` for an admin read.
+ - `ShadowComparison` table (models.py, auto-created): per-analysis counts for
+   both engines (live contradictions/undisclosed; reasoning issues/silent
+   hazards/undisclosed; offer band), `extractor_ok`, timing, notes.
+ - Flag-gated wire in `offerwise_intelligence.analyze_property` after the live
+   cross-reference.
+
+Scope (honest): the shadow runs the INSPECTION side only — the TDS parser has no
+raw-text -> readings path, so `field_readings=[]` and every issue's
+disclosure_status reads 'undisclosed' by construction. That still validates the
+core moat (LLM extraction + issue derivation on real documents); the disclosure-
+side shadow needs a disclosure extractor and is the next build. A bug caught
+during wiring (the extractor kwarg is `client=`, not `ai_client=`) is exactly why
+`extractor_ok` is a first-class recorded field — a silently-failing extractor is
+now visible in telemetry, not invisible.
+
+Layer A one-off (cannot be run in the build sandbox — no API key): on staging,
+`ANTHROPIC_API_KEY=... python3 reasoning_pendleton_regression.py` runs Layer A on
+the canonical case. Then set OFFERWISE_REASONING_SHADOW=1 to shadow real traffic.
+
+Tests: `test_reasoning_shadow.py` (4) — comparison counts, jurisdiction
+inference, extractor-failure flagging, and the never-raises invariant. 69
+passing across the related suite.
+
+## v5.89.232 — Close the AVM gate at the source (v5.89.231 was incomplete — the narrative path bypassed it)
+
+v5.89.231 gated only the structured market-intelligence path. Audit found the
+raw RentCast AVM still reached the buyer through the AI-written narrative:
+`analysis_ai_helper.py` emits "ESTIMATED VALUE (AVM): $X" from
+`research_profile['estimated_value']`, and `property_research_agent` used the raw
+`profile.estimated_value` in several summary lines — all fed from the ungated
+source, none aware of `avm_trusted`. So in production the fabricated valuation
+(e.g. $1.59M on a $900K house) could still be written into the report. The first
+fix was partial and is now completed.
+
+Single source of truth. New `avm_gate.py` holds the corroboration logic and
+thresholds, imported by BOTH paths so they can't drift (the lesson from the
+cost_bands duplicate):
+ - `avm_is_comp_outlier(avm, comp_median, comp_count)` — source-side, comps-only,
+   conservative (fires only on >=3 sold comps and >25% divergence; defers when
+   comps are thin).
+ - `avm_is_corroborated(avm, asking, comp_median, comp_count)` — full asking-aware
+   gate for the structured path.
+`market_intelligence` now imports from `avm_gate` (its local copy removed).
+
+Source gate. `property_research_agent`'s RentCast handler now runs
+`avm_is_comp_outlier` against the comps it already has, and on an outlier
+suppresses the value at the source: `profile.estimated_value=None` and ALL raw
+AVM fields in the tool result zeroed together (`avm_price`, `avm_price_low`,
+`avm_price_high`), with `avm_suppressed` / `avm_suppression_reason` /
+`avm_price_raw` exposed for telemetry. Every downstream narrative use of
+`profile.estimated_value` already guards on presence, so they cleanly skip a
+suppressed AVM. The asking-aware `market_intelligence` gate remains as the
+structured-path backstop (covers the comps-thin case).
+
+Net: a distrusted AVM now reaches NO surface — not the structured offer, not the
+AI narrative, not the profile summaries.
+
+Tests: `test_avm_gate.py` extended to 11 (source comp-outlier gate, comps-thin
+deferral, corroborated keep, comp_median helper, plus the v231 structured-path
+and no-below-AVM-claim checks). 65 passing across the related suite.
+
 ## v5.89.231 — AVM corroboration gate: suppress the uncorroborated valuation (the $1.59M-on-a-$900K-house fabrication)
 
 Opened up the cost engine. Two findings:

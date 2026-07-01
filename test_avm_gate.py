@@ -7,8 +7,8 @@ thin) must be SUPPRESSED, not shipped as a confident "% below market" claim.
 Canonical case: a $1.59M AVM on a $900K house.
 """
 
+from avm_gate import avm_is_corroborated, avm_is_comp_outlier, comp_median
 from market_intelligence import (
-    _avm_is_corroborated,
     MarketIntelligenceEngine,
     apply_market_adjustment,
 )
@@ -28,26 +28,26 @@ def _research(avm, comps_prices, asking):
 # --- the corroboration predicate -------------------------------------------
 
 def test_avm_outlier_vs_comps_is_distrusted():
-    trusted, reason = _avm_is_corroborated(1_590_000, 900_000, 905_000, 4)
+    trusted, reason = avm_is_corroborated(1_590_000, 900_000, 905_000, 4)
     assert trusted is False
     assert "comp median" in reason
 
 
 def test_avm_near_comp_median_is_trusted():
-    trusted, reason = _avm_is_corroborated(920_000, 900_000, 905_000, 4)
+    trusted, reason = avm_is_corroborated(920_000, 900_000, 905_000, 4)
     assert trusted is True
     assert reason == ""
 
 
 def test_avm_outlier_vs_asking_when_comps_thin():
     # <3 comps: fall back to asking as a weak sanity check
-    trusted, reason = _avm_is_corroborated(1_590_000, 900_000, 0, 0)
+    trusted, reason = avm_is_corroborated(1_590_000, 900_000, 0, 0)
     assert trusted is False
     assert "asking" in reason
 
 
 def test_avm_near_asking_when_comps_thin_is_trusted():
-    trusted, _ = _avm_is_corroborated(950_000, 900_000, 0, 0)
+    trusted, _ = avm_is_corroborated(950_000, 900_000, 0, 0)
     assert trusted is True
 
 
@@ -108,3 +108,29 @@ if __name__ == "__main__":
             bad += 1; print(f"FAIL {fn.__name__}: {e}")
     print(f"\n{len(fns) - bad}/{len(fns)} passed")
     sys.exit(1 if bad else 0)
+
+
+# --- source-side comp-outlier gate (closes the narrative hole) --------------
+
+def test_source_gate_flags_comp_outlier():
+    out, reason = avm_is_comp_outlier(1_590_000, 900_000, 4)
+    assert out is True
+    assert "comp median" in reason
+
+
+def test_source_gate_defers_when_comps_thin():
+    # no strong comp evidence -> not an outlier at the source (asking-aware gate decides)
+    out, _ = avm_is_comp_outlier(1_590_000, 0, 0)
+    assert out is False
+    out2, _ = avm_is_comp_outlier(1_590_000, 900_000, 2)  # only 2 comps
+    assert out2 is False
+
+
+def test_source_gate_keeps_corroborated_avm():
+    out, _ = avm_is_comp_outlier(920_000, 905_000, 4)
+    assert out is False
+
+
+def test_comp_median_helper():
+    assert comp_median([900_000, 890_000, 915_000, 0, None]) == 900_000
+    assert comp_median([]) == 0
