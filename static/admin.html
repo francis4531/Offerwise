@@ -930,6 +930,9 @@ label{font-size:11px;color:var(--muted);display:block;margin-bottom:4px;font-wei
   <div class="nav-item" data-view="docrepo" onclick="showView('docrepo',this)" style="padding-left:32px;font-size:12px">
     <span class="nav-icon">📄</span> Document Repository
   </div>
+  <div class="nav-item" data-view="reasoning" onclick="showView('reasoning',this)">
+    <span class="nav-icon">🧩</span> Reasoning Engine
+  </div>
 </nav>
 
 <!-- ════════════════════════════════════════════════════════
@@ -2771,6 +2774,35 @@ details.an-drill[open] .an-chev{transform:rotate(90deg)}
 </div><!-- /view-supportinbox -->
 
 <!-- ─── ML TRAINING ─── -->
+<div class="view" id="view-reasoning">
+  <div class="panel">
+    <div class="panel-header">
+      <div class="panel-title">🧩 Extractor Diagnostic <span style="color:var(--muted);font-weight:400;font-size:12px">— what the LLM pulls from an inspection</span></div>
+    </div>
+    <div class="panel-body" style="padding:16px 20px;">
+      <div style="margin-bottom:10px;color:var(--muted);font-size:13px">Runs the reasoning inspection extractor and shows every reading, with water/bath called out. Leave the box empty to run the canonical Pendleton fixture, or paste inspection text. Makes one live LLM call (a few seconds).</div>
+      <textarea id="rx-diag-text" placeholder="(optional) paste inspection text here — leave empty to use the Pendleton fixture" style="width:100%;height:90px;font-family:monospace;font-size:12px;padding:8px;border:1px solid var(--border);border-radius:6px;box-sizing:border-box;"></textarea>
+      <div style="margin-top:10px;">
+        <button class="btn btn-sm" id="rx-diag-run" onclick="runExtractorDiag()">▶ Run extractor</button>
+        <span id="rx-diag-status" style="margin-left:10px;color:var(--muted);font-size:12px"></span>
+      </div>
+      <div id="rx-diag-verdict" style="margin-top:12px;"></div>
+      <div id="rx-diag-results" style="margin-top:12px;overflow:auto;"></div>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="panel-header">
+      <div class="panel-title">🌓 Shadow Comparison <span style="color:var(--muted);font-weight:400;font-size:12px">— reasoning vs live engine on real traffic</span></div>
+    </div>
+    <div class="panel-body" style="padding:16px 20px;">
+      <div style="margin-bottom:10px;color:var(--muted);font-size:13px">Populated when OFFERWISE_REASONING_SHADOW=1 is set. Each real analysis records what both engines surfaced; the live result is unaffected.</div>
+      <div><button class="btn btn-sm" onclick="loadShadowSummary()">↻ Refresh</button></div>
+      <div id="rx-shadow-summary" style="margin-top:12px;"></div>
+      <div id="rx-shadow-rows" style="margin-top:12px;overflow:auto;"></div>
+    </div>
+  </div>
+</div>
+
 <div class="view" id="view-ml-training">
   <div class="section-head">
     <div class="section-title">🧠 ML Pipeline</div>
@@ -5152,6 +5184,7 @@ function showView(view, el) {
 
   if (view === 'tests')        { updateBugCount(); loadAllBugs(); loadPersonas(); loadPostgresTestHistory(); }
   if (view === 'ml-training')  { loadModelHealth(); loadDataSources(); loadMLHistory(); loadAgentHistory(); loadMLSnapshots(); checkPendingTraining(); checkAgentStatus(); loadMLCrawlList(); loadMLIngestionJobs(); loadCostProvenance(); }
+  if (view === 'reasoning')    { loadShadowSummary(); }
   if (view === 'costs') {
     var lnk = document.getElementById('apiCostsOpenLink');
     if (lnk) lnk.href = '/admin/api-costs?admin_key=' + adminKey;
@@ -22970,5 +23003,79 @@ window.togglePostgresHistoryRow = togglePostgresHistoryRow;
   </div>
 </div>
 
+<script>
+// Reasoning Engine admin panel (v5.89.235). window.* assignments so inline
+// onclick works regardless of IIFE scope; rx-prefixed helpers avoid clobbering.
+function rxKey(){ return new URLSearchParams(window.location.search).get('admin_key') || ''; }
+function rxEsc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function rxTable(rows){
+  if(!rows || !rows.length) return '<div style="color:var(--muted);font-size:12px">none</div>';
+  var h = '<table style="width:100%;border-collapse:collapse;font-size:12px"><thead><tr>'+
+    '<th style="text-align:left;padding:4px 6px;border-bottom:1px solid var(--border)">item_id</th>'+
+    '<th style="text-align:left;padding:4px 6px;border-bottom:1px solid var(--border)">value</th>'+
+    '<th style="text-align:left;padding:4px 6px;border-bottom:1px solid var(--border)">severity</th>'+
+    '<th style="text-align:left;padding:4px 6px;border-bottom:1px solid var(--border)">source quote</th></tr></thead><tbody>';
+  rows.forEach(function(r){
+    h += '<tr><td style="padding:4px 6px;font-family:monospace">'+rxEsc(r.item_id||'')+'</td>'+
+      '<td style="padding:4px 6px">'+rxEsc(String(r.value||''))+'</td>'+
+      '<td style="padding:4px 6px">'+rxEsc(String(r.severity||''))+'</td>'+
+      '<td style="padding:4px 6px;color:var(--muted)">'+rxEsc((r.raw_text||'').slice(0,140))+'</td></tr>';
+  });
+  return h+'</tbody></table>';
+}
+function rxStat(label,val){
+  return '<div><div style="font-size:18px;font-weight:700">'+rxEsc(String(val))+'</div>'+
+    '<div style="color:var(--muted);font-size:11px">'+rxEsc(label)+'</div></div>';
+}
+window.runExtractorDiag = function(){
+  var btn=document.getElementById('rx-diag-run'), status=document.getElementById('rx-diag-status');
+  var verdict=document.getElementById('rx-diag-verdict'), results=document.getElementById('rx-diag-results');
+  var text=(document.getElementById('rx-diag-text').value||'').trim();
+  btn.disabled=true; status.textContent='Running extractor (one live LLM call)…'; verdict.innerHTML=''; results.innerHTML='';
+  fetch('/api/admin/reasoning/extractor-diagnostic?admin_key='+encodeURIComponent(rxKey()),{
+    method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({text:text})
+  }).then(function(r){return r.json();}).then(function(d){
+    btn.disabled=false; status.textContent='';
+    if(d.error){ verdict.innerHTML='<div style="color:var(--red)">Error: '+rxEsc(d.error)+'</div>'; return; }
+    status.textContent=d.source+' · '+(d.text_chars||0).toLocaleString()+' chars · '+d.total_readings+' readings';
+    verdict.innerHTML='<div style="padding:10px 12px;border-left:3px solid var(--blue);background:var(--bg2,#f6f8fa);font-size:13px">'+rxEsc(d.verdict||'')+'</div>';
+    var html='';
+    if(d.water_readings && d.water_readings.length){
+      html+='<div style="font-weight:700;margin:8px 0 4px">Water / bath readings ('+d.water_readings.length+')</div>'+rxTable(d.water_readings);
+    }
+    html+='<div style="font-weight:700;margin:12px 0 4px">All readings ('+d.total_readings+')</div>'+rxTable(d.readings||[]);
+    results.innerHTML=html;
+  }).catch(function(e){
+    btn.disabled=false; status.textContent='';
+    verdict.innerHTML='<div style="color:var(--red)">Request failed: '+rxEsc(String(e))+'</div>';
+  });
+};
+window.loadShadowSummary = function(){
+  var sEl=document.getElementById('rx-shadow-summary'), rEl=document.getElementById('rx-shadow-rows');
+  if(!sEl) return;
+  sEl.innerHTML='<span style="color:var(--muted);font-size:12px">Loading…</span>'; rEl.innerHTML='';
+  fetch('/api/admin/reasoning/shadow-summary?admin_key='+encodeURIComponent(rxKey())).then(function(r){return r.json();}).then(function(d){
+    if(d.error){ sEl.innerHTML='<div style="color:var(--red)">Error: '+rxEsc(d.error)+'</div>'; return; }
+    var s=d.summary||{};
+    if(!s.count){ sEl.innerHTML='<div style="color:var(--muted);font-size:13px">No shadow rows yet. Set OFFERWISE_REASONING_SHADOW=1 and run analyses.</div>'; return; }
+    sEl.innerHTML='<div style="display:flex;gap:18px;flex-wrap:wrap;font-size:13px">'+
+      rxStat('rows',s.count)+rxStat('extractor ok',Math.round((s.extractor_ok_rate||0)*100)+'%')+
+      rxStat('reasoning found more',Math.round((s.reasoning_surfaced_more_rate||0)*100)+'%')+
+      rxStat('avg issues',s.avg_reasoning_issues)+rxStat('avg ms',s.avg_elapsed_ms)+'</div>';
+    var rows=d.recent||[];
+    if(rows.length){
+      var h='<div style="font-weight:700;margin:12px 0 4px">Recent ('+rows.length+')</div>'+
+        '<table style="width:100%;border-collapse:collapse;font-size:12px"><thead><tr>'+
+        '<th style="text-align:left;padding:4px 6px;border-bottom:1px solid var(--border)">when</th>'+
+        '<th style="text-align:left;padding:4px 6px;border-bottom:1px solid var(--border)">notes</th></tr></thead><tbody>';
+      rows.forEach(function(r){
+        h+='<tr><td style="padding:4px 6px;color:var(--muted);white-space:nowrap">'+rxEsc((r.created_at||'').slice(0,16).replace('T',' '))+'</td>'+
+          '<td style="padding:4px 6px">'+rxEsc(r.notes||(r.error?('ERROR: '+r.error):''))+'</td></tr>';
+      });
+      rEl.innerHTML=h+'</tbody></table>';
+    }
+  }).catch(function(e){ sEl.innerHTML='<div style="color:var(--red)">Request failed: '+rxEsc(String(e))+'</div>'; });
+};
+</script>
 </body>
 </html>

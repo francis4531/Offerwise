@@ -3,6 +3,33 @@
 Historical deployment notes, bug fixes, and architecture decisions.
 Consolidated from 80 individual files on 2026-03-13.
 
+## v5.89.235 — Reasoning Engine admin tab: extractor diagnostic + shadow readout in the UI
+
+Promotes the shell-only reasoning diagnostics into a durable admin panel (matching
+the "diagnostics become admin features" principle), so the validation loop is
+observable without a staging shell — and routes around the flaky file transfer.
+
+New "Reasoning Engine" tab (under the ML nav section) with two panels:
+ - Extractor Diagnostic: runs the inspection LLM extractor on the canonical
+   Pendleton fixture (or on pasted inspection text) and shows every reading
+   (item_id, value, severity, source quote), with water/bath readings called out
+   and a plain-English verdict on the #1 disclosed_not_found question (engine
+   correct vs mis-map). One live LLM call per run.
+ - Shadow Comparison: shadow_summary (extractor-ok rate, how often reasoning
+   surfaced more than the live engine, avg issues/latency) + the recent
+   ShadowComparison rows. Auto-loads when the tab opens.
+
+Endpoints (admin_routes.py, admin-guarded):
+ - GET  /api/admin/reasoning/shadow-summary
+ - POST /api/admin/reasoning/extractor-diagnostic  (body: optional {text})
+
+admin.html discipline followed: functions exposed via window.* (immune to the
+IIFE-scope trap), rx-prefixed helpers so nothing clobbers existing globals,
+JS validated with node --check (per block), div balance verified 0 (3002/3002),
+lazy-load registered in showView.
+
+Tests: 69 passing across the related suite; admin_routes compiles; JS clean.
+
 ## v5.89.234 — Fix the extractor's client acquisition (Layer A on staging couldn't get a client)
 
 The Layer A staging smoke caught a deployment bug: `inspection_llm_extractor`,

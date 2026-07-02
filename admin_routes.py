@@ -17696,3 +17696,123 @@ def admin_migration_status():
         return jsonify({
             'error': f'Server error: {type(e).__name__}: {str(e)}',
         }), 500
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Reasoning engine diagnostics (v5.89.235)
+# Extractor diagnostic + shadow-comparison readout, so the reasoning-validation
+# loop is observable from the admin UI instead of the shell.
+# ─────────────────────────────────────────────────────────────────────────────
+
+def _extract_pdf_text_for_diag(path):
+    try:
+        import pdfplumber
+        with pdfplumber.open(path) as pdf:
+            return "\n".join((p.extract_text() or "") for p in pdf.pages)
+    except Exception:
+        try:
+            from pypdf import PdfReader
+            return "\n".join((pg.extract_text() or "") for pg in PdfReader(path).pages)
+        except Exception:
+            return ""
+
+
+@admin_bp.route('/api/admin/reasoning/shadow-summary', methods=['GET'])
+@_api_admin_req_dec
+def admin_reasoning_shadow_summary():
+    """Shadow-comparison summary + recent rows (reasoning/ vs the live engine)."""
+    if not _is_admin():
+        return jsonify({'error': 'Unauthorized'}), 403
+    try:
+        from reasoning_shadow import shadow_summary
+        summary = shadow_summary(window_days=30)
+        recent = []
+        try:
+            from models import ShadowComparison
+            rows = ShadowComparison.query.order_by(ShadowComparison.id.desc()).limit(25).all()
+            for r in rows:
+                recent.append({
+                    'id': r.id,
+                    'created_at': r.created_at.isoformat() if r.created_at else None,
+                    'analysis_id': r.analysis_id,
+                    'jurisdiction': r.jurisdiction,
+                    'extractor_ok': r.extractor_ok,
+                    'extractor_readings': r.extractor_readings,
+                    'live_contradictions': r.live_contradictions,
+                    'live_undisclosed': r.live_undisclosed,
+                    'reasoning_issues': r.reasoning_issues,
+                    'reasoning_silent_hazards': r.reasoning_silent_hazards,
+                    'reasoning_undisclosed': r.reasoning_undisclosed,
+                    'ok': r.ok,
+                    'error': r.error,
+                    'notes': r.notes,
+                    'elapsed_ms': r.elapsed_ms,
+                })
+        except Exception as _re:
+            logging.warning(f"shadow recent rows: {_re}")
+        return jsonify({'summary': summary, 'recent': recent})
+    except Exception as e:
+        logging.error(f"admin_reasoning_shadow_summary error: {e}", exc_info=True)
+        return jsonify({'error': f'Server error: {type(e).__name__}: {str(e)}'}), 500
+
+
+@admin_bp.route('/api/admin/reasoning/extractor-diagnostic', methods=['POST'])
+@_api_admin_req_dec
+def admin_reasoning_extractor_diagnostic():
+    """Run the inspection LLM extractor on the Pendleton fixture (or pasted
+    inspection text) and return the readings + a water/bath analysis. Makes ONE
+    live LLM call, so it can take a few seconds."""
+    if not _is_admin():
+        return jsonify({'error': 'Unauthorized'}), 403
+    try:
+        import os as _os
+        data = request.get_json(silent=True) or {}
+        text = (data.get('text') or '').strip()
+        source = 'pasted text'
+        if not text:
+            fixture = _os.path.join(_os.path.dirname(__file__),
+                                    'test_corpus', 'regression_pendleton', 'inspection.pdf')
+            if not _os.path.exists(fixture):
+                return jsonify({'error': 'No text provided and Pendleton fixture not found'}), 400
+            text = _extract_pdf_text_for_diag(fixture)
+            source = 'Pendleton fixture (inspection.pdf)'
+        if not text:
+            return jsonify({'error': 'Could not obtain inspection text'}), 400
+
+        from reasoning import compose
+        from reasoning.inspection_llm_extractor import extract_inspection_findings_llm
+        ids = sorted(compose('CA', 'SFH').ids())
+        readings = extract_inspection_findings_llm(text, ids) or []
+
+        water_text_hints = ('water', 'bath', 'shower', 'master', 'moisture', 'leak', 'sill', 'pan')
+        water_item_hints = ('water', 'moisture', 'leak', 'plumb')
+        water = [r for r in readings
+                 if any(h in (r.get('item_id') or '').lower() for h in water_item_hints)
+                 or any(h in (r.get('raw_text') or '').lower() for h in water_text_hints)]
+        has_bath = any((r.get('item_id') or '') == 'structure.water_intrusion_bath' for r in readings)
+
+        if not readings:
+            verdict = ('Extractor returned 0 readings — check ANTHROPIC_API_KEY and the '
+                       'logs for an [ai_json] call-failed / truncation line.')
+        elif not water:
+            verdict = ("No water/bath signal found -> #1 'disclosed_not_found' is likely the "
+                       "engine being CORRECT (seller disclosed a shower leak the inspection "
+                       "didn't corroborate). Fix the answer key, not the engine.")
+        elif has_bath:
+            verdict = ('A structure.water_intrusion_bath reading EXISTS -> #1 should '
+                       'corroborate; any miss is downstream mapping, not extraction.')
+        else:
+            verdict = ('Water signal found but none mapped to structure.water_intrusion_bath '
+                       '-> likely a MIS-MAP; tune the extractor prompt bath routing.')
+
+        return jsonify({
+            'source': source,
+            'text_chars': len(text),
+            'total_readings': len(readings),
+            'readings': readings,
+            'water_readings': water,
+            'verdict': verdict,
+        })
+    except Exception as e:
+        logging.error(f"admin_reasoning_extractor_diagnostic error: {e}", exc_info=True)
+        return jsonify({'error': f'Server error: {type(e).__name__}: {str(e)}'}), 500
