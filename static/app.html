@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>OfferWise AI™ — Property Analysis</title>
-    <script src="/static/gtm-loader.js?v=5.89.241"></script>
+    <script src="/static/gtm-loader.js?v=5.89.242"></script>
 <!-- /GTM head -->
     <script>if(window.location.hostname==='getofferwise.ai')window.location.replace('https://www.getofferwise.ai'+window.location.pathname+window.location.search);</script>
     <link rel="icon" type="image/svg+xml" href="/static/logo-icon-only.svg">
@@ -21,7 +21,7 @@
     <link rel="preconnect" href="https://unpkg.com" crossorigin>
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/results-theme.css?v=5.89.241">
+    <link rel="stylesheet" href="/static/results-theme.css?v=5.89.242">
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone@7.29.7/babel.min.js"></script>
@@ -685,7 +685,7 @@
         .ow-strategy-grid { grid-template-columns: 1fr !important; }
       }
     </style>
-    <script src="/static/analytics-loader.js?v=5.89.241" defer></script>
+    <script src="/static/analytics-loader.js?v=5.89.242" defer></script>
     <!-- Reddit Pixel Base Code -->
     <script>
     !function(w,d){if(!w.rdt){var p=w.rdt=function(){p.sendEvent?p.sendEvent.apply(p,arguments):p.queue.push(arguments)};p.queue=[];var t=d.createElement('script');t.src='https://www.redditstatic.com/ads/pixel.js';t.async=!0;var s=d.getElementsByTagName('script')[0];s.parentNode.insertBefore(t,s)}}(window,document);
@@ -6132,11 +6132,14 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                             <div style={{ fontVariantNumeric: 'tabular-nums', color:'#22c55e', fontWeight:700, fontSize:'19px' }}>${recoTotal.toLocaleString()}</div>
                           </div>
 
-                          {/* Reconciliation warning — only shown when line items
-                              don't match the headline. Quiet, not alarming. */}
+                          {/* Reconciliation guard. The backend now enforces that
+                              the offer equals asking minus the itemized deductions,
+                              so this should never fire. If it ever does (e.g. a
+                              stale record), surface it honestly and point the buyer
+                              to the DEFENSIBLE figure — never launder the gap. */}
                           {hasBreakdown && !reconciles && (
-                            <div style={{ marginTop:'10px', padding:'9px 12px', background:'rgba(245,158,11,0.06)', border:'1px solid rgba(245,158,11,0.2)', borderRadius:'7px', fontSize: 'var(--ow-fs-eyebrow)', color:'var(--ow-muted-2)' }}>
-                              Note: the line items above sum to ${lineSum.toLocaleString()}, while the headline reflects ${displayedDiscount.toLocaleString()} total discount. The headline is authoritative — additional small adjustments (rounding, caps) may not be itemized.
+                            <div style={{ marginTop:'10px', padding:'9px 12px', background:'rgba(239,68,68,0.08)', border:'1px solid rgba(239,68,68,0.35)', borderRadius:'7px', fontSize: 'var(--ow-fs-eyebrow)', color:'var(--ow-text-body-2)' }}>
+                              Heads up: only the ${lineSum.toLocaleString()} itemized above is backed by findings in this report — a defensible offer of ${(askingPrice - lineSum).toLocaleString()}. Rely on that number in a negotiation; the rest is not itemized and shouldn't be defended as if it were.
                             </div>
                           )}
 
@@ -10764,9 +10767,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     : '');
 
               const reconcileNote = (hasBreakdown && !reconciles)
-                ? '<div style="margin-top:10px;padding:9px 12px;background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.2);border-radius:7px;font-size:11px;color:#8a99b8;">Note: line items above sum to ' +
-                  _fmtMoney(lineSum) + '; headline reflects ' + _fmtMoney(displayedDiscount) +
-                  ' total discount. Headline is authoritative.</div>'
+                ? '<div style="margin-top:10px;padding:9px 12px;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.35);border-radius:7px;font-size:11px;color:#c9d4e6;">Heads up: only the ' +
+                  _fmtMoney(lineSum) + ' itemized above is backed by findings in this report. Rely on that number in a negotiation; the rest is not itemized and shouldn\u2019t be defended as if it were.</div>'
                 : '';
 
               const rangesHtml = (aggOffer || walkPrice)
@@ -12523,7 +12525,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </script>
     
     <!-- Async Upload Manager - Handles PDF uploads with real-time progress -->
-    <script src="/static/async-upload-manager.js?v=5.89.241"></script>
+    <script src="/static/async-upload-manager.js?v=5.89.242"></script>
     
     <!-- Floating Support Button -->
     <a href="/contact" id="support-button" style="
@@ -12548,8 +12550,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <span style="font-size: 16px;">💬</span>
         Help
     </a>
-<script src="/static/js/compliance.js?v=5.89.241"></script>
-<script src="/static/js/analytics.js?v=5.89.241" defer></script>
+<script src="/static/js/compliance.js?v=5.89.242"></script>
+<script src="/static/js/analytics.js?v=5.89.242" defer></script>
 <script>
 // Scroll reveal for premium results animations
 (function() {
@@ -12636,7 +12638,7 @@ if ('serviceWorker' in navigator) {
 
 <!-- Scout: docked, summon-on-demand "Ask your report" assistant (v5.89.157) -->
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&display=swap" rel="stylesheet">
-<script src="/static/ask-widget.js?v=5.89.241"></script>
+<script src="/static/ask-widget.js?v=5.89.242"></script>
 <script>
 (function(){
   if (window.__scoutInit) { return; } window.__scoutInit = true;

@@ -1432,7 +1432,34 @@ class OfferWiseIntelligence:
         # Minimum offer is 10% of asking price (no property is worth $0)
         offer_floor = property_price * 0.10
         recommended_offer = max(offer_floor, recommended_offer)
-        
+
+        # ── Reconciliation invariant (v5.89.242) ──────────────────────────────
+        # The offer a buyer takes into a negotiation MUST equal asking minus the
+        # itemized, justified deductions — never an unexplained number. Recompute
+        # it from the SAME components discount_breakdown itemizes, so the headline
+        # can never drift from the math it shows. (This closes the failure where a
+        # $200k offer on a $900k listing showed $67k of justified line items and a
+        # note laundering the $633k gap as "rounding, caps".) Every term below is
+        # also a line in discount_breakdown; on a healthy analysis this equals the
+        # value already computed, so it is a no-op — it only bites when the number
+        # has drifted from what the report can defend.
+        _defensible_offer = (property_price
+                             - cost_discount - risk_discount - transparency_discount
+                             + market_adjustment + sentiment_adjustment
+                             - safety_adjustment - buffer_adjustment)
+        if buyer_profile.max_budget:
+            _defensible_offer = min(_defensible_offer, buyer_profile.max_budget)
+        _defensible_offer = min(property_price, _defensible_offer)  # never recommend above asking
+        _defensible_offer = round(max(offer_floor, _defensible_offer))
+        if abs(_defensible_offer - recommended_offer) > max(1000, property_price * 0.01):
+            logger.error(
+                f"[OFFER] recommended_offer ${recommended_offer:,.0f} drifted from the "
+                f"breakdown-justified ${_defensible_offer:,.0f} on a ${property_price:,.0f} "
+                f"listing — clamping to the defensible figure so the headline matches its "
+                f"own itemized math (repairs/risk/transparency/market/sentiment/safety/buffer)."
+            )
+        recommended_offer = _defensible_offer
+
         # Round to whole dollar — no floating point decimals
         recommended_offer = round(recommended_offer)
         

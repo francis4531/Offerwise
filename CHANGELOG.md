@@ -3,6 +3,45 @@
 Historical deployment notes, bug fixes, and architecture decisions.
 Consolidated from 80 individual files on 2026-03-13.
 
+## v5.89.242 — CRITICAL: kill the fabricated-discount lie (offer must equal its own itemized math)
+
+A live report showed "Offer $200,000 · $700,000 below asking" on a $900,000
+listing, while its own itemized math summed to $67,000 (repairs $49k + reserve
+$18k) — a $633,000 gap. Worse, a note laundered it: "the headline is
+authoritative — additional small adjustments (rounding, caps) may not be
+itemized." A $633k gap is not rounding. The system detected that its numbers
+didn't reconcile and then called the fabricated one authoritative — the exact
+opposite of "surface failures, never swallow them," and it detonates the
+promise printed right above it ("every dollar of the discount is justified…
+something you can defend in a counter").
+
+Root cause: the headline offer and the itemized breakdown were effectively two
+paths that could disagree. (The engine's own adjustments are all bounded —
+market ≤3%, etc. — so it mathematically cannot produce that offer from that
+breakdown; the number had drifted from its components, e.g. a stale/mock record.)
+
+Fixes:
+ - Backend reconciliation invariant (offerwise_intelligence._generate_offer_strategy):
+   recommended_offer is now recomputed from the SAME components discount_breakdown
+   itemizes (repairs, risk, transparency, market, sentiment, safety, buffer),
+   clamped by floor/budget/asking. On a healthy analysis this is a no-op; when the
+   number has drifted from what the report can defend, it clamps to the defensible
+   figure and logs an error (surfaced, not swallowed). The headline can no longer
+   diverge from its own math.
+ - Frontend: deleted the laundering note on BOTH render paths (app + shared/PDF).
+   The reconciliation guard, if it ever fires (e.g. a stale record), now tells the
+   truth — "only the $X itemized above is backed by findings; rely on that number
+   in a negotiation; the rest is not itemized and shouldn't be defended as if it
+   were" — pointing to the defensible offer (asking − itemized).
+
+Boundary (tracked): new analyses are correct end to end. STALE stored records
+still carry the old headline number, but the report no longer lies about it —
+the honest note points to the defensible figure. Fully reconciling the hero
+number on stale records (frontend clamp to asking − itemized) is the remaining
+follow-up. Also: the exact source of the $200k record (stale vs a mock demo
+surface) was not located; the invariant makes it impossible going forward
+regardless of source. 43 tests green; offerwise_intelligence compiles.
+
 ## v5.89.241 — Fix stale checklist-count assertions (CI red from the v5.89.230 water split)
 
 The water-intrusion split (v5.89.230) added two national-base items
