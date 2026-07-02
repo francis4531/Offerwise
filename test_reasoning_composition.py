@@ -28,7 +28,7 @@ def test_asset_file_present():
 
 def test_load_and_validate_passes():
     asset = load_checklist()  # validate=True by default
-    assert len(asset.national_base) == 56
+    assert len(asset.national_base) == 58
     assert "CA" in asset.state_overlays
     assert "CA:santa_clara:san_jose" in asset.municipal_overlays
 
@@ -57,15 +57,15 @@ def test_national_only_for_unserved_state():
     # Texas has no overlay authored yet -> national base only (national scope works)
     national = compose("*", "SFH")
     texas = compose("TX", "SFH")
-    assert len(national.items) == 55
-    assert len(texas.items) == 55
+    assert len(national.items) == 57
+    assert len(texas.items) == 57
     assert set(national.ids()) == set(texas.ids())
 
 
 def test_ca_overlay_adds_items():
     ca = compose("CA", "SFH")
     national = compose("*", "SFH")
-    assert len(ca.items) == 70
+    assert len(ca.items) == 72
     ca_only = set(ca.ids()) - set(national.ids())
     assert len(ca_only) == 15
     # a known CA-only item
@@ -130,8 +130,8 @@ def test_reasoning_self_check_shape():
     from reasoning_health import reasoning_self_check
     result = reasoning_self_check()
     assert result["ok"] is True
-    assert result["national_base_count"] == 56
-    assert result["ca_sfh_count"] == 70
+    assert result["national_base_count"] == 58
+    assert result["ca_sfh_count"] == 72
     assert result["invariants_passed"] is True
 
 

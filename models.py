@@ -576,6 +576,33 @@ class ShadowComparison(db.Model):
         return f'<ShadowComparison a={self.analysis_id} issues={self.reasoning_issues} ok={self.ok}>'
 
 
+class ExitFeedback(db.Model):
+    """One row per point-of-abandonment micro-survey answer. Captures WHY someone
+    left at the moment they leave — the qualitative complement to the funnel's
+    quantitative WHERE. One tap = one row (fire-and-forget via sendBeacon).
+
+    Append-only; auto-created by db.create_all.
+    """
+    __tablename__ = 'exit_feedback'
+
+    id          = db.Column(db.Integer, primary_key=True)
+    created_at  = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+    session_id  = db.Column(db.String(64), nullable=True, index=True)  # links to GTMFunnelEvent
+    user_id     = db.Column(db.Integer, nullable=True, index=True)     # if signed in
+
+    context     = db.Column(db.String(40), nullable=True, index=True)  # 'report' | 'findings' | 'signup_wall' | ...
+    reason      = db.Column(db.String(40), nullable=True, index=True)  # 'trust'|'price'|'got_what_needed'|'browsing'|'other'
+    reason_label= db.Column(db.String(120), nullable=True)             # human label shown to the user
+    free_text   = db.Column(db.Text, nullable=True)
+
+    source      = db.Column(db.String(60), nullable=True)
+    medium      = db.Column(db.String(60), nullable=True)
+    url         = db.Column(db.String(300), nullable=True)
+
+    def __repr__(self):
+        return f'<ExitFeedback {self.context}/{self.reason}>'
+
+
 class MagicLink(db.Model):
     """Passwordless magic link tokens"""
     __tablename__ = 'magic_links'

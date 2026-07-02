@@ -3,6 +3,80 @@
 Historical deployment notes, bug fixes, and architecture decisions.
 Consolidated from 80 individual files on 2026-03-13.
 
+## v5.89.241 — Fix stale checklist-count assertions (CI red from the v5.89.230 water split)
+
+The water-intrusion split (v5.89.230) added two national-base items
+(structure.water_intrusion_kitchen, structure.water_intrusion_bath). Count
+metadata + a few test assertions were updated then, but test_reasoning_composition.py
+was missed (it wasn't in the local subset being run), so full CI went red on the
++2. All stale, no code regression — the numbers are correctly higher.
+
+Updated the guards to the true counts:
+ - national_base list: 56 -> 58
+ - national/unserved-state RESOLVED (SFH): 55 -> 57 (incl. the TX==national check)
+ - CA-resolved (SFH): 70 -> 72
+ - reasoning_self_check national_base_count 56->58, ca_sfh_count 70->72
+
+These hardcoded counts are intentional drift-guards (they SHOULD fail when the
+checklist changes) — the fix is to update them with the change that caused them,
+which is what this does. reasoning_health computes the counts dynamically; only
+the test expectations were stale.
+
+Process note: these slipped because a curated test subset was run locally instead
+of the full suite; full pytest (as CI runs) is the gate. 94 reasoning-suite tests
+now green locally.
+
+## v5.89.240 — Point-of-abandonment feedback: capture WHY people leave
+
+The funnel shows WHERE people drop (e.g. saw findings, 0% signed up) but not WHY —
+and why is the whole game: don't-trust-the-number, won't-pay, and got-what-I-needed
+are three different problems with opposite fixes. This captures the answer at the
+moment of leaving.
+
+Design that makes it actually collect data:
+ - One tap = one submission via navigator.sendBeacon (fires during unload); no
+   submit button; free text only if they pick "Something else".
+ - Triggers on desktop exit-intent (mouseleave to top) AND a post-engagement idle
+   timer (mobile-safe) that only arms after the user has scrolled/tapped, so it
+   never fires on a landing form. Once per session, dismissible, non-blocking.
+ - Question splits the hypotheses: Don't trust the number / Not worth the price /
+   Got what I needed / Just browsing / Something else.
+
+Pieces:
+ - static/exit-feedback.js — reusable widget (OfferWiseExit.mount({context})).
+ - POST /api/feedback/exit — fire-and-forget capture; never errors a leaving user;
+   links to the session (same cookie as funnel_tracker) + attribution.
+ - ExitFeedback table (auto-created).
+ - GET /api/admin/exit-feedback + "💬 Exit feedback" panel at the top of Analytics
+   (reason breakdown + recent free-text) — the WHY next to the WHERE.
+ - Mounted on the anonymous value surfaces: risk-check, home v2, shared opinion
+   (NOT /try). One-line snippet to add elsewhere:
+   <script src="/static/exit-feedback.js?v=5.89.240"></script>
+   <script>OfferWiseExit.mount({context:'...'});</script>
+
+admin.html discipline held: node --check clean, div balance 0.
+
+## v5.89.239 — Stop tracking /try (product decision); revert the /try activation panel
+
+Per product decision: /try is not indicative of the market and confuses users
+about what the real product is, so it should not be tracked. The 30-day numbers
+supported the call — 26 landed, 88.5% dropped a document, 84.6% saw findings,
+but 0% converted to signup: high intent, zero capture. (Noise-level volume too.)
+
+Removed:
+ - The four /try funnel_tracker calls in app.py (try_landed, try_started,
+   try_findings_shown, try_chat_message) — no /try events are recorded anymore.
+ - The "/try activation" Analytics panel, its loadTryFunnel loader + showView
+   hook, and the /api/admin/try-funnel endpoint (all added in v5.89.238).
+
+Other GTMFunnelEvent stages (visit, signup, purchase, pricing_view, the
+risk-check flow, etc.) are unaffected. admin.html discipline held: node --check
+clean, div balance 0, reasoning panel intact.
+
+Note (separate decision, not taken here): this removes the MEASUREMENT of /try,
+not the /try feature itself. Whether /try stays, changes, or is retired is a
+product call left to the founder.
+
 ## v5.89.238 — Surface the /try activation funnel (it was tracked all along, never shown)
 
 Definitive wiring answer: the /try funnel IS captured — funnel_tracker writes

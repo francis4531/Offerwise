@@ -17822,64 +17822,41 @@ def admin_reasoning_extractor_diagnostic():
         return jsonify({'error': f'Server error: {type(e).__name__}: {str(e)}'}), 500
 
 
-@admin_bp.route('/api/admin/try-funnel', methods=['GET'])
+
+@admin_bp.route('/api/admin/exit-feedback', methods=['GET'])
 @_api_admin_req_dec
-def admin_try_funnel():
-    """The /try activation funnel — decomposed from GTMFunnelEvent (already
-    tracked, never surfaced): landed -> started -> findings shown -> chat ->
-    converted to signup. Counts DISTINCT sessions per stage (a real funnel, not
-    raw event counts) over the window."""
+def admin_exit_feedback():
+    """Point-of-abandonment feedback: reason breakdown + recent free-text. The
+    qualitative WHY behind the funnel's quantitative WHERE."""
     if not _is_admin():
         return jsonify({'error': 'Unauthorized'}), 403
     try:
-        from models import db, GTMFunnelEvent
+        from models import ExitFeedback
         from datetime import datetime, timedelta
-        from collections import defaultdict
-
+        from collections import Counter
         days = int(request.args.get('days', 30) or 30)
         since = datetime.utcnow() - timedelta(days=days)
-        rows = (db.session.query(GTMFunnelEvent.stage, GTMFunnelEvent.session_id,
-                                 GTMFunnelEvent.source)
-                .filter(GTMFunnelEvent.created_at >= since).all())
-
-        sess = defaultdict(set)
-        src_started = defaultdict(set)
-        for stage, sid, source in rows:
-            if not sid:
-                continue
-            sess[stage].add(sid)
-            if stage == 'try_started':
-                src_started[(source or 'direct')].add(sid)
-
-        landed = sess['try_landed'] | sess['try_started']
-        findings = sess['try_findings_shown'] & landed if landed else sess['try_findings_shown']
-        chat = sess['try_chat_message'] & landed if landed else sess['try_chat_message']
-        converted = landed & sess['signup']  # /try sessions that later signed up
-
-        def pct(a, b):
-            return round(100.0 * len(a) / len(b), 1) if b else 0.0
-
-        top = len(landed) or 1
-        funnel = [
-            {'stage': 'Landed on /try',      'sessions': len(landed),   'pct_of_top': 100.0},
-            {'stage': 'Started (dropped a doc)', 'sessions': len(sess['try_started']),
-             'pct_of_top': round(100.0 * len(sess['try_started']) / top, 1)},
-            {'stage': 'Saw findings',        'sessions': len(findings),  'pct_of_top': pct(findings, landed)},
-            {'stage': 'Engaged chat',        'sessions': len(chat),      'pct_of_top': pct(chat, landed)},
-            {'stage': 'Converted to signup', 'sessions': len(converted), 'pct_of_top': pct(converted, landed)},
-        ]
-        by_source = sorted(
-            ({'source': s, 'started': len(ids)} for s, ids in src_started.items()),
-            key=lambda x: x['started'], reverse=True)[:8]
-
+        rows = (ExitFeedback.query.filter(ExitFeedback.created_at >= since)
+                .order_by(ExitFeedback.id.desc()).all())
+        answered = [r for r in rows if r.reason and r.reason != 'dismissed']
+        dismissed = sum(1 for r in rows if r.reason == 'dismissed')
+        by_reason = Counter((r.reason_label or r.reason) for r in answered)
+        reasons = sorted(({'label': k, 'count': v} for k, v in by_reason.items()),
+                         key=lambda x: x['count'], reverse=True)
+        recent_text = [{
+            'when': r.created_at.isoformat() if r.created_at else None,
+            'reason': r.reason_label or r.reason,
+            'context': r.context,
+            'text': r.free_text,
+        } for r in rows if r.free_text][:25]
         return jsonify({
             'window_days': days,
-            'landed': len(landed),
-            'converted_to_signup': len(converted),
-            'landed_to_signup_pct': pct(converted, landed),
-            'funnel': funnel,
-            'by_source': by_source,
+            'total': len(rows),
+            'answered': len(answered),
+            'dismissed': dismissed,
+            'reasons': reasons,
+            'recent_text': recent_text,
         })
     except Exception as e:
-        logging.error(f"admin_try_funnel error: {e}", exc_info=True)
+        logging.error(f"admin_exit_feedback error: {e}", exc_info=True)
         return jsonify({'error': f'Server error: {type(e).__name__}: {str(e)}'}), 500

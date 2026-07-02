@@ -1722,10 +1722,10 @@ details.an-drill[open] .an-chev{transform:rotate(90deg)}
   <!-- Core insights, surfaced from the funnel analysis (populated by loadFunnel) -->
   <div id="analyticsCoreInsight" class="an-insight-top"><div class="loading-msg" style="padding:6px 0"><span class="spinner"></span></div></div>
 
-  <!-- /try activation funnel (v5.89.238) — anonymous top-of-funnel, from GTMFunnelEvent -->
+  <!-- Exit feedback (v5.89.240) — the WHY behind the funnel -->
   <div class="an-domain">
-    <div class="an-dhead"><div class="an-dtitle">🚪 /try activation</div><div class="an-dsub">Landed → started → findings → chat → signup · the anonymous top-of-funnel</div></div>
-    <div class="an-dbody"><div id="tryFunnelBody"><div class="loading-msg" style="padding:6px 0"><span class="spinner"></span></div></div></div>
+    <div class="an-dhead"><div class="an-dtitle">💬 Exit feedback</div><div class="an-dsub">Why people leave · captured at the point of abandonment</div></div>
+    <div class="an-dbody"><div id="exitFeedbackBody"><div class="loading-msg" style="padding:6px 0"><span class="spinner"></span></div></div></div>
   </div>
 
   <!-- ALTITUDE 2 — domain sections (headline visible, granular detail one click down) -->
@@ -5185,7 +5185,7 @@ function showView(view, el) {
   if (view === 'users')        { loadUsersList(); loadAnalytics(); }
   if (view === 'partners')     { /* loaded by showPartnerTab */ }
   if (view === 'outreach')     { oReloadAll(); }
-  if (view === 'analytics')    { loadAnalytics(); loadWaitlist(); loadSurveys(); loadFunnel(); loadTelemetryIntegrity(); loadConversionDebug(); loadAbHome(); loadUserDripList(); loadEntryCliff(); loadTryFunnel(); loadRiskCheckExit(); renderPanelHealth(); }
+  if (view === 'analytics')    { loadAnalytics(); loadWaitlist(); loadSurveys(); loadFunnel(); loadTelemetryIntegrity(); loadConversionDebug(); loadAbHome(); loadUserDripList(); loadEntryCliff(); loadExitFeedback(); loadRiskCheckExit(); renderPanelHealth(); }
   if (view === 'adperf')       { loadAds(); loadGadsStatus(); loadRedditSyncHealth(); }
 
   if (view === 'tests')        { updateBugCount(); loadAllBugs(); loadPersonas(); loadPostgresTestHistory(); }
@@ -23082,25 +23082,30 @@ window.loadShadowSummary = function(){
     }
   }).catch(function(e){ sEl.innerHTML='<div style="color:var(--red)">Request failed: '+rxEsc(String(e))+'</div>'; });
 };
-window.loadTryFunnel = function(){
-  var el = document.getElementById('tryFunnelBody');
+window.loadExitFeedback = function(){
+  var el = document.getElementById('exitFeedbackBody');
   if(!el) return;
   el.innerHTML = '<div class="loading-msg" style="padding:6px 0"><span class="spinner"></span></div>';
-  fetch('/api/admin/try-funnel?days=30&admin_key='+encodeURIComponent(rxKey())).then(function(r){return r.json();}).then(function(d){
+  fetch('/api/admin/exit-feedback?days=30&admin_key='+encodeURIComponent(rxKey())).then(function(r){return r.json();}).then(function(d){
     if(d.error){ el.innerHTML='<div style="color:var(--red)">Error: '+rxEsc(d.error)+'</div>'; return; }
-    if(!d.landed){ el.innerHTML='<div style="color:var(--muted);font-size:13px">No /try sessions in the last '+rxEsc(d.window_days)+' days.</div>'; return; }
-    var h = '<div style="font-size:13px;margin-bottom:8px">Last '+rxEsc(d.window_days)+' days · <b>'+rxEsc(d.landed)+'</b> landed → <b>'+rxEsc(d.converted_to_signup)+'</b> signed up ('+rxEsc(d.landed_to_signup_pct)+'%)</div>';
+    if(!d.answered){ el.innerHTML='<div style="color:var(--muted);font-size:13px">No exit feedback yet in the last '+rxEsc(d.window_days)+' days. It fills in once the widget is live on a surface and people leave.</div>'; return; }
+    var total = d.answered||1;
+    var h = '<div style="font-size:13px;margin-bottom:8px"><b>'+rxEsc(d.answered)+'</b> answered · '+rxEsc(d.dismissed)+' closed without answering (last '+rxEsc(d.window_days)+'d)</div>';
     h += '<table style="width:100%;border-collapse:collapse;font-size:13px"><tbody>';
-    (d.funnel||[]).forEach(function(s){
-      var w = Math.max(2, s.pct_of_top);
-      h += '<tr><td style="padding:4px 8px;white-space:nowrap">'+rxEsc(s.stage)+'</td>'+
-        '<td style="padding:4px 8px;width:55%"><div style="background:var(--blue,#2563eb);height:16px;border-radius:3px;width:'+w+'%"></div></td>'+
-        '<td style="padding:4px 8px;text-align:right;font-weight:700">'+rxEsc(s.sessions)+'</td>'+
-        '<td style="padding:4px 8px;text-align:right;color:var(--muted)">'+rxEsc(s.pct_of_top)+'%</td></tr>';
+    (d.reasons||[]).forEach(function(r){
+      var pct = Math.round(100*r.count/total);
+      h += '<tr><td style="padding:4px 8px;white-space:nowrap">'+rxEsc(r.label)+'</td>'+
+        '<td style="padding:4px 8px;width:48%"><div style="background:var(--blue,#2563eb);height:16px;border-radius:3px;width:'+Math.max(2,pct)+'%"></div></td>'+
+        '<td style="padding:4px 8px;text-align:right;font-weight:700">'+rxEsc(r.count)+'</td>'+
+        '<td style="padding:4px 8px;text-align:right;color:var(--muted)">'+pct+'%</td></tr>';
     });
     h += '</tbody></table>';
-    if(d.by_source && d.by_source.length){
-      h += '<div style="margin-top:8px;font-size:12px;color:var(--muted)">Started by source: '+d.by_source.map(function(s){return rxEsc(s.source)+' '+rxEsc(s.started);}).join(' · ')+'</div>';
+    if(d.recent_text && d.recent_text.length){
+      h += '<div style="font-weight:700;margin:12px 0 4px">Recent comments</div>';
+      d.recent_text.forEach(function(t){
+        h += '<div style="padding:6px 8px;border-left:2px solid var(--border);margin:4px 0;font-size:13px">'+
+          '<span style="color:var(--muted)">['+rxEsc(t.reason||'')+'] </span>'+rxEsc(t.text||'')+'</div>';
+      });
     }
     el.innerHTML = h;
   }).catch(function(e){ el.innerHTML='<div style="color:var(--red)">Request failed: '+rxEsc(String(e))+'</div>'; });

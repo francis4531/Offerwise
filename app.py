@@ -5530,12 +5530,51 @@ def _try_top_findings(findings, limit=3):
 @app.route('/try')
 def try_onramp_page():
     """Conversational on-ramp — no login required."""
-    try:
-        from funnel_tracker import track_from_request
-        track_from_request('try_landed', request)
-    except Exception:
-        pass
+    # /try funnel tracking removed (v5.89.239): per product decision, /try is not tracked.
     return redirect('/free-tools')
+
+
+@app.route('/api/feedback/exit', methods=['POST'])
+@limiter.limit("30 per hour")
+def feedback_exit():
+    """Point-of-abandonment micro-survey capture. One tap = one row. Designed for
+    navigator.sendBeacon (fire-and-forget as the page unloads), so it must be
+    tiny, never error the client, and accept a JSON body. Unauthenticated."""
+    try:
+        data = request.get_json(silent=True) or {}
+        reason = (data.get('reason') or '')[:40].strip()
+        if not reason:
+            return ('', 204)  # nothing to record; never error a beacon
+        try:
+            from funnel_tracker import _extract_source
+            src, med, _ref = _extract_source(request)
+        except Exception:
+            src, med = None, None
+        session_id = (request.cookies.get('session', '') or request.cookies.get('_ga', ''))[:64] or None
+        uid = current_user.id if getattr(current_user, 'is_authenticated', False) else None
+
+        from models import db, ExitFeedback
+        row = ExitFeedback(
+            session_id=session_id,
+            user_id=uid,
+            context=(data.get('context') or '')[:40] or None,
+            reason=reason,
+            reason_label=(data.get('reason_label') or '')[:120] or None,
+            free_text=(data.get('text') or '')[:1000].strip() or None,
+            source=(src or '')[:60] or None,
+            medium=(med or '')[:60] or None,
+            url=(data.get('url') or '')[:300] or None,
+        )
+        db.session.add(row)
+        db.session.commit()
+        return ('', 204)
+    except Exception as e:
+        try:
+            logger.warning(f"exit feedback capture failed (non-fatal): {e}")
+            db.session.rollback()
+        except Exception:
+            pass
+        return ('', 204)  # never surface an error to a leaving user
 
 
 @app.route('/api/try/start', methods=['POST'])
@@ -5543,11 +5582,7 @@ def try_onramp_page():
 def try_start():
     """Parse ONE document (uploaded PDF or pasted text), return top findings and
     open an anonymous chat session. No login."""
-    try:
-        from funnel_tracker import track_from_request
-        track_from_request('try_started', request)
-    except Exception:
-        pass
+    # /try funnel tracking removed (v5.89.239): per product decision, /try is not tracked.
 
     data = request.get_json(silent=True) or {}
     text = (data.get('text') or '').strip()
@@ -5624,11 +5659,7 @@ def try_start():
         'created': time.time(),
     }
 
-    try:
-        from funnel_tracker import track_from_request
-        track_from_request('try_findings_shown', request)
-    except Exception:
-        pass
+    # /try funnel tracking removed (v5.89.239): per product decision, /try is not tracked.
 
     if payload:
         intro = "I'm Scout. I read through your document and pulled out the items above — ask me anything about them, or about anything else in it."
@@ -5681,11 +5712,7 @@ def try_chat():
         })
 
     sess['msg_count'] += 1
-    try:
-        from funnel_tracker import track_from_request
-        track_from_request('try_chat_message', request)
-    except Exception:
-        pass
+    # /try funnel tracking removed (v5.89.239): per product decision, /try is not tracked.
 
     doc_text = sess['text']
 
