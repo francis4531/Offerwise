@@ -17799,8 +17799,12 @@ def admin_reasoning_extractor_diagnostic():
                        "engine being CORRECT (seller disclosed a shower leak the inspection "
                        "didn't corroborate). Fix the answer key, not the engine.")
         elif has_bath:
-            verdict = ('A structure.water_intrusion_bath reading EXISTS -> #1 should '
-                       'corroborate; any miss is downstream mapping, not extraction.')
+            verdict = ('A structure.water_intrusion_bath reading exists, but confirm it '
+                       'matches the DISCLOSED bath finding before assuming corroboration. '
+                       'The water_intrusion_bath bucket does not distinguish rooms/defects '
+                       '(e.g. hallway-ceiling mildew vs a master shower-pan leak), so a bath '
+                       "reading can be a different issue than the one the seller disclosed - "
+                       "in which case disclosed_not_found is the engine being CORRECT.")
         else:
             verdict = ('Water signal found but none mapped to structure.water_intrusion_bath '
                        '-> likely a MIS-MAP; tune the extractor prompt bath routing.')

@@ -30,8 +30,8 @@ class _Offer:
 def test_infer_jurisdiction_from_address():
     assert _infer_jurisdiction("2839 Pendleton Dr, San Jose, CA 95148") == "CA"
     assert _infer_jurisdiction("100 Main St, Austin, TX 78701") == "TX"
-    assert _infer_jurisdiction(None) == "CA"          # launch default
-    assert _infer_jurisdiction("no state here") == "CA"
+    assert _infer_jurisdiction(None) == "*"           # national base, never a guessed state
+    assert _infer_jurisdiction("no state here") == "*"
 
 
 def test_build_comparison_counts():

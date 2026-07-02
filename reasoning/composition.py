@@ -200,3 +200,16 @@ def compose(
         items=resolved,
         source_version=asset.version,
     )
+
+
+def jurisdiction_coverage(asset: Optional[ChecklistAsset] = None) -> dict:
+    """Honest footprint: which jurisdictions have authored depth beyond the
+    national base. Every US state gets national_base; only the states/munis
+    listed here have overlays. Used to surface where coverage is real vs the
+    national floor (so nobody assumes CA-level depth exists everywhere)."""
+    asset = asset or load_checklist()
+    return {
+        "national_base_items": len(asset.national_base),
+        "state_overlays": sorted(asset.state_overlays.keys()),
+        "municipal_overlays": sorted(asset.municipal_overlays.keys()),
+    }

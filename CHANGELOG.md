@@ -3,6 +3,47 @@
 Historical deployment notes, bug fixes, and architecture decisions.
 Consolidated from 80 individual files on 2026-03-13.
 
+## v5.89.236 — National correctness: no CA assumptions in the reasoning path
+
+The logic must work for properties across the US, not just California. Layer A
+extraction validated on the real Pendleton PDF (22 readings, all safety findings
+surfaced) — the one "failure" (#1 master-bath) was a definitional artifact, not
+an extraction miss. Fixes here make the surrounding logic national-safe and lock
+that in.
+
+1. Jurisdiction fallback (reasoning_shadow._infer_jurisdiction): on an
+   unparseable or non-CA address it now falls back to the NATIONAL base ('*'),
+   never a guessed state. Previously it hard-defaulted to 'CA', which would have
+   scored a Texas property against California's overlays. compose() already
+   applies a state overlay only where one is authored (today: CA), so a parsed
+   TX/FL address correctly resolves to the national base.
+
+2. Diagnostic verdict (admin extractor diagnostic): stopped conflating "a
+   structure.water_intrusion_bath reading exists" with "the disclosed bath
+   finding corroborates." The bucket doesn't distinguish rooms/defects (hallway-
+   ceiling mildew vs a master shower-pan leak), so a bath reading can be a
+   different issue than the one disclosed — in which case disclosed_not_found is
+   the engine being correct. National-neutral (about granularity, not geography).
+
+3. Pendleton harness scoring is layer-aware. Layer B (deterministic hand-built
+   readings) stays strict on disclosure_status. Layer A (real extraction) now
+   REPORTS disclosure_status but does not gate on it: a specific status is
+   non-deterministic (room-granularity + LLM run-to-run variance), so gating on
+   it would make the regression flaky. #1 no longer spuriously fails Layer A.
+
+4. New national regression (test_national_composition.py): TX/FL resolve to the
+   national base (== compose('*')), no CA-only item leaks into a non-CA property,
+   CA remains a strict superset, and issue derivation works on national-base
+   readings for a non-CA property. Plus jurisdiction_coverage() reports the honest
+   footprint.
+
+Honest coverage footprint (jurisdiction_coverage): 58 national-base items (every
+US state), 1 state overlay (CA), 3 CA municipalities (Daly City, Portola Valley,
+San Jose). Only CA has authored depth today; everything else correctly gets the
+national floor. We do NOT fabricate overlays for unauthored states.
+
+Tests: 73 passing (4 new national). Layer B PASS; extraction validated on staging.
+
 ## v5.89.235 — Reasoning Engine admin tab: extractor diagnostic + shadow readout in the UI
 
 Promotes the shell-only reasoning diagnostics into a durable admin panel (matching

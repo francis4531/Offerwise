@@ -31,11 +31,18 @@ _STATE_RE = re.compile(r",\s*([A-Z]{2})\s*\d{5}|,\s*([A-Z]{2})\b")
 
 
 def _infer_jurisdiction(address: Optional[str]) -> str:
+    """Resolve the state from the address for checklist composition. On failure,
+    fall back to the NATIONAL base ('*') — never to a guessed state — so a non-CA
+    or unparseable address is never scored against California's overlays.
+    compose() applies a state overlay only where one is authored (today: CA);
+    every other state correctly resolves to the national base."""
     if address:
         m = _STATE_RE.search(address)
         if m:
-            return (m.group(1) or m.group(2) or "CA").upper()
-    return "CA"  # launch-market default
+            st = (m.group(1) or m.group(2) or "").upper()
+            if st:
+                return st
+    return "*"  # national base, not a guessed state
 
 
 def build_comparison(live_cross_ref: Any, reasoning_issues: list,
