@@ -3,6 +3,65 @@
 Historical deployment notes, bug fixes, and architecture decisions.
 Consolidated from 80 individual files on 2026-03-13.
 
+## v5.89.238 — Surface the /try activation funnel (it was tracked all along, never shown)
+
+Definitive wiring answer: the /try funnel IS captured — funnel_tracker writes
+try_landed / try_started / try_findings_shown / try_chat_message to GTMFunnelEvent
+on every anonymous session (alongside visit, signup, purchase, pricing_view,
+email_capture, the risk-check flow). It was surfaced in ZERO admin panels. So the
+top-of-funnel number — of everyone who lands on /try, how many start, see
+findings, engage chat, and convert to signup — sat in the table, unshown. (The
+ephemeral _TRY_SESSIONS dict holds only the 1h chat text, not the funnel; earlier
+notes conflating the two were wrong.)
+
+Added:
+ - GET /api/admin/try-funnel — decomposes GTMFunnelEvent into the /try funnel by
+   DISTINCT session (a real funnel, not raw event counts): landed -> started ->
+   findings shown -> chat -> converted to signup (try sessions ∩ signup), with
+   step %-of-top and a started-by-source breakdown, over a window.
+ - "🚪 /try activation" panel at the top of the Analytics view, rendered as a
+   drop-off bar chart, auto-loaded with the analytics view.
+
+No new tracking — pure display of existing data. admin.html discipline held
+(window.* export, rx-prefixed helpers, node --check clean, div balance 0).
+
+This is the number that localizes the demand bottleneck: if landed >> signup, the
+problem is activation, not traffic or engine. Now visible instead of guessed.
+
+## v5.89.237 — Disclosure-side extractor: the shadow now measures the FULL cross-reference
+
+The shadow ran inspection-only, so disclosure_status was 'undisclosed' by
+construction — it measured half the moat. This adds the other half: a disclosure
+LLM extractor, so the shadow measures the actual moat sentence ("seller disclosed
+X / answered clean / said nothing, and the inspection found Y").
+
+New reasoning/disclosure_llm_extractor.py (mirrors the inspection extractor):
+reads the TDS/SPQ/NHD packet text and maps what the seller stated to the
+checklist vocabulary. Crucially it captures BOTH disclosed concerns (value 'yes')
+AND affirmative clean answers (value 'no') — the clean answers are what create
+CONTRADICTIONS (the highest-leverage status) when the inspection finds the
+problem. Constrained to the disclosure-addressable vocabulary (form-field map ∩
+resolved checklist); invented ids dropped; never raises. Routed through the
+field_readings path so map_field_to_claim tags them disclosure-sourced (not
+INSPECTION), which is what drives corroborated/contradiction/undisclosed.
+
+Shadow wired for both sides: run_reasoning_shadow now runs the inspection AND
+disclosure extractors (each fails independently, non-fatally) and feeds both to
+the pipeline. build_comparison + ShadowComparison + shadow_summary split the
+disclosure distribution into corroborated / contradiction / undisclosed counts
+(new columns, auto-created), plus a disclosure_extracted_rate. The admin Shadow
+panel and shadow_summary now show the real cross-reference distribution.
+
+Tests: test_disclosure_llm_extractor.py (5) — concern + clean capture, vocabulary
+constraint, dedup preferring the concern, safety, and an end-to-end test proving
+disclosure output + inspection readings yield corroborated AND contradiction
+through the real pipeline. 78 passing across the related suite.
+
+Honest boundary: like the inspection extractor before its staging smoke, the
+disclosure extractor is validated on fabricated inputs, not yet on the real
+44-page packet. The shadow (flag on, staging) is where it gets proven on real
+documents. Watch disclosure_extracted_rate and the contradiction count.
+
 ## v5.89.236 — National correctness: no CA assumptions in the reasoning path
 
 The logic must work for properties across the US, not just California. Layer A

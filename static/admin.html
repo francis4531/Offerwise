@@ -1722,6 +1722,12 @@ details.an-drill[open] .an-chev{transform:rotate(90deg)}
   <!-- Core insights, surfaced from the funnel analysis (populated by loadFunnel) -->
   <div id="analyticsCoreInsight" class="an-insight-top"><div class="loading-msg" style="padding:6px 0"><span class="spinner"></span></div></div>
 
+  <!-- /try activation funnel (v5.89.238) — anonymous top-of-funnel, from GTMFunnelEvent -->
+  <div class="an-domain">
+    <div class="an-dhead"><div class="an-dtitle">🚪 /try activation</div><div class="an-dsub">Landed → started → findings → chat → signup · the anonymous top-of-funnel</div></div>
+    <div class="an-dbody"><div id="tryFunnelBody"><div class="loading-msg" style="padding:6px 0"><span class="spinner"></span></div></div></div>
+  </div>
+
   <!-- ALTITUDE 2 — domain sections (headline visible, granular detail one click down) -->
 
   <!-- Acquisition -->
@@ -5179,7 +5185,7 @@ function showView(view, el) {
   if (view === 'users')        { loadUsersList(); loadAnalytics(); }
   if (view === 'partners')     { /* loaded by showPartnerTab */ }
   if (view === 'outreach')     { oReloadAll(); }
-  if (view === 'analytics')    { loadAnalytics(); loadWaitlist(); loadSurveys(); loadFunnel(); loadTelemetryIntegrity(); loadConversionDebug(); loadAbHome(); loadUserDripList(); loadEntryCliff(); loadRiskCheckExit(); renderPanelHealth(); }
+  if (view === 'analytics')    { loadAnalytics(); loadWaitlist(); loadSurveys(); loadFunnel(); loadTelemetryIntegrity(); loadConversionDebug(); loadAbHome(); loadUserDripList(); loadEntryCliff(); loadTryFunnel(); loadRiskCheckExit(); renderPanelHealth(); }
   if (view === 'adperf')       { loadAds(); loadGadsStatus(); loadRedditSyncHealth(); }
 
   if (view === 'tests')        { updateBugCount(); loadAllBugs(); loadPersonas(); loadPostgresTestHistory(); }
@@ -23075,6 +23081,29 @@ window.loadShadowSummary = function(){
       rEl.innerHTML=h+'</tbody></table>';
     }
   }).catch(function(e){ sEl.innerHTML='<div style="color:var(--red)">Request failed: '+rxEsc(String(e))+'</div>'; });
+};
+window.loadTryFunnel = function(){
+  var el = document.getElementById('tryFunnelBody');
+  if(!el) return;
+  el.innerHTML = '<div class="loading-msg" style="padding:6px 0"><span class="spinner"></span></div>';
+  fetch('/api/admin/try-funnel?days=30&admin_key='+encodeURIComponent(rxKey())).then(function(r){return r.json();}).then(function(d){
+    if(d.error){ el.innerHTML='<div style="color:var(--red)">Error: '+rxEsc(d.error)+'</div>'; return; }
+    if(!d.landed){ el.innerHTML='<div style="color:var(--muted);font-size:13px">No /try sessions in the last '+rxEsc(d.window_days)+' days.</div>'; return; }
+    var h = '<div style="font-size:13px;margin-bottom:8px">Last '+rxEsc(d.window_days)+' days · <b>'+rxEsc(d.landed)+'</b> landed → <b>'+rxEsc(d.converted_to_signup)+'</b> signed up ('+rxEsc(d.landed_to_signup_pct)+'%)</div>';
+    h += '<table style="width:100%;border-collapse:collapse;font-size:13px"><tbody>';
+    (d.funnel||[]).forEach(function(s){
+      var w = Math.max(2, s.pct_of_top);
+      h += '<tr><td style="padding:4px 8px;white-space:nowrap">'+rxEsc(s.stage)+'</td>'+
+        '<td style="padding:4px 8px;width:55%"><div style="background:var(--blue,#2563eb);height:16px;border-radius:3px;width:'+w+'%"></div></td>'+
+        '<td style="padding:4px 8px;text-align:right;font-weight:700">'+rxEsc(s.sessions)+'</td>'+
+        '<td style="padding:4px 8px;text-align:right;color:var(--muted)">'+rxEsc(s.pct_of_top)+'%</td></tr>';
+    });
+    h += '</tbody></table>';
+    if(d.by_source && d.by_source.length){
+      h += '<div style="margin-top:8px;font-size:12px;color:var(--muted)">Started by source: '+d.by_source.map(function(s){return rxEsc(s.source)+' '+rxEsc(s.started);}).join(' · ')+'</div>';
+    }
+    el.innerHTML = h;
+  }).catch(function(e){ el.innerHTML='<div style="color:var(--red)">Request failed: '+rxEsc(String(e))+'</div>'; });
 };
 </script>
 </body>

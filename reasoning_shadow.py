@@ -11,11 +11,10 @@ ShadowComparison row. It is:
   - INCAPABLE of affecting the user-facing result — the caller invokes it after
     the live cross-reference and ignores its return; every path is swallowed.
 
-Scope note: the TDS parser has no raw-text -> readings path, so the shadow runs
-the INSPECTION side of reasoning (field_readings=[]). That exercises the core
-moat (LLM extraction + issue derivation). The disclosure-side shadow needs a
-disclosure extractor — a separate build — so disclosure_status here will read
-'undisclosed' by construction and is not yet a fair moat signal.
+Scope: the shadow now runs BOTH sides of the cross-reference — the inspection
+LLM extractor and the disclosure LLM extractor — so disclosure_status
+(corroborated / contradiction / undisclosed) is a real signal, not 'undisclosed'
+by construction. Each extractor fails independently and non-fatally.
 """
 
 from __future__ import annotations
@@ -47,7 +46,7 @@ def _infer_jurisdiction(address: Optional[str]) -> str:
 
 def build_comparison(live_cross_ref: Any, reasoning_issues: list,
                      reasoning_offer: Any, extractor_readings: int,
-                     extractor_ok: bool) -> dict:
+                     extractor_ok: bool, disclosure_readings: int = 0) -> dict:
     """Pure: summarize what each engine surfaced. No side effects."""
     live_contra = len(getattr(live_cross_ref, "contradictions", []) or [])
     live_undis = len(getattr(live_cross_ref, "undisclosed_issues", []) or [])
@@ -56,14 +55,19 @@ def build_comparison(live_cross_ref: Any, reasoning_issues: list,
     silent = sum(1 for i in issues
                  if getattr(i, "silent_hazard_flag", False)
                  or getattr(i, "decision_class", "") == "silent_hazard")
-    undis = sum(1 for i in issues
-                if getattr(i, "disclosure_status", "") in ("undisclosed", "contradiction"))
+
+    def _dstat(name):
+        return sum(1 for i in issues if getattr(i, "disclosure_status", "") == name)
+    corroborated = _dstat("corroborated")
+    contradiction = _dstat("contradiction")
+    undis = _dstat("undisclosed")
     offer_low = int(getattr(reasoning_offer, "price_adjustment_low", 0) or 0) if reasoning_offer else 0
     offer_high = int(getattr(reasoning_offer, "price_adjustment_high", 0) or 0) if reasoning_offer else 0
 
     notes = (f"live: {live_contra} contradictions + {live_undis} undisclosed | "
-             f"reasoning: {len(issues)} issues ({silent} silent hazards, "
-             f"{undis} undisclosed/contradiction) from {extractor_readings} readings"
+             f"reasoning: {len(issues)} issues ({silent} silent hazards; disclosure "
+             f"{corroborated} corroborated / {contradiction} contradiction / {undis} undisclosed) "
+             f"from {extractor_readings} insp + {disclosure_readings} disc readings"
              f"{'' if extractor_ok else ' [EXTRACTOR FAILED]'}")
 
     return {
@@ -71,8 +75,11 @@ def build_comparison(live_cross_ref: Any, reasoning_issues: list,
         "live_undisclosed": live_undis,
         "extractor_ok": extractor_ok,
         "extractor_readings": extractor_readings,
+        "disclosure_readings": disclosure_readings,
         "reasoning_issues": len(issues),
         "reasoning_silent_hazards": silent,
+        "reasoning_corroborated": corroborated,
+        "reasoning_contradiction": contradiction,
         "reasoning_undisclosed": undis,
         "reasoning_offer_low": offer_low,
         "reasoning_offer_high": offer_high,
@@ -94,9 +101,11 @@ def run_reasoning_shadow(*, inspection_text: str, disclosure_text: str = "",
     comp = None
     extractor_ok = False
     readings = []
+    disc_readings = []
     try:
         from reasoning import compose, run_pipeline
         from reasoning.inspection_llm_extractor import extract_inspection_findings_llm
+        from reasoning.disclosure_llm_extractor import extract_disclosure_findings_llm
 
         jurisdiction = _infer_jurisdiction(property_address)
         ids = sorted(compose(jurisdiction, property_type).ids())
@@ -106,18 +115,28 @@ def run_reasoning_shadow(*, inspection_text: str, disclosure_text: str = "",
                 inspection_text or "", ids, client=ai_client) or []
             extractor_ok = True
         except Exception as e:
-            logger.warning(f"[SHADOW] extractor failed: {e}")
+            logger.warning(f"[SHADOW] inspection extractor failed: {e}")
             readings = []
             extractor_ok = False
 
+        # Disclosure side (the other half of the cross-reference). Its failure is
+        # non-fatal and independent: without it, items fall back to 'undisclosed'.
+        try:
+            disc_readings = extract_disclosure_findings_llm(
+                disclosure_text or "", ids, client=ai_client) or []
+        except Exception as e:
+            logger.warning(f"[SHADOW] disclosure extractor failed: {e}")
+            disc_readings = []
+
         result = run_pipeline(
-            field_readings=[], jurisdiction=jurisdiction, property_type=property_type,
+            field_readings=disc_readings, jurisdiction=jurisdiction, property_type=property_type,
             inspection_readings=readings, persist=False,
         )
         issues = result.issues_result.issues if result.issues_result else []
         offer = result.issues_result.offer if result.issues_result else None
 
-        comp = build_comparison(live_cross_ref, issues, offer, len(readings), extractor_ok)
+        comp = build_comparison(live_cross_ref, issues, offer, len(readings),
+                                extractor_ok, disclosure_readings=len(disc_readings))
         comp.update({
             "analysis_id": analysis_id,
             "jurisdiction": jurisdiction,
@@ -132,6 +151,7 @@ def run_reasoning_shadow(*, inspection_text: str, disclosure_text: str = "",
         comp = {
             "analysis_id": analysis_id, "ok": False, "error": str(e)[:300],
             "extractor_ok": extractor_ok, "extractor_readings": len(readings),
+            "disclosure_readings": len(disc_readings),
             "elapsed_ms": int((time.time() - t0) * 1000),
         }
 
@@ -162,8 +182,11 @@ def _persist(comp: Optional[dict]) -> int:
             live_undisclosed=comp.get("live_undisclosed"),
             extractor_ok=bool(comp.get("extractor_ok")),
             extractor_readings=comp.get("extractor_readings"),
+            disclosure_readings=comp.get("disclosure_readings"),
             reasoning_issues=comp.get("reasoning_issues"),
             reasoning_silent_hazards=comp.get("reasoning_silent_hazards"),
+            reasoning_corroborated=comp.get("reasoning_corroborated"),
+            reasoning_contradiction=comp.get("reasoning_contradiction"),
             reasoning_undisclosed=comp.get("reasoning_undisclosed"),
             reasoning_offer_low=comp.get("reasoning_offer_low"),
             reasoning_offer_high=comp.get("reasoning_offer_high"),
@@ -206,12 +229,17 @@ def shadow_summary(window_days: int = 30) -> dict:
     extr_ok = sum(1 for r in rows if r.extractor_ok)
     reasoning_more = sum(1 for r in rows if (r.reasoning_issues or 0)
                          > ((r.live_contradictions or 0) + (r.live_undisclosed or 0)))
+    disc_any = sum(1 for r in rows if (r.disclosure_readings or 0) > 0)
     return {
         "count": n,
         "ran_ok": ok,
         "extractor_ok": extr_ok,
         "extractor_ok_rate": round(extr_ok / n, 3),
+        "disclosure_extracted_rate": round(disc_any / n, 3),
         "reasoning_surfaced_more_rate": round(reasoning_more / n, 3),
         "avg_reasoning_issues": round(sum((r.reasoning_issues or 0) for r in rows) / n, 1),
+        "avg_corroborated": round(sum((r.reasoning_corroborated or 0) for r in rows) / n, 2),
+        "avg_contradiction": round(sum((r.reasoning_contradiction or 0) for r in rows) / n, 2),
+        "avg_undisclosed": round(sum((r.reasoning_undisclosed or 0) for r in rows) / n, 2),
         "avg_elapsed_ms": round(sum((r.elapsed_ms or 0) for r in rows) / n),
     }

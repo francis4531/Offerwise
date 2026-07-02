@@ -558,8 +558,11 @@ class ShadowComparison(db.Model):
     # reasoning/ engine
     extractor_ok        = db.Column(db.Boolean, nullable=False, default=False, index=True)
     extractor_readings  = db.Column(db.Integer, nullable=True)
+    disclosure_readings = db.Column(db.Integer, nullable=True)
     reasoning_issues        = db.Column(db.Integer, nullable=True)
     reasoning_silent_hazards= db.Column(db.Integer, nullable=True)
+    reasoning_corroborated  = db.Column(db.Integer, nullable=True)
+    reasoning_contradiction = db.Column(db.Integer, nullable=True)
     reasoning_undisclosed   = db.Column(db.Integer, nullable=True)
     reasoning_offer_low     = db.Column(db.Integer, nullable=True)
     reasoning_offer_high    = db.Column(db.Integer, nullable=True)
