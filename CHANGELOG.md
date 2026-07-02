@@ -3,6 +3,29 @@
 Historical deployment notes, bug fixes, and architecture decisions.
 Consolidated from 80 individual files on 2026-03-13.
 
+## v5.89.234 — Fix the extractor's client acquisition (Layer A on staging couldn't get a client)
+
+The Layer A staging smoke caught a deployment bug: `inspection_llm_extractor`,
+when no client was passed, imported `get_anthropic_client` from
+`analysis_ai_helper` — a function that does not exist (the helper exposes a class
+with `self.client = anthropic.Anthropic(...)`, not a module getter). So the
+extractor logged "no client" and returned [] — producing 0 readings and making
+Layer A "fail" with 6 misses that were an artifact of the extractor never running,
+NOT bad extraction. The shadow would have reported extractor_ok=False on every
+deal for the same reason (visibly, via the extractor_ok field).
+
+Fix: removed the broken (and redundant) client-acquisition block. `call_ai_json`
+already builds a default client from ANTHROPIC_API_KEY when none is passed, so the
+extractor now uses the passed client or that default, and fails gracefully to []
+(clean telemetry, no crash) when there is genuinely no key. On staging/prod, where
+the key + SDK exist, the extractor now actually runs.
+
+This does not yet tell us whether extraction is GOOD — only that it can run.
+Re-run the Layer A staging smoke to get the first real read on extraction quality.
+
+Tests: extractor + shadow suites green; verified no-key path returns [] without
+the import crash. 69 passing across the related suite.
+
 ## v5.89.233 — Shadow-wire: run reasoning/ alongside the live engine on real traffic (Layer A at scale)
 
 Wires the reasoning/ engine to run in SHADOW next to the live keyword engine on

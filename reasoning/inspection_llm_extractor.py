@@ -119,17 +119,10 @@ def extract_inspection_findings_llm(
     if not report_text or not checklist_ids:
         return []
 
-    if client is None:
-        try:
-            # reuse the project's existing client wrapper (same as permit_lookup)
-            from analysis_ai_helper import get_anthropic_client
-            client = get_anthropic_client()
-        except Exception as e:
-            logger.warning("inspection LLM extract: no client (%s)", e)
-            return []
-    if not client:
-        return []
-
+    # Client: use the one passed in, else call_ai_json builds a default from
+    # ANTHROPIC_API_KEY. (The old bail imported a get_anthropic_client that does
+    # not exist in analysis_ai_helper, so the extractor silently returned [] and
+    # never ran — caught by the Layer A staging smoke, v5.89.234.)
     allowed = set(checklist_ids)
     prompt = _build_prompt(checklist_ids, report_text)
 
