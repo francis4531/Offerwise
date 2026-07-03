@@ -3,6 +3,62 @@
 Historical deployment notes, bug fixes, and architecture decisions.
 Consolidated from 80 individual files on 2026-03-13.
 
+## v5.89.244 — Coverage gate reads the test files (the real fix; self-maintaining)
+
+v5.89.243 patched the symptom by hand-attesting modules. This fixes the gate
+itself: the coverage-attestation check now reads the test_*.py files, not just
+integrity_tests.py, so a module with a real dedicated test counts automatically —
+no manual attestation, and no false "untested" for modules that ARE tested.
+
+The honest result the old gate was hiding: it reported 91% / ten untested. In
+truth NINE of those ten have real dedicated test files the scan simply never
+read (ai_json, avm_gate, reasoning_shadow, reasoning/disclosure_llm_extractor,
+b2b_followup, card_import, cost_provenance, telemetry_integrity — each with a
+test_<x>.py). The gate was lying about its own coverage. Now: 113/114 = 99%, and
+the ONE genuinely untested module is share_card (no test file, not imported by
+any test). Verified by invoking the real _test_coverage_summary method, not a
+replica.
+
+Implementation: additive (union) scan — a module is tested if imported by
+integrity_tests.py OR any test_*.py (top-level `import x` / `from x import`, and
+reasoning submodules via `reasoning.<x>`), delimiter-guarded so 'market' can't
+match 'market_intelligence'. Union means it can only credit real test files,
+never drop a module already counted — no unpredictable reclassification. Removed
+the now-redundant manual attestations; kept reasoning_pendleton_regression in
+skip (it is test infrastructure).
+
+Remaining honest gap: share_card genuinely has no test. Left visible (not
+absorbed) — write a test for it or exempt it deliberately.
+
+## v5.89.243 — Register this session's new modules in the coverage-attestation gate (CI red)
+
+CI failed on the integrity coverage gate (91% < 95% target). Not a real defect:
+the gate is an ATTESTATION check that scans integrity_tests.py for module names —
+it does NOT read the test_*.py files. This session added modules that each have a
+dedicated pytest file the gate can't see, so they counted as "untested":
+ - ai_json (test_ai_json.py), avm_gate (test_avm_gate.py),
+   reasoning_shadow (test_reasoning_shadow.py),
+   reasoning/disclosure_llm_extractor (test_disclosure_llm_extractor.py)
+ - reasoning_pendleton_regression — a test HARNESS, not production code.
+
+Fix (register mine honestly; do NOT touch pre-existing gaps):
+ - Attested ai_json, avm_gate, reasoning_shadow (comment cites each real test file).
+ - Added disclosure_llm_extractor to the reasoning tested allowlist.
+ - Added reasoning_pendleton_regression to the skip set (test infrastructure).
+ -> 109/114 = 95.6%, gate passes.
+
+Left untouched, by design: b2b_followup, card_import, cost_provenance, share_card,
+telemetry_integrity were untested BEFORE this session. Not absorbed silently —
+flagged for a deliberate decision (backfill tests or exempt).
+
+Note on the gate itself: it credits a module only if named in integrity_tests.py,
+so a module with a real dedicated test file still needs manual attestation. Making
+the scan read test_*.py imports would be a more honest gate — a worthwhile
+follow-up, deferred here to avoid reclassifying modules unpredictably.
+
+The (harmless, expected) CI log lines — ANTHROPIC_API_KEY not set, SQLite relabel
+bail — are the CI runner's own env, not failures; unrelated to this fix.
+
 ## v5.89.242 — CRITICAL: kill the fabricated-discount lie (offer must equal its own itemized math)
 
 A live report showed "Offer $200,000 · $700,000 below asking" on a $900,000

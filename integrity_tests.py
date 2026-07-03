@@ -4418,7 +4418,7 @@ class IntegrityTestEngine:
                 'seed_repair_costs', 'generate_test_corpus', 'run_training',
                 'ml_training_pipeline', 'ml_data_audit', 'ml_junk_audit',
                 'fix_reddit_ads_inflation', 'run_postgres_tests',
-                'ml_inference_tests'}
+                'ml_inference_tests', 'reasoning_pendleton_regression'}
 
         # Read our own source to find which modules we import
         with open(os.path.join(base_dir, 'integrity_tests.py')) as f:
@@ -4459,6 +4459,39 @@ class IntegrityTestEngine:
                              'report_bridge', 'form_field_map', 'tds_parser',
                              'checklist_loader', '__init__'):
                     tested.add(rm)
+
+        # v5.89.244: the real fix — credit any module with a REAL dedicated test.
+        # The scan above only reads THIS file (integrity_tests.py). Now also read
+        # the test_*.py files, so a module imported by test_<x>.py counts
+        # automatically — no manual attestation, and no false "untested" for a
+        # module that genuinely has a test. Additive (union): this can only credit
+        # real test files, never drop a module that was already counted.
+        _test_blob = ""
+        for _f in os.listdir(base_dir):
+            if _f.startswith('test_') and _f.endswith('.py'):
+                try:
+                    with open(os.path.join(base_dir, _f)) as _tf:
+                        _test_blob += "\n" + _tf.read()
+                except Exception:
+                    pass
+
+        def _imported_in_tests(_name):
+            # delimiter-guarded so 'market' can't match 'market_intelligence'
+            return (f'from {_name} import' in _test_blob
+                    or f'from {_name}.' in _test_blob
+                    or f'import {_name}\n' in _test_blob
+                    or f'import {_name} ' in _test_blob
+                    or f'import {_name},' in _test_blob)
+
+        for mod in core:
+            if mod in tested:
+                continue
+            if '/' in mod:  # reasoning submodule -> imported as reasoning.<short>
+                if _imported_in_tests('reasoning.' + mod.split('/', 1)[1]):
+                    tested.add(mod)
+            elif _imported_in_tests(mod):
+                tested.add(mod)
+
         untested = core - tested
         pct = len(tested) / len(core) * 100 if core else 0
 
