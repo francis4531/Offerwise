@@ -1,3 +1,59 @@
+## v5.89.255 — Build guard: inline admin JS is node --check'd in context before any deploy
+
+Turns the v5.89.252 class of incident (a dropped declaration white-screening the
+admin panel) from a production outage into a pre-package catch. The mistake
+survived because validation had node --check'd the edited function in ISOLATION,
+which can't see that an insertion broke the surrounding structure — top-level-await
+and dropped-sibling errors only surface when the WHOLE <script> block is parsed.
+
+New scripts/check_html_js.py: for each target HTML (default static/admin.html) it
+extracts every inline, non-src <script> block, runs `node --check` on each block
+IN CONTEXT, and maps any error line back to the real source line (e.g.
+"admin.html:6046"). Also checks <div> balance. FAILS CLOSED — a missing node or any
+unparseable block exits non-zero. Verified against the actual .252 regression:
+reintroducing the dropped declaration makes the guard fail and point at
+admin.html:6046 (the exact line the browser reported); the fixed file passes.
+
+Wired in two places so it can't be skipped:
+ - scripts/ow_deploy.sh runs it before the rsync/commit/push (set -e aborts the
+   deploy if admin JS doesn't parse) — a broken panel can no longer ship.
+ - test_admin_html_js.py runs the same guard in the test suite (skips only if node
+   is absent), so it's caught in local/CI runs too.
+
+Note (JSX): only plain-JS HTML belongs in the guard. static/app.html uses
+in-browser Babel/JSX, which node --check can't parse, so it is intentionally NOT a
+target (it would false-positive). admin.html is plain JS and is the fragile one.
+
+No app behavior change — this is build tooling. check_html_js passes on the current
+admin.html; bash syntax of ow_deploy.sh validated.
+## v5.89.254 — HOTFIX: admin panel white-screen (dropped function declaration in v5.89.252)
+
+Regression I introduced in v5.89.252 and failed to catch: adding
+saveReasoningJurisdictions dropped the `async function runReasoningTestsTab() {`
+DECLARATION line. That left runReasoningTestsTab's body as orphaned top-level code,
+whose `await` is invalid at top level -> "Uncaught SyntaxError: await is only valid
+in async functions" at admin.html:6046. That syntax error halts parsing of the
+entire script block, so every function defined later in it (loadCacLtv, all the
+dashboard loaders) never registered -> "loadCacLtv is not defined" and the whole
+admin panel stuck on "loading…". The second console error was a cascade of the
+first, not a separate bug.
+
+Fix: restored the missing `async function runReasoningTestsTab() {` declaration.
+One line. Both console errors resolved; loadCacLtv (defined at :7146, exported at
+:14419) now registers normally once the block parses.
+
+Why it slipped and how validation is corrected: the v5.89.252/.253 checks ran
+`node --check` on the touched functions IN ISOLATION, which validated each function
+by itself but could not see that the insertion had broken the SURROUNDING
+structure (a dropped sibling declaration). This build was validated the correct
+way: every inline <script> block extracted and node --check'd IN CONTEXT (top-level
+await only surfaces at block scope) — all 8 blocks pass. Div balance 3022/3022; all
+touched functions confirmed declared.
+
+No behavior change beyond restoring the panel. The per-state activation controls
+(.252) and the one-click Add-to-allowlist (.253) are intact and now actually
+reachable. DEPLOY THIS PROMPTLY — the admin panel is down on any build carrying
+.252/.253 without this fix.
 ## v5.89.253 — One-click "Add to allowlist" on READY states (human stays on the flip)
 
 Closes the honesty gap in "add states as they clear the bar": that was a manual

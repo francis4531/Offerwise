@@ -76,6 +76,13 @@ if [ "$_count" -lt "$_min_files" ]; then
 fi
 echo "✓ Completeness guard passed — $_count files, all required modules present."
 
+# Inline-JS guard: every <script> block in admin.html must parse. A dropped
+# declaration or top-level await halts the whole block and white-screens the admin
+# panel — and that only surfaces when the WHOLE block is parsed, not a function in
+# isolation. Fails closed (set -e aborts the deploy) so a broken panel can't ship.
+echo "→ Validating inline admin JS (node --check every block)…"
+python3 "$BUILD/scripts/check_html_js.py" "$BUILD/static/admin.html"
+
 # Sync the new build over the working tree: --delete propagates removed files,
 # --exclude keeps the real git history intact.
 rsync -a --delete --exclude='.git/' "$BUILD"/ "$OW_REPO"/

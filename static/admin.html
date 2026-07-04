@@ -6038,6 +6038,8 @@ async function saveReasoningJurisdictions() {
     loadReasoningFlag();
   }
 }
+
+async function runReasoningTestsTab() {
   var btn = document.getElementById('btnReasoningTestsTab');
   var out = document.getElementById('reasoningTestsTabResult');
   if (btn) { btn.disabled = true; btn.textContent = '⏳ Running…'; }
