@@ -977,12 +977,34 @@ def api_reasoning_flag():
             import os as _os
             enabled = _os.environ.get('OFFERWISE_REASONING_IN_REPORT', '0') == '1'
             source = 'env' if enabled else 'default-off'
+        juris = SystemSetting.get('reasoning_in_report_jurisdictions', None)
+        if juris is None:
+            import os as _os2
+            juris = _os2.environ.get('OFFERWISE_REASONING_IN_REPORT_JURISDICTIONS', '')
         passed, detail = _guard()
         return jsonify({'enabled': enabled, 'source': source,
+                        'jurisdictions': juris or '',
                         'guard_passed': passed, 'guard_detail': detail})
 
     # POST
     data = request.get_json(silent=True) or {}
+    who = getattr(getattr(request, '_admin_user', None), 'email', None) or 'admin'
+
+    # Jurisdiction allowlist (CA-first activation). Setting a non-empty list
+    # exposes the reasoning section to buyers in those states, so it is guarded the
+    # same way as the global enable; clearing it (empty) is always allowed.
+    if 'jurisdictions' in data:
+        raw_j = (data.get('jurisdictions') or '').strip()
+        states = ','.join(sorted({p.strip().upper() for p in raw_j.split(',') if p.strip()}))
+        if states:
+            passed, detail = _guard()
+            if not passed:
+                return jsonify({'ok': False, 'error': 'validation guard failed — not enabling',
+                                'guard_detail': detail}), 200
+        ok = SystemSetting.set('reasoning_in_report_jurisdictions', states, updated_by=who)
+        return jsonify({'ok': ok, 'jurisdictions': states if ok else None,
+                        'guard_detail': ('set: ' + states) if states else 'cleared'})
+
     want = bool(data.get('enabled'))
     if want:
         passed, detail = _guard()
@@ -990,7 +1012,6 @@ def api_reasoning_flag():
             return jsonify({'ok': False, 'enabled': False,
                             'error': 'validation guard failed — not enabling',
                             'guard_detail': detail}), 200
-    who = getattr(getattr(request, '_admin_user', None), 'email', None) or 'admin'
     ok = SystemSetting.set('reasoning_in_report', '1' if want else '0', updated_by=who)
     return jsonify({'ok': ok, 'enabled': want if ok else None,
                     'guard_detail': 'enabled' if want else 'disabled'})

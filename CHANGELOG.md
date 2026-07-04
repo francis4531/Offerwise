@@ -1,3 +1,63 @@
+## v5.89.253 — One-click "Add to allowlist" on READY states (human stays on the flip)
+
+Closes the honesty gap in "add states as they clear the bar": that was a manual
+two-screen process (read the shadow by-jurisdiction readout, then retype the
+allowlist by hand). No automation promotes states — deliberately: in real estate,
+exposing the engine to a new state should be a human act, not a 3am job. This just
+removes the friction from the human's flip.
+
+ - The shadow summary panel now renders the per-state readiness table
+   (by_jurisdiction): state, sample count, extractor / disclosure / reasoning>live
+   rates, and the READY verdict. States already on the allowlist show "✓ in
+   allowlist".
+ - Each READY state that isn't already live shows an "Add to allowlist" button.
+   Per the founder's call, it adds INSTANTLY — no extra confirm — but the
+   server-side guard still runs (the reasoning self-check must pass), so a broken
+   engine can't be exposed even with one click. It GET-merges the current
+   allowlist, POSTs the union (dedup/sorted), and refreshes the panel.
+ - No auto-promotion anywhere. The human reads the readout and clicks; the system
+   never flips a state on its own.
+
+Frontend only (admin.html): the .252 endpoint already returns by_jurisdiction and
+accepts the jurisdictions POST. New window.addStateToAllowlist + by-jurisdiction
+rendering + allowlist refresh in loadShadowSummary. Validated: node --check clean
+on both touched functions; addStateToAllowlist braces 12/12, parens 48/48; whole-
+file <div> balance 3022/3022; onclick in the rx- window scope. Backend compiles;
+12 activation/readiness tests pass.
+
+Workflow now: Admin -> Reasoning -> Shadow summary. Watch the by-state table fill
+as traffic flows. When a state reads READY, click Add — buyers there get the moat,
+every other state untouched. You read it, you click it, you own it.
+## v5.89.252 — Per-state activation is now a panel control (the CA-first allowlist had no UI)
+
+Honesty fix. v5.89.251 shipped the jurisdiction allowlist gate but only made it
+settable via env var — there was NO admin-panel control for it, despite the
+guidance saying "admin, no deploy". The global reasoning_in_report toggle already
+had panel UI (the /api/admin/reasoning-flag tile); the per-state allowlist did not.
+This adds it, so CA-first activation is genuinely a no-deploy panel flip.
+
+ - /api/admin/reasoning-flag extended: GET also returns 'jurisdictions' (current
+   allowlist from DB setting or env); POST with a 'jurisdictions' field sets
+   reasoning_in_report_jurisdictions. Input is normalized (upper, dedup, sorted:
+   "ca, tx , ca" -> "CA,TX"). Setting a non-empty list is GUARDED by the same
+   reasoning self-check that gates the global enable (it exposes the section to
+   buyers in those states); clearing it is always allowed.
+ - Admin panel (Reasoning tile): new "Per-state activation (CA-first)" control — a
+   states input + Save, with a confirm dialog, guard check, and live status. Loads
+   the current allowlist and points the admin to the shadow by-jurisdiction
+   readiness readout for which states read READY. The global toggle above still
+   overrides (ON = every state).
+
+Validation: admin.html JS node --check clean (saveReasoningJurisdictions +
+loadReasoningFlag), whole-file <div> balance intact (3021/3021), onclick handler
+in the same working scope as the existing toggle. admin_routes compiles; 36 passed
+across activation + readiness + reasoning + offer suites.
+
+How to go live now, no deploy: Admin → Reasoning tile → set Per-state activation to
+"CA" → Save (guard must be green). Buyers whose property resolves to CA get the
+reasoning cross-reference; every other state is untouched and keeps validating in
+shadow. Add TX/FL/etc. to the same field as each reads READY in the shadow
+by-jurisdiction summary. Global "Turn ON" = all states at once (overrides the list).
 ## v5.89.251 — Ship the moat: jurisdiction-scoped activation + per-state readiness readout
 
 The reasoning cross-reference (the moat — "the seller said X, the inspection found

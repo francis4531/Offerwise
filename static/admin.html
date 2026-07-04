@@ -4306,6 +4306,15 @@ details.an-drill[open] .an-chev{transform:rotate(90deg)}
         <div id="reasoningFlagState" style="font-size:12px;margin-bottom:8px;color:var(--muted)"><span class="spinner"></span> checking…</div>
         <button class="btn" id="reasoningFlagBtn" onclick="toggleReasoningFlag()" style="font-size:12px;padding:6px 12px" disabled>…</button>
         <div id="reasoningFlagResult" style="margin-top:8px;font-size:11px"></div>
+        <div style="margin-top:12px;padding-top:10px;border-top:1px dashed var(--border,#2a2a2a)">
+          <div style="font-size:12px;font-weight:600;margin-bottom:4px">Per-state activation (CA-first)</div>
+          <div style="font-size:11px;color:var(--muted);margin-bottom:8px;line-height:1.4">
+            Turn the moat on for specific states only, while others keep validating in shadow. Comma-separated 2-letter states (e.g. <strong>CA</strong> or <strong>CA,TX</strong>). Leave blank to disable per-state activation. The global toggle above overrides this (ON = every state). Check <strong>Shadow summary → by&nbsp;jurisdiction</strong> for which states read READY.
+          </div>
+          <input id="reasoningJurisInput" type="text" placeholder="CA" style="font-size:12px;padding:6px 10px;width:160px;background:var(--bg,#111);color:inherit;border:1px solid var(--border,#2a2a2a);border-radius:4px" />
+          <button class="btn" id="reasoningJurisBtn" onclick="saveReasoningJurisdictions()" style="font-size:12px;padding:6px 12px;margin-left:6px">Save allowlist</button>
+          <div id="reasoningJurisResult" style="margin-top:8px;font-size:11px"></div>
+        </div>
       </div>
     </div>
   </div>
@@ -5948,6 +5957,8 @@ async function loadReasoningFlag() {
     var d = await r.json();
     window._reasoningFlagEnabled = !!d.enabled;
     window._reasoningGuardPassed = !!d.guard_passed;
+    var jinp = document.getElementById('reasoningJurisInput');
+    if (jinp && document.activeElement !== jinp) { jinp.value = d.jurisdictions || ''; }
     var dot = d.enabled ? '<span style="color:var(--green)">● ON</span>' : '<span style="color:var(--muted)">○ OFF</span>';
     var guard = d.guard_passed
       ? '<span style="color:var(--green)">guard: ✓ ' + (d.guard_detail||'') + '</span>'
@@ -5996,7 +6007,37 @@ async function toggleReasoningFlag() {
   }
 }
 
-async function runReasoningTestsTab() {
+async function saveReasoningJurisdictions() {
+  var inp = document.getElementById('reasoningJurisInput');
+  var btn = document.getElementById('reasoningJurisBtn');
+  var out = document.getElementById('reasoningJurisResult');
+  if (!inp || !out) return;
+  var val = (inp.value || '').trim().toUpperCase();
+  if (val) {
+    if (!window._reasoningGuardPassed) { out.innerHTML = '<span style="color:var(--amber)">Guard not passing — run the reasoning tests first.</span>'; return; }
+    if (!confirm('Turn the reasoning section ON for buyers in: ' + val + '?\n\nBuyers whose property resolves to these states will see the reasoning cross-reference. Other states are unaffected. Continue?')) return;
+  }
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ …'; }
+  try {
+    var r = await fetchWithTimeout('/api/admin/reasoning-flag', 30000, {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ jurisdictions: val })
+    });
+    var d = await r.json();
+    if (d.ok) {
+      out.innerHTML = d.jurisdictions
+        ? '<span style="color:var(--green)">✓ Live for buyers in: ' + d.jurisdictions + '</span>'
+        : '<span style="color:var(--muted)">Per-state activation cleared.</span>';
+    } else {
+      out.innerHTML = '<span style="color:var(--amber)">⚠ ' + (d.error||'failed') + (d.guard_detail ? ' (' + d.guard_detail + ')' : '') + '</span>';
+    }
+  } catch(e) {
+    out.innerHTML = '<span style="color:var(--amber)">⚠ request failed</span>';
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Save allowlist'; }
+    loadReasoningFlag();
+  }
+}
   var btn = document.getElementById('btnReasoningTestsTab');
   var out = document.getElementById('reasoningTestsTabResult');
   if (btn) { btn.disabled = true; btn.textContent = '⏳ Running…'; }
@@ -23060,14 +23101,41 @@ window.loadShadowSummary = function(){
   var sEl=document.getElementById('rx-shadow-summary'), rEl=document.getElementById('rx-shadow-rows');
   if(!sEl) return;
   sEl.innerHTML='<span style="color:var(--muted);font-size:12px">Loading…</span>'; rEl.innerHTML='';
+  fetch('/api/admin/reasoning-flag?admin_key='+encodeURIComponent(rxKey())).then(function(r){return r.json();}).then(function(fd){ window._reasoningAllowlist=fd.jurisdictions||''; }).catch(function(){}).then(function(){
   fetch('/api/admin/reasoning/shadow-summary?admin_key='+encodeURIComponent(rxKey())).then(function(r){return r.json();}).then(function(d){
     if(d.error){ sEl.innerHTML='<div style="color:var(--red)">Error: '+rxEsc(d.error)+'</div>'; return; }
     var s=d.summary||{};
     if(!s.count){ sEl.innerHTML='<div style="color:var(--muted);font-size:13px">No shadow rows yet. Set OFFERWISE_REASONING_SHADOW=1 and run analyses.</div>'; return; }
-    sEl.innerHTML='<div style="display:flex;gap:18px;flex-wrap:wrap;font-size:13px">'+
+    var _stat='<div style="display:flex;gap:18px;flex-wrap:wrap;font-size:13px">'+
       rxStat('rows',s.count)+rxStat('extractor ok',Math.round((s.extractor_ok_rate||0)*100)+'%')+
       rxStat('reasoning found more',Math.round((s.reasoning_surfaced_more_rate||0)*100)+'%')+
       rxStat('avg issues',s.avg_reasoning_issues)+rxStat('avg ms',s.avg_elapsed_ms)+'</div>';
+    var bj=s.by_jurisdiction||{}; var _states=Object.keys(bj);
+    var _allow=(window._reasoningAllowlist||'').split(',').map(function(x){return x.trim().toUpperCase();}).filter(Boolean);
+    if(_states.length){
+      _stat+='<div style="font-weight:700;margin:14px 0 4px">By state — activation readiness</div>'+
+        '<table style="width:100%;border-collapse:collapse;font-size:12px"><thead><tr>'+
+        ['state','n','extractor','disclosure','reasoning&gt;live','status',''].map(function(c){
+          return '<th style="text-align:left;padding:4px 6px;border-bottom:1px solid var(--border)">'+c+'</th>';}).join('')+
+        '</tr></thead><tbody>';
+      _states.forEach(function(st){
+        var b=bj[st]||{}; var inList=_allow.indexOf(st)>=0;
+        var pct=function(v){return Math.round((v||0)*100)+'%';};
+        var action = inList
+          ? '<span style="color:var(--green)">✓ in allowlist</span>'
+          : (b.ready ? '<button class="btn" style="font-size:11px;padding:3px 8px" onclick="addStateToAllowlist(\''+rxEsc(st)+'\')">Add to allowlist</button>' : '');
+        _stat+='<tr>'+
+          '<td style="padding:4px 6px;font-family:monospace;font-weight:600">'+rxEsc(st)+'</td>'+
+          '<td style="padding:4px 6px">'+(b.count||0)+'</td>'+
+          '<td style="padding:4px 6px">'+pct(b.extractor_ok_rate)+'</td>'+
+          '<td style="padding:4px 6px">'+pct(b.disclosure_extracted_rate)+'</td>'+
+          '<td style="padding:4px 6px">'+pct(b.reasoning_surfaced_more_rate)+'</td>'+
+          '<td style="padding:4px 6px;color:'+(b.ready?'var(--green)':'var(--muted)')+'">'+rxEsc(b.verdict||'')+'</td>'+
+          '<td style="padding:4px 6px">'+action+'</td></tr>';
+      });
+      _stat+='</tbody></table>';
+    }
+    sEl.innerHTML=_stat;
     var rows=d.recent||[];
     if(rows.length){
       var h='<div style="font-weight:700;margin:12px 0 4px">Recent ('+rows.length+')</div>'+
@@ -23081,6 +23149,22 @@ window.loadShadowSummary = function(){
       rEl.innerHTML=h+'</tbody></table>';
     }
   }).catch(function(e){ sEl.innerHTML='<div style="color:var(--red)">Request failed: '+rxEsc(String(e))+'</div>'; });
+  });
+};
+window.addStateToAllowlist = function(state){
+  state=String(state||'').trim().toUpperCase();
+  if(!state) return;
+  fetch('/api/admin/reasoning-flag?admin_key='+encodeURIComponent(rxKey())).then(function(r){return r.json();}).then(function(d){
+    var cur=(d.jurisdictions||'').split(',').map(function(x){return x.trim().toUpperCase();}).filter(Boolean);
+    if(cur.indexOf(state)<0) cur.push(state);
+    var merged=cur.sort().join(',');
+    return fetch('/api/admin/reasoning-flag?admin_key='+encodeURIComponent(rxKey()),{
+      method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({jurisdictions:merged})
+    });
+  }).then(function(r){return r.json();}).then(function(d){
+    if(d && d.ok){ window._reasoningAllowlist=d.jurisdictions||''; loadShadowSummary(); if(typeof loadReasoningFlag==='function') loadReasoningFlag(); }
+    else { alert('Could not add '+state+': '+((d&&d.error)||'failed')+((d&&d.guard_detail)?(' ('+d.guard_detail+')'):'')); }
+  }).catch(function(e){ alert('Request failed: '+e); });
 };
 window.loadExitFeedback = function(){
   var el = document.getElementById('exitFeedbackBody');
