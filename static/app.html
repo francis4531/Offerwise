@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>OfferWise AI™ — Property Analysis</title>
-    <script src="/static/gtm-loader.js?v=5.89.245"></script>
+    <script src="/static/gtm-loader.js?v=5.89.251"></script>
 <!-- /GTM head -->
     <script>if(window.location.hostname==='getofferwise.ai')window.location.replace('https://www.getofferwise.ai'+window.location.pathname+window.location.search);</script>
     <link rel="icon" type="image/svg+xml" href="/static/logo-icon-only.svg">
@@ -21,7 +21,7 @@
     <link rel="preconnect" href="https://unpkg.com" crossorigin>
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/results-theme.css?v=5.89.245">
+    <link rel="stylesheet" href="/static/results-theme.css?v=5.89.251">
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone@7.29.7/babel.min.js"></script>
@@ -685,7 +685,7 @@
         .ow-strategy-grid { grid-template-columns: 1fr !important; }
       }
     </style>
-    <script src="/static/analytics-loader.js?v=5.89.245" defer></script>
+    <script src="/static/analytics-loader.js?v=5.89.251" defer></script>
     <!-- Reddit Pixel Base Code -->
     <script>
     !function(w,d){if(!w.rdt){var p=w.rdt=function(){p.sendEvent?p.sendEvent.apply(p,arguments):p.queue.push(arguments)};p.queue=[];var t=d.createElement('script');t.src='https://www.redditstatic.com/ads/pixel.js';t.async=!0;var s=d.getElementsByTagName('script')[0];s.parentNode.insertBefore(t,s)}}(window,document);
@@ -6071,7 +6071,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     _push('repair_costs',        'Confirmed repairs',          'Documented findings — Foundation, Roof, Plumbing, etc.');
                     _push('risk_premium',        'Hidden-issue reserve',       _reserveBasis);
                     _push('transparency_issues', 'Disclosure-risk adjustment', 'Seller disclosed less than the inspection found');
-                    _push('market_adjustment',   'Market discount',            'Comparable closings below asking');
+                    _push('market_adjustment',   'Market discount',            (offer_strategy && offer_strategy.market_context && offer_strategy.market_context.market_discount_basis) || 'Based on comparable closings');
                     _push('safety_buffer',       'Safety reserve',             'Critical safety findings — extra contingency');
                     _push('buyer_sentiment',     'Risk-tolerance adjustment',  'Your stated risk appetite');
                     _push('trauma_buffer',       'Distress-event buffer',      'Property history factor');
@@ -10743,7 +10743,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
               push('repair_costs',        'Confirmed repairs',          '\u2192 See Confirmed repairs \u2191');
               push('risk_premium',        'Hidden-issue reserve',       '\u2192 See Hidden-issue reserve \u2191');
               push('transparency_issues', 'Disclosure-risk adjustment', '\u2192 Legal grounds for credit \u2014 see Disclosure \u2191');
-              push('market_adjustment',   'Market discount',            '\u2192 Listed above comparable closings');
+              push('market_adjustment',   'Market discount',            '\u2192 ' + ((offerStrategy.market_context && offerStrategy.market_context.market_discount_basis) || 'Based on comparable closings'));
               push('safety_buffer',       'Safety reserve',             '\u2192 Critical safety findings \u2014 extra contingency');
               push('buyer_sentiment',     'Risk-tolerance adjustment',  '\u2192 Your stated risk appetite');
               push('trauma_buffer',       'Distress-event buffer',      '\u2192 Property history factor');
@@ -12525,7 +12525,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </script>
     
     <!-- Async Upload Manager - Handles PDF uploads with real-time progress -->
-    <script src="/static/async-upload-manager.js?v=5.89.245"></script>
+    <script src="/static/async-upload-manager.js?v=5.89.251"></script>
     
     <!-- Floating Support Button -->
     <a href="/contact" id="support-button" style="
@@ -12550,8 +12550,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <span style="font-size: 16px;">💬</span>
         Help
     </a>
-<script src="/static/js/compliance.js?v=5.89.245"></script>
-<script src="/static/js/analytics.js?v=5.89.245" defer></script>
+<script src="/static/js/compliance.js?v=5.89.251"></script>
+<script src="/static/js/analytics.js?v=5.89.251" defer></script>
 <script>
 // Scroll reveal for premium results animations
 (function() {
@@ -12638,7 +12638,7 @@ if ('serviceWorker' in navigator) {
 
 <!-- Scout: docked, summon-on-demand "Ask your report" assistant (v5.89.157) -->
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&display=swap" rel="stylesheet">
-<script src="/static/ask-widget.js?v=5.89.245"></script>
+<script src="/static/ask-widget.js?v=5.89.251"></script>
 <script>
 (function(){
   if (window.__scoutInit) { return; } window.__scoutInit = true;

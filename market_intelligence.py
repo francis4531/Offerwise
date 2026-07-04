@@ -599,10 +599,15 @@ def apply_market_adjustment(recommended_offer: float, asking_price: float,
     if avm > 0:
         direction = 'above' if asking_vs_avm_pct > 0 else 'below'
         parts.append(f"Asking price is {abs(asking_vs_avm_pct):.1f}% {direction} the AVM of ${avm:,}.")
+    avc = getattr(market_intel, 'asking_vs_comps_pct', 0) or 0  # >0 => asking above comps
     if comp_count > 0 and comps > 0:
-        comp_dir = 'above' if market_intel.asking_vs_comps_pct > 0 else 'below'
+        # Describe ASKING relative to comps (the correct anchor). asking_vs_comps_pct
+        # is positive when asking is ABOVE the comparable median, so the asking is
+        # that % 'above' comps and comps sit 'below' asking — the old label inverted
+        # this and could read "comps above asking" on a property listed above comps.
+        ask_dir = 'above' if avc > 0 else 'below'
         parts.append(f"{comp_count} comparable sales averaged ${comps:,} "
-                     f"({abs(market_intel.asking_vs_comps_pct):.1f}% {comp_dir} asking).")
+                     f"(asking is {abs(avc):.1f}% {ask_dir} that median).")
     if temp == 'hot':
         parts.append("This is a competitive market — offer strength matters.")
     elif temp == 'buyer':
@@ -610,6 +615,27 @@ def apply_market_adjustment(recommended_offer: float, asking_price: float,
     elif temp == 'warm':
         parts.append("Market is active but not overheated — balanced negotiating position.")
     rationale = ' '.join(parts)
+
+    # Single derived, data-consistent basis for the "Market discount" line, so the
+    # renderers stop asserting a hardcoded "listed above comparable closings" that
+    # can contradict the AVM/comp position (e.g. a bankruptcy sale listed 43% BELOW
+    # both). Anchored to the property's real position vs the comparable median.
+    if comp_count > 0 and comps > 0:
+        if avc > 2:
+            market_discount_basis = f"Listed {abs(avc):.0f}% above recent comparable closings"
+        elif avc < -2:
+            market_discount_basis = f"Listed {abs(avc):.0f}% below recent comparable closings"
+        else:
+            market_discount_basis = "Priced in line with recent comparable closings"
+    elif avm > 0 and asking_vs_avm_pct:
+        _d = 'above' if asking_vs_avm_pct > 0 else 'below'
+        market_discount_basis = f"Listed {abs(asking_vs_avm_pct):.0f}% {_d} the automated valuation"
+    elif temp in ('buyer', 'warm', 'hot'):
+        market_discount_basis = {'buyer': "Buyer's market — inventory rising, homes sitting longer",
+                                 'warm': "Balanced market conditions",
+                                 'hot': "Competitive market — limited negotiating room"}[temp]
+    else:
+        market_discount_basis = "Based on current market conditions"
 
     return {
         'market_applied':          True,
@@ -623,6 +649,7 @@ def apply_market_adjustment(recommended_offer: float, asking_price: float,
         'avm_suppression_reason':  getattr(market_intel, 'avm_suppression_reason', ''),
         'market_adjustment_amount': market_adjustment_amount,
         'market_adjustment_pct':   adj_pct,
+        'market_discount_basis':   market_discount_basis,
         'adjusted_offer':          adjusted_offer,
         'rationale':               rationale,
     }

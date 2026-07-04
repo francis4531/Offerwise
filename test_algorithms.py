@@ -267,91 +267,49 @@ class TestRiskPremium(unittest.TestCase):
 
 
 class TestTransparencyDiscount(unittest.TestCase):
-    """Test transparency discount calculation (Innovation #3 - Core Patent)"""
-    
-    def calculate_transparency_discount(self, property_price: float, 
-                                       transparency_score: float) -> Dict:
-        """
-        Transparency discount formula from patent:
-        
-        D_trans(V, T) = V × d(T)
-        
-        Where:
-        d(T) = 0.03 if T < 50
-               0.00 otherwise
-        """
-        threshold = 50
-        rate = 0.03 if transparency_score < threshold else 0.00
-        discount = property_price * rate
-        
-        return {
-            'score': transparency_score,
-            'threshold': threshold,
-            'applies': transparency_score < threshold,
-            'rate': rate,
-            'discount': round(discount, 2),
-            'percentage': f"{rate * 100}%"
-        }
-    
-    def test_below_threshold_applies_3_percent(self):
-        """Transparency < 50 should apply 3% discount"""
-        result = self.calculate_transparency_discount(
-            property_price=1_000_000,
-            transparency_score=35
-        )
-        self.assertTrue(result['applies'])
-        self.assertEqual(result['rate'], 0.03)
-        self.assertEqual(result['discount'], 30_000.00)
-    
-    def test_above_threshold_no_discount(self):
-        """Transparency ≥ 50 should apply 0% discount"""
-        result = self.calculate_transparency_discount(
-            property_price=1_000_000,
-            transparency_score=70
-        )
-        self.assertFalse(result['applies'])
-        self.assertEqual(result['rate'], 0.00)
-        self.assertEqual(result['discount'], 0.00)
-    
-    def test_threshold_boundary_50(self):
-        """Test exact threshold at 50"""
-        # Just below (should apply)
-        result_below = self.calculate_transparency_discount(1_000_000, 49.9)
-        self.assertTrue(result_below['applies'])
-        self.assertEqual(result_below['discount'], 30_000.00)
-        
-        # Exactly at (should NOT apply)
-        result_at = self.calculate_transparency_discount(1_000_000, 50.0)
-        self.assertFalse(result_at['applies'])
-        self.assertEqual(result_at['discount'], 0.00)
-        
-        # Just above (should NOT apply)
-        result_above = self.calculate_transparency_discount(1_000_000, 50.1)
-        self.assertFalse(result_above['applies'])
-        self.assertEqual(result_above['discount'], 0.00)
-    
-    def test_scale_with_property_value(self):
-        """Discount should scale with property value (like risk premium)"""
-        transparency_score = 35  # Below threshold
-        
-        # Different property prices
-        result_500k = self.calculate_transparency_discount(500_000, transparency_score)
-        result_1m = self.calculate_transparency_discount(1_000_000, transparency_score)
-        result_2m = self.calculate_transparency_discount(2_000_000, transparency_score)
-        
-        # All should apply (same score)
-        self.assertTrue(result_500k['applies'])
-        self.assertTrue(result_1m['applies'])
-        self.assertTrue(result_2m['applies'])
-        
-        # Discounts should scale proportionally
-        self.assertEqual(result_500k['discount'], 15_000.00)
-        self.assertEqual(result_1m['discount'], 30_000.00)
-        self.assertEqual(result_2m['discount'], 60_000.00)
-        
-        # 2x price = 2x discount
-        self.assertEqual(result_1m['discount'] / result_500k['discount'], 2.0)
-        self.assertEqual(result_2m['discount'] / result_1m['discount'], 2.0)
+    """Transparency policy (v5.89.249): disclosure risk is LEVERAGE, not a price
+    discount. A seller under-disclosing something the inspection found does not
+    make the house worth less — that finding's repair cost is already in the
+    repairs line, so a separate transparency dollar double-counted the same gap.
+    The offer math must never apply a transparency discount. These tests lock
+    that: the gaps surface as negotiating leverage, backed by the repair credits
+    already itemized, and the recommended offer does not move on transparency."""
+
+    def _offer(self, asking, transparency_score, repair_low=20000, repair_high=40000):
+        from unittest.mock import MagicMock, patch
+        from offerwise_intelligence import OfferWiseIntelligence
+        intel = OfferWiseIntelligence.__new__(OfferWiseIntelligence)
+        rs = MagicMock(); rs.overall_risk_score = 45; rs.risk_tier = 'HIGH'
+        rs.total_repair_cost_low = repair_low; rs.total_repair_cost_high = repair_high
+        rs.deal_breakers = []; rs.walk_away_threshold = asking * 0.5; rs.category_scores = []
+        cr = MagicMock(); cr.contradictions = []; cr.transparency_score = transparency_score
+        cr.transparency_applicable = True; cr.blank_unknown_count = 0; cr.evasion_phrases = []
+        bp = MagicMock(); bp.max_budget = asking * 1.3; bp.repair_tolerance = 'Moderate'
+        bc = MagicMock(); bc.sentiment = 'neutral'; bc.has_time_pressure = False
+        bc.has_safety_concern = False; bc.has_budget_constraint = False
+        bc.has_past_trauma = False; bc.primary_concerns = []
+        with patch.object(intel, '_calculate_confidence', return_value=0.8):
+            return intel._generate_offer_strategy(asking, rs, cr, bp, bc)
+
+    def test_transparency_never_reduces_offer(self):
+        # Low transparency (would have triggered the old 3%) must produce the SAME
+        # offer as high transparency — the gap is leverage, not a discount.
+        low = self._offer(1_000_000, transparency_score=35)
+        high = self._offer(1_000_000, transparency_score=70)
+        self.assertEqual(low['recommended_offer'], high['recommended_offer'])
+
+    def test_transparency_line_is_zero_in_breakdown(self):
+        for score in (35, 49.9, 50.0, 70):
+            r = self._offer(900_000, transparency_score=score)
+            self.assertEqual(r['discount_breakdown']['transparency_issues'], 0.0,
+                             f"transparency must not discount (score {score})")
+
+    def test_no_double_count_across_price_points(self):
+        # The old flat 3% scaled with price; the new policy contributes nothing at
+        # any price, so removing it can't reintroduce a price-scaled discount.
+        for asking in (500_000, 1_000_000, 2_000_000):
+            r = self._offer(asking, transparency_score=35)
+            self.assertEqual(r['discount_breakdown']['transparency_issues'], 0.0)
 
 
 class TestIntegratedOfferCalculation(unittest.TestCase):

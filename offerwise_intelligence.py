@@ -370,6 +370,45 @@ def detect_buyer_concerns(buyer_input: str, anthropic_api_key: Optional[str] = N
     return concerns
 
 
+def _reserve_from_predicted_issues(predicted_issues) -> float:
+    """The hidden-issue reserve = the itemized sum of the predicted-hidden-issue
+    list the report shows the buyer. Each prediction contributes the midpoint of
+    its cost range (the natural 'budget for this' figure); most_likely is used
+    when a range isn't available. Robust to dicts or IssuePrediction objects and
+    to missing/None fields. Returns 0.0 when there are no predictions — we never
+    reserve for issues we can't name.
+
+    This is the single source of truth for the reserve dollar amount, so the
+    offer math ("Hidden-issue reserve −$X") and the itemized reserve section
+    reconcile by construction — never a flat percentage of asking price.
+    """
+    if not predicted_issues:
+        return 0.0
+
+    def _num(v):
+        try:
+            f = float(v)
+            return f if f == f and f >= 0 else 0.0  # reject NaN/negatives
+        except (TypeError, ValueError):
+            return 0.0
+
+    def _get(obj, key):
+        if isinstance(obj, dict):
+            return obj.get(key)
+        return getattr(obj, key, None)
+
+    total = 0.0
+    for p in predicted_issues:
+        low = _num(_get(p, 'estimated_cost_low'))
+        high = _num(_get(p, 'estimated_cost_high'))
+        if low or high:
+            # midpoint of the range; if only one bound is present, use it
+            total += (low + high) / 2 if (low and high) else (low or high)
+        else:
+            total += _num(_get(p, 'estimated_cost_most_likely'))
+    return round(total)
+
+
 @dataclass
 class PropertyAnalysis:
     """Complete property analysis output"""
@@ -976,9 +1015,27 @@ class OfferWiseIntelligence:
                 logger.warning(f"📊 Market intelligence failed (non-fatal): {e}")
                 market_intel = None
         
+        # Predict hidden issues BEFORE the offer strategy, so the "hidden-issue
+        # reserve" line in the offer math can be the itemized SUM of these
+        # predictions rather than a flat percentage of asking. (v5.89.247: a
+        # 10%-of-asking haircut was being labeled "Hidden-issue reserve" — e.g.
+        # $90k on a $900k listing — while the reserve section itemized only a
+        # fraction of it. The reserve a buyer takes into a negotiation must equal
+        # what the report can defend.) Computed once here; reused for the return.
+        import time as _time_pi
+        _t_pi = _time_pi.time()
+        predicted_issues = None
+        try:
+            predicted_issues = self.predictive_engine.predict_hidden_issues(
+                current_findings=inspection_doc.inspection_findings,
+                property_metadata={'age': 0, 'type': 'single_family', 'location': property_address}
+            )
+        except Exception as e:
+            logger.info(f"   ⚠️  Predictive engine (pre-offer) failed: {e}")
+
         offer_strategy = self._generate_offer_strategy(
             property_price, risk_score, cross_ref, buyer_profile, buyer_concerns,
-            market_intel=market_intel
+            market_intel=market_intel, predicted_issues=predicted_issues
         )
         
         inspection_priorities = self._generate_inspection_priorities(
@@ -1141,25 +1198,16 @@ class OfferWiseIntelligence:
         # Innovation #3: Predict Hidden Issues™
         logger.info("🔮 Predicting Hidden Issues...")
         t0 = time.time()
-        predicted_issues = None
+        # predicted_issues already computed before the offer strategy (so the
+        # reserve is the itemized sum of these). Here we only log, time, and train.
         try:
-            predicted_issues = self.predictive_engine.predict_hidden_issues(
-                current_findings=inspection_doc.inspection_findings,
-                property_metadata={
-                    'age': 0,  # Would come from metadata
-                    'type': 'single_family',
-                    'location': property_address
-                }
-            )
-            logger.info(f"   ✅ Predictions: {len(predicted_issues)} hidden/future issues detected")
-            
-            # Show top 3 predictions
-            for i, pred in enumerate(predicted_issues[:3], 1):
-                logger.info(f"      {i}. {pred.predicted_issue} ({pred.probability:.0%} probability)")
+            if predicted_issues:
+                logger.info(f"   ✅ Predictions: {len(predicted_issues)} hidden/future issues detected")
+                for i, pred in enumerate(predicted_issues[:3], 1):
+                    logger.info(f"      {i}. {pred.predicted_issue} ({pred.probability:.0%} probability)")
         except Exception as e:
-            logger.info(f"   ⚠️  Predictive engine failed: {e}")
-            logger.error(f"Prediction error: {e}")
-        timing['predicted_issues'] = time.time() - t0
+            logger.info(f"   ⚠️  Prediction logging skipped: {e}")
+        timing['predicted_issues'] = _time_pi.time() - _t_pi
         
         # Train predictive engine on this analysis (for future learning)
         t0 = time.time()
@@ -1275,7 +1323,8 @@ class OfferWiseIntelligence:
         cross_ref: CrossReferenceReport,
         buyer_profile: BuyerProfile,
         buyer_concerns: BuyerConcerns,
-        market_intel=None
+        market_intel=None,
+        predicted_issues=None
     ) -> Dict[str, Any]:
         """Generate specific offer recommendations — now market-aware (Phase 2)"""
         
@@ -1293,25 +1342,28 @@ class OfferWiseIntelligence:
         # Use 100% of repair costs as starting point for negotiation
         cost_discount = repair_cost_avg
         
-        # Additional discount for risk
-        if risk_score.risk_tier == "CRITICAL":
-            risk_discount = property_price * 0.10
-        elif risk_score.risk_tier == "HIGH":
-            risk_discount = property_price * 0.05
-        elif risk_score.risk_tier == "MODERATE":
-            risk_discount = property_price * 0.02
-        else:
-            risk_discount = 0.0
+        # ── Hidden-issue reserve (v5.89.247) ──────────────────────────────────
+        # The reserve MUST equal the itemized predicted-hidden-issue list the
+        # report shows the buyer — never a flat percentage of asking. Previously
+        # this was property_price * {0.10, 0.05, 0.02} by risk tier, which put an
+        # unbacked number (e.g. $90k on a $900k listing) on a line labeled
+        # "Hidden-issue reserve" while the itemized section totaled a fraction of
+        # it. That is the tight-but-fabricated failure mode. Now the reserve is
+        # the sum of the SAME predictions the reserve section itemizes, so the
+        # offer math and the section reconcile by construction. No predictions ->
+        # no reserve (honest: we don't reserve for issues we can't name).
+        risk_discount = _reserve_from_predicted_issues(predicted_issues)
         
-        # Additional discount for transparency issues
-        # v5.89.121: only when transparency was actually assessable (a disclosure
-        # was provided). With no disclosure the score is a neutral 50 sentinel,
-        # but we guard explicitly so a future sentinel change can't reintroduce
-        # an unearned discount against a seller we never evaluated.
+        # Disclosure-risk is LEVERAGE, not a price discount (v5.89.249). A seller
+        # under-disclosing something the inspection found does not make the house
+        # worth less — the repair cost of that finding is ALREADY in cost_discount
+        # (repairs). Charging a separate flat 3% of asking on top double-counted
+        # the same gap and padded the offer with a number no line item defends.
+        # The gaps now surface where they belong — as negotiating leverage in the
+        # "What the Seller Didn't Tell You" section, backed by the repair credits
+        # already itemized. No separate disclosure dollar reduces the offer.
         transparency_discount = 0.0
-        if getattr(cross_ref, 'transparency_applicable', True) and cross_ref.transparency_score < 50:
-            transparency_discount = property_price * 0.03
-        
+
         total_discount = cost_discount + risk_discount + transparency_discount
         recommended_offer = property_price - total_discount
         
@@ -1338,6 +1390,7 @@ class OfferWiseIntelligence:
                     'asking_vs_avm_pct': market_result.get('asking_vs_avm_pct', 0),
                     'market_adjustment_amount': market_adjustment,
                     'market_adjustment_pct': market_result.get('market_adjustment_pct', 0),
+                    'market_discount_basis': market_result.get('market_discount_basis', ''),
                     'market_rationale': market_result.get('rationale', ''),
                     # AVM confidence range
                     'avm_range_low': getattr(market_intel, 'value_range_low', 0),
@@ -1385,45 +1438,33 @@ class OfferWiseIntelligence:
         logging.info("=" * 80)
         logging.info("🎯 ADJUSTING OFFER BASED ON BUYER CONCERNS")
         
-        # Track all adjustments for transparency
+        # Buyer psychology no longer bends the recommended offer (v5.89.250). The
+        # recommended offer is what the PROPERTY and report justify — identical for
+        # every buyer looking at the same house — so it can never read "justified
+        # by the report" while secretly moving on the buyer's stated feelings.
+        # (Previously: aggressive/time-pressure nudged it UP 30% of discount,
+        # conservative DOWN 10%, a stated safety concern DOWN a flat 2% — which
+        # also double-counted the safety findings already in repairs — and
+        # budget+past-trauma DOWN 15%. On one $900k property that swung the
+        # "recommended" number across a ~$50k range on emotion alone.)
+        #
+        # Buyer psychology now does its honest job on the POSTURE axis instead: the
+        # aggressive / conservative offer variants (the spread around this anchor)
+        # are where "how hard do you want to push" lives. These three terms remain
+        # in the breakdown as zeros so the reconciliation invariant and any
+        # consumers are unaffected; THE MATH simply never renders them.
         sentiment_adjustment = 0
         safety_adjustment = 0
         buffer_adjustment = 0
-        
-        # Use detected buyer concerns to adjust offer strategy
-        if buyer_concerns.sentiment == 'aggressive' or buyer_concerns.has_time_pressure:
-            # Buyer fears losing house - be more aggressive
-            sentiment_adjustment = total_discount * 0.3
-            recommended_offer = min(property_price, recommended_offer + sentiment_adjustment)
-            logging.info(f"   ⬆️  Aggressive sentiment detected → Increased offer by ${sentiment_adjustment:,.0f}")
-            
-        elif buyer_concerns.sentiment == 'conservative':
-            # Buyer fears overpaying - be more conservative  
-            sentiment_adjustment = -(total_discount * 0.1)  # Negative for decrease
-            recommended_offer = recommended_offer + sentiment_adjustment  # Adding negative value
-            logging.info(f"   ⬇️  Conservative sentiment detected → Decreased offer by ${-sentiment_adjustment:,.0f}")
-        
-        # Additional adjustments for specific concerns
-        if buyer_concerns.has_safety_concern:
-            # Safety is non-negotiable - be more conservative if issues found
-            if risk_score.overall_risk_score > 50:
-                safety_adjustment = property_price * 0.02  # Extra 2% discount for safety concerns
-                recommended_offer = recommended_offer - safety_adjustment
-                logging.info(f"   ⚠️  Safety concern + high risk → Decreased offer by ${safety_adjustment:,.0f}")
-        
-        if buyer_concerns.has_budget_constraint and buyer_concerns.has_past_trauma:
-            # Budget-constrained buyer with past trauma needs extra cushion
-            buffer_adjustment = total_discount * 0.15
-            recommended_offer = recommended_offer - buffer_adjustment
-            logging.info(f"   💰 Budget constraint + past trauma → Added ${buffer_adjustment:,.0f} safety buffer")
-        
-        # Log detected concerns for transparency
+
+        # Detected concerns still steer NON-price behavior (which systems to
+        # highlight, contingency posture) — just not the recommended dollar.
         if buyer_concerns.primary_concerns:
             logging.info(f"   📋 Buyer priorities: {', '.join(buyer_concerns.primary_concerns)}")
             logging.info(f"   🎯 These systems will be highlighted in the analysis report")
-        
+
         logging.info("=" * 80)
-        
+
         # Cap at buyer's max budget
         if buyer_profile.max_budget:
             recommended_offer = min(recommended_offer, buyer_profile.max_budget)

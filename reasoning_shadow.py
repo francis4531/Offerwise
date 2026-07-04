@@ -228,6 +228,13 @@ def shadow_summary(window_days: int = 30) -> dict:
         rows = q.all()
     except Exception:
         return {}
+    return _summarize_rows(rows)
+
+
+def _summarize_rows(rows) -> dict:
+    """Pure aggregation over ShadowComparison-like rows (DB-free, unit-testable).
+    Produces the global rollup plus the per-jurisdiction readiness readout that
+    gates the per-state activation allowlist."""
     n = len(rows)
     if not n:
         return {"count": 0}
@@ -236,6 +243,49 @@ def shadow_summary(window_days: int = 30) -> dict:
     reasoning_more = sum(1 for r in rows if (r.reasoning_issues or 0)
                          > ((r.live_contradictions or 0) + (r.live_undisclosed or 0)))
     disc_any = sum(1 for r in rows if (r.disclosure_readings or 0) > 0)
+
+    # Per-jurisdiction readiness — the readout that gates the per-state activation
+    # allowlist (reasoning_in_report_jurisdictions). A state clears the bar when it
+    # has enough real samples AND the extractor fires AND the disclosure side is
+    # actually producing readings AND reasoning surfaces at least as much as the
+    # live engine. Thresholds are deliberately conservative and tunable — they
+    # answer "is it safe to turn the moat on for buyers in this state yet?".
+    READY_MIN_SAMPLES = 10
+    READY_EXTRACTOR = 0.80
+    READY_DISCLOSURE = 0.50
+    READY_MORE = 0.50
+
+    def _state(r):
+        j = (r.jurisdiction or "").split(":")[0].strip().upper()
+        return j or "?"
+
+    by_juris = {}
+    for r in rows:
+        st = _state(r)
+        b = by_juris.setdefault(st, {"count": 0, "_extr": 0, "_disc": 0, "_more": 0})
+        b["count"] += 1
+        b["_extr"] += 1 if r.extractor_ok else 0
+        b["_disc"] += 1 if (r.disclosure_readings or 0) > 0 else 0
+        b["_more"] += 1 if (r.reasoning_issues or 0) > ((r.live_contradictions or 0)
+                                                        + (r.live_undisclosed or 0)) else 0
+    for st, b in by_juris.items():
+        c = b["count"]
+        b["extractor_ok_rate"] = round(b.pop("_extr") / c, 3)
+        b["disclosure_extracted_rate"] = round(b.pop("_disc") / c, 3)
+        b["reasoning_surfaced_more_rate"] = round(b.pop("_more") / c, 3)
+        b["ready"] = bool(
+            c >= READY_MIN_SAMPLES
+            and b["extractor_ok_rate"] >= READY_EXTRACTOR
+            and b["disclosure_extracted_rate"] >= READY_DISCLOSURE
+            and b["reasoning_surfaced_more_rate"] >= READY_MORE
+        )
+        b["verdict"] = (
+            "READY — clears the bar; safe to add to the activation allowlist"
+            if b["ready"] else
+            (f"needs samples ({c}/{READY_MIN_SAMPLES})" if c < READY_MIN_SAMPLES else
+             "below threshold — keep validating")
+        )
+
     return {
         "count": n,
         "ran_ok": ok,
@@ -248,4 +298,11 @@ def shadow_summary(window_days: int = 30) -> dict:
         "avg_contradiction": round(sum((r.reasoning_contradiction or 0) for r in rows) / n, 2),
         "avg_undisclosed": round(sum((r.reasoning_undisclosed or 0) for r in rows) / n, 2),
         "avg_elapsed_ms": round(sum((r.elapsed_ms or 0) for r in rows) / n),
+        "readiness_thresholds": {
+            "min_samples": READY_MIN_SAMPLES, "extractor_ok_rate": READY_EXTRACTOR,
+            "disclosure_extracted_rate": READY_DISCLOSURE,
+            "reasoning_surfaced_more_rate": READY_MORE,
+        },
+        "by_jurisdiction": dict(sorted(by_juris.items(),
+                                       key=lambda kv: (-kv[1]["count"], kv[0]))),
     }

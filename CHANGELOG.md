@@ -1,3 +1,283 @@
+## v5.89.251 — Ship the moat: jurisdiction-scoped activation + per-state readiness readout
+
+The reasoning cross-reference (the moat — "the seller said X, the inspection found
+Y, here's the contradiction") passed Layer A on the canonical CA case but reached
+zero buyers: OFFERWISE_REASONING_IN_REPORT was a single global flag, and flipping
+it everywhere on the strength of one validated market is reckless. This build makes
+activation safe and staged, so the moat can go live in the depth-first market (CA)
+while other states keep validating in shadow.
+
+Jurisdiction-scoped activation (reasoning/report_bridge):
+ - reasoning_in_report_enabled(jurisdiction) resolution: (1) global DB toggle
+   'reasoning_in_report' — explicit ON = all states, explicit OFF = kill switch;
+   (2) state allowlist — DB setting 'reasoning_in_report_jurisdictions' or env
+   OFFERWISE_REASONING_IN_REPORT_JURISDICTIONS ("CA" or "CA,TX") enables the moat
+   ONLY for a property whose RESOLVED state is on the list; (3) global env flag;
+   (4) OFF. The national base ('*' / unresolved state) never opts a property in.
+ - The property's resolved jurisdiction (from the v5.89.245 resolver) is threaded
+   into the gate, so activation is per-state with no deploy (admin DB setting).
+ - Safety unchanged and confirmed: the reasoning section supersedes the old
+   cross-reference ONLY when it has content (result.reasoning.claims); an
+   unextractable format falls back to current behavior, never blank. The offer /
+   THE MATH stay on the (now-clean) live engine, so the flip swaps only the
+   cross-reference.
+
+Per-state readiness readout (reasoning_shadow):
+ - shadow_summary now returns by_jurisdiction: per state, extractor_ok_rate,
+   disclosure_extracted_rate, reasoning_surfaced_more_rate, a READY flag and a
+   plain-English verdict. A state is READY only with >=10 real samples AND
+   extractor >=80% AND disclosure side firing >=50% AND reasoning beating live
+   >=50% — the exact go/no-go for adding a state to the allowlist. Thresholds are
+   surfaced (readiness_thresholds) and tunable. The disclosure_extracted_rate gate
+   is the national-correctness signal: a state whose disclosures aren't being
+   extracted never reads READY.
+ - Aggregation refactored into a pure _summarize_rows(rows) (DB-free, unit-tested).
+   The admin shadow-summary endpoint passes the new fields through unchanged.
+
+Activation runbook: deploy -> turn on the shadow on real traffic incl. non-CA ->
+watch admin Reasoning Engine > shadow-summary > by_jurisdiction -> when a state
+reads READY, set reasoning_in_report_jurisdictions to include it (admin, no deploy)
+-> the moat is live for buyers in that state -> expand as states clear the bar.
+
+Tests: new test_reasoning_activation_scope.py (6) + test_shadow_readiness.py (6).
+41 passed across activation + readiness + reasoning + national + offer suites.
+Default remains OFF everywhere; compiles + imports clean.
+## v5.89.250 — Buyer psychology no longer bends the recommended offer (one honest, property-justified anchor)
+
+Three terms let the buyer's stated feelings move the recommended offer AND show up
+as lines in THE MATH under "every dollar justified by something in this report":
+sentiment_adjustment (aggressive/time-pressure +30% of discount; conservative
+-10%), safety_adjustment (a flat 2% of asking when the buyer stated a safety
+concern on a high-risk property — which also double-counted the safety findings
+already in repairs), and buffer_adjustment (budget-constrained + past-trauma, -15%
+of discount). On one $900k property these swung the "recommended" number across a
+~$50k range (from $810k to $860k) on emotion alone. "Justified by the report" and
+"adjusted for your feelings" cannot both be true of the same number.
+
+Decision (founder call, offer deltas reviewed): the recommended offer is what the
+PROPERTY and report justify — identical for every buyer looking at the same house.
+Buyer psychology belongs on the POSTURE axis, not the anchor.
+
+ - sentiment/safety/buffer adjustments no longer modify recommended_offer; they
+   remain in discount_breakdown as zeros (reconciliation invariant + consumers
+   unaffected), so THE MATH never renders "Risk-tolerance adjustment", "Safety
+   reserve", or "Distress-event buffer".
+ - The recommended offer is now the property-justified anchor (repairs + reserve +
+   market). Buyer psychology does its honest job on the aggressive / conservative
+   offer variants (the spread around the anchor — "how hard do you want to push"),
+   which already exist. Detected concerns still steer non-price behavior (which
+   systems to highlight, contingency posture).
+
+Offer impact (mixed by profile — the anchor becomes the same for everyone): on a
+$900k property, aggressive buyers' recommended offer moves from $859,750 to the
+$842,500 anchor (down), conservative/safety/trauma profiles move up to $842,500.
+Nobody's posture is lost; it moves to where it is labeled truthfully.
+
+Tests: new test_offer_psychology_neutral.py (4) — recommended offer identical
+across 7 buyer-psychology profiles, all three terms zero in the breakdown, holds
+across price points, and a stated safety concern no longer double-counts. 112
+passed across psychology + reserve + market + algorithms + report-quality suites
+(the aggressive/conservative variant tests still pass — those are the posture
+axis). Compiles + imports clean.
+
+RUNNING TALLY — offer/market integrity:
+ FIXED + TESTED: fabricated $90k reserve (.247), AVM-vs-comps contradiction (.248),
+ double-counted transparency discount (.249), buyer-psychology terms in the anchor
+ (.250). The recommended offer + its breakdown are now fully property-justified and
+ self-consistent; every line reconciles to something the report itemizes.
+ OPEN: whether a below-market listing should carry any "Market discount" amount
+ (the -3% buyer's-market nudge can still discount an already-underpriced listing) —
+ a pricing-philosophy call. And the old keyword-engine miscategorizations (CO under
+ a system, clean "no settlement" priced as critical, buried FPE) are replaced by
+ the Layer-A-validated reasoning engine on flag flip, not patched in the classifier.
+## v5.89.249 — Remove the double-counted transparency discount (disclosure risk is leverage, not a price cut)
+
+The offer math carried a "Disclosure-risk adjustment" = property_price * 0.03 (a
+flat 3% of asking whenever transparency_score < 50), presented under "every dollar
+of the discount is justified by something in this report." Two problems, same
+class as the reserve bug: (1) it was a formulaic percentage untethered from any
+itemized finding, and (2) it DOUBLE-COUNTED — when the seller under-disclosed
+something the inspection found, that finding's repair cost is already in the
+repairs line, so the offer was reduced twice for the same gap. A seller's agent
+reads that as a padded offer and the whole thing loses credibility.
+
+Decision (founder call, with offer deltas reviewed): a disclosure gap is
+NEGOTIATING LEVERAGE, not a price cut — it strengthens the buyer's position to
+GET the repair credits already owed, it does not make the house worth less. So the
+transparency dollar is removed from the offer math entirely.
+
+ - transparency_discount is now always 0.0; no separate disclosure dollar reduces
+   the offer. The gaps surface where they belong: the "What the Seller Didn't Tell
+   You" section (seller-vs-inspector contradiction pairs) and negotiation
+   leverage_points, backed by the repair credits already itemized in repairs.
+ - discount_breakdown.transparency_issues is 0, so THE MATH no longer renders a
+   "Disclosure-risk adjustment" line. The v5.89.242 offer↔breakdown reconciliation
+   still holds.
+
+Offer impact (this RAISES the recommended offer where the 3% previously fired —
+the credibility-correct direction; a defensible higher offer beats a padded lower
+one): +$15,000 on a $500k listing, +$27,000 on $900k, +$45,000 on $1.5M — exactly
+3% of asking wherever transparency_score < 50. No offer moves where it did not
+previously fire.
+
+Tests: TestTransparencyDiscount rewritten to lock the new policy (transparency
+never reduces the offer; the breakdown line is 0 at every score; no price-scaled
+discount at any price point). 108 passed across algorithms + reserve + market +
+report-quality suites. offerwise_intelligence compiles and imports clean.
+
+RUNNING TALLY — offer/market integrity:
+ FIXED + TESTED: fabricated $90k hidden-issue reserve (.247), AVM-vs-comps
+ contradiction (.248), double-counted transparency discount (.249).
+ OPEN (product-economics, flagged): buyer-psychology terms (sentiment/buffer) still
+ sit inside the "justified" breakdown — should move to a separate "negotiating
+ posture" framing; safety_buffer flat 2%; and whether a below-market listing should
+ carry any "Market discount" amount. Separately: the old keyword-engine
+ miscategorizations (CO under a system, clean "no settlement" priced as critical,
+ buried FPE) are replaced by the Layer-A-validated reasoning engine on flag flip,
+ not patched in the classifier.
+## v5.89.248 — Resolve the AVM-vs-comps contradiction (the report must tell ONE market story)
+
+A report whose entire pitch is "we catch the contradictions the seller didn't
+tell you" was shipping its own internal contradiction: it said "listed 43% below
+AVM — the market may already be discounting this" and, in the same report, put
+"Market discount · Listed above comparable closings" in THE MATH. Both cannot be
+true. A skeptic's agent catches a self-contradiction in one read, and it taints
+every other (correct) number in the report — the worst possible credibility
+failure for a contradiction-detector.
+
+Root cause: the "Market discount" line's basis was a HARDCODED string — "Listed
+above comparable closings" (PDF/shared renderer) / "Comparable closings below
+asking" (React renderer) — asserted regardless of the actual comp position. On a
+bankruptcy-style listing priced ~43% BELOW both AVM and comps, that hardcoded
+claim is simply false and contradicts the (correct) AVM line. Plus an inverted
+wording in apply_market_adjustment labeled comps "above asking" on a property
+listed ABOVE comps.
+
+Fix — one coherent, data-derived market story:
+ - apply_market_adjustment now derives a single market_discount_basis from the
+   real asking-vs-comps position (falls back to AVM gap, then temperature, then a
+   neutral phrase) and exposes it in the return + market_context. "Listed X% above
+   / below recent comparable closings" — never a hardcoded direction.
+ - Both renderers (React app + string PDF/shared) now render that derived basis
+   instead of the hardcoded strings. Single source of truth; the two renderers can
+   no longer disagree with each other or with the AVM line.
+ - Corrected the inverted comp wording: the rationale now anchors on the asking
+   ("asking is X% above/below that median"), which cannot flip sign.
+ - Coherence is now structural: a distrusted AVM is already zeroed by the
+   corroboration gate (v5.89.231), so the "% below AVM" line only appears for a
+   trusted AVM — and the derived comp basis agrees with it in direction by
+   construction. The contradiction can no longer be produced.
+
+Proof: for a Pendleton-like case (asking $900k, AVM $1.59M, comps $1.5M) every
+line now reads "below" — "43% below AVM", "Listed 40% below recent comparable
+closings", "asking is 40.0% below that median". A normal above-comps listing reads
+"above" consistently.
+
+Tests: new test_market_narrative_consistency.py (5) — below-market never claims
+"above comps", AVM and comp directions agree, basis reflects the real comp %,
+wording not inverted, no-data means the market line doesn't render. 100 passed
+across market + reserve + offer-strategy + report-quality + avm + reasoning
+suites. Backends compile; app.html edits are paren-balanced literal→expression
+swaps (no structural change); market_intelligence + offerwise_intelligence import
+clean.
+
+OPEN (product-economics, flagged not cowboy-changed): whether an underpriced /
+below-comps listing should carry a further "Market discount" amount at all (the
+-3% buyer's-market nudge can still apply a discount to a property already priced
+below market). Resolving the contradiction did not change any offer dollar; the
+direction/amount question needs a founder call with the offer delta.
+## v5.89.247 — Kill the fabricated hidden-issue reserve (offer math must equal what the report itemizes)
+
+The live staging buyer report showed a "Hidden-issue reserve −$90,000" in THE MATH
+on a $900k listing, cross-referenced (→ "See Hidden-issue reserve ↑") to a section
+that itemized only a fraction of it — under a headline claiming "every dollar of
+the discount is justified by something in this report." Provable from code, live,
+independent of any flag: risk_discount = property_price * {0.10 CRITICAL / 0.05
+HIGH / 0.02 MODERATE} — a flat percentage of ASKING, labeled as a reserve. That is
+the tight-but-fabricated failure mode (a precise, unbacked number) on the buyer's
+strongest input: the offer they carry into a negotiation.
+
+Fix — the reserve is now the itemized sum of the SAME predictions the reserve
+section shows the buyer, never a percentage of asking:
+ - New module-level _reserve_from_predicted_issues(predicted_issues): sums each
+   prediction's cost-range midpoint (most_likely fallback), robust to dicts /
+   objects / missing / NaN / negative values; 0 when there are no predictions
+   (we do not reserve for issues we can't name). Single source of truth for the
+   reserve dollar amount.
+ - predicted_issues are now computed BEFORE the offer strategy (once; the later
+   duplicate computation was removed — no redundant work) and passed in, so
+   risk_discount = _reserve_from_predicted_issues(predicted_issues). THE MATH's
+   "Hidden-issue reserve" line and the itemized reserve section now reconcile by
+   construction.
+ - The v5.89.242 offer↔breakdown reconciliation invariant still holds, now with
+   the honest reserve, so the recommended offer never drifts from its own math.
+
+Effect: on the Pendleton-class case, the reserve drops from a fabricated $90k to
+the itemized prediction total, raising the recommended offer by the fabricated
+gap — the report stops over-discounting on a number it cannot defend.
+
+Tests: new test_reserve_reconciliation.py (11) — reserve == itemized predictions,
+reserve is NOT a function of asking price, no-predictions-means-no-reserve, and
+offer still reconciles to its breakdown. 95 passed across reserve + offer-strategy
++ report-quality + reasoning + avm suites. offerwise_intelligence imports clean.
+
+KNOWN, SAME CLASS, NOT YET CHANGED (these move the recommended offer — a product-
+economics call, flagged for decision, not cowboy-changed): transparency_discount
+(3% flat of asking, "Disclosure-risk adjustment"), safety_adjustment (2% flat),
+sentiment_adjustment / buffer_adjustment (% of total discount). Also tracked: the
+market narrative can say "listed 43% below AVM" and apply a "market discount for
+listing above comps" in the same report — an internal contradiction to resolve
+with the market_intel data.
+## v5.89.246 — Cross-reference diagnostic: diagnose #1 disclosed_not_found before touching the derivation
+
+Layer A on the real Pendleton PDFs passed all 7 findings, but #1 (the disclosed
+master-bath water — the strongest negotiation lever) derived disclosure_status
+'disclosed_not_found' instead of 'corroborated'. The harness doesn't gate on this
+(LLM/room-granularity variance, per v5.89.236), so it's not a hard fail — but the
+status is material, and the wrong fix here is dangerous: the correct label depends
+on WHY the two sides diverged, and one of the causes makes any corroboration
+FABRICATED (the tight-but-fabricated failure mode).
+
+Root cause reproduced deterministically offline: disclosure_status requires an
+EXACT checklist-item match between the seller-side concern and the inspection-side
+concern (_disclosure_status_by_item). When the disclosure LLM maps the shower leak
+to structure.water_intrusion_bath but the inspection LLM maps the same-or-related
+water to plumbing.active_leaks, no corroboration forms -> the disclosed item reads
+disclosed_not_found and the plumbing item reads undisclosed. That is exactly the
+Layer A output. The open question — unanswerable without the real readings — is
+whether that plumbing.active_leaks reading IS the bath water (same finding, should
+corroborate) or the supply-line leak #6 (a DIFFERENT finding, where corroborating
+would fabricate a cross-reference that doesn't exist).
+
+This build does NOT change the derivation. It ships the instrument to answer the
+question with evidence, so the fix (corroboration vs extraction-recall) is precise:
+
+Upgraded /api/admin/reasoning/extractor-diagnostic (admin Reasoning Engine tab):
+ - Runs BOTH the inspection AND disclosure LLM extractors on the Pendleton
+   fixtures (inspection.pdf + disclosures.pdf), not just the inspection side.
+ - Derives disclosure_status through the REAL pipeline and returns the derived
+   issues, so the actual buyer-facing cross-reference is visible.
+ - Returns a water/leak cross-reference from BOTH sides with source quotes and the
+   authored related_items of structure.water_intrusion_bath, so a mapping
+   divergence is visible at a glance.
+ - Sharper verdict that names the cause: exact-match (pipeline bug if still
+   failing) / related-item divergence (cause a, fixable by evidence-gated
+   related_items corroboration — CONFIRM quotes are same-location first) / recall
+   gap (cause b, inspection pulled no water — disclosed_not_found is CORRECT,
+   corroboration would be fabricated) / unrelated water (likely the #6 supply
+   leak — corroborating would be fabricated).
+ - National-correct: offers both extractors all_authored_ids() (not the leftover
+   compose('CA','SFH') hardcode); the pipeline gates to CA/SFH for Pendleton.
+
+How to use (staging, admin): open the Reasoning Engine tab and run the extractor
+diagnostic (or POST the endpoint). Read water_cross_reference + verdict. If the
+inspection quote on a bath-related item describes the master bath/shower, it's a
+real corroboration to wire; if it's the shut-off/supply leak, #1 stays
+disclosed_not_found and the fix is extraction recall, not derivation.
+
+No derivation change, no masking risk, no fabrication. admin.html untouched (JS
+unchanged). Existing reasoning/national/resolver suites unaffected (122 green from
+v5.89.245); admin_routes compiles.
 ## v5.89.245 — National correctness: no CA/SFH assumptions in the reasoning path (generic + brilliant)
 
 The reasoning ENGINE resolves nationally, but every place a document became

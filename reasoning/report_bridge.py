@@ -17,24 +17,62 @@ import os
 from typing import Any, Dict, Optional
 
 
-def reasoning_in_report_enabled() -> bool:
+def _reasoning_state(jurisdiction) -> str:
+    """The 2-letter state from a jurisdiction path ('CA:santa_clara:san_jose' ->
+    'CA'). Empty/'*' means the state wasn't resolved."""
+    if not jurisdiction:
+        return ""
+    return str(jurisdiction).split(":")[0].strip().upper()
+
+
+def reasoning_in_report_enabled(jurisdiction=None) -> bool:
     """Buyer-facing reasoning section. OFF by default.
 
     Resolution order (first decisive wins):
-      1. DB setting 'reasoning_in_report' (admin toggle) — '1'/'on'/'true' = ON,
-         '0'/'off'/'false' = OFF. Lets an admin flip it from the dashboard with
-         no deploy.
-      2. Env var OFFERWISE_REASONING_IN_REPORT == '1'.
-    Fully defensive: any DB/context error falls through to the env var, so the
+      1. Global DB setting 'reasoning_in_report' (admin toggle, no deploy) —
+         explicit ON enables every jurisdiction; explicit OFF is a kill switch
+         that disables it everywhere.
+      2. Jurisdiction allowlist — DB setting 'reasoning_in_report_jurisdictions'
+         or env OFFERWISE_REASONING_IN_REPORT_JURISDICTIONS, a comma list of
+         2-letter states (e.g. "CA" or "CA,TX"). Enables the section ONLY for a
+         property whose resolved state is on the list — so the moat can go live in
+         the depth-first market while other states keep validating in shadow. The
+         national base ('*' / unresolved state) never matches an allowlist.
+      3. Global env OFFERWISE_REASONING_IN_REPORT == '1' — every jurisdiction.
+      4. OFF.
+    Fully defensive: any DB/context error falls through to env resolution, so the
     analysis path never breaks on a settings lookup.
     """
+    # 1. global DB toggle — an explicit value is decisive (dashboard on / kill).
     try:
         from models import SystemSetting
         v = SystemSetting.get("reasoning_in_report", None)
         if v is not None:
-            return str(v).strip().lower() in ("1", "on", "true", "yes")
+            s = str(v).strip().lower()
+            if s in ("1", "on", "true", "yes"):
+                return True
+            if s in ("0", "off", "false", "no"):
+                return False
     except Exception:
         pass
+
+    # 2. jurisdiction allowlist (DB setting first, then env). Only a resolved
+    #    state can match — the national base never opts a property in.
+    state = _reasoning_state(jurisdiction)
+    if state and state != "*":
+        allow = ""
+        try:
+            from models import SystemSetting
+            allow = SystemSetting.get("reasoning_in_report_jurisdictions", "") or ""
+        except Exception:
+            allow = ""
+        if not allow:
+            allow = os.environ.get("OFFERWISE_REASONING_IN_REPORT_JURISDICTIONS", "")
+        allowed = {p.strip().upper() for p in allow.split(",") if p.strip()}
+        if state in allowed:
+            return True
+
+    # 3. global env flag.
     return os.environ.get("OFFERWISE_REASONING_IN_REPORT", "0") == "1"
 
 
@@ -169,7 +207,7 @@ def attach_reasoning_if_enabled(
     persist the reasoning corpus when the persist flag is on. The two are
     decoupled: persistence can run with the buyer flag OFF (nothing is exposed),
     and a persist failure never blocks the buyer section. Never raises."""
-    want_buyer = reasoning_in_report_enabled()
+    want_buyer = reasoning_in_report_enabled(jurisdiction)
     want_persist = reasoning_persist_enabled()
     if not want_buyer and not want_persist:
         return

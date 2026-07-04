@@ -17759,62 +17759,130 @@ def admin_reasoning_shadow_summary():
 @admin_bp.route('/api/admin/reasoning/extractor-diagnostic', methods=['POST'])
 @_api_admin_req_dec
 def admin_reasoning_extractor_diagnostic():
-    """Run the inspection LLM extractor on the Pendleton fixture (or pasted
-    inspection text) and return the readings + a water/bath analysis. Makes ONE
-    live LLM call, so it can take a few seconds."""
+    """Cross-reference diagnostic on the Pendleton fixtures (or pasted text): runs
+    BOTH the inspection and disclosure LLM extractors, derives disclosure_status
+    through the real pipeline, and shows the water/leak cluster from each side so
+    the #1 'disclosed_not_found' question is answerable with evidence — is it a
+    recall gap (inspection never pulled the bath moisture), an exact-item
+    corroboration that already works, or a related-item mapping divergence
+    (disclosure and inspection landed the SAME finding on different but related
+    items)? Makes up to two live LLM calls, so it can take a few seconds."""
     if not _is_admin():
         return jsonify({'error': 'Unauthorized'}), 403
     try:
         import os as _os
         data = request.get_json(silent=True) or {}
         text = (data.get('text') or '').strip()
+        disc_text = (data.get('disclosure_text') or '').strip()
         source = 'pasted text'
+        _dir = _os.path.join(_os.path.dirname(__file__), 'test_corpus', 'regression_pendleton')
         if not text:
-            fixture = _os.path.join(_os.path.dirname(__file__),
-                                    'test_corpus', 'regression_pendleton', 'inspection.pdf')
+            fixture = _os.path.join(_dir, 'inspection.pdf')
             if not _os.path.exists(fixture):
                 return jsonify({'error': 'No text provided and Pendleton fixture not found'}), 400
             text = _extract_pdf_text_for_diag(fixture)
-            source = 'Pendleton fixture (inspection.pdf)'
+            source = 'Pendleton fixture (inspection.pdf + disclosures.pdf)'
+        if not disc_text:
+            dfix = _os.path.join(_dir, 'disclosures.pdf')
+            if _os.path.exists(dfix):
+                disc_text = _extract_pdf_text_for_diag(dfix)
         if not text:
             return jsonify({'error': 'Could not obtain inspection text'}), 400
 
-        from reasoning import compose
+        # National-correct: offer BOTH extractors the full authored id universe
+        # (not a hardcoded compose('CA','SFH')); the pipeline gates to the
+        # resolved checklist. Matches the buyer/shadow path exactly.
+        from reasoning.composition import all_authored_ids, compose
         from reasoning.inspection_llm_extractor import extract_inspection_findings_llm
-        ids = sorted(compose('CA', 'SFH').ids())
+        from reasoning.disclosure_llm_extractor import extract_disclosure_findings_llm
+        from reasoning import run_pipeline
+        ids = all_authored_ids()
         readings = extract_inspection_findings_llm(text, ids) or []
+        disc_readings = extract_disclosure_findings_llm(disc_text, ids) if disc_text else []
 
-        water_text_hints = ('water', 'bath', 'shower', 'master', 'moisture', 'leak', 'sill', 'pan')
-        water_item_hints = ('water', 'moisture', 'leak', 'plumb')
-        water = [r for r in readings
-                 if any(h in (r.get('item_id') or '').lower() for h in water_item_hints)
-                 or any(h in (r.get('raw_text') or '').lower() for h in water_text_hints)]
-        has_bath = any((r.get('item_id') or '') == 'structure.water_intrusion_bath' for r in readings)
+        # Derive issues + per-finding disclosure_status through the real pipeline
+        # (Pendleton is CA/SFH). This is the actual buyer-facing cross-reference.
+        result = run_pipeline(disc_readings, 'CA', 'SFH', inspection_readings=readings)
+        issues = result.issues_result.issues if result.issues_result else []
+        derived = [{
+            'title': i.title,
+            'decision_class': i.decision_class,
+            'disclosure_status': i.disclosure_status,
+            'silent_hazard': i.silent_hazard_flag,
+            'items': i.claim_item_ids,
+        } for i in issues]
+
+        # Water/leak cluster from BOTH sides, so mapping divergence is visible.
+        def _is_water(r):
+            iid = (r.get('item_id') or '').lower()
+            rt = (r.get('raw_text') or '').lower()
+            return (any(h in iid for h in ('water', 'moisture', 'leak', 'plumb')) or
+                    any(h in rt for h in ('water', 'bath', 'shower', 'master', 'moisture',
+                                          'leak', 'sill', 'pan')))
+        insp_water = [{'item_id': r.get('item_id'), 'value': r.get('value'),
+                       'quote': (r.get('raw_text') or '')[:200]} for r in readings if _is_water(r)]
+        disc_water = [{'item_id': r.get('item_id'), 'value': r.get('value'),
+                       'quote': (r.get('raw_text') or '')[:200]} for r in disc_readings if _is_water(r)]
+
+        insp_water_items = {w['item_id'] for w in insp_water if w.get('value') == 'yes'}
+        disc_water_items = {w['item_id'] for w in disc_water if w.get('value') == 'yes'}
+        bath = 'structure.water_intrusion_bath'
+        # is the disclosed bath item matched on the inspection side, exactly or via
+        # a directly-authored related item?
+        related_of_bath = set()
+        try:
+            for it in compose('CA', 'SFH').items:
+                if it.id == bath:
+                    related_of_bath = set(getattr(it, 'related_items', []) or [])
+        except Exception:
+            pass
+        exact = bath in insp_water_items and bath in disc_water_items
+        via_related = (bath in disc_water_items) and bool(insp_water_items & related_of_bath)
 
         if not readings:
-            verdict = ('Extractor returned 0 readings — check ANTHROPIC_API_KEY and the '
-                       'logs for an [ai_json] call-failed / truncation line.')
-        elif not water:
-            verdict = ("No water/bath signal found -> #1 'disclosed_not_found' is likely the "
-                       "engine being CORRECT (seller disclosed a shower leak the inspection "
-                       "didn't corroborate). Fix the answer key, not the engine.")
-        elif has_bath:
-            verdict = ('A structure.water_intrusion_bath reading exists, but confirm it '
-                       'matches the DISCLOSED bath finding before assuming corroboration. '
-                       'The water_intrusion_bath bucket does not distinguish rooms/defects '
-                       '(e.g. hallway-ceiling mildew vs a master shower-pan leak), so a bath '
-                       "reading can be a different issue than the one the seller disclosed - "
-                       "in which case disclosed_not_found is the engine being CORRECT.")
+            verdict = ('Inspection extractor returned 0 readings — check ANTHROPIC_API_KEY '
+                       'and logs for an [ai_json] call-failed / truncation line.')
+        elif not disc_readings:
+            verdict = ('Disclosure extractor returned 0 readings — the seller side is empty, '
+                       'so every status is undisclosed by construction. Check the disclosure '
+                       'text and the [ai_json] disclosure-extract telemetry.')
+        elif exact:
+            verdict = ('CORROBORATION SHOULD FORM: both sides have a '
+                       'structure.water_intrusion_bath concern. If #1 still reads '
+                       'disclosed_not_found, that is a pipeline bug, not extraction.')
+        elif via_related:
+            verdict = ('RELATED-ITEM DIVERGENCE (cause a): the seller disclosed the bath '
+                       'leak on structure.water_intrusion_bath, but the inspection put the '
+                       'SAME water on a directly-related item (' +
+                       ', '.join(sorted(insp_water_items & related_of_bath)) + '). This is '
+                       'the fixable case — evidence-gated related_items corroboration. '
+                       'CONFIRM the quotes describe the same location before trusting it.')
+        elif not insp_water_items:
+            verdict = ('RECALL GAP (cause b): the inspection extractor pulled NO water '
+                       'concern at all. disclosed_not_found is the engine being correct — '
+                       'corroboration here would be FABRICATED. Fix is extraction recall '
+                       '(prompt), not the derivation.')
         else:
-            verdict = ('Water signal found but none mapped to structure.water_intrusion_bath '
-                       '-> likely a MIS-MAP; tune the extractor prompt bath routing.')
+            verdict = ('Inspection has water concern(s) but on item(s) NOT related to '
+                       'structure.water_intrusion_bath (' + ', '.join(sorted(insp_water_items)) +
+                       '). Likely the supply-line leak (#6), a DIFFERENT finding — '
+                       'corroborating it against the disclosed bath leak would be FABRICATED. '
+                       'Confirm before any change.')
 
         return jsonify({
             'source': source,
             'text_chars': len(text),
-            'total_readings': len(readings),
-            'readings': readings,
-            'water_readings': water,
+            'disclosure_text_chars': len(disc_text or ''),
+            'total_inspection_readings': len(readings),
+            'total_disclosure_readings': len(disc_readings),
+            'derived_issues': derived,
+            'water_cross_reference': {
+                'inspection_side': insp_water,
+                'disclosure_side': disc_water,
+                'bath_related_items': sorted(related_of_bath),
+            },
+            'inspection_readings': readings,
+            'disclosure_readings': disc_readings,
             'verdict': verdict,
         })
     except Exception as e:
