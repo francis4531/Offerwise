@@ -1,3 +1,74 @@
+## v5.89.245 — National correctness: no CA/SFH assumptions in the reasoning path (generic + brilliant)
+
+The reasoning ENGINE resolves nationally, but every place a document became
+*readings* was California-shaped — so flipping OFFERWISE_REASONING_IN_REPORT would
+have delivered a working moat only to CA properties with a CA-TDS disclosure. This
+pass makes the whole path generic: extraction offers the full authored id
+universe, composition decides applicability from a DERIVED jurisdiction + property
+type, and the disclosure half of the moat works for any state — killing all seven
+hardcodes and collapsing three duplicate jurisdiction-inference paths into one.
+
+The seven hardcodes removed (jurisdiction/type must be derived, never assumed):
+ - analysis_routes.py buyer attach hardcoded jurisdiction='CA', property_type='SFH'
+ - reasoning/report_bridge.py function defaults "CA"/"SFH" (now "*"/broad-floor)
+ - reasoning/inspection_parser.py LLM-fallback vocab compose("CA","SFH")
+ - reasoning_shadow.py property_type="SFH" default + its own regex inference path
+ - pdf_handler TDS path was the ONLY disclosure feeder in the buyer path (CA-only)
+ - reasoning/disclosure_llm_extractor.py prompt said "a California-style disclosure"
+
+Single source of truth — new jurisdiction_resolver.py:
+ - resolve_state(address/zip/text) -> reuses the existing national ZIP table
+   (detect_state_from_zip / detect_state_from_text; 51 states / 896 prefixes),
+   case-insensitive, and falls back to the national base '*' — never a guessed
+   state. Replaces the permit path's ad-hoc logic, the shadow's weaker regex, and
+   the buyer path's hardcode with ONE resolver (reasoning_shadow._infer_jurisdiction
+   now delegates to it).
+ - resolve_property_type(profile_type) -> normalizes vendor spellings (RentCast/MLS)
+   onto the checklist vocabulary. This matters: compose('*','SFH') resolves 57
+   items, compose('*','condo') 19 — property type reshapes the checklist, so
+   hardcoding SFH for a condo applied ~38 items that don't belong. Unknown type
+   falls to a DOCUMENTED broad floor (SFH), which over-includes (noise) rather
+   than under-includes (missed risk).
+ - resolve_jurisdiction_path(...) -> '*' | 'CA' | 'CA:county:city', adding
+   municipal depth (e.g. San Jose) from the asset's authored overlay keys, not a
+   hardcoded city list.
+
+The extraction universe — reasoning/composition.all_authored_ids():
+ - The union of every authored id (national base + all overlay adds) = 74, a
+   proven superset of every compose(state,type). Extraction feeders run BEFORE
+   the property's jurisdiction is known (the PDF worker has no address), so they
+   now offer the LLM this full universe instead of compose("CA","SFH"); the
+   pipeline gates readings down to the property's resolved checklist. Extraction
+   offers the universe; composition decides relevance.
+
+The disclosure moat, now national (the real gap):
+ - New reasoning/disclosure_parser.extract_disclosure_readings — mirrors the
+   inspection dispatcher: deterministic CA-TDS first (precise, free), then the
+   format-general LLM disclosure extractor for ANY state's packet (TREC / Form 17
+   / PCDS / ...). Wired into pdf_worker (produces result['disclosure_readings'])
+   and threaded through report_bridge.build_reasoning_section (prefers the
+   format-general readings; parses a CA TDS field_state only as fallback). The
+   generic extractor previously ran ONLY in the shadow, where no buyer saw it.
+
+Buyer path now derives everything from real property research: analysis_routes
+reads research_data['profile'] (authoritative state/county/city/type/zip/year
+from RentCast) and passes resolver-derived jurisdiction + type + disclosure
+readings into the attach — no CA/SFH literal remains in the live path.
+
+Proof (end to end through the real bridge): CA (San Jose) -> CA:santa_clara:san_jose,
+72 resolved items, full depth; TX (Austin) -> TX, 57 items, national base, ZERO CA
+overlay leak; both produce a working section. Pendleton Layer B regression stays
+PASS on all 7 findings (CA property, identical output — the guardrail held).
+
+Tests: new test_jurisdiction_resolver.py (7) + test_disclosure_parser.py (3);
+122 passed across the consolidated reasoning + national + resolver + permit +
+report-bridge + shadow gate. All touched files py_compile clean; pdf_worker,
+resolver, and disclosure_parser import clean at runtime.
+
+Still gated OFF for buyers (OFFERWISE_REASONING_IN_REPORT=0). Next: run Layer A on
+staging with the shadow to read disclosure_extracted_rate on real non-CA
+documents, then flip the flag.
+
 # OfferWise Changelog
 
 Historical deployment notes, bug fixes, and architecture decisions.

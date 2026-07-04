@@ -52,12 +52,14 @@ def _disclosure_addressable_ids(checklist_ids: List[str]) -> List[str]:
 def _build_prompt(addressable_ids: List[str], disclosure_text: str) -> str:
     ids_block = "\n".join(f"  - {i}" for i in addressable_ids)
     text = disclosure_text[:60000]
-    return f"""You are extracting what a home SELLER disclosed, from a California-style \
-real-estate disclosure packet (Transfer Disclosure Statement, Seller Property \
-Questionnaire, Natural Hazard Disclosure, and addenda). The packet mixes \
-checkbox answers (Yes/No) with handwritten/typed explanations. Map what the \
-seller stated to the SINGLE best-matching checklist item id from the controlled \
-list below.
+    return f"""You are extracting what a home SELLER disclosed, from a US \
+residential real-estate seller-disclosure packet. This may be any state's form — \
+a California TDS/SPQ/NHD, a Texas TREC Seller's Disclosure Notice, a Washington \
+Form 17, a New York PCDS, or any other state equivalent and its addenda. The \
+packet mixes checkbox answers (Yes/No) with handwritten/typed explanations. Map \
+what the seller stated to the SINGLE best-matching checklist item id from the \
+controlled list below. The checklist vocabulary is national; do not assume a \
+particular state's form layout.
 
 CONTROLLED CHECKLIST ITEM IDS (map ONLY to these — never invent an id):
 {ids_block}

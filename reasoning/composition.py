@@ -202,6 +202,35 @@ def compose(
     )
 
 
+def all_authored_ids(asset: Optional[ChecklistAsset] = None) -> List[str]:
+    """The union of every checklist item id authored anywhere — national base
+    plus every state and municipal overlay 'adds'. This is the jurisdiction- and
+    property-type-agnostic UNIVERSE of ids.
+
+    It exists for one job: the extraction feeders (inspection / disclosure LLM
+    extractors) run BEFORE the property's jurisdiction and type are known (e.g.
+    in the per-document PDF worker, which has no address). Offering the extractor
+    this full universe — rather than a hardcoded compose('CA','SFH') — means no
+    id any state/type could need is ever withheld at extraction time. The
+    pipeline then GATES the readings down to the property's actually-resolved
+    checklist (compose(state, property_type)), which is where applicability is
+    decided. Extraction offers the universe; composition decides relevance.
+
+    Refines target existing ids (they never introduce new ones), so only
+    national_base + overlay 'adds' contribute ids. Sorted for determinism.
+    """
+    asset = asset or load_checklist()
+    ids = {it.id for it in asset.national_base}
+    for overlay in list(asset.state_overlays.values()) + list(asset.municipal_overlays.values()):
+        if not isinstance(overlay, dict):
+            continue
+        for add in (overlay.get("adds") or []):
+            aid = add.get("id") if isinstance(add, dict) else getattr(add, "id", None)
+            if aid:
+                ids.add(aid)
+    return sorted(ids)
+
+
 def jurisdiction_coverage(asset: Optional[ChecklistAsset] = None) -> dict:
     """Honest footprint: which jurisdictions have authored depth beyond the
     national base. Every US state gets national_base; only the states/munis

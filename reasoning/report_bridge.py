@@ -50,31 +50,44 @@ def reasoning_persist_enabled() -> bool:
 
 def build_reasoning_section(
     *,
-    jurisdiction: str = "CA",
-    property_type: str = "SFH",
+    jurisdiction: str = "*",   # national base by default; caller resolves the real one
+    property_type: str = "SFH",  # broad floor; caller resolves the real one
     tds_field_state: Optional[Dict[str, Any]] = None,
     inspection_readings: Optional[list] = None,
+    disclosure_readings: Optional[list] = None,
     zip_code: str = "",
     property_year_built: Optional[int] = None,
     analysis_id: Optional[int] = None,
     property_id: Optional[int] = None,
 ) -> Optional[Dict[str, Any]]:
     """
-    Build the reasoning section from parsed TDS field state and/or inspection
+    Build the reasoning section from disclosure field readings and/or inspection
     readings. Returns None if there is nothing real to reason over (we never
     fabricate Claims for the buyer).
+
+    Disclosure side: prefer pre-built disclosure_readings (format-general,
+    produced by reasoning.disclosure_parser for ANY state's disclosure). Fall
+    back to parsing a California tds_field_state only when no readings were
+    supplied — so a non-CA disclosure is no longer silently dropped.
 
     Persistence (writing Finding/Claim/Issue rows) is controlled by the SEPARATE
     OFFERWISE_REASONING_PERSIST flag and is fully guarded: a DB write failure can
     never affect the returned section or the buyer response.
     """
-    if not tds_field_state and not inspection_readings:
+    if not tds_field_state and not inspection_readings and not disclosure_readings:
         return None
     try:
         from reasoning.tds_parser import parse_tds_field_state
         from reasoning import run_pipeline
 
-        readings = parse_tds_field_state(tds_field_state) if tds_field_state else []
+        # Disclosure side: prefer the format-general readings; fall back to
+        # parsing a CA TDS field state only when none were supplied.
+        if disclosure_readings:
+            readings = list(disclosure_readings)
+        elif tds_field_state:
+            readings = parse_tds_field_state(tds_field_state)
+        else:
+            readings = []
         if not readings and not inspection_readings:
             return None
         # Persist only when its own flag is on; isolate write failures so they
@@ -142,10 +155,11 @@ def build_reasoning_section(
 def attach_reasoning_if_enabled(
     result_dict: Dict[str, Any],
     *,
-    jurisdiction: str = "CA",
-    property_type: str = "SFH",
+    jurisdiction: str = "*",   # national base by default; caller resolves the real one
+    property_type: str = "SFH",  # broad floor; caller resolves the real one
     tds_field_state: Optional[Dict[str, Any]] = None,
     inspection_readings: Optional[list] = None,
+    disclosure_readings: Optional[list] = None,
     zip_code: str = "",
     property_year_built: Optional[int] = None,
     analysis_id: Optional[int] = None,
@@ -165,6 +179,7 @@ def attach_reasoning_if_enabled(
             property_type=property_type,
             tds_field_state=tds_field_state,
             inspection_readings=inspection_readings,
+            disclosure_readings=disclosure_readings,
             zip_code=zip_code,
             property_year_built=property_year_built,
             analysis_id=analysis_id,

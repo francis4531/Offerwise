@@ -26,22 +26,19 @@ from typing import Any, Optional
 
 logger = logging.getLogger(__name__)
 
-_STATE_RE = re.compile(r",\s*([A-Z]{2})\s*\d{5}|,\s*([A-Z]{2})\b")
-
-
 def _infer_jurisdiction(address: Optional[str]) -> str:
-    """Resolve the state from the address for checklist composition. On failure,
-    fall back to the NATIONAL base ('*') — never to a guessed state — so a non-CA
-    or unparseable address is never scored against California's overlays.
+    """Resolve the state from the address for checklist composition. Delegates to
+    the shared jurisdiction_resolver so there is ONE inference path in the tree,
+    not three. On failure it returns the NATIONAL base ('*') — never a guessed
+    state — so a non-CA or unparseable address is never scored against CA's
+    overlays.
     compose() applies a state overlay only where one is authored (today: CA);
     every other state correctly resolves to the national base."""
-    if address:
-        m = _STATE_RE.search(address)
-        if m:
-            st = (m.group(1) or m.group(2) or "").upper()
-            if st:
-                return st
-    return "*"  # national base, not a guessed state
+    try:
+        from jurisdiction_resolver import resolve_state
+        return resolve_state(address=address)
+    except Exception:
+        return "*"  # national base, not a guessed state
 
 
 def build_comparison(live_cross_ref: Any, reasoning_issues: list,
@@ -103,12 +100,21 @@ def run_reasoning_shadow(*, inspection_text: str, disclosure_text: str = "",
     readings = []
     disc_readings = []
     try:
-        from reasoning import compose, run_pipeline
+        from reasoning import run_pipeline
         from reasoning.inspection_llm_extractor import extract_inspection_findings_llm
         from reasoning.disclosure_llm_extractor import extract_disclosure_findings_llm
 
-        jurisdiction = _infer_jurisdiction(property_address)
-        ids = sorted(compose(jurisdiction, property_type).ids())
+        # Resolve the full jurisdiction path (municipal depth where authored) via
+        # the shared resolver, and offer the extractors the FULL authored id
+        # universe — identical to the buyer path. The pipeline gates readings down
+        # to the resolved checklist, so no id any state/type needs is withheld.
+        from reasoning.composition import all_authored_ids
+        try:
+            from jurisdiction_resolver import resolve_jurisdiction_path
+            jurisdiction = resolve_jurisdiction_path(address=property_address)
+        except Exception:
+            jurisdiction = _infer_jurisdiction(property_address)
+        ids = all_authored_ids()
 
         try:
             readings = extract_inspection_findings_llm(

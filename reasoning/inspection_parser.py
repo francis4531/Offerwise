@@ -233,8 +233,13 @@ def extract_inspection_readings(
         try:
             from .inspection_llm_extractor import extract_inspection_findings_llm
             if checklist_ids is None:
-                from .composition import compose
-                checklist_ids = sorted(compose("CA", "SFH").ids())
+                # Extraction runs before the property's jurisdiction/type are
+                # known (the PDF worker has no address), so offer the LLM the
+                # FULL authored id universe — never a hardcoded compose('CA','SFH'),
+                # which would withhold ids from a non-CA or non-SFH property. The
+                # pipeline gates the readings down to the resolved checklist.
+                from .composition import all_authored_ids
+                checklist_ids = all_authored_ids()
             llm = extract_inspection_findings_llm(
                 text, checklist_ids, client=llm_client
             )

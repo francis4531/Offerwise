@@ -845,6 +845,9 @@ class OfferWiseIntelligence:
         if _os.environ.get('OFFERWISE_REASONING_SHADOW', '').lower() in ('1', 'true', 'yes', 'on'):
             try:
                 from reasoning_shadow import run_reasoning_shadow
+                from jurisdiction_resolver import resolve_property_type
+                _shadow_ptype = resolve_property_type(
+                    ((research_data or {}).get('profile') or {}).get('property_type'))
                 run_reasoning_shadow(
                     inspection_text=inspection_report_text,
                     disclosure_text=seller_disclosure_text,
@@ -852,6 +855,7 @@ class OfferWiseIntelligence:
                     property_price=property_price,
                     live_cross_ref=cross_ref,
                     analysis_id=getattr(self, '_current_analysis_id', None),
+                    property_type=_shadow_ptype,
                 )
             except Exception as _shadow_e:
                 logger.warning(f"[SHADOW] wire failed (non-fatal): {_shadow_e}")

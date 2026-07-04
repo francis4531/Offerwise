@@ -142,6 +142,24 @@ class PDFWorker:
                 except Exception as _fs_err:
                     logger.warning(f"🧩 Job {job_id}: TDS field-state extraction skipped: {_fs_err}")
 
+                # The disclosure half of the moat, format-general. The TDS path
+                # above only structures a California TDS; this dispatcher reads
+                # ANY state's disclosure (TREC / Form 17 / PCDS / ...) into the
+                # checklist vocabulary, so the seller-vs-inspection cross-reference
+                # works nationally, not just for CA. Deterministic-TDS-first,
+                # LLM-fallback; additive; never blocks the job.
+                try:
+                    from reasoning.disclosure_parser import extract_disclosure_readings
+                    _disc = extract_disclosure_readings(result['text'])
+                    _dr = _disc.get('readings', [])
+                    if _dr:
+                        result['disclosure_readings'] = _dr
+                        result['disclosure_extract_method'] = _disc.get('method')
+                        logger.info(f"🧩 Job {job_id}: disclosure readings extracted "
+                                    f"via {_disc.get('method')} ({len(_dr)} readings)")
+                except Exception as _dr_err:
+                    logger.warning(f"🧩 Job {job_id}: disclosure reading extraction skipped: {_dr_err}")
+
             # Phase 3 (the moat): for inspection reports, structure findings for
             # the reasoning pipeline. Additive; uses existing extraction text;
             # never blocks the job on failure.

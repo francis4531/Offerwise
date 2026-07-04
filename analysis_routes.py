@@ -269,6 +269,7 @@ def analyze_property():
         _fast_market_data = None
         _reasoning_tds_field_state = None  # Phase 1d: TDS field state for reasoning
         _reasoning_inspection_readings = None  # Phase 3: inspection findings (the moat)
+        _reasoning_disclosure_readings = None  # disclosure findings (format-general, any state)
 
         data = request.get_json(silent=True) or {}
         
@@ -343,6 +344,8 @@ def analyze_property():
                     _reasoning_tds_field_state = job.result.get('tds_field_state')
                 if job.result.get('inspection_readings') and not _reasoning_inspection_readings:
                     _reasoning_inspection_readings = job.result.get('inspection_readings')
+                if job.result.get('disclosure_readings') and not _reasoning_disclosure_readings:
+                    _reasoning_disclosure_readings = job.result.get('disclosure_readings')
                 
                 # Determine which document type this is based on request
                 doc_type = data.get('document_type', 'inspection')  # Default to inspection
@@ -1564,18 +1567,39 @@ def analyze_property():
         # Additive — never alters existing result fields, never raises.
         try:
             from reasoning.report_bridge import attach_reasoning_if_enabled
-            import re as _re_zip
-            _addr_for_zip = data.get('property_address', '') if isinstance(data, dict) else ''
-            _zm = _re_zip.search(r'(\d{5})', _addr_for_zip or '')
-            _reasoning_zip = _zm.group(1) if _zm else ''
+            from jurisdiction_resolver import resolve_jurisdiction_path, resolve_property_type
+            _addr_for_reasoning = (result_dict.get('property_address')
+                                   or (data.get('property_address') if isinstance(data, dict) else '')
+                                   or '')
+            # Authoritative property facts from research (RentCast profile), when
+            # present — state/county/city/type/zip/year come from real data, not
+            # a guess. Falls back to parsing the address when research is thin.
+            _profile = (result_dict.get('research_data') or {}).get('profile') or {}
+            _reasoning_zip = str(_profile.get('zip_code') or '').strip()[:5]
+            if not _reasoning_zip:
+                import re as _re_zip
+                _zm = _re_zip.search(r'(\d{5})', _addr_for_reasoning)
+                _reasoning_zip = _zm.group(1) if _zm else ''
+            # No CA/SFH assumption: derive the jurisdiction path and property type.
+            _jur_path = resolve_jurisdiction_path(
+                address=_addr_for_reasoning,
+                zip_code=_reasoning_zip,
+                city=_profile.get('city'),
+                state=_profile.get('state'),
+                document_text=locals().get('document_text'),
+            )
+            _prop_type = resolve_property_type(_profile.get('property_type'))
+            _reasoning_year = _profile.get('year_built') or result_dict.get('year_built')
             attach_reasoning_if_enabled(
                 result_dict,
-                jurisdiction='CA',
-                property_type='SFH',
+                jurisdiction=_jur_path,
+                property_type=_prop_type,
                 tds_field_state=(_reasoning_tds_field_state or
                                  (data.get('tds_field_state') if isinstance(data, dict) else None)),
                 inspection_readings=_reasoning_inspection_readings,
+                disclosure_readings=_reasoning_disclosure_readings,
                 zip_code=_reasoning_zip,
+                property_year_built=_reasoning_year,
                 analysis_id=result_dict.get('analysis_id'),
                 property_id=result_dict.get('property_id'),
             )
