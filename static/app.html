@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>OfferWise AI™ — Property Analysis</title>
-    <script src="/static/gtm-loader.js?v=5.89.255"></script>
+    <script src="/static/gtm-loader.js?v=5.89.256"></script>
 <!-- /GTM head -->
     <script>if(window.location.hostname==='getofferwise.ai')window.location.replace('https://www.getofferwise.ai'+window.location.pathname+window.location.search);</script>
     <link rel="icon" type="image/svg+xml" href="/static/logo-icon-only.svg">
@@ -21,7 +21,7 @@
     <link rel="preconnect" href="https://unpkg.com" crossorigin>
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/results-theme.css?v=5.89.255">
+    <link rel="stylesheet" href="/static/results-theme.css?v=5.89.256">
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone@7.29.7/babel.min.js"></script>
@@ -685,7 +685,7 @@
         .ow-strategy-grid { grid-template-columns: 1fr !important; }
       }
     </style>
-    <script src="/static/analytics-loader.js?v=5.89.255" defer></script>
+    <script src="/static/analytics-loader.js?v=5.89.256" defer></script>
     <!-- Reddit Pixel Base Code -->
     <script>
     !function(w,d){if(!w.rdt){var p=w.rdt=function(){p.sendEvent?p.sendEvent.apply(p,arguments):p.queue.push(arguments)};p.queue=[];var t=d.createElement('script');t.src='https://www.redditstatic.com/ads/pixel.js';t.async=!0;var s=d.getElementsByTagName('script')[0];s.parentNode.insertBefore(t,s)}}(window,document);
@@ -729,11 +729,13 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       .ow-results[data-tab] #ow-disclosure,
       .ow-results[data-tab] #ow-reasoning,
       .ow-results[data-tab] #ow-walk,
+      .ow-results[data-tab] #ow-riskdna,
       .ow-results[data-tab] #ow-toolkit { display:none; }
       .ow-results[data-tab="price"] #ow-math,
       .ow-results[data-tab="price"] #ow-market,
       .ow-results[data-tab="condition"] #ow-repairs,
       .ow-results[data-tab="condition"] #ow-reserve,
+      .ow-results[data-tab="condition"] #ow-riskdna,
       .ow-results[data-tab="disclosures"] #ow-disclosure,
       .ow-results[data-tab="disclosures"] #ow-reasoning,
       .ow-results[data-tab="negotiate"] #ow-walk,
@@ -6186,7 +6188,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                               defensible. */}
                           {walkAwayPrice && !isWalkAway && (
                             <div style={{ marginTop:'14px', textAlign:'right', fontSize: 'var(--ow-fs-small)', color:'var(--ow-muted-2)' }}>
-                              <strong style={{ color:'var(--ow-text-strong)', fontWeight:600 }}>Don't pay more than:</strong> ${Math.round(walkAwayPrice).toLocaleString()} <span style={{ color:'var(--ow-muted-dim)' }}>— walk if the price climbs above this</span>
+                              <strong style={{ color:'var(--ow-text-strong)', fontWeight:600 }}>Don't pay more than:</strong> ${Math.round(walkAwayPrice).toLocaleString()} <span style={{ color:'var(--ow-muted-dim)' }}>— your walk-away ceiling; full analysis under <em>Negotiate</em></span>
                             </div>
                           )}
                         </div>
@@ -6210,74 +6212,12 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                               browsers that don't render SVG, for assistive
                               tech, and for buyers who want the numeric
                               readout. */}
+                          {/* v5.89.256: Risk DNA numeric view — id'd so the tab CSS scopes it to the Condition tab (hero pentagon is the visual owner). */}
+                          <div id="ow-riskdna">
                           {userHasPaid && dnaScores.length > 0 && (() => {
                             const _composite = Math.round(dnaScores.reduce((s, d) => s + (d.score || 0), 0) / dnaScores.length);
                             const _compositeColor = _composite >= 60 ? '#ef4444' : _composite >= 30 ? '#f59e0b' : '#22c55e';
 
-                            // v5.89.12: pentagon brought back into the
-                            // numeric-view body. Same geometry as the hero
-                            // pentagon (cx 110 / cy 110 / R 88, vertices at
-                            // 72° intervals starting straight up). Smaller
-                            // (180px) so it sits next to the bars rather
-                            // than dominating them. Lets users connect each
-                            // axis name to its position on the shape.
-                            const _renderPentagon = () => {
-                              const cx = 110, cy = 110, R = 88;
-                              const ang = (i) => (i * 72 - 90) * Math.PI / 180;
-                              const vertex = (i, r) => {
-                                const a = ang(i);
-                                return [cx + r * Math.cos(a), cy + r * Math.sin(a)];
-                              };
-                              const ringPts = (scale) => [0,1,2,3,4].map(i => {
-                                const [x,y] = vertex(i, R * scale);
-                                return `${x.toFixed(1)},${y.toFixed(1)}`;
-                              }).join(' ');
-                              const scorePts = dnaScores.map((d,i) => {
-                                const s = Math.max(0, Math.min(100, d.score || 0));
-                                const [x,y] = vertex(i, R * s / 100);
-                                return `${x.toFixed(1)},${y.toFixed(1)}`;
-                              }).join(' ');
-                              const spokes = [0,1,2,3,4].map(i => {
-                                const [x,y] = vertex(i, R);
-                                return { x1: cx, y1: cy, x2: x, y2: y, key: i };
-                              });
-                              const dots = dnaScores.map((d,i) => {
-                                const s = Math.max(0, Math.min(100, d.score || 0));
-                                const [x,y] = vertex(i, R * s / 100);
-                                const c = d.score >= 60 ? '#ef4444' : d.score >= 30 ? '#f59e0b' : '#22c55e';
-                                return { x, y, c, key: i };
-                              });
-                              const polyFill  = _compositeColor === '#ef4444' ? 'rgba(239,68,68,0.18)' : _compositeColor === '#f59e0b' ? 'rgba(245,158,11,0.18)' : 'rgba(34,197,94,0.18)';
-                              const labelDefs = [
-                                { i: 0, anchor: 'middle', dy: -10 },
-                                { i: 1, anchor: 'start',  dy:   4 },
-                                { i: 2, anchor: 'start',  dy:  14 },
-                                { i: 3, anchor: 'end',    dy:  14 },
-                                { i: 4, anchor: 'end',    dy:   4 },
-                              ];
-                              return (
-                                <svg viewBox="-50 -10 320 250" xmlns="http://www.w3.org/2000/svg" style={{ width:'100%', maxWidth:'180px', height:'auto', display:'block', flexShrink:0 }} aria-label="Property Risk DNA pentagon">
-                                  {[0.2,0.4,0.6,0.8,1.0].map(scale => (
-                                    <polygon key={scale} points={ringPts(scale)} fill="none" stroke={`rgba(138,153,184,${0.18 + scale * 0.22})`} strokeWidth="1" />
-                                  ))}
-                                  {spokes.map(s => (
-                                    <line key={s.key} x1={s.x1} y1={s.y1} x2={s.x2.toFixed(1)} y2={s.y2.toFixed(1)} stroke="rgba(138,153,184,0.32)" strokeWidth="1" />
-                                  ))}
-                                  <polygon points={scorePts} fill={polyFill} stroke={_compositeColor} strokeWidth="1.8" strokeLinejoin="round" />
-                                  {dots.map(d => (
-                                    <circle key={d.key} cx={d.x.toFixed(1)} cy={d.y.toFixed(1)} r="3.5" fill={d.c} />
-                                  ))}
-                                  {labelDefs.map(d => {
-                                    const [x,y] = vertex(d.i, R + 8);
-                                    return (
-                                      <text key={d.i} x={x.toFixed(1)} y={(y + d.dy).toFixed(1)} textAnchor={d.anchor} fontSize="9" fontWeight="600" fill="var(--ow-muted)" fontFamily="'DM Sans', -apple-system, system-ui, sans-serif" letterSpacing="0.04em">
-                                        {(dnaScores[d.i].label || '').toUpperCase()}
-                                      </text>
-                                    );
-                                  })}
-                                </svg>
-                              );
-                            };
 
                             return (
                               <details style={{ marginBottom:'24px', background:'var(--ow-surface-2)', border:'1px solid var(--ow-line-2)', borderRadius:'12px', padding:'14px 18px' }}>
@@ -6299,17 +6239,12 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                                     <span className="ow-expand-chevron">▾</span>
                                   </div>
                                 </summary>
-                                <div style={{ marginTop:'14px', paddingTop:'12px', borderTop:'1px solid rgba(51,65,85,0.4)', display:'flex', gap:'20px', alignItems:'center', flexWrap:'wrap' }}>
-                                  {/* Pentagon column — flex:0 0 180px so it
-                                      keeps its width; wraps below the bars on
-                                      narrow viewports via flex-wrap on parent. */}
-                                  <div style={{ flex:'0 0 180px', maxWidth:'180px' }}>
-                                    {_renderPentagon()}
-                                  </div>
-                                  {/* Bars column — flex:1 to fill remaining
-                                      space. min-width:240px so they don't get
-                                      crushed when wrapping. */}
-                                  <div style={{ flex:'1 1 240px', minWidth:'240px' }}>
+                                <div style={{ marginTop:'14px', paddingTop:'12px', borderTop:'1px solid rgba(51,65,85,0.4)' }}>
+                                  {/* Pentagon removed here (v5.89.256): the hero
+                                      pentagon is the single owner of the Risk DNA
+                                      visual. This numeric view keeps only the
+                                      textual bar breakdown. */}
+                                  <div>
                                     {dnaScores.map((d,i) => {
                                       const c = d.score >= 60 ? '#ef4444' : d.score >= 30 ? '#f59e0b' : '#22c55e';
                                       return (
@@ -6330,6 +6265,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                               </details>
                             );
                           })()}
+                          </div>
 
                           {/* Body column — was COL 1 of a 1fr/300px grid.
                               Now single-column flow at 920px max. The
@@ -12525,7 +12461,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </script>
     
     <!-- Async Upload Manager - Handles PDF uploads with real-time progress -->
-    <script src="/static/async-upload-manager.js?v=5.89.255"></script>
+    <script src="/static/async-upload-manager.js?v=5.89.256"></script>
     
     <!-- Floating Support Button -->
     <a href="/contact" id="support-button" style="
@@ -12550,8 +12486,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <span style="font-size: 16px;">💬</span>
         Help
     </a>
-<script src="/static/js/compliance.js?v=5.89.255"></script>
-<script src="/static/js/analytics.js?v=5.89.255" defer></script>
+<script src="/static/js/compliance.js?v=5.89.256"></script>
+<script src="/static/js/analytics.js?v=5.89.256" defer></script>
 <script>
 // Scroll reveal for premium results animations
 (function() {
@@ -12638,7 +12574,7 @@ if ('serviceWorker' in navigator) {
 
 <!-- Scout: docked, summon-on-demand "Ask your report" assistant (v5.89.157) -->
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&display=swap" rel="stylesheet">
-<script src="/static/ask-widget.js?v=5.89.255"></script>
+<script src="/static/ask-widget.js?v=5.89.256"></script>
 <script>
 (function(){
   if (window.__scoutInit) { return; } window.__scoutInit = true;

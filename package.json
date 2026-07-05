@@ -1,0 +1,13 @@
+{
+  "name": "offerwise-build-tools",
+  "private": true,
+  "description": "Build-time tooling only. The app itself compiles JSX in the browser via @babel/standalone; these dev deps exist solely so scripts/check_jsx.js can validate static/app.html's JSX before a deploy.",
+  "devDependencies": {
+    "@babel/core": "^7.24.0",
+    "@babel/preset-react": "^7.24.0"
+  },
+  "scripts": {
+    "check-jsx": "node scripts/check_jsx.js static/app.html",
+    "check-admin-js": "python3 scripts/check_html_js.py"
+  }
+}

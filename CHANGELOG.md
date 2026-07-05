@@ -1,3 +1,41 @@
+## v5.89.256 — Report-tab de-duplication (Risk DNA + walk-away) + a JSX build guard
+
+Two things: a JSX build guard so app.html edits are validated the way admin.html
+now is, and the approved report-tab IA pass that removes cross-tab redundancy.
+
+JSX build guard (scripts/check_jsx.js): app.html renders through one
+<script type="text/babel"> block that node --check can't parse, so the admin guard
+didn't cover the most edit-prone file in the tree. This Babel-compiles that block
+exactly like the browser and FAILS CLOSED on any syntax error, mapping the error to
+the real app.html line. Verified against a deliberate break (caught, pointed at the
+exact line). Wired into ow_deploy.sh (alongside the admin guard) and
+test_app_html_jsx.py. Every app.html edit below was validated with it at each step.
+
+Report-tab IA — one owner per concept, no re-renders (approved decisions: Risk DNA
+-> hero + Condition; Price keeps a one-line walk-away pointer):
+ - Duplicate Risk DNA pentagon REMOVED from the Price/math numeric view. The hero
+   pentagon is now the single visual owner; the pentagon render fn and its call are
+   both gone (no dead code).
+ - Risk DNA numeric view wrapped in #ow-riskdna and scoped to the CONDITION tab via
+   the tab CSS. It was previously un-id'd, so it rendered on EVERY tab — this both
+   places it where it belongs (Condition owns the property's risk detail) and fixes
+   that all-tabs leak.
+ - Price walk-away collapsed to a one-line pointer ("your walk-away ceiling; full
+   analysis under Negotiate"); #ow-walk on the Negotiate tab remains the single
+   owner of the walk-away analysis.
+ - Left clean and unchanged: the math's summary lines already point (->R/->D/->M),
+   #ow-market is summary+detail on the same tab, and the Negotiate toolkit already
+   transforms findings into deliverables with "Basis:" citations rather than
+   re-listing. No change needed there.
+
+Net user effect: each tab now owns its content — Price = the decision, Condition =
+the property (repairs, reserve, risk detail), Disclosures = the evidence, Negotiate
+= the actions. The same numbers no longer repeat across tabs.
+
+Validation: JSX guard passes (Babel compiles); <div> net unchanged at 16 (the known
+JSX-count artifact, identical before/after — my edits are structurally net-zero);
+check_html_js passes; both guards run as pre-package gates. Tests:
+test_app_html_jsx.py + test_admin_html_js.py green.
 ## v5.89.255 — Build guard: inline admin JS is node --check'd in context before any deploy
 
 Turns the v5.89.252 class of incident (a dropped declaration white-screening the
