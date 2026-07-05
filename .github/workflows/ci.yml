@@ -150,12 +150,12 @@ jobs:
           node-version: '20'
 
       - name: Install Babel for the JSX compile check
-        # Pin to major 7 to match the app's @babel/standalone@7.29.7. Unpinned,
-        # npm now resolves @babel/core to 8.x, whose @babel/types layout differs
-        # (no lib/index.js) and skews the tree -> "Cannot find module
-        # @babel/types/lib/index.js". The classic-runtime transform is stable
-        # across 7.x, so ^7 is both correct and faithful to what ships.
-        run: npm install --no-save "@babel/core@^7" "@babel/preset-react@^7"
+        # Deterministic install from the committed package-lock.json (npm ci) —
+        # freezes the ENTIRE babel tree at 7.x including @babel/types, so an
+        # unpinned or hoisted 8.x can never skew it ("Cannot find module
+        # @babel/types/lib/index.js"). Pinning only the top-level packages wasn't
+        # enough; the lockfile pins every transitive dep.
+        run: npm ci
 
       - name: Frontend guard — Babel pinned + inline JSX compiles
         run: node scripts/check_frontend.js

@@ -450,34 +450,48 @@ def call_ai_json(
 # never raises, forward-looking. Powers an admin view of the parse-failure rate.
 # ---------------------------------------------------------------------------
 
-def record_stage_timing(stage: str, elapsed_ms: float, *, analysis_id=None) -> int:
-    """Record a non-LLM pipeline phase (OCR, research-agent wait, total, …) as an
-    AIParseEvent with endpoint 'stage:<name>' and elapsed_ms, so LLM and non-LLM
-    latency live in ONE table and one admin readout answers 'where do the seconds
-    go'. Never raises; skips cleanly outside an app context."""
+def _telemetry_add(row) -> int:
+    """Persist a telemetry row WITHOUT ever poisoning the caller's transaction.
+
+    Uses a SAVEPOINT (begin_nested): if the insert fails — e.g. a column missing on
+    an un-migrated DB — only the savepoint rolls back, and the caller's pending
+    rows (Property/Analysis) survive. This exists because a shared-session rollback
+    on a telemetry failure once silently discarded Property rows mid-analyze.
+    Best-effort; never raises; skips cleanly outside an app context."""
     try:
         from flask import has_app_context
         if not has_app_context():
             return 0
-        from models import db, AIParseEvent
-        row = AIParseEvent(
-            analysis_id=analysis_id,
-            endpoint=(f"stage:{stage}")[:50],
-            model=None, stop_reason=None, ok=True, truncated=False, repaired=False,
-            output_chars=None, attempts=None,
-            elapsed_ms=int(elapsed_ms or 0),
-        )
-        db.session.add(row)
-        db.session.commit()
+        from models import db
+    except Exception:
+        return 0
+    try:
+        with db.session.begin_nested():   # SAVEPOINT — failures roll back only this
+            db.session.add(row)
+        db.session.commit()               # persist; caller's pending rows are safe
         return 1
     except Exception as e:
-        try:
-            from models import db
-            db.session.rollback()
-        except Exception:
-            pass
-        logger.debug(f"[ai_json] stage-timing skipped: {e}")
+        # savepoint already rolled back; outer transaction + caller rows intact.
+        logger.debug(f"[ai_json] telemetry write skipped: {e}")
         return 0
+
+
+def record_stage_timing(stage: str, elapsed_ms: float, *, analysis_id=None) -> int:
+    """Record a non-LLM pipeline phase (OCR, research-agent wait, total, …) as an
+    AIParseEvent with endpoint 'stage:<name>' and elapsed_ms, so LLM and non-LLM
+    latency live in ONE table and one admin readout answers 'where do the seconds
+    go'. Isolated from the caller's transaction; never raises."""
+    try:
+        from models import AIParseEvent
+    except Exception:
+        return 0
+    return _telemetry_add(AIParseEvent(
+        analysis_id=analysis_id,
+        endpoint=(f"stage:{stage}")[:50],
+        model=None, stop_reason=None, ok=True, truncated=False, repaired=False,
+        output_chars=None, attempts=None,
+        elapsed_ms=int(elapsed_ms or 0),
+    ))
 
 
 def record_parse_event(result: AIJsonResult, *, endpoint=None, model=None, analysis_id=None) -> int:
@@ -510,17 +524,12 @@ def record_parse_event(result: AIJsonResult, *, endpoint=None, model=None, analy
             attempts=int(result.attempts or 0),
             elapsed_ms=int(getattr(result, "elapsed_ms", 0) or 0),
         )
-        db.session.add(row)
-        db.session.commit()
-        return 1
     except Exception as e:
-        logger.warning(f"[ai_json] telemetry write failed (non-fatal): {e}")
-        try:
-            from models import db
-            db.session.rollback()
-        except Exception:
-            pass
+        logger.debug(f"[ai_json] telemetry row build failed: {e}")
         return 0
+    # Savepoint-isolated write: a telemetry failure (e.g. a column missing on an
+    # un-migrated DB) can never roll back the caller's pending Property/Analysis.
+    return _telemetry_add(row)
 
 
 def parse_failure_rate_by_endpoint(window_days: int = 30) -> list[dict]:

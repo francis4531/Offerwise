@@ -92,8 +92,13 @@ echo "→ Validating buyer-report JSX (Babel compile)…"
 # shipped in the tarball.
 if ! ( cd "$BUILD" && node -e "require.resolve('@babel/preset-react')" ) >/dev/null 2>&1; then
   echo "  installing JSX-guard deps (@babel/core, @babel/preset-react)…"
-  ( cd "$BUILD" && npm install --no-save --silent "@babel/core@^7" "@babel/preset-react@^7" ) \
-    || { echo "  ✗ could not install Babel — cannot validate JSX. Aborting deploy."; exit 1; }
+  if [ -f "$BUILD/package-lock.json" ]; then
+    ( cd "$BUILD" && npm ci --silent ) \
+      || { echo "  ✗ npm ci failed — cannot validate JSX. Aborting deploy."; exit 1; }
+  else
+    ( cd "$BUILD" && npm install --no-save --silent "@babel/core@^7" "@babel/preset-react@^7" ) \
+      || { echo "  ✗ could not install Babel — cannot validate JSX. Aborting deploy."; exit 1; }
+  fi
 fi
 node "$BUILD/scripts/check_jsx.js" "$BUILD/static/app.html"
 

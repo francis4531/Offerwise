@@ -950,6 +950,24 @@ with app.app_context():
             except Exception as _fe2_err:
                 logger.warning(f"feature_events column migration: {_fe2_err}")
 
+            # v5.89.264: ai_parse_event — add elapsed_ms (per-stage latency). The
+            # model gained it in .262; create_all does NOT alter an existing table,
+            # so without this an already-created ai_parse_event lacks the column and
+            # every telemetry INSERT fails. (That failure previously rolled back the
+            # caller's Property row; the write is now savepoint-isolated too.)
+            try:
+                from sqlalchemy import inspect as _sqli_ape, text as _txt_ape
+                _ape_cols = {c['name'] for c in _sqli_ape(db.engine).get_columns('ai_parse_event')}
+                if 'elapsed_ms' not in _ape_cols:
+                    with db.engine.connect() as _conn:
+                        _conn.execute(_txt_ape(
+                            "ALTER TABLE ai_parse_event ADD COLUMN IF NOT EXISTS elapsed_ms INTEGER"
+                        ))
+                        _conn.commit()
+                    logger.info("✅ ai_parse_event: added column elapsed_ms")
+            except Exception as _ape_err:
+                logger.warning(f"ai_parse_event column migration: {_ape_err}")
+
             # v5.76.77: Add platform + target_group to gtm_subreddit_posts (multi-channel)
             try:
                 from sqlalchemy import inspect as _sqli_gtm, text as _txt_gtm

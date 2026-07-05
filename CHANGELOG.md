@@ -1,3 +1,35 @@
+## v5.89.264 — CI green: two independent failures fixed (Property-row loss + Babel skew)
+
+Two unrelated CI failures, both root-caused and fixed robustly.
+
+1) e2e "Property row not found" (3 tests). Root cause I introduced in .262: the
+   AIParseEvent model gained elapsed_ms, but db.create_all does NOT alter an
+   existing table, so on any already-created ai_parse_event the column was missing
+   and every telemetry INSERT failed — and the telemetry write shared the request's
+   db.session, so its rollback DISCARDED the caller's pending Property row (200
+   returned, but nothing persisted). Two-part fix:
+   - Telemetry writes are now SAVEPOINT-isolated (new ai_json._telemetry_add via
+     db.session.begin_nested). A telemetry failure rolls back only the savepoint;
+     the caller's Property/Analysis rows survive. Proven: with the column dropped,
+     the pending row is preserved (was discarded before). Applied to BOTH
+     record_stage_timing and record_parse_event.
+   - Startup migration adds the column to existing DBs: ALTER TABLE ai_parse_event
+     ADD COLUMN IF NOT EXISTS elapsed_ms INTEGER (app.py, same pattern as the other
+     telemetry-table migrations). Dropped the elapsed_ms index to keep the add
+     clean.
+
+2) frontend check "Cannot find module @babel/types/lib/index.js". @babel/core's
+   latest is 8.x (types 8 dropped lib/index.js); pinning the top-level packages to
+   ^7 (v5.89.260) wasn't enough because a hoisted/stale transitive @babel/types@8
+   could still skew the tree. Definitive fix: a COMMITTED package-lock.json that
+   freezes the entire babel tree at 7.29.7 (core/types/preset-react), and the CI +
+   deploy now use `npm ci` for a deterministic install. Verified: npm ci reproduces
+   the clean 7.x tree and both check_frontend.js and check_jsx.js pass. The tarball
+   now ships package-lock.json.
+
+Validation: 17 tests pass incl. the previously-failing e2e Property-row tests and
+ai_json/latency; all THREE frontend/JS checks pass (check_html_js, check_jsx,
+check_frontend); ow_deploy.sh syntax OK. No product logic changed.
 ## v5.89.263 — Three-state Disclosures tab (never blank, never hidden)
 
 The Disclosures tab — the moat, "what the seller didn't tell you" — could render
