@@ -29,3 +29,27 @@ def test_admin_html_inline_js_parses():
     assert proc.returncode == 0, (
         "admin.html inline JS failed to parse:\n" + proc.stdout + proc.stderr
     )
+
+
+@pytest.mark.skipif(shutil.which("node") is None, reason="node not installed")
+def test_guard_actually_catches_broken_inline_js(tmp_path):
+    # A guard that only ever passes is worthless. Prove it FAILS closed on the
+    # exact incident class: a dropped declaration turning a body's `await` into
+    # top-level await. Reproduce it in a temp file and assert non-zero exit.
+    bad = tmp_path / "broken.html"
+    bad.write_text(
+        "<html><body>\n"
+        "<script>\n"
+        "async function ok() { await fetch('/x'); }\n"
+        "  const y = await fetch('/y');\n"   # top-level await — illegal
+        "</script>\n"
+        "</body></html>\n"
+    )
+    proc = subprocess.run(
+        [sys.executable, GUARD, str(bad)],
+        cwd=HERE, capture_output=True, text=True,
+    )
+    assert proc.returncode != 0, (
+        "guard did NOT fail on broken inline JS — the safety net is inert:\n"
+        + proc.stdout + proc.stderr
+    )

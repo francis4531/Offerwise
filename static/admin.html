@@ -3851,6 +3851,18 @@ details.an-drill[open] .an-chev{transform:rotate(90deg)}
           </details>
         </div>
 
+        <!-- Full correctness suite — runs everything from the admin page (no local terminal) -->
+        <div style="border:1px solid var(--border);border-radius:6px;padding:12px;background:var(--surface);margin-bottom:12px">
+          <div style="font-weight:600;margin-bottom:6px">✅ Run full correctness suite</div>
+          <div style="font-size:11px;color:var(--muted);margin-bottom:10px;line-height:1.4">
+            Runs the whole correctness suite server-side — reasoning engine, national correctness, offer-math integrity, moat activation, and the build guards — and reports pass/fail per category. Live-network tests are excluded; guard tests skip if node/babel aren't on the server. Up to ~2 min.
+          </div>
+          <button id="btnFullSuite" class="btn btn-primary btn-sm" onclick="runFullTestSuite()">
+            Run full suite
+          </button>
+          <div id="fullSuiteResult" style="margin-top:10px;font-size:11px;color:var(--muted)"></div>
+        </div>
+
         <!-- Reasoning-layer test panel (same suite as the Ops tile, runnable here too) -->
         <div style="border:1px solid var(--border);border-radius:6px;padding:12px;background:var(--surface)">
           <div style="font-weight:600;margin-bottom:6px">🧩 Run reasoning-layer tests</div>
@@ -6068,6 +6080,56 @@ async function runReasoningTestsTab() {
     out.innerHTML = '<span style="color:var(--amber)">⚠ ' + (e && e.message ? e.message : 'request failed') + '</span>';
   } finally {
     if (btn) { btn.disabled = false; btn.textContent = 'Run reasoning tests'; }
+  }
+}
+
+async function runFullTestSuite() {
+  var btn = document.getElementById('btnFullSuite');
+  var out = document.getElementById('fullSuiteResult');
+  if (!out) return;
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Running…'; }
+  out.innerHTML = '<span class="spinner"></span> running full suite (up to ~2 min)…';
+  try {
+    var r = await fetchWithTimeout('/api/admin/test-suite', 480000, { method: 'POST' });
+    var d = await r.json();
+    if (d.harness_available === false) {
+      out.innerHTML = '<div style="font-size:12px;color:var(--amber)">⚠ Test harness not available in this environment.</div>' +
+        '<div style="margin-top:4px;font-size:11px;color:var(--muted)">' + (d.reason || '') +
+        (typeof d.files_found === 'number' ? ' (test files found: ' + d.files_found + ')' : '') + '</div>';
+      return;
+    }
+    var ov = d.overall || {};
+    var color = d.ok ? 'var(--green)' : 'var(--amber)';
+    var head = '<div style="font-size:14px;font-weight:700;color:' + color + '">' +
+      (d.ok ? '✓ ' : '✗ ') + (ov.passed||0) + ' passed' +
+      (ov.failed ? ', ' + ov.failed + ' failed' : '') +
+      (ov.errors ? ', ' + ov.errors + ' errors' : '') +
+      (ov.skipped ? ', ' + ov.skipped + ' skipped' : '') +
+      ' <span style="color:var(--muted);font-weight:400">(' + (d.files_run||0) + ' files)</span></div>';
+    var cats = '';
+    var bc = d.by_category || {};
+    Object.keys(bc).forEach(function(cat){
+      var c = bc[cat] || {};
+      var cc = c.ok ? 'var(--green)' : 'var(--amber)';
+      cats += '<div style="margin-top:4px;font-size:11px">' +
+        '<span style="color:' + cc + '">' + (c.ok ? '✓' : '✗') + '</span> ' +
+        '<strong>' + cat + '</strong> — ' + (c.passed||0) + ' passed' +
+        (c.failed ? ', ' + c.failed + ' failed' : '') +
+        (c.errors ? ', ' + c.errors + ' errors' : '') +
+        (c.skipped ? ', <span style="color:var(--muted)">' + c.skipped + ' skipped</span>' : '') +
+        '</div>';
+    });
+    var fails = '';
+    if (ov.failures && ov.failures.length) {
+      fails = '<div style="margin-top:8px;font-size:11px;color:var(--amber)">' +
+        ov.failures.map(function(f){ return '✗ ' + f; }).join('<br>') + '</div>';
+    }
+    var note = d.note ? '<div style="margin-top:8px;font-size:10px;color:var(--muted)">' + d.note + '</div>' : '';
+    out.innerHTML = head + cats + fails + note;
+  } catch(e) {
+    out.innerHTML = '<span style="color:var(--amber)">⚠ ' + (e && e.message ? e.message : 'request failed') + '</span>';
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Run full suite'; }
   }
 }
 

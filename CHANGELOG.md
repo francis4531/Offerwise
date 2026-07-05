@@ -1,3 +1,108 @@
+## v5.89.259 — Test-harness self-check on the admin suite panel
+
+Confirmed the deployed image already keeps the harness: the Dockerfile does
+`COPY . .`, .dockerignore explicitly KEEPS test_* ("included so admin QA suite can
+run them on the deployed instance"), and pytest is in requirements.txt. So the
+admin runner works in production today.
+
+Added a self-check so it degrades CLEANLY if a future slimmed build ever strips it,
+instead of surfacing a confusing pytest traceback:
+ - New _test_harness_status(base): verifies `pytest --version` runs AND that
+   test_*.py files are present. Returns {available, reason, pytest_version,
+   files_found}.
+ - /api/admin/test-suite runs this FIRST and, if unavailable, returns
+   {ok:false, harness_available:false, reason:...} with a plain-English cause
+   (pytest missing vs test files not deployed) rather than a raw error.
+ - The "Run full suite" panel renders that as "⚠ Test harness not available in this
+   environment" + the reason + how many test files it found — so the state is
+   obvious at a glance.
+
+Validation: harness self-check returns available/122 files/pytest 9.1.1 locally;
+admin JS guard passes (context-aware); <div> balance 3032/3032; JSX guard passes;
+27 admin_routes-dependent + guard tests pass (no regression). Both guards gate the
+package.
+## v5.89.258 — All tests run from the admin page + the last coverage gaps plugged
+
+Two things: the remaining gaps are closed, and the whole correctness suite now runs
+from the admin page (no local terminal).
+
+Gaps plugged (the last untested pieces from this session's work):
+ - The .246 water cross-reference diagnostic's verdict logic was inline in the
+   endpoint. Extracted to a pure water_xref_verdict(...) helper and locked every
+   branch (no_inspection / no_disclosure / exact / related_divergence / recall_gap
+   / unrelated_water) in test_extractor_diagnostic.py — the distinction that gates
+   whether we ever touch the corroboration derivation.
+ - The analysis_routes -> reasoning wiring (profile -> resolver) was untested inline
+   glue. Extracted to resolve_report_jurisdiction(result_dict, address) in
+   jurisdiction_resolver (single source), refactored the route to call it, and
+   locked it in test_jurisdiction_resolver.py: research-profile authoritative path,
+   thin-profile address fallback, non-CA condo (no CA leak), unresolvable ->
+   national base.
+ (These join the .257 closes: guard failure-tests + the CommonJS-context hardening,
+ report_bridge disclosure_readings, and the allowlist endpoint round-trip.)
+
+All tests on the admin page — new /api/admin/test-suite endpoint + a "Run full
+correctness suite" panel (Reasoning tab):
+ - Runs the whole correctness suite server-side and reports pass/fail PER CATEGORY:
+   Reasoning engine, National correctness, Offer-math integrity, Moat activation,
+   Build guards. One click, ~2 min, no terminal.
+ - Live-network integration tests are intentionally excluded (they need external
+   services and would hang a server run); the build-guard tests self-skip if
+   node/babel aren't on the server.
+
+Documented remaining thin spots (genuinely integration/browser-bound, low risk):
+ pdf_worker's disclosure branch is thin glue over the (tested) extract_disclosure_
+ readings contract; UI button DOM behavior is syntax-validated by the guards, not
+ click-tested (no headless browser in the suite).
+
+Validation: 77 passed across the gap-plugs, guards, and admin_routes-dependent
+tests (confirming the two new helpers + the endpoint caused no regression). Admin
+JS guard passes (context-aware); <div> balance 3030/3030; JSX guard passes. Both
+guards run as pre-package gates.
+## v5.89.257 — Test-coverage audit: closed three real gaps + hardened the admin guard
+
+A comprehensive coverage review of everything shipped this session (.245–.256).
+Most of it was already locked by regression tests; the audit found THREE genuine
+gaps and one latent guard weakness, all now closed. Honesty over green-washing —
+these were real holes.
+
+Gaps closed:
+ 1. The build guards only tested that they PASS — never that they CATCH breakage.
+    A safety net never proven to catch anything is false confidence, especially for
+    the exact white-screen incident it exists to prevent. Added
+    test_guard_actually_catches_broken_inline_js and _broken_jsx: each writes a
+    deliberately broken file and asserts the guard exits non-zero.
+ 2. Writing those tests surfaced a real WEAKNESS: `node --check` on an isolated
+    temp file treats it as an ES module, where top-level `await` is legal — so the
+    admin guard could MISS the exact incident class (a dropped declaration turning a
+    body's await into top-level await). It caught the real file only by luck of
+    size. Hardened check_html_js.py to check in CommonJS SCRIPT context via stdin
+    (`node --check --input-type=commonjs`), matching how the browser runs an inline
+    <script>. Verified it now reliably catches top-level await AND unbalanced
+    delimiters, and still passes the real admin.html.
+ 3. report_bridge's format-general disclosure_readings path (.245) had ZERO
+    coverage. Added tests: a section builds from disclosure_readings with no CA
+    tds_field_state (the non-CA path), it reaches the same engine as the TDS path,
+    and empty/none inputs never fabricate a section.
+ 4. The .252 reasoning-flag jurisdictions endpoint had no test. Extracted its state
+    normalization into a testable helper (normalize_reasoning_states) and added a
+    round-trip test proving what the endpoint WRITES is exactly what the activation
+    gate resolves against — a mismatch would silently fail to activate a market.
+
+Verification: 238 passed across the comprehensive session set (national correctness,
+offer integrity, activation, readiness, guards, report_bridge, reasoning) + 93 more
+including every test that imports admin_routes (confirming the helper extraction
+caused no regression). Both build guards pass on the real files and are proven to
+fail on broken input.
+
+Documented thin spots NOT closed (honest, low-risk, integration/UI-bound):
+ - The .246 extractor-diagnostic verdict branches (admin-only debug tool, LLM-
+   dependent; its underlying extractors ARE unit-tested).
+ - pdf_worker / analysis_routes WIRING that invokes the resolver + disclosure
+   dispatcher — the units are tested; the integration wiring needs the full analyze
+   pipeline with real documents (staging territory).
+ - Admin/report UI JS BEHAVIOR (button clicks) — syntax-validated by the guards, not
+   behavior-tested (no headless-browser harness in the suite).
 ## v5.89.256 — Report-tab de-duplication (Risk DNA + walk-away) + a JSX build guard
 
 Two things: a JSX build guard so app.html edits are validated the way admin.html

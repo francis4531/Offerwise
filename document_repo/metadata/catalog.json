@@ -1465,6 +1465,104 @@
         "format": "pdf",
         "state": "various"
       }
+    },
+    {
+      "filename": "open_data_20260705_Annapolis_City_Council_Special_Meeting___June_22__2026.html",
+      "doc_type": "inspection_report",
+      "source": "Internet Archive",
+      "title": "Annapolis City Council Special Meeting - June 22, 2026",
+      "crawled_at": "2026-07-05T14:40:19.247194",
+      "metadata": {
+        "source": "Internet Archive",
+        "identifier": "openpublica-annapolis-maryland-616d6bee-35f5-464f-870c-5c61f6034c38",
+        "date": "2026-06-22T00:00:00Z",
+        "format": "pdf",
+        "state": "various"
+      }
+    },
+    {
+      "filename": "open_data_20260705_HACM_Board_of_Commissioners_Meeting_Summary___June_10__2026.html",
+      "doc_type": "inspection_report",
+      "source": "Internet Archive",
+      "title": "HACM Board of Commissioners Meeting Summary \u2013 June 10, 2026",
+      "crawled_at": "2026-07-05T14:40:21.691537",
+      "metadata": {
+        "source": "Internet Archive",
+        "identifier": "openpublica-milwaukee-wisconsin-faf735f7-cf5d-4901-8072-2d21aa838a41",
+        "date": "2026-06-10T00:00:00Z",
+        "format": "pdf",
+        "state": "various"
+      }
+    },
+    {
+      "filename": "open_data_20260705_Pittsburgh_City_Council_Standing_Committee_Meeting___May_6__.html",
+      "doc_type": "inspection_report",
+      "source": "Internet Archive",
+      "title": "Pittsburgh City Council Standing Committee Meeting - May 6, 2026",
+      "crawled_at": "2026-07-05T14:40:24.069842",
+      "metadata": {
+        "source": "Internet Archive",
+        "identifier": "openpublica-pittsburgh-pennsylvania-5a3119ba-144f-4a56-ad25-4be131d90af0",
+        "date": "2026-06-05T00:00:00Z",
+        "format": "pdf",
+        "state": "various"
+      }
+    },
+    {
+      "filename": "open_data_20260705_San_Antonio_Building_Standards_Board_Meeting___May_28__2026.html",
+      "doc_type": "inspection_report",
+      "source": "Internet Archive",
+      "title": "San Antonio Building Standards Board Meeting - May 28, 2026",
+      "crawled_at": "2026-07-05T14:40:26.617489",
+      "metadata": {
+        "source": "Internet Archive",
+        "identifier": "openpublica-san_antonio-texas-swagit-sanantoniotx-389751",
+        "date": "2026-05-28T00:00:00Z",
+        "format": "pdf",
+        "state": "various"
+      }
+    },
+    {
+      "filename": "open_data_20260705_Houston_City_Council_Meeting___May_27__2026__Ebola_Briefing_.html",
+      "doc_type": "inspection_report",
+      "source": "Internet Archive",
+      "title": "Houston City Council Meeting - May 27, 2026: Ebola Briefing, Street Renaming, and Public Testimony",
+      "crawled_at": "2026-07-05T14:40:29.068090",
+      "metadata": {
+        "source": "Internet Archive",
+        "identifier": "openpublica-houston-texas-swagit-houstontx-389301",
+        "date": "2026-05-27T00:00:00Z",
+        "format": "pdf",
+        "state": "various"
+      }
+    },
+    {
+      "filename": "open_data_20260705_Arlington_City_Council_Meeting__World_Cup__Fire_Dept_Report_.html",
+      "doc_type": "inspection_report",
+      "source": "Internet Archive",
+      "title": "Arlington City Council Meeting: World Cup, Fire Dept Report, Cultural District, Workers' Comp - May ",
+      "crawled_at": "2026-07-05T14:40:31.632644",
+      "metadata": {
+        "source": "Internet Archive",
+        "identifier": "openpublica-arlington-texas-a2c9ec4b-67af-48a9-a751-3423666c1681",
+        "date": "2026-05-20T00:00:00Z",
+        "format": "pdf",
+        "state": "various"
+      }
+    },
+    {
+      "filename": "open_data_20260705_Can_You_Close_Fast__How_Buyers_Can_Prepare_for_a_Smoother_Mo.html",
+      "doc_type": "disclosure",
+      "source": "Internet Archive",
+      "title": "Can You Close Fast? How Buyers Can Prepare for a Smoother Mortgage Closing",
+      "crawled_at": "2026-07-05T14:40:34.173194",
+      "metadata": {
+        "source": "Internet Archive",
+        "identifier": "httpsthelendingmamba.comcan-you-close-fast-how-buyers-can-prepare-for-a-smoo",
+        "date": "",
+        "format": "pdf",
+        "state": "various"
+      }
     }
   ],
   "collection_stats": {

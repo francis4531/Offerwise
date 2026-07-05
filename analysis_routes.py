@@ -1567,29 +1567,20 @@ def analyze_property():
         # Additive — never alters existing result fields, never raises.
         try:
             from reasoning.report_bridge import attach_reasoning_if_enabled
-            from jurisdiction_resolver import resolve_jurisdiction_path, resolve_property_type
             _addr_for_reasoning = (result_dict.get('property_address')
                                    or (data.get('property_address') if isinstance(data, dict) else '')
                                    or '')
-            # Authoritative property facts from research (RentCast profile), when
-            # present — state/county/city/type/zip/year come from real data, not
-            # a guess. Falls back to parsing the address when research is thin.
-            _profile = (result_dict.get('research_data') or {}).get('profile') or {}
-            _reasoning_zip = str(_profile.get('zip_code') or '').strip()[:5]
-            if not _reasoning_zip:
-                import re as _re_zip
-                _zm = _re_zip.search(r'(\d{5})', _addr_for_reasoning)
-                _reasoning_zip = _zm.group(1) if _zm else ''
-            # No CA/SFH assumption: derive the jurisdiction path and property type.
-            _jur_path = resolve_jurisdiction_path(
-                address=_addr_for_reasoning,
-                zip_code=_reasoning_zip,
-                city=_profile.get('city'),
-                state=_profile.get('state'),
-                document_text=locals().get('document_text'),
-            )
-            _prop_type = resolve_property_type(_profile.get('property_type'))
-            _reasoning_year = _profile.get('year_built') or result_dict.get('year_built')
+            # No CA/SFH assumption: derive jurisdiction path + property type from
+            # the research profile (authoritative) with address fallback — via the
+            # shared, unit-tested resolver so this wiring isn't untested inline glue.
+            from jurisdiction_resolver import resolve_report_jurisdiction
+            _rj = resolve_report_jurisdiction(
+                result_dict, address=_addr_for_reasoning,
+                document_text=locals().get('document_text'))
+            _jur_path = _rj['jurisdiction']
+            _prop_type = _rj['property_type']
+            _reasoning_zip = _rj['zip_code']
+            _reasoning_year = _rj['year_built']
             attach_reasoning_if_enabled(
                 result_dict,
                 jurisdiction=_jur_path,

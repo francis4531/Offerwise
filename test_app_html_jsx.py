@@ -37,3 +37,25 @@ def test_app_html_jsx_compiles():
     assert proc.returncode == 0, (
         "app.html JSX failed to compile:\n" + proc.stdout + proc.stderr
     )
+
+
+@pytest.mark.skipif(not _babel_available(), reason="node or @babel not installed")
+def test_guard_actually_catches_broken_jsx(tmp_path):
+    # Prove the JSX guard FAILS closed on a malformed tag — otherwise it's a
+    # safety net that never catches anything.
+    bad = tmp_path / "broken.html"
+    bad.write_text(
+        '<html><body>\n'
+        '<script type="text/babel">\n'
+        'function App(){ return (<div><span>oops</div>); }\n'  # mismatched tags
+        '</script>\n'
+        '</body></html>\n'
+    )
+    proc = subprocess.run(
+        ["node", GUARD, str(bad)],
+        cwd=HERE, capture_output=True, text=True,
+    )
+    assert proc.returncode != 0, (
+        "JSX guard did NOT fail on broken JSX — the safety net is inert:\n"
+        + proc.stdout + proc.stderr
+    )

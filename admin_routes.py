@@ -630,6 +630,127 @@ def api_market_intel_stats():
 
 
 
+def _test_harness_status(base):
+    """Is the test harness actually present in THIS environment? Returns
+    {available, reason, pytest_version, files_found}. A deployed image could strip
+    test files or pytest (e.g. a slimmed build); without this the admin runner
+    would fail with a confusing pytest traceback instead of a clear message."""
+    import subprocess, os, glob
+    files_found = len(glob.glob(os.path.join(base, 'test_*.py')))
+    try:
+        proc = subprocess.run(['python3', '-m', 'pytest', '--version'],
+                              cwd=base, capture_output=True, text=True, timeout=20)
+        pv = (proc.stdout or proc.stderr or '').strip().splitlines()
+        pytest_ok = proc.returncode == 0
+        pytest_version = (pv[0] if pv else '') if pytest_ok else ''
+    except Exception as e:
+        pytest_ok = False
+        pytest_version = f'{type(e).__name__}: {e}'
+    if not pytest_ok:
+        return {'available': False, 'files_found': files_found, 'pytest_version': '',
+                'reason': 'pytest is not installed in this environment — the test '
+                          'harness is unavailable here. (It ships in the normal image; '
+                          'a slimmed build may have removed it.)'}
+    if files_found == 0:
+        return {'available': False, 'files_found': 0, 'pytest_version': pytest_version,
+                'reason': 'No test_*.py files are present in this environment — the '
+                          'test files were not deployed. (They are kept in the normal '
+                          'image; check .dockerignore / the build.)'}
+    return {'available': True, 'files_found': files_found, 'pytest_version': pytest_version,
+            'reason': ''}
+
+
+@admin_bp.route('/api/admin/test-suite', methods=['POST'])
+@_api_admin_req_dec
+def api_test_suite():
+    """Run the full correctness suite on demand from the admin page and return
+    pass/fail — so tests live on the admin page, not a local terminal. Covers the
+    reasoning engine, offer-math integrity, national correctness, activation, the
+    build guards, and this session's gap-plugs. Network/live-integration tests are
+    intentionally excluded (they need external services and would hang a server
+    run); the guard tests self-skip if node/babel aren't on the server.
+    """
+    import subprocess, os, re as _re
+    base = os.path.dirname(os.path.abspath(__file__))
+
+    # Self-check first: fail clearly if the harness isn't in this environment,
+    # instead of surfacing a raw pytest error.
+    harness = _test_harness_status(base)
+    if not harness['available']:
+        return jsonify({'ok': False, 'harness_available': False,
+                        'reason': harness['reason'],
+                        'files_found': harness['files_found']}), 200
+    # Categorized so the readout is meaningful. Files are filtered by existence.
+    categories = {
+        'Reasoning engine': [
+            'test_reasoning_composition.py', 'test_form_field_map.py',
+            'test_issue_derivation.py', 'test_reasoning_pipeline.py',
+            'test_tds_parser.py', 'test_tds_field_state.py', 'test_report_bridge.py',
+            'test_reasoning_persistence.py', 'test_inspection_parser.py',
+            'test_inspection_llm_extractor.py', 'test_cost_bands.py',
+            'test_cross_reference.py', 'test_reasoning_pendleton.py',
+            'test_disclosure_llm_extractor.py',
+        ],
+        'National correctness': [
+            'test_national_composition.py', 'test_jurisdiction_resolver.py',
+            'test_disclosure_parser.py', 'test_permit_jurisdiction.py',
+        ],
+        'Offer-math integrity': [
+            'test_reserve_reconciliation.py', 'test_offer_psychology_neutral.py',
+            'test_market_narrative_consistency.py', 'test_algorithms.py',
+            'test_avm_gate.py', 'test_report_quality_v2.py',
+            'test_cost_provenance.py', 'test_ai_json.py',
+        ],
+        'Moat activation': [
+            'test_reasoning_activation_scope.py', 'test_shadow_readiness.py',
+            'test_reasoning_shadow.py', 'test_extractor_diagnostic.py',
+        ],
+        'Build guards': [
+            'test_admin_html_js.py', 'test_app_html_jsx.py',
+        ],
+    }
+    all_files, cat_files = [], {}
+    for cat, files in categories.items():
+        present = [f for f in files if os.path.exists(os.path.join(base, f))]
+        cat_files[cat] = present
+        all_files.extend(present)
+
+    def _run(files):
+        if not files:
+            return {'ok': True, 'passed': 0, 'failed': 0, 'errors': 0, 'skipped': 0,
+                    'failures': [], 'summary': '(no files)'}
+        try:
+            proc = subprocess.run(
+                ['python3', '-m', 'pytest', '-q', '--no-header', '-p', 'no:cacheprovider', *files],
+                cwd=base, capture_output=True, text=True, timeout=420,
+            )
+            out = (proc.stdout or '') + '\n' + (proc.stderr or '')
+            g = lambda pat: int(m.group(1)) if (m := _re.search(pat, out)) else 0
+            return {
+                'ok': proc.returncode == 0,
+                'passed': g(r'(\d+) passed'), 'failed': g(r'(\d+) failed'),
+                'errors': g(r'(\d+) error'), 'skipped': g(r'(\d+) skipped'),
+                'failures': _re.findall(r'^FAILED (.+)$', out, _re.M)[:50],
+                'summary': (out.strip().splitlines() or ['(no output)'])[-1],
+            }
+        except subprocess.TimeoutExpired:
+            return {'ok': False, 'error': 'timed out (420s)', 'passed': 0,
+                    'failed': 0, 'errors': 1, 'skipped': 0, 'failures': []}
+        except Exception as e:
+            return {'ok': False, 'error': f'{type(e).__name__}: {e}', 'passed': 0,
+                    'failed': 0, 'errors': 1, 'skipped': 0, 'failures': []}
+
+    overall = _run(all_files)
+    per_category = {cat: _run(files) for cat, files in cat_files.items()}
+    return jsonify({
+        'ok': overall.get('ok', False),
+        'overall': overall,
+        'by_category': per_category,
+        'files_run': len(all_files),
+        'note': 'Live-network integration tests are excluded; guard tests skip if node/babel are absent on the server.',
+    })
+
+
 @admin_bp.route('/api/admin/reasoning-tests', methods=['POST'])
 @_api_admin_req_dec
 def api_reasoning_tests():
@@ -937,6 +1058,15 @@ def api_run_market_intel():
     return jsonify(stats)
 
 
+def normalize_reasoning_states(raw):
+    """Normalize a comma-separated states string for the reasoning activation
+    allowlist: uppercase, trimmed, de-duplicated, sorted, blanks dropped.
+    "ca, tx , ca" -> "CA,TX"; "" -> "". Single source of truth for what the
+    /api/admin/reasoning-flag endpoint persists, so the stored value always
+    matches the 2-letter state form the gate resolves against."""
+    return ','.join(sorted({p.strip().upper() for p in (raw or '').split(',') if p.strip()}))
+
+
 @admin_bp.route('/api/admin/reasoning-flag', methods=['GET', 'POST'])
 @_api_admin_req_dec
 def api_reasoning_flag():
@@ -995,7 +1125,7 @@ def api_reasoning_flag():
     # same way as the global enable; clearing it (empty) is always allowed.
     if 'jurisdictions' in data:
         raw_j = (data.get('jurisdictions') or '').strip()
-        states = ','.join(sorted({p.strip().upper() for p in raw_j.split(',') if p.strip()}))
+        states = normalize_reasoning_states(raw_j)
         if states:
             passed, detail = _guard()
             if not passed:
@@ -17777,6 +17907,55 @@ def admin_reasoning_shadow_summary():
         return jsonify({'error': f'Server error: {type(e).__name__}: {str(e)}'}), 500
 
 
+def water_xref_verdict(readings, disc_readings, insp_water_items,
+                       disc_water_items, related_of_bath,
+                       bath='structure.water_intrusion_bath'):
+    """Pure verdict logic for the water cross-reference diagnostic (v5.89.246):
+    given both extractors' readings and the water-concern item sets, classify why
+    the disclosed bath finding did or didn't corroborate. Returns (code, message).
+    Extracted from the endpoint so the branch logic is unit-testable.
+
+    Codes: no_inspection | no_disclosure | exact | related_divergence |
+           recall_gap | unrelated_water.
+    """
+    exact = bath in insp_water_items and bath in disc_water_items
+    via_related = (bath in disc_water_items) and bool(insp_water_items & (related_of_bath or set()))
+    if not readings:
+        return 'no_inspection', (
+            'Inspection extractor returned 0 readings — check ANTHROPIC_API_KEY '
+            'and logs for an [ai_json] call-failed / truncation line.')
+    if not disc_readings:
+        return 'no_disclosure', (
+            'Disclosure extractor returned 0 readings — the seller side is empty, '
+            'so every status is undisclosed by construction. Check the disclosure '
+            'text and the [ai_json] disclosure-extract telemetry.')
+    if exact:
+        return 'exact', (
+            'CORROBORATION SHOULD FORM: both sides have a '
+            'structure.water_intrusion_bath concern. If #1 still reads '
+            'disclosed_not_found, that is a pipeline bug, not extraction.')
+    if via_related:
+        return 'related_divergence', (
+            'RELATED-ITEM DIVERGENCE (cause a): the seller disclosed the bath '
+            'leak on structure.water_intrusion_bath, but the inspection put the '
+            'SAME water on a directly-related item (' +
+            ', '.join(sorted(insp_water_items & related_of_bath)) + '). This is '
+            'the fixable case — evidence-gated related_items corroboration. '
+            'CONFIRM the quotes describe the same location before trusting it.')
+    if not insp_water_items:
+        return 'recall_gap', (
+            'RECALL GAP (cause b): the inspection extractor pulled NO water '
+            'concern at all. disclosed_not_found is the engine being correct — '
+            'corroboration here would be FABRICATED. Fix is extraction recall '
+            '(prompt), not the derivation.')
+    return 'unrelated_water', (
+        'Inspection has water concern(s) but on item(s) NOT related to '
+        'structure.water_intrusion_bath (' + ', '.join(sorted(insp_water_items)) +
+        '). Likely the supply-line leak (#6), a DIFFERENT finding — '
+        'corroborating it against the disclosed bath leak would be FABRICATED. '
+        'Confirm before any change.')
+
+
 @admin_bp.route('/api/admin/reasoning/extractor-diagnostic', methods=['POST'])
 @_api_admin_req_dec
 def admin_reasoning_extractor_diagnostic():
@@ -17860,35 +18039,8 @@ def admin_reasoning_extractor_diagnostic():
         exact = bath in insp_water_items and bath in disc_water_items
         via_related = (bath in disc_water_items) and bool(insp_water_items & related_of_bath)
 
-        if not readings:
-            verdict = ('Inspection extractor returned 0 readings — check ANTHROPIC_API_KEY '
-                       'and logs for an [ai_json] call-failed / truncation line.')
-        elif not disc_readings:
-            verdict = ('Disclosure extractor returned 0 readings — the seller side is empty, '
-                       'so every status is undisclosed by construction. Check the disclosure '
-                       'text and the [ai_json] disclosure-extract telemetry.')
-        elif exact:
-            verdict = ('CORROBORATION SHOULD FORM: both sides have a '
-                       'structure.water_intrusion_bath concern. If #1 still reads '
-                       'disclosed_not_found, that is a pipeline bug, not extraction.')
-        elif via_related:
-            verdict = ('RELATED-ITEM DIVERGENCE (cause a): the seller disclosed the bath '
-                       'leak on structure.water_intrusion_bath, but the inspection put the '
-                       'SAME water on a directly-related item (' +
-                       ', '.join(sorted(insp_water_items & related_of_bath)) + '). This is '
-                       'the fixable case — evidence-gated related_items corroboration. '
-                       'CONFIRM the quotes describe the same location before trusting it.')
-        elif not insp_water_items:
-            verdict = ('RECALL GAP (cause b): the inspection extractor pulled NO water '
-                       'concern at all. disclosed_not_found is the engine being correct — '
-                       'corroboration here would be FABRICATED. Fix is extraction recall '
-                       '(prompt), not the derivation.')
-        else:
-            verdict = ('Inspection has water concern(s) but on item(s) NOT related to '
-                       'structure.water_intrusion_bath (' + ', '.join(sorted(insp_water_items)) +
-                       '). Likely the supply-line leak (#6), a DIFFERENT finding — '
-                       'corroborating it against the disclosed bath leak would be FABRICATED. '
-                       'Confirm before any change.')
+        _vcode, verdict = water_xref_verdict(
+            readings, disc_readings, insp_water_items, disc_water_items, related_of_bath)
 
         return jsonify({
             'source': source,

@@ -62,3 +62,35 @@ class TestReasoningActivationScope(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+# ── v5.89.252 endpoint <-> gate round-trip ────────────────────────────────────
+# The /api/admin/reasoning-flag endpoint persists a normalized states string; the
+# gate reads it back. These lock that what the endpoint WRITES is exactly what the
+# gate resolves against — a mismatch would silently fail to activate a market.
+
+class TestAllowlistRoundTrip(unittest.TestCase):
+    def setUp(self):
+        for k in ('OFFERWISE_REASONING_IN_REPORT',
+                  'OFFERWISE_REASONING_IN_REPORT_JURISDICTIONS'):
+            os.environ.pop(k, None)
+
+    tearDown = setUp
+
+    def test_normalize_dedupes_uppercases_sorts(self):
+        from admin_routes import normalize_reasoning_states as n
+        self.assertEqual(n('ca, tx , ca'), 'CA,TX')
+        self.assertEqual(n(''), '')
+        self.assertEqual(n('  fl '), 'FL')
+        self.assertEqual(n(None), '')
+
+    def test_endpoint_output_is_what_the_gate_enables(self):
+        from admin_routes import normalize_reasoning_states as n
+        # simulate the admin typing "ca, tx"; the endpoint stores this:
+        stored = n('ca, tx')
+        os.environ['OFFERWISE_REASONING_IN_REPORT_JURISDICTIONS'] = stored
+        # the gate must now enable exactly those states and nothing else:
+        self.assertTrue(reasoning_in_report_enabled('CA:santa_clara:san_jose'))
+        self.assertTrue(reasoning_in_report_enabled('TX'))
+        self.assertFalse(reasoning_in_report_enabled('FL'))
+        self.assertFalse(reasoning_in_report_enabled('*'))

@@ -167,6 +167,35 @@ def resolve_property_type(profile_type: Optional[str] = None,
     return _UNKNOWN_TYPE_DEFAULT
 
 
+def resolve_report_jurisdiction(result_dict, address="", document_text=None):
+    """Resolve everything the buyer report's reasoning attach needs —
+    (jurisdiction path, property type, zip, year_built) — from the research
+    profile (authoritative: state/county/city/type/zip/year from RentCast) with
+    address fallback. This is the single source for the analysis wiring, so that
+    glue is unit-testable rather than buried inline in the analyze route.
+
+    Returns a dict: {jurisdiction, property_type, zip_code, year_built}. Never
+    raises; missing profile -> address/national fallback.
+    """
+    result_dict = result_dict or {}
+    profile = (result_dict.get("research_data") or {}).get("profile") or {}
+    zip_code = str(profile.get("zip_code") or "").strip()[:5]
+    if not zip_code and address:
+        m = _ZIP_RE.search(address)
+        zip_code = m.group(1) if m else ""
+    jur_path = resolve_jurisdiction_path(
+        address=address, zip_code=zip_code,
+        city=profile.get("city"), state=profile.get("state"),
+        document_text=document_text,
+    )
+    return {
+        "jurisdiction": jur_path,
+        "property_type": resolve_property_type(profile.get("property_type")),
+        "zip_code": zip_code,
+        "year_built": profile.get("year_built") or result_dict.get("year_built"),
+    }
+
+
 def resolve_jurisdiction_path(address: Optional[str] = None,
                               zip_code: Optional[str] = None,
                               city: Optional[str] = None,

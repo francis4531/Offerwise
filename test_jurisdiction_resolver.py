@@ -82,3 +82,37 @@ def test_all_authored_ids_is_a_superset_of_every_jurisdiction_and_type():
         ("*", "condo"), ("TX", "SFH"), ("FL", "townhouse"),
     ]:
         assert set(compose(jur, typ).ids()) <= universe, f"{jur}/{typ} not covered"
+
+
+# ── v5.89.257: report wiring helper (was untested inline glue in analysis_routes) ─
+from jurisdiction_resolver import resolve_report_jurisdiction
+
+
+def test_report_jurisdiction_from_research_profile():
+    # Authoritative RentCast profile -> full path, normalized type, zip, year.
+    rd = {"research_data": {"profile": {
+        "state": "CA", "city": "San Jose", "property_type": "Single Family",
+        "zip_code": "95148", "year_built": 1977}}}
+    out = resolve_report_jurisdiction(rd, address="2839 Pendleton Dr, San Jose, CA 95148")
+    assert out == {"jurisdiction": "CA:santa_clara:san_jose", "property_type": "SFH",
+                   "zip_code": "95148", "year_built": 1977}
+
+
+def test_report_jurisdiction_thin_profile_falls_back_to_address():
+    out = resolve_report_jurisdiction({}, address="100 Main St, Austin, TX 78701")
+    assert out["jurisdiction"] == "TX"
+    assert out["property_type"] == "SFH"   # unknown type -> broad floor
+    assert out["zip_code"] == "78701"
+
+
+def test_report_jurisdiction_non_ca_condo_no_leak():
+    rd = {"research_data": {"profile": {
+        "state": "FL", "city": "Miami", "property_type": "Condominium", "zip_code": "33139"}}}
+    out = resolve_report_jurisdiction(rd)
+    assert out["jurisdiction"] == "FL"          # national base, no CA overlay
+    assert out["property_type"] == "condo"
+
+
+def test_report_jurisdiction_unresolvable_is_national_base():
+    out = resolve_report_jurisdiction({}, address="nowhere at all")
+    assert out["jurisdiction"] == "*"           # never a guessed state

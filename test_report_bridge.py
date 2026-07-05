@@ -104,3 +104,37 @@ def test_buyer_flag_off_persist_off_is_noop(monkeypatch):
     rd = {"keep": "me"}
     attach_reasoning_if_enabled(rd, inspection_readings=[{"item_id": "x", "value": "yes"}])
     assert rd == {"keep": "me"}
+
+
+# ── v5.89.245 national path: disclosure_readings (format-general) ──────────────
+# Before this session build_reasoning_section only accepted a CA tds_field_state.
+# The format-general path feeds pre-built disclosure_readings (any state's
+# disclosure). These lock that path — it previously had ZERO coverage.
+
+def test_build_section_from_disclosure_readings_no_tds():
+    from reasoning.tds_parser import parse_tds_field_state
+    readings = parse_tds_field_state(load_specimen_field_state())
+    assert readings, "specimen should yield disclosure field readings"
+    section = build_reasoning_section(disclosure_readings=readings)  # NO tds_field_state
+    assert section is not None
+    assert set(["claims", "issues", "offer", "checklist_version"]).issubset(section.keys())
+    assert len(section["claims"]) >= 1
+
+
+def test_disclosure_readings_used_when_supplied():
+    # disclosure_readings drive the disclosure side; passing them (with no
+    # tds_field_state) must produce claims equivalent to parsing the TDS — proving
+    # the national path reaches the same engine, not a dead branch.
+    from reasoning.tds_parser import parse_tds_field_state
+    readings = parse_tds_field_state(load_specimen_field_state())
+    via_readings = build_reasoning_section(disclosure_readings=readings)
+    via_tds = build_reasoning_section(tds_field_state=load_specimen_field_state())
+    assert via_readings is not None and via_tds is not None
+    assert len(via_readings["claims"]) == len(via_tds["claims"])
+
+
+def test_no_section_without_any_disclosure_or_inspection_input():
+    # disclosure_readings empty + no tds + no inspection -> None (never fabricate).
+    assert build_reasoning_section(disclosure_readings=[]) is None
+    assert build_reasoning_section(disclosure_readings=None, tds_field_state=None,
+                                   inspection_readings=None) is None

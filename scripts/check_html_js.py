@@ -29,7 +29,6 @@ import os
 import re
 import subprocess
 import sys
-import tempfile
 
 # Server-rendered HTML whose inline <script> is plain JS (no JSX/Babel).
 DEFAULT_TARGETS = ["static/admin.html"]
@@ -81,18 +80,24 @@ def _check_file(path: str) -> list:
         return failures
 
     for start_line, body in blocks:
-        with tempfile.NamedTemporaryFile("w", suffix=".js", delete=False, encoding="utf-8") as tf:
-            tf.write(body)
-            tmp = tf.name
-        try:
-            proc = subprocess.run(["node", "--check", tmp], capture_output=True, text=True)
-        finally:
-            os.unlink(tmp)
+        # Check in CommonJS SCRIPT context via stdin — this matches how the browser
+        # runs an inline <script> (classic script), where top-level `await` is a
+        # SyntaxError. A plain temp-file `node --check` treats an ambiguous file as
+        # an ES module and would MISS top-level await — the exact incident class
+        # this guard exists to catch. Piping with --input-type=commonjs forces the
+        # correct semantics.
+        proc = subprocess.run(
+            ["node", "--check", "--input-type=commonjs"],
+            input=body, capture_output=True, text=True,
+        )
         if proc.returncode != 0:
             err = (proc.stderr or "").strip()
-            # node reports "<tmp>:<lineInBlock>" — remap to the real source line.
+            # drop the noisy ESM warning lines; keep the real error.
+            err = "\n".join(l for l in err.split("\n")
+                            if "Failed to load the ES module" not in l
+                            and "trace-warnings" not in l).strip()
             mapped = err
-            mm = re.search(r":(\d+)\b", err)
+            mm = re.search(r"(?:\[stdin\]|:)(\d+)\b", err)
             if mm:
                 real = start_line + int(mm.group(1)) - 1
                 mapped = f"{path}:{real} (block starting at line {start_line})\n{err}"
