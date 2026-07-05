@@ -12337,6 +12337,46 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('bugCount') && (document.getElementById('bugCount').textContent = foundBugs.length);
         }
 
+        // ─── Async suite runner (v5.89.265): submit a background job, poll for
+        //     the result. No request stays open long enough for Cloudflare's ~100s
+        //     origin timeout to kill it — the fix for "Failed to fetch" on the
+        //     heavy suites (postgres-parity ~114s, cassettes ~27s, etc.). ──────────
+        async function runSuiteAsync(path, opts) {
+            opts = opts || {};
+            var query = opts.query || {};
+            var ak = (typeof adminKey !== 'undefined') ? adminKey : '';
+            var startRes = await fetch('/api/test/async/start?admin_key=' + encodeURIComponent(ak), {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-Admin-Key': ak, 'X-Requested-With': 'XMLHttpRequest' },
+                body: JSON.stringify({ path: path, method: opts.method || 'POST', query: query })
+            });
+            if (!startRes.ok) { var t0 = await startRes.text(); throw new Error('Could not start ' + path + ' (' + startRes.status + '): ' + t0.substring(0,200)); }
+            var jobId = (await startRes.json()).job_id;
+            if (!jobId) throw new Error('No job_id returned for ' + path);
+            var deadline = Date.now() + 600000; // 10 min ceiling
+            while (Date.now() < deadline) {
+                await new Promise(function(r){ setTimeout(r, 2500); });
+                var st;
+                try {
+                    st = await fetch('/api/test/async/status/' + jobId + '?admin_key=' + encodeURIComponent(ak), {
+                        method: 'GET', headers: { 'X-Admin-Key': ak, 'X-Requested-With': 'XMLHttpRequest' }
+                    });
+                } catch (e) { continue; } // transient network blip — keep polling
+                if (!st.ok) { if (st.status === 404) throw new Error(path + ' job expired'); continue; }
+                var sd = await st.json();
+                if (sd.status === 'running') continue;
+                if (sd.status === 'failed') throw new Error(path + ' failed server-side: ' + (sd.error || 'unknown'));
+                if (sd.status === 'unknown') throw new Error(path + ' job expired');
+                if (sd.status === 'complete') {
+                    if (sd.status_code && (sd.status_code < 200 || sd.status_code >= 300)) {
+                        throw new Error(path + ' returned ' + sd.status_code + ': ' + JSON.stringify(sd.result || sd.raw || '').substring(0,200));
+                    }
+                    return sd.result;
+                }
+            }
+            throw new Error(path + ' timed out after 10 min (still running server-side)');
+        }
+
         // ─── Individual suite runners (unchanged API calls) ──────────
         async function runAnalysisTests(count, scenario) {
             var allResults = [], totalElapsed = 0, validationStats = { total:0, passed:0, failed:0 };
@@ -12360,131 +12400,39 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         async function runStripeTestsAPI(count) {
-            var res = await fetch('/api/test/stripe?admin_key=' + adminKey, {
-                method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
-                body: JSON.stringify({ count: count })
-            });
-            if (!res.ok) { var t = await res.text(); throw new Error('Stripe tests failed (' + res.status + '): ' + t.substring(0,200)); }
-            return await res.json();
+            return await runSuiteAsync('/api/test/stripe', { query: { count: count } });
         }
 
         async function runReferralTests() {
-            var res = await fetch('/api/test/referrals?admin_key=' + adminKey, {
-                method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
-            });
-            if (!res.ok) { var t = await res.text(); throw new Error('Referral tests failed (' + res.status + '): ' + t.substring(0,200)); }
-            return await res.json();
+            return await runSuiteAsync('/api/test/referrals');
         }
 
         async function runIntegrityTests() {
-            var res = await fetch('/api/test/integrity', {
-                method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest', 'X-Admin-Key': adminKey }
-            });
-            if (!res.ok) { var t = await res.text(); throw new Error('Integrity tests failed (' + res.status + '): ' + t.substring(0,200)); }
-            return await res.json();
+            return await runSuiteAsync('/api/test/integrity');
         }
 
         async function runAdversarialTests() {
-            var res = await fetch('/api/test/adversarial-pdfs?admin_key=' + adminKey, {
-                method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
-            });
-            if (!res.ok) { var t = await res.text(); throw new Error('Adversarial tests failed (' + res.status + '): ' + t.substring(0,200)); }
-            return await res.json();
+            return await runSuiteAsync('/api/test/adversarial-pdfs');
         }
 
         async function runCorpusPipelineTests() {
-            var res = await fetch('/api/test/pdf-corpus-pipeline?admin_key=' + adminKey, {
-                method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
-            });
-            if (!res.ok) { var t = await res.text(); throw new Error('Corpus pipeline tests failed (' + res.status + '): ' + t.substring(0,200)); }
-            return await res.json();
+            return await runSuiteAsync('/api/test/pdf-corpus-pipeline');
         }
 
         async function runAgenticTests() {
-            // Use plain fetch with AbortController — fetchWithTimeout doesn't accept options
-            var controller = new AbortController();
-            var timer = setTimeout(function() { controller.abort(); }, 180000); // 3 min
-            try {
-                var res = await fetch('/api/test/agentic?admin_key=' + adminKey, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'X-Admin-Key': adminKey },
-                    body: JSON.stringify({}),
-                    signal: controller.signal,
-                });
-                clearTimeout(timer);
-                if (!res.ok) { var t = await res.text(); throw new Error('Agentic tests failed (' + res.status + '): ' + t.substring(0, 200)); }
-                return await res.json();
-            } catch(e) {
-                clearTimeout(timer);
-                throw e;
-            }
+            return await runSuiteAsync('/api/test/agentic');
         }
 
         async function runFlywheelTests() {
-            var controller = new AbortController();
-            var timer = setTimeout(function() { controller.abort(); }, 60000); // 1 min
-            try {
-                var res = await fetch('/api/test/flywheel?admin_key=' + adminKey, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'X-Admin-Key': adminKey },
-                    body: JSON.stringify({}),
-                    signal: controller.signal,
-                });
-                clearTimeout(timer);
-                if (!res.ok) { var t = await res.text(); throw new Error('Flywheel tests failed (' + res.status + '): ' + t.substring(0, 200)); }
-                return await res.json();
-            } catch(e) {
-                clearTimeout(timer);
-                throw e;
-            }
+            return await runSuiteAsync('/api/test/flywheel');
         }
 
-        // v5.88.26: cassette replays + Postgres parity runners.
-        // Both follow the integrity-style pattern: POST to a server endpoint
-        // that runs the tests and returns {results:[{name,passed,error,details}]}.
         async function runCassetteReplayTests() {
-            // v5.88.28: timeout bumped 120s → 300s. Cassette replays take
-            // ~75s locally; on Render with cold-start + slower I/O they
-            // can exceed 120s. The actual replays don't make API calls
-            // (VCR matches), so timing is bounded by orchestrator code
-            // path execution, not network.
-            var controller = new AbortController();
-            var timer = setTimeout(function() { controller.abort(); }, 300000); // 5 min
-            try {
-                var res = await fetch('/api/test/cassette-replays?admin_key=' + adminKey, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'X-Admin-Key': adminKey },
-                    body: JSON.stringify({}),
-                    signal: controller.signal,
-                });
-                clearTimeout(timer);
-                if (!res.ok) { var t = await res.text(); throw new Error('Cassette replays failed (' + res.status + '): ' + t.substring(0, 200)); }
-                return await res.json();
-            } catch(e) {
-                clearTimeout(timer);
-                throw e;
-            }
+            return await runSuiteAsync('/api/test/cassette-replays');
         }
 
         async function runPostgresParityTests() {
-            // Postgres tests can take ~3-5 min for the full subset.
-            // Generous 10-minute client-side timeout.
-            var controller = new AbortController();
-            var timer = setTimeout(function() { controller.abort(); }, 600000); // 10 min
-            try {
-                var res = await fetch('/api/test/postgres-parity?admin_key=' + adminKey, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'X-Admin-Key': adminKey },
-                    body: JSON.stringify({}),
-                    signal: controller.signal,
-                });
-                clearTimeout(timer);
-                if (!res.ok) { var t = await res.text(); throw new Error('Postgres parity failed (' + res.status + '): ' + t.substring(0, 200)); }
-                return await res.json();
-            } catch(e) {
-                clearTimeout(timer);
-                throw e;
-            }
+            return await runSuiteAsync('/api/test/postgres-parity');
         }
 
         // ─── OfferWatch ──────────────────────────────────────────────────
@@ -12643,11 +12591,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         async function runWorkflowTests() {
-            var res = await fetch('/api/test/workflows?admin_key=' + adminKey, {
-                method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
-            });
-            if (!res.ok) { var t = await res.text(); throw new Error('Workflow tests failed (' + res.status + '): ' + t.substring(0,200)); }
-            return await res.json();
+            return await runSuiteAsync('/api/test/workflows');
         }
 
         // ─── Sessions ────────────────────────────────────────────────

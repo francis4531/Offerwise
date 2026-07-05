@@ -1970,7 +1970,7 @@ about a property, write a concise Pre-Analysis Intelligence Brief.
 
 PROPERTY: {profile.address_normalized or profile.address}
 YEAR BUILT: {profile.year_built or 'Unknown'}
-ESTIMATED VALUE: ${profile.estimated_value:,} if profile.estimated_value else 'Unknown'
+ESTIMATED VALUE: {f"${profile.estimated_value:,}" if profile.estimated_value else 'Unknown'}
 SQFT: {profile.sqft or 'Unknown'}
 
 DATA GATHERED:

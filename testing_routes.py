@@ -83,6 +83,93 @@ def init_testing_blueprint(app, admin_required_fn, api_admin_required_fn,
     logger.info("✅ Testing Routes blueprint registered")
 
 
+# ── Async QA runner (v5.89.265) ───────────────────────────────────────────────
+# QA suites can run well past Cloudflare's ~100s origin-response timeout (e.g.
+# postgres-parity at 114s), so a single blocking request is killed at the proxy
+# and the browser sees "Failed to fetch" even though the server finished with a
+# 200. Same shape of problem the PDF pipeline already solves: kick off a background
+# job, return a job_id in ms, poll for the result — no connection stays open long
+# enough to be timed out. This runs the EXISTING suite endpoints server-side via
+# the app's test_client (full auth/context), so no per-suite endpoint is rewritten.
+import uuid as _qa_uuid
+import threading as _qa_threading
+from concurrent.futures import ThreadPoolExecutor as _QAExecutor
+
+_QA_JOBS = {}
+_QA_LOCK = _qa_threading.Lock()
+_QA_POOL = _QAExecutor(max_workers=2)
+_QA_TTL_SECONDS = 3600
+
+
+def _qa_cleanup():
+    cutoff = time.time() - _QA_TTL_SECONDS
+    with _QA_LOCK:
+        for jid in [k for k, v in _QA_JOBS.items() if v.get('started', 0) < cutoff]:
+            _QA_JOBS.pop(jid, None)
+
+
+@testing_bp.route('/api/test/async/start', methods=['POST'])
+@_dev_only_gate
+@_api_admin_required
+def qa_async_start():
+    """Start a QA suite as a background job; return {job_id} immediately. Body:
+    {path: '/api/test/<suite>', method?: 'POST', query?: {...}}. Only /api/test/*
+    paths (excluding /async) are runnable — an allowlist so this can't be used to
+    invoke arbitrary endpoints."""
+    _qa_cleanup()
+    data = request.get_json(silent=True) or {}
+    path = (data.get('path') or '').strip()
+    method = (data.get('method') or 'POST').upper()
+    query = data.get('query') or {}
+    if not path.startswith('/api/test/') or '/async' in path:
+        return jsonify({'error': 'path not allowed'}), 400
+    admin_key = (request.args.get('admin_key') or request.headers.get('X-Admin-Key')
+                 or (query.get('admin_key') if isinstance(query, dict) else None) or '')
+    job_id = _qa_uuid.uuid4().hex
+    with _QA_LOCK:
+        _QA_JOBS[job_id] = {'status': 'running', 'started': time.time(), 'path': path}
+    app = current_app._get_current_object()
+
+    def _bg():
+        try:
+            with app.app_context():
+                client = app.test_client()
+                q = dict(query) if isinstance(query, dict) else {}
+                body = dict(q)  # forward caller params as the JSON body too
+                if admin_key:
+                    q.setdefault('admin_key', admin_key)
+                resp = client.open(
+                    path, method=method, query_string=q, json=body,
+                    headers={'X-Admin-Key': admin_key, 'X-Requested-With': 'XMLHttpRequest'},
+                )
+                body = resp.get_json(silent=True)
+                out = {'status': 'complete', 'started': time.time(),
+                       'status_code': resp.status_code, 'result': body}
+                if body is None:
+                    out['raw'] = (resp.get_data(as_text=True) or '')[:2000]
+                with _QA_LOCK:
+                    _QA_JOBS[job_id] = out
+        except Exception as e:
+            with _QA_LOCK:
+                _QA_JOBS[job_id] = {'status': 'failed', 'started': time.time(),
+                                    'error': f'{type(e).__name__}: {e}'}
+
+    _QA_POOL.submit(_bg)
+    return jsonify({'job_id': job_id, 'status': 'running'})
+
+
+@testing_bp.route('/api/test/async/status/<job_id>', methods=['GET'])
+@_dev_only_gate
+@_api_admin_required
+def qa_async_status(job_id):
+    """Poll a QA job. Returns {status: running|complete|failed, ...}."""
+    with _QA_LOCK:
+        job = _QA_JOBS.get(job_id)
+    if not job:
+        return jsonify({'status': 'unknown', 'error': 'job not found or expired'}), 404
+    return jsonify(job)
+
+
 
 @testing_bp.route('/api/test/stripe', methods=['POST'])
 @_dev_only_gate

@@ -1,3 +1,37 @@
+## v5.89.265 — QA runner is async (job-and-poll): "Failed to fetch" fixed at the root + research bug
+
+Root cause of the admin QA runner's "Failed to fetch" on all 12 suites: the server
+was HEALTHY (postgres-parity returned 200 in 114.4s, cassette-replays 200 in 27.4s),
+but those durations blow past Cloudflare's ~100s origin-response timeout, so the
+proxy dropped the browser connection while the server finished obliviously. It was
+never the tests failing or a crash/OOM — it was one long blocking request behind a
+100s ceiling.
+
+Structural fix (the same pattern the PDF pipeline already uses — not a band-aid):
+ - New async QA layer in testing_routes.py: POST /api/test/async/start {path} kicks
+   off the suite as a BACKGROUND job (ThreadPoolExecutor) and returns a job_id in
+   milliseconds; GET /api/test/async/status/<job_id> polls for the result. No
+   request stays open long enough to hit the 100s ceiling, so a 114s suite is fine.
+   Runs the EXISTING suite endpoints server-side via app.test_client (full auth) —
+   zero per-suite endpoint rewritten. Path allowlist (/api/test/*, no recursion),
+   1h TTL job store, admin+dev gated.
+ - admin.html: generic runSuiteAsync(path) (submit → poll every 2.5s, 10-min
+   ceiling, clear errors); the 10 heavy suites now route through it. Analysis stays
+   as-is (a loop of small sub-100s calls). Speeding up postgres-parity would've been
+   the band-aid; this makes duration irrelevant.
+
+Also fixed (surfaced in the same logs): property_research_agent._ai_synthesize
+crashed with 'unsupported format string passed to NoneType.__format__' whenever the
+AVM was suppressed (estimated_value=None) — an f-string formatted None, and the
+"if ... else 'Unknown'" was OUTSIDE the braces so it leaked into the LLM prompt as
+literal text. This was silently degrading research on every suppressed-AVM property
+(research "1 fail", AVM=0 downstream). Fixed to a proper in-brace conditional.
+
+Tests: test_qa_async.py (3 — submit/poll returns result, path allowlist rejects
+non-test + self-recursion, unknown job 404); test_research_synthesis_none.py (3 —
+None/0 → "Unknown", real value → "$1,257,000", no literal-ternary leak). Both added
+to the admin suite runner. Admin JS guard passes; <div> 3042/3042; JSX guard passes;
+all backends compile.
 ## v5.89.264 — CI green: two independent failures fixed (Property-row loss + Babel skew)
 
 Two unrelated CI failures, both root-caused and fixed robustly.

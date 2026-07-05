@@ -753,7 +753,7 @@ def api_test_suite():
             'test_reasoning_persistence.py', 'test_inspection_parser.py',
             'test_inspection_llm_extractor.py', 'test_cost_bands.py',
             'test_cross_reference.py', 'test_reasoning_pendleton.py',
-            'test_disclosure_llm_extractor.py',
+            'test_disclosure_llm_extractor.py', 'test_research_synthesis_none.py',
         ],
         'National correctness': [
             'test_national_composition.py', 'test_jurisdiction_resolver.py',
@@ -771,7 +771,7 @@ def api_test_suite():
             'test_latency_timing.py',
         ],
         'Build guards': [
-            'test_admin_html_js.py', 'test_app_html_jsx.py',
+            'test_admin_html_js.py', 'test_app_html_jsx.py', 'test_qa_async.py',
         ],
     }
     all_files, cat_files = [], {}
