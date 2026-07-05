@@ -1,3 +1,37 @@
+## v5.89.263 — Three-state Disclosures tab (never blank, never hidden)
+
+The Disclosures tab — the moat, "what the seller didn't tell you" — could render
+NOTHING in two common cases: an inspection-only analysis (exactly what the /try and
+/risk-check on-ramp funnel produces), and both-docs-but-no-contradictions. A blank
+tab on a paid product reads as broken. Rather than HIDE it (which would silently
+drop the users' core value and the best conversion hook), the tab now always shows
+one of three intentional states.
+
+New #ow-disclosure-state fallback (static/app.html), scoped to the Disclosures tab
+via the tab CSS. It renders ONLY when neither real cross-reference section does
+(exact same gates: reasoning claims present, or legacy contradictions with a
+disclosure) — so no double-render:
+ - CTA state (no seller disclosure / inspection_only): "Add the seller's disclosure
+   to unlock this" with a button wired to the real upload path (setCurrentStep
+   ('property')). Turns the on-ramp's single-inspection drop into the full
+   cross-reference — the same click that doubles document capture.
+ - Clean-result state (disclosure present, cross-referenced, no contradictions):
+   "The seller's disclosures hold up" — a real, reassuring finding, not emptiness.
+ - Contradictions state: the existing #ow-reasoning / #ow-disclosure sections,
+   unchanged.
+
+Net effect: the tab that IS the product's promise is never blank and never
+disappears; every state is intentional and, in the missing-disclosure case,
+actionable.
+
+Validation: JSX guard compiles cleanly; <div> net unchanged at 16 (block is
+balanced); #ow-disclosure-state wired in JSX + both tab CSS rules (hide-by-default
++ show-on-disclosures). Both build guards gate the package.
+
+Note: this covers the interactive report tab (the reported complaint). The
+downloadable PDF renderer's disclosure section is separate; a missing section in a
+static PDF doesn't read as a broken tab, but it can get the same three states as a
+follow-up if wanted.
 ## v5.89.262 — Per-stage latency instrumentation + admin breakdown (know the real bottleneck)
 
 Light, real-data timing across the analysis pipeline so the "too slow" complaint is

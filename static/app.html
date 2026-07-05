@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>OfferWise AI™ — Property Analysis</title>
-    <script src="/static/gtm-loader.js?v=5.89.262"></script>
+    <script src="/static/gtm-loader.js?v=5.89.263"></script>
 <!-- /GTM head -->
     <script>if(window.location.hostname==='getofferwise.ai')window.location.replace('https://www.getofferwise.ai'+window.location.pathname+window.location.search);</script>
     <link rel="icon" type="image/svg+xml" href="/static/logo-icon-only.svg">
@@ -21,7 +21,7 @@
     <link rel="preconnect" href="https://unpkg.com" crossorigin>
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/results-theme.css?v=5.89.262">
+    <link rel="stylesheet" href="/static/results-theme.css?v=5.89.263">
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone@7.29.7/babel.min.js"></script>
@@ -685,7 +685,7 @@
         .ow-strategy-grid { grid-template-columns: 1fr !important; }
       }
     </style>
-    <script src="/static/analytics-loader.js?v=5.89.262" defer></script>
+    <script src="/static/analytics-loader.js?v=5.89.263" defer></script>
     <!-- Reddit Pixel Base Code -->
     <script>
     !function(w,d){if(!w.rdt){var p=w.rdt=function(){p.sendEvent?p.sendEvent.apply(p,arguments):p.queue.push(arguments)};p.queue=[];var t=d.createElement('script');t.src='https://www.redditstatic.com/ads/pixel.js';t.async=!0;var s=d.getElementsByTagName('script')[0];s.parentNode.insertBefore(t,s)}}(window,document);
@@ -727,6 +727,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       .ow-results[data-tab] #ow-repairs,
       .ow-results[data-tab] #ow-reserve,
       .ow-results[data-tab] #ow-disclosure,
+      .ow-results[data-tab] #ow-disclosure-state,
       .ow-results[data-tab] #ow-reasoning,
       .ow-results[data-tab] #ow-walk,
       .ow-results[data-tab] #ow-riskdna,
@@ -737,6 +738,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       .ow-results[data-tab="condition"] #ow-reserve,
       .ow-results[data-tab="condition"] #ow-riskdna,
       .ow-results[data-tab="disclosures"] #ow-disclosure,
+      .ow-results[data-tab="disclosures"] #ow-disclosure-state,
       .ow-results[data-tab="disclosures"] #ow-reasoning,
       .ow-results[data-tab="negotiate"] #ow-walk,
       .ow-results[data-tab="negotiate"] #ow-toolkit { display:block; }
@@ -6801,6 +6803,40 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                       </div>
                       );
                     })()}
+                    {/* v5.89.263: the Disclosures tab is never blank. When neither the
+                        reasoning cross-reference nor the legacy contradictions section
+                        renders, show an intentional state — a CTA to add the seller's
+                        disclosure (inspection-only), or a clean "disclosures check out"
+                        result when both docs were cross-referenced with no contradictions. */}
+                    {(() => {
+                      const _RA = result.reasoning && Array.isArray(result.reasoning.claims);
+                      const _OD = cross_reference && result.analysis_depth !== 'inspection_only' && (contradictions.length > 0 || confirmed.length > 0) && !_RA;
+                      if (_RA || _OD) return null;
+                      const _noDisclosure = result.analysis_depth === 'inspection_only' || !cross_reference;
+                      return (
+                        <div id="ow-disclosure-state" style={{ marginTop:'32px' }}>
+                          <h2 className="ow-section-title" style={{ fontSize: 'var(--ow-fs-section-title)', margin:'0 0 8px' }}>
+                            What the seller didn't tell you
+                          </h2>
+                          {_noDisclosure ? (
+                            <div style={{ padding:'20px', border:'1px dashed var(--ow-border, #334155)', borderRadius:'10px', background:'rgba(249,115,22,0.05)' }}>
+                              <div style={{ fontWeight:700, fontSize:'var(--ow-fs-body)', marginBottom:'6px' }}>Add the seller&apos;s disclosure to unlock this</div>
+                              <div style={{ fontSize:'var(--ow-fs-meta)', color:'var(--ow-muted-2)', lineHeight:1.5, marginBottom:'14px' }}>
+                                You&apos;ve analyzed the inspection. The real leverage is the cross-reference: the seller&apos;s disclosure against what the inspection actually found. Add the seller&apos;s disclosure (TDS, SPQ, or your state&apos;s form) and we&apos;ll surface every gap between what they told you and what&apos;s really there.
+                              </div>
+                              <button onClick={() => setCurrentStep('property')} style={{ background:'#f97316', border:'none', color:'#fff', fontWeight:700, cursor:'pointer', fontFamily:'inherit', fontSize:'var(--ow-fs-meta)', padding:'10px 16px', borderRadius:'8px' }}>Add the seller&apos;s disclosure &rarr;</button>
+                            </div>
+                          ) : (
+                            <div style={{ padding:'20px', border:'1px solid rgba(34,197,94,0.3)', borderRadius:'10px', background:'rgba(34,197,94,0.05)' }}>
+                              <div style={{ fontWeight:700, fontSize:'var(--ow-fs-body)', marginBottom:'6px', color:'#22c55e' }}>The seller&apos;s disclosures hold up</div>
+                              <div style={{ fontSize:'var(--ow-fs-meta)', color:'var(--ow-muted-2)', lineHeight:1.5 }}>
+                                We cross-referenced the seller&apos;s disclosure against the inspection and found no contradictions. What the inspection identified lines up with what the seller disclosed &mdash; a good sign for the seller&apos;s credibility, and one fewer surprise to negotiate around.
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })()}
                     {/* -- Market Context (RentCast AVM + Comps) -- */}
                     {(() => {
                       const mc = offer_strategy?.market_context;
@@ -12461,7 +12497,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </script>
     
     <!-- Async Upload Manager - Handles PDF uploads with real-time progress -->
-    <script src="/static/async-upload-manager.js?v=5.89.262"></script>
+    <script src="/static/async-upload-manager.js?v=5.89.263"></script>
     
     <!-- Floating Support Button -->
     <a href="/contact" id="support-button" style="
@@ -12486,8 +12522,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <span style="font-size: 16px;">💬</span>
         Help
     </a>
-<script src="/static/js/compliance.js?v=5.89.262"></script>
-<script src="/static/js/analytics.js?v=5.89.262" defer></script>
+<script src="/static/js/compliance.js?v=5.89.263"></script>
+<script src="/static/js/analytics.js?v=5.89.263" defer></script>
 <script>
 // Scroll reveal for premium results animations
 (function() {
@@ -12574,7 +12610,7 @@ if ('serviceWorker' in navigator) {
 
 <!-- Scout: docked, summon-on-demand "Ask your report" assistant (v5.89.157) -->
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&display=swap" rel="stylesheet">
-<script src="/static/ask-widget.js?v=5.89.262"></script>
+<script src="/static/ask-widget.js?v=5.89.263"></script>
 <script>
 (function(){
   if (window.__scoutInit) { return; } window.__scoutInit = true;
