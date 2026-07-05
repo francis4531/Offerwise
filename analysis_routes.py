@@ -544,13 +544,35 @@ def analyze_property():
                     _zm = _re2.search(r'\b(\d{5})\b', property_address)
                     if _zm: _zip = _zm.group(1)
                     
-                    # AVM call
-                    _avm_resp = _rreq.get(
-                        'https://api.rentcast.io/v1/avm/value',
-                        params={'address': property_address, 'compCount': 10, 'maxRadius': 5, 'daysOld': 180},
-                        headers={'X-Api-Key': rentcast_key, 'Accept': 'application/json'},
-                        timeout=8
-                    )
+                    # AVM and market-stats are INDEPENDENT RentCast calls (market
+                    # only needs the zip, not the AVM result). Fetch them
+                    # concurrently instead of AVM-then-market — saves up to the
+                    # market call's ~6s off this fast-path. (v5.89.261)
+                    def _get_avm():
+                        return _rreq.get(
+                            'https://api.rentcast.io/v1/avm/value',
+                            params={'address': property_address, 'compCount': 10, 'maxRadius': 5, 'daysOld': 180},
+                            headers={'X-Api-Key': rentcast_key, 'Accept': 'application/json'},
+                            timeout=8)
+
+                    def _get_market():
+                        if not _zip:
+                            return None
+                        return _rreq.get(
+                            'https://api.rentcast.io/v1/markets',
+                            params={'zipCode': _zip, 'historyRange': 1},
+                            headers={'X-Api-Key': rentcast_key, 'Accept': 'application/json'},
+                            timeout=6)
+
+                    with ThreadPoolExecutor(max_workers=2) as _rc_ex:
+                        _avm_fut = _rc_ex.submit(_get_avm)
+                        _ms_fut = _rc_ex.submit(_get_market)
+                        _avm_resp = _avm_fut.result()
+                        try:
+                            _ms_resp = _ms_fut.result()
+                        except Exception as _mse0:
+                            logging.warning(f"[MARKET] MarketStats fast fetch failed: {_mse0}")
+                            _ms_resp = None
                     logging.warning(f"[MARKET] ⚡ Fast RentCast AVM: HTTP {_avm_resp.status_code}")
                     if _avm_resp.status_code == 200:
                         _avm = _avm_resp.json()
@@ -570,31 +592,24 @@ def analyze_property():
                                 'status': _comp.get('status', '') or '',
                                 'distance_miles': round(float(_comp.get('distance', 0) or 0), 2),
                             })
-                        
+
                         _ms_data = {}
-                        if _zip:
+                        if _zip and _ms_resp is not None and _ms_resp.status_code == 200:
                             try:
-                                _ms_resp = _rreq.get(
-                                    f'https://api.rentcast.io/v1/markets',
-                                    params={'zipCode': _zip, 'historyRange': 1},
-                                    headers={'X-Api-Key': rentcast_key, 'Accept': 'application/json'},
-                                    timeout=6
-                                )
-                                if _ms_resp.status_code == 200:
-                                    _ms_json = _ms_resp.json()
-                                    _sale = _ms_json.get('saleData', _ms_json)
-                                    _ms_data = {
-                                        'zip_code': _zip,
-                                        'average_days_on_market': int(_sale.get('averageDaysOnMarket', 0) or 0),
-                                        'median_days_on_market': int(_sale.get('medianDaysOnMarket', 0) or 0),
-                                        'total_listings': int(_sale.get('totalListings', 0) or 0),
-                                        'new_listings': int(_sale.get('newListings', 0) or 0),
-                                        'median_price_per_sqft': float(_sale.get('medianPricePerSquareFoot', 0) or 0),
-                                        'average_sale_price': int(_sale.get('averagePrice', 0) or 0),
-                                    }
-                                    logging.warning(f"[MARKET] ⚡ Fast MarketStats: DOM={_ms_data.get('average_days_on_market')} listings={_ms_data.get('total_listings')}")
+                                _ms_json = _ms_resp.json()
+                                _sale = _ms_json.get('saleData', _ms_json)
+                                _ms_data = {
+                                    'zip_code': _zip,
+                                    'average_days_on_market': int(_sale.get('averageDaysOnMarket', 0) or 0),
+                                    'median_days_on_market': int(_sale.get('medianDaysOnMarket', 0) or 0),
+                                    'total_listings': int(_sale.get('totalListings', 0) or 0),
+                                    'new_listings': int(_sale.get('newListings', 0) or 0),
+                                    'median_price_per_sqft': float(_sale.get('medianPricePerSquareFoot', 0) or 0),
+                                    'average_sale_price': int(_sale.get('averagePrice', 0) or 0),
+                                }
+                                logging.warning(f"[MARKET] ⚡ Fast MarketStats: DOM={_ms_data.get('average_days_on_market')} listings={_ms_data.get('total_listings')}")
                             except Exception as _mse:
-                                logging.warning(f"[MARKET] MarketStats fast fetch failed: {_mse}")
+                                logging.warning(f"[MARKET] MarketStats parse failed: {_mse}")
                         
                         _fast_market_data = {
                             'tool_results': [
@@ -649,7 +664,14 @@ def analyze_property():
                 
                 # Wait for research to complete (needed for AI cross-referencing)
                 try:
+                    import time as _time_rw
+                    _rw_t0 = _time_rw.time()
                     research_data = research_future.result(timeout=25)
+                    try:
+                        from ai_json import record_stage_timing
+                        record_stage_timing('research_wait', (_time_rw.time() - _rw_t0) * 1000.0)
+                    except Exception:
+                        pass
                     if research_data:
                         logging.warning(f"[MARKET] 🤖 Research complete: {research_data.get('tools_succeeded', 0)} tools in {research_data.get('research_time_ms', 0)}ms")
                         tool_results = research_data.get('tool_results', [])

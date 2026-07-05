@@ -660,6 +660,70 @@ def _test_harness_status(base):
             'reason': ''}
 
 
+def aggregate_latency(rows):
+    """Pure aggregation for the latency breakdown (DB-free, unit-testable). rows
+    are objects with .endpoint and .elapsed_ms. Returns stages sorted slowest-avg
+    first, each with count/avg/p50/p95/max/total ms."""
+    def _pct(vals, p):
+        if not vals:
+            return 0
+        s = sorted(vals)
+        return s[min(len(s) - 1, int(round((p / 100.0) * (len(s) - 1))))]
+    by_stage = {}
+    for r in rows:
+        ms = int(getattr(r, 'elapsed_ms', 0) or 0)
+        if ms <= 0:
+            continue
+        by_stage.setdefault(getattr(r, 'endpoint', None) or '(unlabeled)', []).append(ms)
+    stages = []
+    for key, vals in by_stage.items():
+        n = len(vals)
+        stages.append({
+            'stage': key, 'count': n,
+            'avg_ms': round(sum(vals) / n),
+            'p50_ms': _pct(vals, 50), 'p95_ms': _pct(vals, 95),
+            'max_ms': max(vals), 'total_ms': sum(vals),
+        })
+    stages.sort(key=lambda s: -s['avg_ms'])
+    return stages
+
+
+@admin_bp.route('/api/admin/latency-breakdown', methods=['GET'])
+@_api_admin_req_dec
+def api_latency_breakdown():
+    """Where do the seconds go? Aggregates per-stage wall-clock timing
+    (AIParseEvent.elapsed_ms) by stage/endpoint over a recent window — LLM stages
+    (extraction, cross-reference, permit, …) and 'stage:*' phases (research_wait,
+    disclosure_extract, inspection_extract). This is the real data that gates the
+    progressive-delivery work: it names the actual bottleneck instead of guessing.
+    """
+    from datetime import datetime, timedelta
+    try:
+        from models import db, AIParseEvent
+    except Exception as e:
+        return jsonify({'ok': False, 'error': f'model unavailable: {e}'}), 200
+    try:
+        days = int(request.args.get('days', 7))
+    except Exception:
+        days = 7
+    try:
+        since = datetime.utcnow() - timedelta(days=days)
+        rows = (db.session.query(AIParseEvent)
+                .filter(AIParseEvent.created_at >= since)
+                .filter(AIParseEvent.elapsed_ms.isnot(None))
+                .filter(AIParseEvent.elapsed_ms > 0)
+                .all())
+    except Exception as e:
+        return jsonify({'ok': False, 'error': f'query failed: {e}'}), 200
+
+    stages = aggregate_latency(rows)
+    return jsonify({'ok': True, 'window_days': days,
+                    'samples': len(rows), 'stages': stages,
+                    'note': 'avg_ms is per-call/phase wall-clock. LLM stages + stage:* phases. '
+                            'A full analysis runs several of these; the sum of the typical path '
+                            'is the wait users feel.'})
+
+
 @admin_bp.route('/api/admin/test-suite', methods=['POST'])
 @_api_admin_req_dec
 def api_test_suite():
@@ -704,6 +768,7 @@ def api_test_suite():
         'Moat activation': [
             'test_reasoning_activation_scope.py', 'test_shadow_readiness.py',
             'test_reasoning_shadow.py', 'test_extractor_diagnostic.py',
+            'test_latency_timing.py',
         ],
         'Build guards': [
             'test_admin_html_js.py', 'test_app_html_jsx.py',

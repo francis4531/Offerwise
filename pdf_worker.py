@@ -150,7 +150,13 @@ class PDFWorker:
                 # LLM-fallback; additive; never blocks the job.
                 try:
                     from reasoning.disclosure_parser import extract_disclosure_readings
+                    import time as _t_disc; _disc_t0 = _t_disc.time()
                     _disc = extract_disclosure_readings(result['text'])
+                    try:
+                        from ai_json import record_stage_timing
+                        record_stage_timing('disclosure_extract', (_t_disc.time() - _disc_t0) * 1000.0)
+                    except Exception:
+                        pass
                     _dr = _disc.get('readings', [])
                     if _dr:
                         result['disclosure_readings'] = _dr
@@ -166,7 +172,13 @@ class PDFWorker:
             if doc_type == 'inspection_report':
                 try:
                     from reasoning.inspection_parser import extract_inspection_readings
+                    import time as _t_ins; _ins_t0 = _t_ins.time()
                     _ins = extract_inspection_readings(result['text'])
+                    try:
+                        from ai_json import record_stage_timing
+                        record_stage_timing('inspection_extract', (_t_ins.time() - _ins_t0) * 1000.0)
+                    except Exception:
+                        pass
                     insp = _ins.get('readings', [])
                     if insp:
                         result['inspection_readings'] = insp

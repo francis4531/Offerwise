@@ -3851,6 +3851,18 @@ details.an-drill[open] .an-chev{transform:rotate(90deg)}
           </details>
         </div>
 
+        <!-- Latency breakdown — where the report-generation seconds actually go -->
+        <div style="border:1px solid var(--border);border-radius:6px;padding:12px;background:var(--surface);margin-bottom:12px">
+          <div style="font-weight:600;margin-bottom:6px">⏱️ Report latency breakdown</div>
+          <div style="font-size:11px;color:var(--muted);margin-bottom:10px;line-height:1.4">
+            Per-stage wall-clock time across recent analyses (LLM stages + research wait + extraction). The slowest stage is the one to attack — this is the real data behind the "too slow" feedback, not a guess.
+          </div>
+          <button id="btnLatency" class="btn btn-primary btn-sm" onclick="loadLatencyBreakdown()">
+            Load latency breakdown
+          </button>
+          <div id="latencyResult" style="margin-top:10px;font-size:11px;color:var(--muted)"></div>
+        </div>
+
         <!-- Full correctness suite — runs everything from the admin page (no local terminal) -->
         <div style="border:1px solid var(--border);border-radius:6px;padding:12px;background:var(--surface);margin-bottom:12px">
           <div style="font-weight:600;margin-bottom:6px">✅ Run full correctness suite</div>
@@ -6080,6 +6092,40 @@ async function runReasoningTestsTab() {
     out.innerHTML = '<span style="color:var(--amber)">⚠ ' + (e && e.message ? e.message : 'request failed') + '</span>';
   } finally {
     if (btn) { btn.disabled = false; btn.textContent = 'Run reasoning tests'; }
+  }
+}
+
+async function loadLatencyBreakdown() {
+  var btn = document.getElementById('btnLatency');
+  var out = document.getElementById('latencyResult');
+  if (!out) return;
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ …'; }
+  try {
+    var r = await fetchWithTimeout('/api/admin/latency-breakdown?days=7', 30000, { method: 'GET' });
+    var d = await r.json();
+    if (!d.ok) { out.innerHTML = '<span style="color:var(--amber)">⚠ ' + (d.error || 'failed') + '</span>'; return; }
+    if (!d.stages || !d.stages.length) {
+      out.innerHTML = '<span style="color:var(--muted)">No timing samples yet in the last ' + d.window_days + ' days. Run a few analyses first.</span>';
+      return;
+    }
+    var maxAvg = d.stages[0].avg_ms || 1;
+    var rows = d.stages.map(function(s){
+      var label = s.stage.replace(/^stage:/, '');
+      var pct = Math.round((s.avg_ms / maxAvg) * 100);
+      var secs = (s.avg_ms / 1000).toFixed(1);
+      return '<div style="margin-top:6px">' +
+        '<div style="display:flex;justify-content:space-between;font-size:11px">' +
+        '<span style="font-family:monospace">' + label + '</span>' +
+        '<span style="color:var(--muted)">' + secs + 's avg · n=' + s.count + ' · p95 ' + (s.p95_ms/1000).toFixed(1) + 's</span></div>' +
+        '<div style="height:6px;background:var(--bg,#111);border-radius:3px;margin-top:2px">' +
+        '<div style="height:6px;width:' + pct + '%;background:var(--amber);border-radius:3px"></div></div></div>';
+    }).join('');
+    out.innerHTML = '<div style="font-size:12px;color:var(--muted);margin-bottom:4px">Slowest first · ' + d.samples + ' samples · last ' + d.window_days + ' days</div>' +
+      rows + '<div style="margin-top:8px;font-size:10px;color:var(--muted)">' + (d.note || '') + '</div>';
+  } catch(e) {
+    out.innerHTML = '<span style="color:var(--amber)">⚠ ' + (e && e.message ? e.message : 'request failed') + '</span>';
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Load latency breakdown'; }
   }
 }
 

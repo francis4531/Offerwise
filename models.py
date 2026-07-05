@@ -528,6 +528,7 @@ class AIParseEvent(db.Model):
     repaired     = db.Column(db.Boolean, nullable=False, default=False)
     output_chars = db.Column(db.Integer, nullable=True)
     attempts     = db.Column(db.Integer, nullable=True)
+    elapsed_ms   = db.Column(db.Integer, nullable=True, index=True)   # per-stage wall-clock ms (LLM calls + 'stage:*' phases)
 
     def __repr__(self):
         return f'<AIParseEvent {self.endpoint} ok={self.ok} truncated={self.truncated}>'

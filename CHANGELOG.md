@@ -1,3 +1,67 @@
+## v5.89.262 — Per-stage latency instrumentation + admin breakdown (know the real bottleneck)
+
+Light, real-data timing across the analysis pipeline so the "too slow" complaint is
+answered with numbers, not guesses — the prerequisite for progressive delivery.
+
+ - AIParseEvent gains an elapsed_ms column (append-only, auto-created, no
+   migration). Every LLM call now records its wall-clock time BY ENDPOINT
+   (extraction, cross-reference, permit, buyer-concern, …) — the elapsed was
+   computed already but never persisted.
+ - New ai_json.record_stage_timing(stage, ms) writes non-LLM phases into the same
+   table as 'stage:<name>' rows, so LLM and non-LLM latency live in ONE place.
+   Instrumented the phases I flagged: the research-agent wait (analysis_routes),
+   and disclosure/inspection readings extraction (pdf_worker). All self-contained,
+   never raise, skip cleanly outside an app context.
+ - New /api/admin/latency-breakdown + a "Report latency breakdown" admin panel:
+   per-stage avg / p50 / p95 / count over a recent window, sorted SLOWEST-FIRST
+   with bars. Names the actual bottleneck (likely the research wait + extraction,
+   per my read) so the next optimization targets real seconds. Aggregation
+   extracted to a pure aggregate_latency() helper.
+
+This is the "see the split" step you approved. Once a handful of real analyses have
+run, the panel shows where the seconds go — and that's what we build the
+progressive experience against (instant headline finding, deep analysis streaming
+in behind it) rather than guessing.
+
+Tests: new test_latency_timing.py (5) — elapsed_ms accumulates across attempts,
+record_stage_timing is app-context-safe, aggregate sorts slowest-first, ignores
+zero/none, handles empty. Added to the admin suite runner. 48 passed across
+ai_json + latency + admin-dependent + guards. Admin JS guard passes; <div> balance
+3042/3042; JSX guard passes. No offer/moat logic changed.
+## v5.89.261 — Report speed: parallelized the fast RentCast pre-fetch (+ honest findings)
+
+Went after real latency wins for the report-generation complaint. Shipped one safe
+win and — candidly — found that the two other obvious levers are already in place
+or don't apply, which matters more than the win itself.
+
+Shipped:
+ - The "fast" RentCast pre-fetch ran its AVM (8s timeout) and market-stats (6s
+   timeout) calls SEQUENTIALLY, though market only needs the zip, not the AVM
+   result. Now fetched CONCURRENTLY via a 2-worker pool — saves up to the market
+   call's ~6s on this path. Behavior-preserving: same comps/market processing, same
+   fallback semantics, AVM-success still gates market inclusion.
+
+Honest findings (why the naive speedups are mostly already done):
+ - PARALLELIZE LOOKUPS is largely ALREADY IN PLACE. PropertyResearchAgent.research
+   geocodes first (dependency), then runs every other tool (rentcast, market,
+   census, permit, …) concurrently in a ThreadPoolExecutor(max_workers≤6). The main
+   lookup phase is already parallel; only the fast pre-fetch was still sequential.
+ - PROMPT CACHING WON'T HELP the single-analysis path: the raw document text is sent
+   to the LLM exactly ONCE (during per-doc extraction). The offer Sonnet call is a
+   small buyer-concern classifier (no doc text); reasoning works from already-
+   extracted readings, not raw text. Caching only helps repeated large prefixes,
+   which don't occur within one analysis.
+
+Where the time actually is (for the next move): the LLM extraction/reasoning stages
+and a blocking wait on the research agent (research_future.result(timeout=25)) — not
+the lookups. Hitting "<5s to first value" without gutting the moat means PROGRESSIVE
+delivery (an instant headline finding, deep analysis streaming in behind it), not
+more back-end parallelism. Recommend that as the next step, with light per-stage
+timing to confirm the split before investing.
+
+Validation: analysis_routes compiles; ThreadPoolExecutor already imported in-scope;
+market-narrative consistency (downstream of this block) passes. No moat/offer logic
+changed.
 ## v5.89.260 — CI fix: pin the frontend Babel check to major 7 (Babel 8 broke the tree)
 
 The `frontend` CI job (scripts/check_frontend.js) failed with "Cannot find module

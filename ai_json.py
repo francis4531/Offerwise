@@ -72,6 +72,7 @@ class AIJsonResult:
     error: Optional[str] = None            # parse error message when not ok
     attempts: int = 0                      # model calls made (incl. retry)
     output_chars: int = 0                  # len of raw text returned
+    elapsed_ms: float = 0.0                # wall-clock model time (sum over attempts)
 
 
 # ---------------------------------------------------------------------------
@@ -393,11 +394,13 @@ def call_ai_json(
 
         for attempt in range(2):  # at most: initial + one truncation retry
             result.attempts += 1
+            _call_t0 = time.time()
             text, stop_reason = _make_call(
                 client, model=model, prompt=prompt,
                 max_tokens=budget, temperature=temperature, system=system,
                 track=track,
             )
+            result.elapsed_ms += (time.time() - _call_t0) * 1000.0
             result.raw_text = text
             result.stop_reason = stop_reason
             result.output_chars = len(text)
@@ -447,6 +450,36 @@ def call_ai_json(
 # never raises, forward-looking. Powers an admin view of the parse-failure rate.
 # ---------------------------------------------------------------------------
 
+def record_stage_timing(stage: str, elapsed_ms: float, *, analysis_id=None) -> int:
+    """Record a non-LLM pipeline phase (OCR, research-agent wait, total, …) as an
+    AIParseEvent with endpoint 'stage:<name>' and elapsed_ms, so LLM and non-LLM
+    latency live in ONE table and one admin readout answers 'where do the seconds
+    go'. Never raises; skips cleanly outside an app context."""
+    try:
+        from flask import has_app_context
+        if not has_app_context():
+            return 0
+        from models import db, AIParseEvent
+        row = AIParseEvent(
+            analysis_id=analysis_id,
+            endpoint=(f"stage:{stage}")[:50],
+            model=None, stop_reason=None, ok=True, truncated=False, repaired=False,
+            output_chars=None, attempts=None,
+            elapsed_ms=int(elapsed_ms or 0),
+        )
+        db.session.add(row)
+        db.session.commit()
+        return 1
+    except Exception as e:
+        try:
+            from models import db
+            db.session.rollback()
+        except Exception:
+            pass
+        logger.debug(f"[ai_json] stage-timing skipped: {e}")
+        return 0
+
+
 def record_parse_event(result: AIJsonResult, *, endpoint=None, model=None, analysis_id=None) -> int:
     """Persist one AIParseEvent row. Returns 1 on write, 0 otherwise. Never raises.
 
@@ -475,6 +508,7 @@ def record_parse_event(result: AIJsonResult, *, endpoint=None, model=None, analy
             repaired=bool(result.repaired),
             output_chars=int(result.output_chars or 0),
             attempts=int(result.attempts or 0),
+            elapsed_ms=int(getattr(result, "elapsed_ms", 0) or 0),
         )
         db.session.add(row)
         db.session.commit()
