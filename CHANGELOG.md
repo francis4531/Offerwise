@@ -1,3 +1,25 @@
+## v5.89.260 — CI fix: pin the frontend Babel check to major 7 (Babel 8 broke the tree)
+
+The `frontend` CI job (scripts/check_frontend.js) failed with "Cannot find module
+'@babel/types/lib/index.js'. Please verify that the package.json has a valid main
+entry." Root cause: @babel/core's latest is now 8.0.1 (with @babel/types 8.0.0,
+whose module layout dropped lib/index.js), and the CI installed Babel UNPINNED
+(`npm install --no-save @babel/core @babel/preset-react`). On the runner that
+resolved a 7/8-skewed babel tree, which check_frontend.js's @babel/core could not
+load. The app itself pins @babel/standalone@7.29.7, so the validator must match.
+
+Fix — pin every Babel install to major 7 (the classic-runtime JSX transform is
+stable across 7.x, and 7.x is internally consistent so there's no @babel/types
+skew):
+ - .github/workflows/ci.yml: `npm install --no-save "@babel/core@^7"
+   "@babel/preset-react@^7"`.
+ - scripts/ow_deploy.sh JIT install: aligned to `@^7`.
+ - scripts/check_jsx.js install hint + package.json devDeps (already ^7): aligned.
+
+Verified with the CI's exact steps in a clean node_modules: `@^7` resolves a
+consistent tree (core / types / preset-react all 7.29.7, matching the app's pinned
+standalone), and BOTH scripts/check_frontend.js (the job that failed) and
+scripts/check_jsx.js pass. No app code changed.
 ## v5.89.259 — Test-harness self-check on the admin suite panel
 
 Confirmed the deployed image already keeps the harness: the Dockerfile does

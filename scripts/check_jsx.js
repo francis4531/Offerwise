@@ -23,7 +23,7 @@ try {
   require.resolve('@babel/preset-react');
 } catch (e) {
   console.error('check_jsx: FAILED — @babel/core + @babel/preset-react not installed.');
-  console.error('  Install them so the build can validate app.html JSX: npm install @babel/core @babel/preset-react');
+  console.error('  Install them so the build can validate app.html JSX: npm install "@babel/core@^7" "@babel/preset-react@^7"');
   process.exit(1);
 }
 
