@@ -1,3 +1,35 @@
+## v5.89.266 — Shadow summary: side-by-side reasoning-vs-live finding diffs per state
+
+Before flipping a state's buyer-facing moat on, an admin can now read the ACTUAL
+findings each engine surfaced — not just the four readiness numbers. "Reasoning
+beats live 60%" is only trustworthy if the wins are real contradictions/undisclosed
+items, not boilerplate ties; this lets you eyeball that.
+
+Persist (finding-level, was counts-only):
+ - build_comparison now captures the TITLES of the reasoning wins (contradiction /
+   undisclosed / silent-hazard issues — corroborated excluded) and the live engine's
+   contradiction/undisclosed explanations. Capped at 5 each, truncated to 140 chars.
+ - New ShadowComparison.findings_json column stores {reasoning:[{status,title}],
+   live:[{type,text}]}; _json_findings serializes it (None when there's nothing to
+   show, so old rows stay null). Startup ALTER TABLE ADD COLUMN IF NOT EXISTS adds
+   it to existing DBs (the elapsed_ms lesson).
+
+Display:
+ - New GET /api/admin/reasoning/shadow-samples?state=CA returns recent comparisons
+   WITH the diff for that state (findings_json rows only).
+ - Shadow-summary panel: each by-state row gets a "view wins ▾" link that renders
+   the reasoning vs live findings side by side beneath the table — press it when CA
+   goes READY to confirm the wins are real before "Add to allowlist".
+
+HONEST CAVEAT: only analyses that run AFTER this deploys carry the finding text.
+Rows shadow has already collected have counts only and are skipped by the samples
+view — so the readable CA sample starts accumulating from deploy. Ship before CA
+matures (it isn't READY yet), and the diffs will be there when you need them.
+
+Tests: test_shadow_findings.py (4 — captures wins + excludes corroborated, both
+live kinds, cap at 5, JSON round-trip + None-when-empty); model persist→read
+round-trip verified. Added to the admin suite runner. Admin JS guard passes; <div>
+3058/3058; all backends compile.
 ## v5.89.265 — QA runner is async (job-and-poll): "Failed to fetch" fixed at the root + research bug
 
 Root cause of the admin QA runner's "Failed to fetch" on all 12 suites: the server

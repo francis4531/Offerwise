@@ -571,6 +571,7 @@ class ShadowComparison(db.Model):
     ok      = db.Column(db.Boolean, nullable=False, default=False, index=True)  # shadow ran end-to-end
     error   = db.Column(db.String(300), nullable=True)
     notes   = db.Column(db.Text, nullable=True)   # short divergence summary
+    findings_json = db.Column(db.Text, nullable=True)  # v5.89.266: {reasoning:[{status,title}], live:[{type,text}]} for the admin side-by-side diff
     elapsed_ms = db.Column(db.Integer, nullable=True)
 
     def __repr__(self):

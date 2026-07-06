@@ -23178,6 +23178,7 @@ window.loadShadowSummary = function(){
         var action = inList
           ? '<span style="color:var(--green)">✓ in allowlist</span>'
           : (b.ready ? '<button class="btn" style="font-size:11px;padding:3px 8px" onclick="addStateToAllowlist(\''+rxEsc(st)+'\')">Add to allowlist</button>' : '');
+        action += ' <a href="#" onclick="showShadowSamples(\''+rxEsc(st)+'\');return false;" style="font-size:11px;margin-left:6px;color:#60a5fa">view wins ▾</a>';
         _stat+='<tr>'+
           '<td style="padding:4px 6px;font-family:monospace;font-weight:600">'+rxEsc(st)+'</td>'+
           '<td style="padding:4px 6px">'+(b.count||0)+'</td>'+
@@ -23188,6 +23189,7 @@ window.loadShadowSummary = function(){
           '<td style="padding:4px 6px">'+action+'</td></tr>';
       });
       _stat+='</tbody></table>';
+      _stat+='<div id="rx-shadow-samples" style="margin-top:10px"></div>';
     }
     sEl.innerHTML=_stat;
     var rows=d.recent||[];
@@ -23204,6 +23206,29 @@ window.loadShadowSummary = function(){
     }
   }).catch(function(e){ sEl.innerHTML='<div style="color:var(--red)">Request failed: '+rxEsc(String(e))+'</div>'; });
   });
+};
+window.showShadowSamples = function(state){
+  var el=document.getElementById('rx-shadow-samples');
+  if(!el) return;
+  el.innerHTML='<span style="color:var(--muted);font-size:12px">Loading '+rxEsc(state)+' comparisons…</span>';
+  fetch('/api/admin/reasoning/shadow-samples?state='+encodeURIComponent(state)+'&admin_key='+encodeURIComponent(rxKey()))
+    .then(function(r){return r.json();}).then(function(d){
+      if(!d.ok){ el.innerHTML='<div style="color:var(--red)">Error: '+rxEsc(d.error||'failed')+'</div>'; return; }
+      if(!d.samples||!d.samples.length){ el.innerHTML='<div style="color:var(--muted);font-size:12px">No finding-level comparisons for '+rxEsc(state)+' yet. Rows persisted before this feature have counts only; new '+rxEsc(state)+' two-document analyses will populate here.</div>'; return; }
+      var h='<div style="font-weight:700;margin:6px 0 6px">'+rxEsc(state)+' — reasoning vs live findings (last '+d.samples.length+'). Read whether reasoning is surfacing the contradictions/undisclosed items live misses.</div>';
+      d.samples.forEach(function(s){
+        var rf=s.reasoning||[], lf=s.live||[];
+        h+='<div style="border:1px solid var(--border);border-radius:8px;padding:10px;margin-bottom:8px">';
+        h+='<div style="font-size:10px;color:var(--muted);margin-bottom:6px">'+rxEsc((s.created_at||'').slice(0,16).replace('T',' '))+' · '+rxEsc(s.jurisdiction||'')+'</div>';
+        h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">';
+        h+='<div><div style="font-size:11px;font-weight:700;color:var(--green);margin-bottom:4px">Reasoning ('+rf.length+')</div>'+
+          (rf.length?rf.map(function(x){return '<div style="font-size:11px;margin-bottom:3px">• <span style="color:var(--muted)">['+rxEsc(x.status)+']</span> '+rxEsc(x.title)+'</div>';}).join(''):'<div style="font-size:11px;color:var(--muted)">—</div>')+'</div>';
+        h+='<div><div style="font-size:11px;font-weight:700;color:#fcd34d;margin-bottom:4px">Live ('+lf.length+')</div>'+
+          (lf.length?lf.map(function(x){return '<div style="font-size:11px;margin-bottom:3px">• <span style="color:var(--muted)">['+rxEsc(x.type)+']</span> '+rxEsc(x.text)+'</div>';}).join(''):'<div style="font-size:11px;color:var(--muted)">—</div>')+'</div>';
+        h+='</div></div>';
+      });
+      el.innerHTML=h;
+    }).catch(function(e){ el.innerHTML='<div style="color:var(--red)">Request failed: '+rxEsc(String(e))+'</div>'; });
 };
 window.addStateToAllowlist = function(state){
   state=String(state||'').trim().toUpperCase();

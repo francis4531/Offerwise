@@ -968,6 +968,22 @@ with app.app_context():
             except Exception as _ape_err:
                 logger.warning(f"ai_parse_event column migration: {_ape_err}")
 
+            # v5.89.266: shadow_comparison — add findings_json (finding-level diff
+            # for the admin side-by-side readout). Model gained it this version;
+            # create_all won't alter an existing table.
+            try:
+                from sqlalchemy import inspect as _sqli_sc, text as _txt_sc
+                _sc_cols = {c['name'] for c in _sqli_sc(db.engine).get_columns('shadow_comparison')}
+                if 'findings_json' not in _sc_cols:
+                    with db.engine.connect() as _conn:
+                        _conn.execute(_txt_sc(
+                            "ALTER TABLE shadow_comparison ADD COLUMN IF NOT EXISTS findings_json TEXT"
+                        ))
+                        _conn.commit()
+                    logger.info("✅ shadow_comparison: added column findings_json")
+            except Exception as _sc_err:
+                logger.warning(f"shadow_comparison column migration: {_sc_err}")
+
             # v5.76.77: Add platform + target_group to gtm_subreddit_posts (multi-channel)
             try:
                 from sqlalchemy import inspect as _sqli_gtm, text as _txt_gtm

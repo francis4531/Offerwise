@@ -768,7 +768,7 @@ def api_test_suite():
         'Moat activation': [
             'test_reasoning_activation_scope.py', 'test_shadow_readiness.py',
             'test_reasoning_shadow.py', 'test_extractor_diagnostic.py',
-            'test_latency_timing.py',
+            'test_latency_timing.py', 'test_shadow_findings.py',
         ],
         'Build guards': [
             'test_admin_html_js.py', 'test_app_html_jsx.py', 'test_qa_async.py',
@@ -17931,6 +17931,55 @@ def _extract_pdf_text_for_diag(path):
             return "\n".join((pg.extract_text() or "") for pg in PdfReader(path).pages)
         except Exception:
             return ""
+
+
+@admin_bp.route('/api/admin/reasoning/shadow-samples', methods=['GET'])
+@_api_admin_req_dec
+def admin_reasoning_shadow_samples():
+    """A few recent shadow comparisons WITH the finding-level diff for one state,
+    so an admin can eyeball whether reasoning is winning on the findings that
+    matter (contradictions / undisclosed / silent hazards) before flipping that
+    state's buyer-facing flag on. Only rows persisted after v5.89.266 carry the
+    diff; older rows have counts only and are skipped here."""
+    if not _is_admin():
+        return jsonify({'error': 'Unauthorized'}), 403
+    import json as _json
+    try:
+        from models import ShadowComparison
+    except Exception as e:
+        return jsonify({'ok': False, 'error': f'model unavailable: {e}'}), 200
+    state = (request.args.get('state') or '').strip().upper()
+    try:
+        limit = min(int(request.args.get('limit', 5)), 15)
+    except Exception:
+        limit = 5
+    try:
+        q = ShadowComparison.query.filter(ShadowComparison.findings_json.isnot(None))
+        if state:
+            # jurisdiction is stored truncated ('CA' or 'CA:santa'); match the state prefix.
+            q = q.filter(ShadowComparison.jurisdiction.like(state + '%'))
+        rows = q.order_by(ShadowComparison.id.desc()).limit(limit).all()
+    except Exception as e:
+        return jsonify({'ok': False, 'error': f'query failed: {e}'}), 200
+    samples = []
+    for r in rows:
+        try:
+            f = _json.loads(r.findings_json) if r.findings_json else {}
+        except Exception:
+            f = {}
+        samples.append({
+            'id': r.id,
+            'created_at': r.created_at.isoformat() if r.created_at else None,
+            'jurisdiction': r.jurisdiction,
+            'live_contradictions': r.live_contradictions,
+            'live_undisclosed': r.live_undisclosed,
+            'reasoning_contradiction': r.reasoning_contradiction,
+            'reasoning_undisclosed': r.reasoning_undisclosed,
+            'reasoning_silent_hazards': r.reasoning_silent_hazards,
+            'reasoning': f.get('reasoning', []),
+            'live': f.get('live', []),
+        })
+    return jsonify({'ok': True, 'state': state, 'count': len(samples), 'samples': samples})
 
 
 @admin_bp.route('/api/admin/reasoning/shadow-summary', methods=['GET'])

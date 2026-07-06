@@ -61,6 +61,39 @@ def build_comparison(live_cross_ref: Any, reasoning_issues: list,
     offer_low = int(getattr(reasoning_offer, "price_adjustment_low", 0) or 0) if reasoning_offer else 0
     offer_high = int(getattr(reasoning_offer, "price_adjustment_high", 0) or 0) if reasoning_offer else 0
 
+    # Finding-level diff (v5.89.266): capture the actual titles each engine
+    # surfaced — not just counts — so an admin can eyeball whether reasoning is
+    # winning on the findings that matter (contradictions / undisclosed / silent
+    # hazards) before flipping a state's buyer-facing flag on. Titles only, capped
+    # and truncated; this is a human-review aid, not the full report.
+    def _clip(s, n=140):
+        s = str(s or "").strip().replace("\n", " ")
+        return s[:n] + ("…" if len(s) > n else "")
+
+    reasoning_findings = []
+    for i in issues:
+        st = getattr(i, "disclosure_status", "") or ""
+        _is_silent = getattr(i, "silent_hazard_flag", False) or getattr(i, "decision_class", "") == "silent_hazard"
+        if st in ("contradiction", "undisclosed") or _is_silent:
+            reasoning_findings.append({
+                "status": ("silent_hazard" if _is_silent and st not in ("contradiction", "undisclosed") else st),
+                "title": _clip(getattr(i, "title", "")),
+            })
+        if len(reasoning_findings) >= 5:
+            break
+
+    live_findings = []
+    for kind, attr in (("contradiction", "contradictions"), ("undisclosed", "undisclosed_issues")):
+        for m in (getattr(live_cross_ref, attr, []) or []):
+            live_findings.append({
+                "type": kind,
+                "text": _clip(getattr(m, "explanation", None) or getattr(m, "summary", "")),
+            })
+            if len(live_findings) >= 5:
+                break
+        if len(live_findings) >= 5:
+            break
+
     notes = (f"live: {live_contra} contradictions + {live_undis} undisclosed | "
              f"reasoning: {len(issues)} issues ({silent} silent hazards; disclosure "
              f"{corroborated} corroborated / {contradiction} contradiction / {undis} undisclosed) "
@@ -80,6 +113,8 @@ def build_comparison(live_cross_ref: Any, reasoning_issues: list,
         "reasoning_undisclosed": undis,
         "reasoning_offer_low": offer_low,
         "reasoning_offer_high": offer_high,
+        "reasoning_findings": reasoning_findings,
+        "live_findings": live_findings,
         "notes": notes,
     }
 
@@ -165,6 +200,22 @@ def run_reasoning_shadow(*, inspection_text: str, disclosure_text: str = "",
     return comp
 
 
+def _json_findings(comp: dict) -> Optional[str]:
+    """Serialize the finding-level diff for storage. Returns None when there's
+    nothing to show, so old-style rows and empty comparisons stay null."""
+    try:
+        import json as _json
+        payload = {
+            "reasoning": comp.get("reasoning_findings") or [],
+            "live": comp.get("live_findings") or [],
+        }
+        if not payload["reasoning"] and not payload["live"]:
+            return None
+        return _json.dumps(payload)[:8000]
+    except Exception:
+        return None
+
+
 def _persist(comp: Optional[dict]) -> int:
     """Write a ShadowComparison row inside a Flask app context. Never raises."""
     if not comp:
@@ -199,6 +250,7 @@ def _persist(comp: Optional[dict]) -> int:
             ok=bool(comp.get("ok")),
             error=(comp.get("error") or None),
             notes=(comp.get("notes") or None),
+            findings_json=_json_findings(comp),
             elapsed_ms=comp.get("elapsed_ms"),
         )
         db.session.add(row)
