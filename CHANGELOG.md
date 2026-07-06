@@ -1,3 +1,38 @@
+## v5.89.270 — Collateral accuracy pass (thesis + architecture): verified fixes + flagged claims
+
+Pre-share accuracy check of thesis.html + architecture.html. FIXED only what is
+verifiable from the code; everything requiring judgment, private data, or a real
+benchmark run is FLAGGED for the founder rather than guess-edited into investor
+collateral (guessing a number here is worse than leaving it).
+
+Fixed (verifiable):
+ - architecture.html static "app.py (9.8K lines)" → "13.3K lines" (2 places; app.py
+   is actually 13,251 lines). This was static prose, not the live-bound stat.
+ - Stale hero fallbacks updated to current live values (shown only if the
+   /api/architecture/stats endpoint fails): modules 140→157, LOC 115K+→120K+,
+   integrity tests 484→509, in both the HTML and the app.py fallback dict. The
+   SERVED page already computes these live and is accurate; only the fallbacks were
+   stale.
+
+Confirmed accurate (no change): the live hero stats compute correctly (157 modules,
+120K+ LOC, 509 integrity tests via self._record count); reasoning-layer section is
+honestly flagged "behind a feature flag currently OFF"; 1 worker × 4 threads, 0.85
+override threshold, pdf_worker 2 workers all match code.
+
+FLAGGED for founder decision (NOT edited — need judgment / private data / a real run):
+ - Benchmark ("5 wins, 0 losses" vs GPT-5 & Opus 4.7): stale (Apr 2026, Opus 4.7 —
+   code runs Opus 4.8), synthetic cases, and its contradiction-detection win is
+   contradicted by the Pendleton head-to-head (live cross-reference lost to raw
+   Claude; the engine that would win is still shadow-only). Needs a REAL re-run with
+   API keys, ideally reasoning engine ON. Not fabricated.
+ - OfferScore: thesis says "roadmap"; the live product displays "OfferScore™ 49".
+ - Analysis time: three inconsistent values (~90s / 15–25s / ~20s), unverified, and
+   the timeout evidence suggests the tail exceeds them. Set one from the latency panel.
+ - Gov-API count: header "13" (live = crawler count) vs SVG "11" (federal APIs) —
+   two different metrics both labeled "Gov API".
+ - "121K corpus", "provisional patents filed", "OfferWatch live" — founder-confirmable only.
+
+No product logic changed.
 ## v5.89.269 — Input-quality confidence gate (part 3): a failed read can't masquerade as a defensible offer
 
 The logs behind the "Failed to fetch" screenshots showed the deeper problem: that

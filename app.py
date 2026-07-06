@@ -3199,7 +3199,7 @@ def _get_architecture_stats():
                 hero = _compute_hero_stats()
                 globals()['_HERO_STATS_CACHE'] = hero
         except Exception:
-            hero = {'modules': 174, 'loc': '115K+', 'integrity_tests': 294}
+            hero = {'modules': 157, 'loc': '120K+', 'integrity_tests': 509}
 
         return {
             'replacements': {},
@@ -3265,7 +3265,7 @@ def _compute_hero_stats():
                     pass
 
     # Integrity test count: count test methods in integrity_tests.py
-    integrity_count = 294  # fallback to last known
+    integrity_count = 509  # fallback to last known
     try:
         integrity_path = _os.path.join(base_dir, 'integrity_tests.py')
         with open(integrity_path, 'r', encoding='utf-8') as f:
