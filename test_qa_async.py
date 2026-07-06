@@ -20,12 +20,22 @@ def app():
             return (lambda f: f)
 
     import testing_routes
-    # a stub suite endpoint that returns a known payload (simulates a slow suite)
-    @testing_routes.testing_bp.route('/api/test/stub', methods=['POST'])
+    # Wire the deferred decorator refs to pass-throughs and register the blueprint
+    # on THIS app. We do NOT add routes to testing_bp — in the full suite it's
+    # already registered (by app import) and adding a route to a registered
+    # blueprint raises. The stub target goes on the APP instead.
+    testing_routes._api_admin_required_ref[0] = ident
+    testing_routes._dev_only_gate_ref[0] = ident
+    testing_routes._admin_required_ref[0] = ident
+    testing_routes._api_login_required_ref[0] = ident
+    testing_routes._limiter_ref[0] = _StubLimiter()
+    app.register_blueprint(testing_routes.testing_bp)
+
+    # stub suite endpoint on the APP (not the blueprint) — reachable by test_client
+    @app.route('/api/test/stub', methods=['POST'])
     def _stub():
         return jsonify({'results': [{'name': 'ok', 'passed': True}], 'echo': True})
 
-    testing_routes.init_testing_blueprint(app, ident, ident, ident, ident, _StubLimiter())
     return app
 
 

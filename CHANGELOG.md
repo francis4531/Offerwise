@@ -1,3 +1,19 @@
+## v5.89.267 — Fix test_qa_async fixture (full-suite blueprint re-registration)
+
+test_qa_async.py passed in isolation but ERRORED in the full CI suite: 'The setup
+method route can no longer be called on the blueprint testing. It has already been
+registered.' Cause: the fixture added a stub route to the shared module-level
+testing_bp; in the full suite the blueprint is already registered (app import), and
+you can't add routes to a registered blueprint. Product code was never at fault —
+1836 tests passed; only these 3 errored.
+
+Fix: the fixture now registers the stub target on the APP (@app.route) instead of
+the blueprint, and wires the deferred decorator refs + registers testing_bp on its
+own app directly (blueprints can be registered on multiple apps; only ADDING routes
+post-registration is disallowed). Verified: 3 pass in isolation AND in the same
+process as a test that imports app (reproducing the full-suite condition).
+
+No product code changed.
 ## v5.89.266 — Shadow summary: side-by-side reasoning-vs-live finding diffs per state
 
 Before flipping a state's buyer-facing moat on, an admin can now read the ACTUAL
