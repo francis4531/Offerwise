@@ -8,7 +8,8 @@ import json
 import logging
 import base64
 from datetime import datetime
-from flask import Blueprint, request, jsonify, url_for
+import time
+from flask import Blueprint, request, jsonify, url_for, current_app
 from flask_login import current_user
 from models import db, User, Property, Document, Analysis, ConsentRecord
 from blueprint_helpers import DeferredDecorator, make_deferred_limiter
@@ -23,6 +24,31 @@ from email_service import send_analysis_complete
 logger = logging.getLogger(__name__)
 
 analysis_bp = Blueprint('analysis', __name__)
+
+def compute_input_confidence(has_disclosure, has_inspection,
+                             disclosure_text, inspection_text):
+    """Input-quality gate (v5.89.269): if a document was provided but couldn't be
+    read (garbled OCR / near-empty extraction), the findings and the offer built on
+    it are unreliable. Returns (low_confidence: bool, reasons: list[str]). Same
+    philosophy as the AVM gate — surface the failure, never let it pass as a
+    defensible number. Single source so it's unit-testable."""
+    from pdf_handler import is_meaningful_extraction
+    reasons = []
+    if has_inspection:
+        ok, _ = is_meaningful_extraction(inspection_text or "")
+        if not ok:
+            reasons.append(
+                "We couldn't reliably read your inspection report — the text came "
+                "through garbled or nearly empty, so the repair and risk findings "
+                "below may be incomplete or wrong.")
+    if has_disclosure:
+        ok, _ = is_meaningful_extraction(disclosure_text or "")
+        if not ok:
+            reasons.append(
+                "We couldn't reliably read the seller's disclosure — the "
+                "cross-reference against the inspection may be incomplete.")
+    return bool(reasons), reasons
+
 
 def detect_and_flag_special_properties(result_dict, disclosure_text, inspection_text):
     from app import detect_and_flag_special_properties as _fn
@@ -185,6 +211,126 @@ def get_job_status(job_id):
             'message': 'An internal error occurred. Please try again.'
         }), 500
 
+
+
+# ── Async analysis (v5.89.268) ────────────────────────────────────────────────
+# /api/analyze runs the full pipeline synchronously and can exceed Cloudflare's
+# ~100s origin timeout — the browser then sees "Analysis failed: Failed to fetch"
+# even though the server FINISHED, persisted the Analysis, and emailed "Your
+# Analysis is Ready". Same class of bug as the QA runner. Fix: /api/analyze/async
+# kicks the UNCHANGED /api/analyze off as a background job (via test_client, so the
+# 1500-line endpoint isn't touched), authenticated as the user, and returns a
+# job_id in ms; the frontend polls /api/analyze/status/<id>. Idempotent by
+# (user, property, docs) so a retry / refresh returns the SAME job instead of
+# launching a duplicate run (which is what produced the double-analyses in the logs).
+import uuid as _an_uuid
+import threading as _an_threading
+from concurrent.futures import ThreadPoolExecutor as _AnExecutor
+
+_ANALYSIS_JOBS = {}
+_ANALYSIS_LOCK = _an_threading.Lock()
+_ANALYSIS_POOL = _AnExecutor(max_workers=2)
+_ANALYSIS_TTL = 1800          # keep finished jobs 30 min for polling
+_ANALYSIS_DEDUP_WINDOW = 90   # a finished job dedups repeat submits for 90s
+
+
+def _analysis_idem_key(user_id, data):
+    d = data if isinstance(data, dict) else {}
+    return '|'.join([
+        str(user_id),
+        str(d.get('property_address') or '').strip().lower(),
+        str(d.get('property_price') or ''),
+        str(d.get('job_id') or ''),          # the uploaded-docs job id, when present
+    ])
+
+
+def _analysis_cleanup():
+    cutoff = time.time() - _ANALYSIS_TTL
+    with _ANALYSIS_LOCK:
+        for k in [k for k, v in _ANALYSIS_JOBS.items() if v.get('started', 0) < cutoff]:
+            _ANALYSIS_JOBS.pop(k, None)
+
+
+@analysis_bp.route('/api/analyze/async', methods=['POST'])
+@_api_login_required
+@validate_origin
+def analyze_async_start():
+    """Start the analysis as a background job; return {job_id} immediately.
+    Idempotent: an identical in-flight or just-finished request returns the same
+    job rather than launching a duplicate."""
+    _analysis_cleanup()
+    data = request.get_json(silent=True) or {}
+    uid = current_user.id
+    idem = _analysis_idem_key(uid, data)
+
+    # Idempotency — return an existing running / freshly-finished job for this key.
+    with _ANALYSIS_LOCK:
+        for jid, j in _ANALYSIS_JOBS.items():
+            if j.get('user_id') == uid and j.get('idem') == idem:
+                if j.get('status') == 'running':
+                    return jsonify({'job_id': jid, 'status': 'running', 'async': True, 'idempotent': True})
+                fin = j.get('finished', 0)
+                if j.get('status') in ('complete', 'failed') and (time.time() - fin) < _ANALYSIS_DEDUP_WINDOW:
+                    return jsonify({'job_id': jid, 'status': j['status'], 'async': True, 'idempotent': True})
+
+    job_id = _an_uuid.uuid4().hex
+    client_ip = request.remote_addr or '127.0.0.1'   # forward to the internal call so the
+                                                      # rate limiter keys on the REAL user, not
+                                                      # the shared internal test-client IP.
+    with _ANALYSIS_LOCK:
+        _ANALYSIS_JOBS[job_id] = {'status': 'running', 'started': time.time(),
+                                  'idem': idem, 'user_id': uid}
+    app_obj = current_app._get_current_object()
+
+    def _bg():
+        started = time.time()
+        try:
+            with app_obj.app_context():
+                client = app_obj.test_client()
+                # Authenticate the internal request AS the user (Flask-Login reads
+                # _user_id from the session) — no signed-cookie forwarding needed.
+                with client.session_transaction() as sess:
+                    sess['_user_id'] = str(uid)
+                    sess['_fresh'] = True
+                # No Origin header -> validate_origin allows it on a valid session.
+                # environ_base forwards the real client IP so /api/analyze's rate
+                # limiter (keyed on remote_addr) counts against the USER, not the
+                # shared internal test-client IP — otherwise 20/hr becomes global.
+                resp = client.post('/api/analyze', json=data,
+                                   headers={'X-Requested-With': 'XMLHttpRequest'},
+                                   environ_base={'REMOTE_ADDR': client_ip})
+                body = resp.get_json(silent=True)
+                ok = resp.status_code == 200
+                with _ANALYSIS_LOCK:
+                    _ANALYSIS_JOBS[job_id] = {
+                        'status': 'complete' if ok else 'failed',
+                        'started': started, 'finished': time.time(),
+                        'idem': idem, 'user_id': uid, 'status_code': resp.status_code,
+                        'result': body if ok else None,
+                        'error': None if ok else ((body or {}).get('error') if body
+                                                   else (resp.get_data(as_text=True) or '')[:300]),
+                    }
+        except Exception as e:
+            with _ANALYSIS_LOCK:
+                _ANALYSIS_JOBS[job_id] = {'status': 'failed', 'started': started,
+                                          'finished': time.time(), 'idem': idem,
+                                          'user_id': uid, 'error': f'{type(e).__name__}: {e}'}
+
+    _ANALYSIS_POOL.submit(_bg)
+    return jsonify({'job_id': job_id, 'status': 'running', 'async': True})
+
+
+@analysis_bp.route('/api/analyze/status/<job_id>', methods=['GET'])
+@_api_login_required
+def analyze_async_status(job_id):
+    """Poll an analysis job. Returns {status: running|complete|failed, result?}."""
+    with _ANALYSIS_LOCK:
+        j = _ANALYSIS_JOBS.get(job_id)
+    if not j:
+        return jsonify({'status': 'unknown', 'error': 'job not found or expired'}), 404
+    if j.get('user_id') != current_user.id:
+        return jsonify({'error': 'forbidden'}), 403
+    return jsonify(j)
 
 
 @analysis_bp.route('/api/analyze', methods=['POST'])
@@ -1295,6 +1441,26 @@ def analyze_property():
         # This applies to BOTH cached and non-cached results
         result_dict['property_id'] = property.id
         result_dict['analysis_id'] = analysis.id  # Needed for addendum, objection, calendar agentic actions
+
+        # ── Input-quality confidence gate (v5.89.269) ─────────────────────────
+        # A failed/degraded read must never masquerade as a defensible offer. Same
+        # philosophy as the AVM gate: input quality flows through to output
+        # confidence — SURFACED, not hidden. When a document was provided but
+        # couldn't be read (garbled OCR, empty extraction — even after the vision
+        # fallback), the findings and the offer built on it are unreliable, and the
+        # report says so instead of presenting a confident number.
+        try:
+            _low, _lc_reasons = compute_input_confidence(
+                has_disclosure, has_inspection,
+                seller_disclosure_text, inspection_report_text)
+            result_dict['low_confidence'] = _low
+            result_dict['low_confidence_reasons'] = _lc_reasons
+            if _low:
+                logging.warning(
+                    f"⚠️ Low-confidence analysis for {property_address}: {_lc_reasons}")
+        except Exception as _lc_err:
+            logging.warning(f"confidence gate skipped: {_lc_err}")
+            result_dict.setdefault('low_confidence', False)
         
         # Ensure property price is present
         if 'property_price' not in result_dict or result_dict['property_price'] <= 0:

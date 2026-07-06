@@ -1,3 +1,73 @@
+## v5.89.269 — Input-quality confidence gate (part 3): a failed read can't masquerade as a defensible offer
+
+The logs behind the "Failed to fetch" screenshots showed the deeper problem: that
+analysis ran on a disclosure that wouldn't parse and an inspection whose OCR read
+0%, produced 0 findings — and still emitted a confident $129,250 discount on a clean,
+under-comps property. Tight-but-fabricated, the worst failure mode. Part 3 applies
+the AVM-gate philosophy to the whole offer: input quality flows through to output
+confidence, SURFACED not hidden.
+
+ - New compute_input_confidence(has_disclosure, has_inspection, disclosure_text,
+   inspection_text) in analysis_routes (single source, unit-tested): if a document
+   was PROVIDED but couldn't be read (garbled OCR / near-empty extraction, using the
+   same is_meaningful_extraction the extraction path already trusts, after the vision
+   fallback), it returns low_confidence + plain-English reasons. An ABSENT document
+   is NOT a hit (that's the missing-doc CTA case, not a failed read).
+ - /api/analyze attaches result_dict['low_confidence'] + ['low_confidence_reasons'].
+ - Report renders a prominent orange banner at the very top when low-confidence:
+   names what couldn't be read and tells the buyer to treat the numbers as a rough
+   starting point, not a defensible figure, and to re-upload a text-based PDF. The
+   offer still shows (transparency), but it can no longer pose as reliable.
+
+This completes the three-part fix: job-and-poll (.268), idempotency (.268), and now
+confidence-gating. A slow analysis can't show a false failure, a retry can't double-
+charge, and a failed read can't present a confident number.
+
+Tests: test_input_confidence.py (5) — unreadable inspection/disclosure flag low,
+both-readable is high, absent doc is not a hit, mixed case flags only the bad side.
+Added to the admin suite runner. JSX compiles; <div> net 16 unchanged; backends
+compile.
+## v5.89.268 — /api/analyze is now job-and-poll + idempotent (fixes "Failed to fetch" on completed analyses)
+
+The buyer flow was dying on the exact Cloudflare ~100s timeout we fixed for the QA
+runner — but on the REVENUE path. A screenshot showed the web app saying "Analysis
+failed: Failed to fetch" while the user's inbox had "Your Analysis is Ready" for the
+same property: /api/analyze ran synchronously, the browser's connection was dropped
+at the proxy past 100s, but the server FINISHED, persisted the Analysis, and emailed
+it. The user was told, at once, that it failed and that it was ready. And because the
+UI showed failure with the button still live, users re-clicked → duplicate runs
+(the two conflicting analyses in the logs).
+
+Fix (parts 1 + 2 of the agreed plan):
+ - New /api/analyze/async runs the UNCHANGED /api/analyze as a background job (via
+   test_client, so the 1500-line endpoint isn't rewritten), authenticated AS THE
+   USER (Flask-Login _user_id via session_transaction — no signed-cookie forwarding),
+   and returns a job_id in ms. /api/analyze/status/<id> polls. No request stays open
+   long enough for the proxy to kill it, so a slow analysis can't show "Failed to
+   fetch". Frontend converted to submit→poll (progress animation continues during
+   polling; SSE hookup dropped since the internal job id isn't browser-visible).
+ - IDEMPOTENT start: keyed on (user, property address, price, docs-job). An identical
+   in-flight or just-finished (≤90s) submit returns the SAME job instead of launching
+   a duplicate — retries/refreshes are now free, killing the double-run problem.
+ - Rate-limit safety: the internal call forwards the real client IP via environ_base
+   so /api/analyze's limiter (keyed on remote_addr) counts against the USER, not the
+   shared internal test-client IP — otherwise 20/hr would have become a GLOBAL lockout.
+   Credits still deduct once (only the internal call); 402/403 surface through the poll.
+
+Tests: test_analyze_async.py (5) — background call is authenticated as the correct
+user (the risky auth-replay), submit/poll returns the result, idempotent repeat
+returns the same job, distinct requests get distinct jobs, cross-user status is 403.
+Added to the admin suite runner. JSX guard compiles; <div> net 16 unchanged; all
+backends compile.
+
+STILL TO DO (part 3, next): input-quality confidence gating — when extraction fails
+(disclosure unparseable, inspection OCR 0%, 0 findings) the report must say so
+instead of emitting a confident discount, per the AVM-gate philosophy. Not in this
+build; this one is the fire (the flow lying to paying users), part 3 is the smoulder.
+
+NOTE: this is a large change to the revenue-critical path. Mechanisms are unit-tested
+incl. auth-replay, but the full flow (real auth/DB/LLM through the internal call)
+needs a staging analysis run to confirm end to end before trusting prod.
 ## v5.89.267 — Fix test_qa_async fixture (full-suite blueprint re-registration)
 
 test_qa_async.py passed in isolation but ERRORED in the full CI suite: 'The setup

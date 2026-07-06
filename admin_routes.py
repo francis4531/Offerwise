@@ -763,7 +763,8 @@ def api_test_suite():
             'test_reserve_reconciliation.py', 'test_offer_psychology_neutral.py',
             'test_market_narrative_consistency.py', 'test_algorithms.py',
             'test_avm_gate.py', 'test_report_quality_v2.py',
-            'test_cost_provenance.py', 'test_ai_json.py',
+            'test_cost_provenance.py', 'test_ai_json.py', 'test_analyze_async.py',
+            'test_input_confidence.py',
         ],
         'Moat activation': [
             'test_reasoning_activation_scope.py', 'test_shadow_readiness.py',

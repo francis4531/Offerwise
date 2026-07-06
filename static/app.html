@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>OfferWise AI™ — Property Analysis</title>
-    <script src="/static/gtm-loader.js?v=5.89.267"></script>
+    <script src="/static/gtm-loader.js?v=5.89.269"></script>
 <!-- /GTM head -->
     <script>if(window.location.hostname==='getofferwise.ai')window.location.replace('https://www.getofferwise.ai'+window.location.pathname+window.location.search);</script>
     <link rel="icon" type="image/svg+xml" href="/static/logo-icon-only.svg">
@@ -21,7 +21,7 @@
     <link rel="preconnect" href="https://unpkg.com" crossorigin>
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/results-theme.css?v=5.89.267">
+    <link rel="stylesheet" href="/static/results-theme.css?v=5.89.269">
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone@7.29.7/babel.min.js"></script>
@@ -685,7 +685,7 @@
         .ow-strategy-grid { grid-template-columns: 1fr !important; }
       }
     </style>
-    <script src="/static/analytics-loader.js?v=5.89.267" defer></script>
+    <script src="/static/analytics-loader.js?v=5.89.269" defer></script>
     <!-- Reddit Pixel Base Code -->
     <script>
     !function(w,d){if(!w.rdt){var p=w.rdt=function(){p.sendEvent?p.sendEvent.apply(p,arguments):p.queue.push(arguments)};p.queue=[];var t=d.createElement('script');t.src='https://www.redditstatic.com/ads/pixel.js';t.async=!0;var s=d.getElementsByTagName('script')[0];s.parentNode.insertBefore(t,s)}}(window,document);
@@ -4115,65 +4115,73 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 let sseSource = null;
                 const progressMessages = window.__owProgressMessages || progressMessages;
 
-                const response = await fetch('/api/analyze', {
+                // ── v5.89.268: job-and-poll. Start the analysis as a background job
+                // and POLL for the result, so no single request stays open long enough
+                // for Cloudflare's ~100s origin timeout to kill it — the fix for
+                // "Analysis failed: Failed to fetch" on analyses that actually completed.
+                // The start is idempotent server-side, so a retry/refresh returns the
+                // same job instead of launching a duplicate run.
+                clearInterval(progressInterval);
+                progressInterval = setInterval(() => {
+                  setAnalysisProgress(p => {
+                    const msgs = (window.__owProgressMessages || progressMessages);
+                    const cur = Math.min((p.current || 0) + 1, 95);
+                    return { current: cur, total: 100,
+                             message: msgs[Math.floor(cur/12) % msgs.length] || 'Analyzing...',
+                             tip: '🤖 AI analysis running' };
+                  });
+                }, 1200);
+
+                const startResp = await fetch('/api/analyze/async', {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
                   credentials: 'include',
                   body: JSON.stringify(requestBody)
                 });
-
-                // Try to hook SSE from response header (job_id)
-                const jobId = response.headers.get('X-Job-Id');
-                if (jobId && window.__owConnectSSE) {
-                  clearInterval(progressInterval);
-                  sseSource = window.__owConnectSSE(jobId, (d) => {
-                    const pct = d.pct || 0;
-                    const msg = d.message || 'Analyzing...';
-                    const tip = d.phase ? `⚙️ ${d.phase}` : '🤖 AI analysis running';
-                    setAnalysisProgress({ current: pct, total: 100, message: msg, tip });
-                  });
-                }
-
-                // Response received — flash 100% then clear
-                clearInterval(progressInterval);
-                if (sseSource) sseSource.close();
-                setAnalysisProgress({ current: 100, total: 100, message: 'Analysis complete!', tip: '✅ Done!' });
-                // Brief flash of 100% for satisfying UX
-                await new Promise(r => setTimeout(r, 400));
-                setAnalysisProgress({ current: 0, total: 0, message: '' });
-                
-                console.log(`📥 Response status: ${response.status} ${response.statusText}`);
-                console.log('📋 Response headers:', [...response.headers.entries()]);
-                
-                if (!response.ok) {
-                  const errorText = await response.text();
-                  console.error('❌ Error response:', errorText);
-                  
-                  // Special handling for credits error (403)
-                  if (response.status === 403) {
+                if (!startResp.ok) {
+                  const errorText = await startResp.text();
+                  if (startResp.status === 403 || startResp.status === 402) {
                     try {
-                      const errorJson = JSON.parse(errorText);
-                      if (errorJson.credits_remaining === 0 || errorJson.error === 'No analysis credits') {
-                        console.log('💳 No credits remaining, redirecting to pricing...');
-                        // Redirect to pricing page with message
+                      const ej = JSON.parse(errorText);
+                      if (ej.credits_remaining === 0 || /credit/i.test(ej.error || '')) {
                         window.location.href = '/pricing?message=' + encodeURIComponent('No analyses remaining. Upgrade your plan to continue.');
                         return;
                       }
-                    } catch (e) {
-                      // If parsing fails, continue with normal error handling
-                    }
+                    } catch (e) {}
                   }
-                  
-                  // Normal error handling
-                  try {
-                    const errorJson = JSON.parse(errorText);
-                    throw new Error(errorJson.error || 'Analysis failed');
-                  } catch (e) {
-                    throw new Error(`Analysis failed: ${response.status} - ${errorText}`);
-                  }
+                  throw new Error(`Analysis failed: ${startResp.status} - ${errorText}`);
                 }
-                
-                const data = await response.json();
+                const startData = await startResp.json();
+                const jobId = startData.job_id;
+                if (!jobId) throw new Error('Analysis failed: server did not start the job');
+
+                let data = null;
+                const pollDeadline = Date.now() + 600000;
+                while (Date.now() < pollDeadline) {
+                  await new Promise(r => setTimeout(r, 2500));
+                  let st;
+                  try { st = await fetch('/api/analyze/status/' + jobId, { credentials: 'include' }); }
+                  catch (e) { continue; }
+                  if (!st.ok) { if (st.status === 404) throw new Error('Analysis job expired — please try again'); continue; }
+                  const sd = await st.json();
+                  if (sd.status === 'running') continue;
+                  if (sd.status === 'failed') {
+                    const em = sd.error || 'Analysis failed';
+                    if (sd.status_code === 402 || sd.status_code === 403 || /credit/i.test(em)) {
+                      window.location.href = '/pricing?message=' + encodeURIComponent('No analyses remaining. Upgrade your plan to continue.');
+                      return;
+                    }
+                    throw new Error('Analysis failed: ' + em);
+                  }
+                  if (sd.status === 'unknown') throw new Error('Analysis job expired — please try again');
+                  if (sd.status === 'complete') { data = sd.result; break; }
+                }
+                clearInterval(progressInterval);
+                if (!data) throw new Error('Analysis is taking longer than expected. It may still finish — check your email for the report, or try again.');
+
+                setAnalysisProgress({ current: 100, total: 100, message: 'Analysis complete!', tip: '✅ Done!' });
+                await new Promise(r => setTimeout(r, 400));
+                setAnalysisProgress({ current: 0, total: 0, message: '' });
                 console.log('✅ ANALYSIS COMPLETE!');
                 console.log('📊 Result data:', data);
                 console.log('🎯 Setting result state and moving to results step...');
@@ -4886,6 +4894,26 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
                   {/* Watermark */}
                   <div className="ow-report-brand">OfferWise™ · Patent Pending</div>
+
+                  {/* v5.89.269: input-quality confidence gate — a failed read must
+                      never masquerade as a defensible offer. Surfaced, not hidden. */}
+                  {result && result.low_confidence && Array.isArray(result.low_confidence_reasons) && result.low_confidence_reasons.length > 0 && (
+                    <div style={{ maxWidth:'920px', margin:'16px auto 0', padding:'0 24px' }}>
+                      <div style={{ border:'1px solid rgba(249,115,22,0.5)', background:'rgba(249,115,22,0.08)', borderRadius:'10px', padding:'16px 18px' }}>
+                        <div style={{ fontWeight:700, fontSize:'var(--ow-fs-body)', color:'#f97316', marginBottom:'6px' }}>
+                          ⚠️ Low-confidence analysis — read before you rely on the numbers
+                        </div>
+                        <div style={{ fontSize:'var(--ow-fs-meta)', color:'var(--ow-muted-2)', lineHeight:1.55 }}>
+                          {result.low_confidence_reasons.map((r, i) => (
+                            <div key={i} style={{ marginBottom:'4px' }}>• {r}</div>
+                          ))}
+                          <div style={{ marginTop:'8px' }}>
+                            The offer and findings below are shown for transparency, but we couldn&apos;t fully read your documents — treat the numbers as a rough starting point, not a defensible figure. Re-uploading clearer copies (a text-based PDF rather than a scan or photo) will give you a reliable analysis.
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
                   {/* --- Merged Nav + Sticky Summary Bar --- */}
                   <div ref={stickyBarRef} className="sticky-summary-bar" style={{ position:'fixed', top:0, left:0, right:0, zIndex:1000, background:'rgba(10,14,26,0.98)', backdropFilter:'blur(12px)', borderBottom:'1px solid rgba(51,65,85,0.4)', padding:'0 24px' }}>
@@ -12497,7 +12525,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </script>
     
     <!-- Async Upload Manager - Handles PDF uploads with real-time progress -->
-    <script src="/static/async-upload-manager.js?v=5.89.267"></script>
+    <script src="/static/async-upload-manager.js?v=5.89.269"></script>
     
     <!-- Floating Support Button -->
     <a href="/contact" id="support-button" style="
@@ -12522,8 +12550,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <span style="font-size: 16px;">💬</span>
         Help
     </a>
-<script src="/static/js/compliance.js?v=5.89.267"></script>
-<script src="/static/js/analytics.js?v=5.89.267" defer></script>
+<script src="/static/js/compliance.js?v=5.89.269"></script>
+<script src="/static/js/analytics.js?v=5.89.269" defer></script>
 <script>
 // Scroll reveal for premium results animations
 (function() {
@@ -12610,7 +12638,7 @@ if ('serviceWorker' in navigator) {
 
 <!-- Scout: docked, summon-on-demand "Ask your report" assistant (v5.89.157) -->
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&display=swap" rel="stylesheet">
-<script src="/static/ask-widget.js?v=5.89.267"></script>
+<script src="/static/ask-widget.js?v=5.89.269"></script>
 <script>
 (function(){
   if (window.__scoutInit) { return; } window.__scoutInit = true;
