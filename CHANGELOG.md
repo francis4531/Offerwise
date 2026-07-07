@@ -1,3 +1,28 @@
+## v5.89.272 — HOTFIX: prod boot failure (NameError: _dev_only_gate in admin_routes)
+
+v5.89.271 failed to boot in prod: gunicorn worker crashed at import with
+`NameError: name '_dev_only_gate' is not defined` (admin_routes.py:692), taking the
+master down ("Worker failed to boot"). My .271 benchmark endpoint copied the
+two-decorator pattern (@_dev_only_gate + @_api_admin_req_dec) from testing_routes.py,
+where _dev_only_gate is a module-level DeferredDecorator. admin_routes.py has NO such
+name — every admin route uses @_api_admin_req_dec alone. The decorator evaluates at
+IMPORT time, so it crashed the whole app before boot, not at request time. py_compile
+passed (syntax is valid); the bug was a name-resolution error only a real import
+catches.
+
+Fix: removed the @_dev_only_gate line from /api/admin/benchmark/pendleton — it now
+uses @_api_admin_req_dec like every other admin route (admin auth is unchanged; the
+endpoint is still admin-gated). Verified by IMPORTING admin_routes (not just
+compiling) — clean, no NameError — and by importing app.py, which now passes line 692
+and only stops on a sandbox-missing package (flask_compress), i.e. the boot path is
+clear.
+
+LESSON: py_compile does not catch module-level NameErrors from decorators; adding a
+route to a blueprint must be validated by importing the module, not just compiling
+it. The build guards check syntax, not import — an import smoke-test belongs in the
+pre-package checks.
+
+No other change. Promote this immediately to restore prod.
 ## v5.89.271 — Collateral decisions applied + honest head-to-head benchmark harness
 
 Founder decisions from the accuracy review, applied:

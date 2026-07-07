@@ -689,7 +689,6 @@ def aggregate_latency(rows):
 
 
 @admin_bp.route('/api/admin/benchmark/pendleton', methods=['POST'])
-@_dev_only_gate
 @_api_admin_req_dec
 def api_benchmark_pendleton():
     """Honest head-to-head: OfferWise's reasoning engine vs a single raw Claude
