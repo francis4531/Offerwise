@@ -324,7 +324,7 @@ body{font-family:"Inter",-apple-system,sans-serif;background:var(--darker);color
         <div class="stat-box">
           <div class="stat"><div class="stat-val"><span>5</span>M+</div><div class="stat-lbl">US home sales annually (NAR)</div></div>
           <div class="stat"><div class="stat-val">$<span>420</span>K</div><div class="stat-lbl">Median sale price · the largest purchase most families make</div></div>
-          <div class="stat"><div class="stat-val"><span>~90</span>s</div><div class="stat-lbl">Time to produce a one-page property briefing</div></div>
+          <div class="stat"><div class="stat-val"><span>~45</span>s</div><div class="stat-lbl">Time to produce a one-page property briefing</div></div>
           <div class="stat"><div class="stat-val"><span>121</span>K</div><div class="stat-lbl">Labeled findings in our training corpus</div></div>
         </div>
       </div>
@@ -374,7 +374,7 @@ body{font-family:"Inter",-apple-system,sans-serif;background:var(--darker);color
         <div class="inno-text">
           <h3>The orchestrated pipeline</h3>
           <p>A single Claude call would produce a generic response. Instead, OfferWise runs a multi-stage pipeline &mdash; document parser, cross-reference engine, repair cost predictor, Property Risk DNA, transparency scorer, predictive engine, and the offer architect &mdash; each with a defined role and a defined output. The intelligence orchestrator coordinates them; calibrated XGBoost models override Claude on cost and classification when they outperform it.</p>
-          <p>The result is not a summary. It is a decision: three offer scenarios with rationales, repair cost ranges grounded in real public-records and contractor pricing data, and contradictions surfaced with page-level citations. Typical analysis run time is fifteen to twenty-five seconds.</p>
+          <p>The result is not a summary. It is a decision: three offer scenarios with rationales, repair cost ranges grounded in real public-records and contractor pricing data, and contradictions surfaced with page-level citations. Typical analysis run time is about forty-five seconds.</p>
           <p>Separately, thirteen municipal data crawlers run nightly against public records portals, feeding labeled findings into the 121K-row training corpus that the daily ML training agent retrains against &mdash; with automatic regression rollback. This is what creates a data flywheel a foundation model alone cannot replicate.</p>
         </div>
         <div class="console">
@@ -385,7 +385,7 @@ body{font-family:"Inter",-apple-system,sans-serif;background:var(--darker);color
           <div class="con-row"><span class="ct">stage 4</span><span class="ca">risk-dna</span><span class="cok">&#10003;</span><span class="cx">5-axis vector &middot; structural moderate &middot; water high</span></div>
           <div class="con-row"><span class="ct">stage 5</span><span class="ca">market-intel</span><span class="cok">&#10003;</span><span class="cx">AVM $1,241,000 &middot; 15 comps &middot; asking 3.5% above AVM</span></div>
           <div class="con-row"><span class="ct">stage 6</span><span class="ca">offer-architect</span><span class="cs">&#8635;</span><span class="cx">Recommended: <strong>$1,198,000</strong> &middot; 3-scenario strategy</span></div>
-          <div class="con-ft"><span>Analysis complete &middot; ~20s</span><a href="/architecture">Engineering detail &rarr;</a></div>
+          <div class="con-ft"><span>Analysis complete &middot; ~45s</span><a href="/architecture">Engineering detail &rarr;</a></div>
         </div>
       </div>
     </div>

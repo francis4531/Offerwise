@@ -1,3 +1,37 @@
+## v5.89.271 — Collateral decisions applied + honest head-to-head benchmark harness
+
+Founder decisions from the accuracy review, applied:
+ - Analysis time → 45s. thesis.html reconciled all three inconsistent figures
+   (~90s / 15–25s / ~20s) to ~45s.
+ - Gov-API labels → two distinct, correct metrics: architecture header relabeled
+   "Gov API Sources" → "Public Data Sources" (13, live-bound to crawler count); SVG
+   "11 Gov APIs" → "11 Federal APIs".
+ - OfferScore: confirmed the thesis "roadmap" framing is CORRECT (no edit). The
+   product's "OfferScore™ 49" is 100 − composite_risk — a real per-property score
+   wearing the trademark; that's a product/brand call for the founder (rename vs
+   accept as v1), NOT a collateral bug.
+
+Benchmark (decision: build the answer-key harness for a real re-run) — new
+benchmark_head_to_head.py:
+ - Objective head-to-head on the 2839 Pendleton answer key: reasoning engine vs a
+   single raw Claude (Opus 4.8) pass, scored by RECALL of the 7 findings (can't be
+   gamed by phrasing). Reasoning side is deterministic/offline and VERIFIED here at
+   6/6 core recall — the exact case the old keyword engine lost. Raw-Claude side
+   runs a real Opus 4.8 pass (needs ANTHROPIC_API_KEY); numbers come from a real
+   run, never fabricated — no client => raw side skipped, no verdict.
+ - Admin endpoint POST /api/admin/benchmark/pendleton + "Head-to-head benchmark"
+   admin panel with per-finding 🧠-vs-🤖 breakdown and verdict.
+ - The stale /comparison page (Apr 2026, Opus 4.7, synthetic) is NOT edited — the
+   founder runs this to regenerate real v2 numbers before deciding to refresh/pull it.
+
+Tests: test_benchmark_head_to_head.py (5) — objective scoring (1.0 strong / 0.0
+generic / proportional partial), reasoning side 6/6, no-client skips raw side and
+emits no verdict. Added to the admin suite runner. Admin JS guard passes; <div>
+balanced; all backends compile.
+
+STILL FOUNDER-ONLY before sharing: run the head-to-head with real keys to get raw
+Claude's number; confirm "121K corpus", "provisional patents filed", "OfferWatch
+live"; decide the OfferScore product-label question.
 ## v5.89.270 — Collateral accuracy pass (thesis + architecture): verified fixes + flagged claims
 
 Pre-share accuracy check of thesis.html + architecture.html. FIXED only what is

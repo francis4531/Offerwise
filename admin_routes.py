@@ -688,6 +688,37 @@ def aggregate_latency(rows):
     return stages
 
 
+@admin_bp.route('/api/admin/benchmark/pendleton', methods=['POST'])
+@_dev_only_gate
+@_api_admin_req_dec
+def api_benchmark_pendleton():
+    """Honest head-to-head: OfferWise's reasoning engine vs a single raw Claude
+    pass on the 2839 Pendleton answer key, scored by objective recall of the 7 key
+    findings. The reasoning side is deterministic (always runs); the raw-Claude side
+    runs a real Opus 4.8 pass (needs ANTHROPIC_API_KEY). Numbers come from a real
+    run — never fabricated. This is the honest replacement for the stale
+    /comparison benchmark."""
+    import os
+    try:
+        from benchmark_head_to_head import head_to_head
+    except Exception as e:
+        return jsonify({'ok': False, 'error': f'benchmark module unavailable: {e}'}), 200
+    model = (request.args.get('model') or 'claude-opus-4-8').strip()
+    client = None
+    try:
+        api_key = os.environ.get('ANTHROPIC_API_KEY')
+        if api_key:
+            from anthropic import Anthropic
+            client = Anthropic(api_key=api_key)
+    except Exception:
+        client = None
+    try:
+        result = head_to_head(client=client, model=model)
+        return jsonify({'ok': True, **result})
+    except Exception as e:
+        return jsonify({'ok': False, 'error': f'{type(e).__name__}: {e}'}), 200
+
+
 @admin_bp.route('/api/admin/latency-breakdown', methods=['GET'])
 @_api_admin_req_dec
 def api_latency_breakdown():
@@ -764,7 +795,7 @@ def api_test_suite():
             'test_market_narrative_consistency.py', 'test_algorithms.py',
             'test_avm_gate.py', 'test_report_quality_v2.py',
             'test_cost_provenance.py', 'test_ai_json.py', 'test_analyze_async.py',
-            'test_input_confidence.py',
+            'test_input_confidence.py', 'test_benchmark_head_to_head.py',
         ],
         'Moat activation': [
             'test_reasoning_activation_scope.py', 'test_shadow_readiness.py',

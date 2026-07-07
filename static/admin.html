@@ -3851,6 +3851,18 @@ details.an-drill[open] .an-chev{transform:rotate(90deg)}
           </details>
         </div>
 
+        <!-- Honest head-to-head benchmark — reasoning engine vs raw Claude on the Pendleton answer key -->
+        <div style="border:1px solid var(--border);border-radius:6px;padding:12px;background:var(--surface);margin-bottom:12px">
+          <div style="font-weight:600;margin-bottom:6px">⚔️ Head-to-head benchmark (Pendleton)</div>
+          <div style="font-size:11px;color:var(--muted);margin-bottom:10px;line-height:1.4">
+            OfferWise's reasoning engine vs a single raw Claude (Opus 4.8) pass, scored by objective recall of the 7-finding Pendleton answer key. Reasoning side is deterministic; the raw-Claude side runs a real API pass. Real numbers — this is the honest replacement for the stale /comparison page. ~20s.
+          </div>
+          <button id="btnBenchmark" class="btn btn-primary btn-sm" onclick="runHeadToHead()">
+            Run head-to-head
+          </button>
+          <div id="benchmarkResult" style="margin-top:10px;font-size:11px;color:var(--muted)"></div>
+        </div>
+
         <!-- Latency breakdown — where the report-generation seconds actually go -->
         <div style="border:1px solid var(--border);border-radius:6px;padding:12px;background:var(--surface);margin-bottom:12px">
           <div style="font-weight:600;margin-bottom:6px">⏱️ Report latency breakdown</div>
@@ -6094,6 +6106,44 @@ async function runReasoningTestsTab() {
     if (btn) { btn.disabled = false; btn.textContent = 'Run reasoning tests'; }
   }
 }
+
+async function runHeadToHead() {
+  var btn = document.getElementById('btnBenchmark');
+  var out = document.getElementById('benchmarkResult');
+  if (!out) return;
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ running…'; }
+  out.innerHTML = '<span class="spinner"></span> running head-to-head (real Opus 4.8 pass)…';
+  try {
+    var r = await fetchWithTimeout('/api/admin/benchmark/pendleton?admin_key=' + encodeURIComponent(adminKey), 120000, { method: 'POST' });
+    var d = await r.json();
+    if (!d.ok) { out.innerHTML = '<span style="color:var(--amber)">⚠ ' + (d.error || 'failed') + '</span>'; return; }
+    var rs = d.reasoning || {}, rc = d.raw_claude || {};
+    function fmt(side){ return (side.core_recall != null) ? (Math.round(side.core_recall*100) + '% (' + (side.core_caught||[]).length + '/' + (side.core_total||6) + ')') : '—'; }
+    var head = '<div style="font-size:13px;font-weight:700;margin-bottom:6px">' + rxEscB(d.case || 'Pendleton') + '</div>';
+    var verdict = d.verdict ? ('<div style="font-size:12px;font-weight:700;margin:4px 0;color:' + (d.verdict==='reasoning_wins'?'var(--green)':d.verdict==='tie'?'var(--muted)':'var(--amber)') + '">Verdict: ' + d.verdict.replace(/_/g,' ') + '</div>') : '';
+    var rows = '<div style="font-size:12px;margin:6px 0">'
+      + '<div>🧠 <strong>Reasoning engine:</strong> ' + fmt(rs) + '</div>'
+      + '<div>🤖 <strong>Raw Claude (' + rxEscB(rc.model || 'opus-4-8') + '):</strong> ' + (rc.skipped ? '<span style="color:var(--muted)">skipped — ' + rxEscB(rc.skipped) + '</span>' : fmt(rc)) + '</div>'
+      + '</div>';
+    var perFinding = '';
+    if (d.answer_key) {
+      perFinding = '<div style="margin-top:6px;font-size:11px">' + d.answer_key.map(function(f){
+        var rHit = (rs.caught||[]).indexOf(f.n) >= 0;
+        var cHit = (rc.caught||[]).indexOf(f.n) >= 0;
+        return '<div style="margin-bottom:2px"><span style="font-family:monospace">#' + rxEscB(String(f.n)) + '</span> '
+          + '<span style="color:' + (rHit?'var(--green)':'var(--amber)') + '">🧠' + (rHit?'✓':'✗') + '</span> '
+          + '<span style="color:' + (rc.skipped?'var(--muted)':(cHit?'var(--green)':'var(--amber)')) + '">🤖' + (rc.skipped?'–':(cHit?'✓':'✗')) + '</span> '
+          + rxEscB(f.label) + '</div>';
+      }).join('') + '</div>';
+    }
+    out.innerHTML = head + verdict + rows + perFinding + '<div style="margin-top:8px;font-size:10px;color:var(--muted)">Objective answer-key recall on a real deal. Core = the 6 negotiable/hazard findings (#4 seismic-down and #7 confirmations are reported, not scored).</div>';
+  } catch(e) {
+    out.innerHTML = '<span style="color:var(--amber)">⚠ ' + (e && e.message ? e.message : 'request failed') + '</span>';
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Run head-to-head'; }
+  }
+}
+function rxEscB(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
 async function loadLatencyBreakdown() {
   var btn = document.getElementById('btnLatency');

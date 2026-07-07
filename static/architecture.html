@@ -7,8 +7,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Architecture &mdash; OfferWise</title>
 <meta name="description" content="Technical deep-dive into the OfferWise platform architecture: AI-first document parsing, cross-reference engine, risk DNA, agentic monitoring, and more.">
-<link rel="stylesheet" href="/static/ow-system.css?v=5.89.270">
-<link rel="stylesheet" href="/static/typography.css?v=5.89.270">
+<link rel="stylesheet" href="/static/ow-system.css?v=5.89.271">
+<link rel="stylesheet" href="/static/typography.css?v=5.89.271">
 <style>
 .arch-hero{padding:100px 0 60px;text-align:center;position:relative;overflow:hidden}
 .arch-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 50% at 50% 0%,rgba(59,130,246,.08) 0%,transparent 70%),radial-gradient(ellipse 40% 30% at 80% 20%,rgba(249,115,22,.06) 0%,transparent 60%);pointer-events:none}
@@ -67,7 +67,7 @@ code{font-family:'SF Mono','Fira Code','Consolas',monospace;font-size:.82em;back
 <div class="arch-stat"><div class="num" data-arch-stat="loc">120K+</div><div class="label">Lines of Code</div></div>
 <div class="arch-stat"><div class="num" data-arch-stat="integrity_tests">509</div><div class="label">Integrity Tests</div></div>
 <div class="arch-stat"><div class="num" data-arch-stat="labeled_rows">121K</div><div class="label">Labeled Training Rows</div></div>
-<div class="arch-stat"><div class="num" data-arch-stat="gov_sources">13</div><div class="label">Gov API Sources</div></div>
+<div class="arch-stat"><div class="num" data-arch-stat="gov_sources">13</div><div class="label">Public Data Sources</div></div>
 </div></div></section>
 
 <div class="arch-toc"><h3>Contents</h3><ol>
@@ -182,7 +182,7 @@ code{font-family:'SF Mono','Fira Code','Consolas',monospace;font-size:.82em;back
 <text x="440" y="458" fill="#fcd34d" font-size="10" font-weight="600" text-anchor="middle">Google OAuth</text>
 <text x="440" y="472" fill="#666" font-size="8" text-anchor="middle">SSO login</text>
 <rect x="510" y="440" width="100" height="44" rx="8" fill="rgba(245,158,11,.08)" stroke="rgba(245,158,11,.2)"/>
-<text x="560" y="458" fill="#fcd34d" font-size="10" font-weight="600" text-anchor="middle">11 Gov APIs</text>
+<text x="560" y="458" fill="#fcd34d" font-size="10" font-weight="600" text-anchor="middle">11 Federal APIs</text>
 <text x="560" y="472" fill="#666" font-size="8" text-anchor="middle">FEMA / EPA / USGS</text>
 <rect x="630" y="440" width="100" height="44" rx="8" fill="rgba(245,158,11,.08)" stroke="rgba(245,158,11,.2)"/>
 <text x="680" y="458" fill="#fcd34d" font-size="10" font-weight="600" text-anchor="middle">Sentry</text>
