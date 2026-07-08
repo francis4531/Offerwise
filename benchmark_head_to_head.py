@@ -149,7 +149,7 @@ def raw_claude_side(client, model: str = "claude-opus-4-8") -> Dict[str, Any]:
         return {"error": "could not extract Pendleton specimen text"}
     prompt = RAW_CLAUDE_PROMPT.format(disclosure=docs["disclosure"], inspection=docs["inspection"])
     resp = client.messages.create(
-        model=model, max_tokens=2000, temperature=0,
+        model=model, max_tokens=2000,
         messages=[{"role": "user", "content": prompt}],
     )
     text = "".join(getattr(b, "text", "") for b in resp.content)

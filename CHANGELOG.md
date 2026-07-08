@@ -1,3 +1,27 @@
+## v5.89.275 — Fix benchmark (deprecated temperature) + full-suite "Failed to fetch"
+
+Two bugs the admin panels surfaced on first real use:
+
+1. Head-to-head benchmark raw-Claude side crashed: BadRequestError 400 "temperature
+   is deprecated for this model" — the harness sent temperature=0 to Opus 4.8, which
+   no longer accepts it. Removed the param. (Main pipeline unaffected — it doesn't
+   send temperature to Opus.)
+
+2. "Run full correctness suite" → "Failed to fetch": /api/admin/test-suite runs up to
+   ~2 min synchronously and blew past Cloudflare's ~100s origin timeout — the SAME
+   bug we fixed for the QA suites in .265, but this endpoint was never converted.
+   Fix: routed the "Run full suite" button through the existing async job-and-poll
+   runner (runSuiteAsync) and allowed /api/admin/test-suite through the async path
+   allowlist (the one specific admin test endpoint; still admin-gated, still no
+   recursion). No request stays open long enough to be killed.
+
+Note (not changed): the [ai_json] "unparseable response (inspection-extract)"
+Sentry error is a HANDLED parse failure (ai_json returns ok=False; confidence gate
+surfaces it downstream) with stop_reason=None — the signature of a cassette/test
+response, in the testing env. Logged at ERROR, which is why it paged. Can be
+downgraded to WARNING for handled parse failures if the alerting noise matters.
+
+Admin JS guard passes; <div> balanced; testing_routes + benchmark compile.
 ## v5.89.274 — Pre-package build guard: import check + coverage gate (stops the two CI breaks locally)
 
 The v5.89.272 (boot NameError) and .273 (coverage floor) CI failures shared one root

@@ -121,7 +121,7 @@ def qa_async_start():
     path = (data.get('path') or '').strip()
     method = (data.get('method') or 'POST').upper()
     query = data.get('query') or {}
-    if not path.startswith('/api/test/') or '/async' in path:
+    if (not (path.startswith('/api/test/') or path == '/api/admin/test-suite')) or '/async' in path:
         return jsonify({'error': 'path not allowed'}), 400
     admin_key = (request.args.get('admin_key') or request.headers.get('X-Admin-Key')
                  or (query.get('admin_key') if isinstance(query, dict) else None) or '')
