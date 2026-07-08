@@ -102,6 +102,21 @@ if ! ( cd "$BUILD" && node -e "require.resolve('@babel/preset-react')" ) >/dev/n
 fi
 node "$BUILD/scripts/check_jsx.js" "$BUILD/static/app.html"
 
+# Import + coverage guard (v5.89.274): catches the two failure classes py_compile
+# can't — a module-level NameError that dead-boots the worker, and an API-coverage
+# regression. Exit 1 = real code bug (block); exit 2 = app deps not installed here
+# (can't verify — warn, don't block, since CI will still check).
+set +e
+python3 "$BUILD/scripts/prepackage_guard.py"
+_guard_rc=$?
+set -e
+if [ "$_guard_rc" = "1" ]; then
+  echo "✗ prepackage guard failed — a code bug that would break boot or CI. Aborting."
+  exit 1
+elif [ "$_guard_rc" = "2" ]; then
+  echo "⚠ prepackage guard could not verify imports (app deps not installed locally) — CI will still check."
+fi
+
 # Sync the new build over the working tree: --delete propagates removed files,
 # --exclude keeps the real git history intact.
 rsync -a --delete --exclude='.git/' "$BUILD"/ "$OW_REPO"/

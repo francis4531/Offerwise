@@ -1,3 +1,28 @@
+## v5.89.274 — Pre-package build guard: import check + coverage gate (stops the two CI breaks locally)
+
+The v5.89.272 (boot NameError) and .273 (coverage floor) CI failures shared one root
+cause: the build guards check SYNTAX (py_compile, JSX) but not IMPORT or the fast gate
+suite — so both bugs passed local checks and only failed in CI, after a deploy was
+attempted. This closes that gap.
+
+New scripts/prepackage_guard.py, run before every tarball and wired into ow_deploy.sh:
+ 1. Imports all 9 route modules — a module-level NameError/AttributeError from a bad
+    decorator (the '_dev_only_gate is not defined' boot crash) is caught here, where
+    py_compile is blind. Missing third-party deps are classified as an ENV problem
+    (exit 2, warn) not a code bug (exit 1, block), so a bare environment can't
+    false-fail.
+ 2. Runs the API-coverage regression floor gate (the .273 failure).
+Verified it CATCHES a reintroduced _dev_only_gate NameError, and it already caught a
+botched test-restore during its own development.
+
+ow_deploy.sh: runs the guard after the JSX guard — exit 1 aborts the deploy (real
+bug), exit 2 warns (deps not installed locally; CI still checks).
+
+Tests: test_prepackage_guard.py (3) — real-bug vs missing-dep classification, clean
+tree has zero code import failures. Added to the suite runner.
+
+This is the meta-fix I kept flagging: the two recent breaks would now be a local red
+light, not a failed prod deploy. No product change.
 ## v5.89.273 — Fix CI: API-coverage regression floor (new endpoints lacked route tests)
 
 CI's "isolated drift suite" step exited 1 while showing "74 passed" — that step runs
