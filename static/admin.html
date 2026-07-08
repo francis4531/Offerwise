@@ -3816,102 +3816,100 @@ details.an-drill[open] .an-chev{transform:rotate(90deg)}
       <div class="card-title">🎬 Advanced Test Operations</div>
     </div>
     <div style="padding:14px">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
 
-        <!-- Cassette recording panel -->
-        <div style="border:1px solid var(--border);border-radius:6px;padding:12px;background:var(--surface)">
-          <div style="font-weight:600;margin-bottom:6px">📼 Record /api/analyze cassettes</div>
-          <div style="font-size:11px;color:var(--muted);margin-bottom:10px;line-height:1.4">
-            Records 5 cassettes by running real /api/analyze against Anthropic (address-only, disclosure-only × 2, full path × 2). Replay tests catch prompt drift in CI without API costs. Re-record after prompt changes or quarterly.
+        <div style="font-size:13px;font-weight:700;margin:0 0 3px">1 · Correctness <span style="font-weight:400;color:var(--muted)">— run before every deploy</span></div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:10px">Green-light checks. Start with the full suite; the reasoning and Postgres suites drill into specific layers.</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:22px">
+          <div style="border:1px solid var(--border);border-radius:6px;padding:12px;background:var(--surface)">
+            <div style="font-weight:600;margin-bottom:6px">✅ Run full correctness suite</div>
+            <div style="font-size:11px;color:var(--muted);margin-bottom:10px;line-height:1.4">
+              The umbrella check — reasoning engine, national correctness, offer-math integrity, moat activation, and the build guards, pass/fail per category. Up to ~2 min.
+            </div>
+            <button id="btnFullSuite" class="btn btn-primary btn-sm" onclick="runFullTestSuite()">
+              Run full suite
+            </button>
+            <div id="fullSuiteResult" style="margin-top:10px;font-size:11px;color:var(--muted)"></div>
           </div>
-          <button id="btnRecordCassettes" class="btn btn-primary btn-sm" onclick="confirmRecordCassettes()">
-            Record cassettes
-          </button>
-          <div id="cassetteStatus" style="margin-top:10px;font-size:11px;color:var(--muted);display:none"></div>
-          <pre id="cassetteLog" style="margin-top:8px;max-height:200px;overflow:auto;font-family:monospace;font-size:10px;background:var(--surface2);padding:8px;border-radius:4px;display:none;white-space:pre-wrap"></pre>
-          <div id="cassetteDownload" style="margin-top:8px;display:none">
-            <a id="cassetteDownloadLink" href="#" class="btn btn-ghost btn-sm">⬇️ Download cassettes ZIP</a>
+          <div style="border:1px solid var(--border);border-radius:6px;padding:12px;background:var(--surface)">
+            <div style="font-weight:600;margin-bottom:6px">🧩 Run reasoning-layer tests</div>
+            <div style="font-size:11px;color:var(--muted);margin-bottom:10px;line-height:1.4">
+              The moat's regression suite: composition, issue derivation, pipeline, TDS + inspection parsers, the LLM extractor, cost bands, permit jurisdiction. ~20s.
+            </div>
+            <button id="btnReasoningTestsTab" class="btn btn-primary btn-sm" onclick="runReasoningTestsTab()">
+              Run reasoning tests
+            </button>
+            <div id="reasoningTestsTabResult" style="margin-top:10px;font-size:11px;color:var(--muted)"></div>
+          </div>
+          <div style="border:1px solid var(--border);border-radius:6px;padding:12px;background:var(--surface)">
+            <div style="font-weight:600;margin-bottom:6px">🐘 Run tests against Postgres</div>
+            <div style="font-size:11px;color:var(--muted);margin-bottom:10px;line-height:1.4">
+              The Postgres-portable subset (~470 tests, 11 files) against TEST_DATABASE_URL — catches SQLite-vs-Postgres differences (case sensitivity, decimal precision, real concurrency). ~3-5 min.
+            </div>
+            <button id="btnPostgresTests" class="btn btn-primary btn-sm" onclick="confirmRunPostgresTests()">
+              Run Postgres tests
+            </button>
+            <div id="postgresStatus" style="margin-top:10px;font-size:11px;color:var(--muted);display:none"></div>
+            <div id="postgresSummary" style="margin-top:8px;display:none"></div>
+            <details id="postgresFullOutput" style="margin-top:8px;display:none">
+              <summary style="cursor:pointer;font-size:11px;color:var(--muted)">Full output (click to expand)</summary>
+              <pre id="postgresLog" style="margin-top:8px;max-height:400px;overflow:auto;font-family:monospace;font-size:10px;background:var(--surface2);padding:8px;border-radius:4px;white-space:pre-wrap"></pre>
+            </details>
           </div>
         </div>
 
-        <!-- Postgres test panel -->
-        <div style="border:1px solid var(--border);border-radius:6px;padding:12px;background:var(--surface)">
-          <div style="font-weight:600;margin-bottom:6px">🐘 Run tests against Postgres</div>
-          <div style="font-size:11px;color:var(--muted);margin-bottom:10px;line-height:1.4">
-            Runs the Postgres-portable subset (~470 tests across 11 files) against TEST_DATABASE_URL. Catches SQLite-vs-Postgres differences (case sensitivity, decimal precision, real concurrency). ~3-5 min.
+        <div style="font-size:13px;font-weight:700;margin:0 0 3px">2 · Quality &amp; speed <span style="font-weight:400;color:var(--muted)">— diagnostics, not pass/fail</span></div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:10px">How the product is performing: does the moat beat raw Claude, and where do the report seconds go.</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:22px">
+          <div style="border:1px solid var(--border);border-radius:6px;padding:12px;background:var(--surface)">
+            <div style="font-weight:600;margin-bottom:6px">⚔️ Head-to-head benchmark (Pendleton)</div>
+            <div style="font-size:11px;color:var(--muted);margin-bottom:10px;line-height:1.4">
+              Reasoning engine vs a single raw Claude (Opus 4.8) pass, scored by objective recall of the 7-finding Pendleton key. A sanity check on one hard case — not a generalization benchmark. ~20s.
+            </div>
+            <button id="btnBenchmark" class="btn btn-primary btn-sm" onclick="runHeadToHead()">
+              Run head-to-head
+            </button>
+            <div id="benchmarkResult" style="margin-top:10px;font-size:11px;color:var(--muted)"></div>
           </div>
-          <button id="btnPostgresTests" class="btn btn-primary btn-sm" onclick="confirmRunPostgresTests()">
-            Run Postgres tests
-          </button>
-          <div id="postgresStatus" style="margin-top:10px;font-size:11px;color:var(--muted);display:none"></div>
-          <div id="postgresSummary" style="margin-top:8px;display:none"></div>
-          <details id="postgresFullOutput" style="margin-top:8px;display:none">
-            <summary style="cursor:pointer;font-size:11px;color:var(--muted)">Full output (click to expand)</summary>
-            <pre id="postgresLog" style="margin-top:8px;max-height:400px;overflow:auto;font-family:monospace;font-size:10px;background:var(--surface2);padding:8px;border-radius:4px;white-space:pre-wrap"></pre>
-          </details>
-        </div>
-
-        <!-- Honest head-to-head benchmark — reasoning engine vs raw Claude on the Pendleton answer key -->
-        <div style="border:1px solid var(--border);border-radius:6px;padding:12px;background:var(--surface);margin-bottom:12px">
-          <div style="font-weight:600;margin-bottom:6px">⚔️ Head-to-head benchmark (Pendleton)</div>
-          <div style="font-size:11px;color:var(--muted);margin-bottom:10px;line-height:1.4">
-            OfferWise's reasoning engine vs a single raw Claude (Opus 4.8) pass, scored by objective recall of the 7-finding Pendleton answer key. Reasoning side is deterministic; the raw-Claude side runs a real API pass. Real numbers — this is the honest replacement for the stale /comparison page. ~20s.
+          <div style="border:1px solid var(--border);border-radius:6px;padding:12px;background:var(--surface)">
+            <div style="font-weight:600;margin-bottom:6px">⏱️ Report latency breakdown</div>
+            <div style="font-size:11px;color:var(--muted);margin-bottom:10px;line-height:1.4">
+              Per-stage wall-clock across recent analyses (LLM stages + research wait + extraction). The slowest stage is the one to attack — real data behind the "too slow" feedback, not a guess.
+            </div>
+            <button id="btnLatency" class="btn btn-primary btn-sm" onclick="loadLatencyBreakdown()">
+              Load latency breakdown
+            </button>
+            <div id="latencyResult" style="margin-top:10px;font-size:11px;color:var(--muted)"></div>
           </div>
-          <button id="btnBenchmark" class="btn btn-primary btn-sm" onclick="runHeadToHead()">
-            Run head-to-head
-          </button>
-          <div id="benchmarkResult" style="margin-top:10px;font-size:11px;color:var(--muted)"></div>
         </div>
 
-        <!-- Latency breakdown — where the report-generation seconds actually go -->
-        <div style="border:1px solid var(--border);border-radius:6px;padding:12px;background:var(--surface);margin-bottom:12px">
-          <div style="font-weight:600;margin-bottom:6px">⏱️ Report latency breakdown</div>
-          <div style="font-size:11px;color:var(--muted);margin-bottom:10px;line-height:1.4">
-            Per-stage wall-clock time across recent analyses (LLM stages + research wait + extraction). The slowest stage is the one to attack — this is the real data behind the "too slow" feedback, not a guess.
+        <div style="font-size:13px;font-weight:700;margin:0 0 3px">3 · Maintenance <span style="font-weight:400;color:var(--muted)">— occasional upkeep</span></div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:10px">Periodic tasks and history — you won't touch these most days.</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+          <div style="border:1px solid var(--border);border-radius:6px;padding:12px;background:var(--surface)">
+            <div style="font-weight:600;margin-bottom:6px">📼 Record /api/analyze cassettes</div>
+            <div style="font-size:11px;color:var(--muted);margin-bottom:10px;line-height:1.4">
+              Records 5 cassettes by running real /api/analyze against Anthropic (address-only, disclosure-only × 2, full path × 2). Replay tests catch prompt drift in CI without API costs. Re-record after prompt changes or quarterly.
+            </div>
+            <button id="btnRecordCassettes" class="btn btn-primary btn-sm" onclick="confirmRecordCassettes()">
+              Record cassettes
+            </button>
+            <div id="cassetteStatus" style="margin-top:10px;font-size:11px;color:var(--muted);display:none"></div>
+            <pre id="cassetteLog" style="margin-top:8px;max-height:200px;overflow:auto;font-family:monospace;font-size:10px;background:var(--surface2);padding:8px;border-radius:4px;display:none;white-space:pre-wrap"></pre>
+            <div id="cassetteDownload" style="margin-top:8px;display:none">
+              <a id="cassetteDownloadLink" href="#" class="btn btn-ghost btn-sm">⬇️ Download cassettes ZIP</a>
+            </div>
           </div>
-          <button id="btnLatency" class="btn btn-primary btn-sm" onclick="loadLatencyBreakdown()">
-            Load latency breakdown
-          </button>
-          <div id="latencyResult" style="margin-top:10px;font-size:11px;color:var(--muted)"></div>
         </div>
 
-        <!-- Full correctness suite — runs everything from the admin page (no local terminal) -->
-        <div style="border:1px solid var(--border);border-radius:6px;padding:12px;background:var(--surface);margin-bottom:12px">
-          <div style="font-weight:600;margin-bottom:6px">✅ Run full correctness suite</div>
-          <div style="font-size:11px;color:var(--muted);margin-bottom:10px;line-height:1.4">
-            Runs the whole correctness suite server-side — reasoning engine, national correctness, offer-math integrity, moat activation, and the build guards — and reports pass/fail per category. Live-network tests are excluded; guard tests skip if node/babel aren't on the server. Up to ~2 min.
+        <div style="border-top:1px solid var(--border);padding-top:14px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+            <div style="font-weight:600;font-size:13px">🐘 Past Postgres test runs <span id="pgRunsAge" style="font-size:11px;font-weight:400;color:var(--muted);margin-left:6px"></span></div>
+            <button onclick="loadPostgresTestHistory()" id="pgHistRefreshBtn" style="padding:3px 10px;font-size:11px;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:4px;cursor:pointer">↻</button>
           </div>
-          <button id="btnFullSuite" class="btn btn-primary btn-sm" onclick="runFullTestSuite()">
-            Run full suite
-          </button>
-          <div id="fullSuiteResult" style="margin-top:10px;font-size:11px;color:var(--muted)"></div>
-        </div>
-
-        <!-- Reasoning-layer test panel (same suite as the Ops tile, runnable here too) -->
-        <div style="border:1px solid var(--border);border-radius:6px;padding:12px;background:var(--surface)">
-          <div style="font-weight:600;margin-bottom:6px">🧩 Run reasoning-layer tests</div>
-          <div style="font-size:11px;color:var(--muted);margin-bottom:10px;line-height:1.4">
-            Runs the reasoning engine's regression suite (composition, issue derivation, pipeline, TDS + inspection parsers, the LLM extractor, cost bands, permit jurisdiction). ~20s. Returns pass/fail per run.
+          <div id="pgHistoryTable">
+            <div style="font-size:11px;color:var(--dim);padding:8px 0">Loading history...</div>
           </div>
-          <button id="btnReasoningTestsTab" class="btn btn-primary btn-sm" onclick="runReasoningTestsTab()">
-            Run reasoning tests
-          </button>
-          <div id="reasoningTestsTabResult" style="margin-top:10px;font-size:11px;color:var(--muted)"></div>
         </div>
-
-      </div>
-
-      <!-- v5.89.29: persistent run history. Before this, Postgres test results
-           lived only in process memory and were lost on restart. -->
-      <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:14px">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-          <div style="font-weight:600;font-size:13px">🐘 Past Postgres test runs <span id="pgRunsAge" style="font-size:11px;font-weight:400;color:var(--muted);margin-left:6px"></span></div>
-          <button onclick="loadPostgresTestHistory()" id="pgHistRefreshBtn" style="padding:3px 10px;font-size:11px;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:4px;cursor:pointer">↻</button>
-        </div>
-        <div id="pgHistoryTable">
-          <div style="font-size:11px;color:var(--dim);padding:8px 0">Loading history...</div>
-        </div>
-      </div>
 
     </div>
   </div>

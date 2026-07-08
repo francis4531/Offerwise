@@ -1,3 +1,22 @@
+## v5.89.276 — Admin "Advanced Test Operations" redesign: grouped + sequential
+
+The section was a flat 2×3 grid of six unrelated panels in no order — a maintenance
+task (cassettes) sat first, the everyday "run before you ship" check (full suite) was
+buried fifth. Regrouped into three numbered sections in workflow order, each with a
+header explaining when to use it:
+
+  1 · Correctness — run before every deploy: Full correctness suite → Reasoning-layer
+      tests → Postgres parity (umbrella first, then drill-down).
+  2 · Quality & speed — diagnostics, not pass/fail: Head-to-head benchmark → Latency
+      breakdown.
+  3 · Maintenance — occasional upkeep: Record cassettes, + Past Postgres run history.
+
+Pure reorganization: every button id, onclick handler, result/status/log div,
+details element, and both confirmation modals preserved exactly (verified all 20
+functional elements appear exactly once; div balance net 0). Also tightened the
+benchmark blurb to say plainly it's "a sanity check on one hard case — not a
+generalization benchmark," per the Pendleton-overfit discussion. No JS/behavior
+changed; admin JS guard passes.
 ## v5.89.275 — Fix benchmark (deprecated temperature) + full-suite "Failed to fetch"
 
 Two bugs the admin panels surfaced on first real use:
