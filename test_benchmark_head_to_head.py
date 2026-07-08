@@ -42,3 +42,25 @@ def test_head_to_head_without_client_runs_reasoning_only():
     assert out["reasoning"]["core_recall"] == 1.0
     assert "skipped" in out["raw_claude"]        # no API -> raw side skipped, not faked
     assert "verdict" not in out                  # no verdict without both sides
+
+
+def test_benchmark_endpoint_returns_reasoning_side(monkeypatch):
+    """Real smoke test of POST /api/admin/benchmark/pendleton — with no API key the
+    endpoint runs the deterministic reasoning side and skips (does not fake) the raw
+    side. Also gives the API-coverage gate a genuine reference to this route."""
+    import os
+    from flask import Flask
+    import admin_routes
+    monkeypatch.delenv('ANTHROPIC_API_KEY', raising=False)   # no key -> no real API call
+    admin_routes._api_admin_required = (lambda f: f)          # pass-through admin gate
+    admin_routes._is_admin = (lambda: True)
+    app = Flask(__name__)
+    app.add_url_rule('/api/admin/benchmark/pendleton', 'bench',
+                     admin_routes.api_benchmark_pendleton, methods=['POST'])
+    r = app.test_client().post('/api/admin/benchmark/pendleton')
+    assert r.status_code == 200
+    d = r.get_json()
+    assert d['ok'] is True
+    assert d['reasoning']['core_recall'] == 1.0
+    assert 'skipped' in d['raw_claude']       # raw side skipped, never fabricated
+    assert 'verdict' not in d

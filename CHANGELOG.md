@@ -1,3 +1,30 @@
+## v5.89.273 — Fix CI: API-coverage regression floor (new endpoints lacked route tests)
+
+CI's "isolated drift suite" step exited 1 while showing "74 passed" — that step runs
+four files and `exit $fail`; forum_scanner (last, shown) passed, but an EARLIER file
+failed and scrolled off the tail. The real failure:
+test_coverage_final.py::TestCoverageGate::test_api_coverage_regression_floor —
+API-route coverage had dropped to 62.84% (252/401), just under the 63% floor. This
+arc added several admin endpoints (/api/admin/benchmark/pendleton,
+/api/admin/reasoning/shadow-samples, /api/admin/latency-breakdown) whose LOGIC was
+tested but whose ROUTES had no test reference.
+
+Fixed the HONEST way — real endpoint smoke tests, not comment-pings that would game
+the gate:
+ - test_benchmark_head_to_head.py: added a real POST test of
+   /api/admin/benchmark/pendleton (no API key -> deterministic reasoning side 6/6,
+   raw side skipped not faked).
+ - test_admin_endpoints_smoke.py (new): real GET tests of /api/admin/latency-breakdown
+   and /api/admin/reasoning/shadow-samples against an in-memory DB (empty-state 200).
+Coverage now 255/401 = 63.6% — clears the floor with margin. Added to the suite runner.
+
+NOTE: forum_scanner was never broken — it collects 74 and passes in CI (314s); it
+only timed out in the local sandbox. The single real failure was the coverage gate.
+
+LESSON (compounding from .272): new API routes need a route-referencing test in the
+same change, or the coverage gate trips. Both recent CI breaks (import NameError,
+coverage floor) are things a pre-package "import app + run the fast gate suite" check
+would have caught locally — worth adding as a build guard.
 ## v5.89.272 — HOTFIX: prod boot failure (NameError: _dev_only_gate in admin_routes)
 
 v5.89.271 failed to boot in prod: gunicorn worker crashed at import with

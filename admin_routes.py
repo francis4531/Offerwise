@@ -795,6 +795,7 @@ def api_test_suite():
             'test_avm_gate.py', 'test_report_quality_v2.py',
             'test_cost_provenance.py', 'test_ai_json.py', 'test_analyze_async.py',
             'test_input_confidence.py', 'test_benchmark_head_to_head.py',
+            'test_admin_endpoints_smoke.py',
         ],
         'Moat activation': [
             'test_reasoning_activation_scope.py', 'test_shadow_readiness.py',
