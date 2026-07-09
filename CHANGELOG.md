@@ -1,3 +1,20 @@
+## v5.89.278 — One-click "🚀 Test Everything" CTA
+
+Requested: a single button that tests everything without picking individual suites.
+Added a prominent "🚀 Test Everything" banner at the top of the Run & validate zone.
+runEverything() reuses the proven orchestration (no reimplementation):
+  1. Checks all 12 QA-suite checkboxes for you.
+  2. Runs the full correctness suite (runFullTestSuite — unit/correctness layer).
+  3. Runs all 12 QA suites (runAllTests — integration layer) with the existing
+     progress bar, scoreboard, and failures panel.
+~12-15 min; the async job-and-poll per suite means no request hits the Cloudflare
+timeout. Button disables while running; a status line points to where results land.
+
+Pure addition — the existing "Run Tests" (manual selection) and individual suite
+buttons are untouched. Admin JS guard passes; <div> net 0; btnTestEverything +
+runEverything wired and in the same scope as SUITES/runAllTests/runFullTestSuite.
+
+Deploy + hard-refresh (PWA cache) to see it.
 ## v5.89.277 — Whole Tests tab reorganized into a sequential workflow
 
 Follow-up to .276 (which grouped only the Advanced Test Operations card): the entire

@@ -3595,6 +3595,17 @@ details.an-drill[open] .an-chev{transform:rotate(90deg)}
 <div class="view" id="view-tests">
   <div style="margin:24px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--border);font-size:14px;font-weight:700;color:var(--text)">▶ Run &amp; validate <span style="font-size:11px;font-weight:400;color:var(--muted)">— pick suites, run them, check correctness</span></div>
 
+  <div style="background:var(--surface);border:1px solid var(--blue,#3b82f6);border-radius:8px;padding:16px;margin-bottom:16px">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
+      <div style="min-width:220px;flex:1">
+        <div style="font-weight:700;font-size:15px">🚀 Test Everything</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:3px;line-height:1.4">One click runs the full correctness suite <em>and</em> all 12 QA suites — no need to pick anything. Takes ~12-15 min; leave the tab open.</div>
+      </div>
+      <button id="btnTestEverything" class="btn btn-primary" onclick="runEverything()" style="white-space:nowrap;font-size:14px;padding:10px 22px">🚀 Test Everything</button>
+    </div>
+    <div id="testEverythingResult" style="margin-top:10px;font-size:11px;color:var(--muted)"></div>
+  </div>
+
   <div class="section-head">
     <div class="section-title">🧪 Test Suite</div>
     <div class="ml" style="display:flex;gap:6px;align-items:center">
@@ -12073,6 +12084,27 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         // ─── Master Run ──────────────────────────────────────────────
+        async function runEverything() {
+            var btn = document.getElementById('btnTestEverything');
+            var out = document.getElementById('testEverythingResult');
+            if (btn) { btn.disabled = true; btn.textContent = '⏳ Running everything…'; }
+            if (out) out.innerHTML = '<span class="spinner"></span> Running the full correctness suite, then all ' + SUITES.length + ' QA suites. ~12-15 min — leave this tab open. Results appear in the panels below.';
+            try {
+                // Select every QA suite so the proven orchestrator (progress bar +
+                // scoreboard + failures) picks them all up — no manual checkboxes.
+                SUITES.forEach(function(s){ var cb = document.getElementById(s.checkboxId); if (cb) cb.checked = true; });
+                // 1. Correctness suite (unit/correctness layer)
+                await runFullTestSuite();
+                // 2. All QA suites (integration layer)
+                await runAllTests();
+                if (out) out.innerHTML = '✅ Finished. Correctness result is in its panel below; the QA scoreboard shows per-suite pass/fail.';
+            } catch (e) {
+                if (out) out.innerHTML = '<span style="color:var(--amber)">⚠ ' + (e && e.message ? e.message : 'run failed') + '</span>';
+            } finally {
+                if (btn) { btn.disabled = false; btn.textContent = '🚀 Test Everything'; }
+            }
+        }
+
         async function runAllTests() {
             const btn = document.getElementById('runAllTestsBtn');
             btn.disabled = true;
