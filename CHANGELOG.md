@@ -1,3 +1,22 @@
+## v5.89.279 — "📋 Copy failures" — one-click copy of all test failures to paste to Claude
+
+Requested: whenever a run fails, a way to copy all failures to paste here. Added a
+"📋 Copy failures" button next to "Test Everything". copyAllFailures() reads the
+STRUCTURED failure data both layers already produce — no DOM scraping:
+  - Correctness suite: window.__lastCorrectness.by_category (failing test nodeids per
+    category, captured from the pytest FAILED lines).
+  - QA suites: qaResults[suite].failures (name, group, detail, error, bugId).
+Formats a clean, paste-friendly report grouped by suite and copies to clipboard
+(navigator.clipboard with a textarea/execCommand fallback), then a toast. If nothing
+failed, says so. Works after any Test-Everything / Run-Tests run.
+
+Example output:
+  ## QA suite: postgres (8/10 passed)
+    - test_pg_decimal | detail: decimal precision | error: AssertionError: 3.10 != 3.1
+
+Pure addition; existing runners untouched (they already recorded these failures — the
+button just serializes them). Admin JS guard passes; <div> net 0; formatter verified.
+Deploy + hard-refresh to see it.
 ## v5.89.278 — One-click "🚀 Test Everything" CTA
 
 Requested: a single button that tests everything without picking individual suites.

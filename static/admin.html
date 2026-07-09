@@ -3601,7 +3601,10 @@ details.an-drill[open] .an-chev{transform:rotate(90deg)}
         <div style="font-weight:700;font-size:15px">🚀 Test Everything</div>
         <div style="font-size:11px;color:var(--muted);margin-top:3px;line-height:1.4">One click runs the full correctness suite <em>and</em> all 12 QA suites — no need to pick anything. Takes ~12-15 min; leave the tab open.</div>
       </div>
-      <button id="btnTestEverything" class="btn btn-primary" onclick="runEverything()" style="white-space:nowrap;font-size:14px;padding:10px 22px">🚀 Test Everything</button>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button id="btnTestEverything" class="btn btn-primary" onclick="runEverything()" style="white-space:nowrap;font-size:14px;padding:10px 22px">🚀 Test Everything</button>
+        <button class="btn btn-ghost" onclick="copyAllFailures()" title="Copy all failures from the last run to paste to Claude" style="white-space:nowrap;font-size:13px;padding:10px 16px">📋 Copy failures</button>
+      </div>
     </div>
     <div id="testEverythingResult" style="margin-top:10px;font-size:11px;color:var(--muted)"></div>
   </div>
@@ -6200,6 +6203,7 @@ async function runFullTestSuite() {
   out.innerHTML = '<span class="spinner"></span> running full suite (up to ~2 min)…';
   try {
     var d = await runSuiteAsync('/api/admin/test-suite');
+    window.__lastCorrectness = d;  // for copyAllFailures()
     if (d.harness_available === false) {
       out.innerHTML = '<div style="font-size:12px;color:var(--amber)">⚠ Test harness not available in this environment.</div>' +
         '<div style="margin-top:4px;font-size:11px;color:var(--muted)">' + (d.reason || '') +
@@ -12084,6 +12088,53 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         // ─── Master Run ──────────────────────────────────────────────
+        function copyAllFailures() {
+            var lines = ['OfferWise test failures — ' + new Date().toISOString(), ''];
+            var any = false;
+            // Correctness suite (unit layer) — failing test nodeids per category
+            var c = window.__lastCorrectness;
+            if (c && c.by_category) {
+                var catBlock = [];
+                Object.keys(c.by_category).forEach(function(cat){
+                    var cc = c.by_category[cat] || {};
+                    if ((cc.failed||0) > 0 || (cc.errors||0) > 0) {
+                        catBlock.push('  [' + cat + '] ' + (cc.failed||0) + ' failed, ' + (cc.errors||0) + ' errors');
+                        (cc.failures||[]).forEach(function(f){ catBlock.push('    - ' + f); });
+                    }
+                });
+                if (catBlock.length) { any = true; lines.push('## Correctness suite'); lines = lines.concat(catBlock); lines.push(''); }
+            }
+            // QA suites (integration layer) — structured failures
+            if (qaResults && typeof qaResults === 'object') {
+                Object.keys(qaResults).forEach(function(sid){
+                    var r = qaResults[sid];
+                    if (r && r.failures && r.failures.length) {
+                        any = true;
+                        lines.push('## QA suite: ' + sid + ' (' + (r.passed||0) + '/' + (r.total||0) + ' passed)');
+                        r.failures.forEach(function(f){
+                            var row = '  - ' + (f.name || f.test_id || '(unnamed)');
+                            if (f.group)  row += ' [' + f.group + ']';
+                            if (f.detail) row += ' | detail: ' + f.detail;
+                            if (f.error)  row += ' | error: ' + f.error;
+                            if (f.bugId)  row += ' | bug: ' + f.bugId;
+                            lines.push(row);
+                        });
+                        lines.push('');
+                    }
+                });
+            }
+            if (!any) lines.push('✅ No failures recorded in the last run.');
+            var text = lines.join('\n');
+            var done = function(){ if (typeof showToast === 'function') showToast(any ? '📋 Failures copied — paste to Claude' : '📋 Copied (no failures)'); };
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(done).catch(function(){
+                    var ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();try{document.execCommand('copy');}catch(e){}document.body.removeChild(ta);done();
+                });
+            } else {
+                var ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();try{document.execCommand('copy');}catch(e){}document.body.removeChild(ta);done();
+            }
+        }
+
         async function runEverything() {
             var btn = document.getElementById('btnTestEverything');
             var out = document.getElementById('testEverythingResult');
