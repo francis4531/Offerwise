@@ -1,3 +1,25 @@
+## v5.89.277 — Whole Tests tab reorganized into a sequential workflow
+
+Follow-up to .276 (which grouped only the Advanced Test Operations card): the entire
+Tests tab was seven heavy sections in a jumble, with the test-RUNNING tools split
+apart — Select Suites near the top, Advanced Test Operations stranded at the very
+bottom, with Bugs / Persona Lab / OfferWatch wedged between.
+
+Reorganized into three labeled zones that read top-to-bottom as a workflow:
+  ▶ Run & validate     — the run controls, Select Suites, and Advanced Test
+                          Operations (moved up from the bottom to sit with the other
+                          test-running tools).
+  🐛 Bug tracking       — Open Bugs (the failures the runs above surface).
+  🧪 Simulate & monitor — Persona Lab, Sessions, OfferWatch Monitor (the occasional
+                          stuff, now at the bottom where it belongs).
+
+Pure reorganization: the Advanced Test Operations card was moved as one intact block
+and three section-header dividers were inserted. Verified every handler/element
+(runAllTestsBtn, the 6 suite buttons, bugs, personas, sessions, both modals) appears
+exactly once, div balance net 0, admin JS guard passes. No JS/behavior changed.
+
+Deploy + hard-refresh (PWA cache) to see it — the redesign only exists once .277 is
+live and the cached admin.html is busted.
 ## v5.89.276 — Admin "Advanced Test Operations" redesign: grouped + sequential
 
 The section was a flat 2×3 grid of six unrelated panels in no order — a maintenance

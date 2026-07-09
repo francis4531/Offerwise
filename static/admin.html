@@ -3593,6 +3593,8 @@ details.an-drill[open] .an-chev{transform:rotate(90deg)}
 
 <!-- ─── TESTS ─── -->
 <div class="view" id="view-tests">
+  <div style="margin:24px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--border);font-size:14px;font-weight:700;color:var(--text)">▶ Run &amp; validate <span style="font-size:11px;font-weight:400;color:var(--muted)">— pick suites, run them, check correctness</span></div>
+
   <div class="section-head">
     <div class="section-title">🧪 Test Suite</div>
     <div class="ml" style="display:flex;gap:6px;align-items:center">
@@ -3687,130 +3689,6 @@ details.an-drill[open] .an-chev{transform:rotate(90deg)}
     <div id="qaFailuresList"></div>
   </div>
 
-  <div class="card">
-    <div class="card-head">
-      <div class="card-title">🐛 Open Bugs</div>
-      <div style="display:flex;gap:5px;align-items:center">
-        <span class="badge badge-amber" id="openBugCount">—</span><span class="badge badge-muted" id="bugCount" style="display:none">—</span>
-        <select id="bugStatusFilter" onchange="updateBugCount()" style="width:auto;font-size:11px;padding:3px 8px">
-          <option value="open">Open</option><option value="in_progress">In Progress</option><option value="all">All</option>
-        </select>
-        <button class="btn btn-ghost btn-sm" onclick="copyAllBugsForClaude()">📋 Copy all</button>
-        <button class="btn btn-ghost btn-sm" onclick="closeOldBugs()">🗑 Close old</button>
-      </div>
-    </div>
-    <div id="allBugsSection">
-      <div id="allBugStats" style="display:flex;gap:10px;padding:10px 14px;border-bottom:1px solid var(--border);font-size:11px;color:var(--muted)"></div>
-      <div id="allBugsList" style="padding:10px 14px;max-height:400px;overflow-y:auto"></div>
-    </div>
-  </div>
-
-  <!-- Bug modal -->
-  <div id="bugModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:500;align-items:center;justify-content:center">
-    <div style="background:var(--surface);border:1px solid var(--border2);border-radius:10px;padding:24px;width:520px;max-width:95vw">
-      <div class="modal-head"><span class="modal-title" id="bugModalTitle">Bug</span><button class="modal-close" onclick="closeBugModal()">✕</button></div>
-      <input type="hidden" id="bugId">
-      <div class="form-row"><label>Title</label><input id="bugTitle"></div>
-      <div class="form-row"><label>Description</label><textarea id="bugDescription" rows="4"></textarea></div>
-      <div class="form-row-2">
-        <div><label>Severity</label><select id="bugSeverity"><option value="high">High</option><option value="moderate">Moderate</option><option value="low">Low</option></select></div>
-        <div><label>Status</label><select id="bugStatus"><option value="open">Open</option><option value="in_progress">In Progress</option><option value="closed">Closed</option></select></div>
-      </div>
-      <div class="form-row"><label>Fix Notes</label><textarea id="bugFixNotes" rows="2"></textarea></div>
-      <div style="display:flex;gap:6px;justify-content:flex-end">
-        <button class="btn btn-ghost" onclick="closeBugModal()">Cancel</button>
-        <button class="btn btn-primary" onclick="saveBug(event)">Save</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Sessions sub-panel -->
-  <div style="margin-top:16px">
-    <div class="section-head" style="cursor:pointer" onclick="document.getElementById('sessionsPanel').style.display=document.getElementById('sessionsPanel').style.display==='none'?'block':'none'">
-      <span class="section-title">📋 QA Sessions</span>
-      <span class="ml" style="font-family:var(--mono);font-size:10px;color:var(--muted)" id="sessionsChevron">▾ expand</span>
-    </div>
-    <div id="sessionsPanel" style="display:none;margin-top:10px">
-      <div style="display:flex;gap:8px;margin-bottom:10px;align-items:center">
-        <select id="sessionFilter" onchange="loadSessions()" style="width:auto;font-size:11px;padding:3px 8px">
-          <option value="10">Last 10</option><option value="25">Last 25</option><option value="50">Last 50</option>
-        </select>
-        <button class="btn btn-ghost btn-sm" onclick="loadSessions()">↻ Load</button>
-        <span id="sessionCount" style="font-size:11px;color:var(--muted)"></span>
-      </div>
-      <div class="card"><table class="tbl" id="sessionsTable"></table></div>
-    </div>
-  </div>
-  <!-- ── PERSONA LAB ─────────────────────────────────────────────── -->
-  <div class="card" style="margin-top:16px">
-    <div class="card-head">
-      <div class="card-title">👤 Persona Lab</div>
-      <div style="display:flex;gap:6px;align-items:center">
-        <span style="font-size:11px;color:var(--muted)">Seed clean test accounts for every user type</span>
-        <button class="btn btn-ghost btn-sm" onclick="loadPersonas()">↻ Refresh</button>
-        <button class="btn btn-primary btn-sm" onclick="seedAllPersonas()">⚡ Seed All</button>
-        <button class="btn btn-sm" style="background:var(--surface2);color:var(--red);border:1px solid var(--border)" onclick="cleanupPersonas()">🗑 Cleanup All</button>
-      </div>
-    </div>
-    <div style="padding:10px 14px;font-size:11px;color:var(--muted);border-bottom:1px solid var(--border)">
-      Password for all personas: <code style="color:var(--text);font-family:var(--mono)">TestPassword123!</code>
-      &nbsp;·&nbsp; Emails: <code style="color:var(--text);font-family:var(--mono)">*@persona.offerwise.ai</code>
-      &nbsp;·&nbsp; Seeding resets account to known state without deleting history.
-    </div>
-    <div id="personaGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:1px;background:var(--border)">
-      <div style="background:var(--surface);padding:20px;text-align:center;color:var(--muted);font-size:12px;grid-column:1/-1">
-        <span class="spinner"></span> Loading personas…
-      </div>
-    </div>
-  </div>
-
-
-  <!-- ── OFFERWATCH MONITOR ───────────────────────────────────────────── -->
-  <div class="card" style="margin-top:16px">
-    <div class="card-head">
-      <div class="card-title">🛰️ OfferWatch Monitor</div>
-      <div style="display:flex;gap:6px;align-items:center">
-        <button class="btn btn-ghost btn-sm" onclick="loadOfferWatch()">↻ Refresh</button>
-        <span id="owStatusBadge" style="font-size:11px;color:var(--muted)">—</span>
-      </div>
-    </div>
-
-    <!-- Job trigger row -->
-    <div style="padding:12px 14px;border-bottom:1px solid var(--border);display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-      <span style="font-size:11px;color:var(--muted);margin-right:4px">Trigger job:</span>
-      <button class="btn btn-ghost btn-sm" onclick="triggerOWJob('price')" style="color:var(--blue)">💰 Price Monitor</button>
-      <button class="btn btn-ghost btn-sm" onclick="triggerOWJob('earthquake')" style="color:var(--orange)">🌎 Earthquake</button>
-      <button class="btn btn-ghost btn-sm" onclick="triggerOWJob('comps')" style="color:var(--purple)">🏘 Comps</button>
-      <button class="btn btn-ghost btn-sm" onclick="triggerOWJob('permit')" style="color:var(--green)">📋 Permits</button>
-      <button class="btn btn-ghost btn-sm" onclick="triggerOWJob('deadline')" style="color:var(--amber)">⏰ Deadlines</button>
-      <span id="owTriggerStatus" style="font-size:11px;color:var(--muted);margin-left:4px"></span>
-    </div>
-
-    <!-- Market data check -->
-    <div style="padding:12px 14px;border-bottom:1px solid var(--border)">
-      <div style="font-size:11px;color:var(--muted);margin-bottom:8px;font-weight:600;text-transform:uppercase;letter-spacing:.05em">Market Data Check (RentCast)</div>
-      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-        <input id="owMarketAddress" type="text" placeholder="381 Tina Dr, Hollister, CA 95023" style="flex:1;min-width:260px;padding:7px 10px;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px">
-        <input id="owMarketPrice" type="number" placeholder="Price ($)" style="width:120px;padding:7px 10px;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px">
-        <button class="btn btn-primary btn-sm" onclick="runOWMarketCheck()">🔍 Check</button>
-      </div>
-      <div id="owMarketResult" style="margin-top:10px;font-size:12px;font-family:var(--mono);color:var(--text);display:none"></div>
-    </div>
-
-    <!-- Active watches table -->
-    <div style="padding:12px 14px;border-bottom:1px solid var(--border)">
-      <div style="font-size:11px;color:var(--muted);margin-bottom:8px;font-weight:600;text-transform:uppercase;letter-spacing:.05em">Active Watches <span id="owWatchCount" style="color:var(--text)"></span></div>
-      <div id="owWatchesTable" style="font-size:12px;color:var(--muted)">Click Refresh to load…</div>
-    </div>
-
-    <!-- Recent alerts -->
-    <div style="padding:12px 14px">
-      <div style="font-size:11px;color:var(--muted);margin-bottom:8px;font-weight:600;text-transform:uppercase;letter-spacing:.05em">Alerts (last 7 days) <span id="owAlertCount" style="color:var(--text)"></span></div>
-      <div id="owAlertsTable" style="font-size:12px;color:var(--muted)">Click Refresh to load…</div>
-    </div>
-  </div>
-
-  <!-- v5.88.20: Cassette recording + Postgres tests -->
   <div class="card" style="margin-top:16px">
     <div class="card-head">
       <div class="card-title">🎬 Advanced Test Operations</div>
@@ -3914,6 +3792,132 @@ details.an-drill[open] .an-chev{transform:rotate(90deg)}
     </div>
   </div>
 
+  <div style="margin:24px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--border);font-size:14px;font-weight:700;color:var(--text)">🐛 Bug tracking <span style="font-size:11px;font-weight:400;color:var(--muted)">— failures surfaced by the runs above</span></div>
+  <div class="card">
+    <div class="card-head">
+      <div class="card-title">🐛 Open Bugs</div>
+      <div style="display:flex;gap:5px;align-items:center">
+        <span class="badge badge-amber" id="openBugCount">—</span><span class="badge badge-muted" id="bugCount" style="display:none">—</span>
+        <select id="bugStatusFilter" onchange="updateBugCount()" style="width:auto;font-size:11px;padding:3px 8px">
+          <option value="open">Open</option><option value="in_progress">In Progress</option><option value="all">All</option>
+        </select>
+        <button class="btn btn-ghost btn-sm" onclick="copyAllBugsForClaude()">📋 Copy all</button>
+        <button class="btn btn-ghost btn-sm" onclick="closeOldBugs()">🗑 Close old</button>
+      </div>
+    </div>
+    <div id="allBugsSection">
+      <div id="allBugStats" style="display:flex;gap:10px;padding:10px 14px;border-bottom:1px solid var(--border);font-size:11px;color:var(--muted)"></div>
+      <div id="allBugsList" style="padding:10px 14px;max-height:400px;overflow-y:auto"></div>
+    </div>
+  </div>
+
+  <!-- Bug modal -->
+  <div id="bugModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:500;align-items:center;justify-content:center">
+    <div style="background:var(--surface);border:1px solid var(--border2);border-radius:10px;padding:24px;width:520px;max-width:95vw">
+      <div class="modal-head"><span class="modal-title" id="bugModalTitle">Bug</span><button class="modal-close" onclick="closeBugModal()">✕</button></div>
+      <input type="hidden" id="bugId">
+      <div class="form-row"><label>Title</label><input id="bugTitle"></div>
+      <div class="form-row"><label>Description</label><textarea id="bugDescription" rows="4"></textarea></div>
+      <div class="form-row-2">
+        <div><label>Severity</label><select id="bugSeverity"><option value="high">High</option><option value="moderate">Moderate</option><option value="low">Low</option></select></div>
+        <div><label>Status</label><select id="bugStatus"><option value="open">Open</option><option value="in_progress">In Progress</option><option value="closed">Closed</option></select></div>
+      </div>
+      <div class="form-row"><label>Fix Notes</label><textarea id="bugFixNotes" rows="2"></textarea></div>
+      <div style="display:flex;gap:6px;justify-content:flex-end">
+        <button class="btn btn-ghost" onclick="closeBugModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="saveBug(event)">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sessions sub-panel -->
+  <div style="margin-top:16px">
+  <div style="margin:24px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--border);font-size:14px;font-weight:700;color:var(--text)">🧪 Simulate &amp; monitor <span style="font-size:11px;font-weight:400;color:var(--muted)">— occasional — personas, sessions, product monitors</span></div>
+    <div class="section-head" style="cursor:pointer" onclick="document.getElementById('sessionsPanel').style.display=document.getElementById('sessionsPanel').style.display==='none'?'block':'none'">
+      <span class="section-title">📋 QA Sessions</span>
+      <span class="ml" style="font-family:var(--mono);font-size:10px;color:var(--muted)" id="sessionsChevron">▾ expand</span>
+    </div>
+    <div id="sessionsPanel" style="display:none;margin-top:10px">
+      <div style="display:flex;gap:8px;margin-bottom:10px;align-items:center">
+        <select id="sessionFilter" onchange="loadSessions()" style="width:auto;font-size:11px;padding:3px 8px">
+          <option value="10">Last 10</option><option value="25">Last 25</option><option value="50">Last 50</option>
+        </select>
+        <button class="btn btn-ghost btn-sm" onclick="loadSessions()">↻ Load</button>
+        <span id="sessionCount" style="font-size:11px;color:var(--muted)"></span>
+      </div>
+      <div class="card"><table class="tbl" id="sessionsTable"></table></div>
+    </div>
+  </div>
+  <!-- ── PERSONA LAB ─────────────────────────────────────────────── -->
+  <div class="card" style="margin-top:16px">
+    <div class="card-head">
+      <div class="card-title">👤 Persona Lab</div>
+      <div style="display:flex;gap:6px;align-items:center">
+        <span style="font-size:11px;color:var(--muted)">Seed clean test accounts for every user type</span>
+        <button class="btn btn-ghost btn-sm" onclick="loadPersonas()">↻ Refresh</button>
+        <button class="btn btn-primary btn-sm" onclick="seedAllPersonas()">⚡ Seed All</button>
+        <button class="btn btn-sm" style="background:var(--surface2);color:var(--red);border:1px solid var(--border)" onclick="cleanupPersonas()">🗑 Cleanup All</button>
+      </div>
+    </div>
+    <div style="padding:10px 14px;font-size:11px;color:var(--muted);border-bottom:1px solid var(--border)">
+      Password for all personas: <code style="color:var(--text);font-family:var(--mono)">TestPassword123!</code>
+      &nbsp;·&nbsp; Emails: <code style="color:var(--text);font-family:var(--mono)">*@persona.offerwise.ai</code>
+      &nbsp;·&nbsp; Seeding resets account to known state without deleting history.
+    </div>
+    <div id="personaGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:1px;background:var(--border)">
+      <div style="background:var(--surface);padding:20px;text-align:center;color:var(--muted);font-size:12px;grid-column:1/-1">
+        <span class="spinner"></span> Loading personas…
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ── OFFERWATCH MONITOR ───────────────────────────────────────────── -->
+  <div class="card" style="margin-top:16px">
+    <div class="card-head">
+      <div class="card-title">🛰️ OfferWatch Monitor</div>
+      <div style="display:flex;gap:6px;align-items:center">
+        <button class="btn btn-ghost btn-sm" onclick="loadOfferWatch()">↻ Refresh</button>
+        <span id="owStatusBadge" style="font-size:11px;color:var(--muted)">—</span>
+      </div>
+    </div>
+
+    <!-- Job trigger row -->
+    <div style="padding:12px 14px;border-bottom:1px solid var(--border);display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+      <span style="font-size:11px;color:var(--muted);margin-right:4px">Trigger job:</span>
+      <button class="btn btn-ghost btn-sm" onclick="triggerOWJob('price')" style="color:var(--blue)">💰 Price Monitor</button>
+      <button class="btn btn-ghost btn-sm" onclick="triggerOWJob('earthquake')" style="color:var(--orange)">🌎 Earthquake</button>
+      <button class="btn btn-ghost btn-sm" onclick="triggerOWJob('comps')" style="color:var(--purple)">🏘 Comps</button>
+      <button class="btn btn-ghost btn-sm" onclick="triggerOWJob('permit')" style="color:var(--green)">📋 Permits</button>
+      <button class="btn btn-ghost btn-sm" onclick="triggerOWJob('deadline')" style="color:var(--amber)">⏰ Deadlines</button>
+      <span id="owTriggerStatus" style="font-size:11px;color:var(--muted);margin-left:4px"></span>
+    </div>
+
+    <!-- Market data check -->
+    <div style="padding:12px 14px;border-bottom:1px solid var(--border)">
+      <div style="font-size:11px;color:var(--muted);margin-bottom:8px;font-weight:600;text-transform:uppercase;letter-spacing:.05em">Market Data Check (RentCast)</div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <input id="owMarketAddress" type="text" placeholder="381 Tina Dr, Hollister, CA 95023" style="flex:1;min-width:260px;padding:7px 10px;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px">
+        <input id="owMarketPrice" type="number" placeholder="Price ($)" style="width:120px;padding:7px 10px;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px">
+        <button class="btn btn-primary btn-sm" onclick="runOWMarketCheck()">🔍 Check</button>
+      </div>
+      <div id="owMarketResult" style="margin-top:10px;font-size:12px;font-family:var(--mono);color:var(--text);display:none"></div>
+    </div>
+
+    <!-- Active watches table -->
+    <div style="padding:12px 14px;border-bottom:1px solid var(--border)">
+      <div style="font-size:11px;color:var(--muted);margin-bottom:8px;font-weight:600;text-transform:uppercase;letter-spacing:.05em">Active Watches <span id="owWatchCount" style="color:var(--text)"></span></div>
+      <div id="owWatchesTable" style="font-size:12px;color:var(--muted)">Click Refresh to load…</div>
+    </div>
+
+    <!-- Recent alerts -->
+    <div style="padding:12px 14px">
+      <div style="font-size:11px;color:var(--muted);margin-bottom:8px;font-weight:600;text-transform:uppercase;letter-spacing:.05em">Alerts (last 7 days) <span id="owAlertCount" style="color:var(--text)"></span></div>
+      <div id="owAlertsTable" style="font-size:12px;color:var(--muted)">Click Refresh to load…</div>
+    </div>
+  </div>
+
+  <!-- v5.88.20: Cassette recording + Postgres tests -->
 </div><!-- /view-tests -->
 
 <!-- v5.88.20: Confirmation modal for cassette recording -->
