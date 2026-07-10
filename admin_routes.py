@@ -718,6 +718,35 @@ def api_benchmark_pendleton():
         return jsonify({'ok': False, 'error': f'{type(e).__name__}: {e}'}), 200
 
 
+@admin_bp.route('/api/admin/access-requests/generate-link', methods=['POST'])
+@_api_admin_req_dec
+def api_generate_access_link():
+    """Generate a one-click magic link that unlocks the gated /thesis and /architecture
+    pages for a specific guest (e.g., an advisor you're emailing). Clicking it sets the
+    90-day access cookie and lands them on the live architecture page — no request form.
+    Paste the returned link into your own outreach email."""
+    from access_gate import create_request, approve_request
+    from models import db
+    data = request.get_json(silent=True) or {}
+    email = (data.get('email') or '').strip().lower()
+    name = (data.get('name') or 'Guest').strip()
+    if not email or '@' not in email:
+        return jsonify({'ok': False, 'error': 'A valid email is required'}), 200
+    try:
+        row, auto = create_request(
+            db, name=name, email=email, company='', role='',
+            reason='VIP access link (admin-generated)',
+            page_requested='/architecture', ip_address='', user_agent='admin-vip-link')
+        if not getattr(row, 'magic_token', None):
+            row = approve_request(db, row.id, reviewer='admin (VIP link)')
+        db.session.commit()
+        base = request.host_url.rstrip('/')
+        link = base + '/access/grant?token=' + (row.magic_token or '')
+        return jsonify({'ok': True, 'email': email, 'link': link, 'auto_approved': bool(auto)})
+    except Exception as e:
+        return jsonify({'ok': False, 'error': f'{type(e).__name__}: {e}'}), 200
+
+
 @admin_bp.route('/api/admin/metrics-snapshot', methods=['GET'])
 @_api_admin_req_dec
 def api_metrics_snapshot():

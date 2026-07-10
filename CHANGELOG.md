@@ -1,3 +1,19 @@
+## v5.89.287 — VIP access-link generator (frictionless gated-page access for outreach)
+
+Context: /thesis and /architecture are gated behind an access-request FORM (v5.89.39).
+Emailing an advisor the raw links sends them into a form — wrong first impression for a
+technical reviewer. This lets you hand them a one-click link instead.
+
+ - New POST /api/admin/access-requests/generate-link (email, optional name): creates +
+   approves an AccessRequest, mints the magic token, and RETURNS a copyable
+   /access/grant?token=… link. Clicking it sets the 90-day access cookie and lands the
+   guest on the live architecture page — no form. /thesis then works too (same cookie).
+ - "🔗 VIP access link" tool on the Today view (next to the advisor snapshot): enter an
+   email → Generate → copyable link. Sits alongside the snapshot + report-card outreach
+   tooling.
+
+Test: generate-link validation smoke test (rejects bad email before any DB write).
+Admin JS guard passes; <div> net 0; prepackage guard (imports + coverage floor) green.
 ## v5.89.286 — Metrics Snapshot: fix rendering + data bugs the live PDF exposed
 
 Real output revealed three bugs the sample data hid:

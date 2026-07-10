@@ -970,6 +970,21 @@ label{font-size:11px;color:var(--muted);display:block;margin-bottom:4px;font-wei
   </div>
 
 
+  <!-- VIP access link generator -->
+  <div class="card" style="margin-bottom:14px">
+    <div class="card-head"><div class="card-title">🔗 VIP access link</div></div>
+    <div style="padding:0 14px 14px">
+      <div style="font-size:12px;color:var(--muted);margin-bottom:8px">Generate a one-click link that unlocks the gated <strong>/thesis</strong> and <strong>/architecture</strong> pages for someone you're emailing — they click once, no request form, access lasts 90 days.</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+        <input id="vipEmail" type="email" placeholder="guest@email.com" style="flex:1;min-width:200px;padding:7px 10px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:13px">
+        <input id="vipName" type="text" placeholder="Name (optional)" style="width:150px;padding:7px 10px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:13px">
+        <button class="btn btn-primary btn-sm" onclick="generateVipLink()">Generate link</button>
+      </div>
+      <div id="vipLinkResult" style="margin-top:10px;font-size:12px"></div>
+    </div>
+  </div>
+
+
   <!-- Funnel + CAC -->
   <div class="g2">
     <div class="card">
@@ -6260,6 +6275,29 @@ function buildSnapshotDoc(d){
     +'</div>'
   +'</div>';
 }
+async function generateVipLink() {
+  var out = document.getElementById('vipLinkResult');
+  var email = ((document.getElementById('vipEmail')||{}).value || '').trim();
+  var name = ((document.getElementById('vipName')||{}).value || '').trim();
+  if (!email || email.indexOf('@') < 0) { out.innerHTML = '<span style="color:var(--amber)">Enter a valid email.</span>'; return; }
+  out.innerHTML = '<span class="spinner"></span> generating…';
+  try {
+    var r = await fetchWithTimeout('/api/admin/access-requests/generate-link?admin_key=' + encodeURIComponent(adminKey), 20000, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({email:email, name:name}) });
+    var d = await r.json();
+    if (!d.ok) { out.innerHTML = '<span style="color:var(--amber)">\u26a0 '+(d.error||'failed')+'</span>'; return; }
+    out.innerHTML = '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:10px">'
+      + '<div style="font-size:11px;color:var(--muted);margin-bottom:5px">One-click link for <strong>'+d.email+'</strong> \u2014 unlocks /thesis + /architecture for 90 days:</div>'
+      + '<div style="font-family:monospace;font-size:11px;word-break:break-all;color:var(--text);background:var(--surface);padding:7px 9px;border-radius:4px">'+d.link+'</div>'
+      + '<button class="btn btn-sm" style="margin-top:8px" onclick="copyVipLink(this)" data-link="'+d.link.replace(/"/g,'&quot;')+'">\U0001F4CB Copy link</button></div>';
+  } catch(e) { out.innerHTML = '<span style="color:var(--amber)">\u26a0 '+(e&&e.message?e.message:'request failed')+'</span>'; }
+}
+function copyVipLink(btn){
+  var link = btn.getAttribute('data-link'); if(!link) return;
+  var done=function(){ if(typeof showToast==='function') showToast('\U0001F4CB Link copied'); };
+  if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(link).then(done).catch(function(){var ta=document.createElement('textarea');ta.value=link;document.body.appendChild(ta);ta.select();try{document.execCommand('copy');}catch(e){}document.body.removeChild(ta);done();}); }
+  else { var ta=document.createElement('textarea');ta.value=link;document.body.appendChild(ta);ta.select();try{document.execCommand('copy');}catch(e){}document.body.removeChild(ta);done(); }
+}
+
 async function generateAdvisorSnapshot() {
   var box = document.getElementById('advisorSnapshot');
   if (!box) return;

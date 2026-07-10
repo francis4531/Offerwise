@@ -53,3 +53,13 @@ def test_metrics_snapshot_endpoint_empty_ok(app_db):
     assert all(k in d for k in ('traction','engineering','coverage','data','moat'))
     assert d['traction']['signups'] == 0            # empty DB -> zeros, no crash
     assert not any(k in d for k in ('costs', 'ad_spend', 'cac', 'infra'))
+
+
+def test_generate_access_link_validates_email(app_db):
+    import admin_routes
+    app_db.add_url_rule('/api/admin/access-requests/generate-link', 'vip',
+                        admin_routes.api_generate_access_link, methods=['POST'])
+    r = app_db.test_client().post('/api/admin/access-requests/generate-link',
+                                  json={'email': 'not-an-email'})
+    assert r.status_code == 200
+    assert r.get_json()['ok'] is False   # invalid email rejected before any DB write
