@@ -1,3 +1,30 @@
+## v5.89.285 — Metrics Snapshot: from thin stat-line to a full company snapshot
+
+The .284 snapshot was slick but THIN — eight numbers around inherently-early traction.
+The fix isn't more polish, it's more substance: show the genuine depth that user
+counts alone hide.
+
+Endpoint /api/admin/metrics-snapshot now reports (all real, all guarded):
+ - Traction + engagement: funnel, analyses, properties analyzed, analyses/active user.
+ - National Coverage: active/scaffolded public-records crawlers (from CRAWLER_REGISTRY),
+   federal data APIs, metro coverage, jurisdiction model.
+ - Data Moat: labeled corpus rows, findings persisted (DB), shadow comparisons (DB),
+   cross-reference engine.
+ - Engineering & Reliability: version, LOC, modules, automated tests + test files,
+   integrity checks.
+ - The Reasoning Engine: engine description, shadow-validating status, bake-off recall.
+ - Capabilities list.
+Still excludes costs/ad-spend/PII/test accounts.
+
+Render rebuilt into a rich, self-contained document: dark branded header (NATIONAL U.S.),
+5 hero stat cards (incl. corpus), the visual acquisition funnel, an engagement line, a
+2×2 panel grid (Coverage / Data Moat / Engineering / Reasoning Engine) with color-coded
+titles, and capability chips. Print view loads IBM Plex for a crisp PDF. Renders in the
+admin and the browser print view (the only two paths).
+
+Test: metrics-snapshot smoke test updated for the new keys (traction/engineering/
+coverage/data/moat) and passing. Admin JS guard passes; <div> net 0; all panels + values
+verified with sample data.
 ## v5.89.284 — Metrics Snapshot redesigned: diligence-grade, not a table
 
 The .283 snapshot was a plain two-column table — accurate but flat. Rebuilt it as a

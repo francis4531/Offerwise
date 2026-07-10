@@ -50,6 +50,6 @@ def test_metrics_snapshot_endpoint_empty_ok(app_db):
     assert r.status_code == 200
     d = r.get_json()
     # curated snapshot present, and it does NOT leak cost/internal fields
-    assert 'traction' in d and 'product' in d
+    assert all(k in d for k in ('traction','engineering','coverage','data','moat'))
     assert d['traction']['signups'] == 0            # empty DB -> zeros, no crash
     assert not any(k in d for k in ('costs', 'ad_spend', 'cac', 'infra'))

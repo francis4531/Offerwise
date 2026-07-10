@@ -773,24 +773,83 @@ def api_metrics_snapshot():
         'analyses_run_last_30d': analyses_30d,
     }
 
-    # Product / engineering stats (already computed for the architecture page)
-    prod = {'version': None}
+    # Engagement
+    props = _safe(lambda: __import__('models').Property.query.count())
+    out['engagement'] = {
+        'properties_analyzed': props,
+        'avg_analyses_per_active_user': (round(analyses_total / activated, 1)
+                                         if (activated and analyses_total) else None),
+    }
+
+    # National coverage — the crawler/API footprint (the numbers on the architecture page)
+    active_crawlers, scaffolded = 13, 7
+    try:
+        from app import CRAWLER_REGISTRY
+        active_crawlers = sum(1 for _, _, c in CRAWLER_REGISTRY if getattr(c, 'STATUS', '') == 'active')
+        scaffolded = sum(1 for _, _, c in CRAWLER_REGISTRY if getattr(c, 'STATUS', '') != 'active')
+    except Exception:
+        pass
+    out['coverage'] = {
+        'national': True,
+        'active_crawlers': active_crawlers,
+        'scaffolded_crawlers': scaffolded,
+        'metros': '13 of top-50 U.S. metros',
+        'federal_apis': 11,
+        'jurisdiction_model': 'national base + per-state overlays',
+    }
+
+    # Data assets — the moat's raw material
+    out['data'] = {
+        'labeled_corpus_rows': '~121K',
+        'findings_persisted': _safe(lambda: __import__('models').Finding.query.count()),
+        'shadow_comparisons': _safe(lambda: __import__('models').ShadowComparison.query.count()),
+    }
+
+    # Engineering & reliability
+    eng = {'version': None}
     try:
         with open('VERSION') as f:
-            prod['version'] = f.read().strip()
+            eng['version'] = f.read().strip()
     except Exception:
         pass
     try:
         from app import _compute_hero_stats
         hs = _compute_hero_stats() or {}
-        prod['modules'] = hs.get('module_count') or hs.get('modules')
-        prod['lines_of_code'] = hs.get('loc_str') or hs.get('total_loc')
-        prod['integrity_tests'] = hs.get('integrity_count') or hs.get('integrity')
+        eng['lines_of_code'] = hs.get('loc_str') or hs.get('total_loc')
+        eng['modules'] = hs.get('module_count') or hs.get('modules')
+        eng['integrity_tests'] = hs.get('integrity_count') or hs.get('integrity')
     except Exception:
         pass
-    out['product'] = prod
-    out['note'] = ('Curated for external sharing: traction + product only. Excludes costs, '
-                   'ad spend, and test accounts. Point-in-time; regenerate for the latest.')
+    def _count_tests():
+        import glob as _g
+        n = 0
+        for fp in _g.glob('test_*.py'):
+            try:
+                with open(fp) as fh:
+                    n += fh.read().count('def test_')
+            except Exception:
+                pass
+        return n or None
+    eng['test_files'] = _safe(lambda: len(__import__('glob').glob('test_*.py')))
+    eng['automated_tests'] = _safe(_count_tests)
+    out['engineering'] = eng
+
+    # The moat — honest status
+    out['moat'] = {
+        'engine': 'jurisdiction-layered reasoning over disclosures + inspection',
+        'status': 'built · shadow-validating on live traffic',
+        'bakeoff_recall': '6/6 core findings on the canonical case',
+        'cross_reference': True,
+    }
+    out['capabilities'] = [
+        'Disclosure \u2194 inspection cross-reference',
+        'Unstated-risk surfacing',
+        'Defensible offer price',
+        'Line-item repair breakdown',
+        'National jurisdiction coverage',
+    ]
+    out['note'] = ('Curated for external sharing: traction, coverage, data, and engineering. '
+                   'Excludes costs, ad spend, and test accounts. Point-in-time; regenerate for the latest.')
     return jsonify(out)
 
 

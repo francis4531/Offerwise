@@ -6186,73 +6186,79 @@ function rxEscB(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/<
 
 function _snapNum(v){ return (v==null?'\u2014':String(v)); }
 function buildSnapshotDoc(d){
-  var t = d.traction || {}, p = d.product || {};
-  var C = { ink:'#0f172a', paper:'#ffffff', muted:'#64748b', line:'#e2e8f0', blue:'#1d4ed8', gold:'#f59e0b', green:'#16a34a', amber:'#d97706' };
-  var mono = "'IBM Plex Mono','SFMono-Regular',Menlo,monospace";
-  var sans = "'IBM Plex Sans',-apple-system,BlinkMacSystemFont,sans-serif";
-  var signups = Number(t.signups)||0;
+  var t=d.traction||{}, e=d.engagement||{}, cv=d.coverage||{}, da=d.data||{}, en=d.engineering||{}, mo=d.moat||{}, caps=d.capabilities||[];
+  var C={ink:'#0f172a',paper:'#ffffff',muted:'#64748b',line:'#e2e8f0',soft:'#f1f5f9',blue:'#1d4ed8',violet:'#7c3aed',green:'#16a34a',amber:'#d97706'};
+  var mono="'IBM Plex Mono','SFMono-Regular',Menlo,monospace", sans="'IBM Plex Sans',-apple-system,BlinkMacSystemFont,sans-serif";
+  var signups=Number(t.signups)||0;
   function esc(v){ return String(v==null?'\u2014':v).replace(/&/g,'&amp;').replace(/</g,'&lt;'); }
-  function wpct(v){ v=Number(v)||0; if(signups<=0) return 0; return Math.max(4, Math.round(v/signups*100)); }
-  // funnel row
-  function frow(label, val, pct, color){
-    var w = wpct(val);
-    var pctTxt = (pct!=null? ' &middot; '+pct+'%' : '');
-    return '<div style="display:flex;align-items:center;gap:14px;margin:9px 0">'
-      + '<div style="width:78px;font-size:11px;color:'+C.muted+';text-align:right;font-family:'+sans+'">'+label+'</div>'
-      + '<div style="flex:1;background:#f1f5f9;border-radius:5px;height:34px;overflow:hidden">'
-      +   '<div style="width:'+w+'%;height:100%;background:'+color+';border-radius:5px;transition:width .4s;min-width:2px"></div>'
-      + '</div>'
-      + '<div style="width:128px;font-family:'+mono+';font-weight:700;font-size:15px;color:'+C.ink+'">'+esc(val)+'<span style="font-size:10px;color:'+C.muted+';font-weight:500">'+pctTxt+'</span></div>'
-      + '</div>';
-  }
-  // hero stat card
-  function hero(val, label, color){
-    return '<div style="flex:1;min-width:0;background:#f8fafc;border:1px solid '+C.line+';border-radius:10px;padding:14px 12px;text-align:center">'
-      + '<div style="font-family:'+mono+';font-size:30px;font-weight:700;line-height:1;color:'+(color||C.ink)+'">'+esc(val)+'</div>'
-      + '<div style="font-size:10px;letter-spacing:.05em;text-transform:uppercase;color:'+C.muted+';margin-top:7px;font-family:'+sans+'">'+label+'</div>'
-      + '</div>';
-  }
-  var actPct = (t.activation_rate_pct!=null? t.activation_rate_pct : null);
-  var paidPct = (t.signup_to_paid_pct!=null? t.signup_to_paid_pct : null);
+  function wpct(v){ v=Number(v)||0; if(signups<=0) return 0; return Math.max(4,Math.round(v/signups*100)); }
+  function hero(val,label,color){ return '<div style="flex:1;min-width:0;background:#f8fafc;border:1px solid '+C.line+';border-radius:10px;padding:14px 10px;text-align:center">'
+    +'<div style="font-family:'+mono+';font-size:28px;font-weight:700;line-height:1;color:'+(color||C.ink)+'">'+esc(val)+'</div>'
+    +'<div style="font-size:9.5px;letter-spacing:.05em;text-transform:uppercase;color:'+C.muted+';margin-top:7px;font-family:'+sans+'">'+label+'</div></div>'; }
+  function frow(label,val,pct,color){ var w=wpct(val); var pt=(pct!=null?' &middot; '+pct+'%':'');
+    return '<div style="display:flex;align-items:center;gap:12px;margin:8px 0">'
+    +'<div style="width:72px;font-size:11px;color:'+C.muted+';text-align:right">'+label+'</div>'
+    +'<div style="flex:1;background:'+C.soft+';border-radius:5px;height:30px;overflow:hidden"><div style="width:'+w+'%;height:100%;background:'+color+';border-radius:5px;min-width:2px"></div></div>'
+    +'<div style="width:118px;font-family:'+mono+';font-weight:700;font-size:14px;color:'+C.ink+'">'+esc(val)+'<span style="font-size:10px;color:'+C.muted+';font-weight:500">'+pt+'</span></div></div>'; }
+  function srow(label,val){ return '<div style="display:flex;justify-content:space-between;align-items:baseline;padding:6px 0;border-bottom:1px solid '+C.soft+'">'
+    +'<span style="font-size:11.5px;color:'+C.muted+'">'+label+'</span><span style="font-family:'+mono+';font-weight:700;font-size:12.5px;color:'+C.ink+';text-align:right;max-width:60%">'+esc(val)+'</span></div>'; }
+  function panel(title,accent,rows){ return '<div style="border:1px solid '+C.line+';border-radius:10px;overflow:hidden">'
+    +'<div style="padding:8px 14px;font-family:'+mono+';font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:'+accent+';font-weight:700;border-bottom:1px solid '+C.line+';background:'+accent+'0d">'+title+'</div>'
+    +'<div style="padding:8px 14px 12px">'+rows+'</div></div>'; }
+
+  var coverageRows = srow('Reach','National &middot; U.S.-wide')
+    + srow('Public-records crawlers', esc(cv.active_crawlers)+' active &middot; '+esc(cv.scaffolded_crawlers)+' scaffolded')
+    + srow('Metro coverage', esc(cv.metros))
+    + srow('Federal data APIs', esc(cv.federal_apis))
+    + srow('Jurisdiction model', esc(cv.jurisdiction_model));
+  var dataRows = srow('Labeled corpus', esc(da.labeled_corpus_rows)+' rows')
+    + srow('Findings persisted', esc(da.findings_persisted))
+    + srow('Shadow comparisons', esc(da.shadow_comparisons))
+    + srow('Cross-reference engine', 'disclosure \u2194 inspection');
+  var engRows = srow('Version','v'+esc(en.version))
+    + srow('Lines of code', esc(en.lines_of_code))
+    + srow('Python modules', esc(en.modules))
+    + srow('Automated tests', esc(en.automated_tests)+(en.test_files?(' &middot; '+esc(en.test_files)+' files'):''))
+    + srow('Integrity checks', esc(en.integrity_tests));
+  var moatRows = srow('Engine', esc(mo.engine))
+    + srow('Status', esc(mo.status))
+    + srow('Bake-off recall', esc(mo.bakeoff_recall));
+  var chips = caps.map(function(c){ return '<span style="display:inline-block;font-size:11px;font-family:'+sans+';color:'+C.ink+';background:#f1f5f9;border:1px solid '+C.line+';border-radius:999px;padding:4px 11px;margin:3px 4px 0 0">'+esc(c)+'</span>'; }).join('');
+
   return ''
-  + '<div id="advisorSnapshotDoc" style="background:'+C.paper+';color:'+C.ink+';font-family:'+sans+';border:1px solid '+C.line+';border-radius:12px;overflow:hidden;max-width:720px">'
-    // header (dark)
-    + '<div style="background:'+C.ink+';color:#fff;padding:20px 24px;display:flex;justify-content:space-between;align-items:center">'
-      + '<div><div style="font-family:'+mono+';font-size:19px;font-weight:700;letter-spacing:-.01em">Offer<span style="color:#60a5fa">Wise</span></div>'
-      + '<div style="font-family:'+mono+';font-size:9px;letter-spacing:.18em;color:#94a3b8;margin-top:3px">METRICS SNAPSHOT</div></div>'
-      + '<div style="text-align:right;font-family:'+mono+';font-size:10px;color:#cbd5e1">'+esc(d.generated_at)+'</div>'
-    + '</div>'
-    // body
-    + '<div style="padding:22px 24px">'
-      // hero row
-      + '<div style="display:flex;gap:10px;margin-bottom:22px">'
-        + hero(_snapNum(t.signups), 'Signups', C.ink)
-        + hero(_snapNum(t.activated_users), 'Activated', C.blue)
-        + hero(_snapNum(t.paying_customers), 'Paying', (Number(t.paying_customers)>0?C.green:C.amber))
-        + hero(_snapNum(t.analyses_run_total), 'Analyses run', C.ink)
-      + '</div>'
-      // funnel
-      + '<div style="font-family:'+mono+';font-size:10px;letter-spacing:.1em;color:'+C.muted+';text-transform:uppercase;border-bottom:1px solid '+C.line+';padding-bottom:6px;margin-bottom:12px">Acquisition funnel</div>'
-      + frow('Signups', t.signups, null, C.ink)
-      + frow('Activated', t.activated_users, actPct, C.blue)
-      + frow('Paying', t.paying_customers, paidPct, (Number(t.paying_customers)>0?C.green:C.amber))
-      + '<div style="display:flex;gap:24px;margin-top:14px;font-size:11px;color:'+C.muted+';font-family:'+sans+'">'
-        + '<div>Last 30 days &middot; <strong style="color:'+C.ink+';font-family:'+mono+'">'+esc(t.signups_last_30d)+'</strong> signups</div>'
-        + '<div><strong style="color:'+C.ink+';font-family:'+mono+'">'+esc(t.analyses_run_last_30d)+'</strong> analyses</div>'
-      + '</div>'
-      // product strip
-      + '<div style="margin-top:22px;background:#f8fafc;border:1px solid '+C.line+';border-radius:10px;padding:14px 16px">'
-        + '<div style="font-family:'+mono+';font-size:10px;letter-spacing:.1em;color:'+C.muted+';text-transform:uppercase;margin-bottom:8px">Product</div>'
-        + '<div style="font-family:'+mono+';font-size:13px;color:'+C.ink+';line-height:1.9">'
-          + '<span style="color:'+C.blue+';font-weight:700">v'+esc(p.version)+'</span>'
-          + '&nbsp;&middot;&nbsp; '+esc(p.lines_of_code)+' LOC'
-          + '&nbsp;&middot;&nbsp; '+esc(p.modules)+' modules'
-          + '&nbsp;&middot;&nbsp; '+esc(p.integrity_tests)+' integrity tests'
-        + '</div>'
-      + '</div>'
-      + '<div style="font-size:9.5px;color:#94a3b8;margin-top:14px;line-height:1.5;font-family:'+sans+'">'+esc(d.note)+'</div>'
-    + '</div>'
-  + '</div>';
+  +'<div id="advisorSnapshotDoc" style="background:'+C.paper+';color:'+C.ink+';font-family:'+sans+';border:1px solid '+C.line+';border-radius:12px;overflow:hidden;max-width:760px">'
+    +'<div style="background:'+C.ink+';color:#fff;padding:20px 24px;display:flex;justify-content:space-between;align-items:center">'
+      +'<div><div style="font-family:'+mono+';font-size:20px;font-weight:700;letter-spacing:-.01em">Offer<span style="color:#60a5fa">Wise</span></div>'
+      +'<div style="font-family:'+mono+';font-size:9px;letter-spacing:.18em;color:#94a3b8;margin-top:3px">METRICS SNAPSHOT &middot; NATIONAL U.S.</div></div>'
+      +'<div style="text-align:right;font-family:'+mono+';font-size:10px;color:#cbd5e1">'+esc(d.generated_at)+'</div></div>'
+    +'<div style="padding:22px 24px">'
+      +'<div style="display:flex;gap:9px;margin-bottom:20px">'
+        +hero(_snapNum(t.signups),'Signups',C.ink)
+        +hero(_snapNum(t.activated_users),'Activated',C.blue)
+        +hero(_snapNum(t.paying_customers),'Paying',(Number(t.paying_customers)>0?C.green:C.amber))
+        +hero(_snapNum(t.analyses_run_total),'Analyses',C.ink)
+        +hero(_snapNum(da.labeled_corpus_rows),'Corpus rows',C.violet)
+      +'</div>'
+      +'<div style="font-family:'+mono+';font-size:10px;letter-spacing:.1em;color:'+C.muted+';text-transform:uppercase;border-bottom:1px solid '+C.line+';padding-bottom:6px;margin-bottom:10px">Acquisition funnel</div>'
+      +frow('Signups',t.signups,null,C.ink)
+      +frow('Activated',t.activated_users,t.activation_rate_pct,C.blue)
+      +frow('Paying',t.paying_customers,t.signup_to_paid_pct,(Number(t.paying_customers)>0?C.green:C.amber))
+      +'<div style="display:flex;gap:22px;margin:12px 0 22px;font-size:11px;color:'+C.muted+'">'
+        +'<div>Last 30d &middot; <strong style="color:'+C.ink+';font-family:'+mono+'">'+esc(t.signups_last_30d)+'</strong> signups</div>'
+        +'<div><strong style="color:'+C.ink+';font-family:'+mono+'">'+esc(t.analyses_run_last_30d)+'</strong> analyses</div>'
+        +(e.properties_analyzed!=null?'<div><strong style="color:'+C.ink+';font-family:'+mono+'">'+esc(e.properties_analyzed)+'</strong> properties</div>':'')
+        +(e.avg_analyses_per_active_user!=null?'<div><strong style="color:'+C.ink+';font-family:'+mono+'">'+esc(e.avg_analyses_per_active_user)+'</strong> analyses / active user</div>':'')
+      +'</div>'
+      +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">'
+        +panel('National Coverage',C.blue,coverageRows)
+        +panel('Data Moat',C.violet,dataRows)
+        +panel('Engineering &amp; Reliability',C.green,engRows)
+        +panel('The Reasoning Engine',C.amber,moatRows)
+      +'</div>'
+      +'<div style="margin-top:20px"><div style="font-family:'+mono+';font-size:10px;letter-spacing:.1em;color:'+C.muted+';text-transform:uppercase;margin-bottom:8px">What OfferWise does</div>'+chips+'</div>'
+      +'<div style="font-size:9.5px;color:#94a3b8;margin-top:18px;border-top:1px solid '+C.line+';padding-top:10px;line-height:1.5">'+esc(d.note)+'</div>'
+    +'</div>'
+  +'</div>';
 }
 async function generateAdvisorSnapshot() {
   var box = document.getElementById('advisorSnapshot');
