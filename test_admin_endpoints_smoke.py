@@ -40,3 +40,16 @@ def test_shadow_samples_endpoint_empty_ok(app_db):
     assert r.status_code == 200
     d = r.get_json()
     assert d.get('ok') is True and d.get('samples') == []   # no rows yet
+
+
+def test_metrics_snapshot_endpoint_empty_ok(app_db):
+    import admin_routes
+    app_db.add_url_rule('/api/admin/metrics-snapshot', 'metrics',
+                        admin_routes.api_metrics_snapshot, methods=['GET'])
+    r = app_db.test_client().get('/api/admin/metrics-snapshot')
+    assert r.status_code == 200
+    d = r.get_json()
+    # curated snapshot present, and it does NOT leak cost/internal fields
+    assert 'traction' in d and 'product' in d
+    assert d['traction']['signups'] == 0            # empty DB -> zeros, no crash
+    assert not any(k in d for k in ('costs', 'ad_spend', 'cac', 'infra'))

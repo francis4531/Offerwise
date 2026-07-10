@@ -957,6 +957,19 @@ label{font-size:11px;color:var(--muted);display:block;margin-bottom:4px;font-wei
   </div>
 
 
+  <!-- Advisor / investor snapshot -->
+  <div class="card" style="margin-bottom:14px">
+    <div class="card-head">
+      <div class="card-title">📸 Snapshot for advisors</div>
+      <button class="btn btn-primary btn-sm" onclick="generateAdvisorSnapshot()">Generate snapshot</button>
+    </div>
+    <div style="padding:0 14px 14px;font-size:12px;color:var(--muted)">
+      A clean, current, shareable one-pager — traction + product only, no costs or test accounts. Generate it, then Print → Save as PDF, or copy the text into an email.
+    </div>
+    <div id="advisorSnapshot" style="display:none;padding:0 14px 14px"></div>
+  </div>
+
+
   <!-- Funnel + CAC -->
   <div class="g2">
     <div class="card">
@@ -6170,6 +6183,80 @@ async function runHeadToHead() {
   }
 }
 function rxEscB(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+async function generateAdvisorSnapshot() {
+  var box = document.getElementById('advisorSnapshot');
+  if (!box) return;
+  box.style.display = 'block';
+  box.innerHTML = '<span class="spinner"></span> pulling current metrics…';
+  try {
+    var r = await fetchWithTimeout('/api/admin/metrics-snapshot?admin_key=' + encodeURIComponent(adminKey), 30000);
+    var d = await r.json();
+    window.__advisorSnapshot = d;
+    var t = d.traction || {}, p = d.product || {};
+    function esc(v){ return String(v==null?'\u2014':v).replace(/&/g,'&amp;').replace(/</g,'&lt;'); }
+    function row(label, val){ return '<tr><td style="padding:4px 14px 4px 0;color:#475569">'+label+'</td><td style="padding:4px 0;font-weight:700;font-family:monospace">'+esc(val)+'</td></tr>'; }
+    var actPct = (t.activation_rate_pct!=null?'  ('+t.activation_rate_pct+'%)':'');
+    var paidPct = (t.signup_to_paid_pct!=null?'  ('+t.signup_to_paid_pct+'% of signups)':'');
+    box.innerHTML =
+      '<div id="advisorSnapshotDoc" style="background:#fff;border:1px solid var(--border);border-radius:8px;padding:22px;color:#0f172a;font-family:-apple-system,BlinkMacSystemFont,sans-serif">'
+      + '<div style="font-size:17px;font-weight:800">OfferWise \u2014 Metrics Snapshot</div>'
+      + '<div style="font-size:11px;color:#64748b;margin-bottom:14px">Generated '+esc(d.generated_at)+'</div>'
+      + '<div style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.06em;margin:8px 0 4px">Traction</div>'
+      + '<table style="border-collapse:collapse;font-size:13px">'
+      + row('Signups (real users)', t.signups)
+      + row('Signups \u00b7 last 30 days', t.signups_last_30d)
+      + row('Activated \u00b7 ran \u22651 analysis', esc(t.activated_users)+actPct)
+      + row('Paying customers', esc(t.paying_customers)+paidPct)
+      + row('Analyses run \u00b7 total', t.analyses_run_total)
+      + row('Analyses run \u00b7 last 30 days', t.analyses_run_last_30d)
+      + '</table>'
+      + '<div style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.06em;margin:16px 0 4px">Product</div>'
+      + '<table style="border-collapse:collapse;font-size:13px">'
+      + row('Version', p.version)
+      + row('Lines of code', p.lines_of_code)
+      + row('Python modules', p.modules)
+      + row('Integrity tests', p.integrity_tests)
+      + '</table>'
+      + '<div style="font-size:10px;color:#94a3b8;margin-top:14px;border-top:1px solid var(--border);padding-top:8px">'+esc(d.note)+'</div>'
+      + '</div>'
+      + '<div style="display:flex;gap:8px;margin-top:10px">'
+      + '<button class="btn btn-sm" onclick="printAdvisorSnapshot()">\U0001F5A8 Print / Save PDF</button>'
+      + '<button class="btn btn-sm" onclick="copyAdvisorSnapshot()">\U0001F4CB Copy as text</button>'
+      + '</div>';
+  } catch(e) {
+    box.innerHTML = '<span style="color:var(--amber)">\u26a0 '+(e&&e.message?e.message:'request failed')+'</span>';
+  }
+}
+function printAdvisorSnapshot(){
+  var doc = document.getElementById('advisorSnapshotDoc'); if(!doc) return;
+  var w = window.open('', '_blank'); if(!w) return;
+  w.document.write('<html><head><title>OfferWise Metrics Snapshot</title></head><body style="font-family:-apple-system,sans-serif;padding:24px">'+doc.outerHTML+'</body></html>');
+  w.document.close(); w.focus(); setTimeout(function(){ w.print(); }, 300);
+}
+function copyAdvisorSnapshot(){
+  var d = window.__advisorSnapshot; if(!d) return;
+  var t = d.traction||{}, p = d.product||{};
+  var text = [
+    'OfferWise - Metrics Snapshot ('+(d.generated_at||'')+')','',
+    'TRACTION',
+    '  Signups (real users): '+t.signups,
+    '  Signups (last 30d): '+t.signups_last_30d,
+    '  Activated (ran >=1 analysis): '+t.activated_users+(t.activation_rate_pct!=null?' ('+t.activation_rate_pct+'%)':''),
+    '  Paying customers: '+t.paying_customers+(t.signup_to_paid_pct!=null?' ('+t.signup_to_paid_pct+'% of signups)':''),
+    '  Analyses run (total): '+t.analyses_run_total,
+    '  Analyses run (last 30d): '+t.analyses_run_last_30d,
+    '','PRODUCT',
+    '  Version: '+p.version,
+    '  Lines of code: '+p.lines_of_code,
+    '  Modules: '+p.modules,
+    '  Integrity tests: '+p.integrity_tests,
+    '', (d.note||'')
+  ].join('\n');
+  var done=function(){ if(typeof showToast==='function') showToast('\U0001F4CB Snapshot copied'); };
+  if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(text).then(done).catch(function(){var ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();try{document.execCommand('copy');}catch(e){}document.body.removeChild(ta);done();}); }
+  else { var ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();try{document.execCommand('copy');}catch(e){}document.body.removeChild(ta);done(); }
+}
 
 async function loadLatencyBreakdown() {
   var btn = document.getElementById('btnLatency');

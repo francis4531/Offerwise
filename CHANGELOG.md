@@ -1,3 +1,24 @@
+## v5.89.283 — Metrics Snapshot: a clean, shareable one-pager for advisors/investors
+
+For sharing traction with someone who wants to "peek" (an advisor, a potential
+investor) WITHOUT handing over admin access — which would expose costs, ad spend, and
+test accounts.
+
+ - New GET /api/admin/metrics-snapshot: a CURATED snapshot — signups (real users only,
+   test/persona/example accounts excluded), signups last 30d, activated (ran ≥1
+   analysis) + rate, paying customers + signup→paid rate, analyses run total/30d, plus
+   product stats (version, LOC, modules, integrity tests). Every metric is guarded so a
+   schema quirk degrades one number, not the whole snapshot. Deliberately omits costs,
+   ad spend/CAC, and PII.
+ - "📸 Snapshot for advisors" card on the Today view: Generate → renders a clean, dated
+   one-pager → "🖨 Print / Save PDF" (opens a print view) or "📋 Copy as text" (paste
+   into an email). Regenerate any time for current numbers.
+ - Same numbers feed the Rowen report card's Traction Snapshot, so "latest metrics" has
+   one source of truth.
+
+Test: test_admin_endpoints_smoke.py — metrics-snapshot returns curated traction+product
+and leaks no cost/internal fields on an empty DB. Admin JS guard passes; <div> net 0;
+prepackage guard green.
 ## v5.89.282 — Split test access-params onto their own page (Persona Lab → Test Accounts)
 
 Right principle: the Tests page should show tests + results, not the access parameters

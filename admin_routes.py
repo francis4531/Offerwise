@@ -718,6 +718,82 @@ def api_benchmark_pendleton():
         return jsonify({'ok': False, 'error': f'{type(e).__name__}: {e}'}), 200
 
 
+@admin_bp.route('/api/admin/metrics-snapshot', methods=['GET'])
+@_api_admin_req_dec
+def api_metrics_snapshot():
+    """A CURATED, shareable metrics snapshot for advisors/investors — the traction and
+    product numbers a diligence-minded outsider would want, and nothing internal
+    (no costs, no ad spend/CAC, no test accounts, no PII). Every metric is guarded so
+    a schema quirk degrades one number rather than the whole snapshot."""
+    from datetime import datetime, timedelta
+    from sqlalchemy import func
+    from models import db, User, Analysis
+    out = {'generated_at': datetime.utcnow().strftime('%Y-%m-%d %H:%M UTC')}
+
+    # Exclude test/persona/admin accounts from user-facing traction
+    def _real_users():
+        q = User.query.filter(
+            ~User.email.like('%@test.offerwise.ai'),
+            ~User.email.like('%@persona.offerwise.ai'),
+            ~User.email.like('%@example.com'),
+        )
+        return q
+
+    since30 = datetime.utcnow() - timedelta(days=30)
+    def _safe(fn, default=None):
+        try:
+            return fn()
+        except Exception:
+            return default
+
+    signups   = _safe(lambda: _real_users().count(), 0)
+    signups30 = _safe(lambda: _real_users().filter(User.created_at >= since30).count())
+    activated = _safe(lambda: _real_users().filter(User.analyses_completed > 0).count())
+    paying    = _safe(lambda: _real_users().filter(
+        User.subscription_plan.isnot(None),
+        User.subscription_plan != 'free',
+        User.subscription_status == 'active').count(), 0)
+    analyses_total = _safe(lambda: Analysis.query.count(), 0)
+    analyses_30d   = _safe(lambda: Analysis.query.filter(Analysis.created_at >= since30).count())
+
+    def _pct(n, d):
+        try:
+            return round((n / d) * 100, 1) if d else None
+        except Exception:
+            return None
+
+    out['traction'] = {
+        'signups': signups,
+        'signups_last_30d': signups30,
+        'activated_users': activated,
+        'activation_rate_pct': _pct(activated, signups),
+        'paying_customers': paying,
+        'signup_to_paid_pct': _pct(paying, signups),
+        'analyses_run_total': analyses_total,
+        'analyses_run_last_30d': analyses_30d,
+    }
+
+    # Product / engineering stats (already computed for the architecture page)
+    prod = {'version': None}
+    try:
+        with open('VERSION') as f:
+            prod['version'] = f.read().strip()
+    except Exception:
+        pass
+    try:
+        from app import _compute_hero_stats
+        hs = _compute_hero_stats() or {}
+        prod['modules'] = hs.get('module_count') or hs.get('modules')
+        prod['lines_of_code'] = hs.get('loc_str') or hs.get('total_loc')
+        prod['integrity_tests'] = hs.get('integrity_count') or hs.get('integrity')
+    except Exception:
+        pass
+    out['product'] = prod
+    out['note'] = ('Curated for external sharing: traction + product only. Excludes costs, '
+                   'ad spend, and test accounts. Point-in-time; regenerate for the latest.')
+    return jsonify(out)
+
+
 @admin_bp.route('/api/admin/latency-breakdown', methods=['GET'])
 @_api_admin_req_dec
 def api_latency_breakdown():
