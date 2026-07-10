@@ -903,6 +903,9 @@ label{font-size:11px;color:var(--muted);display:block;margin-bottom:4px;font-wei
   <div class="nav-item" data-view="tests" onclick="showView('tests',this)">
     <span class="nav-icon">🧪</span> Tests
   </div>
+  <div class="nav-item" data-view="testaccounts" onclick="showView('testaccounts',this)">
+    <span class="nav-icon">🔑</span> Test Accounts
+  </div>
   <div class="nav-item" data-view="debug" onclick="showView('debug',this)">
     <span class="nav-icon">🔧</span> Debug
   </div>
@@ -3846,7 +3849,7 @@ details.an-drill[open] .an-chev{transform:rotate(90deg)}
 
   <!-- Sessions sub-panel -->
   <div style="margin-top:16px">
-  <div style="margin:24px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--border);font-size:14px;font-weight:700;color:var(--text)">🧪 Simulate &amp; monitor <span style="font-size:11px;font-weight:400;color:var(--muted)">— occasional — personas and test sessions</span></div>
+  <div style="margin:24px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--border);font-size:14px;font-weight:700;color:var(--text)">📋 Test sessions <span style="font-size:11px;font-weight:400;color:var(--muted)">— records from prior runs</span></div>
     <div class="section-head" style="cursor:pointer" onclick="document.getElementById('sessionsPanel').style.display=document.getElementById('sessionsPanel').style.display==='none'?'block':'none'">
       <span class="section-title">📋 QA Sessions</span>
       <span class="ml" style="font-family:var(--mono);font-size:10px;color:var(--muted)" id="sessionsChevron">▾ expand</span>
@@ -3862,6 +3865,15 @@ details.an-drill[open] .an-chev{transform:rotate(90deg)}
       <div class="card"><table class="tbl" id="sessionsTable"></table></div>
     </div>
   </div>
+
+</div><!-- /view-tests -->
+
+<div class="view" id="view-testaccounts">
+  <div class="section-head">
+    <div class="section-title">🔑 Test Accounts</div>
+    <span style="font-size:11px;color:var(--muted);margin-left:8px">Seeded personas &amp; credentials the test runners use — the access parameters, not the tests</span>
+  </div>
+
   <!-- ── PERSONA LAB ─────────────────────────────────────────────── -->
   <div class="card" style="margin-top:16px">
     <div class="card-head">
@@ -3882,8 +3894,7 @@ details.an-drill[open] .an-chev{transform:rotate(90deg)}
       </div>
     </div>
   </div>
-
-</div><!-- /view-tests -->
+</div><!-- /view-testaccounts -->
 
 <!-- v5.88.20: Confirmation modal for cassette recording -->
 <div id="cassetteModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9999;align-items:center;justify-content:center">
@@ -5247,7 +5258,8 @@ function showView(view, el) {
   if (view === 'analytics')    { loadAnalytics(); loadWaitlist(); loadSurveys(); loadFunnel(); loadTelemetryIntegrity(); loadConversionDebug(); loadAbHome(); loadUserDripList(); loadEntryCliff(); loadExitFeedback(); loadRiskCheckExit(); renderPanelHealth(); }
   if (view === 'adperf')       { loadAds(); loadGadsStatus(); loadRedditSyncHealth(); }
 
-  if (view === 'tests')        { updateBugCount(); loadAllBugs(); loadPersonas(); loadPostgresTestHistory(); }
+  if (view === 'tests')        { updateBugCount(); loadAllBugs(); loadPostgresTestHistory(); }
+  if (view === 'testaccounts') { loadPersonas(); }
   if (view === 'ml-training')  { loadModelHealth(); loadDataSources(); loadMLHistory(); loadAgentHistory(); loadMLSnapshots(); checkPendingTraining(); checkAgentStatus(); loadMLCrawlList(); loadMLIngestionJobs(); loadCostProvenance(); }
   if (view === 'reasoning')    { loadShadowSummary(); }
   if (view === 'costs') {
@@ -16041,6 +16053,7 @@ async function loadPersonas() {
             <span style="font-size:10px;padding:2px 7px;border-radius:4px;background:${exists?'rgba(34,197,94,.1)':'rgba(100,116,139,.1)'};color:${exists?'var(--green)':'var(--muted)'}">${exists?'✓ seeded':'not seeded'}</span>
           </div>
           <div style="font-size:11px;color:var(--muted);margin-bottom:6px;line-height:1.5">${p.description}</div>
+          <div style="font-size:10px;font-family:var(--mono);color:var(--muted);margin-bottom:8px;word-break:break-all">${p.email}</div>
           ${exists ? `<div style="display:flex;gap:5px;flex-wrap:wrap;font-size:10px;margin-bottom:8px">
             ${p.credits !== null ? `<span style="padding:2px 6px;border-radius:4px;background:rgba(96,165,250,.1);color:var(--blue)">${p.credits} credits</span>` : ''}
             ${planBadge ? `<span style="padding:2px 6px;border-radius:4px;background:rgba(167,139,250,.1);color:var(--purple)">${planBadge}</span>` : ''}
@@ -16048,6 +16061,8 @@ async function loadPersonas() {
           </div>` : ''}
           <div style="display:flex;gap:5px">
             <button onclick="seedPersona('${p.key}')" class="btn btn-ghost btn-sm" style="font-size:11px">⚡ ${exists?'Reset':'Seed'}</button>
+            <button onclick="copyToClip('${p.email}')" class="btn btn-ghost btn-sm" style="font-size:11px" title="Copy email">📋 Email</button>
+            ${exists ? `<button onclick="copyToClip('TestPass123!')" class="btn btn-ghost btn-sm" style="font-size:11px" title="Copy password">🔑 Password</button>` : ''}
           </div>
         </div>`;
       });

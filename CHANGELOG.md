@@ -1,3 +1,21 @@
+## v5.89.282 — Split test access-params onto their own page (Persona Lab → Test Accounts)
+
+Right principle: the Tests page should show tests + results, not the access parameters
+for testing. So the Persona Lab (seeded accounts + credentials) moved to its own page,
+and credentials belong there.
+
+ - New "🔑 Test Accounts" view (view-testaccounts) + nav item placed right under Tests.
+   Holds the Persona Lab (seed/reset accounts for every user type).
+ - Per-card credentials RESTORED (reverting .281): each card again shows the email and
+   has 📋 Email + 🔑 Password buttons — appropriate here, since this page IS the test
+   access/setup surface. (.281 hid them; the real problem was location, not display.)
+ - Personas now load when the Test Accounts view opens (showView), not when Tests opens.
+ - Tests page is now purely tests + results: ▶ Run & validate, 🐛 Bug tracking,
+   📋 Test sessions (QA session records). The "Simulate & monitor" header is gone.
+
+Verified: Persona Lab is out of view-tests and in view-testaccounts (once each); nav
+adjacency Tests → Test Accounts → Debug; persona controls intact; admin JS guard
+passes; <div> net 0.
 ## v5.89.281 — Persona Lab: remove per-card email + password (finish .280)
 
 .280 removed the shared password line but left the real exposure: every persona card
