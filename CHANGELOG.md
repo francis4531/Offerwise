@@ -1,3 +1,18 @@
+## v5.89.281 — Persona Lab: remove per-card email + password (finish .280)
+
+.280 removed the shared password line but left the real exposure: every persona card
+still printed the account email and had 📋 Email + 🔑 Password buttons (copy the
+password). Since the card's title + description already identify each persona, those
+served only manual login — which the founder doesn't do (runners use credentials
+server-side). Removed from the active card renderer (loadPersonas @16022): the email
+display line, the Email button, and the Password button. Cards now show label,
+description, state badges (credits / plan / leads), and the ⚡ Seed/Reset action only.
+Verified zero email/password exposure remains in the file.
+
+(OfferWatch was moved to the ⚙️ Ops tab in .280 — "Background jobs + system health",
+second card under Reasoning Layer.)
+
+Admin JS guard passes; <div> net 0.
 ## v5.89.280 — Tests tab cleanup: remove displayed credentials + move OfferWatch to Ops
 
 Two founder cleanups:
