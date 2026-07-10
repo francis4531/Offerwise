@@ -1,3 +1,26 @@
+## v5.89.280 — Tests tab cleanup: remove displayed credentials + move OfferWatch to Ops
+
+Two founder cleanups:
+
+1. Test credentials no longer displayed. Removed the plaintext "Password for all
+   personas: TestPassword123!" line (and the email pattern) from Persona Lab, plus
+   the password from the create/copy toasts. Replaced with a note that credentials
+   are managed server-side and used automatically by the test runners (which was
+   already true — the password is hardcoded server-side; the UI display was just
+   exposure/clutter). No test behavior changed.
+
+2. OfferWatch Monitor moved off the Tests tab. It's a product-monitoring background
+   job (price / market / earthquake watches, alerts), not a test tool — so it moved
+   to the Ops tab ("Background jobs + system health"), where it belongs. loadOfferWatch
+   only fires on its Refresh button (no tab-load coupling), so the move is behavior-
+   neutral; all elements (owWatchesTable, owStatusBadge, alerts, etc.) verified intact.
+   The Tests tab's "Simulate & monitor" group is now just personas + sessions.
+
+Admin JS guard passes; <div> net 0. Deploy + hard-refresh to see it.
+
+NOT done (needs founder call): the Persona Lab GRID still shows each persona's email
+(the "usernames"). Those identify which personas exist; hiding them means relabeling
+the grid by persona type instead of email. Flagged rather than guessed.
 ## v5.89.279 — "📋 Copy failures" — one-click copy of all test failures to paste to Claude
 
 Requested: whenever a run fails, a way to copy all failures to paste here. Added a

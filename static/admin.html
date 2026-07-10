@@ -3846,7 +3846,7 @@ details.an-drill[open] .an-chev{transform:rotate(90deg)}
 
   <!-- Sessions sub-panel -->
   <div style="margin-top:16px">
-  <div style="margin:24px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--border);font-size:14px;font-weight:700;color:var(--text)">🧪 Simulate &amp; monitor <span style="font-size:11px;font-weight:400;color:var(--muted)">— occasional — personas, sessions, product monitors</span></div>
+  <div style="margin:24px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--border);font-size:14px;font-weight:700;color:var(--text)">🧪 Simulate &amp; monitor <span style="font-size:11px;font-weight:400;color:var(--muted)">— occasional — personas and test sessions</span></div>
     <div class="section-head" style="cursor:pointer" onclick="document.getElementById('sessionsPanel').style.display=document.getElementById('sessionsPanel').style.display==='none'?'block':'none'">
       <span class="section-title">📋 QA Sessions</span>
       <span class="ml" style="font-family:var(--mono);font-size:10px;color:var(--muted)" id="sessionsChevron">▾ expand</span>
@@ -3874,9 +3874,7 @@ details.an-drill[open] .an-chev{transform:rotate(90deg)}
       </div>
     </div>
     <div style="padding:10px 14px;font-size:11px;color:var(--muted);border-bottom:1px solid var(--border)">
-      Password for all personas: <code style="color:var(--text);font-family:var(--mono)">TestPassword123!</code>
-      &nbsp;·&nbsp; Emails: <code style="color:var(--text);font-family:var(--mono)">*@persona.offerwise.ai</code>
-      &nbsp;·&nbsp; Seeding resets account to known state without deleting history.
+      Test credentials are managed server-side and used automatically by the test runners. Seeding resets an account to a known state without deleting history.
     </div>
     <div id="personaGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:1px;background:var(--border)">
       <div style="background:var(--surface);padding:20px;text-align:center;color:var(--muted);font-size:12px;grid-column:1/-1">
@@ -3885,53 +3883,6 @@ details.an-drill[open] .an-chev{transform:rotate(90deg)}
     </div>
   </div>
 
-
-  <!-- ── OFFERWATCH MONITOR ───────────────────────────────────────────── -->
-  <div class="card" style="margin-top:16px">
-    <div class="card-head">
-      <div class="card-title">🛰️ OfferWatch Monitor</div>
-      <div style="display:flex;gap:6px;align-items:center">
-        <button class="btn btn-ghost btn-sm" onclick="loadOfferWatch()">↻ Refresh</button>
-        <span id="owStatusBadge" style="font-size:11px;color:var(--muted)">—</span>
-      </div>
-    </div>
-
-    <!-- Job trigger row -->
-    <div style="padding:12px 14px;border-bottom:1px solid var(--border);display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-      <span style="font-size:11px;color:var(--muted);margin-right:4px">Trigger job:</span>
-      <button class="btn btn-ghost btn-sm" onclick="triggerOWJob('price')" style="color:var(--blue)">💰 Price Monitor</button>
-      <button class="btn btn-ghost btn-sm" onclick="triggerOWJob('earthquake')" style="color:var(--orange)">🌎 Earthquake</button>
-      <button class="btn btn-ghost btn-sm" onclick="triggerOWJob('comps')" style="color:var(--purple)">🏘 Comps</button>
-      <button class="btn btn-ghost btn-sm" onclick="triggerOWJob('permit')" style="color:var(--green)">📋 Permits</button>
-      <button class="btn btn-ghost btn-sm" onclick="triggerOWJob('deadline')" style="color:var(--amber)">⏰ Deadlines</button>
-      <span id="owTriggerStatus" style="font-size:11px;color:var(--muted);margin-left:4px"></span>
-    </div>
-
-    <!-- Market data check -->
-    <div style="padding:12px 14px;border-bottom:1px solid var(--border)">
-      <div style="font-size:11px;color:var(--muted);margin-bottom:8px;font-weight:600;text-transform:uppercase;letter-spacing:.05em">Market Data Check (RentCast)</div>
-      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-        <input id="owMarketAddress" type="text" placeholder="381 Tina Dr, Hollister, CA 95023" style="flex:1;min-width:260px;padding:7px 10px;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px">
-        <input id="owMarketPrice" type="number" placeholder="Price ($)" style="width:120px;padding:7px 10px;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px">
-        <button class="btn btn-primary btn-sm" onclick="runOWMarketCheck()">🔍 Check</button>
-      </div>
-      <div id="owMarketResult" style="margin-top:10px;font-size:12px;font-family:var(--mono);color:var(--text);display:none"></div>
-    </div>
-
-    <!-- Active watches table -->
-    <div style="padding:12px 14px;border-bottom:1px solid var(--border)">
-      <div style="font-size:11px;color:var(--muted);margin-bottom:8px;font-weight:600;text-transform:uppercase;letter-spacing:.05em">Active Watches <span id="owWatchCount" style="color:var(--text)"></span></div>
-      <div id="owWatchesTable" style="font-size:12px;color:var(--muted)">Click Refresh to load…</div>
-    </div>
-
-    <!-- Recent alerts -->
-    <div style="padding:12px 14px">
-      <div style="font-size:11px;color:var(--muted);margin-bottom:8px;font-weight:600;text-transform:uppercase;letter-spacing:.05em">Alerts (last 7 days) <span id="owAlertCount" style="color:var(--text)"></span></div>
-      <div id="owAlertsTable" style="font-size:12px;color:var(--muted)">Click Refresh to load…</div>
-    </div>
-  </div>
-
-  <!-- v5.88.20: Cassette recording + Postgres tests -->
 </div><!-- /view-tests -->
 
 <!-- v5.88.20: Confirmation modal for cassette recording -->
@@ -4338,6 +4289,53 @@ details.an-drill[open] .an-chev{transform:rotate(90deg)}
     <span style="font-size:11px;color:var(--muted);margin-left:8px">Background jobs + system health</span>
   </div>
 
+
+  <!-- ── OFFERWATCH MONITOR ───────────────────────────────────────────── -->
+  <div class="card" style="margin-top:16px">
+    <div class="card-head">
+      <div class="card-title">🛰️ OfferWatch Monitor</div>
+      <div style="display:flex;gap:6px;align-items:center">
+        <button class="btn btn-ghost btn-sm" onclick="loadOfferWatch()">↻ Refresh</button>
+        <span id="owStatusBadge" style="font-size:11px;color:var(--muted)">—</span>
+      </div>
+    </div>
+
+    <!-- Job trigger row -->
+    <div style="padding:12px 14px;border-bottom:1px solid var(--border);display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+      <span style="font-size:11px;color:var(--muted);margin-right:4px">Trigger job:</span>
+      <button class="btn btn-ghost btn-sm" onclick="triggerOWJob('price')" style="color:var(--blue)">💰 Price Monitor</button>
+      <button class="btn btn-ghost btn-sm" onclick="triggerOWJob('earthquake')" style="color:var(--orange)">🌎 Earthquake</button>
+      <button class="btn btn-ghost btn-sm" onclick="triggerOWJob('comps')" style="color:var(--purple)">🏘 Comps</button>
+      <button class="btn btn-ghost btn-sm" onclick="triggerOWJob('permit')" style="color:var(--green)">📋 Permits</button>
+      <button class="btn btn-ghost btn-sm" onclick="triggerOWJob('deadline')" style="color:var(--amber)">⏰ Deadlines</button>
+      <span id="owTriggerStatus" style="font-size:11px;color:var(--muted);margin-left:4px"></span>
+    </div>
+
+    <!-- Market data check -->
+    <div style="padding:12px 14px;border-bottom:1px solid var(--border)">
+      <div style="font-size:11px;color:var(--muted);margin-bottom:8px;font-weight:600;text-transform:uppercase;letter-spacing:.05em">Market Data Check (RentCast)</div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <input id="owMarketAddress" type="text" placeholder="381 Tina Dr, Hollister, CA 95023" style="flex:1;min-width:260px;padding:7px 10px;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px">
+        <input id="owMarketPrice" type="number" placeholder="Price ($)" style="width:120px;padding:7px 10px;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px">
+        <button class="btn btn-primary btn-sm" onclick="runOWMarketCheck()">🔍 Check</button>
+      </div>
+      <div id="owMarketResult" style="margin-top:10px;font-size:12px;font-family:var(--mono);color:var(--text);display:none"></div>
+    </div>
+
+    <!-- Active watches table -->
+    <div style="padding:12px 14px;border-bottom:1px solid var(--border)">
+      <div style="font-size:11px;color:var(--muted);margin-bottom:8px;font-weight:600;text-transform:uppercase;letter-spacing:.05em">Active Watches <span id="owWatchCount" style="color:var(--text)"></span></div>
+      <div id="owWatchesTable" style="font-size:12px;color:var(--muted)">Click Refresh to load…</div>
+    </div>
+
+    <!-- Recent alerts -->
+    <div style="padding:12px 14px">
+      <div style="font-size:11px;color:var(--muted);margin-bottom:8px;font-weight:600;text-transform:uppercase;letter-spacing:.05em">Alerts (last 7 days) <span id="owAlertCount" style="color:var(--text)"></span></div>
+      <div id="owAlertsTable" style="font-size:12px;color:var(--muted)">Click Refresh to load…</div>
+    </div>
+  </div>
+
+  <!-- v5.88.20: Cassette recording + Postgres tests -->
   <!-- Reasoning Layer (system health + honest integration coverage) -->
   <div class="card" style="margin-top:12px">
     <div class="card-head">
@@ -7252,7 +7250,7 @@ async function seedPersona(key) {
     });
     const d = await r.json();
     if (!r.ok) { showToast('❌ ' + (d.error || 'Failed')); return; }
-    showToast(`✅ ${d.message} · Password: TestPassword123!`);
+    showToast(`✅ ${d.message}`);
     loadPersonas();
   } catch(e) { showToast('❌ ' + e.message); }
 }
@@ -7294,7 +7292,7 @@ async function cleanupPersonas() {
 function loginAsPersona(email) {
   // Copy login info to clipboard and open login page
   navigator.clipboard.writeText(email).catch(()=>{});
-  showToast(`Email copied! Password: TestPassword123!`);
+  showToast(`Email copied!`);
   window.open('/login', '_blank');
 }
 
