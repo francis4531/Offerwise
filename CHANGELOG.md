@@ -1,3 +1,21 @@
+## v5.89.286 — Metrics Snapshot: fix rendering + data bugs the live PDF exposed
+
+Real output revealed three bugs the sample data hid:
+ 1. "&middot;" printed as literal text — HTML entities were placed inside values that
+    then get HTML-escaped (double-escape). Replaced with the literal "·" (U+00B7),
+    which survives escaping.
+ 2. "Lines of code —" and "Integrity checks —" were blank — the snapshot read keys
+    'loc_str'/'integrity_count' but _compute_hero_stats returns 'loc'/'integrity_tests'.
+    Fixed the keys.
+ 3. "Activated 0 · 0%" was wrong — it counted User.analyses_completed, an unmaintained
+    counter, so it read 0 despite real properties and analyses. Now counts distinct
+    REAL users who own ≥1 property (test/persona/example accounts excluded).
+Also made the Reasoning-Engine panel rows crisp (Approach / Status / Bake-off) so a long
+engine sentence no longer wraps and collides with the neighbouring panel.
+
+Verified in the rendered doc: 0 literal entities, LOC + integrity populate, activated
+shows a real count, coverage reads "National · U.S.-wide" cleanly. Smoke test passes;
+admin JS guard passes; <div> net 0.
 ## v5.89.285 — Metrics Snapshot: from thin stat-line to a full company snapshot
 
 The .284 snapshot was slick but THIN — eight numbers around inherently-early traction.

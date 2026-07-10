@@ -6195,7 +6195,7 @@ function buildSnapshotDoc(d){
   function hero(val,label,color){ return '<div style="flex:1;min-width:0;background:#f8fafc;border:1px solid '+C.line+';border-radius:10px;padding:14px 10px;text-align:center">'
     +'<div style="font-family:'+mono+';font-size:28px;font-weight:700;line-height:1;color:'+(color||C.ink)+'">'+esc(val)+'</div>'
     +'<div style="font-size:9.5px;letter-spacing:.05em;text-transform:uppercase;color:'+C.muted+';margin-top:7px;font-family:'+sans+'">'+label+'</div></div>'; }
-  function frow(label,val,pct,color){ var w=wpct(val); var pt=(pct!=null?' &middot; '+pct+'%':'');
+  function frow(label,val,pct,color){ var w=wpct(val); var pt=(pct!=null?' · '+pct+'%':'');
     return '<div style="display:flex;align-items:center;gap:12px;margin:8px 0">'
     +'<div style="width:72px;font-size:11px;color:'+C.muted+';text-align:right">'+label+'</div>'
     +'<div style="flex:1;background:'+C.soft+';border-radius:5px;height:30px;overflow:hidden"><div style="width:'+w+'%;height:100%;background:'+color+';border-radius:5px;min-width:2px"></div></div>'
@@ -6206,8 +6206,8 @@ function buildSnapshotDoc(d){
     +'<div style="padding:8px 14px;font-family:'+mono+';font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:'+accent+';font-weight:700;border-bottom:1px solid '+C.line+';background:'+accent+'0d">'+title+'</div>'
     +'<div style="padding:8px 14px 12px">'+rows+'</div></div>'; }
 
-  var coverageRows = srow('Reach','National &middot; U.S.-wide')
-    + srow('Public-records crawlers', esc(cv.active_crawlers)+' active &middot; '+esc(cv.scaffolded_crawlers)+' scaffolded')
+  var coverageRows = srow('Reach','National · U.S.-wide')
+    + srow('Public-records crawlers', esc(cv.active_crawlers)+' active · '+esc(cv.scaffolded_crawlers)+' scaffolded')
     + srow('Metro coverage', esc(cv.metros))
     + srow('Federal data APIs', esc(cv.federal_apis))
     + srow('Jurisdiction model', esc(cv.jurisdiction_model));
@@ -6218,9 +6218,9 @@ function buildSnapshotDoc(d){
   var engRows = srow('Version','v'+esc(en.version))
     + srow('Lines of code', esc(en.lines_of_code))
     + srow('Python modules', esc(en.modules))
-    + srow('Automated tests', esc(en.automated_tests)+(en.test_files?(' &middot; '+esc(en.test_files)+' files'):''))
+    + srow('Automated tests', esc(en.automated_tests)+(en.test_files?(' · '+esc(en.test_files)+' files'):''))
     + srow('Integrity checks', esc(en.integrity_tests));
-  var moatRows = srow('Engine', esc(mo.engine))
+  var moatRows = srow('Approach', esc(mo.approach))
     + srow('Status', esc(mo.status))
     + srow('Bake-off recall', esc(mo.bakeoff_recall));
   var chips = caps.map(function(c){ return '<span style="display:inline-block;font-size:11px;font-family:'+sans+';color:'+C.ink+';background:#f1f5f9;border:1px solid '+C.line+';border-radius:999px;padding:4px 11px;margin:3px 4px 0 0">'+esc(c)+'</span>'; }).join('');
@@ -6229,7 +6229,7 @@ function buildSnapshotDoc(d){
   +'<div id="advisorSnapshotDoc" style="background:'+C.paper+';color:'+C.ink+';font-family:'+sans+';border:1px solid '+C.line+';border-radius:12px;overflow:hidden;max-width:760px">'
     +'<div style="background:'+C.ink+';color:#fff;padding:20px 24px;display:flex;justify-content:space-between;align-items:center">'
       +'<div><div style="font-family:'+mono+';font-size:20px;font-weight:700;letter-spacing:-.01em">Offer<span style="color:#60a5fa">Wise</span></div>'
-      +'<div style="font-family:'+mono+';font-size:9px;letter-spacing:.18em;color:#94a3b8;margin-top:3px">METRICS SNAPSHOT &middot; NATIONAL U.S.</div></div>'
+      +'<div style="font-family:'+mono+';font-size:9px;letter-spacing:.18em;color:#94a3b8;margin-top:3px">METRICS SNAPSHOT · NATIONAL U.S.</div></div>'
       +'<div style="text-align:right;font-family:'+mono+';font-size:10px;color:#cbd5e1">'+esc(d.generated_at)+'</div></div>'
     +'<div style="padding:22px 24px">'
       +'<div style="display:flex;gap:9px;margin-bottom:20px">'
@@ -6244,7 +6244,7 @@ function buildSnapshotDoc(d){
       +frow('Activated',t.activated_users,t.activation_rate_pct,C.blue)
       +frow('Paying',t.paying_customers,t.signup_to_paid_pct,(Number(t.paying_customers)>0?C.green:C.amber))
       +'<div style="display:flex;gap:22px;margin:12px 0 22px;font-size:11px;color:'+C.muted+'">'
-        +'<div>Last 30d &middot; <strong style="color:'+C.ink+';font-family:'+mono+'">'+esc(t.signups_last_30d)+'</strong> signups</div>'
+        +'<div>Last 30d · <strong style="color:'+C.ink+';font-family:'+mono+'">'+esc(t.signups_last_30d)+'</strong> signups</div>'
         +'<div><strong style="color:'+C.ink+';font-family:'+mono+'">'+esc(t.analyses_run_last_30d)+'</strong> analyses</div>'
         +(e.properties_analyzed!=null?'<div><strong style="color:'+C.ink+';font-family:'+mono+'">'+esc(e.properties_analyzed)+'</strong> properties</div>':'')
         +(e.avg_analyses_per_active_user!=null?'<div><strong style="color:'+C.ink+';font-family:'+mono+'">'+esc(e.avg_analyses_per_active_user)+'</strong> analyses / active user</div>':'')

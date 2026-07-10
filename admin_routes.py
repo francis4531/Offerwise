@@ -748,7 +748,16 @@ def api_metrics_snapshot():
 
     signups   = _safe(lambda: _real_users().count(), 0)
     signups30 = _safe(lambda: _real_users().filter(User.created_at >= since30).count())
-    activated = _safe(lambda: _real_users().filter(User.analyses_completed > 0).count())
+    # "activated" = distinct REAL users who actually created a property (used the product),
+    # not the unmaintained User.analyses_completed counter.
+    from models import Property
+    def _activated():
+        return (db.session.query(func.count(func.distinct(Property.user_id)))
+                .join(User, User.id == Property.user_id)
+                .filter(~User.email.like('%@test.offerwise.ai'),
+                        ~User.email.like('%@persona.offerwise.ai'),
+                        ~User.email.like('%@example.com')).scalar())
+    activated = _safe(_activated, 0)
     paying    = _safe(lambda: _real_users().filter(
         User.subscription_plan.isnot(None),
         User.subscription_plan != 'free',
@@ -815,9 +824,9 @@ def api_metrics_snapshot():
     try:
         from app import _compute_hero_stats
         hs = _compute_hero_stats() or {}
-        eng['lines_of_code'] = hs.get('loc_str') or hs.get('total_loc')
-        eng['modules'] = hs.get('module_count') or hs.get('modules')
-        eng['integrity_tests'] = hs.get('integrity_count') or hs.get('integrity')
+        eng['lines_of_code'] = hs.get('loc') or hs.get('loc_raw')
+        eng['modules'] = hs.get('modules')
+        eng['integrity_tests'] = hs.get('integrity_tests')
     except Exception:
         pass
     def _count_tests():
@@ -836,9 +845,9 @@ def api_metrics_snapshot():
 
     # The moat — honest status
     out['moat'] = {
-        'engine': 'jurisdiction-layered reasoning over disclosures + inspection',
-        'status': 'built · shadow-validating on live traffic',
-        'bakeoff_recall': '6/6 core findings on the canonical case',
+        'approach': 'cross-reference \u00b7 jurisdiction-layered',
+        'status': 'built \u00b7 shadow-validating (live)',
+        'bakeoff_recall': '6/6 core (canonical case)',
         'cross_reference': True,
     }
     out['capabilities'] = [
