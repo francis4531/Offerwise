@@ -1,5 +1,5 @@
 /*!
- * ask-widget.js — OfferWise "Ask your report" component (v5.89.287)
+ * ask-widget.js — OfferWise "Ask your report" component (v5.89.288)
  *
  * One reusable chat widget for every surface where a buyer sees a report:
  *   - the no-login on-ramp (/try)        context: one uploaded document

@@ -1,3 +1,29 @@
+## v5.89.288 — Currency audit of /thesis + /architecture before advisor outreach
+
+Audited both public pages against what the system reports at v5.89.288.
+
+FIXED:
+ - Architecture live-stat interpolation was silently broken: an earlier edit updated the
+   static placeholders (modules 140→157, loc 115K+→120K+, integrity 484→509) but not the
+   replacement markers in app.py, so _compute_hero_stats found no match and the "live"
+   numbers never updated. Re-synced all three markers → interpolation fires again, page
+   shows live modules/LOC/integrity.
+ - Metrics snapshot corpus size was hardcoded '~121K'. Now pulls the LIVE
+   MLFindingLabel.query.count() (formatted ~NNNk) — so it can never go stale and matches
+   the architecture hero.
+ - Thesis: "in under 90 seconds" → "in under a minute" (was inconsistent with the "about
+   forty-five seconds" spec two lines later).
+ - False alarm resolved: architecture "8–12 minutes" is the nightly TRAINING agent's
+   end-to-end run time (clearly labeled), not per-analysis time — no contradiction with 45s.
+
+FLAGGED — FOUNDER MUST RESOLVE BEFORE SENDING:
+ - CORPUS NUMBER CONTRADICTION. Thesis says "121K labeled findings / 121K-row corpus"
+   (lines 378, 532) but architecture line 560 says "~257K rows in ml_finding_labels
+   (~221K with v2 labels) as of v5.89.52", and the live count is whatever MLFindingLabel
+   holds now (~257K+). 121K is stale by ~half and contradicts the same page bundle. Run
+   the live snapshot for the exact count, then sync thesis + architecture line 560.
+ - PATENT CLAIM. Thesis line 531: "Provisional patent applications have been filed."
+   Unverifiable from code — confirm this is literally true before sending to a reviewer.
 ## v5.89.287 — VIP access-link generator (frictionless gated-page access for outreach)
 
 Context: /thesis and /architecture are gated behind an access-request FORM (v5.89.39).

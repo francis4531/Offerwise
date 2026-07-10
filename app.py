@@ -3120,11 +3120,11 @@ def _get_architecture_stats():
             # sources. We replace each one in-place. Markers are the verbatim
             # `>VALUE</div>` substring after the `data-arch-stat="KEY"` attribute,
             # which makes them unique within the file.
-            '<div class="num" data-arch-stat="modules">140</div>':
+            '<div class="num" data-arch-stat="modules">157</div>':
                 f'<div class="num" data-arch-stat="modules">{hero.get("modules")}</div>',
-            '<div class="num" data-arch-stat="loc">115K+</div>':
+            '<div class="num" data-arch-stat="loc">120K+</div>':
                 f'<div class="num" data-arch-stat="loc">{hero.get("loc")}</div>',
-            '<div class="num" data-arch-stat="integrity_tests">484</div>':
+            '<div class="num" data-arch-stat="integrity_tests">509</div>':
                 f'<div class="num" data-arch-stat="integrity_tests">{hero.get("integrity_tests")}</div>',
             '<div class="num" data-arch-stat="labeled_rows">121K</div>':
                 f'<div class="num" data-arch-stat="labeled_rows">{rows_str}</div>',

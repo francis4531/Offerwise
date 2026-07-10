@@ -837,8 +837,14 @@ def api_metrics_snapshot():
     }
 
     # Data assets — the moat's raw material
+    def _corpus_rows():
+        from models import MLFindingLabel
+        n = MLFindingLabel.query.count()
+        if not n:
+            return None
+        return ('~%dK' % round(n / 1000)) if n >= 1000 else str(n)
     out['data'] = {
-        'labeled_corpus_rows': '~121K',
+        'labeled_corpus_rows': _safe(_corpus_rows),
         'findings_persisted': _safe(lambda: __import__('models').Finding.query.count()),
         'shadow_comparisons': _safe(lambda: __import__('models').ShadowComparison.query.count()),
     }
