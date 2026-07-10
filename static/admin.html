@@ -6184,6 +6184,76 @@ async function runHeadToHead() {
 }
 function rxEscB(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
+function _snapNum(v){ return (v==null?'\u2014':String(v)); }
+function buildSnapshotDoc(d){
+  var t = d.traction || {}, p = d.product || {};
+  var C = { ink:'#0f172a', paper:'#ffffff', muted:'#64748b', line:'#e2e8f0', blue:'#1d4ed8', gold:'#f59e0b', green:'#16a34a', amber:'#d97706' };
+  var mono = "'IBM Plex Mono','SFMono-Regular',Menlo,monospace";
+  var sans = "'IBM Plex Sans',-apple-system,BlinkMacSystemFont,sans-serif";
+  var signups = Number(t.signups)||0;
+  function esc(v){ return String(v==null?'\u2014':v).replace(/&/g,'&amp;').replace(/</g,'&lt;'); }
+  function wpct(v){ v=Number(v)||0; if(signups<=0) return 0; return Math.max(4, Math.round(v/signups*100)); }
+  // funnel row
+  function frow(label, val, pct, color){
+    var w = wpct(val);
+    var pctTxt = (pct!=null? ' &middot; '+pct+'%' : '');
+    return '<div style="display:flex;align-items:center;gap:14px;margin:9px 0">'
+      + '<div style="width:78px;font-size:11px;color:'+C.muted+';text-align:right;font-family:'+sans+'">'+label+'</div>'
+      + '<div style="flex:1;background:#f1f5f9;border-radius:5px;height:34px;overflow:hidden">'
+      +   '<div style="width:'+w+'%;height:100%;background:'+color+';border-radius:5px;transition:width .4s;min-width:2px"></div>'
+      + '</div>'
+      + '<div style="width:128px;font-family:'+mono+';font-weight:700;font-size:15px;color:'+C.ink+'">'+esc(val)+'<span style="font-size:10px;color:'+C.muted+';font-weight:500">'+pctTxt+'</span></div>'
+      + '</div>';
+  }
+  // hero stat card
+  function hero(val, label, color){
+    return '<div style="flex:1;min-width:0;background:#f8fafc;border:1px solid '+C.line+';border-radius:10px;padding:14px 12px;text-align:center">'
+      + '<div style="font-family:'+mono+';font-size:30px;font-weight:700;line-height:1;color:'+(color||C.ink)+'">'+esc(val)+'</div>'
+      + '<div style="font-size:10px;letter-spacing:.05em;text-transform:uppercase;color:'+C.muted+';margin-top:7px;font-family:'+sans+'">'+label+'</div>'
+      + '</div>';
+  }
+  var actPct = (t.activation_rate_pct!=null? t.activation_rate_pct : null);
+  var paidPct = (t.signup_to_paid_pct!=null? t.signup_to_paid_pct : null);
+  return ''
+  + '<div id="advisorSnapshotDoc" style="background:'+C.paper+';color:'+C.ink+';font-family:'+sans+';border:1px solid '+C.line+';border-radius:12px;overflow:hidden;max-width:720px">'
+    // header (dark)
+    + '<div style="background:'+C.ink+';color:#fff;padding:20px 24px;display:flex;justify-content:space-between;align-items:center">'
+      + '<div><div style="font-family:'+mono+';font-size:19px;font-weight:700;letter-spacing:-.01em">Offer<span style="color:#60a5fa">Wise</span></div>'
+      + '<div style="font-family:'+mono+';font-size:9px;letter-spacing:.18em;color:#94a3b8;margin-top:3px">METRICS SNAPSHOT</div></div>'
+      + '<div style="text-align:right;font-family:'+mono+';font-size:10px;color:#cbd5e1">'+esc(d.generated_at)+'</div>'
+    + '</div>'
+    // body
+    + '<div style="padding:22px 24px">'
+      // hero row
+      + '<div style="display:flex;gap:10px;margin-bottom:22px">'
+        + hero(_snapNum(t.signups), 'Signups', C.ink)
+        + hero(_snapNum(t.activated_users), 'Activated', C.blue)
+        + hero(_snapNum(t.paying_customers), 'Paying', (Number(t.paying_customers)>0?C.green:C.amber))
+        + hero(_snapNum(t.analyses_run_total), 'Analyses run', C.ink)
+      + '</div>'
+      // funnel
+      + '<div style="font-family:'+mono+';font-size:10px;letter-spacing:.1em;color:'+C.muted+';text-transform:uppercase;border-bottom:1px solid '+C.line+';padding-bottom:6px;margin-bottom:12px">Acquisition funnel</div>'
+      + frow('Signups', t.signups, null, C.ink)
+      + frow('Activated', t.activated_users, actPct, C.blue)
+      + frow('Paying', t.paying_customers, paidPct, (Number(t.paying_customers)>0?C.green:C.amber))
+      + '<div style="display:flex;gap:24px;margin-top:14px;font-size:11px;color:'+C.muted+';font-family:'+sans+'">'
+        + '<div>Last 30 days &middot; <strong style="color:'+C.ink+';font-family:'+mono+'">'+esc(t.signups_last_30d)+'</strong> signups</div>'
+        + '<div><strong style="color:'+C.ink+';font-family:'+mono+'">'+esc(t.analyses_run_last_30d)+'</strong> analyses</div>'
+      + '</div>'
+      // product strip
+      + '<div style="margin-top:22px;background:#f8fafc;border:1px solid '+C.line+';border-radius:10px;padding:14px 16px">'
+        + '<div style="font-family:'+mono+';font-size:10px;letter-spacing:.1em;color:'+C.muted+';text-transform:uppercase;margin-bottom:8px">Product</div>'
+        + '<div style="font-family:'+mono+';font-size:13px;color:'+C.ink+';line-height:1.9">'
+          + '<span style="color:'+C.blue+';font-weight:700">v'+esc(p.version)+'</span>'
+          + '&nbsp;&middot;&nbsp; '+esc(p.lines_of_code)+' LOC'
+          + '&nbsp;&middot;&nbsp; '+esc(p.modules)+' modules'
+          + '&nbsp;&middot;&nbsp; '+esc(p.integrity_tests)+' integrity tests'
+        + '</div>'
+      + '</div>'
+      + '<div style="font-size:9.5px;color:#94a3b8;margin-top:14px;line-height:1.5;font-family:'+sans+'">'+esc(d.note)+'</div>'
+    + '</div>'
+  + '</div>';
+}
 async function generateAdvisorSnapshot() {
   var box = document.getElementById('advisorSnapshot');
   if (!box) return;
@@ -6193,34 +6263,8 @@ async function generateAdvisorSnapshot() {
     var r = await fetchWithTimeout('/api/admin/metrics-snapshot?admin_key=' + encodeURIComponent(adminKey), 30000);
     var d = await r.json();
     window.__advisorSnapshot = d;
-    var t = d.traction || {}, p = d.product || {};
-    function esc(v){ return String(v==null?'\u2014':v).replace(/&/g,'&amp;').replace(/</g,'&lt;'); }
-    function row(label, val){ return '<tr><td style="padding:4px 14px 4px 0;color:#475569">'+label+'</td><td style="padding:4px 0;font-weight:700;font-family:monospace">'+esc(val)+'</td></tr>'; }
-    var actPct = (t.activation_rate_pct!=null?'  ('+t.activation_rate_pct+'%)':'');
-    var paidPct = (t.signup_to_paid_pct!=null?'  ('+t.signup_to_paid_pct+'% of signups)':'');
-    box.innerHTML =
-      '<div id="advisorSnapshotDoc" style="background:#fff;border:1px solid var(--border);border-radius:8px;padding:22px;color:#0f172a;font-family:-apple-system,BlinkMacSystemFont,sans-serif">'
-      + '<div style="font-size:17px;font-weight:800">OfferWise \u2014 Metrics Snapshot</div>'
-      + '<div style="font-size:11px;color:#64748b;margin-bottom:14px">Generated '+esc(d.generated_at)+'</div>'
-      + '<div style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.06em;margin:8px 0 4px">Traction</div>'
-      + '<table style="border-collapse:collapse;font-size:13px">'
-      + row('Signups (real users)', t.signups)
-      + row('Signups \u00b7 last 30 days', t.signups_last_30d)
-      + row('Activated \u00b7 ran \u22651 analysis', esc(t.activated_users)+actPct)
-      + row('Paying customers', esc(t.paying_customers)+paidPct)
-      + row('Analyses run \u00b7 total', t.analyses_run_total)
-      + row('Analyses run \u00b7 last 30 days', t.analyses_run_last_30d)
-      + '</table>'
-      + '<div style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.06em;margin:16px 0 4px">Product</div>'
-      + '<table style="border-collapse:collapse;font-size:13px">'
-      + row('Version', p.version)
-      + row('Lines of code', p.lines_of_code)
-      + row('Python modules', p.modules)
-      + row('Integrity tests', p.integrity_tests)
-      + '</table>'
-      + '<div style="font-size:10px;color:#94a3b8;margin-top:14px;border-top:1px solid var(--border);padding-top:8px">'+esc(d.note)+'</div>'
-      + '</div>'
-      + '<div style="display:flex;gap:8px;margin-top:10px">'
+    box.innerHTML = buildSnapshotDoc(d)
+      + '<div style="display:flex;gap:8px;margin-top:12px">'
       + '<button class="btn btn-sm" onclick="printAdvisorSnapshot()">\U0001F5A8 Print / Save PDF</button>'
       + '<button class="btn btn-sm" onclick="copyAdvisorSnapshot()">\U0001F4CB Copy as text</button>'
       + '</div>';
@@ -6231,8 +6275,12 @@ async function generateAdvisorSnapshot() {
 function printAdvisorSnapshot(){
   var doc = document.getElementById('advisorSnapshotDoc'); if(!doc) return;
   var w = window.open('', '_blank'); if(!w) return;
-  w.document.write('<html><head><title>OfferWise Metrics Snapshot</title></head><body style="font-family:-apple-system,sans-serif;padding:24px">'+doc.outerHTML+'</body></html>');
-  w.document.close(); w.focus(); setTimeout(function(){ w.print(); }, 300);
+  var head = '<head><title>OfferWise Metrics Snapshot</title>'
+    + '<link rel="preconnect" href="https://fonts.googleapis.com">'
+    + '<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">'
+    + '<style>@page{margin:32px} body{margin:0;padding:34px;background:#fff}</style></head>';
+  w.document.write('<html>'+head+'<body>'+doc.outerHTML+'</body></html>');
+  w.document.close(); w.focus(); setTimeout(function(){ w.print(); }, 500);
 }
 function copyAdvisorSnapshot(){
   var d = window.__advisorSnapshot; if(!d) return;

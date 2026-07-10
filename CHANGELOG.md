@@ -1,3 +1,23 @@
+## v5.89.284 — Metrics Snapshot redesigned: diligence-grade, not a table
+
+The .283 snapshot was a plain two-column table — accurate but flat. Rebuilt it as a
+brilliant, self-contained one-pager that matches the Rowen report card's aesthetic
+(IBM Plex Mono + Sans), so the two form a cohesive package for advisors/investors:
+
+ - Dark branded header (OfferWise wordmark + "METRICS SNAPSHOT" stamp + timestamp).
+ - Four hero stat cards — Signups / Activated / Paying / Analyses — big mono numerals,
+   Paying colored green when >0, amber at 0.
+ - A visual ACQUISITION FUNNEL: proportional bars (Signups → Activated → Paying) with
+   conversion percentages, so the drop-off tells the story at a glance.
+ - Last-30-days line + a clean mono PRODUCT strip (version highlighted, LOC, modules,
+   integrity tests).
+ - "🖨 Print / Save PDF" now opens a print view that loads IBM Plex from Google Fonts
+   (with monospace/sans fallbacks) so the exported PDF is crisp; "📋 Copy as text"
+   unchanged for email.
+
+Self-contained inline styles render identically in the admin and in the browser print
+view (the only two paths). Same curated data as .283 (no costs/PII/test accounts).
+Admin JS guard passes; <div> net 0; funnel widths + colors verified with sample data.
 ## v5.89.283 — Metrics Snapshot: a clean, shareable one-pager for advisors/investors
 
 For sharing traction with someone who wants to "peek" (an advisor, a potential
