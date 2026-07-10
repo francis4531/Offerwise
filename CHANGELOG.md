@@ -1,3 +1,24 @@
+## v5.89.289 — Sync corpus figure to ~258K + correct patent wording (pre-outreach)
+
+Founder confirmed the live MLFindingLabel count is ~258K (~221K with v2 labels) and that
+provisional patents are "scribed and ready to be filed" (drafted, not yet filed).
+
+Corpus figure synced to ~258K across all STATIC prose:
+ - thesis: "121K-row training corpus", "121K-row labeled corpus" header, "reached 121K
+   labeled findings" → ~258K (3 refs).
+ - architecture: line 560 "~257K … as of v5.89.52" → "~258K … (live count)"; the SVG
+   data-flow label ~257K → ~258K; the schema table "~257K rows" → ~258K; the corpus_summary
+   static fallback ~121K → ~258K.
+ - LEFT intentionally: the hero labeled_rows placeholder "121K" (server-interpolated to the
+   live count) and the "originally written when the corpus was ~121K rows" historical note
+   (accurate as history).
+
+Patent claim corrected for accuracy: thesis previously said applications "have been filed …
+establishing priority dates" — but they're drafted and ready to file. Now: "are drafted and
+ready to file — which will establish priority dates as the system is hardened toward
+non-provisional filing." No longer claims a filing/priority date that hasn't happened.
+
+Both pages parse. Thesis and architecture now agree with each other and with the live hero.
 ## v5.89.288 — Currency audit of /thesis + /architecture before advisor outreach
 
 Audited both public pages against what the system reports at v5.89.288.

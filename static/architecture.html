@@ -7,8 +7,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Architecture &mdash; OfferWise</title>
 <meta name="description" content="Technical deep-dive into the OfferWise platform architecture: AI-first document parsing, cross-reference engine, risk DNA, agentic monitoring, and more.">
-<link rel="stylesheet" href="/static/ow-system.css?v=5.89.288">
-<link rel="stylesheet" href="/static/typography.css?v=5.89.288">
+<link rel="stylesheet" href="/static/ow-system.css?v=5.89.289">
+<link rel="stylesheet" href="/static/typography.css?v=5.89.289">
 <style>
 .arch-hero{padding:100px 0 60px;text-align:center;position:relative;overflow:hidden}
 .arch-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 50% at 50% 0%,rgba(59,130,246,.08) 0%,transparent 70%),radial-gradient(ellipse 40% 30% at 80% 20%,rgba(249,115,22,.06) 0%,transparent 60%);pointer-events:none}
@@ -557,7 +557,7 @@ code{font-family:'SF Mono','Fira Code','Consolas',monospace;font-size:.82em;back
 
 <p><strong>What we don&rsquo;t do.</strong> We don&rsquo;t persist raw uploaded document text, full street addresses, contact information, or any personally-identifiable customer data in training tables. We don&rsquo;t share customer-derived data outside our own model training. We don&rsquo;t sell training data to third parties. We never reproduce a customer&rsquo;s document or finding text back to anyone outside their account.</p>
 
-<p>The current corpus stands at ~257K rows in <code>ml_finding_labels</code> as of v5.89.52 (~221K with v2 category/severity labels). The customer-derived subset is a minority of that count and grows roughly with analysis volume; the public-crawler subset grows on the daily ML-agent ingestion schedule and is the larger contributor at present scale.</p>
+<p>The current corpus stands at ~258K rows in <code>ml_finding_labels</code> (live count) (~221K with v2 category/severity labels). The customer-derived subset is a minority of that count and grows roughly with analysis volume; the public-crawler subset grows on the daily ML-agent ingestion schedule and is the larger contributor at present scale.</p>
 
 <h3>Coverage Gap &mdash; Honest State of Geographic Distribution</h3>
 <p>Our geographic coverage is improving but is not yet US-wide, and we want to be specific about that. The corpus is currently dominated by NYC (~50%), with Indianapolis, Detroit, Chicago, Seattle, New Orleans, Miami-Dade, Columbus, Cincinnati, Austin, LA, Adams County (CO &mdash; suburban Denver), and Augusta (GA) as the active contributing metros. The federal-aggregate sources add national-level cost benchmarks but minimal finding-text. By transactions volume, this covers <strong>13 of the top 50 US real estate markets (26%)</strong> as of v5.87.21. We are religiously working to close the gap.</p>
@@ -672,7 +672,7 @@ code{font-family:'SF Mono','Fira Code','Consolas',monospace;font-size:.82em;back
 <text x="410" y="180" fill="#94a3b8" font-size="10" font-weight="700" letter-spacing=".12em" text-anchor="middle">TRAINING DATA TABLES (PostgreSQL)</text>
 <rect x="20" y="192" width="185" height="48" rx="8" fill="rgba(34,197,94,.06)" stroke="rgba(34,197,94,.2)"/>
 <text x="112" y="212" fill="#86efac" font-size="10" font-weight="600" text-anchor="middle">ml_finding_labels</text>
-<text x="112" y="228" fill="#666" font-size="8" text-anchor="middle">~257K rows &middot; text + category + severity</text>
+<text x="112" y="228" fill="#666" font-size="8" text-anchor="middle">~258K rows &middot; text + category + severity</text>
 
 <rect x="220" y="192" width="185" height="48" rx="8" fill="rgba(34,197,94,.06)" stroke="rgba(34,197,94,.2)"/>
 <text x="312" y="212" fill="#86efac" font-size="10" font-weight="600" text-anchor="middle">ml_contradiction_pairs</text>
@@ -956,7 +956,7 @@ code{font-family:'SF Mono','Fira Code','Consolas',monospace;font-size:.82em;back
 <tr style="border-bottom:1px solid var(--border)">
   <td style="padding:6px"><strong>Finding Classifier</strong></td>
   <td style="padding:6px"><code>finding_classifier.xgb</code></td>
-  <td style="padding:6px"><code>MLFindingLabel</code> (<strong>~257K rows</strong>)</td>
+  <td style="padding:6px"><code>MLFindingLabel</code> (<strong>~258K rows</strong>)</td>
   <td style="padding:6px;color:#22c55e">Yes &mdash; confidence &ge; 0.85 gates</td>
 </tr>
 <tr style="border-bottom:1px solid var(--border)">
@@ -982,7 +982,7 @@ code{font-family:'SF Mono','Fira Code','Consolas',monospace;font-size:.82em;back
 <h3>Real Numbers from Recent Production Runs</h3>
 <p>Snapshot as of v5.87.85. The corpus and ML-agent operational numbers below are <strong>live-pulled from the database</strong> on each page load (cached server-side for 5 minutes). Items without the live badge are descriptive ranges based on operational pattern in the code.</p>
 <ul style="margin:8px 0 12px 24px" data-arch-real-numbers>
-<li><strong>Corpus size:</strong> <span data-arch-stat="corpus_summary">~121K rows in <code>MLFindingLabel</code>, ~111K rows in <code>MLCostData</code>, ~14K rows in <code>MLContradictionPair</code></span>. <span data-arch-live-badge style="display:none;font-size:10px;font-weight:600;letter-spacing:1px;padding:1px 6px;border-radius:4px;background:rgba(34,197,94,0.12);color:#22c55e;margin-left:6px">LIVE</span></li>
+<li><strong>Corpus size:</strong> <span data-arch-stat="corpus_summary">~258K rows in <code>MLFindingLabel</code>, ~111K rows in <code>MLCostData</code>, ~14K rows in <code>MLContradictionPair</code></span>. <span data-arch-live-badge style="display:none;font-size:10px;font-weight:600;letter-spacing:1px;padding:1px 6px;border-radius:4px;background:rgba(34,197,94,0.12);color:#22c55e;margin-left:6px">LIVE</span></li>
 <li><strong>Phase 1 (crawl) duration:</strong> 35&ndash;75 seconds. Adds 50&ndash;500 new cost records on a typical night, sometimes zero on holiday weeks when municipal portals are quiet.</li>
 <li><strong>Phase 4 (training) duration:</strong> 6&ndash;9 minutes for all three models combined. Finding Classifier is the slowest (~3-4 min); Cost Predictor ~2-3 min; Contradiction Detector ~1-2 min.</li>
 <li><strong>Total agent run time, end to end:</strong> <span data-arch-stat="avg_duration_str">8&ndash;12 minutes</span>. The 30-minute window before the 03:30 discovery crawler is plenty. <span data-arch-live-badge style="display:none;font-size:10px;font-weight:600;letter-spacing:1px;padding:1px 6px;border-radius:4px;background:rgba(34,197,94,0.12);color:#22c55e;margin-left:6px">LIVE</span></li>
