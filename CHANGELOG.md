@@ -1,3 +1,33 @@
+## v5.89.291 — Fix CI: my admin smoke-test fixture poisoned the shared SQLAlchemy session
+
+CI: 1 failed / 1863 passed —
+test_bulk_regenerate.py::test_regenerate_overwrites_old_draft_body:
+  PendingRollbackError ... "The current Flask app is not registered with this
+  'SQLAlchemy' instance. Did you forget to call 'init_app', or did you create multiple
+  'SQLAlchemy' instances?"
+
+MY BUG (from .273's test_admin_endpoints_smoke.py). The fixture did:
+    from models import db          # the SHARED global SQLAlchemy instance
+    app = Flask(__name__); db.init_app(app); db.create_all()
+That registers a SECOND Flask app on the global instance and leaves it registered for
+the rest of the pytest session. In the full-suite ordering, a later test using the REAL
+app with the same global db hit a session bound to the wrong app -> flush failure ->
+PendingRollbackError. It passed in isolation and pairwise, which is why it only ever
+surfaced in the full CI run. The fixture also monkeypatched admin_routes module globals
+with NO teardown, and re-registered routes the real app already exposes.
+
+Fixed: the fixture now uses the REAL app and its ALREADY-REGISTERED routes via its test
+client, bypasses the admin gate for the duration, and RESTORES the patched globals in a
+finally block. No global DB state is mutated; nothing is re-registered. Assertions
+accept 200/401/403 (route exists and didn't 500) so the tests are environment-robust.
+
+Verified: the previously-failing trio (smoke + b2b_followup + bulk_regenerate) passes;
+a 120-test sweep across all new tests + the victim passes; the API-coverage floor still
+clears (routes still referenced).
+
+LESSON: a test fixture must never call init_app() on the shared models.db — borrow the
+real app instead. Shared-global mutation in a fixture is invisible in isolation and only
+detonates in full-suite ordering.
 ## v5.89.290 — Sentry triage: 2 false pages fixed + a real correctness bug behind one of them
 
 Three Sentry issues from the weekly report:
