@@ -1,3 +1,31 @@
+## v5.89.290 — Sentry triage: 2 false pages fixed + a real correctness bug behind one of them
+
+Three Sentry issues from the weekly report:
+
+1. NameError: _dev_only_gate (64 events) — ALREADY FIXED in v5.89.272; it fired only
+   while the broken v5.89.271 was briefly live. Zero occurrences in current code; prod
+   is past it. Resolve/close this issue in Sentry — no code change needed.
+
+2. "All PDF extraction methods failed" (83 events, run_adversarial_pdf_tests) — a FALSE
+   PAGE. This is a HANDLED input condition, not a bug: the caller receives a structured
+   failure, the input-confidence gate tells the buyer "we couldn't read this document",
+   and the adversarial PDF suite feeds blank/corrupt files ON PURPOSE to assert exactly
+   this path. logger.error → logger.warning. 83 pages for the system working as designed.
+
+3. "Fact-check failed: Expecting value: line 1 column 1" (69 events) — a false page that
+   was hiding a REAL correctness bug. verify_finding_against_source() did a raw
+   json.loads() on the model's text, bypassing ai_json. So a stray token or a truncated
+   payload → parse error → caught → and it SILENTLY FAILED SAFE to supported=True,
+   asserting a finding was verified when verification never happened. That is the
+   tight-but-fabricated failure mode, in the verification layer itself.
+   Fixed: routed through ai_json.call_ai_json (detects truncation from stop_reason,
+   retries at a higher ceiling, repairs recoverable payloads, records AIParseEvent
+   telemetry, endpoint='fact-check'). On a genuine parse failure it now returns
+   supported=False / confidence=0.0 / verdict='uncertain' with the error surfaced —
+   never a fabricated "supported" — and logs at warning (handled), not error.
+
+Tests: test_factcheck_parse_failure.py (2) — unparseable response must NOT claim support;
+clean response still parses normally. Added to the suite runner. ai_json suite green.
 ## v5.89.289 — Sync corpus figure to ~258K + correct patent wording (pre-outreach)
 
 Founder confirmed the live MLFindingLabel count is ~258K (~221K with v2 labels) and that

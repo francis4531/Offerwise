@@ -301,23 +301,49 @@ Return ONLY JSON:
 }}"""
             
             _t0 = time.time()
-            response = self.client.messages.create(
-                model=SONNET,
-                max_tokens=1000,
-                messages=[{"role": "user", "content": prompt}]
-            )
             try:
-                try:
-                    from app import app as _ow_app, db as _ow_db
-                except Exception:
-                    _ow_app, _ow_db = None, None
-                from ai_cost_tracker import track_ai_call as _track
-                _track(response, "document-analysis", (time.time() - _t0) * 1000, db=_ow_db, app=_ow_app)
+                from app import app as _ow_app, db as _ow_db
             except Exception:
-                pass
-            
-            result = json.loads(response.content[0].text)
-            
+                _ow_app, _ow_db = None, None
+            try:
+                from ai_cost_tracker import track_ai_call as _track
+            except Exception:
+                _track = None
+
+            # v5.89.290: route through ai_json — this call previously did a raw
+            # json.loads() on the model's text, so a stray token or a truncated
+            # payload raised "Expecting value: line 1 column 1", got caught below,
+            # and silently FAILED SAFE to supported=True (an unverified claim
+            # passing as verified) while paging Sentry. call_ai_json detects
+            # truncation from stop_reason, retries at a higher ceiling, repairs
+            # recoverable payloads, and records AIParseEvent telemetry.
+            from ai_json import call_ai_json
+            parsed = call_ai_json(
+                prompt,
+                max_tokens=1000,
+                temperature=0,
+                model=SONNET,
+                ai_client=self.client,
+                endpoint='fact-check',
+                max_tokens_ceiling=2000,
+                track=(lambda resp, ms: _track(resp, "document-analysis", ms,
+                                               db=_ow_db, app=_ow_app)) if _track else None,
+            )
+            if not parsed.ok:
+                # Genuine, unrecoverable parse failure — surface it, never pretend
+                # the claim was verified. Handled (not a crash), so warn, don't page.
+                logger.warning(
+                    f"⚠️ Fact-check unparseable (endpoint=fact-check, "
+                    f"truncated={parsed.truncated}): {parsed.error}")
+                return {
+                    'supported': False,          # was True — do NOT assert support we never got
+                    'confidence': 0.0,
+                    'evidence': [],
+                    'verdict': 'uncertain',
+                    'error': f'verification unavailable: {parsed.error}',
+                }
+            result = parsed.data
+
             logger.info(f"✅ Verification: {result['verdict']} ({result['confidence']:.0%})")
             
             return {

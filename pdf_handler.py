@@ -228,8 +228,14 @@ class PDFHandler:
         else:
             logger.warning("OCR not available - install pytesseract and pdf2image for scanned document support")
         
-        # If all else fails, return empty with detailed error
-        logger.error("All PDF extraction methods failed - no text could be extracted")
+        # If all else fails, return empty with detailed error.
+        # v5.89.290: warning, not error. This is a HANDLED input condition, not a
+        # bug: the caller gets a structured failure, the input-confidence gate
+        # surfaces "we couldn't read this document" to the buyer, and the
+        # adversarial PDF suite feeds blank/corrupt files ON PURPOSE to assert
+        # exactly this path. Logging it at error paged Sentry 83 times for the
+        # system working as designed.
+        logger.warning("All PDF extraction methods failed - no text could be extracted")
         
         # Check if this might be a scanned document
         try:
