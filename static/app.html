@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>OfferWise AI™ — Property Analysis</title>
-    <script src="/static/gtm-loader.js?v=5.89.291"></script>
+    <script src="/static/gtm-loader.js?v=5.89.292"></script>
 <!-- /GTM head -->
     <script>if(window.location.hostname==='getofferwise.ai')window.location.replace('https://www.getofferwise.ai'+window.location.pathname+window.location.search);</script>
     <link rel="icon" type="image/svg+xml" href="/static/logo-icon-only.svg">
@@ -21,7 +21,7 @@
     <link rel="preconnect" href="https://unpkg.com" crossorigin>
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/results-theme.css?v=5.89.291">
+    <link rel="stylesheet" href="/static/results-theme.css?v=5.89.292">
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone@7.29.7/babel.min.js"></script>
@@ -685,7 +685,7 @@
         .ow-strategy-grid { grid-template-columns: 1fr !important; }
       }
     </style>
-    <script src="/static/analytics-loader.js?v=5.89.291" defer></script>
+    <script src="/static/analytics-loader.js?v=5.89.292" defer></script>
     <!-- Reddit Pixel Base Code -->
     <script>
     !function(w,d){if(!w.rdt){var p=w.rdt=function(){p.sendEvent?p.sendEvent.apply(p,arguments):p.queue.push(arguments)};p.queue=[];var t=d.createElement('script');t.src='https://www.redditstatic.com/ads/pixel.js';t.async=!0;var s=d.getElementsByTagName('script')[0];s.parentNode.insertBefore(t,s)}}(window,document);
@@ -739,7 +739,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       .ow-results[data-tab="condition"] #ow-riskdna,
       .ow-results[data-tab="disclosures"] #ow-disclosure,
       .ow-results[data-tab="disclosures"] #ow-disclosure-state,
-      .ow-results[data-tab="disclosures"] #ow-reasoning,
+      .ow-results[data-tab="reasoning"] #ow-reasoning,
       .ow-results[data-tab="negotiate"] #ow-walk,
       .ow-results[data-tab="negotiate"] #ow-toolkit { display:block; }
     </style>
@@ -751,7 +751,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         // data-tab; CSS (above) keys section visibility off that attribute. If
         // anything here fails, data-tab is never set and the full report shows.
         function OwReportTabs() {
-          const TABS = [['price','Price'],['condition','Condition'],['disclosures','Disclosures'],['negotiate','Negotiate']];
+          const TABS = [['price','Price'],['condition','Condition'],['disclosures','Disclosures'],['reasoning','Reasoning'],['negotiate','Negotiate']];
           const [tab, setTab] = useState('price');
           const ref = React.useRef(null);
           React.useLayoutEffect(() => {
@@ -6675,6 +6675,28 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                       );
                     })()}
 
+                    {/* v5.89.292: Reasoning tab empty-state. The block above renders the
+                        full chain ONLY when result.reasoning is present (flag on). Without
+                        this, a user on the new Reasoning tab with the flag off sees a blank
+                        pane. This keeps #ow-reasoning present with an explanatory state. */}
+                    {!(result.reasoning && Array.isArray(result.reasoning.claims)) && (
+                      <div id="ow-reasoning" style={{ marginTop:'32px' }}>
+                        <h2 className="ow-section-title" style={{ fontSize:'var(--ow-fs-section-title)', margin:'0 0 8px' }}>
+                          The reasoning chain
+                        </h2>
+                        <p className="ow-section-sub" style={{ margin:'0 0 14px' }}>
+                          This view walks the derivation step by step — what the seller disclosed,
+                          what the inspection found, where they contradict, and what it means for
+                          your offer. It’s being rolled out and isn’t enabled for this report yet.
+                        </p>
+                        <div style={{ padding:'18px 20px', background:'rgba(96,165,250,0.06)', border:'1px solid rgba(96,165,250,0.22)', borderRadius:'8px', color:'var(--ow-text-2)', fontSize:'var(--ow-fs-small)', lineHeight:1.6 }}>
+                          The full step-by-step reasoning is available on newer analyses. The
+                          Price, Condition, and Disclosures tabs already show every finding this
+                          report produced.
+                        </div>
+                      </div>
+                    )}
+
                     {predictedIssues.length > 0 && (
                       <div id="ow-reserve" style={{ marginTop:'32px' }}>
                         <h2 className="ow-section-title" style={{ fontSize: 'var(--ow-fs-section-title)', margin:'0 0 8px' }}>
@@ -12525,7 +12547,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </script>
     
     <!-- Async Upload Manager - Handles PDF uploads with real-time progress -->
-    <script src="/static/async-upload-manager.js?v=5.89.291"></script>
+    <script src="/static/async-upload-manager.js?v=5.89.292"></script>
     
     <!-- Floating Support Button -->
     <a href="/contact" id="support-button" style="
@@ -12550,8 +12572,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <span style="font-size: 16px;">💬</span>
         Help
     </a>
-<script src="/static/js/compliance.js?v=5.89.291"></script>
-<script src="/static/js/analytics.js?v=5.89.291" defer></script>
+<script src="/static/js/compliance.js?v=5.89.292"></script>
+<script src="/static/js/analytics.js?v=5.89.292" defer></script>
 <script>
 // Scroll reveal for premium results animations
 (function() {
@@ -12638,7 +12660,7 @@ if ('serviceWorker' in navigator) {
 
 <!-- Scout: docked, summon-on-demand "Ask your report" assistant (v5.89.157) -->
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&display=swap" rel="stylesheet">
-<script src="/static/ask-widget.js?v=5.89.291"></script>
+<script src="/static/ask-widget.js?v=5.89.292"></script>
 <script>
 (function(){
   if (window.__scoutInit) { return; } window.__scoutInit = true;

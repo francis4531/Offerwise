@@ -1,3 +1,26 @@
+## v5.89.292 — Reasoning chain promoted to its own report tab (+ empty-state)
+
+A user asked to "see the reasoning — all of it, one leading to the next." The reasoning
+layer already existed on the report but was tucked under the Disclosures tab and only
+rendered when the backend flag was on. Made it a first-class tab.
+
+ - OwReportTabs: added ['reasoning','Reasoning'] between Disclosures and Negotiate.
+ - Tab→section CSS: #ow-reasoning moved from data-tab="disclosures" to its own
+   data-tab="reasoning" reveal rule.
+ - Empty-state: the full chain block renders ONLY when result.reasoning is present
+   (flag on). Added a complementary #ow-reasoning block that renders when it's absent,
+   so the new tab is never blank — it explains the step-by-step view is rolling out and
+   points to the tabs that already show every finding. The two #ow-reasoning blocks are
+   exact logical complements (present vs. !present), so exactly one renders; no
+   duplicate-id collision.
+
+PDF renderer unaffected (keys off _reasoningActive independently of the tab). JSX
+compiles cleanly; tab wiring verified.
+
+NOTE: the tab shows the chain but the render still lists issues rather than walking
+disclosure→inspection→contradiction→class→cost→confidence as a sequence. That
+sequence rewrite (using result.reasoning.claims polarity pairing) is the next step —
+this change makes the surface exist and be reachable first.
 ## v5.89.291 — Fix CI: my admin smoke-test fixture poisoned the shared SQLAlchemy session
 
 CI: 1 failed / 1863 passed —
