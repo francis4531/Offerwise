@@ -1,3 +1,26 @@
+## v5.89.293 — Fix analysis crash: progressInterval declared const but reassigned on retry
+
+Reported: uploading docs and running analysis (after deleting a prior report and
+re-running) crashed with "Something went wrong". Console showed:
+  ANALYSIS ERROR: TypeError: "progressInterval" is read-only
+  ...then: TypeError: Cannot read properties of undefined (reading 'length')
+  -> React error boundary -> blank report.
+
+Root cause: progressInterval was declared `const` (~line 4067) but REASSIGNED on the
+job-retry path (~line 4125, after clearInterval, when a delete+re-run returns the same
+idempotent job). const reassignment throws "read-only", which aborted the analysis flow
+mid-run and left result state half-initialized; a downstream .length on the
+partially-populated result then threw and tripped the error boundary. The second error
+was a cascade of the first, not an independent bug.
+
+Fix: const -> let for progressInterval so the retry path can reassign it. One-word
+change; resolves both console errors.
+
+NOT the cause: the v5.89.292 reasoning tab (its block is guarded by
+Array.isArray(result.reasoning.claims); issues/offer defaulted) and predictedIssues
+(defaulted to []). Verified no other unguarded result.*.length in the render path.
+
+JSX compiles clean.
 ## v5.89.292 — Reasoning chain promoted to its own report tab (+ empty-state)
 
 A user asked to "see the reasoning — all of it, one leading to the next." The reasoning
