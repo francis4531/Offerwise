@@ -1,3 +1,48 @@
+## v5.89.295 — Static guard against the duplicate-declaration bug class (.293/.294)
+
+The analysis white-screen shipped TWICE because a `const x = ... || x` /
+duplicate-`const`-in-same-scope is valid JS *syntax* — check_jsx.js compiles it — and
+only fails at runtime when its branch executes (here, the retry/refresh path, which no
+test exercised). Added a static guard so this class can't reach prod again.
+
+ - scripts/check_dup_declarations.js: parses app.html's inline JSX to a real AST and
+   flags (a) any name declared with let/const more than once in the same block scope,
+   and (b) a self-referential initializer at the top level (`const x = a || x`).
+   Carefully scoped to ZERO false positives: property accesses (obj.x), object keys
+   ({x:1}), and recursion inside nested functions (const poll = ()=>{...poll()...}) are
+   all correctly ignored. Verified clean on current app.html and proven to catch the
+   exact .294 bug when re-injected.
+ - Wired into scripts/ow_deploy.sh (blocks deploy) right after check_jsx.
+ - test_app_html_jsx.py: two new tests — the guard passes on app.html, AND it FAILS on
+   the re-injected bug (a net that's proven to catch, not just present). 4 pass.
+
+This closes the .293/.294 blind spot at the STATIC level. It does NOT exercise the
+retry/refresh runtime path itself — a JSDOM/mock test of handleAnalyze's "existing job
+returned" branch is the remaining, heavier follow-up if runtime coverage is wanted.
+## v5.89.294 — Fix the ACTUAL analysis crash: duplicate progressMessages declaration
+
+.293 fixed progressInterval (const->let) but the crash persisted because there was a
+SECOND, deeper bug in the same retry block of handleAnalyze:
+
+    const progressMessages = window.__owProgressMessages || progressMessages;
+
+This (line ~4119) REDECLARED the outer `const progressMessages` (line ~4049) in the
+same function scope AND referenced the variable in its own initializer. It's a botched
+paste — sseSource / progressMessages / progressInterval reassignment all landed where
+those names already existed. On the retry/refresh path (delete a report + re-run the
+same property → idempotent job returns the existing job → this block executes), the
+redeclaration/self-reference throws, aborting analysis mid-run; the render then reads
+.length on partially-initialized result state → React error boundary → "Something went
+wrong". The read-only progressInterval error was the visible symptom of the same broken
+block; .293 fixed one line of it, this fixes the cause.
+
+Fix: removed the duplicate `const progressMessages = ...` line. The outer declaration is
+already in scope and is what the interval closures use. Verified: exactly one
+progressMessages declaration, one sseSource, one `let progressInterval`; JSX compiles.
+
+WHY IT KEPT SLIPPING THROUGH: this only executes on the retry/refresh path, which no
+test or guard exercises — same blind spot as .293. A test that runs handleAnalyze
+through the "existing job" branch would have caught both.
 ## v5.89.293 — Fix analysis crash: progressInterval declared const but reassigned on retry
 
 Reported: uploading docs and running analysis (after deleting a prior report and

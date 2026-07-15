@@ -102,6 +102,13 @@ if ! ( cd "$BUILD" && node -e "require.resolve('@babel/preset-react')" ) >/dev/n
 fi
 node "$BUILD/scripts/check_jsx.js" "$BUILD/static/app.html"
 
+# Duplicate/self-referential lexical declaration guard (v5.89.295): catches the bug
+# class that white-screened analysis in .293/.294 — a `const x = ... || x` /
+# duplicate `const x` in the same scope. Valid JS syntax (check_jsx compiles it), so
+# only this static-scope check catches it before it ships.
+node "$BUILD/scripts/check_dup_declarations.js" \
+  || { echo "  ✗ duplicate/self-referential declaration in app.html. Aborting deploy."; exit 1; }
+
 # Import + coverage guard (v5.89.274): catches the two failure classes py_compile
 # can't — a module-level NameError that dead-boots the worker, and an API-coverage
 # regression. Exit 1 = real code bug (block); exit 2 = app deps not installed here
