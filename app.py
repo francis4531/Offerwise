@@ -660,6 +660,7 @@ def csrf_protection():
         '/auth/forgot-password',   # Password reset request
         '/auth/reset-password/',   # Password reset form
         '/api/health',
+        '/api/client-error',   # Client-side error beacon (no token available; capped/deduped)
         '/api/auto-test/',     # Admin test endpoints (protected by admin_key)
         '/api/test/',          # Admin test endpoints (protected by admin_key)
         '/api/bugs',           # Admin bug tracker (protected by admin_key)
@@ -5109,6 +5110,39 @@ def get_comparison(comparison_id):
             'success': False,
             'error': 'An internal error occurred. Please try again.'
         }), 500
+
+
+@app.route('/api/client-error', methods=['POST'])
+def api_client_error():
+    """Receive a client-side (React) error and report it to Sentry through the backend
+    SDK — so front-end white-screens/crashes actually page us instead of being invisible
+    (they previously never reached Sentry; we learned about them from customer emails).
+    No new front-end CDN dependency: the browser just POSTs here."""
+    try:
+        data = request.get_json(silent=True) or {}
+        message = (data.get('message') or 'Client error')[:500]
+        boundary = (data.get('boundary') or 'unknown')[:100]
+        stack = (data.get('stack') or '')[:4000]
+        component_stack = (data.get('componentStack') or '')[:4000]
+        url = (data.get('url') or '')[:500]
+        ua = (request.headers.get('User-Agent') or '')[:300]
+        # Structured log always (shows in Render logs even without Sentry)
+        logging.error(f"[client-error] boundary={boundary} url={url} :: {message}")
+        try:
+            import sentry_sdk
+            with sentry_sdk.push_scope() as scope:
+                scope.set_tag('source', 'frontend')
+                scope.set_tag('boundary', boundary)
+                scope.set_context('client', {
+                    'url': url, 'user_agent': ua,
+                    'stack': stack, 'componentStack': component_stack,
+                })
+                sentry_sdk.capture_message(f"[client] {message}", level='error')
+        except Exception:
+            pass
+        return jsonify({'ok': True}), 200
+    except Exception as e:
+        return jsonify({'ok': False, 'error': str(type(e).__name__)}), 200
 
 
 @app.route('/analyze')

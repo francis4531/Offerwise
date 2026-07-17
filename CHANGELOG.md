@@ -1,3 +1,32 @@
+## v5.89.298 — Graceful error boundaries + client errors now reach Sentry
+
+TWO structural fixes so a single bad render can't (a) white-screen the whole app or
+(b) be invisible to us. Root of the "found out from a customer email 8 hours later"
+problem: the frontend had NO Sentry — the error boundary caught crashes, showed the red
+wall, and told no one.
+
+Graceful boundaries:
+ - New reusable <Boundary name="..."> component. Catches a crash in ONE region, shows a
+   compact "this part couldn't load — try again / back to dashboard" fallback (rest of
+   the app keeps working), and reports it.
+ - Wrapped the three active steps: documents, analysis, results. A crash in any step is
+   now contained instead of blanking the page. (Today's progress-ticker bug would have
+   been a missing label, not an outage.)
+ - Top-level ErrorBoundary now also reports to Sentry.
+
+Client errors -> Sentry (no new frontend CDN, avoiding the Babel-8 white-screen risk):
+ - Global window.__owReportError + window.onerror + unhandledrejection handlers POST to
+   a new backend route /api/client-error, which reports via the EXISTING sentry_sdk
+   (tags: source=frontend, boundary=<name>; context: url, stack, componentStack, UA).
+   Deduped + capped at 10/page so a render loop can't spam. Uses sendBeacon when available.
+ - /api/client-error exempted from CSRF (beacon has no token; capped/deduped).
+
+Validated: JSX compiles; dup-declaration guard clean; reporter script syntax OK; app.py
+compiles + all route modules import clean + coverage floor holds.
+
+FOUNDER ACTION REQUIRED for pings: client errors now ARRIVE in Sentry, but Sentry only
+NOTIFIES you if an Alert Rule exists. See deploy notes — create an issue-alert filtered
+to tag source:frontend -> email/Slack. (Requires SENTRY_DSN set in Render, which it is.)
 ## v5.89.297 — Fix the analysis white-screen at the ROOT: object rendered as React child
 
 React error #31 ("object with keys {at, text, tip}") in AnalyzeStep. This is the ACTUAL
