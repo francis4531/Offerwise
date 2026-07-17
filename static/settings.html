@@ -8,9 +8,9 @@
 <title>My Account — OfferWise AI</title>
 <script>if(window.location.hostname==='getofferwise.ai')window.location.replace('https://www.getofferwise.ai'+window.location.pathname+window.location.search);</script>
 <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
-<link rel="stylesheet" href="/static/typography.css?v=5.89.295">
-<script src="/static/referral-functions.js?v=5.89.295"></script>
-<script src="/static/analytics-loader.js?v=5.89.295" defer></script>
+<link rel="stylesheet" href="/static/typography.css?v=5.89.296">
+<script src="/static/referral-functions.js?v=5.89.296"></script>
+<script src="/static/analytics-loader.js?v=5.89.296" defer></script>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
@@ -804,7 +804,7 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
 </div>
 
 
-<script src="/static/js/compliance.js?v=5.89.295"></script>
+<script src="/static/js/compliance.js?v=5.89.296"></script>
 <script>
   // ── B2B post-login redirect — if user came via OAuth from a B2B landing page ──
   // ── DEBUG v5.75.97: Intercept confirm() globally to trace origin ──────────
@@ -1186,27 +1186,34 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
                 const pi = planLabels[plan] || planLabels.free;
                 const isUnlimited = pi.limit === -1;
 
-                // Sidebar credits value — developer accounts show ∞, others show plan
+                // Sidebar credits value — developer accounts show ∞, others show plan.
+                // v5.89.296: also drive the TOP "Credits" stat card (#stat-credits) from the
+                // SAME computed value. Previously only the sidebar was updated, so the header
+                // card stayed on its '—' default and users read it as "no credits" while the
+                // sidebar said "1 + 2 referral". One source, one number, both widgets.
                 const credValEl = document.getElementById('sidebar-credits-val');
                 const credSubEl = document.getElementById('sidebar-credits-sub');
-                if (credValEl) {
+                const statCreditsEl = document.getElementById('stat-credits');
+                // shared setter so the two never diverge
+                const setCreditsDisplay = (mainText, color, subText) => {
+                  if (credValEl) { credValEl.textContent = mainText; credValEl.style.color = color; }
+                  if (credSubEl && subText != null) credSubEl.textContent = subText;
+                  if (statCreditsEl) { statCreditsEl.textContent = mainText; statCreditsEl.style.color = color; }
+                };
+                if (credValEl || statCreditsEl) {
                   if (data.is_developer) {
-                    credValEl.textContent = '∞';
-                    credValEl.style.color = '#a78bfa';
-                    if (credSubEl) credSubEl.textContent = 'Developer account';
+                    setCreditsDisplay('∞', '#a78bfa', 'Developer account');
                   } else if (isUnlimited) {
-                    credValEl.textContent = '∞';
-                    credValEl.style.color = '#a78bfa';
-                    if (credSubEl) credSubEl.textContent = 'Unlimited plan';
+                    setCreditsDisplay('∞', '#a78bfa', 'Unlimited plan');
                   } else {
-                    const remaining = Math.max(0, pi.limit - used);
-                    credValEl.textContent = remaining;
-                    credValEl.style.color = remaining === 0 ? '#ef4444' : '#22c55e';
-                    if (credSubEl) {
-                      credSubEl.textContent = credits > 0
-                        ? `+ ${credits} referral credit${credits !== 1 ? 's' : ''}`
-                        : `of ${pi.limit} this month`;
-                    }
+                    const planRemaining = Math.max(0, pi.limit - used);
+                    // referral credits stack on top of the plan allotment
+                    const totalUsable = planRemaining + (credits || 0);
+                    const color = totalUsable === 0 ? '#ef4444' : '#22c55e';
+                    const sub = credits > 0
+                      ? `${planRemaining} this month + ${credits} referral credit${credits !== 1 ? 's' : ''}`
+                      : `of ${pi.limit} this month`;
+                    setCreditsDisplay(totalUsable, color, sub);
                   }
                 }
 
@@ -1264,6 +1271,9 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
                 console.error('❌ Failed to load credits:', error);
                 document.getElementById('user-credits-display').innerHTML = '<span style="color: #ef4444;">Error</span>';
                 const cntErr = document.getElementById('credits-count-text'); if (cntErr) cntErr.textContent = 'Error loading';
+                // v5.89.296: keep the top stat card in sync on failure too (don't leave it on '—')
+                const statErr = document.getElementById('stat-credits');
+                if (statErr) { statErr.textContent = '—'; statErr.style.color = '#ef4444'; }
             }
         }
         

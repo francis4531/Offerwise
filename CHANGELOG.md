@@ -1,3 +1,26 @@
+## v5.89.296 — Fix confusing credits display on the dashboard (two widgets disagreed)
+
+Customer (Nathan) saw the top "CREDITS" stat card show "—" while the sidebar showed
+"1 + 2 referral credits" on the SAME dashboard — reads as "no credits / broken".
+
+Cause: the credits fetch in settings.html populated only #sidebar-credits-val; the top
+#stat-credits card was never updated, so it sat on its '—' default.
+
+Fix:
+ - Single shared setter (setCreditsDisplay) drives BOTH #sidebar-credits-val and
+   #stat-credits from the same computed value — they can't diverge again.
+ - The headline number now shows TOTAL USABLE credits (plan-remaining + referral),
+   so "1 this month + 2 referral" surfaces as 3, matching what the user can actually
+   use. Sub-line breaks it down ("1 this month + 2 referral credits").
+ - Developer -> ∞, Unlimited -> ∞, else total usable; color red at 0, green otherwise.
+ - On credits-fetch failure, the top card is also cleared to '—'/red instead of being
+   left on a stale value.
+
+settings.html inline JS syntax-checked (5 blocks clean). Pure display fix — no change to
+credit-consumption logic.
+
+NOTE: the separate address-only analysis white-screen (undefined.length, still on .295)
+is UNRESOLVED — awaiting the un-minified stack line to locate the exact throw.
 ## v5.89.295 — Static guard against the duplicate-declaration bug class (.293/.294)
 
 The analysis white-screen shipped TWICE because a `const x = ... || x` /
