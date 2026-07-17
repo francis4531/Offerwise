@@ -1,3 +1,32 @@
+## v5.89.297 — Fix the analysis white-screen at the ROOT: object rendered as React child
+
+React error #31 ("object with keys {at, text, tip}") in AnalyzeStep. This is the ACTUAL
+cause of the analysis white-screens (incl. address-only), and it explains why .293/.294/
+.295 didn't stop them — they fixed declaration bugs in the same block but not this.
+
+Root cause (line ~4138, the progress-interval setter):
+    message: msgs[Math.floor(cur/12) % msgs.length] || 'Analyzing...'
+msgs is the progressMessages array of {at, text, tip} OBJECTS, so .message was set to a
+whole OBJECT. When AnalyzeStep rendered {analysisProgress.message}, React threw #31
+(can't render an object as a child) -> error boundary -> "Something went wrong". The
+interval fires ~1s into EVERY analysis regardless of documents, which is why it crashed
+in address-only mode too, and why the symptom looked like a generic undefined.length in
+minified prod. The OTHER setter (line ~4084) does it correctly with .text — this one
+forgot it.
+
+Fix: extract the string fields —
+    const _m = msgs[...]; message: (_m && _m.text) || 'Analyzing...',
+                          tip: (_m && _m.tip) || '🤖 AI analysis running'
+
+This is the same botched progress-messages retry block that caused .294. That block has
+now yielded four defects; it is the single buggiest paste in the file.
+
+JSX compiles; dup-declaration guard clean.
+
+FOLLOW-UP (not done here): the error boundary should degrade to a usable partial page
+instead of a full white-screen, so one bad render can never blank the app on a paying
+customer again. And a render-time guard against objects-as-children would catch this
+class the way check_dup_declarations catches the declaration class.
 ## v5.89.296 — Fix confusing credits display on the dashboard (two widgets disagreed)
 
 Customer (Nathan) saw the top "CREDITS" stat card show "—" while the sidebar showed
