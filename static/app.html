@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>OfferWise AI™ — Property Analysis</title>
     <script>
-    /* v5.89.298: global client-error reporter. POSTs to /api/client-error, which reports
+    /* v5.89.300: global client-error reporter. POSTs to /api/client-error, which reports
        to Sentry via the backend SDK. No third-party CDN on the frontend (avoids the
        Babel-8 white-screen class of risk). Deduped + capped so a render loop can't spam. */
     (function(){
@@ -40,7 +40,7 @@
       });
     })();
     </script>
-    <script src="/static/gtm-loader.js?v=5.89.298"></script>
+    <script src="/static/gtm-loader.js?v=5.89.300"></script>
 <!-- /GTM head -->
     <script>if(window.location.hostname==='getofferwise.ai')window.location.replace('https://www.getofferwise.ai'+window.location.pathname+window.location.search);</script>
     <link rel="icon" type="image/svg+xml" href="/static/logo-icon-only.svg">
@@ -57,7 +57,7 @@
     <link rel="preconnect" href="https://unpkg.com" crossorigin>
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/results-theme.css?v=5.89.298">
+    <link rel="stylesheet" href="/static/results-theme.css?v=5.89.300">
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone@7.29.7/babel.min.js"></script>
@@ -721,7 +721,7 @@
         .ow-strategy-grid { grid-template-columns: 1fr !important; }
       }
     </style>
-    <script src="/static/analytics-loader.js?v=5.89.298" defer></script>
+    <script src="/static/analytics-loader.js?v=5.89.300" defer></script>
     <!-- Reddit Pixel Base Code -->
     <script>
     !function(w,d){if(!w.rdt){var p=w.rdt=function(){p.sendEvent?p.sendEvent.apply(p,arguments):p.queue.push(arguments)};p.queue=[];var t=d.createElement('script');t.src='https://www.redditstatic.com/ads/pixel.js';t.async=!0;var s=d.getElementsByTagName('script')[0];s.parentNode.insertBefore(t,s)}}(window,document);
@@ -2106,19 +2106,21 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                   console.log('✅ [APP] Loaded buyer profile from API');
                   setCurrentStep('property'); // Go to property step
                 } else {
-                  // No preferences - redirect to Settings Legal tab
-                  console.log('⚠️ [APP] No preferences found - redirecting to Settings Legal');
-                  setHasProfile(false);
-                  window.location.href = '/settings?tab=legal';
-                  return;
+                  // v5.89.300: preferences are OPTIONAL personalization. Do NOT bounce to
+                  // the legal tab — it can't set preferences (the collection step is disabled),
+                  // so this stranded users in the same loop Dylan hit. Proceed with safe
+                  // defaults (matches the fallback used elsewhere) and go to the analyzer.
+                  console.log('ℹ️ [APP] No preferences — proceeding with defaults');
+                  setBuyerProfile({ max_budget: 0, repair_tolerance: 'moderate', biggest_regret: '' });
+                  setHasProfile(true);
+                  setCurrentStep('property');
                 }
               } catch (e) {
                 console.error('❌ [APP] Error fetching preferences:', e);
-                setHasProfile(false);
-                // On error, redirect to Settings Legal tab
-                console.log('🚀 [APP] Error fetching preferences - redirecting to Settings Legal');
-                window.location.href = '/settings?tab=legal';
-                return;
+                // v5.89.300: don't strand the user on legal on a fetch error either — default and proceed.
+                setBuyerProfile({ max_budget: 0, repair_tolerance: 'moderate', biggest_regret: '' });
+                setHasProfile(true);
+                setCurrentStep('property');
               }
             };
             
@@ -4170,7 +4172,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                   setAnalysisProgress(p => {
                     const msgs = (window.__owProgressMessages || progressMessages);
                     const cur = Math.min((p.current || 0) + 1, 95);
-                    // v5.89.298: msgs[...] is a {at,text,tip} OBJECT. Rendering the object
+                    // v5.89.300: msgs[...] is a {at,text,tip} OBJECT. Rendering the object
                     // directly as .message threw React #31 ("object with keys {at,text,tip}").
                     // Pull the string fields out — matches the other setter (line ~4084).
                     const _m = msgs[Math.floor(cur / 12) % msgs.length];
@@ -8828,7 +8830,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         };
         
         // Error Boundary Component
-        // v5.89.298: reusable section boundary — contains a crash to ONE region and
+        // v5.89.300: reusable section boundary — contains a crash to ONE region and
         // reports it, instead of white-screening the whole app. Wrap steps/sections with it.
         class Boundary extends React.Component {
           constructor(props) {
@@ -12647,7 +12649,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </script>
     
     <!-- Async Upload Manager - Handles PDF uploads with real-time progress -->
-    <script src="/static/async-upload-manager.js?v=5.89.298"></script>
+    <script src="/static/async-upload-manager.js?v=5.89.300"></script>
     
     <!-- Floating Support Button -->
     <a href="/contact" id="support-button" style="
@@ -12672,8 +12674,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <span style="font-size: 16px;">💬</span>
         Help
     </a>
-<script src="/static/js/compliance.js?v=5.89.298"></script>
-<script src="/static/js/analytics.js?v=5.89.298" defer></script>
+<script src="/static/js/compliance.js?v=5.89.300"></script>
+<script src="/static/js/analytics.js?v=5.89.300" defer></script>
 <script>
 // Scroll reveal for premium results animations
 (function() {
@@ -12760,7 +12762,7 @@ if ('serviceWorker' in navigator) {
 
 <!-- Scout: docked, summon-on-demand "Ask your report" assistant (v5.89.157) -->
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&display=swap" rel="stylesheet">
-<script src="/static/ask-widget.js?v=5.89.298"></script>
+<script src="/static/ask-widget.js?v=5.89.300"></script>
 <script>
 (function(){
   if (window.__scoutInit) { return; } window.__scoutInit = true;

@@ -1,3 +1,55 @@
+## v5.89.300 — Audit for MORE onboarding loops after Dylan's report; found + fixed a second
+
+Proactive audit of the whole app for the bug classes that bit this week. Found a SECOND
+instance of the exact legal-loop that blocked Dylan.
+
+ - app.html line ~2112 (analyze flow, checkProfileAndLoadData): if the buyer profile had
+   no preferences, it did window.location.href='/settings?tab=legal' — and the error
+   branch did the same. Same trap as .299: the legal tab can't set preferences (step
+   disabled), so this stranded users. Both branches now proceed with safe default
+   preferences ({max_budget:0, repair_tolerance:'moderate', biggest_regret:''}) and go to
+   the analyzer, matching the fallback used elsewhere. Preferences are optional.
+
+Audit results on the other redirects (verified OK, no change):
+ - The remaining /settings?tab=legal redirects (1962, 2650) gate on actual CONSENT
+   (has_consent / all_consented), which is legitimate — a user who accepts terms passes.
+ - The /pricing credit gates redirect only when credits === 0, so a user with >=1 credit
+   passes. Dylan's "won't let me analyze" was the legal loop (hit before the credit
+   check), addressed by .299/.300.
+
+FLAGGED for live verification (NOT blindly changed — needs a real account):
+ - Credit counting differs across surfaces: dashboard shows plan-remaining + referral,
+   /api/user/credits returns raw analysis_credits, the analyze gate checks credits===0.
+   These CAN disagree ("shows 1, blocked"). Verify with a free-tier + referral test
+   account before claiming credits are correct.
+
+JSX compiles; dup-declaration guard clean.
+## v5.89.299 — Fix the infinite "legal page" loop that blocked EVERY new user from analyzing
+
+Reported by a customer (Dylan): clicking "Analyze Your First Property" kept taking him to
+the legal page. Not a button bug — a broken onboarding gate, and it affected all new users.
+
+Root cause: /api/consent/status computed
+    needs_onboarding = any_consent_missing OR not has_preferences
+where has_preferences requires max_budget / repair_tolerance / biggest_regret. But the
+step that COLLECTED those (FirstTimeProfileStep) is commented out in app.html (line 8267),
+so a new user has NO way to set them. So even after accepting all consents on the legal
+tab, has_preferences stayed false -> needs_onboarding stayed true -> app.html's mount
+check redirected to /settings?tab=legal again on every "Analyze" click. Infinite loop;
+the user could never reach the analyzer. This silently blocked new-signup activation and
+very likely contributed to unconverted signups.
+
+Fix: the onboarding gate is now CONSENT ONLY:
+    needs_onboarding = any_consent_missing
+Preferences are optional personalization (they default safely when absent — app.html
+already falls back to {max_budget:0, repair_tolerance:'moderate', biggest_regret:''}).
+has_preferences is still computed and returned (frontend logs it); only the GATE changed.
+
+app.py compiles. Pure gate-logic fix; no schema/consent-recording change.
+
+FOLLOW-UP: add an integration test for /api/consent/status asserting a consented user
+with no preferences returns needs_onboarding=false (locks this so it can't regress).
+Deferred to ship the customer fix immediately.
 ## v5.89.298 — Graceful error boundaries + client errors now reach Sentry
 
 TWO structural fixes so a single bad render can't (a) white-screen the whole app or

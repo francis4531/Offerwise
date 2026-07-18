@@ -7801,16 +7801,22 @@ def get_consent_status():
         # Check if any consents are missing
         any_consent_missing = any(not s['has_consent'] for s in statuses)
         
-        # Check if user has set preferences (indicates completed onboarding)
+        # Check if user has set preferences (optional personalization, NOT a gate)
         has_preferences = (
             current_user.max_budget is not None or
             current_user.repair_tolerance is not None or
             current_user.biggest_regret is not None
         )
-        
-        # Need onboarding if EITHER consents missing OR preferences missing
-        # Only complete when BOTH are done
-        needs_onboarding = any_consent_missing or not has_preferences
+
+        # v5.89.299: onboarding gate is CONSENT ONLY. It previously also required
+        # has_preferences (max_budget/repair_tolerance/biggest_regret) — but the step that
+        # collected those (FirstTimeProfileStep) is disabled in app.html, so there was NO
+        # way for a new user to satisfy it. Result: every new user who accepted the terms
+        # was STILL needs_onboarding=true and got bounced back to /settings?tab=legal on
+        # every "Analyze" click — an infinite legal-page loop that silently blocked new
+        # signups from ever running an analysis (reported by a customer). Preferences are
+        # optional personalization and default safely when absent.
+        needs_onboarding = any_consent_missing
         
         return jsonify({
             'statuses': statuses,
