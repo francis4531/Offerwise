@@ -37,6 +37,9 @@ OW_REPO="${OW_REPO:-$HOME/offerwise-deploy}"
 # only if you override OW_GIT explicitly.
 OW_GIT="${OW_GIT:-git@github-offerwise:francis4531/Offerwise.git}"
 OW_GIT_USER="${OW_GIT_USER:-francis4531}"
+# Commit author for deploy commits. Always the OfferWise identity, never the
+# machine's global git email (which is the work account on a multi-account box).
+OW_GIT_EMAIL="${OW_GIT_EMAIL:-francis@getofferwise.ai}"
 
 # ── Identity guard ────────────────────────────────────────────────────────────
 # Confirm the credentials git will actually use belong to OW_GIT_USER, BEFORE we
@@ -94,10 +97,12 @@ fi
 
 # Pin the commit author for THIS clone only, so deploys are attributed to the
 # OfferWise account even when the machine's global git identity is the other one.
-if [ -n "${OW_GIT_EMAIL:-}" ]; then
-  git config user.email "$OW_GIT_EMAIL"
-fi
-git config user.name "$(git config user.name 2>/dev/null || echo "$OW_GIT_USER")" >/dev/null 2>&1 || true
+# v5.89.306: pin the commit identity for THIS clone unconditionally. Previously the
+# email was only set if OW_GIT_EMAIL happened to be exported, so deploys silently
+# inherited the machine's global git email (the work account on a multi-account box).
+# Deploy commits must always be attributed to the OfferWise identity.
+git config user.email "$OW_GIT_EMAIL"
+git config user.name "$OW_GIT_USER"
 
 git fetch origin --prune
 

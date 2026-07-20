@@ -1,3 +1,22 @@
+## v5.89.306 - Always pin deploy commit identity to francis@getofferwise.ai
+
+The email was only applied when OW_GIT_EMAIL happened to be exported, so on a
+multi-account machine deploy commits silently inherited the machine's GLOBAL git email
+(the work account) even after the SSH identity fix. The push account was right; the
+commit author was not.
+
+ - ow_deploy.sh: OW_GIT_EMAIL now defaults to francis@getofferwise.ai and
+   user.email / user.name are set UNCONDITIONALLY on the deploy clone (previously the
+   name was a no-op that preserved whatever was already configured). Still overridable
+   via the env var if ever needed.
+ - ow_git_setup.sh: the optional email argument now defaults to francis@getofferwise.ai,
+   and the pin is unconditional rather than gated on a non-empty value -- so running the
+   setup with no arguments still produces correct attribution.
+
+Scope: both only touch `git config` inside the deploy clone. The machine's global git
+identity is untouched, so other repos keep their own account.
+
+Verified: all three ow_*.sh pass `bash -n`.
 ## v5.89.305 - Fix ow_git_setup.sh crash on macOS: multibyte char adjacent to a variable
 
 Reported: scripts/ow_git_setup.sh died immediately after its header with

@@ -29,7 +29,7 @@
 set -euo pipefail
 
 GH_USER="${1:-francis4531}"
-GH_EMAIL="${2:-}"
+GH_EMAIL="${2:-francis@getofferwise.ai}"
 ALIAS_HOST="github-offerwise"
 KEY="$HOME/.ssh/id_ed25519_offerwise"
 SSH_CONFIG="$HOME/.ssh/config"
@@ -117,7 +117,7 @@ if [ -d "$OW_REPO/.git" ]; then
     echo "[ok] $OW_REPO already using the alias"
   fi
   # Per-repo commit identity, so deploys aren't attributed to the other account.
-  [ -n "$GH_EMAIL" ] && git -C "$OW_REPO" config user.email "$GH_EMAIL"
+  git -C "$OW_REPO" config user.email "$GH_EMAIL"
   git -C "$OW_REPO" config user.name "$GH_USER"
   echo "[ok] Commit identity pinned for this clone only (global git config untouched)"
 else
