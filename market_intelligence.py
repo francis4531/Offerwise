@@ -357,6 +357,11 @@ class MarketIntelligence:
         self.comp_count             = 0
         self.comp_median_price      = 0
         self.comp_avg_price_per_sqft = 0.0
+        # v5.89.312: retain the individual sold comps, not just the aggregates. They were
+        # reduced to comp_count/median/avg here and the rows were dropped, so nothing
+        # downstream could ever answer "which comps produced this valuation?" — a customer
+        # asked for exactly that report.
+        self.comps                  = []
         self.comp_avg_dom           = 0
         self.asking_vs_comps_pct    = 0.0   # positive = asking above comps
         self.price_percentile       = 50
@@ -455,6 +460,8 @@ class MarketIntelligenceEngine:
                       c.get('price', 0) > 0 and
                       c.get('status', '').lower() not in ('active', 'for sale')]
         mi.comp_count = len(sold_comps)
+        # Keep the rows themselves so the report can show its work (v5.89.312).
+        mi.comps = sold_comps
 
         if sold_comps:
             prices = [c['price'] for c in sold_comps]

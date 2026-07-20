@@ -1,3 +1,70 @@
+## v5.89.313 - Credit management in the admin UI (grant/deduct, with an audit trail)
+
+Granting a customer a credit previously meant hand-calling /api/admin/set-credits, which
+writes an ABSOLUTE balance. Granting "1 credit" to someone holding 3 silently took two
+away, there was no record of who was comped or why, and the balance was not visible in
+the admin UI at all. Built properly instead of documenting a curl command.
+
+Backend:
+ - models.py: new CreditAdjustment audit model (user, email, signed delta, balance before
+   and after, reason, adjusted_by, timestamp). Created automatically by the existing
+   startup db.create_all(); no manual migration needed.
+ - admin_routes.py: POST /api/admin/adjust-credits taking { email, delta, reason }.
+   A DELTA, not an absolute value, so a grant is safe to issue without first looking up
+   the balance. Reason is MANDATORY. Delta must be a non-zero whole number, capped at
+   +/-100 per adjustment. Balance floors at 0 and can never go negative. Every change
+   writes a CreditAdjustment row.
+ - admin_routes.py: GET /api/admin/credit-adjustments returns recent adjustments.
+ - app.py: /api/admin/users now returns 'credits', so the balance is visible in the table.
+ - The old set-credits endpoint is left in place (not breaking anything that calls it).
+
+Admin UI (static/admin.html), in the existing Users table rather than a new panel:
+ - New "Credits" column showing the balance.
+ - New "Credit action" column per user: "+1" for the common goodwill case, and "Adjust..."
+   for any other amount (negative deducts). Both prompt for a reason, which is required,
+   and the table refreshes on success.
+ - Uses the existing .btn-ghost/.btn-sm classes and showToast(), matching current
+   dashboard conventions. Table colspans updated 6 -> 8 for the two new columns.
+
+Tests: test_credit_adjustment.py (6) exercising the REAL endpoint against real DB state --
+delta is added not overwritten, reason required, zero delta rejected, balance floors at 0,
+an audit row is written with both balances and the reason, unknown user returns 404.
+Added to the suite runner.
+
+Verified: all guards pass (admin inline JS parses and <div> balanced, JSX compiles, all 9
+route modules import clean, API-coverage floor holds). The floor invariant was also
+checked in isolation. NOTE: the endpoint tests could not be executed in this sandbox
+(missing app deps); CI will run them.
+## v5.89.312 - Comps on FULL reports too (fixes a gap in .311) + honest state for old reports
+
+Founder asked: "where are the comps on an existing report? I hope this is not just for
+new ones." Correct on both counts -- and investigating exposed a real gap in v5.89.311.
+
+GAP IN .311 (my bug): .311 added the comps table and sent rows on the ADDRESS-ONLY path,
+but the FULL report path never persisted them. market_intelligence.py reduced comps to
+aggregates (comp_count / comp_median_price / comp_avg_price_per_sqft) and DISCARDED the
+rows, so the stored market_context had no 'comparables' key at all. The full-report table
+added in .311 would therefore never have rendered. Fixed end-to-end:
+ - market_intelligence.py: MarketIntelligence now retains the sold comps (self.comps),
+   set alongside comp_count instead of being dropped.
+ - offerwise_intelligence.py: the persisted market_context now includes
+   'comparables' (capped at 25 rows to bound result_json size).
+
+EXISTING REPORTS: the rows are genuinely absent from stored result_json -- they were
+never written. They cannot be recovered, and re-fetching today's comps and presenting
+them as "the comps used" would be exactly the tight-but-fabricated failure mode. So the
+component now has three honest states:
+ 1. rows present            -> the full comps table
+ 2. count present, no rows  -> "This analysis used N comparable sales, but their details
+                               weren't saved with the report. Re-run the analysis to see
+                               each comp's address, sale price, size and distance."
+ 3. no comps at all         -> renders nothing
+State 2 is what every pre-.312 report will show. It is accurate, explains the absence,
+and gives the user a concrete action instead of a blank space that reads as a bug.
+
+VERIFIED by rendering the component against all three inputs: table / honest note (with
+the re-run instruction) / null. JSX compiles; duplicate-declaration guard clean; all
+touched Python modules compile.
 ## v5.89.311 - Show the comps behind the AVM (customer request)
 
 Customer (Dylan, after successfully running an Anchorage AK analysis): "is there a way to

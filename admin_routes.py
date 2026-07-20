@@ -976,6 +976,7 @@ def api_test_suite():
             'test_input_confidence.py', 'test_benchmark_head_to_head.py',
             'test_admin_endpoints_smoke.py', 'test_prepackage_guard.py',
             'test_factcheck_parse_failure.py',
+            'test_credit_adjustment.py',
         ],
         'Moat activation': [
             'test_reasoning_activation_scope.py', 'test_shadow_readiness.py',
@@ -2676,6 +2677,74 @@ def update_repair_cost_baseline(category, severity):
         baseline.cost_high = int(data['cost_high'])
     db.session.commit()
     return jsonify({'updated': baseline.to_dict()})
+
+
+@admin_bp.route('/api/admin/adjust-credits', methods=['POST'])
+@_api_admin_req_dec
+def admin_adjust_credits():
+    """Adjust a user's credits by a DELTA, with a required reason, and record it.
+
+    v5.89.313. POST { email, delta, reason }.
+
+    Deliberately a delta rather than an absolute value: /api/admin/set-credits writes
+    the balance directly, so granting "1 credit" to someone who already had 3 silently
+    took two away. A delta is what a goodwill grant actually is, and it is safe to issue
+    without first looking up the balance. Every change writes a CreditAdjustment row so
+    grants are auditable later (e.g. when asking whether comped credits convert).
+    """
+    from models import CreditAdjustment
+
+    data = request.get_json(silent=True) or {}
+    email = (data.get('email') or '').strip().lower()
+    reason = (data.get('reason') or '').strip()
+
+    if not email:
+        return jsonify({'ok': False, 'error': 'Email is required.'}), 400
+    if not reason:
+        return jsonify({'ok': False, 'error': 'A reason is required so the grant is auditable.'}), 400
+
+    try:
+        delta = int(data.get('delta'))
+    except (TypeError, ValueError):
+        return jsonify({'ok': False, 'error': 'Delta must be a whole number, e.g. 1 or -1.'}), 400
+    if delta == 0:
+        return jsonify({'ok': False, 'error': 'Delta cannot be zero.'}), 400
+    if abs(delta) > 100:
+        return jsonify({'ok': False, 'error': 'Delta is limited to 100 credits per adjustment.'}), 400
+
+    user = User.query.filter_by(email=email).first()
+    if not user:
+        return jsonify({'ok': False, 'error': f'No user found with email {email}.'}), 404
+
+    before = int(user.analysis_credits or 0)
+    after = max(0, before + delta)          # never drive a balance negative
+    user.analysis_credits = after
+
+    db.session.add(CreditAdjustment(
+        user_id=user.id, email=email, delta=delta,
+        balance_before=before, balance_after=after,
+        reason=reason[:255],
+        adjusted_by=(getattr(current_user, 'email', None) if current_user else None) or 'admin',
+    ))
+    db.session.commit()
+
+    logging.info(f"👑 Credit adjustment: {email} {before} → {after} ({delta:+d}) — {reason}")
+    return jsonify({
+        'ok': True, 'email': email, 'delta': delta,
+        'balance_before': before, 'balance_after': after, 'reason': reason,
+    })
+
+
+@admin_bp.route('/api/admin/credit-adjustments', methods=['GET'])
+@_api_admin_req_dec
+def admin_credit_adjustments():
+    """Recent manual credit adjustments (v5.89.313), newest first."""
+    from models import CreditAdjustment
+    rows = (CreditAdjustment.query
+            .order_by(CreditAdjustment.created_at.desc())
+            .limit(int(request.args.get('limit', 50)))
+            .all())
+    return jsonify({'ok': True, 'adjustments': [r.to_dict() for r in rows]})
 
 
 @admin_bp.route('/api/admin/set-credits', methods=['POST'])

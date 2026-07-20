@@ -433,6 +433,45 @@ class UsageRecord(db.Model):
     )
 
 
+class CreditAdjustment(db.Model):
+    """
+    Audit trail for manual credit grants and deductions (v5.89.313).
+
+    Credits are money-adjacent, so every manual change is recorded: who was adjusted,
+    by how much, why, and the balance either side of the change. Written by
+    /api/admin/adjust-credits. The previous /api/admin/set-credits wrote an ABSOLUTE
+    value with no record, which made a goodwill grant indistinguishable from an
+    accidental overwrite after the fact.
+    """
+    __tablename__ = 'credit_adjustments'
+
+    id             = db.Column(db.Integer, primary_key=True)
+    created_at     = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+    user_id        = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, index=True)
+    email          = db.Column(db.String(255), nullable=True, index=True)  # denormalised for audit readability
+
+    delta          = db.Column(db.Integer, nullable=False)   # signed: +1 grant, -1 deduction
+    balance_before = db.Column(db.Integer, nullable=False)
+    balance_after  = db.Column(db.Integer, nullable=False)
+    reason         = db.Column(db.String(255), nullable=False)
+    adjusted_by    = db.Column(db.String(255), nullable=True)   # admin identity, when known
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'email': self.email,
+            'delta': self.delta,
+            'balance_before': self.balance_before,
+            'balance_after': self.balance_after,
+            'reason': self.reason,
+            'adjusted_by': self.adjusted_by,
+        }
+
+    def __repr__(self):
+        return f'<CreditAdjustment {self.email} {self.delta:+d} → {self.balance_after}>'
+
+
 class FeatureEvent(db.Model):
     """
     Lightweight feature engagement tracking.

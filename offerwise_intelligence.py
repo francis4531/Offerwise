@@ -1397,6 +1397,11 @@ class OfferWiseIntelligence:
                     'avm_range_high': getattr(market_intel, 'value_range_high', 0),
                     'avm_confidence_range_pct': getattr(market_intel, 'avm_confidence_range_pct', 0),
                     # Comps detail
+                    # v5.89.312: the comp ROWS, not just the aggregates. Without this,
+                    # market_context carried comp_count/median/avg but nothing
+                    # identifying, so a full report could never show which sales the
+                    # valuation rested on. Capped at 25 to bound result_json size.
+                    'comparables': (getattr(market_intel, 'comps', None) or [])[:25],
                     'asking_vs_comps_pct': getattr(market_intel, 'asking_vs_comps_pct', 0),
                     'comp_avg_price_per_sqft': getattr(market_intel, 'comp_avg_price_per_sqft', 0),
                     'comp_avg_dom': getattr(market_intel, 'comp_avg_dom', 0),

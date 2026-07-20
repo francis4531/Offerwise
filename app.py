@@ -9680,6 +9680,10 @@ def admin_users_list():
         )
         result = [{
             'email': u.email,
+            # v5.89.313: surfaced so the admin users table can show the balance and
+            # adjust it in place, instead of the balance being invisible until someone
+            # queried the API by hand.
+            'credits': int(getattr(u, 'analysis_credits', 0) or 0),
             'analyses': _counts.get(u.id, 0),
             'purchased': bool(u.stripe_customer_id),
             'tier': getattr(u, 'subscription_plan', None) or u.tier or 'free',

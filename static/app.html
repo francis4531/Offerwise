@@ -40,7 +40,7 @@
       });
     })();
     </script>
-    <script src="/static/gtm-loader.js?v=5.89.311"></script>
+    <script src="/static/gtm-loader.js?v=5.89.313"></script>
 <!-- /GTM head -->
     <script>if(window.location.hostname==='getofferwise.ai')window.location.replace('https://www.getofferwise.ai'+window.location.pathname+window.location.search);</script>
     <link rel="icon" type="image/svg+xml" href="/static/logo-icon-only.svg">
@@ -57,7 +57,7 @@
     <link rel="preconnect" href="https://unpkg.com" crossorigin>
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/results-theme.css?v=5.89.311">
+    <link rel="stylesheet" href="/static/results-theme.css?v=5.89.313">
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone@7.29.7/babel.min.js"></script>
@@ -721,7 +721,7 @@
         .ow-strategy-grid { grid-template-columns: 1fr !important; }
       }
     </style>
-    <script src="/static/analytics-loader.js?v=5.89.311" defer></script>
+    <script src="/static/analytics-loader.js?v=5.89.313" defer></script>
     <!-- Reddit Pixel Base Code -->
     <script>
     !function(w,d){if(!w.rdt){var p=w.rdt=function(){p.sendEvent?p.sendEvent.apply(p,arguments):p.queue.push(arguments)};p.queue=[];var t=d.createElement('script');t.src='https://www.redditstatic.com/ads/pixel.js';t.async=!0;var s=d.getElementsByTagName('script')[0];s.parentNode.insertBefore(t,s)}}(window,document);
@@ -4692,7 +4692,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
                     {/* v5.89.311: the actual comps behind the AVM. The metric card above
                         states a COUNT; this shows WHICH sales produced it. */}
-                    <OwCompsTable rows={mc.comparables} />
+                    <OwCompsTable rows={mc.comparables} count={mc.comparables_count} />
 
                     {/* Neighborhood scores */}
                     {(walkScore > 0 || transitScore > 0 || schoolRating > 0) && (
@@ -7186,7 +7186,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                               both places the payload can carry them (the offer-strategy
                               market_context here, and result.market_context on the
                               address-only path), so one table serves both. */}
-                          <OwCompsTable rows={(mc && mc.comparables) || (result.market_context && result.market_context.comparables)} />
+                          <OwCompsTable rows={(mc && mc.comparables) || (result.market_context && result.market_context.comparables)} count={(mc && mc.comp_count) || (result.market_context && result.market_context.comparables_count)} />
                         </ECard>
                         </div>
                       );
@@ -8848,9 +8848,28 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         // already fetched and stored, it was simply never rendered. Defined at module
         // scope so BOTH the address-only preview and the full report use one table
         // (no duplicate markup). Uses the .ow-market-comps CSS that already existed.
-        const OwCompsTable = ({ rows, title, subtitle }) => {
+        const OwCompsTable = ({ rows, title, subtitle, count }) => {
           const comps = Array.isArray(rows) ? rows.filter(Boolean) : [];
-          if (comps.length === 0) return null;
+          if (comps.length === 0) {
+            // v5.89.312: reports generated BEFORE comp rows were persisted have the
+            // count but not the rows — the underlying data is genuinely gone, so we
+            // say that plainly rather than showing nothing (which reads as a bug) or
+            // re-fetching today's comps and passing them off as the ones used.
+            const n = Number(count) || 0;
+            if (n <= 0) return null;
+            return (
+              <div id="ow-comps" style={{ marginTop: '28px' }}>
+                <h3 style={{ fontSize: 'var(--ow-fs-card-title)', margin: '0 0 6px', color: 'var(--ow-text)' }}>
+                  The {n} comparable{n !== 1 ? 's' : ''} behind this estimate
+                </h3>
+                <div style={{ padding: '14px 16px', background: 'rgba(96,165,250,0.06)', border: '1px solid rgba(96,165,250,0.22)', borderRadius: '8px', color: 'var(--ow-text-2)', fontSize: 'var(--ow-fs-small)', lineHeight: 1.6 }}>
+                  This analysis used {n} comparable sale{n !== 1 ? 's' : ''}, but their details
+                  weren&rsquo;t saved with the report. Re-run the analysis to see each comp&rsquo;s
+                  address, sale price, size and distance.
+                </div>
+              </div>
+            );
+          }
           const usd = (n) => '$' + Math.round(Number(n) || 0).toLocaleString('en-US');
           // Median $/sqft across comps that report it — the number the AVM leans on.
           const psf = comps.map(c => Number(c.price_per_sqft) || 0).filter(v => v > 0).sort((a, b) => a - b);
@@ -12741,7 +12760,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </script>
     
     <!-- Async Upload Manager - Handles PDF uploads with real-time progress -->
-    <script src="/static/async-upload-manager.js?v=5.89.311"></script>
+    <script src="/static/async-upload-manager.js?v=5.89.313"></script>
     
     <!-- Floating Support Button -->
     <a href="/contact" id="support-button" style="
@@ -12766,8 +12785,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <span style="font-size: 16px;">💬</span>
         Help
     </a>
-<script src="/static/js/compliance.js?v=5.89.311"></script>
-<script src="/static/js/analytics.js?v=5.89.311" defer></script>
+<script src="/static/js/compliance.js?v=5.89.313"></script>
+<script src="/static/js/analytics.js?v=5.89.313" defer></script>
 <script>
 // Scroll reveal for premium results animations
 (function() {
@@ -12854,7 +12873,7 @@ if ('serviceWorker' in navigator) {
 
 <!-- Scout: docked, summon-on-demand "Ask your report" assistant (v5.89.157) -->
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&display=swap" rel="stylesheet">
-<script src="/static/ask-widget.js?v=5.89.311"></script>
+<script src="/static/ask-widget.js?v=5.89.313"></script>
 <script>
 (function(){
   if (window.__scoutInit) { return; } window.__scoutInit = true;

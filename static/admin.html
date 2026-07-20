@@ -1545,12 +1545,14 @@ label{font-size:11px;color:var(--muted);display:block;margin-bottom:4px;font-wei
         <thead><tr>
           <th style="min-width:200px">Email</th>
           <th class="r" style="width:70px">Analyses</th>
+          <th class="r" style="width:70px">Credits</th>
           <th class="r" style="width:80px">Purchased</th>
           <th class="r" style="width:80px">Tier</th>
           <th style="width:80px">Source</th>
           <th class="r" style="width:90px">Joined</th>
+          <th class="r" style="width:120px">Credit action</th>
         </tr></thead>
-        <tbody id="allUsersBody"><tr><td colspan="6" class="tbl-empty"><span class="spinner"></span></td></tr></tbody>
+        <tbody id="allUsersBody"><tr><td colspan="8" class="tbl-empty"><span class="spinner"></span></td></tr></tbody>
       </table>
     </div>
     <div id="userSearchCount" style="padding:8px 12px;font-size:11px;color:var(--muted);border-top:1px solid var(--border)"></div>
@@ -12150,7 +12152,7 @@ function renderUsersTable(users) {
   var countEl = document.getElementById('userSearchCount');
   if (!tbody) return;
   if (!users || !users.length) {
-    tbody.innerHTML = '<tr><td colspan="6" class="tbl-empty">No users yet.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="8" class="tbl-empty">No users yet.</td></tr>';
     if (countEl) countEl.textContent = '';
     return;
   }
@@ -12163,18 +12165,66 @@ function renderUsersTable(users) {
       : '<span style="color:var(--muted);font-size:11px">free</span>';
     var srcStr = u.signup_source || 'unknown';
     var srcColor = srcStr === 'google' ? '#4285f4' : srcStr === 'reddit' ? '#ff4500' : srcStr === 'direct' ? '#94a3b8' : '#64748b';
+    // v5.89.313: credits shown inline, with a grant/deduct action per user. Previously
+    // the balance was invisible in the UI and could only be changed by hand-calling the
+    // API with an ABSOLUTE value, which silently overwrote the existing balance.
+    var creditsVal = (u.credits || 0);
+    var creditsStr = '<strong style="color:' + (creditsVal > 0 ? 'var(--green)' : 'var(--muted)') + '">' + creditsVal + '</strong>';
+    var emailAttr = escHtml(u.email || '').replace(/'/g, "\\'");
+    var actionBtns =
+      '<button class="btn-ghost btn-sm" title="Grant one credit" onclick="adjustUserCredits(\'' + emailAttr + '\', 1)">+1</button> ' +
+      '<button class="btn-ghost btn-sm" title="Adjust by a custom amount" onclick="adjustUserCredits(\'' + emailAttr + '\', null)">Adjust…</button>';
     return '<tr>' +
       '<td style="font-weight:500">' + escHtml(u.email||'—') + '</td>' +
       '<td class="r"><strong style="color:' + ((u.analyses||0)>0?'var(--blue)':'var(--muted)') + '">' + (u.analyses||0) + '</strong></td>' +
+      '<td class="r">' + creditsStr + '</td>' +
       '<td class="r">' + purchasedBadge + '</td>' +
       '<td class="r">' + tierStr + '</td>' +
       '<td style="font-size:11px;color:' + srcColor + ';font-weight:600">' + escHtml(srcStr) + '</td>' +
       '<td class="r" style="color:var(--muted);font-size:11px">' + (u.joined ? new Date(u.joined).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'2-digit'}) : '—') + '</td>' +
+      '<td class="r">' + actionBtns + '</td>' +
       '</tr>';
   }).join('');
   if (countEl) {
     var shown = Math.min(users.length, 100);
     countEl.textContent = shown + ' of ' + users.length + ' users' + (users.length > 100 ? ' (showing first 100 — use search to filter)' : '');
+  }
+}
+
+// v5.89.313: grant or deduct credits from the users table. Uses the DELTA endpoint
+// (/api/admin/adjust-credits) rather than set-credits, which wrote an absolute value and
+// would silently overwrite an existing balance. A reason is required and recorded, so
+// grants stay auditable.
+async function adjustUserCredits(email, delta) {
+  if (!email) return;
+  if (delta === null || delta === undefined) {
+    var entered = prompt('Adjust credits for ' + email + '\n\nEnter a whole number. Use a negative value to deduct.', '1');
+    if (entered === null) return;
+    delta = parseInt(entered, 10);
+    if (!delta || isNaN(delta)) { showToast('Enter a non-zero whole number.'); return; }
+  }
+  var verb = delta > 0 ? 'Grant ' + delta : 'Deduct ' + Math.abs(delta);
+  var reason = prompt(verb + ' credit(s) for ' + email + '.\n\nReason (recorded for audit):', 'Goodwill credit');
+  if (reason === null) return;
+  reason = (reason || '').trim();
+  if (!reason) { showToast('A reason is required.'); return; }
+
+  try {
+    var resp = await fetch('/api/admin/adjust-credits', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ email: email, delta: delta, reason: reason })
+    });
+    var data = await resp.json();
+    if (!resp.ok || !data.ok) {
+      showToast('Credit adjustment failed: ' + (data.error || resp.status));
+      return;
+    }
+    showToast(email + ': ' + data.balance_before + ' \u2192 ' + data.balance_after + ' credits.');
+    await loadUsersList();
+  } catch (e) {
+    showToast('Credit adjustment failed: ' + e.message);
   }
 }
 
