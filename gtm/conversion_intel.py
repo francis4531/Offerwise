@@ -102,7 +102,7 @@ def _get_ga4_client():
             _GA4_JSON_WARNED = True
         return None
     except Exception as e:
-        logger.error(f"GA4 client init failed: {e}")
+        logger.warning(f"GA4 client unavailable: {e} — analytics degraded, not fatal")
         return None
 
 
@@ -288,7 +288,7 @@ def fetch_ga4_funnel(days: int = 30) -> dict | None:
                 " to activate it (one-time setup, takes ~2 min)"
             )
         else:
-            logger.error("GA4 funnel fetch failed: %s", e)
+            logger.warning("GA4 funnel unavailable: %s — analytics degraded, not fatal", e)
         return None
 
 
@@ -337,7 +337,7 @@ def fetch_ga4_channel_performance(days: int = 30) -> dict | None:
         if 'SERVICE_DISABLED' in err_str or '403' in err_str or 'has not been used' in err_str:
             logger.warning("GA4 Analytics Data API not enabled — see activation URL in logs above")
         else:
-            logger.error(f"GA4 channel performance fetch failed: {e}")
+            logger.warning(f"GA4 channel performance unavailable: {e} — analytics degraded, not fatal")
         return None
 
 

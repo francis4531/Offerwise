@@ -1,3 +1,71 @@
+## v5.89.303 — Reddit auth 403: stop paging on a handled fallback + let it self-heal
+
+Sentry: "[REDDIT-AUTH] Token request failed: 403 Forbidden", 133 events, 3 months,
+logger=gtm.forum_scanner.
+
+The code was already CORRECT in behaviour: on auth failure it trips a circuit breaker
+and falls back to Reddit's public JSON endpoints, and the scan still runs. Two problems
+around that correct behaviour:
+
+ 1. It logged a HANDLED degradation at error level -> 133 Sentry pages for something the
+    system recovers from by design. Now logs at warning.
+ 2. `_cc_failed` was a permanent per-process kill-switch. Once set, client_credentials
+    was never retried for the life of the worker, so a transient block could not heal
+    without a restart — and re-fired on every new worker. Replaced with a 1-hour
+    cooldown (`_cc_failed_until`), so it retries automatically.
+
+Also split the diagnosis into the message, so the cause doesn't need re-derivation:
+   401 -> credentials rejected (wrong/rotated REDDIT_CLIENT_ID / SECRET)
+   403 -> forbidden: the client_id in use may be a Reddit ADS app rather than a
+          "script" app, or the source IP is blocked.
+NOTE for the founder: client_id falls back to REDDIT_ADS_CLIENT_ID when REDDIT_CLIENT_ID
+is unset — and the Ads app is a DIFFERENT OAuth app than this endpoint expects, which is
+a strong candidate for the 403. Worth checking which env var is actually populated in
+Render, and that the app is registered as type "script" at reddit.com/prefs/apps.
+
+AUDIT (same class, swept rather than fixed one at a time — this was the third
+handled-degradation-logged-as-error this week, after pdf_handler in .290 and AI scoring
+in .302). Five more downgraded to warning:
+ - gtm/conversion_intel.py x3 — GA4 client init / funnel / channel fetch failures that
+   already return gracefully. Analytics degraded, not fatal.
+ - gtm/forum_scanner.py x2 — Reddit public JSON non-JSON/HTML block responses and fetch
+   errors that already skip the source.
+Left at error: the ai_json import guard, where a failure is a genuine defect.
+
+All touched modules compile. No behaviour change beyond log level + the cooldown.
+## v5.89.302 — Stop the 529 noise: route the last two raw Anthropic calls through the wrappers
+
+Sentry: "AI scoring error: 529 Server Error ... api.anthropic.com/v1/messages",
+21 events, first seen 3 months ago, logger=gtm.forum_scanner.
+
+529 is Anthropic "overloaded" — a transient, self-healing condition. Both ai_json.py and
+ai_client.py already list it in their retry sets ({429, 500, 503, 529}). The forum
+scanner never benefited, because it made a RAW requests.post straight to the API,
+bypassing every resilience path the codebase already owns, and logged the failure at
+error level. Hence: no retry, and a page for a condition that fixes itself.
+
+An audit for the same pattern found exactly two remaining raw call sites. Both fixed:
+
+ 1. gtm/forum_scanner.py (AI thread scoring) -> ai_json.call_ai_json
+    Gains: retry on 429/500/503/529, truncation-aware retry, JSON extraction/repair,
+    AIParseEvent telemetry under endpoint='forum-scoring'. This also DELETES a
+    hand-rolled ``` fence-stripper + raw json.loads — the same pattern that silently
+    produced fabricated fact-check results in v5.89.290. On a remaining failure it now
+    logs at warning and returns None: the thread stays unscored and is picked up next
+    scan, which is a normal degraded outcome for a background job, not a page.
+
+ 2. gtm/routes.py (BiggerPockets blog generation) -> ai_client.get_ai_response
+    This one returns HTML, not JSON, so call_ai_json is deliberately NOT used. Had no
+    retry at all: a transient 529 failed the admin's request outright. Now retries with
+    backoff and returns 503 "AI service is busy — please try again" only after attempts
+    are exhausted. Dead `requests as http_requests` import removed.
+
+Verified: zero raw api.anthropic.com POSTs remain outside ai_json.py / ai_client.py.
+All touched modules compile. Remaining `requests` usage in forum_scanner is Reddit/forum
+HTTP, which is correct.
+
+Scope note: both sites are GTM/marketing tooling. The buyer analysis path was already
+routed through the wrappers and was not affected by this issue.
 ## v5.89.301 — Fix the 31-event content-gen TypeError (full causal chain)
 
 Sentry: TypeError "'NoneType' object is not subscriptable" in app._content_gen_job,

@@ -279,12 +279,22 @@ def _fetch_reddit_oauth(subreddit, limit, sort='new'):
 
 _cc_token = None
 _cc_expires = 0
-_cc_failed = False  # If True, skip client_creds and go straight to public
+_cc_failed_until = 0.0   # v5.89.303: cooldown timestamp, not a permanent kill-switch
+_CC_COOLDOWN_SECONDS = 3600
 
 def _get_reddit_client_creds_token():
-    """Get a read-only token via client_credentials grant — no user account needed."""
-    global _cc_token, _cc_expires, _cc_failed
-    if _cc_failed:
+    """Get a read-only token via client_credentials grant — no user account needed.
+
+    v5.89.303: two changes, both about noise and self-healing.
+      * A failure here is HANDLED — the caller falls back to Reddit's public JSON
+        endpoints and the scan still runs. Logging it at error paged Sentry 133 times
+        over 3 months for a degradation the system recovers from by design. Now warns.
+      * `_cc_failed` was a permanent per-process kill-switch: once set, client_creds was
+        never retried until the worker restarted, so a transient block never healed on
+        its own (and re-fired on every new worker). Replaced with a 1-hour cooldown.
+    """
+    global _cc_token, _cc_expires, _cc_failed_until
+    if time.time() < _cc_failed_until:
         return None
     if _cc_token and time.time() < _cc_expires - 60:
         return _cc_token
@@ -301,9 +311,25 @@ def _get_reddit_client_creds_token():
         )
         logger.info(f"[REDDIT-AUTH] Token response: {resp.status_code}")
         if resp.status_code != 200:
-            logger.error(f"[REDDIT-AUTH] Token request failed: {resp.status_code} {resp.text[:200]}")
-            logger.warning("[REDDIT-AUTH] Marking client_creds as failed — will use public JSON fallback")
-            _cc_failed = True
+            # Split the diagnosis so the cause is obvious without re-reading Reddit's docs:
+            #   401 -> credentials rejected (wrong/rotated client_id or secret)
+            #   403 -> request forbidden: usually the credentials belong to a Reddit ADS
+            #          app rather than a "script" app, or the source IP is blocked.
+            #          Note the id falls back to REDDIT_ADS_CLIENT_ID, which is a
+            #          DIFFERENT OAuth app than the one this endpoint expects.
+            if resp.status_code == 401:
+                hint = "credentials rejected — check REDDIT_CLIENT_ID / REDDIT_CLIENT_SECRET"
+            elif resp.status_code == 403:
+                hint = ("forbidden — the client_id in use may be a Reddit ADS app rather than a "
+                        "'script' app, or the source IP is blocked")
+            else:
+                hint = "unexpected status"
+            logger.warning(
+                f"[REDDIT-AUTH] client_credentials unavailable ({resp.status_code}: {hint}); "
+                f"falling back to public JSON for {_CC_COOLDOWN_SECONDS}s. "
+                f"Body: {resp.text[:200]}"
+            )
+            _cc_failed_until = time.time() + _CC_COOLDOWN_SECONDS
             return None
         data = resp.json()
         _cc_token = data.get('access_token')
@@ -311,9 +337,11 @@ def _get_reddit_client_creds_token():
         logger.info(f"[REDDIT-AUTH] Token acquired, expires in {data.get('expires_in', 0)}s")
         return _cc_token
     except Exception as e:
-        logger.error(f"[REDDIT-AUTH] Token acquisition FAILED: {e}")
-        logger.warning("[REDDIT-AUTH] Marking client_creds as failed — will use public JSON fallback")
-        _cc_failed = True
+        logger.warning(
+            f"[REDDIT-AUTH] Token acquisition failed ({type(e).__name__}: {e}); "
+            f"falling back to public JSON for {_CC_COOLDOWN_SECONDS}s."
+        )
+        _cc_failed_until = time.time() + _CC_COOLDOWN_SECONDS
         return None
 
 
@@ -380,10 +408,10 @@ def _fetch_reddit_public(subreddit, limit, sort='new'):
                 logger.info(f"[REDDIT-PUBLIC] r/{subreddit}/{sort}: {len(posts)} posts via public JSON")
                 return posts
         except requests.exceptions.JSONDecodeError:
-            logger.error(f"[REDDIT-PUBLIC] Non-JSON response for r/{subreddit}/{sort} (likely HTML block page)")
+            logger.warning(f"[REDDIT-PUBLIC] Non-JSON response for r/{subreddit}/{sort} (likely HTML block page) — skipping this source")
             continue
         except Exception as e:
-            logger.error(f"[REDDIT-PUBLIC] Error for r/{subreddit}/{sort}: {e}")
+            logger.warning(f"[REDDIT-PUBLIC] Error for r/{subreddit}/{sort}: {e} — skipping this source")
             continue
     logger.warning(f"[REDDIT-PUBLIC] All attempts failed for r/{subreddit}/{sort}")
     return []
@@ -744,44 +772,54 @@ Respond in this exact JSON format only:
 For tone: "empathetic", "experienced", or "skeptical".
 Return ONLY the JSON, no other text."""
 
+    # v5.89.302: route through ai_json.call_ai_json instead of a raw requests.post.
+    # The raw call bypassed EVERY resilience path this codebase already owns:
+    #   - retry on transient upstream status (429/500/503/529). A 529 is Anthropic
+    #     "overloaded" — a normal, self-healing condition — but it surfaced as an
+    #     unretried logger.error and paged Sentry 21 times over 3 months.
+    #   - truncation-aware retry (stop_reason == 'max_tokens')
+    #   - JSON extraction/repair (this replaced the hand-rolled ``` fence stripping
+    #     and a raw json.loads, the same pattern that silently broke fact-check in .290)
+    #   - AIParseEvent telemetry, so the failure rate is measurable per endpoint
+    # call_ai_json never raises; it returns a result whose .ok must be checked.
     try:
-        resp = requests.post(
-            'https://api.anthropic.com/v1/messages',
-            headers={
-                'x-api-key': ANTHROPIC_API_KEY,
-                'anthropic-version': '2023-06-01',
-                'content-type': 'application/json',
-            },
-            json={
-                'model': SONNET,
-                'max_tokens': 800,
-                'messages': [{'role': 'user', 'content': prompt}],
-            },
-            timeout=30,
-        )
-        resp.raise_for_status()
-        content = resp.json().get('content', [{}])[0].get('text', '')
-
-        # Parse JSON from response
-        content = content.strip()
-        if content.startswith('```'):
-            content = re.sub(r'^```\w*\n?', '', content)
-            content = re.sub(r'\n?```$', '', content)
-
-        result = json.loads(content)
-        return (
-            result.get('score', 0),
-            result.get('reasoning', ''),
-            result.get('draft', ''),
-            result.get('strategy', 'helpful_only'),
-            result.get('tone', 'experienced'),
-        )
-    except json.JSONDecodeError as e:
-        logger.warning(f"AI scoring JSON parse error: {e}")
+        from ai_json import call_ai_json
+    except Exception as e:  # pragma: no cover - import guard only
+        logger.error(f"AI scoring unavailable (ai_json import failed): {e}")
         return None
-    except Exception as e:
-        logger.error(f"AI scoring error: {e}")
+
+    parsed = call_ai_json(
+        prompt,
+        max_tokens=800,
+        temperature=0,
+        model=SONNET,
+        endpoint='forum-scoring',
+        max_tokens_ceiling=1600,
+    )
+
+    if not parsed.ok:
+        # Transient upstream (overload/rate-limit) has already been retried by
+        # call_ai_json. A remaining failure just means "no score this pass" — the
+        # thread stays unscored and is picked up on the next scan. That is a normal
+        # degraded outcome for a background marketing job, not an error worth paging.
+        logger.warning(
+            f"AI scoring unavailable this pass (endpoint=forum-scoring, "
+            f"truncated={parsed.truncated}): {parsed.error}"
+        )
         return None
+
+    result = parsed.data
+    if not isinstance(result, dict):
+        logger.warning(f"AI scoring returned non-object JSON: {type(result).__name__}")
+        return None
+
+    return (
+        result.get('score', 0),
+        result.get('reasoning', ''),
+        result.get('draft', ''),
+        result.get('strategy', 'helpful_only'),
+        result.get('tone', 'experienced'),
+    )
 
 
 # ── Main Scan Pipeline ───────────────────────────────────────────

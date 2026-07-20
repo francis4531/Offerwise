@@ -232,8 +232,9 @@ def api_gtm_bp_blog():
     _check_admin()
     try:
         import os
-        import requests as http_requests
-        
+        # v5.89.302: raw `requests` no longer needed here — the call now goes
+        # through ai_client.get_ai_response (retries transient upstream errors).
+
         api_key = os.environ.get('ANTHROPIC_API_KEY')
         if not api_key:
             return jsonify({"error": "ANTHROPIC_API_KEY not set"}), 503
@@ -288,26 +289,19 @@ FORMAT — Output clean HTML suitable for pasting into a WYSIWYG rich text edito
 
 Return ONLY the HTML content, no preamble or code fences."""
 
-        resp = http_requests.post(
-            'https://api.anthropic.com/v1/messages',
-            headers={
-                'x-api-key': api_key,
-                'content-type': 'application/json',
-                'anthropic-version': '2023-06-01',
-            },
-            json={
-                'model': SONNET,
-                'max_tokens': 2000,
-                'messages': [{'role': 'user', 'content': prompt}],
-            },
-            timeout=60,
-        )
-        
-        if resp.status_code != 200:
-            return jsonify({"error": f"Claude API error: {resp.status_code}"}), 500
-        
-        result = resp.json()
-        body = result['content'][0]['text']
+        # v5.89.302: route through ai_client.get_ai_response instead of a raw POST.
+        # The raw call had NO retry, so a transient upstream status (429/500/503/529 —
+        # 529 being Anthropic "overloaded") failed the admin's request outright instead
+        # of backing off and retrying. get_ai_response retries with backoff and raises
+        # RuntimeError only after exhausting attempts. Returns text (not JSON), so
+        # call_ai_json is deliberately not used here.
+        from ai_client import get_ai_response
+        try:
+            body = get_ai_response(prompt, max_tokens=2000, temperature=0)
+        except RuntimeError as e:
+            logging.warning(f"BP blog generation: AI unavailable after retries: {e}")
+            return jsonify({"error": "AI service is busy — please try again in a moment."}), 503
+
         word_count = len(body.split())
         
         return jsonify({
