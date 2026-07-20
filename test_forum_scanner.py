@@ -652,20 +652,34 @@ class TestScanPipeline(unittest.TestCase):
     def test_relevant_posts_reach_ai(self, mock_ai, mock_reddit, mock_bp, mock_fb, mock_nd):
         """Posts with keyword hits are passed to AI scoring."""
         from gtm.forum_scanner import run_scan
-        import time
+        from models import GTMScannedThread
+        import uuid
 
-        ts = str(time.time()).replace('.', '')
+        # v5.89.310: this test asserts that posts SURVIVE dedup, so it must control its
+        # own precondition. TestScanPipeline never cleans the DB (setUp only pushes an
+        # app context), so GTMScannedThread accumulates across the whole session — CI hit
+        # 101 recent rows and every post was filtered out ("blocked_by_recent: 30",
+        # "ABORT — All posts filtered by dedup"), failing with posts_filtered == 0.
+        # Clear the scanned-thread table first so dedup starts from a known-empty state.
+        # Safe: the sibling dedup test (test_duplicate_posts_skipped) inserts the row it
+        # needs itself rather than relying on leftovers.
+        with self.app.app_context():
+            self.db.session.query(GTMScannedThread).delete()
+            self.db.session.commit()
+
+        # uuid4, not time.time(): a timestamp can repeat across processes/reruns, and
+        # anything derived from it can collide with rows left by an earlier run.
+        uid = uuid.uuid4().hex
         mock_bp.return_value = []
         mock_fb.return_value = []
         mock_nd.return_value = []
         relevant = self._make_posts([
-            f"Inspector found foundation cracks {ts}a walk away",
-            f"How much to offer below asking price Bay Area {ts}b",
-            f"Seller disclosure {ts}c didnt mention roof damage",
+            f"Inspector found foundation cracks {uid}a walk away",
+            f"How much to offer below asking price Bay Area {uid}b",
+            f"Seller disclosure {uid}c didnt mention roof damage",
         ])
-        # Give each a unique reddit_id using timestamp
         for i, p in enumerate(relevant):
-            p['reddit_id'] = f'reach_ai_{ts}_{i}'
+            p['reddit_id'] = f'reach_ai_{uid}_{i}'
         mock_reddit.return_value = relevant
         mock_ai.return_value = (8, 'Relevant', 'Great advice.', 'helpful_with_mention', 'experienced')
 
@@ -681,11 +695,19 @@ class TestScanPipeline(unittest.TestCase):
     def test_duplicate_posts_skipped(self, mock_ai, mock_reddit, mock_bp):
         """Posts already in DB as qualified are not re-scored."""
         from gtm.forum_scanner import run_scan
-        from models import GTMTargetSubreddit
-        import time
+        from models import GTMTargetSubreddit, GTMScannedThread
+        import uuid
+
+        # v5.89.310: hermetic precondition. Without it, leftover GTMScannedThread rows can
+        # block the FIRST scan too, making both call counts 0 — and `assertEqual(0, 0)`
+        # passes while proving nothing about dedup. Clear the table, then assert the first
+        # scan actually scored something before comparing (see assertion below).
+        with self.app.app_context():
+            self.db.session.query(GTMScannedThread).delete()
+            self.db.session.commit()
 
         mock_bp.return_value = []
-        unique_id = f'dedup_test_{time.time()}'
+        unique_id = f'dedup_test_{uuid.uuid4().hex}'
         posts = self._make_posts(["Inspector found foundation issues — walk away?"])
         posts[0]['reddit_id'] = unique_id
         mock_reddit.return_value = posts
@@ -703,6 +725,11 @@ class TestScanPipeline(unittest.TestCase):
             stats2 = run_scan(self.db.session)
             ai_calls_2 = mock_ai.call_count
 
+        # The first scan MUST have done real work, otherwise the equality below is
+        # vacuously true and this test proves nothing.
+        self.assertGreater(ai_calls_1, 0,
+                           "First scan scored nothing — dedup blocked it, so the "
+                           "duplicate-skipping assertion would be vacuous")
         self.assertEqual(ai_calls_1, ai_calls_2,
                          "Duplicate post should not trigger additional AI call")
 
@@ -737,11 +764,20 @@ class TestScanPipeline(unittest.TestCase):
     def test_draft_created_for_high_score(self, mock_ai, mock_reddit, mock_bp):
         """AI score >= MIN_AI_SCORE creates a GTMRedditDraft."""
         from gtm.forum_scanner import run_scan, MIN_AI_SCORE
-        from models import GTMTargetSubreddit, db
-        import time
+        from models import GTMTargetSubreddit, GTMScannedThread, db
+        import uuid
+
+        # v5.89.310: same hermetic precondition as test_relevant_posts_reach_ai — this
+        # asserts a draft IS created, so its posts must survive dedup. The class never
+        # cleans the DB, so leftover GTMScannedThread rows can filter everything out and
+        # fail this for reasons unrelated to draft creation. uuid4 over time.time()
+        # because a timestamp can repeat across processes/reruns.
+        with self.app.app_context():
+            self.db.session.query(GTMScannedThread).delete()
+            self.db.session.commit()
 
         mock_bp.return_value = []
-        unique_id = f'high_score_{time.time()}'
+        unique_id = f'high_score_{uuid.uuid4().hex}'
         posts = self._make_posts(["Inspector found major foundation cracks — offer or walk?"])
         posts[0]['reddit_id'] = unique_id
         mock_reddit.return_value = posts
@@ -770,7 +806,15 @@ class TestScanPipeline(unittest.TestCase):
         import time
 
         mock_bp.return_value = []
-        unique_id = f'low_score_{time.time()}'
+        # v5.89.310: hermetic + uuid, same reason as the sibling tests. Asserting
+        # drafts_created == 0 is trivially true if dedup blocked every post, so the
+        # precondition matters even though this assertion can't fail loudly.
+        from models import GTMScannedThread
+        import uuid
+        with self.app.app_context():
+            self.db.session.query(GTMScannedThread).delete()
+            self.db.session.commit()
+        unique_id = f'low_score_{uuid.uuid4().hex}'
         posts = self._make_posts(["Inspector found minor paint peeling issue"])
         posts[0]['reddit_id'] = unique_id
         mock_reddit.return_value = posts

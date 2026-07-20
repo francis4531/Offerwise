@@ -1,3 +1,41 @@
+## v5.89.310 - Fix flaky forum-scanner test: dedup blocked by shared DB state
+
+CI (staging):
+    FAILED test_forum_scanner.py::TestScanPipeline::test_relevant_posts_reach_ai
+    AssertionError: 0 not greater than 0 : Expected posts_filtered > 0
+Debug log showed the real cause:
+    STEP 3 - Dedup: 30 -> 0 new
+    Blocked recently scanned (<3d): 30 (DB has 101 recent)
+    ABORT - All posts filtered by dedup.
+
+Not a product bug. TestScanPipeline never cleans the database -- setUp only pushes an
+app context and tearDown only removes the session -- so GTMScannedThread accumulates
+across the whole test session (101 recent rows, 16 with drafts by the time this ran).
+The test asserts that posts SURVIVE dedup, but never controlled the state dedup reads.
+Confirmed the writes at forum_scanner.py:1036/1079 happen AFTER the dedup query at :947,
+so a scan does not block itself -- the rows were pre-existing.
+
+Fixed by making the dedup-dependent tests hermetic: each now clears GTMScannedThread
+before running, so dedup starts from a known-empty state, and each uses uuid4 for post
+IDs instead of a time.time() string (a timestamp can repeat across processes/reruns and
+collide with leftover rows).
+
+Applied to all four affected tests, not just the failing one:
+ - test_relevant_posts_reach_ai        (was FAILING)
+ - test_draft_created_for_high_score   (same failure mode, asserts drafts_created > 0)
+ - test_duplicate_posts_skipped        (was VACUOUS: compares ai_calls_1 == ai_calls_2,
+                                        which is 0 == 0 when dedup blocks everything --
+                                        now also asserts the first scan scored something,
+                                        so the comparison can't be trivially true)
+ - test_no_draft_for_low_score         (also vacuous when dedup blocks; asserts == 0)
+
+Other CI jobs in the same run (frontend, security) were clean; the only other output was
+a GitHub Actions Node 20 deprecation warning, which is runner infrastructure.
+
+NOTE: could not execute the suite in this sandbox (ModuleNotFoundError: authlib), so the
+fix is reasoned from the CI debug log plus the dedup source, and the file compiles. The
+underlying fragility -- a test class that shares a database without cleanup -- still
+applies to other classes and is worth a broader pass.
 ## v5.89.309 - Fix the 3 forum-scanner tests I broke in v5.89.302
 
 Staging CI:
