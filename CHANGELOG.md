@@ -1,3 +1,29 @@
+## v5.89.309 - Fix the 3 forum-scanner tests I broke in v5.89.302
+
+Staging CI:
+    FAILED test_forum_scanner.py::TestAIScoring::test_valid_response_parsed_correctly
+    FAILED test_forum_scanner.py::TestAIScoring::test_json_in_code_block_parsed
+    FAILED test_forum_scanner.py::TestAIScoring::test_low_score_below_threshold
+    AssertionError: unexpectedly None
+
+My breakage. v5.89.302 routed ai_score_and_draft() from a raw requests.post through
+ai_json.call_ai_json (for retry on 429/500/503/529, truncation retry, JSON repair and
+telemetry). The tests mocked the OLD boundary -- patching requests.post -- so after the
+change the real call_ai_json ran, failed without an API key, and every success-case
+assertion got None. I compiled the module but never ran test_forum_scanner.py.
+
+Fix: TestAIScoring now mocks at the NEW boundary, @patch('ai_json.call_ai_json'), with
+two small helpers building genuine AIJsonResult objects (_ok for a parsed payload,
+_failed for an unparseable/retry-exhausted result). All 8 tests in the class converted;
+the remaining "requests.post" strings in that class are explanatory comments only.
+
+VERIFIED: test_forum_scanner.py::TestAIScoring -> 8 passed, including all 3 that were
+failing. (The rest of the file errors in this sandbox on ModuleNotFoundError: authlib,
+a missing local dependency, not a code failure -- those run in CI.)
+
+NOTE: these were REAL tests -- they exercise the function and assert on its return value
+-- which is exactly why they caught a behavioural change I made. Contrast with the ~900
+class-based tests that assert on dict literals and would have stayed green.
 ## v5.89.308 - Auto-clean stale build folders and old tarballs on every deploy
 
 Double-clicking a .tar.gz in Finder extracts NEXT TO the existing folder as

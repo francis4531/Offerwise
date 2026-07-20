@@ -408,22 +408,28 @@ class TestBiggerPocketsFetching(unittest.TestCase):
 class TestAIScoring(unittest.TestCase):
     """ai_score_and_draft() — JSON parsing, fallback handling, content validation."""
 
-    def _mock_claude_response(self, payload):
-        """Build a fake Anthropic API response with the given payload."""
-        mock_resp = MagicMock()
-        mock_resp.status_code = 200
-        mock_resp.json.return_value = {
-            'content': [{'text': json.dumps(payload)}]
-        }
-        return mock_resp
+    # v5.89.309: ai_score_and_draft no longer makes a raw requests.post — it routes
+    # through ai_json.call_ai_json (which owns retry on 429/500/503/529, truncation
+    # retry, JSON extraction/repair and telemetry). These tests therefore mock at the
+    # NEW boundary. Mocking requests.post left the real call_ai_json running, which
+    # failed without an API key and made every success-case assert "unexpectedly None".
+    def _ok(self, payload):
+        """A successful call_ai_json result carrying the parsed payload."""
+        import ai_json
+        return ai_json.AIJsonResult(ok=True, data=payload, raw_text=json.dumps(payload))
 
-    @patch('gtm.forum_scanner.requests.post')
-    def test_valid_response_parsed_correctly(self, mock_post):
+    def _failed(self, error='Expecting value: line 1 column 1 (char 0)'):
+        """A call_ai_json result for an unparseable/exhausted-retry response."""
+        import ai_json
+        return ai_json.AIJsonResult(ok=False, data=None, error=error)
+
+    @patch('ai_json.call_ai_json')
+    def test_valid_response_parsed_correctly(self, mock_call):
         from gtm.forum_scanner import ai_score_and_draft
         import gtm.forum_scanner as fs
         fs.ANTHROPIC_API_KEY = 'test-key'
 
-        mock_post.return_value = self._mock_claude_response({
+        mock_call.return_value = self._ok({
             'score': 8,
             'reasoning': 'Clear inspection question',
             'draft': 'Great question. Foundation cracks are a serious red flag...',
@@ -445,38 +451,34 @@ class TestAIScoring(unittest.TestCase):
         self.assertEqual(strategy, 'helpful_with_mention')
         fs.ANTHROPIC_API_KEY = ''
 
-    @patch('gtm.forum_scanner.requests.post')
-    def test_json_in_code_block_parsed(self, mock_post):
+    @patch('ai_json.call_ai_json')
+    def test_json_in_code_block_parsed(self, mock_call):
         """Response wrapped in ```json``` fences is still parsed."""
         from gtm.forum_scanner import ai_score_and_draft
         import gtm.forum_scanner as fs
         fs.ANTHROPIC_API_KEY = 'test-key'
 
-        payload = json.dumps({
+        # Fenced ```json``` payloads are now unwrapped by ai_json.extract_json_text
+        # before parsing, so call_ai_json hands back the parsed object.
+        mock_call.return_value = self._ok({
             'score': 7, 'reasoning': 'Good match', 'draft': 'Here is advice...',
             'strategy': 'helpful_only', 'tone': 'empathetic',
         })
-        mock_resp = MagicMock()
-        mock_resp.status_code = 200
-        mock_resp.json.return_value = {'content': [{'text': f'```json\n{payload}\n```'}]}
-        mock_post.return_value = mock_resp
 
         result = ai_score_and_draft({'title': 'test', 'selftext': '', 'subreddit': 'test', 'platform': 'reddit'})
         self.assertIsNotNone(result)
         self.assertEqual(result[0], 7)
         fs.ANTHROPIC_API_KEY = ''
 
-    @patch('gtm.forum_scanner.requests.post')
-    def test_malformed_json_returns_none(self, mock_post):
+    @patch('ai_json.call_ai_json')
+    def test_malformed_json_returns_none(self, mock_call):
         """Malformed JSON from API returns None without crashing."""
         from gtm.forum_scanner import ai_score_and_draft
         import gtm.forum_scanner as fs
         fs.ANTHROPIC_API_KEY = 'test-key'
 
-        mock_resp = MagicMock()
-        mock_resp.status_code = 200
-        mock_resp.json.return_value = {'content': [{'text': 'not valid json at all {{{'}]}
-        mock_post.return_value = mock_resp
+        # Unparseable even after ai_json's repair pass -> ok=False -> caller returns None
+        mock_call.return_value = self._failed()
 
         result = ai_score_and_draft({'title': 'test', 'selftext': '', 'subreddit': 'test', 'platform': 'reddit'})
         self.assertIsNone(result)
@@ -492,26 +494,27 @@ class TestAIScoring(unittest.TestCase):
         self.assertIsNone(result)
         fs.ANTHROPIC_API_KEY = original
 
-    @patch('gtm.forum_scanner.requests.post')
-    def test_network_error_returns_none(self, mock_post):
+    @patch('ai_json.call_ai_json')
+    def test_network_error_returns_none(self, mock_call):
         """Network failure returns None, doesn't propagate exception."""
         from gtm.forum_scanner import ai_score_and_draft
         import gtm.forum_scanner as fs
-        import requests as req
         fs.ANTHROPIC_API_KEY = 'test-key'
-        mock_post.side_effect = req.exceptions.Timeout()
+        # call_ai_json retries transient errors internally and NEVER raises; an
+        # exhausted retry surfaces as ok=False.
+        mock_call.return_value = self._failed('timeout after retries')
         result = ai_score_and_draft({'title': 'test', 'selftext': '', 'subreddit': 'test', 'platform': 'reddit'})
         self.assertIsNone(result)
         fs.ANTHROPIC_API_KEY = ''
 
-    @patch('gtm.forum_scanner.requests.post')
-    def test_low_score_below_threshold(self, mock_post):
+    @patch('ai_json.call_ai_json')
+    def test_low_score_below_threshold(self, mock_call):
         """Score below MIN_AI_SCORE should not generate a draft in pipeline."""
         from gtm.forum_scanner import ai_score_and_draft, MIN_AI_SCORE
         import gtm.forum_scanner as fs
         fs.ANTHROPIC_API_KEY = 'test-key'
 
-        mock_post.return_value = self._mock_claude_response({
+        mock_call.return_value = self._ok({
             'score': 3,
             'reasoning': 'Not relevant to homebuying',
             'draft': '',
