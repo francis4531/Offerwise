@@ -729,13 +729,21 @@ def analyze_property():
                             if _cprice <= 0: continue
                             _csq = int(_comp.get('squareFootage', 0) or 0)
                             _comps.append({
+                                # v5.89.311: address/year/sold_date added. The fast path
+                                # kept only numbers, so "here are the 10 comps we used"
+                                # had nothing to identify them by — a customer asked for
+                                # exactly this report. Mirrors the richer shape already
+                                # captured in property_research_agent.py.
+                                'address': _comp.get('formattedAddress', _comp.get('addressLine1', '')) or '',
                                 'price': _cprice,
                                 'sqft': _csq,
                                 'price_per_sqft': round(_cprice/_csq, 2) if _csq > 0 else 0,
                                 'bedrooms': int(_comp.get('bedrooms', 0) or 0),
                                 'bathrooms': float(_comp.get('bathrooms', 0) or 0),
+                                'year_built': int(_comp.get('yearBuilt', 0) or 0),
                                 'days_on_market': int(_comp.get('daysOnMarket', 0) or 0),
                                 'status': _comp.get('status', '') or '',
+                                'sold_date': _comp.get('removedDate', '') or '',
                                 'distance_miles': round(float(_comp.get('distance', 0) or 0), 2),
                             })
 
@@ -917,6 +925,11 @@ def analyze_property():
                         'avm_price_high': _avm_high,
                         'price_vs_avm_pct': _price_gap_pct,
                         'comparables_count': len(_comps),
+                        # v5.89.311: send the ACTUAL comp rows, not just the count. The
+                        # address-only path computed the full list and then discarded it,
+                        # so the UI could say "10 comparables" but had nothing to show
+                        # when a customer asked which 10 were used.
+                        'comparables': _comps,
                         'average_days_on_market': _dom,
                         'total_listings': _listings,
                         'median_price_per_sqft': float((_ms or {}).get('median_price_per_sqft', 0)),

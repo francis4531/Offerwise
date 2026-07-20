@@ -40,7 +40,7 @@
       });
     })();
     </script>
-    <script src="/static/gtm-loader.js?v=5.89.300"></script>
+    <script src="/static/gtm-loader.js?v=5.89.311"></script>
 <!-- /GTM head -->
     <script>if(window.location.hostname==='getofferwise.ai')window.location.replace('https://www.getofferwise.ai'+window.location.pathname+window.location.search);</script>
     <link rel="icon" type="image/svg+xml" href="/static/logo-icon-only.svg">
@@ -57,7 +57,7 @@
     <link rel="preconnect" href="https://unpkg.com" crossorigin>
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/results-theme.css?v=5.89.300">
+    <link rel="stylesheet" href="/static/results-theme.css?v=5.89.311">
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone@7.29.7/babel.min.js"></script>
@@ -721,7 +721,7 @@
         .ow-strategy-grid { grid-template-columns: 1fr !important; }
       }
     </style>
-    <script src="/static/analytics-loader.js?v=5.89.300" defer></script>
+    <script src="/static/analytics-loader.js?v=5.89.311" defer></script>
     <!-- Reddit Pixel Base Code -->
     <script>
     !function(w,d){if(!w.rdt){var p=w.rdt=function(){p.sendEvent?p.sendEvent.apply(p,arguments):p.queue.push(arguments)};p.queue=[];var t=d.createElement('script');t.src='https://www.redditstatic.com/ads/pixel.js';t.async=!0;var s=d.getElementsByTagName('script')[0];s.parentNode.insertBefore(t,s)}}(window,document);
@@ -4690,6 +4690,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                       {permits > 0 && <MetricCard label="Permits" value={permits} sub={permitFlags.length > 0 ? permitFlags[0] : 'on file'} icon="🔨" color={permitFlags.length > 0 ? '#f59e0b' : '#f1f5f9'} />}
                     </div>
 
+                    {/* v5.89.311: the actual comps behind the AVM. The metric card above
+                        states a COUNT; this shows WHICH sales produced it. */}
+                    <OwCompsTable rows={mc.comparables} />
+
                     {/* Neighborhood scores */}
                     {(walkScore > 0 || transitScore > 0 || schoolRating > 0) && (
                       <div style={{ marginBottom:'20px' }}>
@@ -7176,6 +7180,13 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                               </div>
                             );
                           })()}
+
+                          {/* v5.89.311: the comps themselves, inside the section that
+                              already explains the market discount. Source is checked in
+                              both places the payload can carry them (the offer-strategy
+                              market_context here, and result.market_context on the
+                              address-only path), so one table serves both. */}
+                          <OwCompsTable rows={(mc && mc.comparables) || (result.market_context && result.market_context.comparables)} />
                         </ECard>
                         </div>
                       );
@@ -8832,6 +8843,87 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         // Error Boundary Component
         // v5.89.300: reusable section boundary — contains a crash to ONE region and
         // reports it, instead of white-screening the whole app. Wrap steps/sections with it.
+        // v5.89.311: shared comparables table. A customer asked "is there a way to get a
+        // report showing the 10 comps that were used in the analysis?" — the data was
+        // already fetched and stored, it was simply never rendered. Defined at module
+        // scope so BOTH the address-only preview and the full report use one table
+        // (no duplicate markup). Uses the .ow-market-comps CSS that already existed.
+        const OwCompsTable = ({ rows, title, subtitle }) => {
+          const comps = Array.isArray(rows) ? rows.filter(Boolean) : [];
+          if (comps.length === 0) return null;
+          const usd = (n) => '$' + Math.round(Number(n) || 0).toLocaleString('en-US');
+          // Median $/sqft across comps that report it — the number the AVM leans on.
+          const psf = comps.map(c => Number(c.price_per_sqft) || 0).filter(v => v > 0).sort((a, b) => a - b);
+          const medianPsf = psf.length ? psf[Math.floor(psf.length / 2)] : 0;
+          const _tdBase = { padding: '9px 10px', borderBottom: '1px solid rgba(51,65,85,0.35)', color: 'var(--ow-text-2)', fontSize: 'var(--ow-fs-small)' };
+          const _numBase = { ...(_tdBase), textAlign: 'right', fontVariantNumeric: 'tabular-nums' };
+          const _t = {
+            table: { width: '100%', borderCollapse: 'collapse', minWidth: '620px' },
+            th: { padding: '8px 10px', textAlign: 'left', color: 'var(--ow-muted-dim)', fontSize: 'var(--ow-fs-eyebrow)', textTransform: 'uppercase', letterSpacing: '0.5px', borderBottom: '1px solid rgba(51,65,85,0.6)', whiteSpace: 'nowrap' },
+            thNum: { padding: '8px 10px', textAlign: 'right', color: 'var(--ow-muted-dim)', fontSize: 'var(--ow-fs-eyebrow)', textTransform: 'uppercase', letterSpacing: '0.5px', borderBottom: '1px solid rgba(51,65,85,0.6)', whiteSpace: 'nowrap' },
+            td: _tdBase,
+            tdNum: _numBase,
+            tdStrong: { ...(_numBase), color: 'var(--ow-text)', fontWeight: 700 },
+            dist: { color: 'var(--ow-dim)', fontSize: 'var(--ow-fs-meta)' },
+          };
+          return (
+            <div id="ow-comps" style={{ marginTop: '28px' }}>
+              <h3 style={{ fontSize: 'var(--ow-fs-card-title)', margin: '0 0 6px', color: 'var(--ow-text)' }}>
+                {title || `The ${comps.length} comparable${comps.length !== 1 ? 's' : ''} behind this estimate`}
+              </h3>
+              <p className="ow-section-sub" style={{ margin: '0 0 12px' }}>
+                {subtitle || (medianPsf > 0
+                  ? `Recent nearby sales used to value this property. Median ${usd(medianPsf)}/sq ft.`
+                  : 'Recent nearby sales used to value this property.')}
+              </p>
+              <div style={{ overflowX: 'auto' }}>
+                {/* Inline styles, not the .ow-market-comps class: that CSS lives in a
+                    <style> block rendered AFTER the address-only early return, so a
+                    class-based table would be unstyled on the preview path. Inline keeps
+                    this component self-contained wherever it is used. */}
+                <table style={_t.table}>
+                  <thead>
+                    <tr>
+                      <th style={_t.th}>Address</th>
+                      <th style={_t.thNum}>Sold</th>
+                      <th style={_t.thNum}>Sq Ft</th>
+                      <th style={_t.thNum}>$/Sq Ft</th>
+                      <th style={_t.thNum}>Bd/Ba</th>
+                      <th style={_t.thNum}>Built</th>
+                      <th style={_t.thNum}>DOM</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {comps.map((c, i) => (
+                      <tr key={i}>
+                        <td style={_t.td}>
+                          {c.address || 'Address not provided'}
+                          {Number(c.distance_miles) > 0 && (
+                            <span style={_t.dist}> · {Number(c.distance_miles).toFixed(2)} mi away</span>
+                          )}
+                        </td>
+                        <td style={_t.tdStrong}>{usd(c.price)}</td>
+                        <td style={_t.tdNum}>{Number(c.sqft) > 0 ? Number(c.sqft).toLocaleString('en-US') : '—'}</td>
+                        <td style={_t.tdNum}>{Number(c.price_per_sqft) > 0 ? usd(c.price_per_sqft) : '—'}</td>
+                        <td style={_t.tdNum}>
+                          {Number(c.bedrooms) > 0 || Number(c.bathrooms) > 0
+                            ? `${Number(c.bedrooms) || 0}/${Number(c.bathrooms) || 0}`
+                            : '—'}
+                        </td>
+                        <td style={_t.tdNum}>{Number(c.year_built) > 0 ? c.year_built : '—'}</td>
+                        <td style={_t.tdNum}>{Number(c.days_on_market) > 0 ? c.days_on_market : '—'}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <p style={{ fontSize: 'var(--ow-fs-meta)', color: 'var(--ow-dim)', margin: '10px 0 0' }}>
+                Comparable sales data via RentCast. A dash means the source didn&rsquo;t report that field.
+              </p>
+            </div>
+          );
+        };
+
         class Boundary extends React.Component {
           constructor(props) {
             super(props);
@@ -12649,7 +12741,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </script>
     
     <!-- Async Upload Manager - Handles PDF uploads with real-time progress -->
-    <script src="/static/async-upload-manager.js?v=5.89.300"></script>
+    <script src="/static/async-upload-manager.js?v=5.89.311"></script>
     
     <!-- Floating Support Button -->
     <a href="/contact" id="support-button" style="
@@ -12674,8 +12766,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <span style="font-size: 16px;">💬</span>
         Help
     </a>
-<script src="/static/js/compliance.js?v=5.89.300"></script>
-<script src="/static/js/analytics.js?v=5.89.300" defer></script>
+<script src="/static/js/compliance.js?v=5.89.311"></script>
+<script src="/static/js/analytics.js?v=5.89.311" defer></script>
 <script>
 // Scroll reveal for premium results animations
 (function() {
@@ -12762,7 +12854,7 @@ if ('serviceWorker' in navigator) {
 
 <!-- Scout: docked, summon-on-demand "Ask your report" assistant (v5.89.157) -->
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&display=swap" rel="stylesheet">
-<script src="/static/ask-widget.js?v=5.89.300"></script>
+<script src="/static/ask-widget.js?v=5.89.311"></script>
 <script>
 (function(){
   if (window.__scoutInit) { return; } window.__scoutInit = true;

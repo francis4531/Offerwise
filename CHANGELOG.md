@@ -1,3 +1,39 @@
+## v5.89.311 - Show the comps behind the AVM (customer request)
+
+Customer (Dylan, after successfully running an Anchorage AK analysis): "is there a way to
+get a report showing the 10 comps that were used in the analysis?" The preview card said
+"COMPARABLES 10 recent sales" but there was no way to see WHICH 10.
+
+The data was already fetched and already stored -- it was discarded at the boundary or
+simply never rendered. Nothing new is requested from RentCast.
+
+Backend (analysis_routes.py):
+ - The address-only path computed the full comps list into _comps and then sent ONLY
+   'comparables_count': len(_comps). Now also sends 'comparables': _comps.
+ - The fast-path comp record kept only numbers (price/sqft/beds/baths/DOM/distance) with
+   NO address, so "which comps" was unanswerable even where the rows were passed. Added
+   address, year_built and sold_date, mirroring the richer shape property_research_agent
+   already captures.
+
+Frontend (static/app.html):
+ - New shared <OwCompsTable> component at module scope: address (+ distance), sold price,
+   sqft, $/sqft, bd/ba, year built, days on market, plus a median $/sqft subtitle and a
+   source note. Renders nothing when there are no comps.
+ - Used in BOTH the address-only preview and the full report's "What the comps say"
+   section -- one component, no duplicate markup. The full-report call checks both places
+   the payload can carry comps (offer_strategy.market_context and result.market_context).
+ - Deliberately inline-styled rather than using the existing .ow-market-comps CSS: that
+   CSS sits in a <style> block rendered AFTER the address-only early return, so a
+   class-based table would have been unstyled on the exact path the customer was using.
+   (The existing CSS is left untouched -- report styling is not changed.)
+
+VERIFIED: JSX compiles; duplicate-declaration guard clean; analysis_routes compiles; and
+the component was rendered standalone against realistic comp rows -- produces a table
+with one row per comp and returns null on empty input.
+
+Context worth noting: this is the second customer independently asking to see the
+evidence behind a number (the first asked to see the reasoning chain). Both requests are
+"show your work", which is the same thing that distinguishes this from a raw model answer.
 ## v5.89.310 - Fix flaky forum-scanner test: dedup blocked by shared DB state
 
 CI (staging):
