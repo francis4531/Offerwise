@@ -1,3 +1,27 @@
+## v5.89.307 - Fix my own broken test (CI: 1 failed / 1866 passed)
+
+CI failure:
+    test_content_gen_null_safety.py::test_content_gen_job_handles_suppressed_post
+    AttributeError: module 'app' has no attribute '_content_gen_job'
+
+My bug, introduced in v5.89.301. The test did:
+    import app; inspect.getsource(app._content_gen_job)
+but _content_gen_job is a NESTED function (defined inside the scheduler setup at
+app.py:11688, indented), not a module-level attribute — so the attribute lookup could
+never succeed. The test was wrong from the moment it was written; it never validated
+anything.
+
+Fix: the test now reads app.py and slices out the function block by indentation
+(dedent = end of block), then asserts the `if not post_data` guard appears BEFORE
+`post_data['title']`. Renamed to test_content_gen_job_guards_the_suppressed_post.
+
+VERIFIED BOTH DIRECTIONS (the standard the ~900 tautological tests fail):
+  * against real app.py -> extracts 56 lines, guard at 1289 < subscript at 1771: PASSES
+  * against a copy with the guard stripped -> guard not found: FAILS
+So it genuinely detects the regression it claims to cover.
+
+Worth noting: this test failed LOUDLY rather than passing vacuously. A test that asserts
+on a dict literal would have stayed green while covering nothing.
 ## v5.89.306 - Always pin deploy commit identity to francis@getofferwise.ai
 
 The email was only applied when OW_GIT_EMAIL happened to be exported, so on a

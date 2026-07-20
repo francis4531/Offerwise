@@ -100,16 +100,45 @@ def test_get_default_does_not_apply_to_null_values():
     assert (payload.get('risk_score') or {}) == {}    # the pattern the fix uses
 
 
-def test_content_gen_job_handles_suppressed_post():
-    """generate_daily_post returns None BY DESIGN when there's no real data sample.
-    The caller must treat that as a normal outcome, not subscript it."""
-    import inspect
-    import app as app_module
+def _content_gen_job_source():
+    """Extract the body of _content_gen_job from app.py.
 
-    src = inspect.getsource(app_module._content_gen_job)
+    It is a NESTED function (defined inside the scheduler setup), so it is not a
+    module attribute — `app._content_gen_job` does not exist and inspect.getsource
+    on it raises AttributeError. Read the source and slice out the block instead.
+    """
+    import os
+    here = os.path.dirname(os.path.abspath(__file__))
+    with open(os.path.join(here, 'app.py'), encoding='utf-8') as fh:
+        lines = fh.read().split('\n')
+
+    start = None
+    indent = 0
+    for i, line in enumerate(lines):
+        stripped = line.lstrip()
+        if stripped.startswith('def _content_gen_job('):
+            start = i
+            indent = len(line) - len(stripped)
+            break
+    assert start is not None, 'def _content_gen_job( not found in app.py'
+
+    body = [lines[start]]
+    for line in lines[start + 1:]:
+        if line.strip() and (len(line) - len(line.lstrip())) <= indent:
+            break                      # dedented out of the function
+        body.append(line)
+    return '\n'.join(body)
+
+
+def test_content_gen_job_guards_the_suppressed_post():
+    """generate_daily_post returns None BY DESIGN when there's no real data sample
+    ("suppress rather than fabricate"). The caller must treat that as a normal
+    outcome, not subscript it — that unguarded subscript was 31 Sentry events."""
+    src = _content_gen_job_source()
+
     subscript_pos = src.find("post_data['title']")
     guard_pos = src.find('if not post_data')
 
-    assert subscript_pos != -1, "test is stale — _content_gen_job no longer builds from post_data"
-    assert guard_pos != -1, "_content_gen_job must guard the documented None return"
-    assert guard_pos < subscript_pos, "the None guard must come BEFORE post_data is subscripted"
+    assert subscript_pos != -1, 'test is stale — _content_gen_job no longer builds from post_data'
+    assert guard_pos != -1, '_content_gen_job must guard the documented None return'
+    assert guard_pos < subscript_pos, 'the None guard must come BEFORE post_data is subscripted'
