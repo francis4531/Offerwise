@@ -1,3 +1,34 @@
+## v5.89.314 - The .310 non-vacuity assertion was right: the test never reached AI at all
+
+CI:
+    FAILED test_forum_scanner.py::TestScanPipeline::test_duplicate_posts_skipped
+    AssertionError: 0 not greater than 0 : First scan scored nothing
+
+This is the assertion added in v5.89.310 working exactly as intended. It was put there to
+stop the test passing vacuously on 0 == 0, and it caught that the test is STILL vacuous --
+for a second, deeper reason than the dedup state fixed in .310.
+
+Root cause: run_scan aborts at "No ANTHROPIC_API_KEY. Cannot score or draft"
+(gtm/forum_scanner.py ~1172) BEFORE it reaches ai_score_and_draft. CI has no API key, so
+the mock was never called no matter what dedup did. The sibling tests
+test_draft_created_for_high_score and test_no_draft_for_low_score ALREADY patch
+ANTHROPIC_API_KEY for this reason; test_duplicate_posts_skipped and
+test_relevant_posts_reach_ai did not.
+
+ - Added @patch('gtm.forum_scanner.ANTHROPIC_API_KEY', 'test-key') to both, so the AI path
+   runs deterministically and does not depend on the environment.
+ - test_relevant_posts_reach_ai now also asserts mock_ai.call_count > 0. It is named for
+   posts REACHING AI but only ever checked posts_filtered, which is the keyword-filter
+   count computed before the API-key abort -- so it passed while proving nothing about
+   AI scoring.
+
+Verified: file compiles; all four AI-dependent tests in the class now patch the key; and
+decorator/parameter alignment re-checked via AST (value patches inject no argument, so
+the existing mock parameter lists are still correct).
+
+Worth recording: this is the second time this week a deliberately-added non-vacuity check
+has failed loudly and exposed a test that could not fail. That is the check earning its
+cost -- the alternative was a green suite that verified nothing.
 ## v5.89.313 - Credit management in the admin UI (grant/deduct, with an audit trail)
 
 Granting a customer a credit previously meant hand-calling /api/admin/set-credits, which

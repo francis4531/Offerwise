@@ -649,6 +649,9 @@ class TestScanPipeline(unittest.TestCase):
     @patch('gtm.forum_scanner.fetch_biggerpockets_posts')
     @patch('gtm.forum_scanner.fetch_reddit_posts')
     @patch('gtm.forum_scanner.ai_score_and_draft')
+    # v5.89.314: the name says posts REACH AI, but without the key patch run_scan aborts
+    # before AI scoring — the test only ever proved the keyword filter ran.
+    @patch('gtm.forum_scanner.ANTHROPIC_API_KEY', 'test-key')
     def test_relevant_posts_reach_ai(self, mock_ai, mock_reddit, mock_bp, mock_fb, mock_nd):
         """Posts with keyword hits are passed to AI scoring."""
         from gtm.forum_scanner import run_scan
@@ -688,10 +691,19 @@ class TestScanPipeline(unittest.TestCase):
 
         self.assertGreater(stats['posts_filtered'], 0,
             f"Expected posts_filtered > 0, got stats: {stats}")
+        # v5.89.314: assert the posts actually REACHED AI scoring, which is what this
+        # test is named for. posts_filtered alone only proves the keyword filter ran.
+        self.assertGreater(mock_ai.call_count, 0,
+            f"Keyword-matched posts never reached AI scoring. stats: {stats}")
 
     @patch('gtm.forum_scanner.fetch_biggerpockets_posts')
     @patch('gtm.forum_scanner.fetch_reddit_posts')
     @patch('gtm.forum_scanner.ai_score_and_draft')
+    # v5.89.314: without this, run_scan aborts at "No ANTHROPIC_API_KEY. Cannot score or
+    # draft" BEFORE reaching ai_score_and_draft, so the mock is never called and the
+    # duplicate-skipping comparison is 0 == 0. The sibling draft tests already patch it;
+    # this one and test_relevant_posts_reach_ai did not.
+    @patch('gtm.forum_scanner.ANTHROPIC_API_KEY', 'test-key')
     def test_duplicate_posts_skipped(self, mock_ai, mock_reddit, mock_bp):
         """Posts already in DB as qualified are not re-scored."""
         from gtm.forum_scanner import run_scan

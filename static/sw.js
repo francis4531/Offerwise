@@ -6,7 +6,7 @@
 // never refreshed across deploys — returning visitors could be served a stale
 // (even broken) shell indefinitely. Keep this in lockstep with VERSION.
 
-const CACHE_NAME = 'offerwise-v5.89.313';
+const CACHE_NAME = 'offerwise-v5.89.314';
 
 // Assets to cache on install (shell)
 const SHELL_ASSETS = [
