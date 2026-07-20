@@ -1,3 +1,31 @@
+## v5.89.308 - Auto-clean stale build folders and old tarballs on every deploy
+
+Double-clicking a .tar.gz in Finder extracts NEXT TO the existing folder as
+"offerwise_render 2", "offerwise_render 3", ... Those are complete but STALE build
+trees. The completeness guard cannot catch them, because it only detects a TRUNCATED
+extract -- a stale-but-complete tree looks perfectly valid, so invoking a script from
+the wrong folder silently deploys the wrong version.
+
+ow_deploy.sh now cleans up automatically before doing anything else:
+
+ 1. Finder duplicate build folders. Guarded hard so it can only ever remove a real
+    duplicate: must be a DIRECTORY, must sit BESIDE the build, must NOT be the build
+    itself, must contain a VERSION file (proving it is a build tree), and the name must
+    match exactly "<buildname> N" or "<buildname> NN".
+ 2. Old tarballs, keeping the newest OW_KEEP_TARBALLS (default 5, set 0 to keep all).
+
+VERIFIED against fixtures with deliberate decoys:
+  removed: "offerwise_render 2" (v5.89.306), "offerwise_render 3" (v5.89.305),
+           and tarballs .300/.301/.302 (kept newest 5)
+  KEPT:    "offerwise_render"       -- the real build
+           "offerwise_render 4"     -- numeric suffix but NO VERSION file, so not
+                                       proven to be a build tree
+           "offerwise_render notes" -- non-numeric suffix
+  idempotent: a second run produces no output and changes nothing
+  OW_KEEP_TARBALLS=0: folders still cleaned, tarballs untouched
+
+No manual cleanup needed. Note this runs inside ow_deploy.sh, so it applies however the
+build was extracted -- including a Finder double-click.
 ## v5.89.307 - Fix my own broken test (CI: 1 failed / 1866 passed)
 
 CI failure:

@@ -40,6 +40,58 @@ OW_GIT_USER="${OW_GIT_USER:-francis4531}"
 # Commit author for deploy commits. Always the OfferWise identity, never the
 # machine's global git email (which is the work account on a multi-account box).
 OW_GIT_EMAIL="${OW_GIT_EMAIL:-francis@getofferwise.ai}"
+# How many downloaded build tarballs to keep alongside the build (0 = keep all).
+OW_KEEP_TARBALLS="${OW_KEEP_TARBALLS:-5}"
+
+# ── Stale-artifact cleanup (v5.89.308) ───────────────────────────────────────
+# Double-clicking a .tar.gz in Finder extracts NEXT TO the existing folder as
+# "offerwise_render 2", "offerwise_render 3", ... Those are complete but STALE
+# builds, and the completeness guard can't catch a stale-but-complete tree — so
+# invoking a script from the wrong one silently deploys the wrong version.
+# Remove them automatically, and prune old tarballs so "which build is current"
+# is never ambiguous.
+_cleanup_stale_artifacts() {
+  local parent; parent="$(dirname "$BUILD")"
+  local removed=0
+
+  # 1. Finder duplicate build folders: exactly "<buildname> <digits>".
+  #    Guarded hard: must be a directory, must sit beside BUILD, must NOT be
+  #    BUILD, and must contain a VERSION file (proving it is a build tree and
+  #    not something of yours that happens to match).
+  local base; base="$(basename "$BUILD")"
+  local d
+  for d in "$parent/$base "[0-9]*; do
+    [ -d "$d" ] || continue
+    [ "$d" != "$BUILD" ] || continue
+    [ -f "$d/VERSION" ] || continue
+    case "$(basename "$d")" in
+      "$base "[0-9]|"$base "[0-9][0-9]) ;;   # only "<base> N" / "<base> NN"
+      *) continue ;;
+    esac
+    echo "  removing stale duplicate build: $(basename "$d") (v$(cat "$d/VERSION" 2>/dev/null || echo '?'))"
+    rm -rf "$d"
+    removed=$((removed + 1))
+  done
+
+  # 2. Old tarballs — keep the newest OW_KEEP_TARBALLS.
+  if [ "$OW_KEEP_TARBALLS" -gt 0 ] 2>/dev/null; then
+    local old
+    # shellcheck disable=SC2012  # ls -t is fine here; names are ours and have no newlines
+    old="$(ls -t "$parent"/offerwise_render_v*.tar.gz 2>/dev/null | tail -n +"$((OW_KEEP_TARBALLS + 1))" || true)"
+    if [ -n "$old" ]; then
+      while IFS= read -r f; do
+        [ -n "$f" ] || continue
+        echo "  removing old tarball: $(basename "$f")"
+        rm -f "$f"
+        removed=$((removed + 1))
+      done <<< "$old"
+    fi
+  fi
+
+  [ "$removed" -gt 0 ] && echo "✓ Cleaned $removed stale artifact(s) in $parent"
+  return 0
+}
+_cleanup_stale_artifacts
 
 # ── Identity guard ────────────────────────────────────────────────────────────
 # Confirm the credentials git will actually use belong to OW_GIT_USER, BEFORE we
