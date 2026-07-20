@@ -12,6 +12,17 @@
 # Env:
 #   OW_REPO   persistent local working clone (default: ~/offerwise-deploy)
 #   OW_GIT    git remote URL (default: the GitHub repo Render watches)
+#   OW_GIT_USER  GitHub account that MUST own the push (default: francis4531)
+#
+# MULTI-ACCOUNT SAFETY (v5.89.304)
+#   If you use more than one GitHub account on this machine (e.g. a work account
+#   and this one), macOS Keychain will happily hand git the WRONG cached token and
+#   the push dies with:
+#       remote: Permission to francis4531/Offerwise.git denied to <other-account>
+#   The fix is an SSH host alias per account, so the key — not a shared keychain
+#   entry — decides the identity. Run scripts/ow_git_setup.sh once to configure it.
+#   This script then VERIFIES the effective identity before pushing and refuses to
+#   continue if it isn't OW_GIT_USER, so a wrong-account push can't reach the repo.
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -22,7 +33,43 @@ _build_arg="${1:-$BUILD_DEFAULT}"
 BUILD="$(cd "$_build_arg" 2>/dev/null && pwd || true)"
 [ -n "$BUILD" ] || { echo "✗ build dir '$_build_arg' not found"; exit 1; }
 OW_REPO="${OW_REPO:-$HOME/offerwise-deploy}"
-OW_GIT="${OW_GIT:-https://github.com/francis4531/Offerwise.git}"
+# Default to the SSH alias set up by scripts/ow_git_setup.sh. Falls back to HTTPS
+# only if you override OW_GIT explicitly.
+OW_GIT="${OW_GIT:-git@github-offerwise:francis4531/Offerwise.git}"
+OW_GIT_USER="${OW_GIT_USER:-francis4531}"
+
+# ── Identity guard ────────────────────────────────────────────────────────────
+# Confirm the credentials git will actually use belong to OW_GIT_USER, BEFORE we
+# touch the network. Fails loudly with the exact remedy rather than letting the
+# push 403 after all the build work is done.
+_verify_git_identity() {
+  case "$OW_GIT" in
+    git@*)
+      local host="${OW_GIT#git@}"; host="${host%%:*}"
+      local who
+      # `ssh -T git@host` exits non-zero by design; the greeting is on stderr.
+      who="$(ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new -T "git@${host}" 2>&1 || true)"
+      if printf '%s' "$who" | grep -q "Hi ${OW_GIT_USER}[!/]"; then
+        echo "✓ GitHub identity: ${OW_GIT_USER} (via ssh alias '${host}')"
+        return 0
+      fi
+      echo "✗ Wrong GitHub identity for this repo."
+      echo "  Expected: ${OW_GIT_USER}"
+      echo "  Got:      ${who:-<no response>}"
+      echo ""
+      echo "  Run once to fix:  scripts/ow_git_setup.sh"
+      echo "  (sets up an SSH alias so this repo always uses ${OW_GIT_USER},"
+      echo "   leaving your other GitHub account untouched.)"
+      exit 1
+      ;;
+    https://*)
+      echo "⚠ Remote is HTTPS — identity can't be verified before pushing, and on a"
+      echo "  multi-account machine the Keychain may supply the wrong token."
+      echo "  Recommended: run scripts/ow_git_setup.sh to switch this clone to SSH."
+      ;;
+  esac
+}
+_verify_git_identity
 
 [ -f "$BUILD/VERSION" ] || { echo "✗ '$BUILD' has no VERSION file — not a build dir."; exit 1; }
 VER="$(cat "$BUILD/VERSION")"
@@ -33,6 +80,25 @@ if [ ! -d "$OW_REPO/.git" ]; then
 fi
 
 cd "$OW_REPO"
+
+# v5.89.304: if this clone predates the multi-account fix its remote is still the
+# HTTPS URL, which is what lets the Keychain hand git the wrong account's token.
+# Re-point it at the configured (SSH alias) URL so identity is decided by the key.
+_current_remote="$(git remote get-url origin 2>/dev/null || echo '')"
+if [ -n "$_current_remote" ] && [ "$_current_remote" != "$OW_GIT" ]; then
+  echo "→ Re-pointing origin to the identity-safe remote:"
+  echo "    was: $_current_remote"
+  echo "    now: $OW_GIT"
+  git remote set-url origin "$OW_GIT"
+fi
+
+# Pin the commit author for THIS clone only, so deploys are attributed to the
+# OfferWise account even when the machine's global git identity is the other one.
+if [ -n "${OW_GIT_EMAIL:-}" ]; then
+  git config user.email "$OW_GIT_EMAIL"
+fi
+git config user.name "$(git config user.name 2>/dev/null || echo "$OW_GIT_USER")" >/dev/null 2>&1 || true
+
 git fetch origin --prune
 
 # Get onto the staging branch (create from main the first time).

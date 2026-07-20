@@ -1,3 +1,63 @@
+## v5.89.305 - Fix ow_git_setup.sh crash on macOS: multibyte char adjacent to a variable
+
+Reported: scripts/ow_git_setup.sh died immediately after its header with
+    line 44: GH_USER?: unbound variable
+
+Cause: line 44 was
+    echo "-> Creating a dedicated SSH key for $GH_USER<ellipsis>"
+with a multi-byte UTF-8 ellipsis (U+2026) sitting IMMEDIATELY after $GH_USER. macOS
+ships bash 3.2, whose parameter-name parser mishandles multi-byte bytes adjacent to a
+variable name: it swallows them into the name, yielding "GH_USER?", which is unset, so
+`set -u` aborts. Two occurrences (lines 44 and 54). This is why ow_deploy.sh ran fine --
+an audit confirmed it and ow_promote.sh have ZERO instances of the pattern.
+
+Fix: ow_git_setup.sh is now PURE ASCII (arrows/checks/box-drawing/ellipses replaced with
+ASCII equivalents), with a header note explaining why it must stay that way. This removes
+the dependency on bash 3.2 multibyte handling entirely rather than just brace-quoting the
+two offending variables.
+
+Also fixed (found by dry-running the script): if a partial/interrupted setup left the
+private key without its .pub, the script failed later on `cat "${KEY}.pub"`. It now
+regenerates the public half with `ssh-keygen -y` instead.
+
+Verified: 0 non-ASCII bytes remain; `bash -n` passes; a dry run executes past the
+previously-crashing line through to the ACTION REQUIRED section. Audit query for
+'$VAR immediately followed by a non-ASCII byte' returns 0 across all three ow_*.sh
+scripts.
+## v5.89.304 — Multi-account git: both GitHub identities coexist, wrong-account push blocked
+
+The v5.89.303 staging deploy died with:
+    remote: Permission to francis4531/Offerwise.git denied to fanthony_cisco
+    fatal: ... The requested URL returned error: 403
+Cause: with an HTTPS remote, macOS Keychain stores ONE credential for github.com, so
+git used the work account for this repo. The build, guards and commit all succeeded —
+only the push failed (production correctly untouched).
+
+Design: SSH host alias per account. The alias in the remote URL selects the key, so
+identity is decided PER-REPO by the URL, never by a shared keychain entry. Both accounts
+keep working with nothing to switch:
+    work repos      git@github.com:…            (unchanged, default key)
+    OfferWise       git@github-offerwise:…      (francis4531, dedicated key)
+
+ - NEW scripts/ow_git_setup.sh — one-time, idempotent. Creates a dedicated ed25519 key,
+   appends a `Host github-offerwise` block to ~/.ssh/config (IdentitiesOnly yes so it
+   can't fall through to the other key), prints/copies the public key to register,
+   verifies `ssh -T` greets the expected user, re-points the deploy clone's origin, and
+   pins user.name/user.email FOR THAT CLONE ONLY (global git config untouched).
+
+ - ow_deploy.sh: OW_GIT now defaults to the SSH alias; new OW_GIT_USER (default
+   francis4531). Verifies the effective identity BEFORE any network op and aborts with
+   the exact remedy if it isn't the expected account. Also self-heals an existing clone
+   by re-pointing an old HTTPS origin to the alias.
+
+ - ow_promote.sh: same identity guard. This one pushes to PRODUCTION, so it refuses to
+   proceed on an identity mismatch rather than warning.
+
+Both scripts still accept an explicit HTTPS OW_GIT override; in that case they warn that
+identity cannot be pre-verified instead of failing.
+
+Verified: all three scripts pass `bash -n`; the identity matcher accepts "Hi francis4531!"
+and rejects both "Hi fanthony_cisco!" and an empty/no-response case.
 ## v5.89.303 — Reddit auth 403: stop paging on a handled fallback + let it self-heal
 
 Sentry: "[REDDIT-AUTH] Token request failed: 403 Forbidden", 133 events, 3 months,

@@ -14,15 +14,43 @@
 #   scripts/ow_promote.sh
 # Env:
 #   OW_REPO   persistent local working clone (default: ~/offerwise-deploy)
+#   OW_GIT_USER  GitHub account that MUST own the push (default: francis4531)
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 OW_REPO="${OW_REPO:-$HOME/offerwise-deploy}"
+OW_GIT_USER="${OW_GIT_USER:-francis4531}"
 
 [ -d "$OW_REPO/.git" ] || {
   echo "✗ No clone at $OW_REPO — run scripts/ow_deploy.sh first (it sets up the clone)."
   exit 1
 }
+
+# ── Identity guard (v5.89.304) ────────────────────────────────────────────────
+# This pushes to PRODUCTION, so verify the credentials git will use belong to
+# OW_GIT_USER before touching the network. On a machine with two GitHub accounts
+# an HTTPS remote can silently authenticate as the wrong one.
+_remote_url="$(git -C "$OW_REPO" remote get-url origin 2>/dev/null || echo '')"
+case "$_remote_url" in
+  git@*)
+    _host="${_remote_url#git@}"; _host="${_host%%:*}"
+    _who="$(ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new -T "git@${_host}" 2>&1 || true)"
+    if printf '%s' "$_who" | grep -q "Hi ${OW_GIT_USER}[!/]"; then
+      echo "✓ GitHub identity: ${OW_GIT_USER}"
+    else
+      echo "✗ Wrong GitHub identity — refusing to push to PRODUCTION."
+      echo "  Expected: ${OW_GIT_USER}"
+      echo "  Got:      ${_who:-<no response>}"
+      echo "  Fix with: scripts/ow_git_setup.sh"
+      exit 1
+    fi
+    ;;
+  https://*)
+    echo "⚠ Remote is HTTPS — identity can't be verified before a PRODUCTION push."
+    echo "  On a multi-account machine this can authenticate as the wrong account."
+    echo "  Recommended: scripts/ow_git_setup.sh (switches this clone to SSH)."
+    ;;
+esac
 
 cd "$OW_REPO"
 git fetch origin --prune
