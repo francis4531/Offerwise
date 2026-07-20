@@ -11704,6 +11704,18 @@ def _start_background_schedulers():
                 models_map = {"Analysis": Analysis}
                 post_data  = generate_daily_post(db.session, models_map, today)
 
+                # v5.89.301: generate_daily_post returns None BY DESIGN when there isn't a
+                # real data sample ("suppress rather than fabricate", v5.89.221). The caller
+                # subscripted it blindly, so every legitimate suppression raised
+                # TypeError: 'NoneType' object is not subscriptable (31 events / 22 days).
+                # Suppression is a normal outcome, not an error — log and stop.
+                if not post_data:
+                    logging.info(
+                        f"Content gen: no post generated for {today} — insufficient "
+                        "data sample (suppressed rather than fabricated)."
+                    )
+                    return
+
                 # Always a draft — review in admin, then schedule via Reddit's native scheduled posts
                 auto_status = 'draft'
 

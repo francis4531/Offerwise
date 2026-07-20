@@ -139,13 +139,15 @@ def collect_aggregate_stats(db_session, models: dict) -> dict:
                 result = {}
             
             # Repair costs
-            risk_score = result.get('risk_score', {})
+            # v5.89.301: `or {}` not `.get(k, {})` — address-only analyses persist these
+            # keys as explicit null, so the default never applied and .get() hit None.
+            risk_score = result.get('risk_score') or {}
             if risk_score.get('total_repair_cost_low') and risk_score.get('total_repair_cost_high'):
                 avg = (risk_score['total_repair_cost_low'] + risk_score['total_repair_cost_high']) / 2
                 repair_costs.append(avg)
             
             # Categories from findings
-            for finding in result.get('findings', []):
+            for finding in (result.get('findings') or []):
                 cat = finding.get('category', 'Other')
                 sev = finding.get('severity', 'minor')
                 if cat not in categories_found:
@@ -162,7 +164,7 @@ def collect_aggregate_stats(db_session, models: dict) -> dict:
             deal_breakers_count += len(dbs) if isinstance(dbs, list) else 0
             
             # Transparency
-            tr = result.get('transparency_report', {})
+            tr = result.get('transparency_report') or {}
             ts = tr.get('transparency_score')
             if ts and isinstance(ts, (int, float)):
                 transparency_scores.append(ts)

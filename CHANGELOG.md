@@ -1,3 +1,43 @@
+## v5.89.301 — Fix the 31-event content-gen TypeError (full causal chain)
+
+Sentry: TypeError "'NoneType' object is not subscriptable" in app._content_gen_job,
+31 events over 22 days. Stack trace showed post_data = None at app.py:11705.
+
+FULL CHAIN (all in GTM/marketing tooling — the buyer path is NOT affected):
+ 1. Address-only analyses persist result_json with keys present but EXPLICITLY NULL
+    ('risk_score': None, 'transparency_report': None, 'findings': None) — see
+    analysis_routes.py.
+ 2. gtm/content_engine.collect_aggregate_stats used `result.get('risk_score', {})`.
+    A dict's .get() default applies ONLY when the key is ABSENT; a key present with
+    value None returns None. So `.get()` on it raised
+    "'NoneType' object has no attribute 'get'" — the exact breadcrumb in the event.
+ 3. That was swallowed as a warning and degraded the job to _fallback_stats().
+ 4. Fallback stats are not data_backed, so generate_daily_post returned None —
+    CORRECT behaviour ("suppress rather than fabricate", v5.89.221).
+ 5. _content_gen_job then did post_data['title'] on None -> TypeError, every run.
+
+FIXES:
+ - gtm/content_engine.py: `result.get(k) or {}` (and `or []` for findings) for
+   risk_score / findings / transparency_report — null-valued keys no longer break it.
+ - app.py _content_gen_job: guard the DOCUMENTED None return before subscripting.
+   Suppression is a normal outcome; it now logs at info and returns.
+
+VERIFIED: reproduced the exact error message from the null-key pattern, then ran
+collect_aggregate_stats against the real address-only payload shape — returns
+source='live' with no exception (previously fell through to fallback).
+
+TEST: test_content_gen_null_safety.py — calls the REAL collector with the REAL
+production payload shape and asserts it does not degrade; pins the .get()-default
+semantics so the fix can't be reverted; asserts the None guard precedes the subscript
+in _content_gen_job. (Deliberately NOT a literal-asserting test — see note below.)
+
+TEST-SUITE FINDING (needs a decision): an audit found 922 of 1,896 class-based tests
+never reference the app, a client, a route, or an import. Example —
+test_all_60_workflows.py::test_consent_required_before_analysis builds a dict literal,
+calls all() on it, and asserts True. It tests a Python builtin and passes regardless of
+whether OfferWise's consent gate works, which is why the onboarding loop (v5.89.299/300)
+shipped with a green suite. Converting these to real tests is the highest-value
+test work available.
 ## v5.89.300 — Audit for MORE onboarding loops after Dylan's report; found + fixed a second
 
 Proactive audit of the whole app for the bug classes that bit this week. Found a SECOND
