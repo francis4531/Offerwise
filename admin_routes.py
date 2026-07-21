@@ -2679,6 +2679,76 @@ def update_repair_cost_baseline(category, severity):
     return jsonify({'updated': baseline.to_dict()})
 
 
+@admin_bp.route('/api/admin/drip-health', methods=['GET'])
+@_api_admin_req_dec
+def admin_drip_health():
+    """Is the user drip actually working? (v5.89.315)
+
+    Added because the honest answer to that question used to be "nobody knows". The job
+    logged only when it sent something, so a working-but-idle drip and a drip failing on
+    every send looked identical from outside: silence. This reports the distribution of
+    users across drip steps, when anything was last sent, and how many users have sat
+    untouched since signup — which is what makes stalls visible.
+    """
+    from datetime import datetime, timedelta
+    from models import User
+
+    now = datetime.utcnow()
+    pool = User.query.filter(
+        User.tier.isnot(None),
+        db.or_(User.email_unsubscribed.is_(None), User.email_unsubscribed == False),  # noqa: E712
+        db.or_(User.drip_completed.is_(None), User.drip_completed == False),  # noqa: E712
+    ).all()
+
+    by_step = {}
+    never_emailed = 0
+    stalled = []          # in the pool, never emailed, signed up over 48h ago
+    last_send = None
+
+    for u in pool:
+        step = int(u.drip_step or 0)
+        by_step[step] = by_step.get(step, 0) + 1
+        if u.drip_last_sent_at:
+            if last_send is None or u.drip_last_sent_at > last_send:
+                last_send = u.drip_last_sent_at
+        else:
+            never_emailed += 1
+            if u.created_at and (now - u.created_at) > timedelta(hours=48):
+                stalled.append({
+                    'email': u.email,
+                    'signed_up': u.created_at.isoformat(),
+                    'hours_since_signup': round((now - u.created_at).total_seconds() / 3600, 1),
+                })
+
+    stalled.sort(key=lambda r: r['hours_since_signup'], reverse=True)
+    completed = User.query.filter(User.drip_completed == True).count()  # noqa: E712
+
+    return jsonify({
+        'ok': True,
+        'pool_size': len(pool),
+        'completed': completed,
+        'by_step': dict(sorted(by_step.items())),
+        'never_emailed': never_emailed,
+        'stalled_over_48h': len(stalled),
+        'stalled_sample': stalled[:20],
+        'last_send_at': last_send.isoformat() if last_send else None,
+        'hours_since_last_send': (
+            round((now - last_send).total_seconds() / 3600, 1) if last_send else None
+        ),
+        'email_enabled': _drip_email_enabled(),
+    })
+
+
+def _drip_email_enabled():
+    """Whether outbound email is actually configured. A drip cannot send without it,
+    and that was previously invisible."""
+    try:
+        from email_service import EMAIL_ENABLED
+        return bool(EMAIL_ENABLED)
+    except Exception:
+        return False
+
+
 @admin_bp.route('/api/admin/adjust-credits', methods=['POST'])
 @_api_admin_req_dec
 def admin_adjust_credits():

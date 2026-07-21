@@ -11601,8 +11601,24 @@ def _start_background_schedulers():
             # v5.88.07: User drip (new — was missing entirely)
             user_stats = run_user_drip_scheduler(db.session)
             user_sent = user_stats.get('sent', 0)
-            if user_sent > 0:
+            user_errors = user_stats.get('errors', 0)
+            # v5.89.315: previously this logged ONLY when sent > 0, so a drip that sent
+            # nothing and a drip that failed on every send produced identical output:
+            # none. Errors are now always surfaced, and a run that sends nothing still
+            # records what it looked at, so "is the drip working?" is answerable from
+            # the logs instead of being inferred.
+            if user_errors > 0:
+                logging.warning(
+                    f"📧 User drip: {user_errors} send error(s) — sent={user_sent} "
+                    f"checked={user_stats.get('checked', 0)} skipped={user_stats.get('skipped', 0)}"
+                )
+            elif user_sent > 0:
                 logging.info(f"📧 User drip: sent={user_sent} checked={user_stats.get('checked', 0)}")
+            else:
+                logging.info(
+                    f"📧 User drip: nothing due — checked={user_stats.get('checked', 0)} "
+                    f"skipped={user_stats.get('skipped', 0)}"
+                )
 
     def _b2b_followup_job():
         with app.app_context():
@@ -12008,7 +12024,7 @@ def _start_background_schedulers():
     _safe_add_job(_lead_expiry_job,  'cron', hour=2,  minute=0, id='lead_expiry',  replace_existing=True)
 
     # Forum scanner — every 6h, staggered 30 min from ads sync to spread DB load
-    _safe_add_job(_forum_scan_job,   'interval', hours=6,   id='forum_scan',   replace_existing=True,
+    _safe_add_job(_forum_scan_job,   'interval', hours=24,  id='forum_scan',   replace_existing=True,
                       start_date='2026-01-01 00:30:00')
 
     # Content generator — daily at 7 AM PT, generates + auto-approves today's r/offerwiseAi post

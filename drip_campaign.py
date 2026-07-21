@@ -984,7 +984,7 @@ def send_user_drip_step(user, step: int) -> bool:
     return success
 
 
-def run_user_drip_scheduler(db_session, batch_size=50):
+def run_user_drip_scheduler(db_session, batch_size=200):
     """v5.88.07: Auto-fire drip steps 1-5 for signed-up Users.
 
     Mirrors run_drip_scheduler (which handles Waitlist) for the User table.
@@ -1009,12 +1009,24 @@ def run_user_drip_scheduler(db_session, batch_size=50):
     stats = {'sent': 0, 'skipped': 0, 'errors': 0, 'checked': 0}
 
     # Eligible: not unsubscribed, not completed, has buyer-tier set
+    # v5.89.315: ordering fixed — this was `order_by(User.created_at.asc())`, which took
+    # the OLDEST 50 non-completed users every run. A user only leaves the pool at
+    # drip_completed, which happens at MAX_DRIP_STEP (17, roughly a year of emails). So
+    # the same oldest 50 occupied every batch and any user beyond that was NEVER
+    # evaluated — at ~90 signups that silently excluded the ~40 most recent, i.e. exactly
+    # the people a nurture sequence is for.
+    #
+    # Ordering by "least recently contacted" (last send, falling back to signup for users
+    # who have never been emailed) makes the queue rotate: whoever is most overdue is
+    # always at the front, so nobody can be starved regardless of pool size.
     candidates = User.query.filter(
         User.tier.isnot(None),
         # SQLAlchemy is_-style for nullable booleans — None is treated as False
         db.or_(User.email_unsubscribed.is_(None), User.email_unsubscribed == False),  # noqa: E712
         db.or_(User.drip_completed.is_(None), User.drip_completed == False),  # noqa: E712
-    ).order_by(User.created_at.asc()).limit(batch_size).all()
+    ).order_by(
+        db.func.coalesce(User.drip_last_sent_at, User.created_at).asc()
+    ).limit(batch_size).all()
 
     stats['checked'] = len(candidates)
 

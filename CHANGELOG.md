@@ -1,3 +1,38 @@
+## v5.89.315 - Forum scan to daily; and the user drip was silently skipping the newest 40 signups
+
+1) COST: forum scan interval 6h -> 24h. It scored up to MAX_AI_SCORES_PER_SCAN=25 posts
+   per run, four times a day, i.e. up to ~100 Sonnet calls/day to produce Reddit drafts
+   that still require manual review. Now once daily, a 75% cut on the largest recurring
+   AI line item. (Reddit ads paused separately by the founder; Google Ads continues.)
+
+2) THE DRIP WAS NOT WORKING FOR MOST USERS. Asked to verify rather than assume, and it
+   does not hold up:
+
+   run_user_drip_scheduler selected candidates with
+       .order_by(User.created_at.asc()).limit(50)
+   A user only leaves the candidate pool at drip_completed, which is set at
+   MAX_DRIP_STEP = 17 — roughly a year of emails. So the same oldest 50 users occupied
+   every batch, and anyone beyond that was NEVER evaluated. At ~90 signups that silently
+   excluded the ~40 most recent — precisely the people a nurture sequence exists for.
+
+   Fixed: order by coalesce(drip_last_sent_at, created_at) ascending, so the queue is
+   "least recently contacted first" and rotates. Nobody can be starved regardless of pool
+   size. Batch raised 50 -> 200 to cover current volume comfortably.
+   VERIFIED by simulation: with 90 users where the oldest 50 were recently emailed, the
+   old ordering could reach user index 49 at best; the new ordering reaches 89.
+
+3) THE SILENCE THAT HID IT. _drip_job logged ONLY when sent > 0, so "sent nothing because
+   nothing was due" and "failed on every single send" produced identical output: none.
+   Errors are now always logged at warning, and a run that sends nothing still records
+   what it checked and skipped.
+
+4) NEW GET /api/admin/drip-health — durable diagnostic rather than a throwaway query.
+   Reports pool size, per-step distribution, users never emailed, users stalled >48h
+   since signup (with a sample), time since the last send anywhere, and whether outbound
+   email is enabled at all. That last one matters: a drip cannot send if EMAIL_ENABLED is
+   false, and that was previously invisible from outside.
+
+All touched modules compile.
 ## v5.89.314 - The .310 non-vacuity assertion was right: the test never reached AI at all
 
 CI:
