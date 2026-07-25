@@ -30,16 +30,24 @@ ADS_BASE   = 'https://ads-api.reddit.com/api/v3'
 
 
 class RedditAdsRateLimited(RuntimeError):
-    """Reddit Ads API returned HTTP 429 (rate-limited).
+    """Reddit Ads API returned a TRANSIENT status (429 rate-limit, or a 5xx upstream
+    error such as 502/503/504 from Reddit's Varnish cache).
 
     This is transient, not a failure: the next scheduled sync (or a later
     manual run) will pick the window back up. It is a RuntimeError subclass so
     existing broad `except Exception` handlers still catch it, but callers that
     care can treat it distinctly and avoid error-level logging (which pages).
+
+    (Name kept for backwards compatibility; RedditAdsTransient is an alias.)
     """
-    def __init__(self, retry_after=None):
+    def __init__(self, retry_after=None, status=429):
         self.retry_after = retry_after
-        super().__init__(f"Reddit Ads API rate-limited (429); retry_after={retry_after}")
+        self.status = status
+        super().__init__(f"Reddit Ads API transient {status}; retry_after={retry_after}")
+
+
+# Clearer alias for the 5xx case; same type so existing handlers are unaffected.
+RedditAdsTransient = RedditAdsRateLimited
 
 
 def _creds():
@@ -133,7 +141,19 @@ def _fetch_report(access_token: str, start: date, end: date) -> list[dict]:
                 f"Reddit Ads API rate-limited (429); retry_after={retry_after}. "
                 f"Skipping this window — next scheduled sync will retry."
             )
-            raise RedditAdsRateLimited(retry_after)
+            raise RedditAdsRateLimited(retry_after, status=429)
+        # v5.89.318: 5xx are transient UPSTREAM failures (e.g. the 503 "backend read
+        # error" from Reddit's Varnish cache). Same shape as the 429 above and as the
+        # Anthropic 529 handled elsewhere: the code recovers on the next scheduled sync,
+        # so it must log at WARNING, not error. Previously these fell through to the
+        # generic logger.error below and paged as high-priority incidents for a condition
+        # that fixes itself.
+        if resp.status_code in (500, 502, 503, 504):
+            logger.warning(
+                f"Reddit Ads API transient {resp.status_code} (upstream). "
+                f"Skipping this window — next scheduled sync will retry."
+            )
+            raise RedditAdsTransient(status=resp.status_code)
         logger.error(f"Reddit Ads API error {resp.status_code}: {err_body}")
         if resp.status_code == 401:
             raise RuntimeError("Reddit Ads: Unauthorized — check CLIENT_ID/SECRET/REFRESH_TOKEN")
@@ -280,7 +300,7 @@ def sync_to_db(db_session, lookback_days: int = 3) -> dict:
             'status':      'rate_limited',
             'rows_synced': 0,
             'retry_after': rate_limited_retry_after,
-            'reason':      'Reddit Ads API rate-limited (429); will retry on the next scheduled sync.',
+            'reason':      'Reddit Ads API transient error (429/5xx); will retry on the next scheduled sync.',
         }
 
     # Tolerate partial failures: if SOME days fetched and some didn't, we

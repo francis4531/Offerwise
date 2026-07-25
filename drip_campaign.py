@@ -807,7 +807,7 @@ def send_market_intelligence_email(db_session, user, snapshot):
         logger.info(f"Market intel email sent to {user.email} (ZIP {snapshot.zip_code}, alerts={snapshot.alerts_generated})")
         return True
     except Exception as e:
-        logger.error(f"Market intel email failed for {user.email}: {e}")
+        logger.warning(f"Market intel email failed for {user.email}: {e} — skipped, next run retries")
         return False
 
 

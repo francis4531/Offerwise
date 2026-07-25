@@ -182,7 +182,7 @@ def api_gtm_skip_draft(draft_id):
         return jsonify({"status": "skipped", "draft_id": draft.id})
     except Exception as e:
         _db.session.rollback()
-        logging.error(f"GTM skip error: {e}")
+        logging.warning(f"GTM skip error: {e} — skipped")
         return jsonify({"error": "Internal error"}), 500
 
 

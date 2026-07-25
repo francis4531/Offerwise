@@ -4,6 +4,7 @@ Extracted from app.py v5.74.47 for architecture cleanup.
 """
 
 import logging
+import os
 from datetime import datetime
 from flask import Blueprint, request, jsonify, send_from_directory, redirect, url_for, session, render_template_string, flash
 from flask_login import login_required, login_user, logout_user, current_user
@@ -103,6 +104,14 @@ class _LazyList:
     def __len__(self): return len(self._resolve())
 
 DEVELOPER_EMAILS = _LazyList('DEVELOPER_EMAILS')
+
+# v5.89.317: free credits granted to a new signup. Raised 1 -> 10 because 1 analysis
+# isn't enough to reach the product's value moment (the disclosure-vs-inspection
+# contradiction, or a comps table) — a customer said 1-2 credits is too few to
+# understand the product. Overridable via env for future tuning without a code change.
+# Note this sits below the $9 Starter plan's 10 ANALYSES PER MONTH: the free grant is a
+# one-time pool, not a monthly refill, so paying still buys something.
+FREE_SIGNUP_CREDITS = int(os.environ.get('OW_FREE_SIGNUP_CREDITS', '10'))
 
 _admin_required_ref = [None]
 _api_admin_required_ref = [None]
@@ -300,14 +309,10 @@ def google_callback():
                     logging.info(f"👑 DEVELOPER LOGIN: Boosted credits {old_credits} -> 500")
             
             # FREE USER WITH 0 CREDITS: Restore 1 free credit if they never paid
-            # This handles stale accounts from failed deletions or edge cases
-            if not is_developer and user.analysis_credits <= 0 and not user.stripe_customer_id:
-                # Check if they've ever completed an analysis
-                analysis_count = db.session.query(Analysis).join(Property).filter(Property.user_id == user.id).count()
-                if analysis_count == 0:
-                    user.analysis_credits = 1
-                    logging.info(f"🔄 Restored 1 free credit for {email} (0 credits, never paid, 0 analyses)")
-            
+            # v5.89.317: the "restore 1 free credit on login for a spent free account"
+            # behaviour was retired here. With a 10-credit signup grant, topping a spent
+            # account back up on every login would be an unlimited-analysis loophole. A
+            # free user now gets FREE_SIGNUP_CREDITS once, at signup, and that's the pool.
             db.session.commit()
         else:
             # New user signup - check email registry for credit eligibility
@@ -340,7 +345,7 @@ def google_callback():
             logging.info("")
             
             if can_receive_credit:
-                analysis_credits = 1
+                analysis_credits = FREE_SIGNUP_CREDITS  # v5.89.317: was 1
                 logging.info("✅ STEP 3: GIVING FREE CREDIT")
                 logging.info(f"   Credits to assign: {analysis_credits}")
                 EmailRegistry.give_free_credit(email)
@@ -597,7 +602,7 @@ def auth_register():
     can_receive_credit, reason = EmailRegistry.can_receive_free_credit(email)
     
     if can_receive_credit:
-        analysis_credits = 1
+        analysis_credits = FREE_SIGNUP_CREDITS  # v5.89.317: was 1
         EmailRegistry.give_free_credit(email)
         logging.info(f"Free credit granted: {reason}")
     else:
@@ -760,13 +765,9 @@ def auth_login_email():
         user.analysis_credits = 500
         user.tier = 'enterprise'
     
-    # FREE USER WITH 0 CREDITS: Restore 1 free credit if never paid and no analyses
-    if email not in DEVELOPER_EMAILS and user.analysis_credits <= 0 and not user.stripe_customer_id:
-        analysis_count = db.session.query(Analysis).join(Property).filter(Property.user_id == user.id).count()
-        if analysis_count == 0:
-            user.analysis_credits = 1
-            logging.info(f"🔄 Restored 1 free credit for {email} (0 credits, never paid, 0 analyses)")
-    
+    # v5.89.317: retired the "restore 1 free credit on login" behaviour (see signup grant).
+    # A spent free account is not topped back up; the one-time FREE_SIGNUP_CREDITS pool is
+    # the whole free allotment.
     login_user(user)
     user.last_login = datetime.utcnow()
     db.session.commit()
@@ -1015,13 +1016,8 @@ def facebook_callback():
                     logging.info("👑 DEVELOPER LOGIN: Set tier to enterprise")
             
 
-            # FREE USER WITH 0 CREDITS: Restore 1 free credit if never paid and no analyses
-            if not is_developer and user.analysis_credits <= 0 and not user.stripe_customer_id:
-                fb_analysis_count = db.session.query(Analysis).join(Property).filter(Property.user_id == user.id).count()
-                if fb_analysis_count == 0:
-                    user.analysis_credits = 1
-                    logging.info(f"🔄 Restored 1 free credit for {email} (Facebook login, 0 credits, never paid)")
-
+            # v5.89.317: retired "restore 1 free credit on login" (Facebook path) — a spent
+            # free account is not refilled; FREE_SIGNUP_CREDITS is granted once at signup.
             db.session.commit()
         else:
             # New user signup - check email registry for credit eligibility
@@ -1033,7 +1029,7 @@ def facebook_callback():
             
             if can_receive_credit:
                 # Give free credit
-                analysis_credits = 1
+                analysis_credits = FREE_SIGNUP_CREDITS  # v5.89.317: was 1
                 EmailRegistry.give_free_credit(email)
                 logging.info(f"✅ Giving free credit to {email} (reason: {reason})")
             else:

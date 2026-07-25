@@ -305,12 +305,36 @@ _sentry_dsn = os.environ.get('SENTRY_DSN', '')
 if _sentry_dsn:
     try:
         import sentry_sdk
+
+        def _sentry_before_send(event, hint):
+            """Drop events originating from the test suite (v5.89.316).
+
+            The suite can be run on the live box via the admin test runner, and tests
+            deliberately exercise failure paths — test_ai_json's _BoomClient raises
+            RuntimeError("transport boom") precisely to prove ai_json degrades
+            gracefully. ai_json then correctly logs at error, Sentry captures it, and a
+            PASSING test pages the founder at 7am. A simulated failure is not an incident.
+
+            Filtered at the source rather than muting one message, because any test that
+            touches an error path has the same effect. Real environments are unaffected.
+            """
+            try:
+                if (event.get('environment') or '').lower() in ('testing', 'test'):
+                    return None
+                # Belt and braces: the admin runner sets this for its subprocess.
+                if os.environ.get('OW_RUNNING_TESTS') == '1':
+                    return None
+            except Exception:
+                pass
+            return event
+
         sentry_sdk.init(
             dsn=_sentry_dsn,
             traces_sample_rate=0.1,  # 10% of requests for performance monitoring
             environment=os.environ.get('FLASK_ENV', 'production'),
+            before_send=_sentry_before_send,
         )
-        logging.info("✅ Sentry error monitoring enabled")
+        logging.info("✅ Sentry error monitoring enabled (test-environment events filtered)")
     except Exception as e:
         logging.warning(f"⚠️ Sentry init failed: {e}")
 

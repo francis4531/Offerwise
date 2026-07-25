@@ -199,7 +199,7 @@ def _fetch_reddit_pullpush(subreddit, limit):
         else:
             logger.warning(f"[ARCTIC-SHIFT] r/{subreddit}: HTTP {resp.status_code}")
     except Exception as e:
-        logger.error(f"[ARCTIC-SHIFT] r/{subreddit} error: {e}")
+        logger.warning(f"[ARCTIC-SHIFT] r/{subreddit} error: {e} — skipping this source")
 
     # Fallback: PullPush (may have stale data but better than nothing)
     try:
@@ -221,7 +221,7 @@ def _fetch_reddit_pullpush(subreddit, limit):
                 logger.info(f"[PULLPUSH] r/{subreddit}: {len(posts)} fresh posts")
                 return posts
     except Exception as e:
-        logger.error(f"[PULLPUSH] r/{subreddit} error: {e}")
+        logger.warning(f"[PULLPUSH] r/{subreddit} error: {e} — skipping this source")
 
     return []
 
@@ -273,7 +273,7 @@ def _fetch_reddit_oauth(subreddit, limit, sort='new'):
         resp.raise_for_status()
         return _parse_reddit_listing(resp.json(), subreddit)
     except Exception as e:
-        logger.error(f"Reddit OAuth fetch error for r/{subreddit}: {e}")
+        logger.warning(f"Reddit OAuth fetch error for r/{subreddit}: {e} — skipping this source")
         return []
 
 
@@ -510,7 +510,7 @@ def fetch_biggerpockets_posts(forum_name, forum_url=None):
             logger.warning(f"BP: 0 posts from {forum_name} — page size {len(resp.text)} bytes, may need URL/pattern update")
         return posts
     except Exception as e:
-        logger.error(f"BP fetch error for {forum_name}: {e}")
+        logger.warning(f"BP fetch error for {forum_name}: {e} — skipping this source")
         return []
 
 
@@ -1392,7 +1392,7 @@ def fetch_facebook_group_posts(group: dict, limit: int = 20) -> list:
         return posts[:limit]
 
     except Exception as e:
-        logger.error(f"Facebook fetch error for {group_name}: {e}")
+        logger.warning(f"Facebook fetch error for {group_name}: {e} — skipping this source")
         return []
 
 
@@ -1493,5 +1493,5 @@ def fetch_nextdoor_posts(neighborhood: dict, limit: int = 20) -> list:
         return posts[:limit]
 
     except Exception as e:
-        logger.error(f"Nextdoor fetch error for {name}: {e}")
+        logger.warning(f"Nextdoor fetch error for {name}: {e} — skipping this source")
         return []

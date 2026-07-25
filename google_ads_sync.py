@@ -58,7 +58,7 @@ def _get_client():
     try:
         return GoogleAdsClient.load_from_dict(config)
     except Exception as e:
-        logger.error(f"❌ Google Ads client init failed: {e}")
+        logger.warning(f"Google Ads client unavailable: {e} — sync skipped, not fatal")
         return None
 
 
@@ -125,7 +125,7 @@ def fetch_daily_metrics(target_date=None):
         return results
 
     except Exception as e:
-        logger.error(f"❌ Google Ads API query failed: {e}")
+        logger.warning(f"Google Ads query failed: {e} — sync skipped, will retry next run")
         return []
 
 
@@ -209,7 +209,7 @@ def fetch_search_terms(days=30, max_rows=500):
         return results
 
     except Exception as e:
-        logger.error(f"❌ Google Ads search-terms query failed: {e}")
+        logger.warning(f"Google Ads search-terms query failed: {e} — skipped, not fatal")
         return []
 
 

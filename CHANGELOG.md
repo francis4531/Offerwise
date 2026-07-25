@@ -1,3 +1,134 @@
+## v5.89.319 - Normalize error-vs-warning across external-API call sites (the sweep)
+
+Fourth instance this week of the same root cause — code logging a RECOVERED condition at
+error level, which pages: Anthropic 529 (.302), Reddit auth 403 (.303), the "transport
+boom" test (.316), Reddit Ads 503 (.318). Rather than keep fixing one page at a time, did
+one pass over all 400 .error() call sites and applied a single rule:
+
+  if the code recovers and continues -> warning
+  if the code cannot continue / a real user-facing thing failed -> error
+
+25 sites were followed by graceful recovery. 12 downgraded to warning; 13 deliberately
+KEPT at error. The keep list is the point of the exercise:
+
+DOWNGRADED (marketing/ingestion that skips a source and continues):
+  gtm/forum_scanner.py x6  — Arctic-Shift / Pullpush / Reddit-OAuth / BiggerPockets /
+                             Facebook / Nextdoor fetch failures; each skips that source.
+  google_ads_sync.py x3    — client init / query / search-terms failures; ads job
+                             tolerates a skipped sync and retries next run.
+  drip_campaign.py x1      — one user's market-intel email failing; loop continues.
+  gtm/routes.py x1         — an explicit "skip".
+  discovery_crawler.py x1  — commit rolled back, returns 0, crawler continues.
+
+KEPT AT ERROR (real failures — mostly the BUYER PATH, which is not noise):
+  analysis_ai_helper.py (AI external verification) — degrades a real analysis.
+  property_research_agent.py (AI synthesis)        — buyer path.
+  offerwise_intelligence.py (buyer concern analysis) — buyer path.
+  app.py DB-init failure; email_service last-resort send; app.py both-providers-down;
+  agentic_monitor report-not-found + realtor-send failure; the ai_json import guard
+  (a missing module is a deploy defect, not a degradation).
+
+The principle: a failed forum fetch is noise; a failed analysis is a customer getting a
+worse report. Downgrading the first makes the second visible again — Sentry was loud with
+recoverable marketing hiccups, which is part of why the one genuinely-broken issue this
+month (the content-gen TypeError) sat in the pile.
+
+Verified: all five touched modules compile. Buyer-path error logging is unchanged.
+## v5.89.318 - Reddit Ads 5xx is transient: warn, don't page (and note on the test filter)
+
+Sentry: "Reddit Ads API error 503: ... Varnish cache ... backend read error",
+logger=reddit_ads_sync, environment=testing.
+
+TWO things here:
+
+1) THE 503 IS TRANSIENT. A 503 from Reddit's Varnish cache is an upstream hiccup that the
+   next scheduled sync recovers from — the same shape as the Anthropic 529 (v5.89.302) and
+   the 429 this file ALREADY handled specially. Only 429 was being treated as transient;
+   the 5xx family fell through to logger.error and paged.
+   Fix (reddit_ads_sync.py):
+     - RedditAdsRateLimited generalised to carry a status; RedditAdsTransient alias added
+       (same type, so existing `except RedditAdsRateLimited` handlers catch it unchanged).
+     - 500/502/503/504 now log at WARNING and raise the transient exception, which the
+       fetch loop already catches: it stops the window cleanly and returns
+       status='rate_limited' for the next sync to retry. No page.
+     - The returned reason string no longer hardcodes "429" now that 5xx routes through it.
+
+2) THE ALERT ENVIRONMENT WAS 'testing'. This was the test suite exercising reddit_ads_sync
+   ON the Render box (transaction=docrepo.docrepo_download), hitting Reddit's real API,
+   which happened to 503. v5.89.316's Sentry before_send hook drops testing-environment
+   events and WOULD have suppressed this — confirmed by replaying the event shape through
+   the hook (DROP). If these are still arriving, v5.89.316 is not yet live in production.
+   This fix does not rely on that: the error-vs-warning correction is right for genuine
+   production 5xx too, independent of the environment filter.
+
+Verified: reddit_ads_sync compiles; RedditAdsTransient is RedditAdsRateLimited (broad
+handlers unaffected); a 503 constructs a transient carrying status=503; the .316 hook
+drops an environment=testing "Reddit Ads API error 503" event.
+## v5.89.317 - Free signup credits 1 -> 10; retire the login auto-restore; backfill existing users
+
+Customer feedback: 1-2 credits is too few to understand the product — a buyer can't reach
+the value moment (a disclosure-vs-inspection contradiction, or the comps table) on a
+single analysis. Raised the free grant to 10.
+
+ - auth_routes.py: new FREE_SIGNUP_CREDITS constant (default 10, env-overridable via
+   OW_FREE_SIGNUP_CREDITS). All THREE new-signup grant sites now use it instead of a
+   hardcoded 1 (magic-link signup, email signup, Facebook signup). The 500-credit
+   developer grants are untouched.
+
+ - RETIRED the "restore 1 free credit on login" behaviour at all three sites (email
+   login, email-login fallback, Facebook login). With a 10-credit grant, topping a spent
+   free account back up on every login would be an unlimited-analysis loophole. A free
+   user now receives the one-time pool at signup and that is the whole free allotment.
+   Deliberately chose 10-below-Starter (which is 10 analyses PER MONTH, a recurring
+   refill) so paying still buys something the free tier doesn't: renewal.
+
+ - Copy updated to match reality: pricing.html ("get 10 analyses included") and
+   contact.html ("10 complimentary credits"). Left the post-close survey reward (1 credit
+   for feedback) and internal mockups alone.
+
+ - NEW POST /api/admin/backfill-free-credits — one-time top-up of existing free users
+   (never purchased, currently below target) up to the grant. Writes a CreditAdjustment
+   audit row per user, exactly like the manual +1 flow. Supports { dry_run: true } to see
+   the blast radius before committing. This is what brings the existing ~90 signups up to
+   10 rather than leaving them on the old amount.
+
+Verified: all grant sites use the constant (3), zero bare new-user grants of 1 remain,
+zero auto-restores remain, dev 500-grants intact; auth_routes/admin_routes/app compile;
+admin inline JS parses and divs balance; all 9 route modules import clean.
+## v5.89.316 - Stop the test suite paging as a production incident
+
+Sentry alert received at 7am:
+    [ai_json] call failed (unit-test): transport boom
+    environment = testing · logger = ai_json · server_name = srv-... (Render)
+
+GOOD NEWS FIRST: this confirms the Sentry alert rule works end to end. It had shown
+"Last Triggered: Never" and was pending verification. It is now verified.
+
+The alert itself is a FALSE PAGE. "transport boom" is raised deliberately by
+test_ai_json._BoomClient to prove ai_json degrades gracefully when the transport fails.
+ai_json correctly logs at error, Sentry captures it, and a PASSING TEST pages the
+founder. The server_name shows this ran on the live Render box, via the admin test
+runner, not in CI.
+
+Fixed at the source rather than by muting one message, because ANY test that exercises an
+error path has the same effect (this is the second instance of the pattern — v5.89.290
+was the adversarial blank-PDF test firing "All PDF extraction methods failed"):
+
+ - app.py: sentry_sdk.init now takes a before_send hook that drops events whose
+   environment is 'testing'/'test', or where OW_RUNNING_TESTS=1.
+ - admin_routes.py: new _ow_test_subprocess_env() helper; the two pytest subprocesses
+   that previously inherited the parent environment now set OW_RUNNING_TESTS=1 and
+   default FLASK_ENV=testing, so the child's events are dropped even if the box is
+   otherwise configured as production. (The third invocation already passed its own env.)
+
+VERIFIED by extracting the hook and running it against real event shapes:
+   environment=testing    -> DROP
+   environment=test       -> DROP
+   environment=production -> KEEP
+   environment=staging    -> KEEP
+   no environment key     -> KEEP
+   OW_RUNNING_TESTS=1 while environment=production -> DROP
+Real errors are unaffected; only simulated failures are filtered.
 ## v5.89.315 - Forum scan to daily; and the user drip was silently skipping the newest 40 signups
 
 1) COST: forum scan interval 6h -> 24h. It scored up to MAX_AI_SCORES_PER_SCAN=25 posts

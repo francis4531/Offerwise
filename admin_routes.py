@@ -1001,6 +1001,7 @@ def api_test_suite():
             proc = subprocess.run(
                 ['python3', '-m', 'pytest', '-q', '--no-header', '-p', 'no:cacheprovider', *files],
                 cwd=base, capture_output=True, text=True, timeout=420,
+                env=_ow_test_subprocess_env(),
             )
             out = (proc.stdout or '') + '\n' + (proc.stderr or '')
             g = lambda pat: int(m.group(1)) if (m := _re.search(pat, out)) else 0
@@ -1059,6 +1060,7 @@ def api_reasoning_tests():
         proc = subprocess.run(
             ['python3', '-m', 'pytest', '-q', '--no-header', *present],
             cwd=base, capture_output=True, text=True, timeout=180,
+            env=_ow_test_subprocess_env(),
         )
         out = (proc.stdout or '') + '\n' + (proc.stderr or '')
         # parse the pytest summary line, e.g. "84 passed, 2 warnings in 9.41s"
@@ -2677,6 +2679,78 @@ def update_repair_cost_baseline(category, severity):
         baseline.cost_high = int(data['cost_high'])
     db.session.commit()
     return jsonify({'updated': baseline.to_dict()})
+
+
+
+def _ow_test_subprocess_env():
+    """Environment for spawned pytest runs (v5.89.316).
+
+    Marks the child process as a test run so the Sentry before_send hook drops its
+    events. Tests deliberately exercise failure paths, and when the suite runs on the
+    live box those simulated failures were reaching Sentry and paging as incidents.
+    """
+    import os as _os
+    _env = _os.environ.copy()
+    _env['OW_RUNNING_TESTS'] = '1'
+    _env.setdefault('FLASK_ENV', 'testing')
+    return _env
+
+@admin_bp.route('/api/admin/backfill-free-credits', methods=['POST'])
+@_api_admin_req_dec
+def admin_backfill_free_credits():
+    """One-time top-up of existing free users to the current free-signup grant (v5.89.317).
+
+    When the free grant went 1 -> 10, the ~90 users who signed up under the old amount
+    were left behind. This brings any free user (never paid) who is BELOW the target up
+    to it, and — like every manual change — writes a CreditAdjustment row per user so the
+    top-up is auditable.
+
+    POST { target?: int (default = current FREE_SIGNUP_CREDITS), dry_run?: bool }.
+    dry_run reports who WOULD change without writing, so the blast radius is visible first.
+    """
+    from models import User, CreditAdjustment
+    try:
+        from auth_routes import FREE_SIGNUP_CREDITS as _default_target
+    except Exception:
+        _default_target = 10
+
+    data = request.get_json(silent=True) or {}
+    target = int(data.get('target', _default_target))
+    dry_run = bool(data.get('dry_run', False))
+    if target <= 0 or target > 100:
+        return jsonify({'ok': False, 'error': 'target must be between 1 and 100'}), 400
+
+    # Free users only: never purchased, currently below target.
+    users = User.query.filter(
+        db.or_(User.stripe_customer_id.is_(None), User.stripe_customer_id == ''),
+        db.func.coalesce(User.analysis_credits, 0) < target,
+    ).all()
+
+    changed = []
+    for u in users:
+        before = int(u.analysis_credits or 0)
+        if before >= target:
+            continue
+        changed.append({'email': u.email, 'before': before, 'after': target})
+        if not dry_run:
+            u.analysis_credits = target
+            db.session.add(CreditAdjustment(
+                user_id=u.id, email=u.email, delta=target - before,
+                balance_before=before, balance_after=target,
+                reason=f'Free-tier top-up to {target} (v5.89.317)',
+                adjusted_by=(getattr(current_user, 'email', None) if current_user else None) or 'admin',
+            ))
+    if not dry_run:
+        db.session.commit()
+        logging.info(f"🎁 Free-credit backfill: {len(changed)} users topped up to {target}")
+
+    return jsonify({
+        'ok': True,
+        'dry_run': dry_run,
+        'target': target,
+        'affected': len(changed),
+        'sample': changed[:25],
+    })
 
 
 @admin_bp.route('/api/admin/drip-health', methods=['GET'])

@@ -118,7 +118,7 @@ def autopilot_topup(target_pending: int) -> int:
             db.session.commit()
         except Exception as e:
             db.session.rollback()
-            logger.error('autopilot_topup commit failed: %s', e)
+            logger.warning('autopilot_topup commit failed (rolled back, will retry next run): %s', e)
             return 0
 
     logger.info('autopilot_topup: added %d items (target=%d, was_pending=%d)',
