@@ -325,10 +325,14 @@ class TestLoginEmail(unittest.TestCase):
         self.assertIn('google', (d.get('error') or '').lower(),
             'OAuth-only login error should mention the auth provider name')
 
-    def test_login_restores_free_credit_for_zero_credit_unpaid_user(self):
-        """A user with 0 credits, never paid, 0 analyses, gets 1 credit
-        restored on login. This is intentional 'come back, try again' UX."""
-        email = _unique_email('restore_credit')
+    def test_login_does_NOT_restore_free_credit_for_zero_credit_unpaid_user(self):
+        """v5.89.317: the login credit-restore was RETIRED. A free user who has spent
+        their credits is NOT topped back up on login — with the signup grant now 10
+        (FREE_SIGNUP_CREDITS), restoring on every login would be an unlimited-analysis
+        loophole. This test previously asserted the OPPOSITE (restore to 1); it was
+        rewritten when the behaviour was removed, and now guards against it returning.
+        The one-time signup pool is the whole free allotment."""
+        email = _unique_email('no_restore')
         with self.app.app_context():
             user = self.User(
                 email=email, name='Comeback',
@@ -348,8 +352,9 @@ class TestLoginEmail(unittest.TestCase):
 
         with self.app.app_context():
             user = self.User.query.get(uid)
-            self.assertEqual(user.analysis_credits, 1,
-                'Free user with 0 credits and 0 analyses must get 1 credit restored')
+            self.assertEqual(user.analysis_credits, 0,
+                'Spent free account must NOT be topped up on login (restore retired in '
+                'v5.89.317) — that would allow unlimited analyses via repeated logins')
 
     def test_login_does_NOT_restore_credit_if_user_has_paid(self):
         """The credit restore is ONLY for unpaid free users. A user with

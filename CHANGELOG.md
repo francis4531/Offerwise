@@ -1,3 +1,30 @@
+## v5.89.320 - Update the test that asserted the retired login credit-restore
+
+CI:
+    FAILED test_e2e_auth_signup.py::TestLoginEmail::
+           test_login_restores_free_credit_for_zero_credit_unpaid_user
+    AssertionError: 0 != 1 : Free user with 0 credits and 0 analyses must get 1 credit restored
+
+This is a correct failure. v5.89.317 RETIRED the "restore 1 free credit on login" behaviour
+(it was an unlimited-analysis loophole once the signup grant went to 10). This test still
+asserted the old behaviour, so it failed the moment the behaviour was removed — the test,
+not the code, was out of date.
+
+Rewritten to assert the NEW contract: a spent free account is NOT topped up on login.
+Renamed test_login_restores... -> test_login_does_NOT_restore... to match. Its assertion
+now guards against the loophole returning, and reads consistently with the adjacent
+test_login_does_NOT_restore_credit_if_user_has_paid — both now expect 0.
+
+Audited the rest of the auth/credit tests for the same staleness:
+ - test_e2e_auth_signup.py:123 asserts assertGreaterEqual(credits, 1) ("at least 1") —
+   still true at 10, and the more robust form. Left as-is.
+ - Other `analysis_credits=1` occurrences are explicit fixtures setting their own values,
+   not signup-grant assertions. Unaffected.
+So this was the only test encoding the removed behaviour.
+
+Verified: test compiles; the old test name is gone (no stale duplicate); auth_routes has
+zero "Restored 1 free credit" paths remaining; the rewritten test expects 0, matching the
+shipped .317 behaviour.
 ## v5.89.319 - Normalize error-vs-warning across external-API call sites (the sweep)
 
 Fourth instance this week of the same root cause — code logging a RECOVERED condition at
