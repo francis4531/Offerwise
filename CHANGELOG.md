@@ -1,3 +1,98 @@
+## v5.89.323 - Silence the ai_json unit-test noise at the source (+ Sentry fingerprint)
+
+Sentry: "[ai_json] call failed (unit-test): transport boom", environment=testing, first
+seen Jul 22 — AFTER prod was on .320 (which already carries the .316 environment filter).
+That is the tell: the environment-tag filter alone did not catch it, because a pytest
+SUBPROCESS that runs `import app` re-initialises Sentry in the child, and if that child
+didn't inherit FLASK_ENV=testing it tagged itself production. So filtering on the env tag
+is not sufficient on its own.
+
+Two-layer fix:
+
+1) SOURCE (ai_json.py). The test drives ai_json with endpoint="unit-test"
+   (test_ai_json._BoomClient raises "transport boom" to prove graceful degradation).
+   ai_json now logs the "call failed" and "unparseable response" paths at DEBUG rather
+   than ERROR when the endpoint is a unit-test endpoint (_is_test_endpoint). A passing
+   test exercising a failure path no longer emits an error at all, so nothing reaches
+   Sentry regardless of environment. REAL endpoints (inspection-extract, forum-scoring,
+   etc.) are unaffected and still log at error.
+
+2) DEFENCE IN DEPTH (app.py before_send). Added '(unit-test)' to the Sentry test
+   fingerprint alongside 'test_e2e.db'. The endpoint label is embedded in the log message
+   itself, so it is independent of the environment tag or subprocess env propagation —
+   the most reliable signal for this family. Catches anything that slips past layer 1.
+
+Verified:
+  _is_test_endpoint: 'unit-test'/'unit-test-2' -> True; 'inspection-extract',
+    'forum-scoring', None, '' -> False.
+  before_send: "(unit-test)" message -> DROP even when tagged production; a real
+    inspection-extract failure and a plain buyer crash -> KEEP.
+  ai_json + app compile.
+
+This is the last of the test-suite Sentry noise (transport boom, unparseable-extract,
+503, crawler lock, PriceMonitor, content-gen). Deploy through .323; production-tagged
+events without a test fingerprint remain visible.
+## v5.89.322 - Harden the test-event Sentry filter with a test-DB fingerprint
+
+Three "new" Sentry alerts — discovery-crawler "database is locked", PriceMonitor "module
+object is not callable", Reddit Ads 503 — turned out to share ONE trace id
+(9a0e0aea...), one transaction (docrepo.docrepo_download), one server, and
+environment=testing. They are a single E2E test run on the production box, not three
+production bugs. The connection string proves it: sqlite:////app/instance/test_e2e.db —
+production uses Postgres, and "database is locked" is a SQLite-only, concurrent-write-only
+condition that cannot occur against Postgres.
+
+Investigation (prod confirmed on .320, which already contains the .316 filter):
+ - The .316 before_send hook drops environment in {testing,test} and OW_RUNNING_TESTS=1.
+ - Audited ALL FOUR pytest-spawning subprocesses (admin_routes x2, admin_routes deep-run,
+   testing_routes) — every one sets FLASK_ENV=testing or OW_RUNNING_TESTS=1, so the
+   existing filter should already catch these. Their recency is consistent with the
+   events pre-dating .320 reaching prod (stale issues Sentry still lists as ongoing).
+
+Hardening (defence in depth, so this can never depend on env-var propagation again):
+ - before_send now also drops any event whose payload contains 'test_e2e.db' or
+   'instance/test_' — a string that can ONLY appear in a test run, never in Postgres
+   production. Catches a spawned test process that initialised Sentry without inheriting
+   the env markers.
+ - Serialised defensively; the hook still never raises.
+
+Verified: real production errors and staging errors are KEPT; testing-env events, and
+production-tagged events carrying the SQLite test-db fingerprint, are DROPPED.
+
+Bottom line unchanged: deploy through .322 and confirm the header shows it. These test-run
+alerts stop at the filter. If any genuinely production-environment error appears with NO
+test-db fingerprint, that is real and this hook leaves it alone.
+## v5.89.321 - PriceMonitor "'module' object is not callable": add traceback; likely a stale deploy
+
+Sentry: "💰 [PriceMonitor] Error on watch N: 'module' object is not callable", 45 events
+across watches 2/4/5/6, logger=agentic_monitor, environment=testing.
+
+Unlike the 529/503/403 noise, this IS a real code defect — a module being called as a
+function. But an exhaustive AST scan of the CURRENT agentic_monitor.py finds ZERO calls
+where the target is an imported module name, and every AI path (_run_offer_recalculation,
+_run_price_reanalysis, _check_price_p2) routes through _ai_call -> get_ai_response, which
+constructs the client correctly. In _run_offer_recalculation the local `client` is even
+fetched and then never called. So the current source cannot produce this error.
+
+That points to the same deploy-lag pattern seen all session (the 503 alert's
+environment=testing tag showed the box running pre-.316 code): production is very likely
+running an OLDER agentic_monitor.py in which the bug still exists and has since been
+refactored out. It cannot be reproduced in the sandbox because models.py won't import
+without the full app environment.
+
+Two actions:
+ 1. Added exc_info=True to the PriceMonitor except handler so the NEXT scheduled run logs
+    the exact file+line. If the error persists after deploying current code, that
+    traceback will pinpoint it precisely instead of by inference. Kept at error level —
+    this is a real defect, not a transient condition (correctly NOT swept in v5.89.319).
+ 2. DEPLOY CURRENT CODE. If the theory is right, shipping through .321 makes this error
+    stop on its own, because the offending call no longer exists in the running build.
+
+If it still fires after a confirmed .321 deploy, the exc_info traceback from that run is
+the thing to send — it will name the line directly.
+
+Verified: agentic_monitor compiles; AST scan for module-as-callable returns empty; the
+three client-fetch sites never invoke the client object directly.
 ## v5.89.320 - Update the test that asserted the retired login credit-restore
 
 CI:

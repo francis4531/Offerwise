@@ -358,6 +358,15 @@ def _default_client():
     return anthropic.Anthropic(api_key=key)
 
 
+
+def _is_test_endpoint(endpoint):
+    """True for endpoints used only by the unit tests (e.g. 'unit-test'). Tests
+    deliberately drive failure paths; logging those at error paged the founder via
+    Sentry even though a passing test is not an incident (v5.89.323). Real endpoints
+    are unaffected."""
+    return bool(endpoint) and endpoint.startswith('unit-test')
+
+
 def call_ai_json(
     prompt: str,
     *,
@@ -422,7 +431,7 @@ def call_ai_json(
             break
 
         if not result.ok:
-            logger.error(
+            (logger.debug if _is_test_endpoint(endpoint) else logger.error)(
                 f"[ai_json] unparseable response"
                 f"{f' ({endpoint})' if endpoint else ''}: "
                 f"stop_reason={result.stop_reason} truncated={result.truncated} "
@@ -438,7 +447,8 @@ def call_ai_json(
         # Transport/other failure — still a structured, observable outcome.
         result.ok = False
         result.error = f"call_failed: {e}"
-        logger.error(f"[ai_json] call failed{f' ({endpoint})' if endpoint else ''}: {e}")
+        (logger.debug if _is_test_endpoint(endpoint) else logger.error)(
+                f"[ai_json] call failed{f' ({endpoint})' if endpoint else ''}: {e}")
 
     if record_telemetry:
         record_parse_event(result, endpoint=endpoint, model=model, analysis_id=analysis_id)

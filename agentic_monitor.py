@@ -670,7 +670,12 @@ def _job_price_monitor():
             try:
                 _check_price_for_watch(watch, db)
             except Exception as e:
-                logger.error(f"💰 [PriceMonitor] Error on watch {watch.id}: {e}")
+                # v5.89.321: include the traceback. "'module' object is not callable"
+                # fires on every watch but the bare message hides WHICH call is at fault
+                # — exc_info gives the exact file+line on the next scheduled run so this
+                # can be pinpointed instead of guessed. Kept at error: this is a real
+                # code defect breaking the feature, not a transient upstream condition.
+                logger.error(f"💰 [PriceMonitor] Error on watch {watch.id}: {e}", exc_info=True)
 
         logger.info("💰 [PriceMonitor] Complete")
     except Exception as e:

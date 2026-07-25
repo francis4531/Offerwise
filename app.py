@@ -324,6 +324,21 @@ if _sentry_dsn:
                 # Belt and braces: the admin runner sets this for its subprocess.
                 if os.environ.get('OW_RUNNING_TESTS') == '1':
                     return None
+                # v5.89.322: last-resort fingerprint. Every test-suite event seen in
+                # production Sentry carried the SQLite test database in its payload
+                # (sqlite:////app/instance/test_e2e.db) — production uses Postgres, so
+                # this string can ONLY appear in a test run. Catches the case where a
+                # spawned test process didn't inherit FLASK_ENV/OW_RUNNING_TESTS but
+                # still initialised Sentry. Serialise defensively; never let the hook
+                # raise.
+                blob = str(event.get('exception', '')) + str(event.get('logentry', '')) + str(event.get('message', ''))
+                # v5.89.323: '(unit-test)' is the endpoint label test_ai_json passes
+                # (endpoint="unit-test"), so it appears in the log message itself —
+                # independent of the environment tag or whether a spawned test process
+                # propagated FLASK_ENV. It is the most reliable test fingerprint for the
+                # ai_json family (e.g. "[ai_json] call failed (unit-test): transport boom").
+                if 'test_e2e.db' in blob or 'instance/test_' in blob or '(unit-test)' in blob:
+                    return None
             except Exception:
                 pass
             return event
