@@ -1,3 +1,36 @@
+## v5.89.324 - Fix real production ImportError: FunnelEvent -> GTMFunnelEvent (2 sites)
+
+Sentry (environment=production, Jul 27 — AFTER the .323 deploy, so genuinely current):
+    ImportError: cannot import name 'FunnelEvent' from 'models'
+    app.py:11926 in _funnel_alert_job
+
+Real bug, not test noise. The model is GTMFunnelEvent; there is no FunnelEvent in
+models.py. Two sites in app.py imported the wrong name:
+
+ 1. _funnel_alert_job (weekly funnel health check) — imported FunnelEvent, raised
+    ImportError every run (7 events / 3 months), so the funnel-health alert NEVER ran.
+    Fixed: import GTMFunnelEvent. The dict key stays "FunnelEvent" because
+    get_funnel_snapshot reads models["FunnelEvent"] and uses .stage/.created_at, both of
+    which GTMFunnelEvent has.
+
+ 2. /paywall-reason endpoint (app.py ~13206) — worse: it imported FunnelEvent AND
+    constructed it with fields that don't exist on the model (metadata=, ip_address=,
+    user_agent=). The ImportError was swallowed by a bare `except` that fell back to a
+    log line, so paywall-reason data was NEVER persisted — only logged and lost. This is
+    the silent-fallback-masking-a-bug anti-pattern. Fixed to the real model and columns:
+    metadata= -> metadata_json=, and ip/user-agent folded into the JSON blob (no such
+    columns exist). The except now rolls back and logs at warning instead of pretending
+    success.
+
+Swept for the same mistake across the codebase:
+ - gtm/conversion_intel.py reads models["FunnelEvent"] from the injected dict (correct)
+   and uses real columns.
+ - gtm/routes.py callers already pass {"FunnelEvent": GTMFunnelEvent} (correct).
+ So the only two broken sites were the two in app.py; both fixed.
+
+Verified: app.py compiles; zero bad FunnelEvent imports/constructs remain outside the
+correct injected-dict pattern; GTMFunnelEvent has stage/source/medium/user_id/session_id/
+metadata_json columns used by both fixed sites.
 ## v5.89.323 - Silence the ai_json unit-test noise at the source (+ Sentry fingerprint)
 
 Sentry: "[ai_json] call failed (unit-test): transport boom", environment=testing, first

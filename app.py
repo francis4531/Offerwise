@@ -11923,9 +11923,14 @@ def _start_background_schedulers():
         with app.app_context():
             try:
                 from gtm.conversion_intel import get_funnel_snapshot
-                from models import FunnelEvent, GTMAdPerformance, GTMScanRun
+                # v5.89.324: the model is GTMFunnelEvent, not FunnelEvent — the old import
+                # raised ImportError every weekly run (7 events over 3 months), so the
+                # funnel health alert never ran. get_funnel_snapshot reads the dict KEY
+                # "FunnelEvent" (and uses .stage / .created_at, which GTMFunnelEvent has),
+                # so the key stays and only the imported model is corrected.
+                from models import GTMFunnelEvent, GTMAdPerformance, GTMScanRun
                 _models = {
-                    'FunnelEvent': FunnelEvent,
+                    'FunnelEvent': GTMFunnelEvent,
                     'GTMAdPerformance': GTMAdPerformance,
                     'GTMScanRun': GTMScanRun,
                 }
@@ -13196,26 +13201,35 @@ def paywall_reason():
 
         user_id = current_user.id if current_user.is_authenticated else None
 
-        # Log to funnel_events table (reuse existing infrastructure)
+        # Log to the funnel-events table (reuse existing infrastructure)
         try:
-            from models import FunnelEvent
-            event = FunnelEvent(
+            # v5.89.324: was `from models import FunnelEvent` with fields that don't
+            # exist on the model (metadata=, ip_address=, user_agent=). The import raised
+            # ImportError, the bare except swallowed it, and the paywall reason was only
+            # ever written to the app log — never persisted. Corrected to the real model
+            # (GTMFunnelEvent) and its real columns; context without a column goes into
+            # metadata_json.
+            from models import GTMFunnelEvent
+            event = GTMFunnelEvent(
                 user_id=user_id,
                 stage='paywall_reason',
                 source=source,
-                metadata=json.dumps({
+                metadata_json=json.dumps({
                     'reason': reason,
                     'page': page,
                     'analysis_id': analysis_id,
+                    'ip_address': request.remote_addr,
+                    'user_agent': request.headers.get('User-Agent', '')[:200],
                 }),
-                ip_address=request.remote_addr,
-                user_agent=request.headers.get('User-Agent', '')[:200],
             )
             db.session.add(event)
             db.session.commit()
-        except Exception:
-            # FunnelEvent may not exist — log to app logger instead
-            logging.info(f"PAYWALL_REASON user={user_id} reason={reason} source={source} page={page}")
+        except Exception as _persist_err:
+            db.session.rollback()
+            logging.warning(
+                f"paywall_reason persist failed (logged only): user={user_id} "
+                f"reason={reason} source={source} page={page} err={_persist_err}"
+            )
 
         return jsonify({'ok': True})
     except Exception as e:
