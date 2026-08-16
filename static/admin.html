@@ -3704,6 +3704,10 @@ details.an-drill[open] .an-chev{transform:rotate(90deg)}
              title="Runs ~470 tests against TEST_DATABASE_URL Postgres. ~3-5 min. Skipped if URL not set.">
         <input type="checkbox" id="testPostgres" checked> 🐘 Postgres Parity
       </label>
+      <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer"
+             title="Runs test_api_v1 — the public /api/v1/* B2B API: auth, quota, and the real analyze happy path.">
+        <input type="checkbox" id="testApiV1" checked> 🔌 Public API (B2B)
+      </label>
     </div>
   </div>
 
@@ -12299,6 +12303,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // Postgres parity: ~3-5 min, needs TEST_DATABASE_URL set on server.
             { id: 'cassettes',  label: 'Cassette Replays',icon: '🎬', checkboxId: 'testCassettes',     color: '#0ea5e9' },
             { id: 'postgres',   label: 'Postgres Parity', icon: '🐘', checkboxId: 'testPostgres',      color: '#6366f1' },
+            { id: 'apiv1',      label: 'Public API (B2B)',icon: '🔌', checkboxId: 'testApiV1',         color: '#14b8a6' },
         ];
 
         function updateToggleUI(checkbox) {
@@ -12446,6 +12451,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         else if (suite.id === 'flywheel') data = await runFlywheelTests();
                         else if (suite.id === 'cassettes') data = await runCassetteReplayTests();
                         else if (suite.id === 'postgres') data = await runPostgresParityTests();
+                        else if (suite.id === 'apiv1') data = await runApiV1Tests();
 
                         qaResults[suite.id] = parseSuiteResult(suite.id, data);
                     } catch(err) {
@@ -12806,6 +12812,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
         async function runPostgresParityTests() {
             return await runSuiteAsync('/api/test/postgres-parity');
+        }
+
+        async function runApiV1Tests() {
+            return await runSuiteAsync('/api/test/api-v1');
         }
 
         // ─── OfferWatch ──────────────────────────────────────────────────

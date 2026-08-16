@@ -1,3 +1,31 @@
+## v5.89.327 - Wire the Public API tests into the ACTUAL main runner (the one with the checkboxes)
+
+v5.89.326 added the API test category to /api/admin/test-suite — but that is NOT the runner
+behind the admin "Run full suite" screen. That screen (Analysis, Payments, Credits,
+Referrals, Integrity, Adversarial PDF, 60 Workflows, Agentic Monitor, Flywheel, Cassette
+Replays, Postgres Parity) is driven by a SUITES array in admin.html + per-suite routes in
+testing_routes.py. So the API tests still didn't appear. This wires them into the right
+place.
+
+Five pieces, matching the existing suite pattern exactly:
+ 1. testing_routes.py: new POST /api/test/api-v1 — runs test_api_v1 via the same
+    unittest-loader pattern as /api/test/agentic, returns the {results[], summary} shape
+    parseSuiteResult expects.
+ 2. admin.html: checkbox #testApiV1 ("🔌 Public API (B2B)") next to Postgres Parity.
+ 3. admin.html: SUITES entry { id:'apiv1', label:'Public API (B2B)', checkboxId:'testApiV1' }.
+ 4. admin.html: dispatch case suite.id==='apiv1' -> runApiV1Tests().
+ 5. admin.html: runApiV1Tests() -> runSuiteAsync('/api/test/api-v1').
+
+The async runner's allowlist already accepts /api/test/* so no gate change was needed.
+
+After deploy: the "Run full suite" screen will show a "🔌 Public API (B2B)" row reading
+"15/15 all pass" alongside the others. (The v5.89.326 category on /api/admin/test-suite is
+left in place — it is the other, curated runner and having the category there too is
+correct and harmless.)
+
+Verified: testing_routes + admin_routes compile; admin.html inline JS parses and divs
+balance; all five pieces grep-confirmed present; the async allowlist accepts the new
+path; test_api_v1 still 15/15 green.
 ## v5.89.326 - Wire test_api_v1.py into the admin test-suite runner (the button)
 
 The v5.89.325 API tests existed but had no button — the admin "Run full suite" control

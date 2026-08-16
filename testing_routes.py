@@ -1149,6 +1149,88 @@ def run_agentic_tests():
     })
 
 
+@testing_bp.route('/api/test/api-v1', methods=['POST'])
+@_dev_only_gate
+@_api_admin_required
+def run_api_v1_tests():
+    """Run the public B2B API tests (test_api_v1) — auth, quota, and the real
+    /api/v1/analyze happy path. This is the surface a partner integrates against, so it
+    gets its own suite in the main runner (v5.89.327)."""
+    import importlib.util
+    import unittest
+    import io
+    import time as _time
+
+    API_MODULES = ['test_api_v1']
+
+    project_dir = os.path.dirname(os.path.abspath(__file__))
+    all_results = []
+    total_passed = 0
+    total_failed = 0
+    start = _time.time()
+
+    for mod_name in API_MODULES:
+        mod_path = os.path.join(project_dir, f'{mod_name}.py')
+        if not os.path.exists(mod_path):
+            all_results.append({'name': mod_name, 'passed': False, 'error': 'File not found'})
+            total_failed += 1
+            continue
+        try:
+            import sys as _sys
+            if mod_name in _sys.modules:
+                mod = _sys.modules[mod_name]
+            else:
+                spec = importlib.util.spec_from_file_location(mod_name, mod_path)
+                mod = importlib.util.module_from_spec(spec)
+                _sys.modules[mod_name] = mod
+                spec.loader.exec_module(mod)
+
+            loader = unittest.TestLoader()
+            suite = loader.loadTestsFromModule(mod)
+            stream = io.StringIO()
+            runner = unittest.TextTestRunner(stream=stream, verbosity=0)
+            result = runner.run(suite)
+
+            for test_case in result.failures + result.errors:
+                all_results.append({
+                    'name': f'{mod_name}: {str(test_case[0])}',
+                    'passed': False,
+                    'error': test_case[1][:300],
+                })
+                total_failed += 1
+
+            passed_count = result.testsRun - len(result.failures) - len(result.errors)
+            total_passed += passed_count
+            if result.failures or result.errors:
+                all_results.append({
+                    'name': f'{mod_name} ({result.testsRun} tests)',
+                    'passed': False,
+                    'details': f'{len(result.failures)} failures, {len(result.errors)} errors',
+                })
+            else:
+                all_results.append({
+                    'name': f'{mod_name} ({result.testsRun} tests)',
+                    'passed': True,
+                    'details': f'All {result.testsRun} passed',
+                })
+
+        except Exception as e:
+            all_results.append({'name': mod_name, 'passed': False, 'error': str(e)[:200]})
+            total_failed += 1
+
+    duration = round(_time.time() - start, 2)
+    return jsonify({
+        'success': total_failed == 0,
+        'summary': {
+            'total': total_passed + total_failed,
+            'passed': total_passed,
+            'failed': total_failed,
+            'duration_seconds': duration,
+        },
+        'results': all_results,
+    })
+
+
 @testing_bp.route('/api/test/flywheel', methods=['POST'])
 @_dev_only_gate
 @_api_admin_required
