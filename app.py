@@ -2619,12 +2619,7 @@ def b2b_analyze():
 
     try:
         from offerwise_intelligence import OfferWiseIntelligence, BuyerProfile
-        # v5.89.325: OfferWiseIntelligence() takes NO constructor args — it reads
-        # ANTHROPIC_API_KEY from the environment itself. Passing anthropic_api_key=
-        # raised TypeError on every call, which the except below turned into a 500, so
-        # this endpoint had never once succeeded. Caught by the new real-happy-path test
-        # in test_api_v1.py (the old coverage accepted 500 as a pass and hid it).
-        intelligence = OfferWiseIntelligence()
+        intelligence = OfferWiseIntelligence(anthropic_api_key=os.environ.get('ANTHROPIC_API_KEY'))
         profile = BuyerProfile(
             max_budget=property_price * 1.1,
             repair_tolerance=data.get('repair_tolerance', 'moderate'),
