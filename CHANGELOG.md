@@ -1,3 +1,23 @@
+## v5.89.326 - Wire test_api_v1.py into the admin test-suite runner (the button)
+
+The v5.89.325 API tests existed but had no button — the admin "Run full suite" control
+runs a CURATED, categorized list in admin_routes.py (/api/admin/test-suite), and the new
+file wasn't in it, so it was invisible in the admin UI (it only ran in the raw glob-based
+full run, which isn't the categorized button).
+
+ - Added a new category 'Public API (B2B)' -> ['test_api_v1.py'] to the categorized suite.
+   It now runs when you click "Run full suite" and shows as its own line in the readout
+   ("Public API (B2B) — 15 passed"), alongside Reasoning engine, National correctness, etc.
+ - No HTML change needed: the results panel renders categories dynamically
+   (Object.keys(bc).forEach), so a new backend category appears automatically. Confirmed
+   the single btnFullSuite button drives it and the render loop is data-driven.
+
+This also means the broken-endpoint class of bug that .325 caught (/api/v1/analyze 500ing
+on every call) is now guarded by a button you can click before any partner conversation,
+not just by a file on disk.
+
+Verified: admin_routes compiles; admin.html inline JS parses and divs balance; the
+category is present and test_api_v1.py ships in the tarball.
 ## v5.89.325 - Real API test coverage — which immediately found /api/v1/analyze was 500ing on every call
 
 Asked for full test coverage of the public B2B API before a partner integration

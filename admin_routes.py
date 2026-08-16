@@ -986,6 +986,12 @@ def api_test_suite():
         'Build guards': [
             'test_admin_html_js.py', 'test_app_html_jsx.py', 'test_qa_async.py',
         ],
+        'Public API (B2B)': [
+            # v5.89.325: the /api/v1/* partner API — real happy-path + auth + quota
+            # coverage. This is the surface a partner integrates against, so it gets its
+            # own line in the admin readout rather than being buried in the full glob run.
+            'test_api_v1.py',
+        ],
     }
     all_files, cat_files = [], {}
     for cat, files in categories.items():
