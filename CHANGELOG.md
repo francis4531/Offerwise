@@ -1,3 +1,41 @@
+## v5.89.325 - Real API test coverage — which immediately found /api/v1/analyze was 500ing on every call
+
+Asked for full test coverage of the public B2B API before a partner integration
+conversation. Wrote test_api_v1.py with REAL happy-path assertions (not the pre-existing
+"assertIn(status, [200..500])" checks that pass even on a server error). The first run
+caught a live production bug.
+
+THE BUG: /api/v1/analyze constructed the engine as
+    OfferWiseIntelligence(anthropic_api_key=os.environ.get('ANTHROPIC_API_KEY'))
+but OfferWiseIntelligence.__init__(self) takes NO arguments — it reads ANTHROPIC_API_KEY
+from the environment itself. Every call raised TypeError, which the endpoint's generic
+except turned into a 500. So the core B2B analyze endpoint had NEVER once succeeded: a
+partner integrating against it would get a 500 on their first request. The old coverage
+hid this because it accepted 500 as a passing status. Fixed to OfferWiseIntelligence().
+
+NEW test_api_v1.py — 15 tests, all real assertions:
+ - Auth: no key -> 401; invalid key -> 401; revoked (is_active=False) key -> 401; BOTH
+   Bearer and X-API-Key headers authenticate. Uses the app's real _hash_api_key so the
+   hash path is exercised, not stubbed.
+ - analyze happy path: mocks ONLY the AI engine, asserts the real response contract
+   (success, offer_score, risk_level/score, deal_breakers[], repair_costs.total_low/high,
+   negotiation_leverage, recommended_offer, transparency_score, usage) and real values.
+ - analyze guards: missing documents -> 400; bad price -> 400.
+ - quota: a successful call increments calls_month; a key AT its monthly_limit is refused
+   (401/429) and the AI engine is NOT called (asserted via mock.assert_not_called) — so
+   an over-limit key can't burn spend.
+ - usage: returns real key stats with correct calls_remaining arithmetic.
+ - research/screen: auth-required and address-required paths. Their happy paths depend on
+   external AVM data and are left to the live smoke test rather than mock the whole stack.
+
+Verified: 15/15 new tests pass against the real code; the 167 tests in
+test_coverage_gaps.py still pass (no regressions); research/screen use
+PropertyResearchAgent(ai_client=...), a valid signature, so they don't share the analyze
+bug. app.py + test compile.
+
+Note: only /api/v1/analyze's happy path is now unit-proven offline. A LIVE smoke test
+against production (real key, one real analyze + usage call) is still worth running to
+confirm the deployed build carries this fix before pointing a partner at it.
 ## v5.89.324 - Fix real production ImportError: FunnelEvent -> GTMFunnelEvent (2 sites)
 
 Sentry (environment=production, Jul 27 — AFTER the .323 deploy, so genuinely current):
