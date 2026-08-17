@@ -1,3 +1,35 @@
+## v5.89.328 - crawl staleness job: tolerate the gunicorn worker-recycle window
+
+Sentry (environment=production): RuntimeError "The current Flask app is not registered
+with this 'SQLAlchemy' instance", from _crawl_progress_staleness_check at app.py:12676,
+raised through APScheduler.
+
+Root cause — NOT a missing app_context (the job already wraps its work in
+`with app.app_context()`), and NOT multiple SQLAlchemy instances (there is exactly one db,
+models.py:13). It is a worker-lifecycle race:
+ - gunicorn is gthread, 1 worker, max_requests=20000 → the worker RECYCLES on hitting that
+   request count. APScheduler runs inside the worker.
+ - This job fires every 5 minutes — by far the most frequent scheduled job — so it is the
+   one most likely to fire during the brief teardown window when the worker's app is being
+   recycled and db is momentarily de-registered from it. A query in that window raises the
+   "not registered" RuntimeError.
+ - handled=yes and it self-heals on the next 5-minute tick, but it propagated to
+   APScheduler which logged it at error and paged.
+
+Fix: split the job into a wrapper + body. The wrapper catches RuntimeError and, when the
+message is the transient app-context/registration signature, logs at WARNING ("will retry
+next interval") instead of letting it reach APScheduler's error logger. Any OTHER
+RuntimeError is re-raised unchanged, so real bugs still surface. The context manager and
+query logic are untouched.
+
+Scope note: other scheduled jobs share the same theoretical exposure but run far less
+often (drip 15min, ads 6h, most daily), so they hit the recycle window rarely. A reusable
+execution-time guard in _safe_add_job (wrapping every job fn once) is the durable
+follow-up; deliberately NOT doing that broad refactor reactively under this alert. This
+change fixes the one job that actually pages.
+
+Verified: app.py compiles; the registered job is still the wrapper; body defined at the
+same scope so the closure over `app` is intact.
 ## v5.89.327 - Wire the Public API tests into the ACTUAL main runner (the one with the checkboxes)
 
 v5.89.326 added the API test category to /api/admin/test-suite — but that is NOT the runner

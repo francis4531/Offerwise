@@ -12669,6 +12669,25 @@ def _start_background_schedulers():
     def _crawl_progress_staleness_check():
         from models import MLIngestionJob, db as _db
         from datetime import datetime as _dt, timedelta as _td
+        try:
+            _crawl_progress_staleness_check_body(MLIngestionJob, _db, _dt, _td)
+        except RuntimeError as e:
+            # v5.89.328: this job fires every 5 minutes — the most frequent scheduled
+            # job — and under gunicorn it can fire during a worker-recycle window
+            # (max_requests=20000, gthread). In that window the worker's app is briefly
+            # torn down and db is de-registered from it, so a query raises
+            # "current Flask app is not registered with this SQLAlchemy instance". It is
+            # transient and self-heals on the next tick, so log at WARNING (not the
+            # error level that pages) rather than let it propagate to APScheduler.
+            msg = str(e)
+            if 'not registered with this' in msg or 'application context' in msg.lower():
+                logging.warning(
+                    "crawl staleness check hit a transient app-context window "
+                    "(worker recycle); will retry next interval: %s", msg)
+            else:
+                raise
+
+    def _crawl_progress_staleness_check_body(MLIngestionJob, _db, _dt, _td):
         with app.app_context():
             now = _dt.utcnow()
             running = MLIngestionJob.query.filter_by(
