@@ -1,3 +1,34 @@
+## v5.89.329 - Fix the app-context/scheduler error at the ONE listener, not per-job (supersedes .328)
+
+Three production alerts in one 2:58-3:03 UTC window: crawl_progress_staleness_check AND
+drip both raised "current Flask app is not registered with this 'SQLAlchemy' instance".
+
+.328 was too narrow. It guarded ONLY the 5-minute crawl job on the theory that its
+frequency made it uniquely exposed. But drip (a 15-minute job) failed in the SAME burst —
+proving the cause is not one job's frequency. When multiple DB-touching jobs fail together
+in a tight window and then recover, the app's db binding dropped out from under the
+scheduler at once: a gunicorn worker restart / recycle, during which the reloading worker's
+app is briefly not registered with db. ANY job firing in that window raises this. Guarding
+one job just moves the page to the next job.
+
+Correct fix — at the single choke point. _on_job_error is the ONE listener every
+scheduled job's exception passes through. It now classifies the exception: the transient
+"not registered" / "application context" RuntimeError signature is logged at WARNING
+("will retry on its next interval"), everything else stays at ERROR and still pages. This
+covers EVERY job at once, is single-source-of-truth, and does not touch any job body.
+
+Reverted the .328 per-job wrapper (the _body split) — redundant now and against the
+single-source-of-truth rule.
+
+Verified: app.py compiles; the .328 wrapper is fully gone (no orphaned _body function);
+classification correct — the two real app-context strings -> transient/warning; division
+by zero, NoneType-subscript, and the FunnelEvent ImportError -> still error/page.
+
+WATCH ITEM (not fixed here, by design): this silences the PAGE, not the underlying worker
+restart. An occasional recycle is normal (max_requests=20000). If these warnings become
+frequent, that signals real worker churn — memory pressure or a crash loop — worth
+investigating via Render metrics. The fix makes the noise stop; it does not diagnose why
+the worker recycled.
 ## v5.89.328 - crawl staleness job: tolerate the gunicorn worker-recycle window
 
 Sentry (environment=production): RuntimeError "The current Flask app is not registered

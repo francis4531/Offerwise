@@ -11607,7 +11607,26 @@ def _start_background_schedulers():
     )
 
     def _on_job_error(event):
-        logging.error(f"⚠️ Scheduler job error: {event.job_id} — {event.exception}")
+        # v5.89.329: a worker restart / gunicorn recycle briefly de-registers the app
+        # from the db instance. Any scheduled job that fires in that window raises
+        # "current Flask app is not registered with this 'SQLAlchemy' instance" (or an
+        # app-context error). It is transient and self-heals on the job's next run, so it
+        # must not page. This listener is the SINGLE point every job error passes through,
+        # so classifying here covers every job at once rather than guarding each body.
+        exc = event.exception
+        msg = str(exc) if exc else ''
+        transient = isinstance(exc, RuntimeError) and (
+            'not registered with this' in msg
+            or 'application context' in msg.lower()
+            or 'is not registered' in msg
+        )
+        if transient:
+            logging.warning(
+                "⏳ Scheduler job '%s' hit a transient app-context window "
+                "(worker recycle/restart); will retry on its next interval: %s",
+                event.job_id, msg)
+        else:
+            logging.error(f"⚠️ Scheduler job error: {event.job_id} — {exc}")
 
     def _on_job_missed(event):
         logging.warning(f"⏰ Scheduler job missed: {event.job_id} (was due {event.scheduled_run_time})")
@@ -12669,25 +12688,6 @@ def _start_background_schedulers():
     def _crawl_progress_staleness_check():
         from models import MLIngestionJob, db as _db
         from datetime import datetime as _dt, timedelta as _td
-        try:
-            _crawl_progress_staleness_check_body(MLIngestionJob, _db, _dt, _td)
-        except RuntimeError as e:
-            # v5.89.328: this job fires every 5 minutes — the most frequent scheduled
-            # job — and under gunicorn it can fire during a worker-recycle window
-            # (max_requests=20000, gthread). In that window the worker's app is briefly
-            # torn down and db is de-registered from it, so a query raises
-            # "current Flask app is not registered with this SQLAlchemy instance". It is
-            # transient and self-heals on the next tick, so log at WARNING (not the
-            # error level that pages) rather than let it propagate to APScheduler.
-            msg = str(e)
-            if 'not registered with this' in msg or 'application context' in msg.lower():
-                logging.warning(
-                    "crawl staleness check hit a transient app-context window "
-                    "(worker recycle); will retry next interval: %s", msg)
-            else:
-                raise
-
-    def _crawl_progress_staleness_check_body(MLIngestionJob, _db, _dt, _td):
         with app.app_context():
             now = _dt.utcnow()
             running = MLIngestionJob.query.filter_by(
