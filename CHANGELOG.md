@@ -1,3 +1,39 @@
+## v5.89.330 - Legal Agreements card showed "undefined undefined 0%" — guard the fields
+
+The admin "Legal Agreements" card rendered: undefined (fully consented), undefined (total
+users), 0% (coverage).
+
+Mechanism (from reading both ends):
+ - The card reads d.terms_accepted, d.total_users, d.terms_pct from /api/admin/consent-summary.
+ - pct uses `d.terms_pct || 0` -> that's why coverage showed 0% not undefined.
+ - terms_accepted and total_users were inserted with NO fallback -> when absent from the
+   JSON they render the literal string "undefined".
+ - The frontend catch block renders "Could not load consent data." — which is NOT what
+   the screenshot showed. So the fetch SUCCEEDED (200) but the JSON came back WITHOUT
+   those keys. In the current code the endpoint DOES return them, so the running build's
+   endpoint is returning an older/!different shape (deploy-lag signature again), OR the
+   query partially failed and returned a trimmed object.
+
+Fix (defensive, frontend): guard every field —
+   termsAccepted = d.terms_accepted != null ? d.terms_accepted : 0
+   totalUsers    = d.total_users    != null ? d.total_users    : 0
+So a missing key now renders 0, never "undefined", regardless of what the endpoint returns.
+
+This fixes the DISPLAY. To confirm the CAUSE, hit the endpoint directly on production:
+   curl -s https://www.getofferwise.ai/api/admin/consent-summary?admin_key=KEY | python -m json.tool
+ - If it returns terms_accepted/total_users -> the running frontend was stale; .330 (or any
+   fresh deploy) fixes it.
+ - If it does NOT return those keys, or 500s -> the endpoint itself is broken in the
+   running build and needs a look; the guard still prevents the ugly "undefined" either way.
+
+NOT bugs in the same screenshot (documented so they're not chased):
+ - CAC "pending" for Google ($353) / InterNACHI ($49): correct empty state — spend exists
+   but 0 attributed paying conversions, so CAC is legitimately undefined.
+ - AI Intelligence 0 calls/$0/0K over 7d: correct IF no analyses in 7d; worth checking the
+   usage-tracking wiring only if analyses ran and it still reads zero.
+
+Verified: admin.html inline JS parses; divs balance; both field reads now use the guarded
+variables.
 ## v5.89.329 - Fix the app-context/scheduler error at the ONE listener, not per-job (supersedes .328)
 
 Three production alerts in one 2:58-3:03 UTC window: crawl_progress_staleness_check AND

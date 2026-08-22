@@ -11998,17 +11998,22 @@ async function loadConsent() {
     var r = await fetchWithTimeout('/api/admin/consent-summary', 8000);
     var d = await r.json();
     var pct = d.terms_pct || 0;
+    // v5.89.330: guard every field so a response missing a key (e.g. an older endpoint
+    // build) renders 0 rather than the literal string "undefined". The card was showing
+    // "undefined undefined 0%" when terms_accepted/total_users were absent from the JSON.
+    var termsAccepted = (d.terms_accepted != null) ? d.terms_accepted : 0;
+    var totalUsers = (d.total_users != null) ? d.total_users : 0;
     var pctColor = pct > 80 ? 'var(--green)' : pct > 50 ? 'var(--amber)' : 'var(--red)';
     var byType = d.by_type || {};
     var typeLabels = {terms:'Terms of Service', privacy:'Privacy Policy', disclaimer:'Disclaimer', analysis_disclaimer:'Analysis Disclaimer'};
 
     var html = '<div style="display:flex;gap:16px;margin-bottom:12px;flex-wrap:wrap">' +
       '<div style="text-align:center;flex:1;min-width:80px">' +
-        '<div style="font-size:24px;font-weight:800;color:' + pctColor + '">' + d.terms_accepted + '</div>' +
+        '<div style="font-size:24px;font-weight:800;color:' + pctColor + '">' + termsAccepted + '</div>' +
         '<div style="font-size:10px;color:var(--muted)" title="Users with current consent on all three required types: Analysis Disclaimer, Privacy Policy, and Terms of Service">Fully consented</div>' +
       '</div>' +
       '<div style="text-align:center;flex:1;min-width:80px">' +
-        '<div style="font-size:24px;font-weight:800">' + d.total_users + '</div>' +
+        '<div style="font-size:24px;font-weight:800">' + totalUsers + '</div>' +
         '<div style="font-size:10px;color:var(--muted)">Total users</div>' +
       '</div>' +
       '<div style="text-align:center;flex:1;min-width:80px">' +
