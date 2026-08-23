@@ -214,6 +214,21 @@ class TestApiV1Analyze(_Base):
                       'a key at its monthly limit must be refused')
         mocked.assert_not_called()  # must not burn an AI call when over limit
 
+    def test_concurrency_guard_releases_between_calls(self):
+        # v5.89.331: the concurrency semaphore must be released after each call (success
+        # AND exception), or sequential calls would eventually deadlock once the slot
+        # count is exhausted. Fire more calls in a row than there are slots and assert
+        # they all complete — proving release works on every path.
+        raw, kid = _mint_key(self.app, self.db, self.mod, monthly_limit=100, calls_month=0)
+        slots = self.mod._B2B_ANALYZE_MAX_CONCURRENT
+        with patch('offerwise_intelligence.OfferWiseIntelligence.analyze_property',
+                   return_value=_fake_result()):
+            for _ in range(slots + 3):
+                r = self._call(raw)
+                self.assertEqual(r.status_code, 200,
+                                 'each sequential call must get its slot back; a stuck '
+                                 'semaphore would 503 once slots are exhausted')
+
 
 # ─────────────────────────────────────────────────────────────────────────────
 # /api/v1/usage — key stats

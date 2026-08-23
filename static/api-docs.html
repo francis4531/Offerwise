@@ -356,7 +356,7 @@ print(<span class="str">f"Total repair cost: ${result['repair_cost_estimate']:,.
   <span class="key">"key_prefix"</span>: <span class="str">"ow_live_ab3f"</span>,
   <span class="key">"tier"</span>: <span class="str">"standard"</span>,
   <span class="key">"calls_month"</span>: <span class="num">15</span>,
-  <span class="key">"monthly_limit"</span>: <span class="num">500</span>,
+  <span class="key">"monthly_limit"</span>: <span class="num">100</span>,
   <span class="key">"calls_remaining"</span>: <span class="num">485</span>,
   <span class="key">"calls_total"</span>: <span class="num">247</span>,
   <span class="key">"last_used"</span>: <span class="str">"2026-04-07T15:30:00"</span>
@@ -368,6 +368,7 @@ print(<span class="str">f"Total repair cost: ${result['repair_cost_estimate']:,.
       <tr><td>401</td><td>unauthorized</td><td>Missing or invalid API key</td></tr>
       <tr><td>400</td><td>missing_fields</td><td><code>disclosure_text</code>, <code>inspection_text</code>, or <code>property_price</code> missing</td></tr>
       <tr><td>429</td><td>rate_limited</td><td>Monthly call limit reached. Upgrade or wait for reset.</td></tr>
+      <tr><td>503</td><td>server_busy</td><td>Analysis capacity temporarily full. This is transient — retry in a few seconds.</td></tr>
       <tr><td>500</td><td>analysis_error</td><td>Analysis failed — retry or contact support</td></tr>
     </table>
 
@@ -545,7 +546,7 @@ function renderKeys(keys) {
     <div class="key-item">
       <div>
         <div class="key-prefix">${k.key_prefix}••••••••••••</div>
-        <div class="key-label">${k.label || 'Unlabeled'} · ${k.calls_month || 0}/${k.monthly_limit || 500} calls this month</div>
+        <div class="key-label">${k.label || 'Unlabeled'} · ${k.calls_month || 0}/${k.monthly_limit || 100} calls this month</div>
       </div>
       <button class="revoke-btn" onclick="revokeKey(${k.id}, this)">Revoke</button>
     </div>`).join('');

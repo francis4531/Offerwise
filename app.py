@@ -2550,6 +2550,18 @@ def _hash_api_key(key: str) -> str:
     return hashlib.sha256(key.encode()).hexdigest()
 
 
+# v5.89.331: cap concurrent B2B API analyses so a partner load-testing the API cannot
+# consume all gunicorn threads and starve the consumer site (signup, analyzer, admin).
+# The box runs 1 worker × 4 threads = 4 concurrent requests TOTAL. Allowing the API to
+# hold at most 2 of them leaves >=2 always free for everything else. A blocked call waits
+# briefly for a slot rather than being rejected, so normal partner use sees no errors;
+# only a genuine flood queues. Semaphore is process-local, which is correct here (1 worker).
+import threading as _threading
+_B2B_ANALYZE_MAX_CONCURRENT = int(os.environ.get('OW_B2B_MAX_CONCURRENT', '2'))
+_b2b_analyze_semaphore = _threading.BoundedSemaphore(_B2B_ANALYZE_MAX_CONCURRENT)
+_B2B_SLOT_WAIT_SECONDS = 5  # how long a call waits for a free slot before returning 503
+
+
 def _authenticate_api_key():
     """Authenticate via Bearer token or X-API-Key header. Returns (api_key, error_response)."""
     from models import APIKey
@@ -2618,28 +2630,40 @@ def b2b_analyze():
         return jsonify({'error': 'property_price must be a positive number.'}), 400
 
     try:
-        from offerwise_intelligence import OfferWiseIntelligence, BuyerProfile
-        # v5.89.325: OfferWiseIntelligence() takes NO constructor args — it reads
-        # ANTHROPIC_API_KEY from the environment itself. Passing anthropic_api_key=
-        # raised TypeError on every call, which the except below turned into a 500, so
-        # this endpoint had never once succeeded. Caught by the new real-happy-path test
-        # in test_api_v1.py (the old coverage accepted 500 as a pass and hid it).
-        intelligence = OfferWiseIntelligence()
-        profile = BuyerProfile(
-            max_budget=property_price * 1.1,
-            repair_tolerance=data.get('repair_tolerance', 'moderate'),
-            ownership_duration=data.get('ownership_duration', '5-10'),
-            biggest_regret=data.get('biggest_regret', 'hidden_issues'),
-            replaceability=data.get('replaceability', 'replaceable'),
-            deal_breakers=data.get('deal_breakers', ['foundation', 'mold', 'electrical']),
-        )
-        result = intelligence.analyze_property(
-            seller_disclosure_text=disclosure_text,
-            inspection_report_text=inspection_text,
-            property_price=property_price,
-            buyer_profile=profile,
-            property_address=property_address,
-        )
+        # v5.89.331: acquire a concurrency slot so a partner flood can't take all threads.
+        # Wait briefly for a slot; if none frees up, return 503 (retryable) rather than
+        # pile onto an already-saturated box. Normal partner use never waits.
+        _got_slot = _b2b_analyze_semaphore.acquire(timeout=_B2B_SLOT_WAIT_SECONDS)
+        if not _got_slot:
+            return jsonify({
+                'error': 'server_busy',
+                'message': 'Analysis capacity is temporarily full. Retry in a few seconds.',
+            }), 503
+        try:
+            from offerwise_intelligence import OfferWiseIntelligence, BuyerProfile
+            # v5.89.325: OfferWiseIntelligence() takes NO constructor args — it reads
+            # ANTHROPIC_API_KEY from the environment itself. Passing anthropic_api_key=
+            # raised TypeError on every call, which the except below turned into a 500, so
+            # this endpoint had never once succeeded. Caught by the new real-happy-path test
+            # in test_api_v1.py (the old coverage accepted 500 as a pass and hid it).
+            intelligence = OfferWiseIntelligence()
+            profile = BuyerProfile(
+                max_budget=property_price * 1.1,
+                repair_tolerance=data.get('repair_tolerance', 'moderate'),
+                ownership_duration=data.get('ownership_duration', '5-10'),
+                biggest_regret=data.get('biggest_regret', 'hidden_issues'),
+                replaceability=data.get('replaceability', 'replaceable'),
+                deal_breakers=data.get('deal_breakers', ['foundation', 'mold', 'electrical']),
+            )
+            result = intelligence.analyze_property(
+                seller_disclosure_text=disclosure_text,
+                inspection_report_text=inspection_text,
+                property_price=property_price,
+                buyer_profile=profile,
+                property_address=property_address,
+            )
+        finally:
+            _b2b_analyze_semaphore.release()
         _track_api_usage(api_key)
 
         return jsonify({

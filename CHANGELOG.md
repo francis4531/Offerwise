@@ -1,3 +1,73 @@
+## v5.89.332 - Correct the API docs to match reality + a real live smoke test (the "100%" test)
+
+Two doc discrepancies fixed (found by diffing the doc against the code):
+ - monthly_limit example said 500; the real default is 100. Corrected in the response
+   example and the key-list fallback. A partner would otherwise expect 5x their real quota.
+ - Added the 503 server_busy response row (introduced in .331's concurrency guard). A
+   partner needs to know 503 = "retry in a few seconds", not "broken".
+ - NOTE: I earlier suspected the 429 row was wrong — it is NOT. The over-quota branch
+   (_authenticate_api_key, calls_month >= monthly_limit) genuinely returns 429. Left as-is.
+   (Recording the self-correction: verify against code, not memory.)
+
+THE "100% TEST" — scripts/api_smoke_test.py:
+The unit suite (test_api_v1.py, 16 tests) MOCKS the AI engine, so it proves auth, quota,
+validation, response shape, and concurrency release — but NOT that a real call works
+against a running deployment. This script closes that gap. It hits a LIVE server with a
+REAL key and makes a REAL (non-mocked) /api/v1/analyze call, then validates:
+  - usage authenticates (Bearer AND X-API-Key) and returns real stats
+  - no-key / bad-key → 401
+  - a real analyze (genuine AI pipeline, ~30-60s) returns a full well-formed result
+  - missing-fields / bad-price → 400
+  - usage incremented by exactly 1 after the call
+  - research + screen authenticate and don't 500
+Exit 0 = all passed. Key comes from --key or OW_API_KEY (no secrets in the file).
+--skip-analyze checks everything except the quota-consuming AI call.
+
+Run before pointing the partner at the API:
+    python3 scripts/api_smoke_test.py --base https://www.getofferwise.ai --key ow_live_XXXX
+
+This is the piece that makes API testing actually complete: unit tests prove the plumbing
+offline; this proves the real path end-to-end against the deployed build. Together they are
+the "100% way to test the APIs".
+
+Verified: script compiles and fails cleanly with no key; unit suite still 16/16; doc edits
+confirmed (100 not 500, 503 row present, 429 intact); admin.html still parses.
+## v5.89.331 - Protect the box from a partner load-testing /api/v1/analyze
+
+Partner will start hitting the API this week. The tests prove correctness but not
+survival under load. Two real risks found:
+
+1. NO PER-KEY REQUEST RATE LIMIT (only a monthly quota). A partner firing concurrent
+   requests has nothing throttling req/sec.
+2. THE SERIOUS ONE — capacity starvation. /api/v1/analyze is SYNCHRONOUS and runs the
+   full AI pipeline (tens of seconds/call). The box is 1 worker × 4 threads = 4 concurrent
+   requests TOTAL, shared between the API and the consumer site. 5+ simultaneous analyze
+   calls would hold every thread for ~a minute each, freezing signup/analyzer/admin for
+   real users while the partner load-tests. A partner stress-testing the API could take
+   down the consumer product at the same time.
+
+Fix (right-sized for one evaluator, not a job-queue rebuild):
+ - Added a process-local BoundedSemaphore capping concurrent B2B analyses at
+   OW_B2B_MAX_CONCURRENT (default 2). The API can hold at most 2 of the 4 threads, leaving
+   >=2 always free for the consumer site. Process-local is correct (1 worker).
+ - A call waits up to 5s for a free slot (normal partner use never waits); a genuine flood
+   gets a retryable 503 "server busy" instead of piling onto a saturated box.
+ - Semaphore released in a finally block so it frees on BOTH success and exception — a
+   leaked slot would eventually deadlock the endpoint.
+
+Tests: test_api_v1 now 16 (added test_concurrency_guard_releases_between_calls — fires
+more sequential calls than there are slots and asserts all 200, proving release on every
+path). 16/16 pass.
+
+DELIBERATELY NOT done (would be over-engineering for one partner, revisit if real API
+traffic grows): a full async job queue for v1 (the internal /api/analyze/async pattern
+exists and could be exposed later); per-second rate limiting via flask-limiter (the
+concurrency cap is the actual protection; a 429 mid-demo is worse than a brief wait).
+
+STILL WORTH A LIVE SMOKE TEST before the partner starts: one real key, one real
+/api/v1/analyze against production, confirming a genuine (non-mocked) call returns a full
+result and the deployed build carries this. The suite mocks the engine; only a live call
+proves the real path end to end.
 ## v5.89.330 - Legal Agreements card showed "undefined undefined 0%" — guard the fields
 
 The admin "Legal Agreements" card rendered: undefined (fully consented), undefined (total
