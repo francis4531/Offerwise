@@ -1,3 +1,52 @@
+## v5.89.335 - PROVENANCE GATE: every finding must quote real document text, or it's dropped
+
+Three surgical fixes (.333 rules-merge, .334 AI prompt) each failed to stop the fabricated
+FOUNDATION & STRUCTURE finding on 13180 Edgemont — it returned in the Sept 3 report at full
+CRITICAL. The lesson from four identical fabrications: stop hunting for "the one path" and
+add a guard that catches fabrication NO MATTER which path produces it.
+
+THE LIE AT THE CENTER: AI findings were constructed with `verified=True` HARDCODED — the
+field that is supposed to mean "checked against the source document" was set true
+unconditionally, nothing ever verified it. So a fabricated foundation finding rendered
+wearing a "verified" stamp it never earned.
+
+THE FIX — a path-independent provenance gate (document_parser):
+ - InspectionFinding already carries raw_text / source_quote / evidence, and the AI prompt
+   already asks for "the exact words from the report that support this finding". Nothing
+   enforced it. Now something does.
+ - After findings are assembled (any path — AI or rules), _gate_findings_by_provenance
+   drops any finding whose source_quote / raw_text / description does NOT actually appear
+   in the document. A real finding always has a real sentence behind it; a fabricated one
+   cannot produce a quote that matches the source, so it dies at the gate.
+ - Matching is resilient to PDF line-wrapping: it verifies that a run of >=6 consecutive
+   words from the quote appears as a consecutive word-run in the document (exact substring
+   is too brittle across wrapped lines / hyphenation).
+ - Stopped pre-stamping verified=True at construction; the gate is now the sole authority
+   and sets verified truthfully.
+
+WHY THIS IS DIFFERENT FROM THE PRIOR FIXES: .333 and .334 each fixed one source of the
+fabrication. This does not care about the source. Whatever invents a finding — the AI
+extractor, the rules extractor, a downstream template, a keyword bucket — the finding
+still has to quote text that is really in the document, or it does not render. It also
+caught the fabricated MOLD reserve ("water stains found in the inspection") as a bonus,
+because that sentence isn't in this inspection either.
+
+VERIFIED (test_foundation_fabrication.py, now 12 tests): the fabricated foundation AND
+mold findings are dropped; the real findings (laundry exhaust fan, sprinkler leak) whose
+quotes ARE in the document survive; an empty/missing document does not silently nuke
+findings. All pass.
+
+HONEST NOTE ON DEPLOY: the Sept 3 report showed the fabrication at CRITICAL, which means
+either .333/.334 were not the build that generated it, OR they were bypassed. This gate is
+built to make that question moot — even if a fabrication reaches the pipeline, it cannot
+pass the gate. But it must be DEPLOYED to work: confirm the running build is .335, then
+re-run 13180 Edgemont. Expected: NO foundation finding, NO mold reserve, and the report
+reflects only the real, quote-backed findings.
+
+REMAINING (unchanged, honest): the AVM / list-price valuation path is separate and still
+needs its own sanity gate (asking price wildly above AVM should be flagged, not dressed up
+as a defensible discount). And the durable answer is still the reasoning/ rebuild — but
+this gate stops the bleeding for ALL fabricated findings today.
 ## v5.89.334 - The REAL source of the fabricated foundation finding: the AI extractor prompt
 
 .333 fixed the rules-parser merge, but a re-run of 13180 Edgemont STILL showed a fabricated

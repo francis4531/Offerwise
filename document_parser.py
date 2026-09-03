@@ -314,8 +314,88 @@ class DocumentParser:
             doc.inspection_findings = rules_findings
             logging.info(f"📏 AI unavailable — rules-only fallback: "
                         f"{len(rules_findings)} findings")
-        
+
+        # ── PROVENANCE GATE (v5.89.335) ─────────────────────────────────
+        # Every finding must be tethered to text that actually appears in the document.
+        # Three surgical fixes to the extraction/prompt/merge paths each failed to stop
+        # the fabricated "FOUNDATION & STRUCTURE" finding on 13180 Edgemont — because the
+        # fabrication can enter through more than one path. This gate is path-independent:
+        # whatever produced a finding, if its source_quote / raw_text does NOT appear in
+        # the actual document, the finding is a fabrication and is dropped. A real finding
+        # always has a real sentence behind it; an invented one cannot produce a quote
+        # that matches the source. This enforces the standing rule: build only from real
+        # specimens, never invent.
+        doc.inspection_findings = self._gate_findings_by_provenance(
+            doc.inspection_findings, pdf_text)
+
         return doc
+
+    @staticmethod
+    def _normalize_for_match(s: str) -> str:
+        """Lowercase and collapse whitespace/punctuation for a forgiving substring test
+        (PDF extraction introduces spacing/hyphenation noise, so exact match is too strict)."""
+        import re
+        return re.sub(r'\s+', ' ', re.sub(r'[^a-z0-9 ]+', ' ', (s or '').lower())).strip()
+
+    def _gate_findings_by_provenance(self, findings, document_text):
+        """Drop findings whose source text is not present in the document.
+
+        A finding passes if a meaningful span of its source_quote (or raw_text, or a
+        distinctive run of its description) actually appears in the document. Fabricated
+        findings — e.g. a foundation finding on a house whose inspection says the
+        foundation is sound — cannot pass, because no supporting sentence exists to quote.
+
+        Matching is resilient to PDF line-wrapping: instead of requiring an exact
+        contiguous substring (which breaks on wrapped lines and hyphenation), it checks
+        that a long enough run of consecutive words from the quote appears consecutively
+        in the document. Real quotes share a long word-run with the source; a fabricated
+        quote does not.
+        """
+        if not findings:
+            return findings
+        doc_tokens = self._normalize_for_match(document_text).split()
+        if len(doc_tokens) < 6:
+            return findings  # can't verify without document text; don't silently drop
+        doc_joined = ' ' + ' '.join(doc_tokens) + ' '
+
+        # A quote is verified if any window of N consecutive words from it appears
+        # verbatim (as a word run) in the document.
+        WINDOW = 6
+
+        def run_matches(quote):
+            q = self._normalize_for_match(quote).split()
+            if len(q) < WINDOW:
+                # short quote: require the whole thing to appear as a run
+                return len(q) >= 3 and (' ' + ' '.join(q) + ' ') in doc_joined
+            for i in range(0, len(q) - WINDOW + 1):
+                window = ' ' + ' '.join(q[i:i + WINDOW]) + ' '
+                if window in doc_joined:
+                    return True
+            return False
+
+        kept, dropped = [], []
+        for f in findings:
+            candidates = [
+                getattr(f, 'source_quote', '') or '',
+                getattr(f, 'raw_text', '') or '',
+                getattr(f, 'description', '') or '',
+            ]
+            candidates.extend(getattr(f, 'evidence', None) or [])
+
+            verified = any(run_matches(c) for c in candidates if c)
+            if verified:
+                f.verified = True
+                kept.append(f)
+            else:
+                dropped.append(f)
+
+        if dropped:
+            cats = ', '.join(sorted({str(getattr(d, 'category', '?')) for d in dropped}))
+            logging.warning(
+                "🛡️ Provenance gate dropped %d unverifiable finding(s) [%s] — source "
+                "text not found in document (fabrication guard). Kept %d.",
+                len(dropped), cats, len(kept))
+        return kept
     
     def _ai_extract_findings(self, text: str) -> List[InspectionFinding]:
         """
@@ -482,8 +562,13 @@ INSPECTION REPORT:
                         requires_specialist=bool(f.get('requires_specialist', False)),
                         # v5.88.23: defensive — model JSON may return source_quote: null
                         raw_text=(f.get('source_quote') or '')[:200],
+                        source_quote=(f.get('source_quote') or '')[:200],
                         confidence=0.90,  # AI-parsed findings start at high confidence
-                        verified=True,
+                        # v5.89.335: do NOT pre-stamp verified=True. Verification now
+                        # happens for real in the provenance gate, which checks the quote
+                        # against the actual document. Pre-stamping it True was the lie
+                        # that let fabricated findings render as "verified".
+                        verified=False,
                         source_document='inspection',
                     )
                     

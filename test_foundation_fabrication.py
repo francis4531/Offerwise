@@ -123,3 +123,68 @@ class TestFoundationFabrication(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)
+
+
+class TestProvenanceGate(unittest.TestCase):
+    """v5.89.335: the path-independent guard. Any finding whose source text is not in the
+    document is dropped, regardless of which code path produced it. This is the durable
+    fix after three surgical fixes to specific paths each failed to stop the fabricated
+    foundation finding on 13180 Edgemont."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.mod = _load_parser()
+        cls.p = cls.mod.DocumentParser.__new__(cls.mod.DocumentParser)
+        cls.F = cls.mod.InspectionFinding
+        cls.DOC = (
+            "A. FOUNDATIONS. This inspector is not a structural engineer. Foundation "
+            "Performance: No indications of significant foundation movement were observed "
+            "inside the home or on the exterior walls. "
+            "The exhaust fan in the laundry room did not function at the time of the "
+            "inspection. In zone 6 of the sprinkler system there is a leak in the "
+            "underground drip tubing adjacent to the right front corner of the house.")
+
+    def _f(self, category, quote):
+        return self.F(category=category, severity='moderate', location='',
+                      description=quote, recommendation='', raw_text=quote, source_quote=quote)
+
+    def test_fabricated_foundation_finding_is_dropped(self):
+        fab = self._f('foundation_structure',
+                      'references potential foundation or structural concerns that require further evaluation')
+        kept = self.p._gate_findings_by_provenance([fab], self.DOC)
+        self.assertEqual(len(kept), 0,
+                         "a foundation finding with no supporting document sentence must be dropped")
+
+    def test_fabricated_mold_finding_is_dropped(self):
+        fab = self._f('environmental',
+                      'Water stains found in the inspection indicate moisture intrusion behind the walls')
+        kept = self.p._gate_findings_by_provenance([fab], self.DOC)
+        self.assertEqual(len(kept), 0,
+                         "a mold finding quoting text not in the document must be dropped")
+
+    def test_real_findings_survive_the_gate(self):
+        real = [
+            self._f('hvac_systems',
+                    'The exhaust fan in the laundry room did not function at the time of the inspection'),
+            self._f('plumbing',
+                    'there is a leak in the underground drip tubing adjacent to the right front corner of the house'),
+        ]
+        kept = self.p._gate_findings_by_provenance(real, self.DOC)
+        self.assertEqual(len(kept), 2, "real findings whose quotes are in the document must survive")
+
+    def test_mixed_batch_keeps_only_verifiable(self):
+        batch = [
+            self._f('foundation_structure', 'references potential foundation or structural concerns'),
+            self._f('hvac_systems',
+                    'The exhaust fan in the laundry room did not function at the time of the inspection'),
+        ]
+        kept = self.p._gate_findings_by_provenance(batch, self.DOC)
+        cats = {k.category for k in kept}
+        self.assertNotIn('foundation_structure', cats)
+        self.assertIn('hvac_systems', cats)
+
+    def test_empty_document_does_not_silently_drop(self):
+        # if we somehow have no document text, don't nuke all findings
+        f = self._f('plumbing', 'some finding text here that is long enough')
+        kept = self.p._gate_findings_by_provenance([f], '')
+        self.assertEqual(len(kept), 1, "with no document text, do not silently drop findings")
