@@ -290,20 +290,30 @@ class DocumentParser:
         except Exception as e:
             logging.warning(f"🧠 AI parser unavailable ({e}), falling back to rules")
         
-        # ── Step 2: Regex parser runs independently (safety net) ─────────
-        rules_findings = self._extract_problems(pdf_text)
-        logging.info(f"📏 Rules parser: {len(rules_findings)} findings extracted")
-        
-        # ── Step 3: Merge — AI primary, rules fill gaps ──────────────────
+        # ── Step 2: Regex parser runs only as a FALLBACK ────────────────
+        # v5.89.333: previously the rules parser always ran and its findings were
+        # MERGED into the AI findings ("fill gaps"). That merge was the source of
+        # fabricated findings: the rules parser (_extract_problems) keyword-matches
+        # sentences, and its negation/positive guards have holes — e.g. "No indications
+        # of significant foundation movement were observed" slips through ("movement"
+        # isn't in the negation vocabulary), and legal/microbial disclaimers containing
+        # "structural"/"critical" slip through too. Those become FOUNDATION·CRITICAL
+        # findings priced at $25-60k. Because the AI correctly does NOT flag a foundation
+        # problem (there is none), the merge treated the fabricated rules finding as
+        # "something AI missed" and ADDED it. Confirmed on 13180 Edgemont, Frisco TX:
+        # both the disclosure and inspection state the foundation is sound, yet the
+        # report invented a critical foundation issue. Fix: when AI extraction succeeds,
+        # it is authoritative — do not merge rules "additions". Rules only run when AI
+        # fails entirely.
         if ai_succeeded and ai_findings:
-            doc.inspection_findings = self._merge_ai_and_rules(ai_findings, rules_findings)
-            logging.info(f"🔀 Merged: {len(doc.inspection_findings)} total findings "
-                        f"(AI: {len(ai_findings)}, Rules: {len(rules_findings)}, "
-                        f"unique rules additions: {len(doc.inspection_findings) - len(ai_findings)})")
+            doc.inspection_findings = ai_findings
+            logging.info(f"🧠 AI authoritative: {len(ai_findings)} findings "
+                        f"(rules merge disabled — was a fabrication source)")
         else:
-            # Fallback: rules-only
+            rules_findings = self._extract_problems(pdf_text)
             doc.inspection_findings = rules_findings
-            logging.info(f"📏 Using rules-only: {len(rules_findings)} findings")
+            logging.info(f"📏 AI unavailable — rules-only fallback: "
+                        f"{len(rules_findings)} findings")
         
         return doc
     
@@ -702,6 +712,17 @@ INSPECTION REPORT:
             r'are (noted|documented|reported) (in|throughout|elsewhere)',
             r'more serious .{0,30} will be',
             r'large amounts of .{0,20} will be',
+            # v5.89.333: legal/contract disclaimers and the microbial/IAQ disclaimer that
+            # were slipping through and being miscategorized (they contain "structural",
+            # "critical", "remediation") into FOUNDATION·CRITICAL findings on 13180
+            # Edgemont. These are contract boilerplate, never findings.
+            r"inspector'?s?\s+liability\s+is\s+.{0,30}limited",
+            r'liability\s+is\s+specifically\s+limited',
+            r'conclusively\s+shown',
+            r'proper\s+remediation\s+is\s+.{0,20}critical\s+for',
+            r'client\s+agrees\s+to\s+.{0,40}(accept|waive|refund|settlement)',
+            r'beyond\s+the\s+scope\s+of\s+this\s+inspection',
+            r'if\s+its\s+existence\s+is\s+proven',
             # Inspection access/limitation disclaimers
             r'not readily accessible',
             r'enter the attic or any',
@@ -779,6 +800,12 @@ INSPECTION REPORT:
         # Additional positive patterns
         positive_patterns = [
             r'\bno\s+(visible|apparent|signs?|evidence)\s+of',  # "no signs of damage"
+            # v5.89.333: broaden to catch clean structural statements that were slipping
+            # through and being fabricated into critical foundation findings. Covers
+            # "No indications of significant foundation movement were observed" (the
+            # exact 13180 Edgemont miss — "movement" wasn't in the negation vocabulary).
+            r'\bno\s+(indication|indications|significant|noticeable)\b',  # "no indications of..."
+            r'\bno\s+(?:\w+\s+){0,3}(movement|settlement|deflection|deterioration)\b',
             r'\bnone\s+observed',  # "none observed"
             r'- clear\b',  # "report - clear"
             r'\bclear\s*$',  # ends with "clear"

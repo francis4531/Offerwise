@@ -1,3 +1,54 @@
+## v5.89.333 - Fix the fabricated FOUNDATION·CRITICAL finding (Raees / 13180 Edgemont, Frisco TX)
+
+A partner ran a real Frisco TX deal through OfferWise. Both the seller disclosure AND the
+SmartTeam inspection state the foundation is SOUND ("No indications of significant
+foundation movement were observed"; disclosure marks Foundation/Slab = No defects). Yet
+the report invented FOUNDATION & STRUCTURE · CRITICAL · $25,000-$60,000 — its largest line
+item and the anchor of a wrong $68k discount. ChatGPT and the partner both read the docs
+correctly; OfferWise did not. This is the Pendleton bake-off failure, now confirmed in a
+partner's hands.
+
+ROOT CAUSE (traced + proven in code):
+ - Inspection PDFs are parsed by an AI (LLM) extractor AND a rules keyword extractor
+   (document_parser._extract_problems), whose outputs were MERGED ("rules fill gaps").
+ - The rules extractor keeps sentences that look like problems, guarded by negation /
+   positive / noise filters. Those guards had holes:
+     * "No indications of significant foundation MOVEMENT were observed" slipped through —
+       "movement" was not in the negation vocabulary and the positive pattern required the
+       literal "no ... of".
+     * Legal liability disclaimer ("Inspector's liability is specifically limited ...
+       structural component ... inoperable") and the microbial/IAQ disclaimer ("Proper
+       remediation is absolutely critical ...") slipped through — they contain
+       "structural"/"critical".
+   Each became a "finding", was keyword-bucketed into FOUNDATION, inherited the bucket's
+   hardcoded CRITICAL priority, and was priced $25-60k by the cost model.
+ - The merge then treated the fabricated rules finding as "something the AI missed" (the
+   AI correctly did NOT flag a foundation problem) and ADDED it. The merge rewarded
+   fabrication.
+
+FIX (two layers):
+ 1. AI authoritative: when LLM extraction succeeds, its findings are used directly. The
+    fabrication-prone rules merge no longer runs on the success path. Rules extraction
+    only runs as a fallback when AI extraction fails entirely.
+ 2. Hardened the rules fallback guards so even that path can't fabricate this:
+    - _is_positive now catches "no indications of...", "no significant...", and
+      "no ... movement/settlement/deflection/deterioration".
+    - _is_noise now catches liability/contract disclaimers, "conclusively shown",
+      "proper remediation is ... critical for", "client agrees to ...",
+      "beyond the scope of this inspection", "if its existence is proven".
+
+VERIFIED (test_foundation_fabrication.py, 7 tests): the 3 fabrication sentences from this
+exact deal are now filtered; real rules-visible findings (sprinkler leak, loose leaking
+escutcheon) are still kept; and the success path no longer calls the rules merge. All pass.
+
+HONEST SCOPE: this stops the specific fabrication mechanism and makes the reliable AI
+extractor authoritative. It is NOT the full engine rebuild — the keyword-bucketing
+CONCERN_PATTERNS and the cost model remain, and the durable answer is still the reasoning/
+package (finding-by-finding cross-reference, no keyword buckets). But this makes THIS
+report correct: no invented foundation crisis. Re-run 13180 Edgemont after deploy to
+confirm the foundation line is gone and the offer reflects the real, modest findings
+(missing attic insulation, exterior openings, loose escutcheon, exhaust fan, sprinkler
+leaks) rather than a $60k structural fiction.
 ## v5.89.332 - Correct the API docs to match reality + a real live smoke test (the "100%" test)
 
 Two doc discrepancies fixed (found by diffing the doc against the code):
