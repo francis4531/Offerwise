@@ -25,6 +25,14 @@ jobs:
           sudo apt-get install -y tesseract-ocr poppler-utils
 
       - name: Install Python dependencies
+        env:
+          # v5.89.335: CI was failing intermittently on transient PyPI network timeouts
+          # ("Read timed out ... files.pythonhosted.org" -> a downstream package like ruff
+          # then appears "not found"). These are not code failures. Make every pip install
+          # in this job retry and tolerate slow mirrors instead of dying on the first blip.
+          PIP_RETRIES: "5"
+          PIP_TIMEOUT: "60"
+          PIP_DEFAULT_TIMEOUT: "60"
         run: |
           pip install --upgrade pip
           # Install test-critical packages first (fast)

@@ -1,3 +1,15 @@
+## v5.89.336 - CI resilience to transient PyPI timeouts (own version, per build discipline)
+
+Staging CI (.github/workflows/ci.yml) fails intermittently on network timeouts downloading
+from PyPI — "Read timed out ... files.pythonhosted.org" surfacing downstream as "No matching
+distribution found for ruff". Not a code failure; a flaky-mirror failure that a re-run would
+pass. Added PIP_RETRIES=5 / PIP_TIMEOUT=60 to the install step so every pip install retries
+instead of dying on the first blip. CI config only — no app code touched.
+
+Note: this was briefly folded into the .335 tarball by mistake (two tarballs same version =
+a deploy-mix-up hazard). Corrected to its own version per the standing rule that EVERY build
+bumps VERSION, no config-only exception.
+
 ## v5.89.335 - PROVENANCE GATE: every finding must quote real document text, or it's dropped
 
 Three surgical fixes (.333 rules-merge, .334 AI prompt) each failed to stop the fabricated
