@@ -1,3 +1,51 @@
+## v5.89.334 - The REAL source of the fabricated foundation finding: the AI extractor prompt
+
+.333 fixed the rules-parser merge, but a re-run of 13180 Edgemont STILL showed a fabricated
+FOUNDATION finding ("references potential foundation or structural concerns requiring
+further evaluation"). That proved the fabrication enters through a DIFFERENT path than the
+rules merge — the AI (LLM) extractor's own prompt.
+
+ROOT CAUSE (document_parser._ai_extract_findings prompt):
+Two instructions were inducing fabrication:
+ 1. "A 'recommend further evaluation by a specialist' IS a finding — the inspector is
+    flagging something they cannot fully assess." The Edgemont inspection's foundation
+    section is standard TREC boilerplate: "This inspector is not a structural engineer;
+    the client should have an engineer evaluate if any concern exists about future
+    movement." That disclaimer appears in nearly every Texas inspection and flags NOTHING
+    — but the prompt told the model to treat it as a finding. So the LLM manufactured a
+    foundation finding from a liability disclaimer.
+ 2. "Be thorough — missing a real finding is worse than including a borderline one."
+    This biases toward false positives — the exact wrong bias for a tool whose worst
+    failure is confident fabrication (tight-but-fabricated).
+
+FIX (prompt rewrite):
+ - A "further evaluation" line is a finding ONLY when the inspector observed a SPECIFIC
+   condition that prompted it. Generic liability boilerplate is explicitly NOT a finding,
+   with concrete examples ("not a structural engineer...", "consult a specialist if
+   concerned", "liability is limited", "remediation is critical if mold is found").
+ - Added the test: "if the sentence would appear verbatim in a report on a flawless
+   house, it is boilerplate, not a finding."
+ - "A statement that a system is FINE is never a finding" — with the exact Edgemont
+   foundation sentence as the example, and "never invert it into a concern."
+ - Flipped the bias: "Accuracy over thoroughness. Inventing a finding is FAR WORSE than
+   missing a borderline one. When ambiguous, LEAVE IT OUT."
+
+Verified: parser compiles; the old instruction is gone; test_foundation_fabrication (7)
+still passes.
+
+SEPARATE ISSUE (NOT fixed here, flagged honestly): the report showed "listed $2,000,000,
+193% above AVM $683k, $500k discount". The $2M asking price is USER INPUT (the API/analyze
+call takes asking_price from the caller — likely what the tester entered), not an engine
+fabrication. But the engine took an asking price 193% above every valuation signal and
+confidently built a defensible-discount story off it instead of flagging the impossible
+gap. The AVM gate (avm_gate.py) is supposed to distrust/neutralize wild AVMs (sets
+avm_price=0) yet the raw AVM still rendered — so either the gate didn't fire on this path
+or the report renders a pre-gate value. That valuation-sanity path needs its own
+diagnosis against the deployed build's data and is the next fix.
+
+Re-run 13180 Edgemont on .334 with a REALISTIC asking price (~$850k, the real list) and
+confirm: no foundation finding at all (both docs say the foundation is sound), and the
+comps/AVM section is either sensible or suppressed rather than showing a fabricated gap.
 ## v5.89.333 - Fix the fabricated FOUNDATION·CRITICAL finding (Raees / 13180 Edgemont, Frisco TX)
 
 A partner ran a real Frisco TX deal through OfferWise. Both the seller disclosure AND the

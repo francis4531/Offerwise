@@ -343,13 +343,15 @@ class DocumentParser:
             half = max_chars // 2
             text = text[:half] + "\n\n[...middle section truncated for analysis...]\n\n" + text[-half:]
         
-        prompt = f"""You are a home inspection report analyst. Read this inspection report and extract every defect, problem, safety concern, and item needing repair or further evaluation.
+        prompt = f"""You are a home inspection report analyst. Read this inspection report and extract every genuine defect, problem, safety concern, and item the inspector actually flagged as deficient or needing repair.
 
 CRITICAL RULES:
-- Extract ONLY actual problems and defects. Do NOT include positive observations, general descriptions, or normal conditions.
-- A "recommend further evaluation by a specialist" IS a finding — the inspector is flagging something they cannot fully assess.
+- Extract ONLY actual problems and defects the inspector OBSERVED. Do NOT include positive observations, general descriptions, or normal conditions.
+- A specific "recommend further evaluation by a specialist" IS a finding ONLY when the inspector observed a specific condition that prompted it (e.g. "cracking observed at the northeast corner; recommend evaluation by a structural engineer"). 
+- Do NOT treat GENERIC LIABILITY BOILERPLATE as a finding. Standard disclaimers appear in nearly every report and flag nothing. Examples that are NOT findings: "This inspector is not a structural engineer; the client should have an engineer evaluate if any concern exists about future movement", "consult a specialist if you have concerns", "the inspector's liability is limited", "proper remediation is critical if mold is found". If the sentence would appear verbatim in a report on a flawless house, it is boilerplate, NOT a finding.
+- A statement that a system is FINE is never a finding. "No indications of significant foundation movement were observed" means the foundation is SOUND — do not extract it, and never invert it into a concern.
+- Accuracy over thoroughness: inventing a finding that isn't there is FAR WORSE than missing a borderline one. When a sentence is a disclaimer, a positive result, or ambiguous, LEAVE IT OUT. A buyer will negotiate against what you report; a fabricated finding destroys their credibility and yours.
 - Photo descriptions like [PHOTO: ...] that show damage or defects should be captured as findings.
-- Be thorough — missing a real finding is worse than including a borderline one.
 
 CATEGORIES (use exactly one):
 foundation_structure, roof_exterior, plumbing, electrical, hvac_systems, environmental, legal_title, insurance_hoa
