@@ -401,6 +401,14 @@ class PredictiveIssueEngine:
             finding,
             probability
         )
+        # v5.89.338: anchor the "why" to the actual inspection sentence that
+        # triggered this prediction, so the reader can check it against the report
+        # instead of trusting a canned phrase ("Water stains found in the inspection").
+        _observed = str(getattr(finding, 'description', '') or '').strip()
+        if _observed:
+            if len(_observed) > 160:
+                _observed = _observed[:157].rstrip() + '...'
+            reasoning = [f"Inspection observed: \"{_observed}\""] + list(reasoning or [])
         
         return IssuePrediction(
             predicted_issue=self._humanize_issue_name(correlation.secondary_issue),
@@ -711,28 +719,45 @@ class PredictiveIssueEngine:
     
     # Helper methods
     
+    # v5.89.338: whole-phrase matching. The old substring tests turned "water heater
+    # gas vent escutcheon" into a WATER STAIN (-> "Hidden mold growth, 86%") and any
+    # HVAC description containing "age" (damAGE, garAGE, leakAGE) into an OLD HVAC
+    # (-> "Imminent HVAC failure, 94%"). Both fired on 13180 Edgemont, whose
+    # inspection has no stains and says the HVAC was performing adequately.
+    _WATER_STAIN_RE = re.compile(
+        r'\b(water\s+stain\w*|stain(s|ed|ing)?\b|moisture\s+(intrusion|damage|stain\w*|reading)|'
+        r'water\s+(damage|intrusion|penetration\s+(was|is)\s+(observed|noted|found))|'
+        r'evidence\s+of\s+(moisture|water)|damp(ness)?\b|efflorescence|active\s+leak)', re.I)
+    _POOR_GRADING_RE = re.compile(r'\b(negative|poor|improper|inadequate)\s+(grading|grade|drainage)\b|'
+                                  r'\bgrad(e|ing)\s+(slopes?|directs?)\s+toward', re.I)
+    _OLD_RE = re.compile(r'\b(\d{2,}\s*(\+\s*)?years?\s+old|aged|aging|old(er)?\b|original\s+(unit|system|equipment)|'
+                         r'(end|past)\s+(of\s+)?(its\s+)?(expected\s+|useful\s+|service\s+)?life|'
+                         r'nearing\s+(the\s+)?end|outdated|obsolete|(manufactured|installed)\s+in\s+(19|200)\d)', re.I)
+    _WEAR_RE = re.compile(r'\b(worn|wear|deteriorat\w*|granule\s+loss|curling|brittle)\b', re.I)
+
     def _normalize_finding_type(self, finding: Any) -> str:
         """Normalize finding to standard type"""
         description = str(getattr(finding, 'description', '')).lower()
-        # v5.59.24: Use .value for enums to avoid "IssueCategory.ROOF_EXTERIOR" in output
         raw_category = getattr(finding, 'category', '')
         category = (raw_category.value if hasattr(raw_category, 'value') else str(raw_category)).lower()
-        
-        # Map to standard types
-        if 'water' in description or 'stain' in description or 'moisture' in description:
+
+        # A negated observation ("no stains", "no evidence of moisture") is never a stain
+        negated = re.search(r'\b(no|without|not)\s+(\w+\s+){0,3}(stain|moisture|water|leak|damp)', description)
+
+        if self._WATER_STAIN_RE.search(description) and not negated:
             return 'water_stain'
-        elif 'grading' in description:
+        elif self._POOR_GRADING_RE.search(description):
             return 'poor_grading'
-        elif 'roof' in category and ('wear' in description or 'old' in description):
+        elif 'roof' in category and self._WEAR_RE.search(description):
             return 'roof_wear'
-        elif 'hvac' in category and ('old' in description or 'age' in description):
+        elif 'hvac' in category and self._OLD_RE.search(description):
             return 'old_hvac'
-        elif 'electrical' in category and 'panel' in description:
+        elif 'electrical' in category and re.search(r'\bpanel\b', description):
             return 'electrical_panel'
         else:
             # Generic categorization
             return category or 'unknown'
-    
+
     def _record_co_occurrence(self, type_a: str, type_b: str):
         """Record that two issue types occurred together"""
         

@@ -1261,9 +1261,19 @@ def analyze_property():
                     zip_match = zip_m.group(1)
                 
                 risk_score_data = result_dict.get('risk_score', {}) or {}
+                # v5.89.338: the findings live at inspection_report.inspection_findings.
+                # This used to read result_dict['findings'] — a key that never exists —
+                # so the estimator always received an empty list, never itemized the
+                # real findings, and (pre-.337) fell through to a score-based
+                # fabrication. Only findings that passed the provenance gate are here.
+                _insp_doc = result_dict.get('inspection_report') or {}
+                _real_findings = [
+                    f for f in (_insp_doc.get('inspection_findings') or [])
+                    if isinstance(f, dict) and (f.get('description') or '').strip()
+                ]
                 repair_estimate = estimate_repair_costs(
                     zip_code=zip_match or '',
-                    findings=result_dict.get('findings', []),
+                    findings=_real_findings,
                     category_scores=risk_score_data.get('category_scores', []),
                     total_repair_low=risk_score_data.get('total_repair_cost_low', 0),
                     total_repair_high=risk_score_data.get('total_repair_cost_high', 0),
@@ -1466,6 +1476,17 @@ def analyze_property():
             _low, _lc_reasons = compute_input_confidence(
                 has_disclosure, has_inspection,
                 seller_disclosure_text, inspection_report_text)
+            # v5.89.338: if the AI extractor could not read the inspection and the
+            # keyword fallback produced the findings, say so — that path is far less
+            # reliable and the buyer should know before negotiating on it.
+            _extraction = ((result_dict.get('inspection_report') or {}).get('extraction_method')
+                           if isinstance(result_dict.get('inspection_report'), dict) else None)
+            if has_inspection and _extraction == 'rules_fallback':
+                _low = True
+                _lc_reasons.append(
+                    "Our AI reader could not process the inspection report, so the findings "
+                    "below came from a simpler keyword scan. Treat repair costs and the "
+                    "offer math as rough until you re-run the analysis.")
             result_dict['low_confidence'] = _low
             result_dict['low_confidence_reasons'] = _lc_reasons
             if _low:

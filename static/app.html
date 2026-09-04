@@ -40,7 +40,7 @@
       });
     })();
     </script>
-    <script src="/static/gtm-loader.js?v=5.89.337"></script>
+    <script src="/static/gtm-loader.js?v=5.89.338"></script>
 <!-- /GTM head -->
     <script>if(window.location.hostname==='getofferwise.ai')window.location.replace('https://www.getofferwise.ai'+window.location.pathname+window.location.search);</script>
     <link rel="icon" type="image/svg+xml" href="/static/logo-icon-only.svg">
@@ -57,7 +57,7 @@
     <link rel="preconnect" href="https://unpkg.com" crossorigin>
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/results-theme.css?v=5.89.337">
+    <link rel="stylesheet" href="/static/results-theme.css?v=5.89.338">
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone@7.29.7/babel.min.js"></script>
@@ -721,7 +721,7 @@
         .ow-strategy-grid { grid-template-columns: 1fr !important; }
       }
     </style>
-    <script src="/static/analytics-loader.js?v=5.89.337" defer></script>
+    <script src="/static/analytics-loader.js?v=5.89.338" defer></script>
     <!-- Reddit Pixel Base Code -->
     <script>
     !function(w,d){if(!w.rdt){var p=w.rdt=function(){p.sendEvent?p.sendEvent.apply(p,arguments):p.queue.push(arguments)};p.queue=[];var t=d.createElement('script');t.src='https://www.redditstatic.com/ads/pixel.js';t.async=!0;var s=d.getElementsByTagName('script')[0];s.parentNode.insertBefore(t,s)}}(window,document);
@@ -4814,9 +4814,16 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                   });
                 });
               } else if (risk_score?.category_scores && risk_score.category_scores.length > 0) {
-                // Primary fallback: category_scores (richer data — safety/insurability/specialist flags)
+                // Fallback: category_scores — v5.89.338: ONLY categories that contain
+                // findings. A category with a cost/score but no findings is a
+                // fabrication, never a "confirmed repair".
+                const _hasFindingsCS = (cs) => {
+                  const sb = cs && cs.severity_breakdown;
+                  const n = sb ? Object.values(sb).reduce((a, b) => a + (Number(b) || 0), 0) : 0;
+                  return n > 0 || (Array.isArray(cs && cs.key_issues) && cs.key_issues.length > 0);
+                };
                 risk_score.category_scores
-                  .filter(cs => (cs.estimated_cost_low||0) > 0 || (cs.estimated_cost_high||0) > 0)
+                  .filter(cs => _hasFindingsCS(cs) && ((cs.estimated_cost_low||0) > 0 || (cs.estimated_cost_high||0) > 0))
                   .forEach(cs => {
                     const low = cs.estimated_cost_low || 0;
                     const high = cs.estimated_cost_high || 0;
@@ -10805,9 +10812,14 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
               return '$' + n.toLocaleString();
             };
             const _fmtKRange = (low, high) => {
-              const lo = Math.round((Number(low) || 0) / 1000);
-              const hi = Math.round((Number(high) || 0) / 1000);
-              if (lo === 0 && hi === 0) return '';
+              const loN = Math.round(Number(low) || 0);
+              const hiN = Math.round(Number(high) || 0);
+              if (loN === 0 && hiN === 0) return '';
+              // v5.89.338: rounding to the nearest $1,000 turned $1,500 into "$2,000"
+              // and a $500 item into "$1,000 — $1,000". Show exact dollars under $10k.
+              if (loN < 10000 || hiN < 10000) return _fmtMoney(loN) + ' \u2014 ' + _fmtMoney(hiN);
+              const lo = Math.round(loN / 1000);
+              const hi = Math.round(hiN / 1000);
               return '$' + lo.toLocaleString() + ',000 \u2014 $' + hi.toLocaleString() + ',000';
             };
             const _escHtml = (s) => String(s == null ? '' : s)
@@ -11171,50 +11183,76 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             const marketSection = _buildMarket();
 
             // ---- SECTION 3 (CONFIRMED REPAIRS) ----
-            // Top 6 categories by cost (desc). Includes any category with
-            // cost > 0 OR score >= 50 OR safety_concern. Severity:
-            // >=75 critical, >=50 major, else moderate.
+            // v5.89.338: this section is titled "came directly out of the inspection
+            // report", so every card MUST be backed by a finding. Source of truth is
+            // result.repair_estimate.breakdown (built server-side from the provenance-
+            // gated findings). Fallback is category_scores, but ONLY categories that
+            // actually contain findings (severity_breakdown counts > 0) — never a
+            // category on score alone. The old builder rendered every category with a
+            // cost or score >= 50, which is how a sound foundation got a
+            // "FOUNDATION & STRUCTURE · CRITICAL · $25,000 — $60,000" card.
             const _buildRepairs = () => {
-              const sorted = [...categoryScores].sort((a, b) => {
-                const aHigh = Number(a.estimated_cost_high) || 0;
-                const bHigh = Number(b.estimated_cost_high) || 0;
-                return bHigh - aHigh;
-              });
-              const cards = sorted.filter(c => {
-                const high = Number(c.estimated_cost_high) || 0;
-                const score = Number(c.score) || 0;
-                return high > 0 || score >= 50 || c.safety_concern;
-              }).slice(0, 6);
+              const _hasFindings = (c) => {
+                const sb = c && c.severity_breakdown;
+                const n = sb ? Object.values(sb).reduce((a, b) => a + (Number(b) || 0), 0) : 0;
+                return n > 0 || (Array.isArray(c && c.key_issues) && c.key_issues.length > 0);
+              };
+              const _sevRank = { critical: 3, major: 2, moderate: 1, minor: 0 };
+              let cards = [];
+              const est = result.repair_estimate || {};
+              if (Array.isArray(est.breakdown) && est.breakdown.length > 0) {
+                cards = est.breakdown.map(b => ({
+                  label: b.system || _catLabel(b.category),
+                  severity: String(b.severity || 'moderate').toLowerCase(),
+                  low: Number(b.low) || 0,
+                  high: Number(b.high) || 0,
+                  issues: (b.description ? String(b.description).split(/;\s+/) : []).filter(Boolean),
+                  count: Number(b.issue_count) || 1,
+                  specialist: !!b.requires_specialist,
+                  safety: !!b.safety_concern,
+                }));
+              } else {
+                cards = categoryScores.filter(_hasFindings).map(c => {
+                  const sb = c.severity_breakdown || {};
+                  const worst = ['critical', 'major', 'moderate', 'minor'].find(k => (Number(sb[k]) || 0) > 0) || 'moderate';
+                  return {
+                    label: _catLabel(c.category),
+                    severity: worst,
+                    low: Number(c.estimated_cost_low) || 0,
+                    high: Number(c.estimated_cost_high) || 0,
+                    issues: (c.key_issues || []).filter(i => i && String(i).trim().length > 4),
+                    count: Object.values(sb).reduce((a, b) => a + (Number(b) || 0), 0),
+                    specialist: !!c.requires_specialist,
+                    safety: !!c.safety_concern,
+                  };
+                });
+              }
+              cards.sort((a, b) => (b.high - a.high) || ((_sevRank[b.severity] || 0) - (_sevRank[a.severity] || 0)));
+              cards = cards.slice(0, 8);
 
               if (cards.length === 0) return '';
 
-              const totalLow = cards.reduce((s, c) => s + (Number(c.estimated_cost_low) || 0), 0);
-              const totalHigh = cards.reduce((s, c) => s + (Number(c.estimated_cost_high) || 0), 0);
-              const totalAvg = Math.round((totalLow + totalHigh) / 2);
-
               const cardsHtml = cards.map(c => {
-                const score = Number(c.score) || 0;
-                const sevLabel = score >= 75 ? 'Critical' : score >= 50 ? 'Major' : 'Moderate';
-                const sevClass = score >= 75 ? 'critical' : score >= 50 ? 'amber' : 'blue';
-                const sevSpanClass = score >= 75 ? '' : 'amber';
-                const cost = _fmtKRange(c.estimated_cost_low, c.estimated_cost_high);
-                const issues = (c.key_issues || [])
-                  .filter(i => i && String(i).trim().length > 4)
-                  .slice(0, 4)
-                  .map(i => '<li>' + _escHtml(i) + '</li>').join('');
+                const sev = c.severity;
+                const sevLabel = sev === 'critical' ? 'Critical' : sev === 'major' ? 'Major' : sev === 'minor' ? 'Minor' : 'Moderate';
+                const sevClass = sev === 'critical' ? 'critical' : sev === 'major' ? 'amber' : 'blue';
+                const sevSpanClass = sev === 'critical' ? '' : 'amber';
+                const cost = _fmtKRange(c.low, c.high);
+                const issues = c.issues.slice(0, 4).map(i => '<li>' + _escHtml(i) + '</li>').join('');
                 let action = '';
-                if (c.requires_specialist) {
-                  action = 'Get a <strong>licensed specialist</strong> ($400\u2013$600) before close. Specialist opinion makes any subsequent ask defensible.';
-                } else if (c.safety_concern) {
-                  action = 'This is a <strong>safety finding</strong>. Demand repair credit or completion before close \u2014 as-is doesn\u2019t apply to safety.';
-                } else if (score >= 75) {
-                  action = 'Get a written contractor quote before close. Ask for a <strong>credit at closing</strong> \u2014 more flexible than \u201Ccomplete before close.\u201D';
+                if (c.specialist) {
+                  action = 'Get a <strong>licensed specialist</strong> ($400–$600) before close. Specialist opinion makes any subsequent ask defensible.';
+                } else if (c.safety) {
+                  action = 'This is a <strong>safety finding</strong>. Demand repair credit or completion before close — as-is doesn’t apply to safety.';
+                } else if (sev === 'critical' || sev === 'major') {
+                  action = 'Get a written contractor quote before close. Ask for a <strong>credit at closing</strong> — more flexible than “complete before close.”';
                 } else {
                   action = 'Document this in your repair-credit request. Group with other findings in the same trade for a single ask.';
                 }
+                const countNote = c.count > 1 ? ' <span class="sev amber">' + c.count + ' items</span>' : '';
                 return '<div class="card ' + sevClass + '">' +
                   '<div class="card-head">' +
-                    '<div class="title">' + _escHtml(_catLabel(c.category)) + ' <span class="sev ' + sevSpanClass + '">' + sevLabel + '</span></div>' +
+                    '<div class="title">' + _escHtml(c.label) + ' <span class="sev ' + sevSpanClass + '">' + sevLabel + '</span>' + countNote + '</div>' +
                     (cost ? '<div class="cost">' + cost + '</div>' : '') +
                   '</div>' +
                   (issues ? '<ul class="findings">' + issues + '</ul>' : '') +
@@ -11223,8 +11261,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
               }).join('');
 
               return '<section id="repairs">' +
-                '<h2 class="section-title">Confirmed repairs \u00B7 itemized findings</h2>' +
-                '<p class="section-sub">These came directly out of the inspection report \u2014 documented findings, not predictions. Per-item ranges are shown for reference; your single, reconciled cost and negotiation position is in <strong>the analysis below</strong>, which separates what to negotiate from what to hold in reserve.</p>' +
+                '<h2 class="section-title">Confirmed repairs · itemized findings</h2>' +
+                '<p class="section-sub">These came directly out of the inspection report — documented findings, not predictions. Per-item ranges are shown for reference; your single, reconciled cost and negotiation position is in <strong>the analysis below</strong>, which separates what to negotiate from what to hold in reserve.</p>' +
                 cardsHtml +
               '</section>';
             };
@@ -12760,7 +12798,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </script>
     
     <!-- Async Upload Manager - Handles PDF uploads with real-time progress -->
-    <script src="/static/async-upload-manager.js?v=5.89.337"></script>
+    <script src="/static/async-upload-manager.js?v=5.89.338"></script>
     
     <!-- Floating Support Button -->
     <a href="/contact" id="support-button" style="
@@ -12785,8 +12823,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <span style="font-size: 16px;">💬</span>
         Help
     </a>
-<script src="/static/js/compliance.js?v=5.89.337"></script>
-<script src="/static/js/analytics.js?v=5.89.337" defer></script>
+<script src="/static/js/compliance.js?v=5.89.338"></script>
+<script src="/static/js/analytics.js?v=5.89.338" defer></script>
 <script>
 // Scroll reveal for premium results animations
 (function() {
@@ -12873,7 +12911,7 @@ if ('serviceWorker' in navigator) {
 
 <!-- Scout: docked, summon-on-demand "Ask your report" assistant (v5.89.157) -->
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&display=swap" rel="stylesheet">
-<script src="/static/ask-widget.js?v=5.89.337"></script>
+<script src="/static/ask-widget.js?v=5.89.338"></script>
 <script>
 (function(){
   if (window.__scoutInit) { return; } window.__scoutInit = true;

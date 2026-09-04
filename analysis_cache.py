@@ -13,7 +13,22 @@ import os
 
 # ANALYSIS VERSION: Increment this when Risk DNA calculation changes
 # This invalidates old cache entries automatically
-ANALYSIS_VERSION = "5.0.0"  # v5.59.8: All AI calls now temperature=0 for determinism
+# v5.89.338: derive from the build VERSION so every deploy invalidates cached
+# analyses automatically. It had been pinned at "5.0.0" since v5.59.8, which meant
+# a re-run of the same documents + price returned the OLD build's result — one
+# reason fixes .333-.337 "didn't take" when re-tested on the same deal within a
+# deploy's lifetime (the cache DB lives on the ephemeral container disk).
+def _load_build_version() -> str:
+    try:
+        with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'VERSION')) as _f:
+            v = _f.read().strip()
+            if v:
+                return v
+    except Exception:
+        pass
+    return "5.0.0"
+
+ANALYSIS_VERSION = _load_build_version()
 
 class AnalysisCache:
     """

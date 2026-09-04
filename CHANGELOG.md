@@ -1,3 +1,112 @@
+## v5.89.338 - The fabricated foundation, reproduced bit-for-bit and closed at all seven sources
+
+The Sept 4 report on 13180 Edgemont (v5.89.337 deployed) still read: FOUNDATION &
+STRUCTURE · CRITICAL · $25,000-$60,000, HVAC & SYSTEMS · CRITICAL · $5,000-$15,000,
+ROOF · MAJOR, PLUMBING · MODERATE, "2 critical issues", "$64,250 in confirmed repairs",
+"Imminent HVAC failure 94%", "Hidden mold growth 86%", $12,500 reserve, offer $781,750.
+Both source documents say the foundation is sound.
+
+REPRODUCED OFFLINE, NO API KEY, EVERY NUMBER: run the client-side text of the two real
+PDFs (pdf.js shape: one line per page, "=== Page N ===" markers) through
+document_parser -> risk_scoring_model -> predictive_engine on .337 and you get
+Foundation 100 / $25k-60k, HVAC 100 / $5k-15k, Roof 54 / $5k-12k, Plumbing / $1.5k-5k,
+total $36,500-$92,000 (midpoint $64,250), HVAC-failure 0.935, mold 0.858. That is the
+report. Fixtures + 31 tests: test_corpus/regression_edgemont/, test_edgemont_regression.py.
+
+WHAT ACTUALLY HAPPENED (seven mechanisms; .333-.337 touched none of them):
+
+ 1. THE AI NEVER SAW THE FINDINGS. _ai_extract_findings truncated the report to the
+    first 7,000 + last 7,000 chars. The Edgemont text is 41k chars: Claude got pages
+    1-3 (TREC purpose/limitations/consumer notice) and pages 15-16 (the inspection
+    contract). Pages 4-14 - insulation, caulk, exterior openings, escutcheon, fireplace,
+    exhaust fan, sprinkler leaks - were discarded. Claude correctly returned nothing.
+ 2. "NOTHING" WAS TREATED AS "FAILED". An empty list and an API failure were the same
+    value ([]), so a correct empty answer handed the FULL text to the keyword parser.
+ 3. THE KEYWORD PARSER MANUFACTURED 15 OF ITS 21 "FINDINGS" FROM BOILERPLATE. "Each
+    year, Texans sustain property damage..." became an HVAC finding. "Client understands
+    and agrees that any claim..." became another. The .335 provenance gate passed them
+    all - they ARE real sentences from the document; they just aren't findings.
+ 4. UNKNOWN CATEGORY => FOUNDATION_STRUCTURE, in three places: the AI cat_map default,
+    the rules _categorize_text default, and the risk model _group_by_category default.
+    (_categorize_text also used substring matching: "adjACent" => HVAC, "water" =>
+    plumbing.) This is also the Pendleton "CO gas under Foundation" from June.
+ 5. SCORE = SUM OF SEVERITY POINTS, no ceiling. Four moderate findings x 15 x 1.5 weight
+    = 90 = "CRITICAL" (>=75), which unlocked a HARD-CODED $25,000-$60,000 foundation
+    cost floor - with no critical finding and no foundation finding anywhere. The
+    .337 changelog said "the risk model always emits a foundation score driven by age,
+    area, priors". It does not; _score_category returns 0 with no findings. The score
+    was driven by real-but-misfiled boilerplate findings.
+ 6. THE PDF'S "CONFIRMED REPAIRS" NEVER READ repair_estimate.breakdown. The string-
+    template PDF builder (_buildRepairs, app.html ~11177) rendered EVERY category_score
+    with cost > 0 OR score >= 50. The web view falls back to category_scores when the
+    breakdown is empty. So .337's server-side fix could not change a pixel. And
+    analysis_routes passed result_dict.get('findings') - a key that never exists - so
+    the estimator always got an empty list anyway.
+ 7. PREDICTIVE ENGINE substring heuristics: any description containing "water"
+    ("water heater gas vent escutcheon") => water_stain => "Hidden mold growth, 86%,
+    Why: water stains found in the inspection" (there are none). "age" as a substring
+    of damAGE / garAGE / leakAGE in an HVAC-tagged finding => old_hvac => "Imminent HVAC
+    failure, 94%" (the report says the AC was performing adequately). 0.85 x 1.1 = 0.935
+    and 0.78 x 1.1 = 0.858 - the exact percentages in the PDF.
+
+FIXES:
+ - document_parser: AI reads the WHOLE document (60k-char chunks on page boundaries,
+   nothing dropped; max_tokens 8000). _ai_extract_findings returns None on failure and
+   [] on "clean report"; only None triggers the rules fallback. PropertyDocument gains
+   extraction_method ('ai' | 'rules_fallback'); the route surfaces a rules fallback in
+   low_confidence_reasons so the buyer is told the findings came from a keyword scan.
+   New IssueCategory.GENERAL; AI prompt lists it and tells the model foundation is
+   for structure only. _categorize_text: whole-word matching, GENERAL default.
+   Rules fallback: ~30 boilerplate patterns (contract/legal, TREC consumer notice,
+   hypotheticals, exclusion lists), negation vocabulary extended (loose/burn/stain/
+   movement/deficien...), "did not function"/"could not be operated" indicators.
+   Result on the real Edgemont text: 21 findings -> 8, all real, zero foundation.
+ - risk_scoring_model: RiskCategory.GENERAL (weight 0.8). Category score is CAPPED by
+   the worst finding's band (critical 100 / major 74 / moderate 49 / minor 24) - many
+   small items can never read as CRITICAL. Cost is PER FINDING: document-stated > ML/
+   preset > national baseline by (category, severity) from repair_cost_estimator's
+   table. The score-driven cost floors ("score >= 75 => $25k-60k") and the deal-breaker
+   "realistic minimum" substitution are gone. key_issues lists every finding so a
+   category cost always shows what is behind it.
+ - repair_cost_estimator: totals = sum of the itemized lines whenever lines exist;
+   'general'/'other' aliases; None-safe cost fields; merged general bucket titled
+   "Other Items".
+ - analysis_routes: estimator receives inspection_report.inspection_findings (the
+   provenance-gated findings), not the non-existent result_dict['findings'].
+ - predictive_engine: whole-phrase regexes for stain/grading/wear/age with negation
+   ("no evidence of moisture" is not a stain); every prediction's "Why" now opens with
+   the actual inspection sentence that triggered it.
+ - static/app.html: PDF "Confirmed repairs" is built from repair_estimate.breakdown;
+   fallback to category_scores only for categories that CONTAIN findings, severity
+   from the worst finding, never from score. Web fallback filtered the same way.
+   _fmtKRange shows exact dollars under $10k ($1,500 no longer renders as "$2,000").
+ - analysis_cache: ANALYSIS_VERSION now = VERSION (was pinned "5.0.0" since v5.59.8),
+   so a re-run of the same docs + price after a deploy cannot return the previous
+   build's result from the on-disk cache.
+ - test_results_quality.test_category_scores_fallback asserted the fabrication; it
+   now asserts the .337 contract.
+
+RESULT ON EDGEMONT (offline, both paths): no foundation line, no CRITICAL category, no
+deal-breakers, no predictions. AI path (realistic 7-finding extraction): repairs
+$7,250-$12,300, risk tier LOW, offer $840,225 (asking - repairs). Worst case, rules
+fallback with the AI down: $10,650-$18,300, tier LOW, offer $835,525, and the report
+says the findings came from a keyword scan.
+
+VERIFIED: test_edgemont_regression 31/31; parser/risk/estimator/report suites 440+
+green; check_jsx / check_html_js / check_frontend OK. (In a full single-process run of
+the whole suite, 36 tests in b2b_followup / wedge_sweep / risk_share / prospect_blocklist /
+funnel_debug / v5_88_07 fail from cross-test DB-session pollution; every one passes
+when its file runs alone, on .337 and on this build - pre-existing, unrelated.)
+
+STILL OPEN (honest): (a) TXR-1406 disclosure Y/N columns are unrecoverable from pdf.js
+text ("Foundation / Slab(s) X" - which column?), so the Texas cross-reference and the
+transparency score (25/100 on a fully-answered, truthful form) are not trustworthy;
+the disclosure needs the vision path or a form-aware extractor. (b) AVM/asking-price
+sanity is unchanged. (c) The document_repo crawler is still filing city-council
+minutes and GitHub READMEs as "inspection reports" (the test run pulled 20 more; they
+were removed from this build). (d) The keyword parser remains a liability; the durable
+answer is still the reasoning/ rebuild - this build makes the current engine stop
+inventing, it does not make it read.
 ## v5.89.337 - THE actual root cause: repair cost estimator fabricated confirmed-repair line items from RISK SCORES
 
 Confirmed live on .336: the fabricated "FOUNDATION & STRUCTURE · CRITICAL · $25-60k"

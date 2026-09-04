@@ -22,6 +22,52 @@ class RiskCategory(Enum):
     ENVIRONMENTAL = "environmental"
     LEGAL_TITLE = "legal_title"
     INSURANCE_HOA = "insurance_hoa"
+    # v5.89.338: findings that are none of the above (insulation, appliances,
+    # irrigation, interior, fireplace...). Previously these were silently scored
+    # as FOUNDATION_STRUCTURE.
+    GENERAL = "general"
+
+
+# v5.89.338: severity ceilings. A category's score can never exceed the band of
+# its WORST finding. Before this, severity points were simply summed, so four
+# moderate findings (4 x 15 x 1.5 weight = 90) read as "CRITICAL" and unlocked a
+# hard-coded $25k-60k foundation cost — with no critical finding anywhere.
+SEVERITY_SCORE_CEILING = {
+    Severity.CRITICAL: 100.0,
+    Severity.MAJOR: 74.0,
+    Severity.MODERATE: 49.0,
+    Severity.MINOR: 24.0,
+    Severity.INFORMATIONAL: 0.0,
+}
+
+# RiskCategory -> repair_cost_estimator.BASELINE_COSTS key
+_BASELINE_KEY = {
+    "foundation_structure": "foundation",
+    "roof_exterior": "roof",
+    "plumbing": "plumbing",
+    "electrical": "electrical",
+    "hvac_systems": "hvac",
+    "environmental": "environmental",
+    "legal_title": "permits",
+    "insurance_hoa": "general",
+    "general": "general",
+}
+
+
+def baseline_cost_for_finding(category_value: str, severity_value: str):
+    """Per-FINDING national baseline (low, high) by category x severity.
+    Single source shared with repair_cost_estimator so the risk totals and the
+    itemized breakdown are built from the same table. Informational -> (0, 0)."""
+    if severity_value == Severity.INFORMATIONAL.value:
+        return 0.0, 0.0
+    try:
+        from repair_cost_estimator import BASELINE_COSTS
+    except Exception:
+        return 0.0, 0.0
+    key = _BASELINE_KEY.get(category_value, "general")
+    table = BASELINE_COSTS.get(key, BASELINE_COSTS["general"])
+    low, high = table.get(severity_value, table["moderate"])
+    return float(low), float(high)
 
 
 @dataclass
@@ -91,6 +137,7 @@ class RiskScoringModel:
             RiskCategory.ENVIRONMENTAL: 1.4,  # Can be deal-breakers
             RiskCategory.LEGAL_TITLE: 1.5,  # Can block sale
             RiskCategory.INSURANCE_HOA: 1.2,  # Affects affordability
+            RiskCategory.GENERAL: 0.8,  # Misc items — real, but rarely deal-shaping
         }
 
     def _load_severity_multipliers(self) -> Dict[Severity, float]:
@@ -214,10 +261,13 @@ class RiskScoringModel:
             IssueCategory.ENVIRONMENTAL: RiskCategory.ENVIRONMENTAL,
             IssueCategory.LEGAL_TITLE: RiskCategory.LEGAL_TITLE,
             IssueCategory.HOA: RiskCategory.INSURANCE_HOA,
+            IssueCategory.GENERAL: RiskCategory.GENERAL,
         }
         
         for finding in findings:
-            risk_cat = category_mapping.get(finding.category, RiskCategory.FOUNDATION_STRUCTURE)
+            # v5.89.338: unknown -> GENERAL (was FOUNDATION_STRUCTURE: every
+            # unmapped finding inflated the structural score and cost).
+            risk_cat = category_mapping.get(finding.category, RiskCategory.GENERAL)
             grouped[risk_cat].append(finding)
         
         return grouped
@@ -228,8 +278,20 @@ class RiskScoringModel:
         findings: List[InspectionFinding],
         property_price: float
     ) -> CategoryRiskScore:
-        """Calculate risk score for a single category"""
-        
+        """Calculate risk score for a single category.
+
+        v5.89.338 rules (each one closes a fabrication path seen on real deals):
+          * The score is CAPPED by the worst finding's severity band. Quantity of
+            small items can raise a score within its band, never promote it into
+            "major"/"critical".
+          * Cost is per FINDING: document-stated > ML/preset > national baseline by
+            (category, severity). There is no score-driven cost floor any more —
+            "score >= 75 => $25,000-$60,000" is exactly how a house with a sound
+            foundation got a $60k foundation line.
+          * key_issues lists EVERY finding (worst first), so any section that shows
+            a category cost can also show what is behind it.
+        """
+
         if not findings:
             return CategoryRiskScore(
                 category=category,
@@ -243,8 +305,10 @@ class RiskScoringModel:
                 affects_insurability=False,
                 affects_resale=False
             )
-        
-        # Base score from severity
+
+        sev_rank = {Severity.CRITICAL: 4, Severity.MAJOR: 3, Severity.MODERATE: 2,
+                    Severity.MINOR: 1, Severity.INFORMATIONAL: 0}
+
         base_score = 0.0
         severity_breakdown = {}
         total_cost_low = 0.0
@@ -252,162 +316,71 @@ class RiskScoringModel:
         key_issues = []
         requires_specialist = False
         safety_concern = False
-        has_document_costs = False  # v5.55.8: Track if any cost came from document
-        
-        for finding in findings:
-            # Add severity points
-            base_score += self.severity_multipliers[finding.severity]
-            
-            # Track severity breakdown
-            sev_name = finding.severity.value
+        has_document_costs = False
+        costs_were_estimated = False
+        worst = Severity.INFORMATIONAL
+
+        def _short(desc: str) -> str:
+            desc = (desc or '').strip()
+            if len(desc) <= 120:
+                return desc
+            for end_char in ['. ', '! ', '? ']:
+                last_break = desc[:120].rfind(end_char)
+                if last_break > 40:
+                    return desc[:last_break + 1].strip()
+            last_space = desc[:120].rfind(' ')
+            return (desc[:last_space].strip() + '...') if last_space > 40 else (desc[:120].strip() + '...')
+
+        for finding in sorted(findings, key=lambda f: sev_rank.get(f.severity, 0), reverse=True):
+            severity = finding.severity if finding.severity in sev_rank else Severity.MODERATE
+            if sev_rank[severity] > sev_rank[worst]:
+                worst = severity
+
+            base_score += self.severity_multipliers.get(severity, 0.0)
+            sev_name = severity.value
             severity_breakdown[sev_name] = severity_breakdown.get(sev_name, 0) + 1
-            
-            # Accumulate costs - DEFENSIVE: Handle None values
-            if finding.estimated_cost_low:
-                cost_low_val = finding.estimated_cost_low if finding.estimated_cost_low is not None else 0.0
-                cost_high_val = finding.estimated_cost_high if finding.estimated_cost_high is not None else cost_low_val
-                total_cost_low += cost_low_val
-                total_cost_high += cost_high_val
-                # Track if this cost came from document (v5.55.8)
-                if hasattr(finding, 'cost_from_document') and finding.cost_from_document:
+
+            # Per-finding cost
+            f_low = finding.estimated_cost_low or 0.0
+            f_high = finding.estimated_cost_high or 0.0
+            if f_low > 0 or f_high > 0:
+                f_high = f_high or f_low
+                f_low = f_low or f_high
+                if getattr(finding, 'cost_from_document', False):
                     has_document_costs = True
-            
-            # Track critical attributes
-            if finding.severity in [Severity.CRITICAL, Severity.MAJOR]:
-                # Truncate at sentence boundary to avoid broken sentences (v5.55.10)
-                desc = finding.description
-                if len(desc) > 120:
-                    # Find last sentence break before 120 chars
-                    for end_char in ['. ', '! ', '? ']:
-                        last_break = desc[:120].rfind(end_char)
-                        if last_break > 40:  # At least 40 chars for meaningful content
-                            desc = desc[:last_break + 1].strip()
-                            break
-                    else:
-                        # No sentence break found, truncate at last space
-                        last_space = desc[:120].rfind(' ')
-                        if last_space > 40:
-                            desc = desc[:last_space].strip() + '...'
-                        else:
-                            desc = desc[:120].strip() + '...'
-                key_issues.append(desc)
-            
-            if finding.requires_specialist and finding.severity in [Severity.CRITICAL, Severity.MAJOR]:
+                else:
+                    costs_were_estimated = True
+            else:
+                f_low, f_high = baseline_cost_for_finding(category.value, severity.value)
+                if f_high > 0:
+                    costs_were_estimated = True
+            total_cost_low += f_low
+            total_cost_high += f_high
+
+            if finding.description:
+                key_issues.append(_short(finding.description))
+
+            if finding.requires_specialist and severity in [Severity.CRITICAL, Severity.MAJOR]:
                 requires_specialist = True
-            
-            if finding.safety_concern and finding.severity in [Severity.CRITICAL, Severity.MAJOR]:
+            if finding.safety_concern and severity in [Severity.CRITICAL, Severity.MAJOR]:
                 safety_concern = True
-        
-        # Apply cost impact multiplier
+
+        # Cost impact multiplier (relative to price) — still bounded by the ceiling below
         cost_percent = total_cost_high / property_price if property_price > 0 else 0
         if cost_percent > self.cost_impact_thresholds['major']:
-            base_score *= 1.8  # Increased from 1.5
+            base_score *= 1.8
         elif cost_percent > self.cost_impact_thresholds['significant']:
-            base_score *= 1.5  # Increased from 1.3
+            base_score *= 1.5
         elif cost_percent > self.cost_impact_thresholds['moderate']:
-            base_score *= 1.2  # Increased from 1.1
-        
-        # Apply category weight
+            base_score *= 1.2
+
         weighted_score = base_score * self.category_weights[category]
-        
-        # Normalize to 0-100 scale
-        normalized_score = min(100, weighted_score)
-        
-        # v5.55.8: Track if we're using estimates vs document costs
-        costs_were_estimated = False
-        
-        # CRITICAL: Add minimum cost estimates if category has issues but no costs
-        # Nothing is ever $0 to fix!
-        if normalized_score > 0 and total_cost_high == 0:
-            costs_were_estimated = True  # We're adding estimates
-            # Estimate based on severity and category
-            if normalized_score >= 75:  # Critical
-                if category == RiskCategory.FOUNDATION_STRUCTURE:
-                    total_cost_low, total_cost_high = 25000, 60000
-                elif category == RiskCategory.ROOF_EXTERIOR:
-                    total_cost_low, total_cost_high = 8000, 20000
-                else:
-                    total_cost_low, total_cost_high = 5000, 15000
-            elif normalized_score >= 50:  # Major
-                if category == RiskCategory.FOUNDATION_STRUCTURE:
-                    total_cost_low, total_cost_high = 10000, 25000
-                elif category == RiskCategory.ROOF_EXTERIOR:
-                    total_cost_low, total_cost_high = 5000, 12000
-                else:
-                    total_cost_low, total_cost_high = 3000, 8000
-            else:  # Moderate
-                if category == RiskCategory.FOUNDATION_STRUCTURE:
-                    total_cost_low, total_cost_high = 5000, 12000
-                elif category == RiskCategory.ROOF_EXTERIOR:
-                    total_cost_low, total_cost_high = 2000, 6000
-                elif category in [RiskCategory.ELECTRICAL, RiskCategory.PLUMBING]:
-                    total_cost_low, total_cost_high = 1500, 5000
-                else:
-                    total_cost_low, total_cost_high = 1000, 4000
-        
-        # CRITICAL FIX: Validate costs are realistic for severity level
-        # Even if LLM provided costs, ensure they meet minimums for severity
-        if normalized_score > 0 and total_cost_high > 0:
-            # Check if costs are unrealistically low for the severity level
-            if normalized_score >= 75:  # Critical - enforce strict minimums
-                if category == RiskCategory.FOUNDATION_STRUCTURE:
-                    if total_cost_high < 25000:
-                        costs_were_estimated = True  # We're adjusting
-                        total_cost_low = max(total_cost_low, 25000)
-                        total_cost_high = max(total_cost_high, 55000)
-                elif category == RiskCategory.ROOF_EXTERIOR:
-                    if total_cost_high < 15000:
-                        costs_were_estimated = True
-                        total_cost_low = max(total_cost_low, 15000)
-                        total_cost_high = max(total_cost_high, 30000)
-                elif category == RiskCategory.ELECTRICAL:
-                    if total_cost_high < 8000:
-                        costs_were_estimated = True
-                        total_cost_low = max(total_cost_low, 8000)
-                        total_cost_high = max(total_cost_high, 15000)
-                elif category == RiskCategory.PLUMBING:
-                    if total_cost_high < 10000:
-                        costs_were_estimated = True
-                        total_cost_low = max(total_cost_low, 10000)
-                        total_cost_high = max(total_cost_high, 20000)
-                elif category == RiskCategory.HVAC_SYSTEMS:
-                    if total_cost_high < 6000:
-                        costs_were_estimated = True
-                        total_cost_low = max(total_cost_low, 6000)
-                        total_cost_high = max(total_cost_high, 12000)
-                else:
-                    # Generic critical issue
-                    if total_cost_high < 5000:
-                        costs_were_estimated = True
-                        total_cost_low = max(total_cost_low, 5000)
-                        total_cost_high = max(total_cost_high, 15000)
-            
-            elif normalized_score >= 50:  # Major - enforce reasonable minimums
-                if category == RiskCategory.FOUNDATION_STRUCTURE:
-                    if total_cost_high < 10000:
-                        costs_were_estimated = True
-                        total_cost_low = max(total_cost_low, 10000)
-                        total_cost_high = max(total_cost_high, 25000)
-                elif category == RiskCategory.ROOF_EXTERIOR:
-                    if total_cost_high < 5000:
-                        costs_were_estimated = True
-                        total_cost_low = max(total_cost_low, 5000)
-                        total_cost_high = max(total_cost_high, 12000)
-                elif category in [RiskCategory.ELECTRICAL, RiskCategory.PLUMBING]:
-                    if total_cost_high < 3000:
-                        costs_were_estimated = True
-                        total_cost_low = max(total_cost_low, 3000)
-                        total_cost_high = max(total_cost_high, 8000)
-                else:
-                    if total_cost_high < 3000:
-                        costs_were_estimated = True
-                        total_cost_low = max(total_cost_low, 3000)
-                        total_cost_high = max(total_cost_high, 8000)
-        
-        # Determine impacts
+        ceiling = SEVERITY_SCORE_CEILING.get(worst, 49.0)
+        normalized_score = max(0.0, min(100.0, weighted_score, ceiling))
+
         affects_insurability = self._affects_insurability(category, findings)
         affects_resale = self._affects_resale(category, findings)
-        
+
         return CategoryRiskScore(
             category=category,
             score=normalized_score,
@@ -419,7 +392,7 @@ class RiskScoringModel:
             safety_concern=safety_concern,
             affects_insurability=affects_insurability,
             affects_resale=affects_resale,
-            costs_are_estimates=costs_were_estimated or not has_document_costs  # v5.55.8
+            costs_are_estimates=costs_were_estimated or not has_document_costs
         )
 
     def _calculate_weighted_score(self, category_scores: List[CategoryRiskScore]) -> float:
@@ -593,42 +566,12 @@ class RiskScoringModel:
                             f"A comprehensive evaluation by a qualified specialist is strongly recommended before proceeding."
                         )
                 else:
-                    # No valid specific issues found - use generic professional description
-                    # CRITICAL: Ensure realistic minimum costs for critical categories
+                    # No valid specific issue text — describe with the category's own
+                    # (finding-backed) cost. v5.89.338: the previous branch REPLACED the
+                    # real cost with hard-coded "realistic minimums" ($25k-55k for
+                    # foundation etc.) — a fabricated number in a deal-breaker sentence.
                     cost_low = cat_score.estimated_cost_low
                     cost_high = cat_score.estimated_cost_high
-                    
-                    # If costs are unrealistically low for a CRITICAL category, use realistic minimums
-                    if cat_score.score >= 75:  # CRITICAL severity
-                        category_lower = category_name.lower()
-                        
-                        # Set realistic minimum costs based on category
-                        if 'foundation' in category_lower or 'structure' in category_lower:
-                            if cost_high < 25000:  # Foundation issues can't be $500!
-                                cost_low = 25000
-                                cost_high = 55000
-                        elif 'roof' in category_lower or 'exterior' in category_lower:
-                            if cost_high < 15000:
-                                cost_low = 15000
-                                cost_high = 30000
-                        elif 'electrical' in category_lower:
-                            if cost_high < 8000:
-                                cost_low = 8000
-                                cost_high = 15000
-                        elif 'plumbing' in category_lower:
-                            if cost_high < 10000:
-                                cost_low = 10000
-                                cost_high = 20000
-                        elif 'hvac' in category_lower:
-                            if cost_high < 6000:
-                                cost_low = 6000
-                                cost_high = 12000
-                        else:
-                            # Generic critical issue
-                            if cost_high < 5000:
-                                cost_low = 5000
-                                cost_high = 15000
-                    
                     if cost_high > 0:
                         deal_breakers.append(
                             f"{category_name} exhibits significant deficiencies requiring attention. "

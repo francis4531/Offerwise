@@ -31,6 +31,11 @@ class IssueCategory(Enum):
     ENVIRONMENTAL = "environmental"
     LEGAL_TITLE = "legal_title"
     HOA = "insurance_hoa"
+    # v5.89.338: honest bucket for findings that are none of the above (insulation,
+    # appliances, irrigation, interior finishes, fireplace...). Before this existed,
+    # every unmapped finding was silently filed under FOUNDATION_STRUCTURE — the
+    # mechanism behind the fabricated "Foundation & Structure · CRITICAL" line.
+    GENERAL = "general"
 
 
 @dataclass
@@ -100,7 +105,11 @@ class PropertyDocument:
     inspection_findings: List[InspectionFinding] = None
     disclosure_items: List[DisclosureItem] = None
     content: str = ""
-    
+    # v5.89.338: how the findings were produced — 'ai' (Claude read the full
+    # document), 'rules_fallback' (keyword parser, only when the AI call failed),
+    # or 'none'. Downstream uses this to flag low confidence honestly.
+    extraction_method: str = "none"
+
     def __post_init__(self):
         if self.inspection_findings is None:
             self.inspection_findings = []
@@ -139,6 +148,7 @@ class DocumentParser:
             
             # Failures/malfunctions
             'fail', 'failed', 'failing', 'not working', 'not functioning',
+            'did not function', 'does not function', 'not operate', 'could not be operated',
             'inoperable', 'broken', 'defective', 'malfunction',
             
             # Leaks/moisture
@@ -181,6 +191,7 @@ class DocumentParser:
             
             # v5.59.24: Missing common problem words
             'failure', 'loose', 'disconnected', 'detached', 'worn',
+            # (note: "loose-fill" insulation is excluded in _indicates_problem)
             'exposed wiring', 'exposed wire', 'signs of failure'
         ]
     
@@ -280,15 +291,22 @@ class DocumentParser:
         )
         
         # ── Step 1: Claude reads the document (primary) ──────────────────
-        ai_findings = []
-        ai_succeeded = False
+        # v5.89.338: _ai_extract_findings now returns None when the AI call FAILED
+        # (no key, exception, unparseable JSON) and a list — possibly EMPTY — when it
+        # succeeded. An empty list is a real answer ("this report has no defects")
+        # and must NOT trigger the rules fallback. Before this, "AI found nothing"
+        # and "AI unavailable" were the same value ([]), so a clean report was
+        # handed to the keyword parser, which then manufactured findings out of
+        # TREC boilerplate (13180 Edgemont: 21 "findings", 15 of them disclaimers).
+        ai_findings = None
         try:
             ai_findings = self._ai_extract_findings(pdf_text)
-            if ai_findings:
-                ai_succeeded = True
+            if ai_findings is not None:
                 logging.info(f"🧠 AI parser: {len(ai_findings)} findings extracted")
         except Exception as e:
             logging.warning(f"🧠 AI parser unavailable ({e}), falling back to rules")
+            ai_findings = None
+        ai_succeeded = ai_findings is not None
         
         # ── Step 2: Regex parser runs only as a FALLBACK ────────────────
         # v5.89.333: previously the rules parser always ran and its findings were
@@ -305,15 +323,17 @@ class DocumentParser:
         # report invented a critical foundation issue. Fix: when AI extraction succeeds,
         # it is authoritative — do not merge rules "additions". Rules only run when AI
         # fails entirely.
-        if ai_succeeded and ai_findings:
+        if ai_succeeded:
             doc.inspection_findings = ai_findings
+            doc.extraction_method = 'ai'
             logging.info(f"🧠 AI authoritative: {len(ai_findings)} findings "
                         f"(rules merge disabled — was a fabrication source)")
         else:
             rules_findings = self._extract_problems(pdf_text)
             doc.inspection_findings = rules_findings
-            logging.info(f"📏 AI unavailable — rules-only fallback: "
-                        f"{len(rules_findings)} findings")
+            doc.extraction_method = 'rules_fallback'
+            logging.warning(f"📏 AI unavailable — rules-only fallback: "
+                            f"{len(rules_findings)} findings (low confidence)")
 
         # ── PROVENANCE GATE (v5.89.335) ─────────────────────────────────
         # Every finding must be tethered to text that actually appears in the document.
@@ -397,33 +417,96 @@ class DocumentParser:
                 len(dropped), cats, len(kept))
         return kept
     
-    def _ai_extract_findings(self, text: str) -> List[InspectionFinding]:
+    # v5.89.338: the AI extractor reads the WHOLE document. Previously it kept only
+    # the first 7,000 + last 7,000 characters. On a typical TREC report (40k+ chars
+    # client-side) that is the cover/boilerplate pages plus the contract pages —
+    # every actual finding sits in the discarded middle. Claude then correctly
+    # reported nothing, the code treated "nothing" as failure, and the keyword
+    # parser fabricated findings from the boilerplate it COULD see. Sonnet's
+    # context comfortably holds a full report; for very long documents we chunk
+    # on page boundaries and concatenate the findings.
+    AI_CHUNK_CHARS = 60000
+
+    def _split_for_ai(self, text: str) -> List[str]:
+        """Split on page markers into chunks of <= AI_CHUNK_CHARS. A document that
+        fits is returned as a single chunk. Never drops text."""
+        import re as _re
+        if len(text) <= self.AI_CHUNK_CHARS:
+            return [text]
+        pieces = _re.split(r'(?=\n*={3}\s*Page\s*\d+[^\n]*={3})', text)
+        chunks, cur = [], ''
+        for piece in pieces:
+            if not piece:
+                continue
+            if cur and len(cur) + len(piece) > self.AI_CHUNK_CHARS:
+                chunks.append(cur)
+                cur = piece
+            else:
+                cur += piece
+            # a single "page" longer than the budget (no markers) — hard split
+            while len(cur) > self.AI_CHUNK_CHARS:
+                chunks.append(cur[:self.AI_CHUNK_CHARS])
+                cur = cur[self.AI_CHUNK_CHARS:]
+        if cur:
+            chunks.append(cur)
+        return chunks
+
+    def _ai_extract_findings(self, text: str) -> Optional[List[InspectionFinding]]:
         """
         Claude reads the inspection report and extracts structured findings.
         Returns InspectionFinding objects compatible with the rest of the pipeline.
+
+        Return contract (v5.89.338):
+          - None  -> the AI could not be used (no key / client error / every chunk
+                     failed). Caller may fall back to the rules parser.
+          - []    -> the AI read the document and found NO defects. This is a real,
+                     authoritative answer; the caller must NOT fall back.
+          - [...] -> findings.
         """
         import os, json
-        
+
         # Strip NUL bytes and other control characters that break JSON/DB
         text = text.replace('\x00', '')
-        
+
         api_key = os.environ.get('ANTHROPIC_API_KEY')
         if not api_key:
-            return []
-        
+            return None
+
         try:
             import anthropic
             client = anthropic.Anthropic(api_key=api_key)
         except Exception:
-            return []
-        
-        # Truncate but keep beginning and end (most important sections)
-        max_chars = 14000
-        if len(text) > max_chars:
-            half = max_chars // 2
-            text = text[:half] + "\n\n[...middle section truncated for analysis...]\n\n" + text[-half:]
-        
-        prompt = f"""You are a home inspection report analyst. Read this inspection report and extract every genuine defect, problem, safety concern, and item the inspector actually flagged as deficient or needing repair.
+            return None
+
+        chunks = self._split_for_ai(text)
+        results: List[InspectionFinding] = []
+        ok_chunks = 0
+        for idx, chunk in enumerate(chunks, 1):
+            part = self._ai_extract_chunk(client, chunk, idx, len(chunks))
+            if part is None:
+                logging.warning(f"🧠 AI parser: chunk {idx}/{len(chunks)} failed")
+                continue
+            ok_chunks += 1
+            results.extend(part)
+        if ok_chunks == 0:
+            return None
+        if ok_chunks < len(chunks):
+            logging.warning(f"🧠 AI parser: only {ok_chunks}/{len(chunks)} chunks read — "
+                            f"findings may be incomplete (no rules fallback: it fabricates)")
+        logging.info(f"🧠 AI document parsing: {len(results)} findings across {len(chunks)} chunk(s)")
+        return results
+
+    def _ai_extract_chunk(self, client, text: str, chunk_idx: int = 1,
+                          chunk_total: int = 1) -> Optional[List[InspectionFinding]]:
+        """One Claude call over one chunk. None on failure, list on success."""
+        import json
+
+        chunk_note = ''
+        if chunk_total > 1:
+            chunk_note = (f"\n(This is part {chunk_idx} of {chunk_total} of the report. "
+                          f"Extract only what appears in this part.)\n")
+
+        prompt = f"""You are a home inspection report analyst. Read this inspection report and extract every genuine defect, problem, safety concern, and item the inspector actually flagged as deficient or needing repair.{chunk_note}
 
 CRITICAL RULES:
 - Extract ONLY actual problems and defects the inspector OBSERVED. Do NOT include positive observations, general descriptions, or normal conditions.
@@ -434,7 +517,9 @@ CRITICAL RULES:
 - Photo descriptions like [PHOTO: ...] that show damage or defects should be captured as findings.
 
 CATEGORIES (use exactly one):
-foundation_structure, roof_exterior, plumbing, electrical, hvac_systems, environmental, legal_title, insurance_hoa
+foundation_structure, roof_exterior, plumbing, electrical, hvac_systems, environmental, legal_title, insurance_hoa, general
+- foundation_structure is ONLY for the foundation, slab, piers, framing, load-bearing structure, or structural movement. Do NOT put insulation, interior finishes, appliances, fireplaces, irrigation, fences, or "other" items here.
+- general is for anything that does not fit the other categories (attic insulation, appliances, exhaust fans, fireplaces, sprinklers/irrigation, interior doors/windows/finishes, garage door openers, etc.).
 
 SEVERITY LEVELS:
 critical = structural failure, active safety hazard, immediate action needed
@@ -463,7 +548,7 @@ INSPECTION REPORT:
         try:
             response = client.messages.create(
                 model=SONNET,
-                max_tokens=4000,
+                max_tokens=8000,  # v5.89.338: full-document reads can yield 30+ findings
                 messages=[{'role': 'user', 'content': prompt}],
             )
             
@@ -480,7 +565,7 @@ INSPECTION REPORT:
             
             if not raw or not raw.strip():
                 logging.warning("🧠 AI parser: empty response from Claude")
-                return []
+                return None
             
             # Parse JSON — handle preamble text, markdown fences, and malformed responses
             raw = raw.strip()
@@ -499,7 +584,7 @@ INSPECTION REPORT:
                     raw = raw[json_start:]
                 else:
                     logging.warning(f"🧠 AI parser: no JSON object found in response ({len(raw)} chars)")
-                    return []
+                    return None
             # Find matching closing brace
             brace_depth = 0
             json_end = -1
@@ -515,8 +600,8 @@ INSPECTION REPORT:
             try:
                 data = json.loads(raw)
             except json.JSONDecodeError as je:
-                logging.warning(f"🧠 AI parser: JSON parse failed ({je}), falling back to rules")
-                return []
+                logging.warning(f"🧠 AI parser: JSON parse failed ({je})")
+                return None
             
             findings_data = data.get('findings', [])
             
@@ -536,11 +621,18 @@ INSPECTION REPORT:
                         'environmental': IssueCategory.ENVIRONMENTAL,
                         'water_damage': IssueCategory.ENVIRONMENTAL,
                         'pest': IssueCategory.ENVIRONMENTAL,
-                        'safety': IssueCategory.FOUNDATION_STRUCTURE,
+                        # v5.89.338: 'safety'/'general'/unknown used to map to
+                        # FOUNDATION_STRUCTURE — the source of fabricated
+                        # "Foundation & Structure · CRITICAL" lines. Now GENERAL.
+                        'safety': IssueCategory.GENERAL,
                         'legal_title': IssueCategory.LEGAL_TITLE,
                         'insurance_hoa': IssueCategory.HOA,
                         'permits': IssueCategory.LEGAL_TITLE,
-                        'general': IssueCategory.FOUNDATION_STRUCTURE,
+                        'general': IssueCategory.GENERAL,
+                        'other': IssueCategory.GENERAL,
+                        'interior': IssueCategory.GENERAL,
+                        'appliances': IssueCategory.GENERAL,
+                        'insulation': IssueCategory.GENERAL,
                     }
                     sev_map = {
                         'critical': Severity.CRITICAL,
@@ -549,7 +641,8 @@ INSPECTION REPORT:
                         'minor': Severity.MINOR,
                     }
                     
-                    category = cat_map.get(f.get('category', 'general'), IssueCategory.FOUNDATION_STRUCTURE)
+                    category = cat_map.get(str(f.get('category') or 'general').strip().lower(),
+                                           IssueCategory.GENERAL)
                     severity = sev_map.get(f.get('severity', 'moderate'), Severity.MODERATE)
                     
                     finding = InspectionFinding(
@@ -577,7 +670,7 @@ INSPECTION REPORT:
                 except Exception:
                     continue
             
-            logging.info(f"🧠 AI document parsing: {len(results)} findings in {latency:.0f}ms")
+            logging.info(f"🧠 AI chunk {chunk_idx}/{chunk_total}: {len(results)} findings in {latency:.0f}ms")
             return results
             
         except Exception as e:
@@ -586,7 +679,7 @@ INSPECTION REPORT:
                 logging.warning(f"🧠 AI parser: Anthropic unavailable (status {status})")
             else:
                 logging.warning(f"🧠 AI parser: {type(e).__name__}: {e}")
-            return []
+            return None
     
     def _merge_ai_and_rules(
         self,
@@ -810,6 +903,45 @@ INSPECTION REPORT:
             r'client\s+agrees\s+to\s+.{0,40}(accept|waive|refund|settlement)',
             r'beyond\s+the\s+scope\s+of\s+this\s+inspection',
             r'if\s+its\s+existence\s+is\s+proven',
+            # v5.89.338: the rules fallback still manufactured 15 "findings" out of the
+            # 13180 Edgemont TREC boilerplate (consumer notice, purpose/limitations,
+            # inspection agreement, arbitration, EIFS/microbial disclaimers). These
+            # are the shapes that slipped through. A finding describes THIS house;
+            # none of these do.
+            r'\b(client|purchaser)\s+(understands|agrees|acknowledges|warrants|assumes|is\s+(urged|advised|further))',
+            r'\bthe\s+inspector\s+(is\s+not|is\s+neither|shall|will|must|may|does\s+not|cannot|will\s+have\s+no)\b',
+            r"\binspector'?s?\s+(liability|report\s+will|responsibility)\b",
+            r'\b(trec|texas\s+real\s+estate\s+commission|standards?\s+of\s+practice|promulgated)\b',
+            r'\b(warranty|warranties|guarantee|insurance\s+policy|disclaimer|arbitrat\w*|mediat\w*|attorney|lawsuit|severability|limitation\s+on\s+liability)\b',
+            r'\b(fee\s+paid|refund\s+of\s+the\s+fee|amount\s+paid|attorney.?s\s+fees)\b',
+            r'\b(each\s+year|every\s+year),?\s+\w+\s+(sustain|suffer)',
+            r'\bexamples?\s+of\s+(such|these)\b',
+            r'^\s*[•·\-*]\s',                      # bullet items in example/exclusion lists
+            r'\bincluding\s+but\s+not\s+limited\s+to\b',
+            r'\b(is|are)\s+(outside|beyond)\s+the\s+scope\b',
+            r'\bnot\s+(required|obligated)\s+to\b',
+            r'\b(may|can|could|might)\s+(lead|render|provide|result|cause|fail|crack|occur|be\s+(considered|found|discovered))\b',
+            r'\bgeneral\s+deficiencies\s+include\b',
+            r'\bmust\s+check\s+the\b',
+            r'\bthis\s+(inspection|report)\s+(is|does|may|will|covers|addresses|helps)\b',
+            r'\bthe\s+inspection\s+(is|does|may|will|shall|covers|addresses|helps|cannot)\b',
+            r'\bfor\s+example\b',
+            r'\bthe\s+decision\s+to\s+(correct|repair)\b',
+            r'\bwill\s+not\s+be\s+operated\b',
+            r'\b(any|all)\s+claims?\b',
+            r'\bhereinafter|herein|thereto|there-to\b',
+            r'\b(client|buyer|purchaser)\s+should\s+be\s+aware\b',
+            r'\b(this|the)\s+limitation\s+(applies|is\s+binding)\b',
+            r'\bfor\s+which\s+it\s+was\s+intended\b',
+            r'\bcomponent\s+inspected\s+was\s+inoperable\b',
+            r'\bexpressed\s+or\s+implied\b',
+            r'\breport\s+will\s+(specifically\s+)?indicate\b',
+            r'\brequired\s+of\s+inspectors\b',
+            r'\blater\s+fail\s+or\s+malfunction\b',
+            r'\bcondition\s+exists\s+that\s+adversely\b',
+            r'\bunsuitable\s+installation\b',
+            r'\b(functional|operational)\s+one\s+moment\b',
+            r'\bflourish\s+in\s+environments\b',
             # Inspection access/limitation disclaimers
             r'not readily accessible',
             r'enter the attic or any',
@@ -870,7 +1002,11 @@ INSPECTION REPORT:
         ]
         for phrase in observation_phrases:
             if phrase in text_lower and not any(problem in text_lower for problem in 
-                ['damage', 'leak', 'crack', 'fail', 'broken', 'defect', 'hazard']):
+                ['damage', 'leak', 'crack', 'fail', 'broken', 'defect', 'hazard',
+                 # v5.89.338: "lack of insulation ... that should have been installed"
+                 # and "did not function" are findings even though they contain an
+                 # observation word.
+                 'lack of', 'missing', 'not function', 'inoperable', 'loose', 'improper']):
                 return True
         
         return False
@@ -912,9 +1048,9 @@ INSPECTION REPORT:
         # CRITICAL: Expanded negation detection
         # Must catch all variations: "no X", "not X", "without X", "no broken/missing/damaged"
         negation_patterns = [
-            r'\bno\s+(?:visible|apparent|signs?|evidence|indication)?\s*(?:of\s+)?(?:\w+\s+){0,3}(crack|damage|leak|issue|problem|concern|defect|deterioration|rot|missing|fail|broken)',
-            r'\bnot?\s+(?:\w+\s+){0,2}(crack|damage|leak|issue|problem|concern|defect|deterioration|rot|missing|fail|broken)',
-            r'\bwithout\s+(?:any\s+)?(?:\w+\s+){0,2}(crack|damage|leak|issue|problem|concern|defect|deterioration|rot|missing|fail|broken)',
+            r'\bno\s+(?:visible|apparent|signs?|evidence|indication)?\s*(?:of\s+)?(?:\w+\s+){0,3}(crack|damage|leak|issue|problem|concern|defect|deterioration|rot|missing|fail|broken|loose|burn|stain|corros|movement|deficien|malfunction|inoperab|settl)',
+            r'\bnot?\s+(?:\w+\s+){0,2}(crack|damage|leak|issue|problem|concern|defect|deterioration|rot|missing|fail|broken|loose|burn|stain|corros|movement|deficien|malfunction|inoperab|settl)',
+            r'\bwithout\s+(?:any\s+)?(?:\w+\s+){0,2}(crack|damage|leak|issue|problem|concern|defect|deterioration|rot|missing|fail|broken|loose|burn|stain|corros|movement|deficien|malfunction|inoperab|settl)',
             r'\bno\s+(broken|missing|damaged|cracked|leaking|failed|defective)',  # Direct: "no broken"
             r'\bnone\s+(?:observed|noted|found|detected|identified)',  # "none observed"
         ]
@@ -925,6 +1061,8 @@ INSPECTION REPORT:
         
         # Now check for problem indicators with WORD BOUNDARIES
         # This prevents "burn" from matching "burner"
+        # v5.89.338: "12\" loose-fill insulation" is a spec line, not a loose part
+        text_lower = re.sub(r'\bloose-fill\b', 'loosefill', text_lower)
         for indicator in self.problem_indicators:
             # Create pattern with word boundaries for single words
             # For multi-word phrases, match them as-is
@@ -995,34 +1133,49 @@ INSPECTION REPORT:
     def _categorize_text(self, text: str) -> IssueCategory:
         """Determine category from text content"""
         text_lower = text.lower()
-        
-        # Foundation/structure
-        if any(word in text_lower for word in ['foundation', 'structural', 'beam', 'joist', 'slab']):
+
+        # v5.89.338: whole-word matching. The old substring test filed anything
+        # containing "ac" (adjACent, ACcess, crACk) under HVAC, anything with
+        # "water" (water heater vent escutcheon) under plumbing, and EVERYTHING
+        # else under FOUNDATION_STRUCTURE by default. Unmatched text is now GENERAL.
+        def has(*words):
+            return any(re.search(r'\b' + re.escape(w) + r's?\b', text_lower) for w in words)
+
+        # Foundation/structure — only genuinely structural language
+        if has('foundation', 'structural', 'beam', 'joist', 'slab', 'pier', 'footing',
+               'settlement', 'load bearing', 'load-bearing', 'rafter', 'truss'):
             return IssueCategory.FOUNDATION_STRUCTURE
-        
+
         # Roof/exterior
-        elif any(word in text_lower for word in ['roof', 'shingle', 'gutter', 'siding', 'exterior']):
+        elif has('roof', 'shingle', 'gutter', 'siding', 'exterior', 'flashing', 'soffit',
+                 'fascia', 'downspout', 'eave', 'chimney', 'brick', 'stucco', 'caulk'):
             return IssueCategory.ROOF_EXTERIOR
-        
-        # Plumbing
-        elif any(word in text_lower for word in ['plumbing', 'pipe', 'drain', 'sewer', 'water']):
+
+        # Plumbing (note: "water heater" is plumbing; a bare "water" is not enough)
+        elif has('plumbing', 'pipe', 'piping', 'drain', 'sewer', 'water heater', 'faucet',
+                 'toilet', 'sink', 'shower', 'bathtub', 'tub', 'supply line', 'valve',
+                 'water pressure', 'sprinkler', 'irrigation', 'drip tubing', 'hose bib'):
             return IssueCategory.PLUMBING
-        
+
         # Electrical
-        elif any(word in text_lower for word in ['electrical', 'wiring', 'panel', 'outlet', 'circuit']):
+        elif has('electrical', 'wiring', 'panel', 'outlet', 'receptacle', 'circuit',
+                 'breaker', 'gfci', 'afci', 'grounding', 'smoke alarm', 'smoke detector'):
             return IssueCategory.ELECTRICAL
-        
+
         # HVAC
-        elif any(word in text_lower for word in ['hvac', 'heating', 'cooling', 'furnace', 'ac']):
+        elif has('hvac', 'heating', 'cooling', 'furnace', 'a/c', 'air conditioner',
+                 'air conditioning', 'condenser', 'duct', 'ductwork', 'thermostat',
+                 'heat pump', 'refrigerant', 'exhaust fan', 'ventilation'):
             return IssueCategory.HVAC
-        
+
         # Environmental
-        elif any(word in text_lower for word in ['mold', 'pest', 'termite', 'radon', 'asbestos']):
+        elif has('mold', 'mildew', 'pest', 'termite', 'radon', 'asbestos', 'lead paint',
+                 'rodent', 'infestation'):
             return IssueCategory.ENVIRONMENTAL
-        
+
         else:
-            return IssueCategory.FOUNDATION_STRUCTURE  # Default
-    
+            return IssueCategory.GENERAL
+
     def _determine_severity(self, text: str) -> Severity:
         """Determine severity from text"""
         text_lower = text.lower()

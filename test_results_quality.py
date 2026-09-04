@@ -114,6 +114,10 @@ class TestRepairCostEstimator(unittest.TestCase):
         self.assertGreater(len(result['breakdown']), 0)
 
     def test_category_scores_fallback(self):
+        """v5.89.337/.338: category RISK scores must never become itemized
+        'confirmed repair' line items. A score is not a finding. (This test used
+        to assert the opposite — that behavior fabricated a $25-60k foundation line
+        on 13180 Edgemont, whose inspection says the foundation is sound.)"""
         from repair_cost_estimator import estimate_repair_costs
         result = estimate_repair_costs(
             zip_code='95120',
@@ -125,10 +129,9 @@ class TestRepairCostEstimator(unittest.TestCase):
             total_repair_low=50000,
             total_repair_high=130000,
         )
-        self.assertGreater(len(result['breakdown']), 0)
-        # Higher risk score should mean higher cost
-        costs = {b['category']: b['avg'] for b in result['breakdown']}
-        self.assertGreater(costs.get('foundation', 0), costs.get('electrical', 0))
+        self.assertEqual(len(result['breakdown']), 0)
+        # With nothing itemized, the caller's totals are passed through unchanged
+        self.assertEqual(result['total_low'], 50000)
 
     def test_methodology_includes_metro(self):
         from repair_cost_estimator import estimate_repair_costs

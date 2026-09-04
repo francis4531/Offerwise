@@ -148,6 +148,8 @@ CATEGORY_ALIASES = {
     'code_compliance': 'permits',
     'safety_hazards': 'safety',
     'fire_safety': 'safety',
+    'general': 'general',
+    'other': 'general',
 }
 
 
@@ -343,8 +345,8 @@ def estimate_repair_costs(
             high = round(base_range[1] * multiplier * age_adj)
 
             # Use AI-provided costs if they exist and are reasonable
-            ai_low = f.get('estimated_cost_low', 0)
-            ai_high = f.get('estimated_cost_high', 0)
+            ai_low = f.get('estimated_cost_low') or 0
+            ai_high = f.get('estimated_cost_high') or 0
             if ai_low > 0 and ai_high > 0:
                 low = round(ai_low * 0.6 + low * 0.4)
                 high = round(ai_high * 0.6 + high * 0.4)
@@ -380,6 +382,10 @@ def estimate_repair_costs(
             item['avg'] = round((item['low'] + item['high']) / 2)
             # Build description from merged findings
             descs = item.pop('_descriptions', [])
+            # v5.89.338: a merged "general" bucket should not be titled with the
+            # first finding's sentence.
+            if cat == 'general' and item['issue_count'] > 1:
+                item['system'] = 'Other Items'
             if len(descs) > 1:
                 item['description'] = f"{item['issue_count']} issues: {'; '.join(descs[:3])}"
             elif descs:
@@ -410,8 +416,14 @@ def estimate_repair_costs(
     calc_low = sum(b['low'] for b in breakdown)
     calc_high = sum(b['high'] for b in breakdown)
 
-    # If AI provided totals, use them as guardrails
-    if total_repair_low > 0 and total_repair_high > 0:
+    # v5.89.338: when the breakdown is built from real findings, the totals ARE the
+    # sum of those line items — anything else and the section contradicts itself.
+    # The caller's totals (risk-model category costs) are used only when there is
+    # nothing itemized.
+    if breakdown:
+        final_low = calc_low
+        final_high = calc_high
+    elif total_repair_low > 0 and total_repair_high > 0:
         final_low = total_repair_low
         final_high = total_repair_high
     else:
