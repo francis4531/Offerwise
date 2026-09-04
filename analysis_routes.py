@@ -687,8 +687,8 @@ def analyze_property():
                     import requests as _rreq
                     _zip = None
                     import re as _re2
-                    _zm = _re2.search(r'\b(\d{5})\b', property_address)
-                    if _zm: _zip = _zm.group(1)
+                    from address_utils import extract_zip as _xz
+                    _zip = _xz(property_address) or None   # v5.89.339: last token, never the house number
                     
                     # AVM and market-stats are INDEPENDENT RentCast calls (market
                     # only needs the zip, not the AVM result). Fetch them
@@ -1042,9 +1042,10 @@ def analyze_property():
             # Try ZIP first
             _addr = result_dict.get('property_address', '') or ''
             import re as _re
-            _zip_match = _re.search(r'(\d{5})', _addr)
-            if _zip_match:
-                _state = detect_state_from_zip(_zip_match.group(1))
+            from address_utils import extract_zip as _xz_state
+            _zip_for_state = _xz_state(_addr)
+            if _zip_for_state:
+                _state = detect_state_from_zip(_zip_for_state)
             # Fallback to text detection
             if not _state:
                 _text = seller_disclosure_text[:5000] if 'seller_disclosure_text' in dir() else ''
@@ -1256,9 +1257,8 @@ def analyze_property():
                 zip_match = None
                 addr = result_dict.get('property_address', '')
                 import re as _re
-                zip_m = _re.search(r'\b(\d{5})\b', addr)
-                if zip_m:
-                    zip_match = zip_m.group(1)
+                from address_utils import extract_zip as _xz_est
+                zip_match = _xz_est(addr) or None
                 
                 risk_score_data = result_dict.get('risk_score', {}) or {}
                 # v5.89.338: the findings live at inspection_report.inspection_findings.
@@ -1296,8 +1296,7 @@ def analyze_property():
                     _addr_str = (addr or '').strip()
                     _zip = zip_match or ''
                     if not _zip:
-                        _zm2 = _re.search(r'\b(\d{5})(?:-\d{4})?\b', _addr_str)
-                        _zip = _zm2.group(1) if _zm2 else ''
+                        _zip = _xz_est(_addr_str)
 
                     # State: look for a standalone 2-letter state token anywhere
                     # in the address (handles "City, ST 12345" and "City ST 12345"
@@ -1336,8 +1335,18 @@ def analyze_property():
                             "📋 Permit jurisdiction unresolved (no state/zip) "
                             f"from address={_addr_str[:60]!r}"
                         )
+                    # v5.89.339: only categories that actually contain findings. Passing
+                    # all eight produced "Foundation & Structure · permit status
+                    # uncertain" and "0 of 9 repairs need permits" on a house with no
+                    # foundation finding.
+                    _permit_cats = [
+                        c for c in (risk_score_data.get('category_scores') or [])
+                        if isinstance(c, dict) and (
+                            sum((c.get('severity_breakdown') or {}).values()) > 0
+                            or (c.get('key_issues') or []))
+                    ]
                     permit_findings = lookup_permits(
-                        repair_breakdown=risk_score_data.get('category_scores', []),
+                        repair_breakdown=_permit_cats,
                         jurisdiction=juris,
                     )
                     result_dict['permit_findings'] = permit_findings

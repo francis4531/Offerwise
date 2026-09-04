@@ -673,6 +673,13 @@ class OfferWiseIntelligence:
                                 cat_conf = r.get('category_confidence', 0)
                                 if cat_conf >= CATEGORY_THRESHOLD:
                                     ml_cat = cat_map.get(r.get('category'))
+                                    # v5.89.339: 'general' is the classifier's catch-all;
+                                    # it carries no information, so it never overrides a
+                                    # specific category Claude assigned. (With GENERAL in
+                                    # the enum since .338, this override silently moved
+                                    # every Edgemont finding into one "Other Items" bucket.)
+                                    if ml_cat is IssueCategory.GENERAL:
+                                        ml_cat = None
                                     if ml_cat:
                                         finding.category = ml_cat
                                         ml_routed_cat += 1
@@ -728,8 +735,8 @@ class OfferWiseIntelligence:
                     # Extract zip from address (5-digit pattern). Address is
                     # typically "1234 Main St, City, ST 90210".
                     import re as _re
-                    zip_match = _re.search(r'\b(\d{5})\b', property_address or '') if property_address else None
-                    zip_code = zip_match.group(1) if zip_match else ''
+                    from address_utils import extract_zip as _xz
+                    zip_code = _xz(property_address)  # v5.89.339: never the house number
 
                     for finding in inspection_doc.inspection_findings:
                         if not finding.description:
@@ -931,11 +938,13 @@ class OfferWiseIntelligence:
         # Step 3: Calculate risk scores
         logger.info("Calculating risk scores...")
         t0 = time.time()
+        from address_utils import extract_zip as _xz_risk
         risk_score = self.risk_model.calculate_risk_score(
             findings=inspection_doc.inspection_findings,
             cross_ref_report=cross_ref,
             property_price=property_price,
-            buyer_profile=buyer_profile
+            buyer_profile=buyer_profile,
+            zip_code=_xz_risk(property_address),  # v5.89.339: same metro-adjusted costs as the itemized breakdown
         )
         risk_score.property_address = disclosure_doc.property_address or inspection_doc.property_address
         timing['risk_scoring'] = time.time() - t0
@@ -983,7 +992,8 @@ class OfferWiseIntelligence:
                                         'days_on_market': int(_c2.get('daysOnMarket',0) or 0),
                                         'status': _c2.get('status',''), 'distance_miles': float(_c2.get('distance',0) or 0)})
                                 _ms2 = {}
-                                _zm2 = _re2.search(r'\b(\d{5})\b', property_address)
+                                from address_utils import extract_zip as _xz2
+                                _zm2 = _re2.match(r'(\d{5})', _xz2(property_address))
                                 if _zm2:
                                     try:
                                         _msr2 = _req2.get('https://api.rentcast.io/v1/markets',

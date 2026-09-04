@@ -196,7 +196,8 @@ def _get_user_zip(db_session, user):
     ).order_by(Property.analyzed_at.desc()).first()
 
     if prop and prop.address:
-        m = re.search(r'\b(\d{5})\b', prop.address)
+        from address_utils import extract_zip as _xz
+        m = re.match(r'(\d{5})', _xz(prop.address))  # v5.89.339
         if m:
             return m.group(1)
 

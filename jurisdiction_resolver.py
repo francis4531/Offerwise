@@ -52,7 +52,7 @@ NATIONAL_BASE = "*"
 # resolves the same as "San Jose, CA 95148".
 _STATE_TAIL_RE = re.compile(r",\s*([A-Za-z]{2})\s*(?:\d{5}(?:-\d{4})?)?\s*$")
 _STATE_ANY_RE = re.compile(r",\s*([A-Za-z]{2})\b")
-_ZIP_RE = re.compile(r"\b(\d{5})(?:-\d{4})?\b")
+_ZIP_RE = re.compile(r"\b(\d{5})(?:-\d{4})?\b")  # (kept for callers; use address_utils.extract_zip for addresses)
 
 # Property-type normalization. Maps the many vendor spellings (RentCast, MLS,
 # county records) onto the checklist's controlled vocabulary
@@ -134,9 +134,8 @@ def resolve_state(address: Optional[str] = None,
     # 2) ZIP -> state, from the passed zip or one parsed out of the address
     z = (zip_code or "").strip()
     if not z and address:
-        zm = _ZIP_RE.search(address)
-        if zm:
-            z = zm.group(1)
+        from address_utils import extract_zip as _xz
+        z = _xz(address)  # v5.89.339: last token, never the house number
     if z:
         st = detect_state_from_zip(z)
         if st:
@@ -181,8 +180,8 @@ def resolve_report_jurisdiction(result_dict, address="", document_text=None):
     profile = (result_dict.get("research_data") or {}).get("profile") or {}
     zip_code = str(profile.get("zip_code") or "").strip()[:5]
     if not zip_code and address:
-        m = _ZIP_RE.search(address)
-        zip_code = m.group(1) if m else ""
+        from address_utils import extract_zip as _xz
+        zip_code = _xz(address)  # v5.89.339
     jur_path = resolve_jurisdiction_path(
         address=address, zip_code=zip_code,
         city=profile.get("city"), state=profile.get("state"),

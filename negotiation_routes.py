@@ -358,7 +358,8 @@ def draft_repair_addendum():
         # Detect state from address ZIP
         import re as _re
         from state_disclosures import detect_state_from_zip, get_state_context
-        zip_match = _re.search(r'\b(\d{5})\b', address)
+        from address_utils import extract_zip as _xz
+        zip_match = _re.match(r'(\d{5})', _xz(address))  # v5.89.339
         zip_code = zip_match.group(1) if zip_match else ''
         state_code = detect_state_from_zip(zip_code) or 'CA'
         state_ctx = get_state_context(state_code)

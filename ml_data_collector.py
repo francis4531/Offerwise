@@ -45,7 +45,8 @@ def collect_training_data(analysis_id, result_dict, property_address='', propert
 
 def _extract_zip(address):
     """Extract 5-digit ZIP from address string."""
-    m = re.search(r'\b(\d{5})\b', address or '')
+    from address_utils import extract_zip as _xz
+    m = re.match(r'(\d{5})', _xz(address))  # v5.89.339
     return m.group(1) if m else ''
 
 

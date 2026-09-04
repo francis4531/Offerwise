@@ -3731,7 +3731,8 @@ def api_nearby_listings():
                        .first())
         if latest_prop and latest_prop.address:
             import re as _re
-            zip_match = _re.search(r'(\d{5})', latest_prop.address)
+            from address_utils import extract_zip as _xz
+            zip_match = _re.match(r'(\d{5})', _xz(latest_prop.address))  # v5.89.339
             if zip_match:
                 zip_code = zip_match.group(1)
 
@@ -4070,7 +4071,8 @@ def get_property_analysis(property_id):
             from repair_cost_estimator import estimate_repair_costs
             import re as _re
             addr = result_json.get('property_address', '')
-            zip_m = _re.search(r'\b(\d{5})\b', addr)
+            from address_utils import extract_zip as _xz2
+            zip_m = _re.match(r'(\d{5})', _xz2(addr))  # v5.89.339
             risk_score_data = result_json.get('risk_score', {})
             
             # Try multiple sources for findings/category data

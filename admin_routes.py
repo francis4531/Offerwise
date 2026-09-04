@@ -11657,7 +11657,8 @@ def admin_ml_export_repair_costs():
     seen_keys = set()
 
     def extract_zip(addr):
-        m = re.search(r'\b(\d{5})\b', addr or '')
+        from address_utils import extract_zip as _xz
+        m = re.match(r'(\d{5})', _xz(addr))  # v5.89.339
         return m.group(1) if m else ''
 
     def add_row(text, cat, sev, loc, low, high, zipcode, price, mult, source):

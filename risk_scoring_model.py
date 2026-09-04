@@ -164,7 +164,8 @@ class RiskScoringModel:
         findings: List[InspectionFinding],
         cross_ref_report: Optional[CrossReferenceReport],
         property_price: float,
-        buyer_profile: Optional[BuyerProfile] = None
+        buyer_profile: Optional[BuyerProfile] = None,
+        zip_code: str = ''
     ) -> PropertyRiskScore:
         """
         Calculate comprehensive risk score for a property.
@@ -181,7 +182,20 @@ class RiskScoringModel:
         
         # Group findings by category
         category_findings = self._group_by_category(findings)
-        
+
+        # v5.89.339: metro multiplier so the category totals (which drive the offer
+        # math and the "$X avg" header) are the SAME numbers as the itemized
+        # repair_estimate breakdown. Before, the header said $31K avg while the
+        # card under it said $17K-$29K, because one applied the ZIP rate and the
+        # other did not.
+        self._zip_multiplier = 1.0
+        if zip_code:
+            try:
+                from repair_cost_estimator import _get_zip_multiplier
+                self._zip_multiplier = float(_get_zip_multiplier(zip_code)[0] or 1.0)
+            except Exception:
+                self._zip_multiplier = 1.0
+
         # Score each category
         category_scores = []
         total_cost_low = 0.0
@@ -352,6 +366,8 @@ class RiskScoringModel:
                     costs_were_estimated = True
             else:
                 f_low, f_high = baseline_cost_for_finding(category.value, severity.value)
+                _m = getattr(self, '_zip_multiplier', 1.0) or 1.0
+                f_low, f_high = round(f_low * _m), round(f_high * _m)
                 if f_high > 0:
                     costs_were_estimated = True
             total_cost_low += f_low

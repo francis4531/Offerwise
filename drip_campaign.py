@@ -410,7 +410,8 @@ def drip_email_nearby(entry):
     # Try to extract ZIP from address if not stored
     if not zip_code and address:
         import re
-        m = re.search(r'(\d{5})', address)
+        from address_utils import extract_zip as _xz
+        m = re.match(r'(\d{5})', _xz(address))  # v5.89.339: never the house number
         if m:
             zip_code = m.group(1)
 

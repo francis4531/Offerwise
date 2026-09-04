@@ -1163,7 +1163,8 @@ class MarketStatsTool(ResearchTool):
         
         # Extract ZIP from address
         import re
-        match = re.search(r'\b(\d{5})(?:-\d{4})?\b', address)
+        from address_utils import extract_zip as _xz
+        match = re.match(r'(\d{5})', _xz(address))  # v5.89.339: last token, never the house number
         if not match:
             # Try from profile
             zip_code = getattr(profile, 'zip_code', '') or ''

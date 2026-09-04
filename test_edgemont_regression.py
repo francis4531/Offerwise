@@ -439,3 +439,108 @@ class TestRenderAndCache(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# 9. v5.89.339 — the second screenshot round: Syracuse/NY, "Other Items", $31K vs $17-29K
+# ─────────────────────────────────────────────────────────────────────────────
+class TestZipExtraction(unittest.TestCase):
+    """'13180 Edgemont Ln, Frisco, Texas 75035' was priced at Syracuse rates and
+    permitted for Frisco, NY because every ZIP regex took the FIRST 5-digit token —
+    the house number (131xx = Syracuse)."""
+
+    def test_house_number_is_not_the_zip(self):
+        from address_utils import extract_zip
+        self.assertEqual(extract_zip('13180 Edgemont Ln, Frisco, Texas 75035'), '75035')
+        self.assertEqual(extract_zip('13180 Edgemont Ln, Frisco, TX 75035-1234'), '75035')
+        self.assertEqual(extract_zip('13180 Edgemont Ln, Frisco, Texas'), '')
+        self.assertEqual(extract_zip('2839 Pendleton Dr, San Jose, CA 95148'), '95148')
+        self.assertEqual(extract_zip('75035'), '75035')
+        self.assertEqual(extract_zip(''), '')
+        self.assertEqual(extract_zip(None), '')
+
+    def test_edgemont_resolves_to_dallas_and_texas(self):
+        from address_utils import extract_zip
+        from repair_cost_estimator import _get_zip_multiplier
+        from state_disclosures import detect_state_from_zip
+        z = extract_zip('13180 Edgemont Ln, Frisco, Texas 75035')
+        self.assertEqual(_get_zip_multiplier(z)[1], 'Dallas')
+        self.assertEqual(detect_state_from_zip(z), 'TX')
+
+    def test_jurisdiction_resolver_uses_the_real_zip(self):
+        from jurisdiction_resolver import resolve_report_jurisdiction
+        rj = resolve_report_jurisdiction({}, address='13180 Edgemont Ln, Frisco, Texas 75035')
+        self.assertEqual(rj['zip_code'], '75035')
+        self.assertEqual(rj['jurisdiction'], 'TX')
+
+    def test_no_first_token_zip_regex_left_in_the_analysis_path(self):
+        import re
+        offenders = []
+        for fn in ('analysis_routes.py', 'offerwise_intelligence.py', 'market_intelligence.py',
+                   'property_research_agent.py', 'jurisdiction_resolver.py', 'ml_data_collector.py'):
+            with open(os.path.join(HERE, fn), encoding='utf-8') as f:
+                for i, line in enumerate(f, 1):
+                    if re.search(r"re2?\.search\(r'\\b\(\\d\{5\}\)", line) or re.search(r"_ZIP_RE\.search\(", line):
+                        offenders.append(f'{fn}:{i}')
+        self.assertEqual(offenders, [])
+
+
+class TestMLNeverOverridesToGeneral(unittest.TestCase):
+    def test_general_from_classifier_is_ignored(self):
+        with open(os.path.join(HERE, 'offerwise_intelligence.py'), encoding='utf-8') as f:
+            src = f.read()
+        self.assertIn('if ml_cat is IssueCategory.GENERAL:', src)
+
+
+class TestRepairNumbersReconcile(unittest.TestCase):
+    """Header "$31K avg" vs card "$17K-$29K" vs line "$17K-$49K": three numbers for one
+    set of findings. Now: risk-model category costs, the offer math and the itemized
+    breakdown are the same per-finding, metro-adjusted numbers."""
+
+    def _run(self):
+        from offerwise_intelligence import OfferWiseIntelligence
+        oi = OfferWiseIntelligence()
+        oi.ai_helper.enabled = False
+        with mock.patch.dict(os.environ, {'ANTHROPIC_API_KEY': 'test'}), \
+             _fake_anthropic(json.dumps(EDGEMONT_AI_FINDINGS)):
+            return oi.analyze_property(DISCLOSURE, INSPECTION, 850000, _buyer(),
+                                       '13180 Edgemont Ln, Frisco, Texas 75035', None)
+
+    def test_breakdown_total_equals_risk_total_equals_offer_math(self):
+        from dataclasses import asdict
+        from repair_cost_estimator import estimate_repair_costs
+        r = self._run()
+        fd = []
+        for f in r.inspection_report.inspection_findings:
+            d = asdict(f); d['category'] = f.category.value; d['severity'] = f.severity.value; fd.append(d)
+        est = estimate_repair_costs('75035', fd, [], r.risk_score.total_repair_cost_low,
+                                    r.risk_score.total_repair_cost_high, None)
+        self.assertEqual(est['metro_area'], 'Dallas')
+        self.assertEqual(est['total_low'], sum(b['low'] for b in est['breakdown']))
+        self.assertEqual(est['total_high'], sum(b['high'] for b in est['breakdown']))
+        self.assertAlmostEqual(est['total_low'], r.risk_score.total_repair_cost_low, delta=len(fd))
+        self.assertAlmostEqual(est['total_high'], r.risk_score.total_repair_cost_high, delta=len(fd))
+        math_repairs = r.offer_strategy['discount_breakdown']['repair_costs']
+        self.assertAlmostEqual(math_repairs, (r.risk_score.total_repair_cost_low + r.risk_score.total_repair_cost_high) / 2, delta=1)
+
+    def test_findings_are_not_all_general(self):
+        r = self._run()
+        cats = {f.category.value for f in r.inspection_report.inspection_findings}
+        self.assertIn('roof_exterior', cats)
+        self.assertIn('plumbing', cats)
+
+    def test_finding_cost_used_as_is_not_blended(self):
+        from repair_cost_estimator import estimate_repair_costs
+        est = estimate_repair_costs('75035', [{'category': 'plumbing', 'severity': 'minor',
+                                               'description': 'Drip tubing leak in zone 6 of the sprinklers',
+                                               'estimated_cost_low': 300, 'estimated_cost_high': 500}], [], 0, 0, None)
+        self.assertEqual((est['breakdown'][0]['low'], est['breakdown'][0]['high']), (300, 500))
+        self.assertEqual((est['total_low'], est['total_high']), (300, 500))
+
+
+class TestPermitsOnlyForCategoriesWithFindings(unittest.TestCase):
+    def test_route_filters_permit_categories(self):
+        with open(os.path.join(HERE, 'analysis_routes.py'), encoding='utf-8') as f:
+            src = f.read()
+        self.assertIn('repair_breakdown=_permit_cats', src)
+        self.assertNotIn("repair_breakdown=risk_score_data.get('category_scores', [])", src)

@@ -1,3 +1,50 @@
+## v5.89.339 - Second screenshot round on 13180 Edgemont: Syracuse rates, "Other Items", three repair totals
+
+Francis ran .338 and sent the Condition tab. Five bugs visible, all fixed here:
+
+ 1. "SYRACUSE RATES" / "Frisco, NY". Every ZIP regex in the analysis path was
+    re.search(r'\b(\d{5})\b', address) - the FIRST five-digit token. For "13180
+    Edgemont Ln, Frisco, Texas 75035" that is the HOUSE NUMBER; 131xx is a Syracuse
+    ZIP prefix. So the estimator priced at Syracuse (0.98x), permits resolved to Frisco
+    NY, state-disclosure context went to New York, the reasoning jurisdiction was NY,
+    and RentCast market stats were fetched for ZIP 13180. Any Sun Belt address with a
+    five-digit street number hit this. New address_utils.extract_zip (last token, never
+    the leading street number) replaces the regex in analysis_routes (x4),
+    offerwise_intelligence (x2), market_intelligence, property_research_agent,
+    jurisdiction_resolver (x2), ml_data_collector, negotiation/contractor/inspector
+    routes, app.py (x2), drip_campaign, admin_routes.
+ 2. "OTHER ITEMS - 8 issues". All eight findings collapsed into one general bucket.
+    Cause: .338 added IssueCategory.GENERAL, which made the ML category override
+    (offerwise_intelligence, threshold 0.85) able to map the classifier's catch-all
+    'general' label onto findings Claude had correctly filed as roof_exterior /
+    plumbing / hvac. 'general' from the classifier is now ignored - it never overrides
+    a specific category.
+ 3. "$31K avg" (header, hero, share text, negotiation ask) vs "$17K-$29K total" (card)
+    vs "$17K-$49K" (the line item) vs "$17,444-$28,783" (TOTAL ESTIMATED). Four numbers
+    for one set of findings: the risk model priced at national baseline, the estimator
+    applied the metro multiplier AND blended finding costs 60/40 with baseline, and then
+    the spread cap clamped the total but not the line. Now: the risk model takes the
+    ZIP and applies the same multiplier; a finding's own cost (document / ML >= 0.85)
+    is used as-is by both; the spread cap applies only to caller-supplied totals. The
+    header, the offer math and the itemized card are the same numbers by construction
+    (test_breakdown_total_equals_risk_total_equals_offer_math).
+ 4. "0 of 9 repairs need permits" + "Foundation & Structure - permit status uncertain"
+    on a house with no foundation finding: the permit lookup received all eight
+    category_scores. It now receives only categories that contain findings.
+ 5. "Why the range is wide - $32K range" was the artifact of (3).
+
+Also visible, NOT fixed here (flagging so they are not lost): the Reasoning tab is a
+placeholder because OFFERWISE_REASONING_IN_REPORT is off - it should be hidden, not
+shown empty; the report copy uses em-dashes throughout ("These came directly out of
+the inspection report - not predictions"), against the house style; and the share
+blurb ("just found $31K in issues and a $23K negotiation opportunity") reads the same
+risk totals and will now be right by construction, but is still marketing copy on a
+buyer's document.
+
+Tests: test_edgemont_regression now 40 (ZIP extraction incl. house-number trap and
+"no first-token ZIP regex left in the analysis path"; ML never overrides to general;
+totals reconcile; finding costs used as-is; permit filter). 653 pass across the
+affected suites.
 ## v5.89.338 - The fabricated foundation, reproduced bit-for-bit and closed at all seven sources
 
 The Sept 4 report on 13180 Edgemont (v5.89.337 deployed) still read: FOUNDATION &

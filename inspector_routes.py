@@ -584,7 +584,8 @@ def inspector_validate_findings():
 
     import re
     zip_code = ''
-    m = re.search(r'\b(\d{5})\b', report.property_address or '')
+    from address_utils import extract_zip as _xz
+    m = re.match(r'(\d{5})', _xz(report.property_address))  # v5.89.339
     if m:
         zip_code = m.group(1)
 

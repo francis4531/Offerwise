@@ -230,7 +230,8 @@ def submit_contractor_lead():
     zip_code = data.get('property_zip', '')
     if not zip_code:
         import re
-        m = re.search(r'\b(\d{5})\b', address)
+        from address_utils import extract_zip as _xz
+        m = re.match(r'(\d{5})', _xz(address))  # v5.89.339
         zip_code = m.group(1) if m else ''
 
     repair_system = data.get('repair_system', '')
@@ -860,7 +861,8 @@ def submit_public_contractor_lead():
     zip_code = ''
     try:
         import re as _re
-        m = _re.search(r'\b(\d{5})\b', property_address or '')
+        from address_utils import extract_zip as _xz2
+        m = _re.match(r'(\d{5})', _xz2(property_address))  # v5.89.339
         zip_code = m.group(1) if m else ''
     except Exception:
         pass

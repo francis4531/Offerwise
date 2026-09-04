@@ -344,12 +344,16 @@ def estimate_repair_costs(
             low = round(base_range[0] * multiplier * age_adj)
             high = round(base_range[1] * multiplier * age_adj)
 
-            # Use AI-provided costs if they exist and are reasonable
+            # v5.89.339: a finding that carries its own cost (document-stated, or the
+            # ML predictor at >= 0.85 confidence) is used AS-IS. The risk model prices
+            # the same finding the same way, so the header, the offer math and this
+            # breakdown all agree. (The old 60/40 blend with the baseline made the
+            # itemized card disagree with every other number on the page.)
             ai_low = f.get('estimated_cost_low') or 0
             ai_high = f.get('estimated_cost_high') or 0
-            if ai_low > 0 and ai_high > 0:
-                low = round(ai_low * 0.6 + low * 0.4)
-                high = round(ai_high * 0.6 + high * 0.4)
+            if ai_low > 0 or ai_high > 0:
+                low = round(ai_low or ai_high)
+                high = round(ai_high or ai_low)
 
             display_name = str(cat_raw).replace('_', ' ').title()
             if display_name.lower() in ('general', 'other'):
@@ -430,14 +434,14 @@ def estimate_repair_costs(
         final_low = calc_low
         final_high = calc_high
 
-    # Cap total spread: when multiple systems are summed, the range compounds.
-    # A buyer needs a believable number, not "$15K–$90K".
-    # Cap: high cannot exceed low × 1.65 (matching per-item spread philosophy).
-    if final_low > 0 and final_high > final_low * 1.65:
-        final_high = round(final_low * 1.65)
-    # Also ensure low is never more than 85% of high (prevents inverted ranges)
-    if final_high > 0 and final_low > final_high * 0.85:
-        final_low = round(final_high * 0.65)
+    # Spread cap applies ONLY to caller-supplied totals. v5.89.339: when the total
+    # is the sum of the itemized lines it must equal them — capping produced a
+    # card that said "$17K-$49K" above a total that said "$17,444-$28,783".
+    if not breakdown:
+        if final_low > 0 and final_high > final_low * 1.65:
+            final_high = round(final_low * 1.65)
+        if final_high > 0 and final_low > final_high * 0.85:
+            final_low = round(final_high * 0.65)
 
     total_issues = sum(b.get('issue_count', 1) for b in breakdown)
     
