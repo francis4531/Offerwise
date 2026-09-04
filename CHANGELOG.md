@@ -1,3 +1,50 @@
+## v5.89.337 - THE actual root cause: repair cost estimator fabricated confirmed-repair line items from RISK SCORES
+
+Confirmed live on .336: the fabricated "FOUNDATION & STRUCTURE · CRITICAL · $25-60k"
+confirmed-repair line STILL appeared on 13180 Edgemont, whose inspection says the
+foundation is sound. So it was never the findings pipeline. Traced from the rendered PDF
+string backwards:
+
+ - The report's "Confirmed repairs" section renders from result.repair_estimate.breakdown
+   (static/app.html ~4799), NOT from the (gated) inspection_findings.
+ - repair_estimate.breakdown is built by repair_cost_estimator.estimate_repair_costs.
+ - That function builds line items from `findings` — BUT when findings is empty it fell
+   through to `elif category_scores:` and manufactured ONE confirmed-repair line item per
+   category RISK SCORE, converting a statistical score into an itemized dollar cost in the
+   section that tells the buyer these "came directly out of the inspection report".
+ - The risk model always emits a foundation/structural category score (driven by age,
+   area, priors — not this house's inspection). A high structural score => a fabricated
+   "Foundation & Structure · CRITICAL" confirmed repair, with NO finding and NO document
+   text behind it.
+
+Why every prior fix missed it: .333/.334/.335/.336 all operated on the FINDINGS pipeline.
+This path bypasses findings entirely when findings is empty. Worse, .334's correct removal
+of the fabricated foundation *finding* left findings empty on this deal, which TRIGGERED
+the category_scores fallback. The provenance gate (.335) filters findings; it never saw
+this because breakdown isn't built from findings here.
+
+FIX (repair_cost_estimator.py): removed the category_scores -> confirmed-repair-line-items
+fallback entirely. A confirmed repair MUST be backed by a real finding. No findings => no
+confirmed repairs, full stop. Risk scores inform the risk/reserve sections, never the
+itemized "confirmed repairs · came out of the inspection" section.
+
+VERIFIED (test_repair_no_fabrication.py, 4 tests + the 12 findings-gate tests still pass):
+ - no findings + high foundation/structural category score => breakdown is EMPTY (was: a
+   fabricated critical foundation line).
+ - no foundation line is ever produced from a score alone.
+ - real findings still produce their proper breakdown.
+ - when both are present, real findings win and score-only categories do not appear.
+
+This is deployed-.336-confirmed as the real source. Re-run 13180 Edgemont on .337:
+expected — NO foundation confirmed-repair line, NO "$25-60k highest-cost system", and the
+"what could make you walk" foundation clause gone, because there is no foundation finding
+or cost anywhere. The remaining real findings (plumbing/exterior/etc, if extracted) stand
+on their own document-backed quotes.
+
+STILL SEPARATE (honest, unchanged): the AVM/list-price valuation sanity path, and the
+mold-reserve hidden-issue (also score/heuristic-driven — worth the same "must cite the
+inspection" treatment next). And the durable answer remains the reasoning/ rebuild. But
+THIS closes the foundation fabrication at its true source.
 ## v5.89.336 - CI resilience to transient PyPI timeouts (own version, per build discipline)
 
 Staging CI (.github/workflows/ci.yml) fails intermittently on network timeouts downloading

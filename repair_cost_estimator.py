@@ -388,39 +388,20 @@ def estimate_repair_costs(
                 item['description'] = ''
             breakdown.append(item)
 
-    # If no findings, build from category_scores
-    elif category_scores:
-        for cs in category_scores:
-            cat_raw = cs.get('category', cs.get('name', 'General'))
-            cat = _normalize_category(str(cat_raw))
-            score = cs.get('score', cs.get('risk_score', 0)) or 0
-
-            if score <= 10:
-                sev = 'minor'
-            elif score <= 35:
-                sev = 'moderate'
-            elif score <= 65:
-                sev = 'major'
-            else:
-                sev = 'critical'
-
-            base_range = _get_baseline_costs(cat, sev)
-            age_adj = _age_adjustment(property_year_built, cat)
-            low = round(base_range[0] * multiplier * age_adj)
-            high = round(base_range[1] * multiplier * age_adj)
-
-            display_name = str(cat_raw).replace('_', ' ').title()
-            breakdown.append({
-                'system': display_name,
-                'category': cat,
-                'severity': sev,
-                'low': low,
-                'high': high,
-                'avg': round((low + high) / 2),
-                'issue_count': 1,
-                'description': f'Risk score: {score}/100',
-                'source': f'Industry data + {metro} metro adjustment ({multiplier}x)',
-            })
+    # v5.89.337: DO NOT build "confirmed repair" line items from category_scores.
+    # category_scores are statistical RISK scores (from the risk model — driven by age,
+    # area, priors), NOT documented findings from the inspection. Converting a score into
+    # an itemized dollar cost and rendering it in the "Confirmed repairs · came directly
+    # out of the inspection report" section is fabrication: it is exactly how a house whose
+    # inspection says the foundation is SOUND still got a "FOUNDATION & STRUCTURE · CRITICAL
+    # · $25-60k" confirmed-repair line (13180 Edgemont, Raees). The document-grounding gate
+    # on findings could never catch this because this path bypasses findings entirely when
+    # `findings` is empty. A confirmed repair MUST be backed by a real finding; if there are
+    # no findings, there are no confirmed repairs — full stop. Risk scores belong in the
+    # risk/reserve sections, not the itemized-repair section.
+    # (Previously: `elif category_scores:` fabricated one line item per category score.)
+    elif False:  # disabled — see note above
+        pass
 
     # Sort by average cost descending
     breakdown.sort(key=lambda x: x['avg'], reverse=True)
