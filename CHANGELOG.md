@@ -1,3 +1,24 @@
+## v5.89.340 - No cut-off sentences, anywhere in the report
+
+The .339 PDF printed "...because the control switch wa" and "...on the attic side of
+drywall behind t". A finding cut mid-sentence is not a finding. Every truncation of
+finding text is gone:
+ - repair_cost_estimator: each finding sentence kept whole; each breakdown item now
+   carries `findings` (the full list) and `description` is the complete text, no
+   "N issues:" prefix, no [:100], no first-three-only.
+ - risk_scoring_model: key_issues are the full descriptions (was cut at 120 chars).
+ - static/app.html: PDF card renders every item of `findings` (was a 4-item slice of a
+   100-char-cut string); web card lists every finding in full (was .slice(0, 80));
+   hero "top reasons" return the first COMPLETE sentence (was 70 chars + an ellipsis).
+   Card header: cost is nowrap / no-shrink and the title wraps, so "$9,680 -" can no
+   longer be clipped at the right edge.
+ - predictive_engine: the "Inspection observed:" quote is no longer cut at 160 chars.
+ - offerwise_intelligence text summary: contradiction explanations no longer cut at 150.
+Also: the AI prompt now files exhaust/ventilation fans under hvac_systems and
+irrigation/sprinklers under plumbing (the .338 prompt example list had steered them
+into "general").
+Tests: test_edgemont_regression 43 (estimator keeps four whole sentences; key_issues
+whole; renderers contain no slice of finding text).
 ## v5.89.339 - Second screenshot round on 13180 Edgemont: Syracuse rates, "Other Items", three repair totals
 
 Francis ran .338 and sent the Condition tab. Five bugs visible, all fixed here:

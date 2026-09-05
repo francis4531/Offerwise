@@ -544,3 +544,42 @@ class TestPermitsOnlyForCategoriesWithFindings(unittest.TestCase):
             src = f.read()
         self.assertIn('repair_breakdown=_permit_cats', src)
         self.assertNotIn("repair_breakdown=risk_score_data.get('category_scores', [])", src)
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# 10. v5.89.340 — never print a cut-off sentence
+# ─────────────────────────────────────────────────────────────────────────────
+class TestNoTruncatedFindings(unittest.TestCase):
+    LONG = ('The gas burner in the fireplace could not be operated by the inspector because the '
+            'control switch was not found anywhere on the living room walls, so the homeowner should '
+            'be asked to demonstrate proper operation of the fireplace before closing.')
+
+    def test_estimator_keeps_every_sentence_whole(self):
+        from repair_cost_estimator import estimate_repair_costs
+        fs = [{'category': 'general', 'severity': 'minor', 'description': self.LONG},
+              {'category': 'general', 'severity': 'minor', 'description': 'The exhaust fan in the laundry room did not function at the time of the inspection.'},
+              {'category': 'general', 'severity': 'minor', 'description': 'Third finding sentence that is also complete.'},
+              {'category': 'general', 'severity': 'minor', 'description': 'Fourth finding sentence that must not be dropped.'}]
+        est = estimate_repair_costs('75035', fs, [], 0, 0, None)
+        item = est['breakdown'][0]
+        self.assertEqual(len(item['findings']), 4)
+        self.assertIn(self.LONG, item['findings'])
+        self.assertIn(self.LONG, item['description'])
+        self.assertNotIn('issues:', item['description'])
+
+    def test_risk_model_key_issues_are_whole(self):
+        from document_parser import InspectionFinding, IssueCategory, Severity
+        from risk_scoring_model import RiskScoringModel
+        f = InspectionFinding(category=IssueCategory.GENERAL, severity=Severity.MINOR, location='',
+                              description=self.LONG, recommendation='')
+        cs = _cat_scores(RiskScoringModel().calculate_risk_score([f], None, 850000, _buyer()))['general']
+        self.assertEqual(cs.key_issues, [self.LONG])
+
+    def test_renderers_do_not_slice_findings(self):
+        with open(os.path.join(HERE, 'static', 'app.html'), encoding='utf-8') as f:
+            src = f.read()
+        self.assertNotIn('item.description.slice(0, 80)', src)
+        self.assertNotIn("c.issues.slice(0, 4)", src)
+        self.assertNotIn("s.slice(0, 70) + '…'", src)
+        i = src.index('SECTION 3 (CONFIRMED REPAIRS)')
+        self.assertIn('b.findings', src[i:i + 6000])

@@ -369,7 +369,7 @@ def estimate_repair_costs(
                 if sev_rank.get(sev, 0) > sev_rank.get(existing['severity'], 0):
                     existing['severity'] = sev
                 if desc and len(desc) > 5:
-                    existing['_descriptions'].append(str(desc)[:100])
+                    existing['_descriptions'].append(str(desc).strip())
             else:
                 system_items[cat] = {
                     'system': display_name,
@@ -378,7 +378,7 @@ def estimate_repair_costs(
                     'low': low,
                     'high': high,
                     'issue_count': 1,
-                    '_descriptions': [str(desc)[:100]] if desc and len(desc) > 5 else [],
+                    '_descriptions': [str(desc).strip()] if desc and len(desc) > 5 else [],
                     'source': f'Industry data + {metro} metro adjustment ({multiplier}x)',
                 }
 
@@ -390,12 +390,13 @@ def estimate_repair_costs(
             # first finding's sentence.
             if cat == 'general' and item['issue_count'] > 1:
                 item['system'] = 'Other Items'
-            if len(descs) > 1:
-                item['description'] = f"{item['issue_count']} issues: {'; '.join(descs[:3])}"
-            elif descs:
-                item['description'] = descs[0]
-            else:
-                item['description'] = ''
+            # v5.89.340: every finding, whole. The old code cut each sentence at 100
+            # characters and kept three of them behind an "N issues:" prefix, so the
+            # report printed "...because the control switch wa". A cut-off sentence is
+            # not a finding. `findings` is the list the renderers should use;
+            # `description` stays for older consumers and is also complete.
+            item['findings'] = list(descs)
+            item['description'] = ' '.join(descs) if descs else ''
             breakdown.append(item)
 
     # v5.89.337: DO NOT build "confirmed repair" line items from category_scores.

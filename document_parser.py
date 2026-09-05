@@ -519,7 +519,8 @@ CRITICAL RULES:
 CATEGORIES (use exactly one):
 foundation_structure, roof_exterior, plumbing, electrical, hvac_systems, environmental, legal_title, insurance_hoa, general
 - foundation_structure is ONLY for the foundation, slab, piers, framing, load-bearing structure, or structural movement. Do NOT put insulation, interior finishes, appliances, fireplaces, irrigation, fences, or "other" items here.
-- general is for anything that does not fit the other categories (attic insulation, appliances, exhaust fans, fireplaces, sprinklers/irrigation, interior doors/windows/finishes, garage door openers, etc.).
+- hvac_systems includes exhaust/ventilation fans and ductwork; plumbing includes irrigation/sprinkler lines, water heaters and gas piping.
+- general is for anything that does not fit the other categories (attic insulation, appliances, fireplaces, interior doors/windows/finishes, garage door openers, etc.).
 
 SEVERITY LEVELS:
 critical = structural failure, active safety hazard, immediate action needed

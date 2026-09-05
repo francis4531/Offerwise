@@ -406,8 +406,6 @@ class PredictiveIssueEngine:
         # instead of trusting a canned phrase ("Water stains found in the inspection").
         _observed = str(getattr(finding, 'description', '') or '').strip()
         if _observed:
-            if len(_observed) > 160:
-                _observed = _observed[:157].rstrip() + '...'
             reasoning = [f"Inspection observed: \"{_observed}\""] + list(reasoning or [])
         
         return IssuePrediction(

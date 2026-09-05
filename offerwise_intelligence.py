@@ -1866,12 +1866,12 @@ class OfferWiseIntelligence:
             if analysis.cross_reference.contradictions:
                 lines.append(f"\n⚠ {len(analysis.cross_reference.contradictions)} CONTRADICTION(S) FOUND")
                 for match in analysis.cross_reference.contradictions[:3]:
-                    lines.append(f"  • {match.explanation[:150]}")
+                    lines.append(f"  • {match.explanation}")
             
             if analysis.cross_reference.undisclosed_issues:
                 lines.append(f"\n⚠ {len(analysis.cross_reference.undisclosed_issues)} UNDISCLOSED ISSUE(S)")
                 for match in analysis.cross_reference.undisclosed_issues[:3]:
-                    lines.append(f"  • {match.explanation[:150]}")
+                    lines.append(f"  • {match.explanation}")
         
         # Negotiation Strategy
         lines.append("\n" + "=" * 100)

@@ -335,15 +335,9 @@ class RiskScoringModel:
         worst = Severity.INFORMATIONAL
 
         def _short(desc: str) -> str:
-            desc = (desc or '').strip()
-            if len(desc) <= 120:
-                return desc
-            for end_char in ['. ', '! ', '? ']:
-                last_break = desc[:120].rfind(end_char)
-                if last_break > 40:
-                    return desc[:last_break + 1].strip()
-            last_space = desc[:120].rfind(' ')
-            return (desc[:last_space].strip() + '...') if last_space > 40 else (desc[:120].strip() + '...')
+            # v5.89.340: no truncation. A finding is a sentence; cutting it mid-way
+            # ("...because the control switch wa") turns it into nothing.
+            return (desc or '').strip()
 
         for finding in sorted(findings, key=lambda f: sev_rank.get(f.severity, 0), reverse=True):
             severity = finding.severity if finding.severity in sev_rank else Severity.MODERATE

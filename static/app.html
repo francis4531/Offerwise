@@ -40,7 +40,7 @@
       });
     })();
     </script>
-    <script src="/static/gtm-loader.js?v=5.89.339"></script>
+    <script src="/static/gtm-loader.js?v=5.89.340"></script>
 <!-- /GTM head -->
     <script>if(window.location.hostname==='getofferwise.ai')window.location.replace('https://www.getofferwise.ai'+window.location.pathname+window.location.search);</script>
     <link rel="icon" type="image/svg+xml" href="/static/logo-icon-only.svg">
@@ -57,7 +57,7 @@
     <link rel="preconnect" href="https://unpkg.com" crossorigin>
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/results-theme.css?v=5.89.339">
+    <link rel="stylesheet" href="/static/results-theme.css?v=5.89.340">
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone@7.29.7/babel.min.js"></script>
@@ -721,7 +721,7 @@
         .ow-strategy-grid { grid-template-columns: 1fr !important; }
       }
     </style>
-    <script src="/static/analytics-loader.js?v=5.89.339" defer></script>
+    <script src="/static/analytics-loader.js?v=5.89.340" defer></script>
     <!-- Reddit Pixel Base Code -->
     <script>
     !function(w,d){if(!w.rdt){var p=w.rdt=function(){p.sendEvent?p.sendEvent.apply(p,arguments):p.queue.push(arguments)};p.queue=[];var t=d.createElement('script');t.src='https://www.redditstatic.com/ads/pixel.js';t.async=!0;var s=d.getElementsByTagName('script')[0];s.parentNode.insertBefore(t,s)}}(window,document);
@@ -4768,9 +4768,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
               const cleanTitle = (raw) => {
                 if (!raw) return '';
                 const s = String(raw).trim();
+                // v5.89.340: return the first complete sentence, never a cut-off one.
                 const period = s.indexOf('. ');
-                if (period > 10 && period < 80) return s.slice(0, period);
-                return s.length > 72 ? s.slice(0, 70) + '…' : s;
+                if (period > 10) return s.slice(0, period + 1);
+                return s;
               };
               const topReasons = [];
               if (risk_score?.deal_breakers) {
@@ -4807,6 +4808,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     high: item.high,
                     severity: item.severity,
                     description: item.description,
+                    findings: Array.isArray(item.findings) ? item.findings : [],
                     safety: item.safety_concern || false,
                     insurability: item.affects_insurability || false,
                     specialist: item.requires_specialist || false,
@@ -4832,7 +4834,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                       system: typeof cs.category === 'object' ? (cs.category.value || cs.category) : cs.category,
                       avg, low, high,
                       severity: cs.score >= 70 ? 'critical' : cs.score >= 40 ? 'major' : 'minor',
-                      description: (cs.key_issues || []).slice(0,2).join(' · '),
+                      description: (cs.key_issues || []).join(' '),
+                      findings: (cs.key_issues || []).filter(Boolean),
                       safety: cs.safety_concern || false,
                       insurability: cs.affects_insurability || false,
                       specialist: cs.requires_specialist || false,
@@ -6469,9 +6472,14 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                                       <div style={{ width:'4px', height:'24px', borderRadius:'2px', background:sevColor, flexShrink:0 }} />
                                       <div>
                                         <div style={{ fontSize: 'var(--ow-fs-body)', fontWeight:600, color:'var(--ow-text-2)' }}>{item.system}</div>
-                                        {item.description && item.description.length > 5 && !item.description.startsWith(item.system) && (
-                                          <div style={{ fontSize: 'var(--ow-fs-meta)', color:'var(--ow-muted-dim)', marginTop:'2px' }}>{item.description.slice(0, 80)}</div>
-                                        )}
+                                        {/* v5.89.340: list every finding in full. The old 80-char slice printed
+                                            "...on the attic side of drywall behind t". */}
+                                        {(Array.isArray(item.findings) && item.findings.length > 0
+                                            ? item.findings
+                                            : (item.description && item.description.length > 5 && !item.description.startsWith(item.system) ? [item.description] : [])
+                                         ).map((fx, fi) => (
+                                          <div key={fi} style={{ fontSize: 'var(--ow-fs-meta)', color:'var(--ow-muted-dim)', marginTop: fi === 0 ? '2px' : '4px', lineHeight:1.5 }}>{fx}</div>
+                                        ))}
                                         <div style={{ display:'flex', gap:'4px', flexWrap:'wrap', marginTop:'4px' }}>
                                           {item.safety && <span style={{ fontSize: 'var(--ow-fs-micro)', fontWeight:700, padding:'1px 6px', borderRadius:'4px', background:'rgba(239,68,68,0.1)', color:'#ef4444' }}>⚠️ Safety</span>}
                                           {item.insurability && <span style={{ fontSize: 'var(--ow-fs-micro)', fontWeight:700, padding:'1px 6px', borderRadius:'4px', background:'rgba(96,165,250,0.1)', color:'#60a5fa' }}>🏦 Insurability</span>}
@@ -11206,7 +11214,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                   severity: String(b.severity || 'moderate').toLowerCase(),
                   low: Number(b.low) || 0,
                   high: Number(b.high) || 0,
-                  issues: (b.description ? String(b.description).split(/;\s+/) : []).filter(Boolean),
+                  issues: (Array.isArray(b.findings) && b.findings.length
+                            ? b.findings
+                            : (b.description ? [String(b.description)] : [])).filter(Boolean),
                   count: Number(b.issue_count) || 1,
                   specialist: !!b.requires_specialist,
                   safety: !!b.safety_concern,
@@ -11238,7 +11248,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 const sevClass = sev === 'critical' ? 'critical' : sev === 'major' ? 'amber' : 'blue';
                 const sevSpanClass = sev === 'critical' ? '' : 'amber';
                 const cost = _fmtKRange(c.low, c.high);
-                const issues = c.issues.slice(0, 4).map(i => '<li>' + _escHtml(i) + '</li>').join('');
+                // v5.89.340: every finding, whole — never a slice, never a cut sentence.
+                const issues = c.issues.map(i => '<li>' + _escHtml(i) + '</li>').join('');
                 let action = '';
                 if (c.specialist) {
                   action = 'Get a <strong>licensed specialist</strong> ($400–$600) before close. Specialist opinion makes any subsequent ask defensible.';
@@ -11925,9 +11936,12 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     gap: 12px; margin-bottom: 14px; flex-wrap: wrap;
   }
   .card .card-head .title {
-    font-size: 15px; font-weight: 700;
+    font-size: 15px; font-weight: 700; flex: 1 1 auto; min-width: 0;
     text-transform: uppercase; letter-spacing: .04em; color: var(--text);
   }
+  /* v5.89.340: the cost must never be clipped ("$9,680 –"); it keeps its full width
+     and the title wraps instead. */
+  .card .card-head .cost { flex: 0 0 auto; white-space: nowrap; }
   .card .card-head .title .sev {
     font-size: 11px; font-weight: 700;
     color: var(--red); margin-left: 8px;
@@ -12798,7 +12812,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </script>
     
     <!-- Async Upload Manager - Handles PDF uploads with real-time progress -->
-    <script src="/static/async-upload-manager.js?v=5.89.339"></script>
+    <script src="/static/async-upload-manager.js?v=5.89.340"></script>
     
     <!-- Floating Support Button -->
     <a href="/contact" id="support-button" style="
@@ -12823,8 +12837,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <span style="font-size: 16px;">💬</span>
         Help
     </a>
-<script src="/static/js/compliance.js?v=5.89.339"></script>
-<script src="/static/js/analytics.js?v=5.89.339" defer></script>
+<script src="/static/js/compliance.js?v=5.89.340"></script>
+<script src="/static/js/analytics.js?v=5.89.340" defer></script>
 <script>
 // Scroll reveal for premium results animations
 (function() {
@@ -12911,7 +12925,7 @@ if ('serviceWorker' in navigator) {
 
 <!-- Scout: docked, summon-on-demand "Ask your report" assistant (v5.89.157) -->
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&display=swap" rel="stylesheet">
-<script src="/static/ask-widget.js?v=5.89.339"></script>
+<script src="/static/ask-widget.js?v=5.89.340"></script>
 <script>
 (function(){
   if (window.__scoutInit) { return; } window.__scoutInit = true;
