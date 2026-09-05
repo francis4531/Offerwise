@@ -1,3 +1,56 @@
+## v5.89.343 - The permit lookup has never run once. Now it does, by trade, and shows only what matters.
+
+TRACE (Francis: "trace it, we must only show useful information"):
+permit_lookup.py begins with
+
+    try:
+        from ai_client import get_anthropic_client
+    except ImportError:
+        def get_anthropic_client(): return None
+
+ai_client.py has never defined get_anthropic_client (it exposes get_ai_response). So
+the import has fallen into the stub since the feature shipped in v5.87.82;
+_llm_batch_lookup got None, logged "no Anthropic client available", returned [],
+and every repair on every analysis became the "temporarily unavailable" placeholder.
+v5.89.102 fixed the jurisdiction string being fed to a call that was never made. The
+unit tests patch permit_lookup.get_anthropic_client, which is why 44 of them pass
+against a function that does not exist. (Same defect class as v5.89.234, where the
+extractor imported a non-existent getter from analysis_ai_helper.)
+
+FIX:
+ - ai_client.get_anthropic_client(): returns a configured client, None without a key.
+ - The lookup is now keyed by TRADE line, not risk category: analysis_routes feeds the
+   itemized breakdown (trade, severity, cost range, and the actual finding sentences)
+   so the model answers "does caulking a trim joint in Frisco need a permit" instead
+   of "does roof_exterior". Cache key = trade:severity per jurisdiction.
+ - Rendering rule (the useful-information rule): rows only for work that needs a
+   permit (required / likely), with fee range and consequences; exempt work collapses
+   to one sentence ("No permit needed for: Exterior Walls & Trim, Irrigation &
+   Grounds"); undetermined work is not shown; with nothing determinate the block does
+   not render. Headline is "N of M repairs need a permit".
+ - Tests: the getter exists and is the symbol permit_lookup binds (would have failed
+   on every build since .82); None without key, client with key; a lookup with a
+   trade item sends the finding sentence and the trade key in the prompt and returns
+   the parsed verdicts; the route feeds the trade breakdown; the web view renders
+   only permit-needed rows. test_edgemont_regression 58.
+## v5.89.342 - No "Permit lookup temporarily unavailable" filler
+
+Francis: "If that is the usual result for the city under consideration, don't show
+it. It is useless information." It was the usual result: when the permit LLM call
+failed or came back empty, permit_lookup padded EVERY repair category with an
+"uncertain / Permit lookup temporarily unavailable for Frisco, TX. Verify with your
+local building department" row, so the Permit Requirements block on a normal deal was
+a list of apologies and a "0 of N repairs need permits" headline.
+
+ - permit_lookup: undetermined items are omitted, not padded; the result carries an
+   `undetermined` count for logging. Only required / likely / not_required rows are
+   returned (an "uncertain" verdict from the model is dropped too - it tells the buyer
+   nothing they can act on).
+ - static/app.html: the web block filters to those three statuses as well, so analyses
+   saved by older builds do not resurrect the filler; with no rows the block does not
+   render at all.
+ - test_permit_lookup: four tests that asserted the placeholder behavior now assert
+   the opposite. test_edgemont_regression 53.
 ## v5.89.341 - Itemize by trade, not by risk bucket; and stop "learning" from the previous customer
 
 Francis, on the .340 Condition tab: "The line items are either wrongly categorized or

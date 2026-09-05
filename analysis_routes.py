@@ -1339,14 +1339,24 @@ def analyze_property():
                     # all eight produced "Foundation & Structure · permit status
                     # uncertain" and "0 of 9 repairs need permits" on a house with no
                     # foundation finding.
-                    _permit_cats = [
-                        c for c in (risk_score_data.get('category_scores') or [])
-                        if isinstance(c, dict) and (
-                            sum((c.get('severity_breakdown') or {}).values()) > 0
-                            or (c.get('key_issues') or []))
+                    # v5.89.343: look up by TRADE line (the itemized breakdown), with the
+                    # finding sentences attached, so the model answers "does caulking
+                    # trim in Frisco need a permit" rather than "does roof_exterior".
+                    _permit_items = [
+                        {
+                            'trade': b.get('trade'),
+                            'category': b.get('system') or b.get('category'),
+                            'system': b.get('system') or b.get('category'),
+                            'severity': b.get('severity'),
+                            'estimated_cost_low': b.get('low'),
+                            'estimated_cost_high': b.get('high'),
+                            'findings': b.get('findings') or [],
+                        }
+                        for b in (repair_estimate.get('breakdown') or [])
+                        if isinstance(b, dict)
                     ]
                     permit_findings = lookup_permits(
-                        repair_breakdown=_permit_cats,
+                        repair_breakdown=_permit_items,
                         jurisdiction=juris,
                     )
                     result_dict['permit_findings'] = permit_findings

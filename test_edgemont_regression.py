@@ -542,7 +542,7 @@ class TestPermitsOnlyForCategoriesWithFindings(unittest.TestCase):
     def test_route_filters_permit_categories(self):
         with open(os.path.join(HERE, 'analysis_routes.py'), encoding='utf-8') as f:
             src = f.read()
-        self.assertIn('repair_breakdown=_permit_cats', src)
+        self.assertIn('repair_breakdown=_permit_items', src)
         self.assertNotIn("repair_breakdown=risk_score_data.get('category_scores', [])", src)
 
 
@@ -678,3 +678,101 @@ class TestNoCrossCustomerLearning(unittest.TestCase):
         self.assertEqual(len(set(results)), 1, results)
         self.assertEqual(results[0][1], 0)
         self.assertEqual(results[0][2], 0)
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# 12. v5.89.342 — no "permit lookup temporarily unavailable" filler
+# ─────────────────────────────────────────────────────────────────────────────
+class TestPermitFillerGone(unittest.TestCase):
+    def test_failed_lookup_yields_no_rows(self):
+        import permit_lookup
+        with mock.patch.object(permit_lookup, '_split_by_cache', return_value=([], [{'category': 'roof_exterior', 'score': 30}])), \
+             mock.patch.object(permit_lookup, '_llm_batch_lookup', side_effect=RuntimeError('no client')):
+            res = permit_lookup.lookup_permits([{'category': 'roof_exterior', 'score': 30}],
+                                               {'state': 'TX', 'city': 'Frisco', 'zip': '75035'})
+        self.assertEqual(res['findings'], [])
+        self.assertEqual(res['undetermined'], 1)
+        self.assertNotIn('temporarily unavailable', json.dumps(res))
+
+    def test_uncertain_rows_are_filtered_even_from_cache(self):
+        import permit_lookup
+        cached = [{'system_key': 'roof', 'system': 'roof', 'permit_required': 'uncertain', 'confidence': 'low'},
+                  {'system_key': 'electrical', 'system': 'electrical', 'permit_required': 'required',
+                   'confidence': 'high', 'permit_cost_low': 100, 'permit_cost_high': 300}]
+        with mock.patch.object(permit_lookup, '_split_by_cache', return_value=(cached, [])):
+            res = permit_lookup.lookup_permits([{'category': 'roof'}, {'category': 'electrical'}],
+                                               {'state': 'TX', 'city': 'Frisco', 'zip': '75035'})
+        self.assertEqual([f['permit_required'] for f in res['findings']], ['required'])
+
+    def test_web_view_filters_legacy_uncertain_rows(self):
+        with open(os.path.join(HERE, 'static', 'app.html'), encoding='utf-8') as f:
+            src = f.read()
+        self.assertIn("['required', 'likely', 'not_required'].includes(p.permit_required)", src)
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# 13. v5.89.343 — the permit lookup never ran: the client getter did not exist
+# ─────────────────────────────────────────────────────────────────────────────
+class TestPermitLookupActuallyRuns(unittest.TestCase):
+    def test_ai_client_exposes_get_anthropic_client(self):
+        """permit_lookup imports this name; before .343 the import silently fell back
+        to a stub returning None and the feature never made a single call."""
+        import ai_client
+        self.assertTrue(callable(getattr(ai_client, 'get_anthropic_client', None)))
+        import permit_lookup
+        self.assertIs(permit_lookup.get_anthropic_client, ai_client.get_anthropic_client)
+
+    def test_client_is_none_without_key_and_real_with_key(self):
+        import ai_client
+        env = {k: v for k, v in os.environ.items() if k != 'ANTHROPIC_API_KEY'}
+        with mock.patch.dict(os.environ, env, clear=True):
+            self.assertIsNone(ai_client.get_anthropic_client())
+        with mock.patch.dict(os.environ, {'ANTHROPIC_API_KEY': 'test'}):
+            self.assertIsNotNone(ai_client.get_anthropic_client())
+
+    def test_lookup_makes_the_call_with_trade_and_findings(self):
+        import permit_lookup
+        seen = {}
+
+        class _C:
+            class messages:
+                @staticmethod
+                def create(**kw):
+                    seen['prompt'] = kw['messages'][0]['content']
+                    return _FakeMessage(json.dumps([
+                        {'system_key': 'exterior_walls_trim:minor', 'system': 'Exterior Walls & Trim',
+                         'permit_required': 'not_required', 'confidence': 'high',
+                         'permit_cost_low': None, 'permit_cost_high': None, 'consequences': 'Routine maintenance is exempt.'},
+                        {'system_key': 'water_heater:major', 'system': 'Water Heater',
+                         'permit_required': 'required', 'confidence': 'high',
+                         'permit_cost_low': 75, 'permit_cost_high': 150, 'consequences': 'Gas appliance replacement needs a mechanical permit.'},
+                    ]))
+        items = [
+            {'trade': 'exterior_walls_trim', 'category': 'Exterior Walls & Trim', 'system': 'Exterior Walls & Trim',
+             'severity': 'minor', 'estimated_cost_low': 250, 'estimated_cost_high': 420,
+             'findings': ['Caulk is needed at separations between the siding and the trim.']},
+            {'trade': 'water_heater', 'category': 'Water Heater', 'system': 'Water Heater',
+             'severity': 'major', 'estimated_cost_low': 1700, 'estimated_cost_high': 2900,
+             'findings': ['The tankless water heater is leaking at the heat exchanger and needs replacement.']},
+        ]
+        with mock.patch.object(permit_lookup, '_cache_get', return_value=None), \
+             mock.patch.object(permit_lookup, '_cache_set'), \
+             mock.patch.object(permit_lookup, 'get_anthropic_client', return_value=_C()):
+            res = permit_lookup.lookup_permits(items, {'state': 'TX', 'city': 'Frisco', 'zip': '75035'})
+        self.assertIn('Caulk is needed', seen['prompt'])
+        self.assertIn('exterior_walls_trim:minor', seen['prompt'])
+        self.assertIn('Frisco, TX', seen['prompt'])
+        self.assertEqual([f['permit_required'] for f in res['findings']], ['not_required', 'required'])
+        self.assertEqual((res['total_low'], res['total_high']), (75, 150))
+
+    def test_route_feeds_the_trade_breakdown(self):
+        with open(os.path.join(HERE, 'analysis_routes.py'), encoding='utf-8') as f:
+            src = f.read()
+        self.assertIn("repair_breakdown=_permit_items", src)
+        self.assertIn("'trade': b.get('trade')", src)
+
+    def test_web_view_shows_only_permit_needed_rows(self):
+        with open(os.path.join(HERE, 'static', 'app.html'), encoding='utf-8') as f:
+            src = f.read()
+        self.assertIn('permitNeeded.map((p, idx)', src)
+        self.assertIn('No permit needed for:', src)

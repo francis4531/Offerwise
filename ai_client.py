@@ -25,6 +25,28 @@ RETRY_STATUSES  = {429, 500, 503, 529}
 MAX_ATTEMPTS    = 3
 
 
+def get_anthropic_client():
+    """Return a configured Anthropic client, or None when ANTHROPIC_API_KEY is unset.
+
+    v5.89.343: permit_lookup has done `from ai_client import get_anthropic_client`
+    since v5.87.82. The function never existed here, so the import fell into the
+    module's `except ImportError` stub that returns None, `_llm_batch_lookup` logged
+    "no Anthropic client available" and returned [], and every permit row on every
+    analysis became the "temporarily unavailable" placeholder. The feature never ran
+    once in production. (v5.89.102 fixed the jurisdiction string feeding a call that
+    was never made.) The unit tests patch this symbol, which is why they passed.
+    """
+    key = os.environ.get("ANTHROPIC_API_KEY", "")
+    if not key:
+        return None
+    try:
+        import anthropic
+        return anthropic.Anthropic(api_key=key)
+    except Exception as e:  # pragma: no cover - SDK missing/misconfigured
+        logger.warning("get_anthropic_client: %s", e)
+        return None
+
+
 def get_ai_response(
     prompt: str,
     *,

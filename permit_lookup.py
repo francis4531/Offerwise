@@ -105,6 +105,7 @@ def lookup_permits(
 
     juris_label = _format_jurisdiction(jurisdiction)
     juris_key = _jurisdiction_key(jurisdiction)
+    findings_undetermined = 0
 
     # Phase 1: cache lookup for every repair category
     cache_hits, cache_misses = _split_by_cache(repair_breakdown, juris_key)
@@ -129,11 +130,20 @@ def lookup_permits(
         if llm_findings:
             findings.extend(llm_findings)
         else:
-            # Either the LLM call failed or returned empty (no client, no
-            # response, parse error, etc). Degrade gracefully: emit "uncertain"
-            # findings for the misses so the UI still renders something.
-            for item in cache_misses:
-                findings.append(_uncertain_fallback(item, juris_label))
+            # v5.89.342: the lookup failed or came back empty. Say NOTHING for those
+            # items. The old code padded every miss with a "Permit lookup temporarily
+            # unavailable for Frisco, TX - verify with your building department" row,
+            # which on a normal deal was the ENTIRE permit section: a list of
+            # apologies with no information in it. A section the buyer cannot act on
+            # must not render, so the misses are simply omitted and the UI hides the
+            # block when nothing determinate is left.
+            logger.warning('permit_lookup: %d item(s) undetermined for %s — omitted, not padded',
+                           len(cache_misses), juris_label)
+            findings_undetermined = len(cache_misses)
+
+    # v5.89.342: only determinate statuses render. An "uncertain" row tells the buyer
+    # nothing they did not already know.
+    findings = [f for f in findings if f.get('permit_required') in ('required', 'likely', 'not_required')]
 
     # Sort findings to match input order so the UI render matches
     # the order of repair categories shown in the breakdown.
@@ -171,6 +181,7 @@ def lookup_permits(
 
     return {
         'findings': findings,
+        'undetermined': findings_undetermined,
         'total_low': total_low,
         'total_high': total_high,
         'jurisdiction_label': juris_label,
@@ -307,12 +318,17 @@ def _llm_batch_lookup(
         sys_label = item.get('category') or item.get('system') or sys_key
         if isinstance(sys_label, dict):
             sys_label = sys_label.get('value') or sys_label.get('label') or sys_key
-        cost_low = item.get('estimated_cost_low', 0) or 0
-        cost_high = item.get('estimated_cost_high', 0) or 0
-        repair_list_lines.append(
-            f'  - system_key: "{sys_key}", system: "{sys_label}", '
-            f'estimated_cost: ${cost_low:,}-${cost_high:,}'
-        )
+        cost_low = item.get('estimated_cost_low', item.get('low', 0)) or 0
+        cost_high = item.get('estimated_cost_high', item.get('high', 0)) or 0
+        line = (f'  - system_key: "{sys_key}", system: "{sys_label}", '
+                f'estimated_cost: ${cost_low:,}-${cost_high:,}')
+        # v5.89.343: the actual findings, so the model judges the SCOPE of work
+        # (caulking a trim joint is exempt; re-siding a wall is not) instead of
+        # guessing from a category name.
+        work = [str(x).strip() for x in (item.get('findings') or []) if str(x).strip()]
+        if work:
+            line += '\n      work: ' + ' | '.join(work[:6])
+        repair_list_lines.append(line)
 
     prompt = _PERMIT_PROMPT.format(
         jurisdiction=juris_label,
@@ -376,7 +392,13 @@ def _llm_batch_lookup(
 # ── Helpers ──────────────────────────────────────────────────────────────
 
 def _system_key(item: dict) -> str:
-    """Stable cache key for a repair category. Lowercased, alpha-only."""
+    """Stable cache key for a repair line. v5.89.343: keyed by trade + severity when
+    the item carries a trade (the itemized breakdown does), so 'exterior trim, minor'
+    and 'exterior trim, major' are separate answers. Falls back to the category."""
+    trade = item.get('trade')
+    if trade:
+        sev = str(item.get('severity') or '').lower()
+        return f"{trade}:{sev}" if sev else str(trade)
     cat = item.get('category') or item.get('system') or ''
     if isinstance(cat, dict):
         cat = cat.get('value') or cat.get('label') or ''

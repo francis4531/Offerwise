@@ -329,10 +329,9 @@ def test_lookup_permits_malformed_json(mock_get_client, mock_cache_set, mock_cac
     breakdown = [{'category': 'HVAC', 'estimated_cost_low': 5000, 'estimated_cost_high': 9000}]
     r = lookup_permits(breakdown, SAN_JOSE)
 
-    # Should fall back gracefully — one uncertain finding, not crash
-    assert len(r['findings']) == 1
-    assert r['findings'][0]['permit_required'] == 'uncertain'
-    assert r['findings'][0]['confidence'] == 'low'
+    # v5.89.342: fall back gracefully — no crash, and NO placeholder row.
+    assert r['findings'] == []
+    assert r['undetermined'] == 1
 
 
 # ---------------------------------------------------------------------------
@@ -378,8 +377,9 @@ def test_lookup_permits_non_array_response(mock_get_client, mock_cache_set, mock
     breakdown = [{'category': 'HVAC', 'estimated_cost_low': 5000, 'estimated_cost_high': 9000}]
     r = lookup_permits(breakdown, SAN_JOSE)
 
-    assert len(r['findings']) == 1
-    assert r['findings'][0]['permit_required'] == 'uncertain'
+    # v5.89.342: unusable response -> no rows, no placeholder
+    assert r['findings'] == []
+    assert r['undetermined'] == 1
 
 
 # ---------------------------------------------------------------------------
@@ -390,12 +390,13 @@ def test_lookup_permits_non_array_response(mock_get_client, mock_cache_set, mock
 @patch('permit_lookup._cache_set')
 @patch('permit_lookup.get_anthropic_client', return_value=None)
 def test_lookup_permits_no_client(mock_get_client, mock_cache_set, mock_cache_get):
-    """No Anthropic client → fall back to uncertain findings."""
+    """No Anthropic client → NO rows (v5.89.342). A "temporarily unavailable"
+    placeholder is not information; the section hides instead."""
     breakdown = [{'category': 'HVAC', 'estimated_cost_low': 5000, 'estimated_cost_high': 9000}]
     r = lookup_permits(breakdown, SAN_JOSE)
 
-    assert len(r['findings']) == 1
-    assert r['findings'][0]['permit_required'] == 'uncertain'
+    assert r['findings'] == []
+    assert r['undetermined'] == 1
 
 
 # ---------------------------------------------------------------------------
@@ -425,8 +426,9 @@ def test_lookup_permits_verify_locally_for_low_confidence(mock_get_client, mock_
     breakdown = [{'category': 'Insulation', 'estimated_cost_low': 1400, 'estimated_cost_high': 2200}]
     r = lookup_permits(breakdown, SAN_JOSE)
 
-    assert r['findings'][0]['verify_locally'] is not None
-    assert r['findings'][0]['verify_locally']['dept'] == 'San Jose Building Department'
+    # v5.89.342: an "uncertain" verdict is not rendered at all — it tells the buyer
+    # nothing they can act on. Only required / likely / not_required rows survive.
+    assert r['findings'] == []
 
 
 @patch('permit_lookup._cache_get', return_value=None)
