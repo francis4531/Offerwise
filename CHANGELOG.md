@@ -1,3 +1,31 @@
+## v5.89.344 - AirNow: the new service was already answering, and we were reading it as zero
+
+Francis forwarded the EPA notice retiring six AirNow web services on 2026-09-30. We use
+one of them (Current Observations by Lat/Long) in exactly one place, air_quality.py,
+for the AQI tile and the Risk Check tool. A prior version had already pointed the
+primary call at the replacement, /aq/observation/current/ziplatlong/, with the retiring
+endpoint as fallback - but the migration was done without being able to see the new
+service's spec (it sits behind the AirNow login).
+
+VERIFIED LIVE with the production key (Frisco, TX, 2026-09-05 08:00 CDT):
+ - The new service works with latitude+longitude AND with zipCode. HTTP 200, three
+   readings (PM2.5 46 Good, OZONE 25 Good, PM10 18 Good), Dallas-Fort Worth area.
+ - Its schema is different: nowcastAQI / aqiCategoryName / parameterName /
+   reportingAreaName / siteName, camelCase. The legacy rows were AQI /
+   Category.Name / ParameterName.
+ - The retiring endpoint already returns [] for the same coordinate.
+
+So the code was taking the new service's non-empty list, and both consumers
+(property_research_agent AirQualityTool, risk_check_engine.check_air_quality) read
+reading['AQI'] -> 0 and Category.Name -> 'Unknown'. The AQI tile has been silently
+"no data" for every property while the API call succeeded.
+
+FIX: air_quality.normalize_reading maps the new rows onto the legacy field names
+(originals preserved), get_current_aqi returns normalized rows and also accepts
+zip_code=. The retiring endpoint and its fallback loop are removed. Tests rewritten
+around a verbatim live row (test_air_quality, 8) and the integrity check updated.
+End-to-end with the real key: worst reading PM2.5, AQI 46, Good - which is what the
+tile should now show for Edgemont.
 ## v5.89.343 - The permit lookup has never run once. Now it does, by trade, and shows only what matters.
 
 TRACE (Francis: "trace it, we must only show useful information"):

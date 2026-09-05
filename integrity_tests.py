@@ -4369,13 +4369,15 @@ class IntegrityTestEngine:
             self._record("Config: model_config", str(e)[:120], False)
 
         try:
-            from air_quality import (get_current_aqi, AIRNOW_CURRENT_URL,
-                                     _LEGACY_URL)
+            from air_quality import get_current_aqi, AIRNOW_CURRENT_URL, normalize_reading
+            import air_quality as _aq
             ok = ('observation/current/ziplatlong' in AIRNOW_CURRENT_URL
-                  and 'observation/latLong/current' in _LEGACY_URL
-                  and callable(get_current_aqi))
-            self._record("Config: air_quality endpoints + helper",
-                         "new primary, legacy fallback", ok)
+                  and not hasattr(_aq, '_LEGACY_URL')     # v5.89.344: retired endpoint gone
+                  and callable(get_current_aqi)
+                  and normalize_reading({'nowcastAQI': 46, 'aqiCategoryName': 'Good',
+                                         'parameterName': 'PM2.5'})['AQI'] == 46)
+            self._record("Config: air_quality endpoint + schema normalization",
+                         "post-2026 service, nowcastAQI->AQI", ok)
         except Exception as e:
             self._record("Config: air_quality", str(e)[:120], False)
 

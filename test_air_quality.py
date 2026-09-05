@@ -1,5 +1,22 @@
-"""test_air_quality.py — centralized AirNow helper + transition-window fallback."""
+"""test_air_quality.py — centralized AirNow helper on the post-2026 service.
+
+v5.89.344: the legacy fallback is gone (retires 2026-09-30, already returns []).
+The important contract is schema normalization: the new service returns
+nowcastAQI / aqiCategoryName / parameterName, and both consumers read
+AQI / Category.Name / ParameterName. Without normalization every AQI read as 0.
+"""
 import air_quality
+
+# A verbatim row from the live service (Frisco, TX, 2026-09-05, production key).
+LIVE_ROW = {
+    "dateObserved": "2026-09-05", "hourObserved": "08:00", "localTimeZone": "CDT",
+    "reportingAreaName": "Dallas-Fort Worth", "siteID": "481210034",
+    "siteName": "Denton Airport South C56", "parameterName": "PM2.5",
+    "nowcastAQI": 46, "aqiCategoryName": "Good",
+    "reportingAgency": "Texas Commission on Environmental Quality",
+    "lookupBehavior": "Closest Reading By Pollutant", "consideredMonitors": "All",
+    "lookupBoundary": "50 Miles",
+}
 
 
 class _Resp:
@@ -19,48 +36,69 @@ def test_no_key(monkeypatch):
     assert air_quality.get_current_aqi(37.0, -122.0) is None
 
 
-def test_new_endpoint_used_first(monkeypatch):
+def test_new_schema_is_normalized_to_legacy_fields(monkeypatch):
     monkeypatch.setenv('AIRNOW_API_KEY', 'k')
     calls = []
     monkeypatch.setattr(air_quality.requests, 'get',
-                        lambda url, **kw: (calls.append(url),
-                                           _Resp([{'AQI': 42, 'Category': {'Name': 'Good'}}]))[1])
-    data = air_quality.get_current_aqi(37.0, -122.0)
-    assert data[0]['AQI'] == 42
-    assert calls == [air_quality.AIRNOW_CURRENT_URL]  # legacy NOT called when new works
+                        lambda url, **kw: (calls.append((url, kw['params'])), _Resp([LIVE_ROW]))[1])
+    data = air_quality.get_current_aqi(33.15, -96.82)
+    assert calls[0][0] == air_quality.AIRNOW_CURRENT_URL
+    assert calls[0][1]['latitude'] == 33.15 and calls[0][1]['longitude'] == -96.82
+    row = data[0]
+    assert row['AQI'] == 46                       # was 0 before normalization
+    assert row['Category']['Name'] == 'Good'      # was 'Unknown'
+    assert row['ParameterName'] == 'PM2.5'
+    assert row['ReportingArea'] == 'Dallas-Fort Worth'
+    assert row['nowcastAQI'] == 46                # original keys preserved
 
 
-def test_falls_back_to_legacy(monkeypatch):
+def test_legacy_schema_still_passes_through(monkeypatch):
+    monkeypatch.setenv('AIRNOW_API_KEY', 'k')
+    monkeypatch.setattr(air_quality.requests, 'get',
+                        lambda url, **kw: _Resp([{'AQI': 88, 'Category': {'Name': 'Moderate'}, 'ParameterName': 'O3'}]))
+    row = air_quality.get_current_aqi(37.0, -122.0)[0]
+    assert (row['AQI'], row['Category']['Name'], row['ParameterName']) == (88, 'Moderate', 'O3')
+
+
+def test_zip_code_path(monkeypatch):
+    monkeypatch.setenv('AIRNOW_API_KEY', 'k')
+    seen = {}
+    monkeypatch.setattr(air_quality.requests, 'get',
+                        lambda url, **kw: (seen.update(kw['params']), _Resp([LIVE_ROW]))[1])
+    assert air_quality.get_current_aqi(None, None, zip_code='75035-1234')[0]['AQI'] == 46
+    assert seen['zipCode'] == '75035' and 'latitude' not in seen
+
+
+def test_no_location_returns_none(monkeypatch):
+    monkeypatch.setenv('AIRNOW_API_KEY', 'k')
+    assert air_quality.get_current_aqi(None, None) is None
+
+
+def test_empty_or_non_list_body_returns_none(monkeypatch):
+    monkeypatch.setenv('AIRNOW_API_KEY', 'k')
+    monkeypatch.setattr(air_quality.requests, 'get', lambda url, **kw: _Resp([]))
+    assert air_quality.get_current_aqi(37.0, -122.0) is None
+    monkeypatch.setattr(air_quality.requests, 'get', lambda url, **kw: _Resp({'WebServiceError': [{'Message': 'x'}]}))
+    assert air_quality.get_current_aqi(37.0, -122.0) is None
+
+
+def test_failure_returns_none_and_only_new_endpoint_is_called(monkeypatch):
     monkeypatch.setenv('AIRNOW_API_KEY', 'k')
     calls = []
 
-    def fake_get(url, **kw):
-        calls.append(url)
-        if url == air_quality.AIRNOW_CURRENT_URL:
-            return _Resp(None, ok=False)            # new endpoint errors (e.g. param mismatch)
-        return _Resp([{'AQI': 88, 'Category': {'Name': 'Moderate'}}])
-
-    monkeypatch.setattr(air_quality.requests, 'get', fake_get)
-    data = air_quality.get_current_aqi(37.0, -122.0)
-    assert data[0]['AQI'] == 88                       # still got data via legacy
-    assert calls == [air_quality.AIRNOW_CURRENT_URL, air_quality._LEGACY_URL]
-
-
-def test_non_list_body_falls_back(monkeypatch):
-    monkeypatch.setenv('AIRNOW_API_KEY', 'k')
-
-    def fake_get(url, **kw):
-        if url == air_quality.AIRNOW_CURRENT_URL:
-            return _Resp({'error': 'bad param'})      # 200 but not an observation list
-        return _Resp([{'AQI': 10, 'Category': {'Name': 'Good'}}])
-
-    monkeypatch.setattr(air_quality.requests, 'get', fake_get)
-    assert air_quality.get_current_aqi(37.0, -122.0)[0]['AQI'] == 10
-
-
-def test_both_fail_returns_none(monkeypatch):
-    monkeypatch.setenv('AIRNOW_API_KEY', 'k')
     def boom(url, **kw):
+        calls.append(url)
         raise Exception('down')
     monkeypatch.setattr(air_quality.requests, 'get', boom)
     assert air_quality.get_current_aqi(37.0, -122.0) is None
+    assert calls == [air_quality.AIRNOW_CURRENT_URL]
+    assert not hasattr(air_quality, '_LEGACY_URL')
+
+
+def test_consumers_read_the_normalized_fields():
+    """The two consumers' parsing, applied to a normalized live row."""
+    row = air_quality.normalize_reading(LIVE_ROW)
+    worst = max([row], key=lambda x: x.get('AQI', 0))
+    assert worst.get('AQI', 0) == 46
+    assert worst.get('Category', {}).get('Name', 'Unknown') == 'Good'
+    assert row.get('ParameterName', '') == 'PM2.5'
