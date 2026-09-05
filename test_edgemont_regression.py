@@ -556,10 +556,10 @@ class TestNoTruncatedFindings(unittest.TestCase):
 
     def test_estimator_keeps_every_sentence_whole(self):
         from repair_cost_estimator import estimate_repair_costs
-        fs = [{'category': 'general', 'severity': 'minor', 'description': self.LONG},
-              {'category': 'general', 'severity': 'minor', 'description': 'The exhaust fan in the laundry room did not function at the time of the inspection.'},
-              {'category': 'general', 'severity': 'minor', 'description': 'Third finding sentence that is also complete.'},
-              {'category': 'general', 'severity': 'minor', 'description': 'Fourth finding sentence that must not be dropped.'}]
+        fs = [{'category': 'general', 'severity': 'minor', 'description': self.LONG, 'trade': 'fireplace_chimney'},
+              {'category': 'general', 'severity': 'minor', 'trade': 'fireplace_chimney', 'description': 'The chimney cap is missing and the flue damper does not close fully.'},
+              {'category': 'general', 'severity': 'minor', 'trade': 'fireplace_chimney', 'description': 'Third finding sentence that is also complete.'},
+              {'category': 'general', 'severity': 'minor', 'trade': 'fireplace_chimney', 'description': 'Fourth finding sentence that must not be dropped.'}]
         est = estimate_repair_costs('75035', fs, [], 0, 0, None)
         item = est['breakdown'][0]
         self.assertEqual(len(item['findings']), 4)
@@ -583,3 +583,98 @@ class TestNoTruncatedFindings(unittest.TestCase):
         self.assertNotIn("s.slice(0, 70) + '…'", src)
         i = src.index('SECTION 3 (CONFIRMED REPAIRS)')
         self.assertIn('b.findings', src[i:i + 6000])
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# 11. v5.89.341 — trades, and no cross-customer "learning"
+# ─────────────────────────────────────────────────────────────────────────────
+EDGEMONT_TRADES = ['attic_insulation', 'exterior_walls_trim', 'exterior_walls_trim',
+                   'exterior_walls_trim', 'fireplace_chimney', 'ventilation_fans', 'irrigation_grounds']
+EDGEMONT_AI_WITH_TRADES = {"findings": [dict(f, trade=t) for f, t in
+                                        zip(EDGEMONT_AI_FINDINGS['findings'], EDGEMONT_TRADES)]}
+
+
+class TestTrades(unittest.TestCase):
+    def _run(self, payload):
+        from offerwise_intelligence import OfferWiseIntelligence
+        oi = OfferWiseIntelligence()
+        oi.ai_helper.enabled = False
+        with mock.patch.dict(os.environ, {'ANTHROPIC_API_KEY': 'test'}), \
+             _fake_anthropic(json.dumps(payload)):
+            return oi.analyze_property(DISCLOSURE, INSPECTION, 850000, _buyer(),
+                                       '13180 Edgemont Ln, Frisco, Texas 75035', None)
+
+    def _breakdown(self, r):
+        from dataclasses import asdict
+        from repair_cost_estimator import estimate_repair_costs
+        fd = []
+        for f in r.inspection_report.inspection_findings:
+            d = asdict(f); d['category'] = f.category.value; d['severity'] = f.severity.value; fd.append(d)
+        return estimate_repair_costs('75035', fd, [], r.risk_score.total_repair_cost_low,
+                                     r.risk_score.total_repair_cost_high, None)
+
+    def test_items_are_grouped_by_trade_with_buyer_facing_labels(self):
+        est = self._breakdown(self._run(EDGEMONT_AI_WITH_TRADES))
+        systems = {b['system']: b for b in est['breakdown']}
+        self.assertIn('Exterior Walls & Trim', systems)
+        self.assertEqual(systems['Exterior Walls & Trim']['issue_count'], 3)   # caulk, openings, escutcheon
+        self.assertIn('Attic & Insulation', systems)
+        self.assertIn('Fireplace & Chimney', systems)
+        self.assertIn('Ventilation & Exhaust Fans', systems)
+        self.assertIn('Irrigation & Grounds', systems)
+        for bad in ('Roof Exterior', 'Other Items', 'Plumbing', 'Hvac Systems'):
+            self.assertNotIn(bad, systems)
+
+    def test_trade_derives_the_risk_category(self):
+        r = self._run(EDGEMONT_AI_WITH_TRADES)
+        by_trade = {f.trade: f.category.value for f in r.inspection_report.inspection_findings}
+        self.assertEqual(by_trade['exterior_walls_trim'], 'roof_exterior')
+        self.assertEqual(by_trade['ventilation_fans'], 'hvac_systems')
+        self.assertEqual(by_trade['attic_insulation'], 'general')
+
+    def test_trade_costs_are_realistic_and_reconcile(self):
+        r = self._run(EDGEMONT_AI_WITH_TRADES)
+        est = self._breakdown(r)
+        systems = {b['system']: b for b in est['breakdown']}
+        self.assertLess(systems['Ventilation & Exhaust Fans']['high'], 1000)   # a bath fan, not an HVAC unit
+        self.assertLess(systems['Irrigation & Grounds']['high'], 1000)         # drip tubing, not a repipe
+        self.assertLess(est['total_high'], 10000)
+        self.assertAlmostEqual(est['total_low'], r.risk_score.total_repair_cost_low, delta=8)
+        self.assertAlmostEqual(est['total_high'], r.risk_score.total_repair_cost_high, delta=8)
+
+    def test_missing_trade_is_derived_from_the_sentence(self):
+        from trades import trade_for_text
+        self.assertEqual(trade_for_text('The escutcheon at the water heater gas vent pipe is loose.'), 'exterior_walls_trim')
+        self.assertEqual(trade_for_text('A leak was observed in the underground drip tubing of zone #6 of the sprinkler system.'), 'irrigation_grounds')
+        self.assertEqual(trade_for_text('The exhaust fan in the laundry room did not function.'), 'ventilation_fans')
+        self.assertEqual(trade_for_text('Thermal imaging revealed areas lacking insulation on the attic side of drywall.'), 'attic_insulation')
+        self.assertEqual(trade_for_text('The gas burner in the fireplace could not be operated.'), 'fireplace_chimney')
+        self.assertEqual(trade_for_text('Caulking is needed at separations between the exterior siding and the wood trim.'), 'exterior_walls_trim')
+
+    def test_rules_fallback_assigns_trades_too(self):
+        from document_parser import DocumentParser
+        p = DocumentParser()
+        fs = p._gate_findings_by_provenance(p._extract_problems(INSPECTION), INSPECTION)
+        self.assertTrue(all(getattr(f, 'trade', '') for f in fs))
+        self.assertIn('irrigation_grounds', {f.trade for f in fs})
+
+
+class TestNoCrossCustomerLearning(unittest.TestCase):
+    def test_second_analysis_on_same_engine_is_identical_to_the_first(self):
+        """One long-lived worker serves many customers. The previous house must never
+        become a 'prediction' for the next one."""
+        from offerwise_intelligence import OfferWiseIntelligence
+        oi = OfferWiseIntelligence()
+        oi.ai_helper.enabled = False
+        results = []
+        for _ in range(3):
+            with mock.patch.dict(os.environ, {'ANTHROPIC_API_KEY': 'test'}), \
+                 _fake_anthropic(json.dumps(EDGEMONT_AI_FINDINGS)):
+                r = oi.analyze_property(DISCLOSURE, INSPECTION, 850000, _buyer(),
+                                        '13180 Edgemont Ln, Frisco, Texas 75035', None)
+            results.append((round(r.offer_strategy['recommended_offer']),
+                            len(r.predicted_issues or []),
+                            r.offer_strategy['discount_breakdown'].get('risk_premium', 0)))
+        self.assertEqual(len(set(results)), 1, results)
+        self.assertEqual(results[0][1], 0)
+        self.assertEqual(results[0][2], 0)

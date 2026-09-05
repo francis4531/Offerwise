@@ -60,7 +60,9 @@ class TestNoFabricatedRepairs(unittest.TestCase):
                      category_scores=[{'category':'foundation_structure','score':90}],
                      property_year_built=2018)
         systems = ' '.join(str(b.get('system','')).lower() for b in r['breakdown'])
-        self.assertIn('plumbing', systems)
+        # v5.89.341: itemized by trade — a sprinkler leak is "Irrigation & Grounds",
+        # which is exactly the point (it is not a plumbing repipe).
+        self.assertIn('irrigation', systems)
         self.assertNotIn('foundation', systems)
 
 if __name__ == '__main__':

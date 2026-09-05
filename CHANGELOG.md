@@ -1,3 +1,45 @@
+## v5.89.341 - Itemize by trade, not by risk bucket; and stop "learning" from the previous customer
+
+Francis, on the .340 Condition tab: "The line items are either wrongly categorized or
+just don't belong to that category." He was right on every card:
+ - "Roof Exterior": caulking at the siding trim + rodent openings under the eaves.
+   Nothing about the roof.
+ - "Other Items": attic insulation + a fireplace switch. "Other" is not a category.
+ - "Plumbing · $4K-$13K": a loose vent escutcheon in the brick + two sprinkler drip
+   leaks, priced like a supply-line repipe.
+ - "Hvac Systems · $880-$3K": a laundry exhaust fan.
+The eight coarse categories exist for RISK SCORING. Forcing the itemized card through
+them mislabels items and misprices them, because the cost table only knows the bucket.
+
+FIX - trades.py: every finding now carries a `trade` (23 of them: roof, exterior walls &
+trim, gutters/grading, windows & doors, attic & insulation, foundation, plumbing, water
+heater, sewer/septic, electrical, heating & cooling, ventilation & exhaust fans,
+fireplace & chimney, appliances, interior finishes, garage, irrigation & grounds,
+pool/spa, pests/WDI, environmental, safety devices, permits/legal, other). Claude
+assigns it in the extraction prompt; the keyword fallback derives it from the sentence;
+a coarse category maps to a default trade for legacy callers. Each trade rolls up into
+ONE risk category (so scoring is unchanged in shape) and carries its own per-finding
+baseline cost by severity, every cell held to a ~1.7x spread. The risk model and the
+estimator price a finding from the same trade cell, so header, offer math and card
+still reconcile. Edgemont now itemizes as: Attic & Insulation, Exterior Walls & Trim
+(3: caulk, openings, escutcheon), Fireplace & Chimney, Ventilation & Exhaust Fans,
+Irrigation & Grounds - $2.2K-$6.1K at Dallas rates instead of $18K-$50K.
+
+FOUND WHILE TESTING (and fixed): predictive_engine.train_on_analysis fed every
+analysis's findings back into the correlation matrix of the long-lived worker. After
+ONE analysis, "roof_exterior co-occurs with general" had 3+ co-occurrences at
+coefficient 1.0, so the NEXT house served by that worker got four invented hidden
+issues ("Roof & Exterior 80%", "General 80%", "HVAC 80%", "Plumbing 80%") and a
+$27,500 hidden-issue reserve - and identical documents produced a different offer
+depending on which worker answered. Live learning is now off unless
+OFFERWISE_PREDICTIVE_LEARN=1; predictions come only from the seeded domain
+correlations. Test: three consecutive analyses on one engine are identical, zero
+predictions, zero reserve.
+
+Tests: test_edgemont_regression 50 (trade grouping/labels, trade-derived category,
+realistic + reconciled trade costs, sentence->trade fallback, rules fallback assigns
+trades, no cross-customer learning). test_repair_no_fabrication updated for the trade
+label ("irrigation", not "plumbing"). 441 green across the affected suites.
 ## v5.89.340 - No cut-off sentences, anywhere in the report
 
 The .339 PDF printed "...because the control switch wa" and "...on the attic side of

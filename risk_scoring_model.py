@@ -54,12 +54,21 @@ _BASELINE_KEY = {
 }
 
 
-def baseline_cost_for_finding(category_value: str, severity_value: str):
-    """Per-FINDING national baseline (low, high) by category x severity.
-    Single source shared with repair_cost_estimator so the risk totals and the
-    itemized breakdown are built from the same table. Informational -> (0, 0)."""
+def baseline_cost_for_finding(category_value: str, severity_value: str, trade: str = ''):
+    """Per-FINDING national baseline (low, high). v5.89.341: priced by TRADE when the
+    finding carries one (trades.py) — a loose vent escutcheon is an exterior-trim item,
+    not a plumbing repipe. Falls back to the coarse category table. Single source
+    shared with repair_cost_estimator so the risk totals and the itemized breakdown
+    are built from the same numbers. Informational -> (0, 0)."""
     if severity_value == Severity.INFORMATIONAL.value:
         return 0.0, 0.0
+    try:
+        from trades import trade_cost, TRADES, trade_for_category
+        if trade not in TRADES:
+            trade = trade_for_category(category_value)
+        return trade_cost(trade, severity_value)
+    except Exception:
+        pass
     try:
         from repair_cost_estimator import BASELINE_COSTS
     except Exception:
@@ -359,7 +368,8 @@ class RiskScoringModel:
                 else:
                     costs_were_estimated = True
             else:
-                f_low, f_high = baseline_cost_for_finding(category.value, severity.value)
+                f_low, f_high = baseline_cost_for_finding(category.value, severity.value,
+                                                          getattr(finding, 'trade', '') or '')
                 _m = getattr(self, '_zip_multiplier', 1.0) or 1.0
                 f_low, f_high = round(f_low * _m), round(f_high * _m)
                 if f_high > 0:

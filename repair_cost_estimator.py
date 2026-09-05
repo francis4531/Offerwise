@@ -332,17 +332,27 @@ def estimate_repair_costs(
 
     # Build from findings (dedup: merge multiple findings for the same system)
     if findings:
-        system_items = {}  # category -> merged item
+        from trades import TRADES, normalize_trade, trade_for_text, trade_label, trade_cost, trade_category
+        system_items = {}  # trade (or category) -> merged item
         for f in findings:
             cat_raw = f.get('category', f.get('system', 'general'))
             cat = _normalize_category(str(cat_raw))
             sev = _normalize_severity(f.get('severity', 'moderate'))
             desc = f.get('description', f.get('finding', f.get('title', '')))
 
-            base_range = _get_baseline_costs(cat, sev)
-            age_adj = _age_adjustment(property_year_built, cat)
+            # v5.89.341: group + price by TRADE. The risk model prices the same finding
+            # with the same trade table, so the card, the header and the offer math agree.
+            trade = normalize_trade(f.get('trade')) or trade_for_text(f"{desc} {f.get('location') or ''}")
+            if trade == 'other' and not normalize_trade(f.get('trade')):
+                from trades import trade_for_category
+                trade = trade_for_category(cat)   # coarse category is the best clue we have
+            base_range = trade_cost(trade, sev)
+            # Age adjustment keys on the coarse category the trade rolls up into.
+            age_adj = _age_adjustment(property_year_built, _normalize_category(trade_category(trade)))
             low = round(base_range[0] * multiplier * age_adj)
             high = round(base_range[1] * multiplier * age_adj)
+            group_key = trade
+            display_name = trade_label(trade)
 
             # v5.89.339: a finding that carries its own cost (document-stated, or the
             # ML predictor at >= 0.85 confidence) is used AS-IS. The risk model prices
@@ -355,13 +365,9 @@ def estimate_repair_costs(
                 low = round(ai_low or ai_high)
                 high = round(ai_high or ai_low)
 
-            display_name = str(cat_raw).replace('_', ' ').title()
-            if display_name.lower() in ('general', 'other'):
-                display_name = str(desc)[:40] if desc else 'General Repair'
-
-            if cat in system_items:
+            if group_key in system_items:
                 # Merge: add costs, keep worst severity, collect descriptions
-                existing = system_items[cat]
+                existing = system_items[group_key]
                 existing['low'] += low
                 existing['high'] += high
                 existing['issue_count'] += 1
@@ -371,8 +377,9 @@ def estimate_repair_costs(
                 if desc and len(desc) > 5:
                     existing['_descriptions'].append(str(desc).strip())
             else:
-                system_items[cat] = {
+                system_items[group_key] = {
                     'system': display_name,
+                    'trade': trade,
                     'category': cat,
                     'severity': sev,
                     'low': low,
@@ -386,10 +393,6 @@ def estimate_repair_costs(
             item['avg'] = round((item['low'] + item['high']) / 2)
             # Build description from merged findings
             descs = item.pop('_descriptions', [])
-            # v5.89.338: a merged "general" bucket should not be titled with the
-            # first finding's sentence.
-            if cat == 'general' and item['issue_count'] > 1:
-                item['system'] = 'Other Items'
             # v5.89.340: every finding, whole. The old code cut each sentence at 100
             # characters and kept three of them behind an "N issues:" prefix, so the
             # report printed "...because the control switch wa". A cut-off sentence is

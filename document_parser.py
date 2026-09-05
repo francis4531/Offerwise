@@ -65,6 +65,11 @@ class InspectionFinding:
     
     # COST SOURCE TRACKING (v5.55.8 - Credibility)
     cost_from_document: bool = False  # True = extracted from text, False = industry estimate
+
+    # v5.89.341: the contractor trade this finding belongs to (see trades.py). Drives the
+    # itemized "Confirmed repairs" grouping, label and per-finding baseline cost. The
+    # coarse `category` above is what the risk model scores on.
+    trade: str = ''
     
     def __post_init__(self):
         if self.evidence is None:
@@ -537,6 +542,14 @@ For each finding, return:
 - safety_concern: true ONLY for immediate life-safety hazards (fire risk, electrocution, structural collapse, gas leak, fall hazard). Normal repair items are NOT safety concerns. Most findings should be false.
 - requires_specialist: true ONLY when the inspector specifically recommends a licensed specialist beyond a general contractor (structural engineer, licensed electrician, environmental tester). Standard "recommend repair by qualified contractor" is NOT a specialist referral. Most findings should be false.
 - source_quote: the exact words from the report (max 120 chars) that support this finding
+- trade: the contractor a buyer would call, exactly one of:
+  roof, exterior_walls_trim, gutters_drainage, windows_doors, attic_insulation, foundation_structure,
+  plumbing, water_heater, sewer_septic, electrical, hvac, ventilation_fans, fireplace_chimney,
+  appliances, interior_finishes, garage, irrigation_grounds, pool_spa, pest_wdi, environmental,
+  safety_devices, permits_legal, other
+  (caulking/siding/trim/brick/eave openings/vent escutcheons = exterior_walls_trim; attic insulation =
+  attic_insulation; sprinkler or drip-line leaks = irrigation_grounds; bath/laundry exhaust fans =
+  ventilation_fans; a fireplace that will not operate = fireplace_chimney.)
 
 Respond with ONLY a JSON object: {{"findings": [...]}}
 
@@ -642,8 +655,17 @@ INSPECTION REPORT:
                         'minor': Severity.MINOR,
                     }
                     
-                    category = cat_map.get(str(f.get('category') or 'general').strip().lower(),
-                                           IssueCategory.GENERAL)
+                    # v5.89.341: trade first. When the model names a trade, the risk
+                    # category is DERIVED from it (one source of truth); the model's own
+                    # category is only used when it gave no usable trade.
+                    from trades import normalize_trade, trade_for_text, trade_category
+                    _trade = normalize_trade(f.get('trade')) or trade_for_text(
+                        f"{f.get('description') or ''} {f.get('location') or ''}")
+                    if normalize_trade(f.get('trade')):
+                        category = cat_map.get(trade_category(_trade), IssueCategory.GENERAL)
+                    else:
+                        category = cat_map.get(str(f.get('category') or 'general').strip().lower(),
+                                               IssueCategory.GENERAL)
                     severity = sev_map.get(f.get('severity', 'moderate'), Severity.MODERATE)
                     
                     finding = InspectionFinding(
@@ -664,6 +686,7 @@ INSPECTION REPORT:
                         # that let fabricated findings render as "verified".
                         verified=False,
                         source_document='inspection',
+                        trade=_trade,
                     )
                     
                     if finding.description:
@@ -1112,11 +1135,13 @@ INSPECTION REPORT:
                                 ['specialist', 'engineer', 'professional evaluation',
                                  'further evaluation', 'recommend assessment'])
         
+        from trades import trade_for_text
         return InspectionFinding(
             category=category,
             severity=severity,
             location=location or "Not specified",
             description=description,
+            trade=trade_for_text(sentence),  # v5.89.341
             recommendation="",  # We'll extract this separately if needed
             estimated_cost_low=cost_low,
             estimated_cost_high=cost_high,

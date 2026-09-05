@@ -105,7 +105,20 @@ class PredictiveIssueEngine:
         """
         
         self.total_analyses += 1
-        
+
+        # v5.89.341: live "learning" is OFF unless explicitly enabled. Every analysis
+        # used to feed its own findings back into the correlation matrix of the
+        # long-lived worker process: after ONE analysis, "roof_exterior co-occurs with
+        # general" had 3+ co-occurrences at coefficient 1.0, so the NEXT house on that
+        # worker got four invented hidden issues at 80% and a $27,500 reserve — and
+        # the same documents produced different offers depending on which worker
+        # served them. Predictions now come only from the seeded domain correlations
+        # (and any corpus-trained model), never from the previous customer's house.
+        import os as _os
+        if _os.environ.get('OFFERWISE_PREDICTIVE_LEARN', '').lower() not in ('1', 'true', 'yes', 'on'):
+            logger.info("predictive engine: live learning disabled (OFFERWISE_PREDICTIVE_LEARN unset)")
+            return
+
         findings = analysis_data.get('inspection_findings', [])
         
         # Update correlation matrix
