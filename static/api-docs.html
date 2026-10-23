@@ -272,7 +272,7 @@ print(<span class="str">f"Total repair cost: ${result['repair_cost_estimate']:,.
 
     <!-- ── Research Endpoint ─────────────────────────────────── -->
     <h2 id="research">POST /api/v1/research</h2>
-    <p>Property intelligence from public data sources. No documents needed — just an address. Returns AVM, comps, flood zone, seismic risk, schools, walk score, permits, and AI synthesis.</p>
+    <p>Property intelligence from public data sources. No documents needed — just an address. Returns AVM, comps, flood zone, seismic risk, schools, nearby amenities, permits, and AI synthesis.</p>
     <div class="endpoint-box">
       <span style="background:#22c55e;color:#fff;padding:4px 10px;border-radius:5px;font-weight:700;font-size:12px">POST</span>
       <span>/api/v1/research</span>
@@ -303,8 +303,6 @@ print(<span class="str">f"Total repair cost: ${result['repair_cost_estimate']:,.
     <span class="key">"air_quality_index"</span>: <span class="num">42</span>
   },
   <span class="key">"neighborhood"</span>: {
-    <span class="key">"walk_score"</span>: <span class="num">72</span>,
-    <span class="key">"transit_score"</span>: <span class="num">45</span>,
     <span class="key">"school_ratings"</span>: [...]
   },
   <span class="key">"permits"</span>: [...],
@@ -339,7 +337,6 @@ print(<span class="str">f"Total repair cost: ${result['repair_cost_estimate']:,.
   ],
   <span class="key">"risk_flag_count"</span>: <span class="num">2</span>,
   <span class="key">"flood_zone"</span>: <span class="str">"AE"</span>,
-  <span class="key">"walk_score"</span>: <span class="num">72</span>,
   <span class="key">"days_on_market"</span>: <span class="num">18</span>,
   <span class="key">"research_time_ms"</span>: <span class="num">2800</span>,
   <span class="key">"usage"</span>: { <span class="key">"calls_used"</span>: <span class="num">15</span>, <span class="key">"calls_remaining"</span>: <span class="num">485</span> }

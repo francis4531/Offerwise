@@ -2697,7 +2697,7 @@ def b2b_research():
     No documents needed — just an address.
 
     Required: address
-    Returns: AVM, comps, flood zone, seismic, schools, walk score, permits, air quality
+    Returns: AVM, comps, flood zone, seismic, schools, permits, air quality
     """
     api_key, err = _authenticate_api_key()
     if err:
@@ -2748,9 +2748,6 @@ def b2b_research():
                 'air_quality_index': profile.get('air_quality_index'),
             },
             'neighborhood': {
-                'walk_score': profile.get('walk_score'),
-                'transit_score': profile.get('transit_score'),
-                'bike_score': profile.get('bike_score'),
                 'school_ratings': profile.get('school_ratings'),
             },
             'permits': profile.get('permit_history'),
@@ -2820,7 +2817,6 @@ def b2b_screen():
             'risk_flags': risk_flags,
             'risk_flag_count': len(risk_flags),
             'flood_zone': profile.get('flood_zone'),
-            'walk_score': profile.get('walk_score'),
             'days_on_market': profile.get('days_on_market'),
             'tools_succeeded': result.get('tools_succeeded', 0),
             'research_time_ms': result.get('research_time_ms', 0),
@@ -3066,14 +3062,14 @@ def architecture_page():
         return _render_access_request_page()
 
     import os
-    arch_path = os.path.join(app.static_folder, 'architecture.html')
+    arch_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'docs', 'internal', 'architecture.html')
     try:
         with open(arch_path, 'r', encoding='utf-8') as f:
             html = f.read()
     except Exception:
         # If the file is somehow missing, fall back to send_from_directory's
         # behavior (404-style)
-        return send_from_directory('static', 'architecture.html')
+        return send_from_directory('docs/internal', 'architecture.html')
 
     stats = _get_architecture_stats()
     # String replacements — keyed on stable SVG/HTML markers in the file.
@@ -4131,7 +4127,8 @@ def get_property_analysis(property_id):
         is_developer = current_user.email.lower() in DEVELOPER_EMAILS
         result_json['is_free_tier'] = not bool(current_user.stripe_customer_id) and not is_developer
     
-    return jsonify(result_json)
+    from vendor_scrub import scrub_result as _scrub
+    return jsonify(_scrub(result_json))   # v5.89.345: analyses stored by older builds
 
 @app.route('/api/dashboard/init', methods=['GET'])
 @login_required
@@ -5342,7 +5339,7 @@ def thesis():
     grant = has_valid_cookie(request, db)
     if grant is None:
         return _render_access_request_page()
-    return send_from_directory('static', 'thesis.html')
+    return send_from_directory('docs/internal', 'thesis.html')
 
 @app.route('/about')
 @app.route('/about.html')
@@ -5367,7 +5364,11 @@ def pitch():
     investor/partner questions (product, market, traction, IP, etc.).
     Sister to /thesis. Linked from /thesis closing slide.
     Reusable for pitch forms and partner conversations."""
-    return send_from_directory('static', 'pitch.html')
+    # v5.89.345: same investor access gate as /thesis and /architecture.
+    from access_gate import has_valid_cookie
+    if has_valid_cookie(request, db) is None:
+        return _render_access_request_page()
+    return send_from_directory('docs/internal', 'pitch.html')
 
 
 @app.route('/access/request', methods=['POST'])
@@ -5509,7 +5510,11 @@ def access_grant():
 def personas():
     """Persona map and value-prop reference. Sister page to /thesis.
     Internal/investor-facing reference; noindexed."""
-    return send_from_directory('static', 'personas.html')
+    # v5.89.345: same investor access gate as /thesis and /architecture.
+    from access_gate import has_valid_cookie
+    if has_valid_cookie(request, db) is None:
+        return _render_access_request_page()
+    return send_from_directory('docs/internal', 'personas.html')
 
 @app.route('/sample-analysis')
 @app.route('/sample-analysis.html')
@@ -6219,7 +6224,7 @@ def settings():
 @limiter.limit("30 per hour")
 def api_quick_check():
     """Public address-only property check. No auth, no credits, no AI calls.
-    Runs the PropertyResearchAgent to fetch market data, flood, walk score, etc."""
+    Runs the PropertyResearchAgent to fetch market data, flood, amenities, etc."""
     try:
         data = request.get_json(silent=True) or {}
         address = (data.get('address') or '').strip()
@@ -6248,7 +6253,7 @@ def api_quick_check():
             return jsonify({'error': 'Unable to fetch data for this address. Please check the address and try again.'}), 400
 
         # Extract structured data from tool results
-        _rc = _ms = _flood = _env = _walk = _schools = _permits = _eq = _air = None
+        _rc = _ms = _flood = _env = _schools = _permits = _eq = _air = None
         for _t in (research_data.get('tool_results') or []):
             _tn = _t.get('tool_name', '')
             _td = _t.get('data') or {}
@@ -6258,7 +6263,6 @@ def api_quick_check():
             elif _tn == 'market_stats': _ms = _td
             elif _tn == 'flood_zone': _flood = _td
             elif _tn in ('california_hazards', 'environmental'): _env = _td
-            elif _tn == 'walk_score': _walk = _td
             elif _tn == 'school_ratings': _schools = _td
             elif _tn == 'permit_history': _permits = _td
             elif _tn == 'earthquake_history': _eq = _td
@@ -6300,9 +6304,6 @@ def api_quick_check():
                 'air_quality_index': _safe_int((_air or {}).get('aqi')),
             },
             'neighborhood': {
-                'walk_score': _safe_int((_walk or {}).get('walk_score')),
-                'transit_score': _safe_int((_walk or {}).get('transit_score')),
-                'bike_score': _safe_int((_walk or {}).get('bike_score')),
                 'school_rating': _safe_float((_schools or {}).get('average_rating')),
                 'school_name': (_schools or {}).get('elementary_school') or '',
             },
@@ -11506,7 +11507,6 @@ _INFRA_DEFAULT_VENDORS = [
     # excluded — their spend is authoritative on the ad dashboard, so a vendor
     # row here would double-count.
     dict(name='Mailgun',         category='email',    logo_emoji='📬', notes='Secondary email provider (separate from Resend)'),
-    dict(name='WalkScore',       category='data',     logo_emoji='🚶', notes='Walk/Transit/Bike score API'),
     dict(name='GreatSchools',    category='data',     logo_emoji='🏫', notes='School ratings API'),
     dict(name='PermitData',      category='data',     logo_emoji='📋', notes='Building permit data API'),
     dict(name='Apollo',          category='outreach', logo_emoji='🔭', notes='B2B contact discovery API'),

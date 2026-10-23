@@ -461,7 +461,7 @@ def estimate_repair_costs(
         'total_issues': total_issues,
         'total_systems': len(breakdown),
         'methodology': (
-            f'Costs based on RSMeans 2026 residential repair data and HomeAdvisor national averages, '
+            f'Costs based on 2026 residential repair industry data and national contractor averages, '
             f'adjusted for {metro} labor and material rates ({multiplier}x national average). '
             f'{len(breakdown)} system{"s" if len(breakdown) != 1 else ""} analyzed across {total_issues} finding{"s" if total_issues != 1 else ""}. '
             + (f'Property age adjustment applied for {2026 - property_year_built}-year-old home. ' if property_year_built else '')

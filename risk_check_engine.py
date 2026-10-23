@@ -1169,7 +1169,7 @@ def run_risk_check(address, include_benchmark=False):
 
     # Count total data sources checked
     source_count = 6  # base: FEMA, USGS, OpenFEMA, AirNow, EPA EMEF (4 layers), EPA Radon
-    source_list = ['FEMA NFHL', 'USGS Earthquakes', 'OpenFEMA Disasters', 'EPA AirNow',
+    source_list = ['FEMA NFHL', 'USGS Earthquakes', 'OpenFEMA Disasters', 'EPA Air Quality',
                    'EPA Superfund (SEMS)', 'EPA Toxic Release Inventory',
                    'EPA Hazardous Waste (RCRA)', 'EPA Brownfields', 'EPA Radon Zones']
     if state in ('CA', 'California'):

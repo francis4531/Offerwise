@@ -1047,7 +1047,7 @@ class TestResearchToolErrorNoneHandling(unittest.TestCase):
     This bug went undetected for ~6 months because most tools omit the
     'error' key entirely on success (so .get returns the default). Some
     tools — including geocoding's downstream tools (flood_zone, ca_hazards,
-    walk_score, census_acs, disaster_history, earthquake_history,
+    census_acs, disaster_history, earthquake_history,
     nearby_amenities, air_quality) — return {'status': 'skipped',
     'error': None} when their dependency fails.
 

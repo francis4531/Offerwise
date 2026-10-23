@@ -29,7 +29,7 @@ VENDOR_ALIASES = {
     'ZILLOW': 'Zillow',
     'DELAWARE CORP': 'Delaware franchise tax',
     'RESEND': 'Resend', 'SENTRY': 'Sentry', 'GITHUB': 'GitHub', 'MAILGUN': 'Mailgun',
-    'WALKSCORE': 'WalkScore', 'GREATSCHOOLS': 'GreatSchools', 'PERMITDATA': 'PermitData',
+    'GREATSCHOOLS': 'GreatSchools', 'PERMITDATA': 'PermitData',
     'APOLLO': 'Apollo', 'SNOV': 'Snov', 'MILLIONVERIFIER': 'MillionVerifier',
     'ZEROBOUNCE': 'ZeroBounce', 'STRIPE': 'Stripe',
 }

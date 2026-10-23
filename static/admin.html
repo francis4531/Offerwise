@@ -17588,10 +17588,9 @@ function renderSummaryCards(cost, email, analysis) {
   const emailCost      = (email?.emails_sent ?? 0) * 0.0008;
   const rentcastCost   = analysis?.rentcast_cost_est        ?? 0;
   const mapsCost       = analysis?.google_maps_cost_est     ?? 0;
-  const wsCost         = analysis?.walkscore_cost_est       ?? 0;
   const visionCost     = analysis?.google_vision_cost_est   ?? 0;
   const mailgunCost    = analysis?.mailgun_cost_est         ?? 0;
-  const totalEst = aiCost + emailCost + mailgunCost + rentcastCost + mapsCost + wsCost + visionCost;
+  const totalEst = aiCost + emailCost + mailgunCost + rentcastCost + mapsCost + visionCost;
 
   const periodLabel = currentDays < 0 ? 'all time' : currentDays === 0 ? 'this month' : currentDays === 1 ? 'today' : `${currentDays}d`;
 
@@ -17832,7 +17831,6 @@ function renderGoogle(sys, analysis) {
   const mapsConfigured   = analysis?.google_maps_configured   ?? sys?.google_maps_configured   ?? false;
   const visionEnabled    = analysis?.google_vision_enabled    ?? false;
   const visionConfigured = analysis?.google_vision_configured ?? sys?.google_vision_configured ?? false;
-  const wsConfigured     = analysis?.walkscore_configured     ?? sys?.walkscore_configured     ?? false;
   const airConfigured    = analysis?.airnow_configured        ?? sys?.airnow_configured        ?? false;
   const gsConfigured     = analysis?.greatschools_configured  ?? sys?.greatschools_configured  ?? false;
   const mgConfigured     = analysis?.mailgun_configured       ?? sys?.mailgun_configured       ?? false;
@@ -17840,8 +17838,6 @@ function renderGoogle(sys, analysis) {
 
   const mapsCalls    = analysis?.google_maps_calls      ?? 0;
   const mapsCost     = analysis?.google_maps_cost_est   ?? 0;
-  const wsCalls      = analysis?.walkscore_calls        ?? 0;
-  const wsCost       = analysis?.walkscore_cost_est     ?? 0;
   const visionPages  = analysis?.vision_pages_est       ?? 0;
   const visionCost   = analysis?.google_vision_cost_est ?? 0;
   const airTotal     = analysis?.airnow_total_calls     ?? 0;
@@ -17865,13 +17861,6 @@ function renderGoogle(sys, analysis) {
       <td>${statusDot(visionConfigured, visionEnabled ? (visionConfigured ? 'Enabled' : 'Missing credentials') : 'Disabled (USE_GOOGLE_VISION=false)')}</td>
       <td><span class="pricing-note">$1.50/1k pages</span></td>
       <td>${fmtDollars(visionCost)}</td>
-    </tr>
-    <tr>
-      <td><div class="api-name">WalkScore API</div><div class="api-provider">Walk/Transit/Bike scores per analysis</div></td>
-      <td>${fmtNum(wsCalls)} calls</td>
-      <td>${statusDot(wsConfigured, wsConfigured ? 'Configured' : 'Missing')}</td>
-      <td><span class="pricing-note">~$0.0025/call (Professional plan)</span></td>
-      <td>${fmtDollars(wsCost)}</td>
     </tr>
     <tr>
       <td><div class="api-name">EPA AirNow</div><div class="api-provider">Air quality · called in both full analysis AND Risk Check tool</div></td>
@@ -17958,12 +17947,11 @@ function renderProjection(cost, email, analysis) {
   const emailMonthly   = email    ? ((email.emails_sent / daysElapsed) * daysInMonth * 0.0008) : 0;
   const rcMonthly      = analysis ? ((analysis.rentcast_total_calls ?? 0) / daysElapsed) * daysInMonth * 0.06 : 0;
   const mapsMonthly    = analysis ? ((analysis.google_maps_calls ?? 0) / daysElapsed) * daysInMonth * 0.005 : 0;
-  const wsMonthly      = analysis ? ((analysis.walkscore_calls ?? 0) / daysElapsed) * daysInMonth * 0.0025 : 0;
   const visionMonthly  = analysis ? ((analysis.vision_pages_est ?? 0) / daysElapsed) * daysInMonth * 0.0015 : 0;
   const stripeMonthly  = analysis?.stripe_revenue ? analysis.stripe_revenue * 0.029 : 0;
   const mailgunMonthly = analysis ? ((analysis.mailgun_calls ?? 0) / daysElapsed) * daysInMonth * 0.0008 : 0;
   // Ad spend: use actual period data projected to month (real data, not estimated)
-  const total = aiMonthly + emailMonthly + mailgunMonthly + rcMonthly + mapsMonthly + wsMonthly + visionMonthly + stripeMonthly;
+  const total = aiMonthly + emailMonthly + mailgunMonthly + rcMonthly + mapsMonthly + visionMonthly + stripeMonthly;
   const maxVal = Math.max(total, 1);
 
   const bars = [
@@ -17971,7 +17959,6 @@ function renderProjection(cost, email, analysis) {
     { label: 'RentCast',      value: rcMonthly,      color: '#f59e0b' },
     { label: 'Google Maps',   value: mapsMonthly,    color: '#34d399' },
     { label: 'Cloud Vision',  value: visionMonthly,  color: '#fb7185' },
-    { label: 'WalkScore',     value: wsMonthly,      color: '#a78bfa' },
     { label: 'Resend',        value: emailMonthly,   color: '#06b6d4' },
     { label: 'Mailgun',       value: mailgunMonthly, color: '#0ea5e9' },
     { label: 'Stripe fees',   value: stripeMonthly,  color: '#8b5cf6' },
@@ -21285,7 +21272,7 @@ function pasteUseDefaultTemplate() {
 'how teams like yours think about this problem and whether OfferWise is ' +
 'in your strike zone.\n\n' +
 'Architecture, methodology, and a head-to-head benchmark vs. GPT-5 / Claude ' +
-'are at https://www.getofferwise.ai/architecture and /comparison.\n\n' +
+'are at https://www.getofferwise.ai/methodology and /comparison.\n\n' +
 'Best,\nFrancis';
   pasteRefreshPreview();
 }

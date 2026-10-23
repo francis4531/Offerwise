@@ -117,9 +117,6 @@ class PropertyProfile:
     tax_year: Optional[int] = None
     
     # Neighborhood
-    walk_score: Optional[int] = None
-    transit_score: Optional[int] = None
-    bike_score: Optional[int] = None
     school_rating_elementary: Optional[float] = None
     school_rating_middle: Optional[float] = None
     school_rating_high: Optional[float] = None
@@ -482,69 +479,6 @@ class CaliforniaHazardsTool(ResearchTool):
             duration_ms=int((time.time() - start) * 1000),
             source_url="https://gis.conservation.ca.gov"
         )
-
-
-# ---------------------------------------------------------------------------
-# TOOL: Walk Score API
-# ---------------------------------------------------------------------------
-class WalkScoreTool(ResearchTool):
-    """Walk Score, Transit Score, Bike Score"""
-    
-    name = "walk_score"
-    description = "Walkability, transit access, and bikeability scores"
-    requires_geocoding = True
-    
-    def execute(self, address: str, profile: PropertyProfile) -> ToolResult:
-        start = time.time()
-        api_key = os.environ.get('WALKSCORE_API_KEY')
-        if not api_key:
-            return ToolResult(
-                tool_name=self.name, status=ToolStatus.SKIPPED,
-                error="WALKSCORE_API_KEY not configured",
-                duration_ms=int((time.time() - start) * 1000)
-            )
-        
-        if not profile.latitude or not profile.longitude:
-            return ToolResult(
-                tool_name=self.name, status=ToolStatus.SKIPPED,
-                error="No coordinates available",
-                duration_ms=int((time.time() - start) * 1000)
-            )
-        
-        try:
-            url = "https://api.walkscore.com/score"
-            params = {
-                'format': 'json',
-                'address': address,
-                'lat': profile.latitude,
-                'lon': profile.longitude,
-                'transit': 1,
-                'bike': 1,
-                'wsapikey': api_key
-            }
-            resp = self._make_request(url, params=params)
-            data = resp.json()
-            
-            profile.walk_score = data.get('walkscore')
-            profile.transit_score = data.get('transit', {}).get('score')
-            profile.bike_score = data.get('bike', {}).get('score')
-            
-            return ToolResult(
-                tool_name=self.name, status=ToolStatus.SUCCESS,
-                data={
-                    'walk_score': profile.walk_score,
-                    'transit_score': profile.transit_score,
-                    'bike_score': profile.bike_score,
-                    'walk_description': data.get('description', ''),
-                },
-                duration_ms=int((time.time() - start) * 1000),
-                source_url="https://www.walkscore.com"
-            )
-        except Exception as e:
-            return ToolResult(
-                tool_name=self.name, status=ToolStatus.FAILED,
-                error=str(e), duration_ms=int((time.time() - start) * 1000)
-            )
 
 
 # ---------------------------------------------------------------------------
@@ -1393,7 +1327,7 @@ class RedfinTool(ResearchTool):
         return ToolResult(
             tool_name=self.name,
             status=ToolStatus.SKIPPED,
-            error="Redfin tool disabled — no official public API available. Use RentCast instead.",
+            error="listings tool disabled",
             duration_ms=0
         )
 
@@ -1574,7 +1508,6 @@ class PropertyResearchAgent:
         MarketStatsTool,        # 🔑 RENTCAST_API_KEY — ZIP-level market stats (Phase 2)
         FloodZoneTool,
         CaliforniaHazardsTool,
-        WalkScoreTool,          # 🔑 WALKSCORE_API_KEY (5k/day free)
         CensusAcsTool,          # ✅ FREE — median value, income, rent, demographics
         DisasterHistoryTool,    # ✅ FREE — FEMA disaster declarations for county
         EarthquakeHistoryTool,  # ✅ FREE — USGS recent quakes nearby

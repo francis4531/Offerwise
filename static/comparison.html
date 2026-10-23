@@ -6,7 +6,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>OfferWise vs. Leading LLMs — Head-to-Head Comparison</title>
-<meta name="description" content="Blind head-to-head comparison of OfferWise against GPT-5 and Claude Opus 4.7 on home inspection analysis. Methodology, results, and honest caveats.">
+<meta name="description" content="Blind head-to-head comparison of OfferWise against two leading frontier models on home inspection analysis. Methodology, results, and honest caveats.">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&family=IBM+Plex+Sans:wght@400;500;600;700;800&display=swap');
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -307,7 +307,7 @@
 </div>
 
 <h1>OfferWise vs. Leading LLMs</h1>
-<p class="sub">A blind, criterion-at-a-time comparison against best-of GPT-5 and Claude Opus 4.7 on home inspection analysis.</p>
+<p class="sub">A blind, criterion-at-a-time comparison against best-of two leading frontier models on home inspection analysis.</p>
 
 <!-- ═══════════════════════════════════════════════════════════════ -->
 <!-- SCOREBOARD (HERO)                                               -->
@@ -315,7 +315,7 @@
 <div class="scoreboard">
   <div class="label">Final Verdict</div>
   <h2>OfferWise won 5 of 7 criteria with 0 losses.</h2>
-  <div class="verdict">Tested across three synthetic inspection report cases (clean, contradiction-heavy, complex high-cost) against the stronger of GPT-5 and Claude Opus 4.7 on each criterion. Scoring was blind and conducted one criterion at a time across all systems to prevent anchoring. The pattern — OfferWise winning on specialized financial-risk dimensions, tying on commodity LLM strengths — is the evidence profile of a genuinely differentiated system, not an artifact of scoring bias.</div>
+  <div class="verdict">Tested across three synthetic inspection report cases (clean, contradiction-heavy, complex high-cost) against the stronger of two leading frontier models on each criterion. Scoring was blind and conducted one criterion at a time across all systems to prevent anchoring. The pattern — OfferWise winning on specialized financial-risk dimensions, tying on commodity LLM strengths — is the evidence profile of a genuinely differentiated system, not an artifact of scoring bias.</div>
 
   <div class="score-row">
     <div class="score-cell wins">
@@ -378,7 +378,7 @@
     <tr>
       <td>
         <div class="criterion-name">4. Cost Estimate Accuracy</div>
-        <div class="criterion-desc">Within 25% of HomeAdvisor reference ranges for the property's ZIP code.</div>
+        <div class="criterion-desc">Within 25% of a national contractor cost guide reference ranges for the property's ZIP code.</div>
       </td>
       <td class="center" style="color:var(--green);font-weight:600">Superior</td>
       <td class="center" style="color:var(--muted)">High Variance</td>
@@ -421,9 +421,9 @@
 
 <div class="detail-block cost">
   <h3><span class="pill">Win</span> Cost accuracy is the crown jewel</h3>
-  <p>On Case B (the contradiction case, a ~$800K property with foundation displacement and recently-replaced roof showing installation defects), OfferWise produced a targeted repair exposure of <strong>~$75,000</strong> based on regional Oakland contractor rates. GPT-5, lacking regional calibration, returned a range of <strong>$120,000 to $300,000+</strong> — functionally useless for a buyer trying to write a counter-offer.</p>
+  <p>On Case B (the contradiction case, a ~$800K property with foundation displacement and recently-replaced roof showing installation defects), OfferWise produced a targeted repair exposure of <strong>~$75,000</strong> based on regional Oakland contractor rates. a leading frontier model, lacking regional calibration, returned a range of <strong>$120,000 to $300,000+</strong> — functionally useless for a buyer trying to write a counter-offer.</p>
   <div class="stat-line">OfferWise trained on 111,000+ regionally-calibrated cost records (FEMA, municipal permits, insurance data)</div>
-  <p>Bare LLMs can access HomeAdvisor pages, but they cannot access ZIP-level contractor pricing that's been cleaned, deduplicated, and structured into a cost model. That's the dataset moat — and it's the single most defensible dimension of the comparison.</p>
+  <p>Bare LLMs can access a national contractor cost guide pages, but they cannot access ZIP-level contractor pricing that's been cleaned, deduplicated, and structured into a cost model. That's the dataset moat — and it's the single most defensible dimension of the comparison.</p>
 </div>
 
 <div class="detail-block cx">
@@ -434,7 +434,7 @@
 
 <div class="detail-block trust">
   <h3><span class="pill">Win</span> Near-zero hallucinations vs LLM fabrication</h3>
-  <p>Hallucinations in this context are fabricated cost numbers, invented findings, or citations to standards that don't exist. OfferWise produced near zero across all three test cases. The LLM baseline produced moderate counts, most commonly in the form of plausible-sounding but unsourced cost numbers (GPT-5 Case B's $300K+ high-end estimate being the most egregious example).</p>
+  <p>Hallucinations in this context are fabricated cost numbers, invented findings, or citations to standards that don't exist. OfferWise produced near zero across all three test cases. The LLM baseline produced moderate counts, most commonly in the form of plausible-sounding but unsourced cost numbers (a leading frontier model Case B's $300K+ high-end estimate being the most egregious example).</p>
   <p>For financial risk assessment, this matters more than any other criterion. A buyer acting on a fabricated $30K cost estimate makes a worse offer than a buyer acting on a calibrated $8K estimate. The grounding — real cost records, inspector-validated finding labels, regional calibration — is what prevents OfferWise from confabulating.</p>
 </div>
 
@@ -447,9 +447,9 @@
 <p>The bake-off was designed to be hard for OfferWise to win. We chose the adversarial version of the comparison on every methodological decision:</p>
 
 <ol>
-  <li><strong>Best-of-both LLM baseline.</strong> On each criterion, OfferWise had to beat the stronger of GPT-5 and Claude Opus 4.7. Not the average. Not the weaker. If GPT-5 caught contradiction A but Claude caught contradiction B, the LLM baseline was credited for both. This is the adversarial assumption: <em>a savvy buyer found the best free LLM and used it well</em>.</li>
-  <li><strong>Strong LLM prompt, not lazy.</strong> The LLM baseline was given a detailed prompt asking for categorized issues with severity, repair cost ranges with HomeAdvisor grounding, contradictions, overall risk grade, and negotiation talking points. If OfferWise can't beat <em>that</em> prompt, it can't beat ChatGPT in the wild.</li>
-  <li><strong>HomeAdvisor as cost reference.</strong> The fairest possible ground truth, but also the one least favorable to OfferWise — HomeAdvisor data is publicly available, so bare LLMs can theoretically access it too. OfferWise's win on cost accuracy came from <em>structure and calibration</em>, not exclusive data access.</li>
+  <li><strong>Best-of-both LLM baseline.</strong> On each criterion, OfferWise had to beat the stronger of two leading frontier models. Not the average. Not the weaker. If a leading frontier model caught contradiction A but a leading frontier model caught contradiction B, the LLM baseline was credited for both. This is the adversarial assumption: <em>a savvy buyer found the best free LLM and used it well</em>.</li>
+  <li><strong>Strong LLM prompt, not lazy.</strong> The LLM baseline was given a detailed prompt asking for categorized issues with severity, repair cost ranges with a national contractor cost guide grounding, contradictions, overall risk grade, and negotiation talking points. If OfferWise can't beat <em>that</em> prompt, it can't beat ChatGPT in the wild.</li>
+  <li><strong>a national contractor cost guide as cost reference.</strong> The fairest possible ground truth, but also the one least favorable to OfferWise — a national contractor cost guide data is publicly available, so bare LLMs can theoretically access it too. OfferWise's win on cost accuracy came from <em>structure and calibration</em>, not exclusive data access.</li>
   <li><strong>Blind, criterion-at-a-time scoring.</strong> Outputs were stripped of identifying headers before scoring. Each of the 7 criteria was scored across all 3 systems before moving to the next criterion. This prevents the most common bake-off scoring error (anchoring on one system's overall output).</li>
   <li><strong>Pre-committed verdict thresholds.</strong> Win/tie/loss thresholds were set before any scoring happened. <code>15+ wins out of 21</code> = decisive. <code>12-14</code> = edge. <code>9-11</code> each = tie. <code>LLM 12+</code> = OfferWise loses. The final result — OfferWise 5W-2T-0L across 7 criteria (effectively 15 wins, 6 ties, 0 losses out of 21 head-to-head comparisons) — falls into the "decisive" bucket by a pre-committed threshold.</li>
 </ol>
@@ -463,11 +463,11 @@
 
 <p>A bake-off is worth the paper it's written on only if the caveats are disclosed. Three worth naming explicitly:</p>
 
-<p><strong>1. Test cases were synthetic.</strong> Three inspection report + seller disclosure pairs were generated by Claude (in a separate conversation from the test itself) to embody specific scenarios — a clean property, a contradiction-heavy property, and a complex multi-issue property. Real inspection reports may produce different relative performance. We'd like to run this again on real reports as soon as a prospect provides them; the methodology is designed to be repeatable.</p>
+<p><strong>1. Test cases were synthetic.</strong> Three inspection report + seller disclosure pairs were generated by a frontier model (in a separate session from the test itself) to embody specific scenarios — a clean property, a contradiction-heavy property, and a complex multi-issue property. Real inspection reports may produce different relative performance. We'd like to run this again on real reports as soon as a prospect provides them; the methodology is designed to be repeatable.</p>
 
 <p><strong>2. OfferWise was scored by its founder.</strong> The protocol specifies blind, criterion-at-a-time scoring to mitigate confirmation bias, and that discipline was applied. But the ultimate test is whether an independent third party reproduces the result on the same methodology. Until that happens, treat these numbers as a founder-run study, not an audited report.</p>
 
-<p><strong>3. "Regional cost data" is a structural moat, not an exclusivity moat.</strong> Bare LLMs could theoretically pull HomeAdvisor data live — the reason they didn't, in this test, is that they weren't prompted to. A LLM with function-calling against a structured cost API would close some of the cost-accuracy gap. OfferWise's advantage is having already <em>done</em> that structuring work across 111K+ records, and having it available in-workflow without additional tool calls. That's real, but it's workflow differentiation, not data exclusivity.</p>
+<p><strong>3. "Regional cost data" is a structural moat, not an exclusivity moat.</strong> Bare LLMs could theoretically pull a national contractor cost guide data live — the reason they didn't, in this test, is that they weren't prompted to. A LLM with function-calling against a structured cost API would close some of the cost-accuracy gap. OfferWise's advantage is having already <em>done</em> that structuring work across 111K+ records, and having it available in-workflow without additional tool calls. That's real, but it's workflow differentiation, not data exclusivity.</p>
 
 <p>None of these invalidate the result. They explain what it is and isn't.</p>
 </div>
@@ -502,7 +502,7 @@
     OfferWise AI · <a href="https://getofferwise.ai">getofferwise.ai</a>
   </div>
   <div>
-    <a href="/architecture">Technical Architecture</a> · <a href="mailto:francis@getofferwise.ai">Contact</a>
+    <a href="/methodology">Methodology</a> · <a href="mailto:francis@getofferwise.ai">Contact</a>
   </div>
   <div>
     Head-to-Head v1 · April 2026

@@ -229,7 +229,8 @@ def view_shared_opinion(token):
     share.record_view()
     
     # Parse snapshot
-    snapshot = json_mod.loads(share.snapshot_json)
+    from vendor_scrub import scrub_result as _scrub
+    snapshot = _scrub(json_mod.loads(share.snapshot_json))
     
     return render_template('shared_opinion.html',
         token=token,
@@ -259,7 +260,8 @@ def share_chat(token):
         message = message[:2000]
 
     try:
-        snapshot = json.loads(share.snapshot_json)
+        from vendor_scrub import scrub_result as _scrub
+        snapshot = _scrub(json.loads(share.snapshot_json))
     except Exception:
         snapshot = {}
 

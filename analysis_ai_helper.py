@@ -576,8 +576,6 @@ Return ONLY JSON:
                 research_summary_parts.append(f"ESTIMATED VALUE (AVM): ${research_profile['estimated_value']:,.0f}")
             if research_profile.get('tax_assessed_value'):
                 research_summary_parts.append(f"TAX ASSESSED VALUE: ${research_profile['tax_assessed_value']:,.0f}")
-            if research_profile.get('walk_score'):
-                research_summary_parts.append(f"WALK SCORE: {research_profile['walk_score']}/100")
             
             if not research_summary_parts:
                 return []
@@ -616,7 +614,7 @@ Return ONLY a JSON array. Each item:
   "severity": "high|medium|info",
   "title": "Brief headline (under 80 chars)",
   "detail": "2-3 sentence explanation of what the government data shows vs what the seller said or didn't say. Be specific.",
-  "source": "The government data source (e.g., FEMA NFHL, USGS, US Census ACS, CAL FIRE, EPA AirNow)",
+  "source": "The government data source (e.g., FEMA NFHL, USGS, US Census ACS, CAL FIRE, EPA air quality)",
   "category": "water_damage|structural|environmental|financial|safety"
 }}
 

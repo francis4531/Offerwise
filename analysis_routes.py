@@ -876,7 +876,6 @@ def analyze_property():
                 _ms = None
                 _flood = None
                 _env = None
-                _walk = None
                 _schools = None
                 _permits = None
                 _eq = None
@@ -889,7 +888,6 @@ def analyze_property():
                         elif _tn == 'market_stats': _ms = _td
                         elif _tn == 'flood_zone': _flood = _td
                         elif _tn in ('california_hazards', 'environmental'): _env = _td
-                        elif _tn == 'walk_score': _walk = _td
                         elif _tn == 'school_ratings': _schools = _td
                         elif _tn == 'permit_history': _permits = _td
                         elif _tn == 'earthquake_history': _eq = _td
@@ -942,9 +940,6 @@ def analyze_property():
                         'air_quality_index': int((_air or {}).get('aqi', 0)),
                     },
                     'neighborhood': {
-                        'walk_score': int((_walk or {}).get('walk_score', 0)),
-                        'transit_score': int((_walk or {}).get('transit_score', 0)),
-                        'bike_score': int((_walk or {}).get('bike_score', 0)),
                         'school_rating': float((_schools or {}).get('average_rating', 0)),
                         'school_name': (_schools or {}).get('elementary_school', ''),
                     },
@@ -1371,6 +1366,10 @@ def analyze_property():
             except Exception as repair_err:
                 logging.warning(f"💰 Could not generate repair estimate: {repair_err}")
         
+        # v5.89.345: no commercial vendor name or URL leaves the server — not in the
+        # stored row, not in the response, not in the cache.
+        from vendor_scrub import scrub_result as _scrub
+        result_dict = _scrub(result_dict)
         analysis = Analysis(
             property_id=property.id,
             user_id=current_user.id,
@@ -1838,6 +1837,8 @@ def analyze_property():
         except Exception:
             pass
 
+        from vendor_scrub import scrub_result as _scrub2
+        result_dict = _scrub2(result_dict)   # research_data / market patches were added after the store
         resp = jsonify(result_dict)
         # Emit job ID so frontend can connect SSE for progress replay
         try:

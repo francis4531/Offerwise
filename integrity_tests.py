@@ -2222,7 +2222,7 @@ class IntegrityTestEngine:
         try:
             from property_research_agent import (
                 PropertyResearchAgent, PropertyProfile, ResearchTool,
-                GeocodingTool, FloodZoneTool, WalkScoreTool,
+                GeocodingTool, FloodZoneTool,
                 CensusAcsTool, RentCastTool, AirQualityTool,
                 ToolStatus, ToolResult
             )

@@ -6,7 +6,7 @@
     <title>OfferWise AI™ — Property Analysis</title>
     <script>
     /* v5.89.300: global client-error reporter. POSTs to /api/client-error, which reports
-       to Sentry via the backend SDK. No third-party CDN on the frontend (avoids the
+       to the backend error monitor. No third-party CDN on the frontend (avoids the
        Babel-8 white-screen class of risk). Deduped + capped so a render loop can't spam. */
     (function(){
       var sent = 0, seen = {};
@@ -40,7 +40,7 @@
       });
     })();
     </script>
-    <script src="/static/gtm-loader.js?v=5.89.344"></script>
+    <script src="/static/gtm-loader.js?v=5.89.347"></script>
 <!-- /GTM head -->
     <script>if(window.location.hostname==='getofferwise.ai')window.location.replace('https://www.getofferwise.ai'+window.location.pathname+window.location.search);</script>
     <link rel="icon" type="image/svg+xml" href="/static/logo-icon-only.svg">
@@ -57,7 +57,7 @@
     <link rel="preconnect" href="https://unpkg.com" crossorigin>
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/results-theme.css?v=5.89.344">
+    <link rel="stylesheet" href="/static/results-theme.css?v=5.89.347">
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone@7.29.7/babel.min.js"></script>
@@ -721,7 +721,7 @@
         .ow-strategy-grid { grid-template-columns: 1fr !important; }
       }
     </style>
-    <script src="/static/analytics-loader.js?v=5.89.344" defer></script>
+    <script src="/static/analytics-loader.js?v=5.89.347" defer></script>
     <!-- Reddit Pixel Base Code -->
     <script>
     !function(w,d){if(!w.rdt){var p=w.rdt=function(){p.sendEvent?p.sendEvent.apply(p,arguments):p.queue.push(arguments)};p.queue=[];var t=d.createElement('script');t.src='https://www.redditstatic.com/ads/pixel.js';t.async=!0;var s=d.getElementsByTagName('script')[0];s.parentNode.insertBefore(t,s)}}(window,document);
@@ -2945,7 +2945,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginBottom: '14px' }}>
                   {[
                     { on: true, text: 'AVM gap · market position · environmental risk' },
-                    { on: true, text: 'Permit history · school ratings · walkability' },
+                    { on: true, text: 'Permit history · school ratings · nearby amenities' },
                     { on: !!disclosureText, text: 'Seller Transparency Report™ · disclosure flags', locked: 'add disclosure PDF' },
                     { on: !!disclosureText, text: 'What to tell your inspector to check', locked: 'add disclosure PDF' },
                     { on: !!disclosureText && !!inspectionText, text: 'Repair costs · OfferScore™ · 3 offer tiers · addendum', locked: 'add both documents' },
@@ -4607,9 +4607,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
               const ppsf = mc.median_price_per_sqft || 0;
               const permits = result.permit_count || 0;
               const permitFlags = result.permit_flags || [];
-              const walkScore = hood.walk_score || 0;
-              const transitScore = hood.transit_score || 0;
-              const bikeScore = hood.bike_score || 0;
               const schoolRating = hood.school_rating || 0;
               const schoolName = hood.school_name || '';
               const floodZone = env.flood_zone || 'Unknown';
@@ -4695,13 +4692,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     <OwCompsTable rows={mc.comparables} count={mc.comparables_count} />
 
                     {/* Neighborhood scores */}
-                    {(walkScore > 0 || transitScore > 0 || schoolRating > 0) && (
+                    {schoolRating > 0 && (
                       <div style={{ marginBottom:'20px' }}>
                         <div style={{ fontSize: 'var(--ow-fs-small)', fontWeight:700, textTransform:'uppercase', letterSpacing:'0.08em', color:'#94a3b8', marginBottom:'14px' }}>Neighborhood</div>
                         <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(140px, 1fr))', gap:'12px' }}>
-                          {walkScore > 0 && <MetricCard label="Walk Score" value={walkScore} sub={walkScore >= 70 ? 'Very Walkable' : walkScore >= 50 ? 'Somewhat Walkable' : 'Car-Dependent'} color={walkScore >= 70 ? '#22c55e' : walkScore >= 50 ? '#f59e0b' : '#ef4444'} />}
-                          {transitScore > 0 && <MetricCard label="Transit Score" value={transitScore} sub={transitScore >= 70 ? 'Excellent Transit' : transitScore >= 50 ? 'Good Transit' : 'Minimal Transit'} color={transitScore >= 70 ? '#22c55e' : transitScore >= 50 ? '#f59e0b' : '#64748b'} />}
-                          {bikeScore > 0 && <MetricCard label="Bike Score" value={bikeScore} sub={bikeScore >= 70 ? 'Very Bikeable' : bikeScore >= 50 ? 'Bikeable' : 'Not Bikeable'} color={bikeScore >= 70 ? '#22c55e' : bikeScore >= 50 ? '#f59e0b' : '#64748b'} />}
                           {schoolRating > 0 && <MetricCard label="School Rating" value={schoolRating.toFixed(1)} sub={schoolName || 'nearby elementary'} color={schoolRating >= 7 ? '#22c55e' : schoolRating >= 5 ? '#f59e0b' : '#ef4444'} />}
                         </div>
                       </div>
@@ -6968,7 +6962,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                         </div>
                       );
                     })()}
-                    {/* -- Market Context (RentCast AVM + Comps) -- */}
+                    {/* -- Market Context (AVM + Comps) -- */}
                     {(() => {
                       const mc = offer_strategy?.market_context;
                       if (!mc || !mc.market_applied) return null;
@@ -7162,9 +7156,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                             </div>
                           )}
 
-                          {/* Individual comparable sales from RentCast */}
+                          {/* Individual comparable listings */}
                           {(() => {
-                            const comps = result?.research_data?.profile?.comparables || result?.research_data?.tool_results?.find(t => t.tool_name === 'rentcast')?.data?.comparables || [];
+                            const comps = result?.research_data?.profile?.comparables || result?.research_data?.tool_results?.find(t => t.tool_name === 'valuation')?.data?.comparables || [];
                             if (!comps || comps.length === 0) return null;
                             const topComps = comps.filter(c => c.price > 0 && c.status !== 'Active').slice(0, 5);
                             if (topComps.length === 0) return null;
@@ -8964,7 +8958,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 </table>
               </div>
               <p style={{ fontSize: 'var(--ow-fs-meta)', color: 'var(--ow-dim)', margin: '10px 0 0' }}>
-                Comparable sales data via RentCast. A dash means the source didn&rsquo;t report that field.
+                Comparable listing data from our valuation provider. A dash means the source didn&rsquo;t report that field.
               </p>
             </div>
           );
@@ -10570,8 +10564,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             const _marketTemp = _marketCtx.market_temperature || '';
             const _marketComps = (result.research_data && result.research_data.profile && result.research_data.profile.comparables)
                 || (result.research_data && result.research_data.tool_results
-                    && (result.research_data.tool_results.find(t => t.tool_name === 'rentcast') || {}).data
-                    && result.research_data.tool_results.find(t => t.tool_name === 'rentcast').data.comparables)
+                    && (result.research_data.tool_results.find(t => t.tool_name === 'valuation') || {}).data
+                    && result.research_data.tool_results.find(t => t.tool_name === 'valuation').data.comparables)
                 || [];
             const _topComps = (_marketComps || []).filter(c => c && c.price > 0 && c.status !== 'Active').slice(0, 4);
             const _hasMarketIntel = _marketAvm > 0 || _marketCompsCount > 0 || _topComps.length > 0;
@@ -12824,7 +12818,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </script>
     
     <!-- Async Upload Manager - Handles PDF uploads with real-time progress -->
-    <script src="/static/async-upload-manager.js?v=5.89.344"></script>
+    <script src="/static/async-upload-manager.js?v=5.89.347"></script>
     
     <!-- Floating Support Button -->
     <a href="/contact" id="support-button" style="
@@ -12849,8 +12843,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <span style="font-size: 16px;">💬</span>
         Help
     </a>
-<script src="/static/js/compliance.js?v=5.89.344"></script>
-<script src="/static/js/analytics.js?v=5.89.344" defer></script>
+<script src="/static/js/compliance.js?v=5.89.347"></script>
+<script src="/static/js/analytics.js?v=5.89.347" defer></script>
 <script>
 // Scroll reveal for premium results animations
 (function() {
@@ -12937,7 +12931,7 @@ if ('serviceWorker' in navigator) {
 
 <!-- Scout: docked, summon-on-demand "Ask your report" assistant (v5.89.157) -->
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&display=swap" rel="stylesheet">
-<script src="/static/ask-widget.js?v=5.89.344"></script>
+<script src="/static/ask-widget.js?v=5.89.347"></script>
 <script>
 (function(){
   if (window.__scoutInit) { return; } window.__scoutInit = true;

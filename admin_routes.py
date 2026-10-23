@@ -3333,12 +3333,6 @@ def admin_analysis_stats():
             pass
         google_maps_cost_est = round(max(0, google_maps_calls - 40000) * 0.005, 4)
 
-        # WalkScore: called once per analysis via property_research_agent
-        # Pricing: depends on plan — Professional ~$0.0025/call
-        walkscore_configured = bool(os.environ.get('WALKSCORE_API_KEY', ''))
-        walkscore_calls = completed  # only on completed analyses
-        walkscore_cost_est = round(walkscore_calls * 0.0025, 4)
-
         # Google Cloud Vision: called for scanned PDFs when USE_GOOGLE_VISION=true
         # Pricing: $1.50 per 1000 pages
         google_vision_enabled = os.environ.get('USE_GOOGLE_VISION', 'false').lower() == 'true'
@@ -3560,10 +3554,6 @@ def admin_analysis_stats():
             'google_maps_configured': google_maps_configured,
             'google_maps_calls': google_maps_calls,
             'google_maps_cost_est': google_maps_cost_est,
-            # WalkScore
-            'walkscore_configured': walkscore_configured,
-            'walkscore_calls': walkscore_calls,
-            'walkscore_cost_est': walkscore_cost_est,
             # Google Cloud Vision
             'google_vision_enabled': google_vision_enabled,
             'google_vision_configured': google_vision_configured,
@@ -3904,7 +3894,6 @@ def admin_system_info():
         'apple_configured':         bool(os.environ.get('APPLE_CLIENT_ID', '')),
         'facebook_configured':      bool(os.environ.get('FACEBOOK_CLIENT_ID', '')),
         'github_configured':        bool(os.environ.get('GITHUB_CLIENT_ID', '')),
-        'walkscore_configured':     bool(os.environ.get('WALKSCORE_API_KEY', '')),
         'airnow_configured':        bool(os.environ.get('AIRNOW_API_KEY', '')),
         'google_maps_configured':   bool(os.environ.get('GOOGLE_MAPS_API_KEY', '')),
         'greatschools_configured':  bool(os.environ.get('GREATSCHOOLS_API_KEY', '')),

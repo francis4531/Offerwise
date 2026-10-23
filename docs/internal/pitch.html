@@ -264,14 +264,14 @@
   </div>
   <h2 class="q-h">Who are your competitors? <span style="color:var(--gray);font-weight:400;font-size:.85em;">(now and at scale)</span></h2>
   <div class="q-body">
-    <p><strong>Today &mdash; direct competitors:</strong> Effectively none. No company currently offers a structured disclosure-analysis product for the buyer with a calibrated offer recommendation. The closest substitutes are general-purpose LLMs (GPT-5, Claude Opus) that a sophisticated buyer might use to read their disclosure packet &mdash; an approach that fails on cost calibration, contradiction detection, and cross-property similarity. We benchmark publicly against this substitute on our <a href="/comparison">comparison page</a>.</p>
+    <p><strong>Today &mdash; direct competitors:</strong> Effectively none. No company currently offers a structured disclosure-analysis product for the buyer with a calibrated offer recommendation. The closest substitutes are general-purpose LLMs (GPT-5, our AI model Opus) that a sophisticated buyer might use to read their disclosure packet &mdash; an approach that fails on cost calibration, contradiction detection, and cross-property similarity. We benchmark publicly against this substitute on our <a href="/comparison">comparison page</a>.</p>
     <p><strong>Today &mdash; indirect substitutes:</strong></p>
     <ul>
       <li><strong>Zillow&rsquo;s Zestimate / Redfin Estimate</strong> &mdash; AVMs that give a price but no analysis of what the property&rsquo;s documents actually say.</li>
       <li><strong>HouseCanary, Quantarium</strong> &mdash; B2B AVM and risk-modeling providers selling to institutional buyers, not consumers.</li>
       <li><strong>Disclosures.io, Glide</strong> &mdash; document portals that distribute the disclosure packet but don&rsquo;t analyze it.</li>
     </ul>
-    <p><strong>At scale &mdash; likely emergent competitors:</strong> Zillow and Redfin will likely add ML-driven disclosure analysis when the category proves viable. Their advantage is distribution; their disadvantage is alignment (they&rsquo;re paid by the transaction, not the buyer). LLM platforms (OpenAI, Anthropic) may eventually offer thin disclosure-analysis features. Our moat against both is the trained corpus and the customer-aligned product design.</p>
+    <p><strong>At scale &mdash; likely emergent competitors:</strong> Zillow and Redfin will likely add ML-driven disclosure analysis when the category proves viable. Their advantage is distribution; their disadvantage is alignment (they&rsquo;re paid by the transaction, not the buyer). LLM platforms (OpenAI, our AI provider) may eventually offer thin disclosure-analysis features. Our moat against both is the trained corpus and the customer-aligned product design.</p>
   </div>
 </section>
 
@@ -404,7 +404,7 @@
     <p><strong>What we have built so far (verifiable):</strong></p>
     <ul>
       <li><strong>255,000+ labeled training findings</strong> in a proprietary corpus, sourced from 13 active municipal code-enforcement and permit databases across the top 50 US metros. Growing weekly.</li>
-      <li><strong>Three production ML models</strong> in active training, measured against a held-out test set (post-relabel training run, v5.89.52): a multi-label finding classifier at <strong>85.8% category accuracy</strong> and <strong>66.4% severity accuracy</strong>; a contradiction detector at <strong>97.1% accuracy</strong> on cross-document inspection; a cost predictor with <strong>R&sup2;=0.82</strong>, <strong>MAE $1,915</strong>, and calibrated p10/p50/p90 intervals. The models override Claude only when confidence clears 0.85 &mdash; current ceiling on category classification, intentional design floor on severity until corpus volume warrants tighter calibration.</li>
+      <li><strong>Three production ML models</strong> in active training, measured against a held-out test set (post-relabel training run, v5.89.52): a multi-label finding classifier at <strong>85.8% category accuracy</strong> and <strong>66.4% severity accuracy</strong>; a contradiction detector at <strong>97.1% accuracy</strong> on cross-document inspection; a cost predictor with <strong>R&sup2;=0.82</strong>, <strong>MAE $1,915</strong>, and calibrated p10/p50/p90 intervals. The models override our AI model only when confidence clears 0.85 &mdash; current ceiling on category classification, intentional design floor on severity until corpus volume warrants tighter calibration.</li>
       <li><strong>Full disclosure-to-offer pipeline</strong> deployed and serving real California homebuyer traffic.</li>
       <li><strong>Active marketing channels:</strong> Google Ads targeting California homebuyers; Reddit native posts targeting homebuying communities.</li>
       <li><strong>Active outreach</strong> to B2B partners in the iBuyer and digital-mortgage segments.</li>
