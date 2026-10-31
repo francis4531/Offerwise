@@ -28,9 +28,8 @@ if config.config_file_name is not None:
 target_metadata = db.metadata
 
 # Get database URL from environment (same as app.py)
-database_url = os.environ.get('DATABASE_URL', 'sqlite:///offerwise.db')
-if database_url.startswith('postgres://'):
-    database_url = database_url.replace('postgres://', 'postgresql://', 1)
+from db_url import normalize_database_url
+database_url = normalize_database_url(os.environ.get('DATABASE_URL', 'sqlite:///offerwise.db'))
 config.set_main_option('sqlalchemy.url', database_url)
 
 

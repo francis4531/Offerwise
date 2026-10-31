@@ -66,9 +66,10 @@ def main() -> int:
         print('[bootstrap_alembic] SQLite detected — proceeding, but migrations ' +
               'are intended for Postgres production.', file=sys.stderr)
 
-    # Normalize postgres:// → postgresql+psycopg2:// for SQLAlchemy 2.x
-    if db_url.startswith('postgres://'):
-        db_url = db_url.replace('postgres://', 'postgresql://', 1)
+    # Normalize postgres:// → postgresql+psycopg2:// (explicit driver, v5.89.348)
+    sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    from db_url import normalize_database_url
+    db_url = normalize_database_url(db_url)
 
     try:
         from sqlalchemy import create_engine, inspect, text

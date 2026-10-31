@@ -1,3 +1,27 @@
+## v5.89.348 - Production boot fix: name the PostgreSQL driver
+
+2026-10-27 03:59 UTC, the .347 deploy failed to boot on Render:
+  app.py:571 db.init_app(app) -> sqlalchemy/dialects/postgresql/psycopg.py
+  ModuleNotFoundError: No module named 'psycopg'
+  Worker failed to boot.
+
+Cause: Flask-SQLAlchemy==3.0.5 does not pin SQLAlchemy. A fresh Docker build
+resolved SQLAlchemy 2.1, and 2.1 changed the default driver for a bare
+postgresql:// URL from psycopg2 to psycopg (v3). We ship psycopg2-binary only.
+Nothing in .346/.347 touched the database; the build simply landed on the first
+pip resolve after SQLAlchemy 2.1 reached PyPI. Reproduced locally: a bare URL on
+SQLAlchemy 2.1 raises exactly this error; the same URL with the driver named
+boots.
+
+ * db_url.normalize_database_url: postgres:// and postgresql:// become
+   postgresql+psycopg2://, so the driver is explicit whatever SQLAlchemy defaults
+   to. Used by app.py (engine + both alembic stamp paths), alembic/env.py and
+   scripts/bootstrap_alembic.py. Existing explicit schemes and sqlite pass through.
+ * requirements.txt: SQLAlchemy>=2.0.23,<2.1 (belt and braces; the URL fix alone
+   is sufficient, the pin keeps the resolver where production has been running).
+ * test_db_driver.py: URL normalization, dialect resolves to psycopg2, the pin is
+   present, and no caller still hand-rewrites the scheme.
+
 ## v5.89.347 - Retired vendor name removed from the scrubber itself
 
 v5.89.346 removed the Walk Score integration but left its name in vendor_scrub.py

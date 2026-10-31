@@ -526,9 +526,10 @@ if database_url.startswith('sqlite') and PRODUCTION_MODE:
         "Set DATABASE_URL to a PostgreSQL connection string (e.g., Render Managed PostgreSQL)."
     )
 
-# Handle Render's postgres:// URL (needs to be postgresql://)
-if database_url and database_url.startswith('postgres://'):
-    database_url = database_url.replace('postgres://', 'postgresql://', 1)
+# Render hands out postgres://; name the driver explicitly (psycopg2) so a
+# SQLAlchemy upgrade cannot switch the default to a driver we do not ship.
+from db_url import normalize_database_url
+database_url = normalize_database_url(database_url)
 
 # SAFETY CHECK (v5.61.0): Warn loudly if using SQLite in production
 _is_sqlite = 'sqlite' in database_url
@@ -881,7 +882,7 @@ with app.app_context():
             _acfg_path = _stamp_os.path.join(_stamp_os.path.dirname(__file__), 'alembic.ini')
             if _stamp_os.path.exists(_acfg_path):
                 _acfg = _AlembicConfig(_acfg_path)
-                _db_url = _stamp_os.environ.get('DATABASE_URL','').replace('postgres://','postgresql://')
+                _db_url = normalize_database_url(_stamp_os.environ.get('DATABASE_URL',''))
                 if _db_url:
                     _acfg.set_main_option('sqlalchemy.url', _db_url)
                 # Check if already stamped
@@ -2057,7 +2058,7 @@ with app.app_context():
                 _acfg_path2 = _stamp_os2.path.join(_stamp_os2.path.dirname(__file__), 'alembic.ini')
                 if _stamp_os2.path.exists(_acfg_path2):
                     _acfg2 = _AlembicConfig2(_acfg_path2)
-                    _db_url2 = _stamp_os2.environ.get('DATABASE_URL','').replace('postgres://','postgresql://')
+                    _db_url2 = normalize_database_url(_stamp_os2.environ.get('DATABASE_URL',''))
                     if _db_url2:
                         _acfg2.set_main_option('sqlalchemy.url', _db_url2)
                     # Only stamp if we're behind the new head — otherwise no-op
