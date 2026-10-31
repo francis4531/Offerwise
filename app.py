@@ -12901,6 +12901,16 @@ if os.environ.get('WERKZEUG_RUN_MAIN') != 'true' or not app.debug:
         except Exception as e:
             logging.warning(f"ML inference background init failed: {e}")
 
+    # v5.89.349: say at boot how much room the persistent disk has. The embedder
+    # download and the model files live there; on 2026-10-31 it was full.
+    try:
+        from ml_inference import disk_free_mb as _dfm
+        _free = _dfm(os.environ.get('DOCREPO_PATH', '/var/data/docrepo'))
+        if _free is not None:
+            _boot(f'persistent disk free: {_free} MB' + ('  ⚠ LOW' if _free < 250 else ''))
+    except Exception:
+        pass
+
     try:
         import threading
         _boot('starting ml_inference background loader')

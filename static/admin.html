@@ -17568,6 +17568,7 @@ async function loadAll() {
     const analysis = analysisStats.status === 'fulfilled' ? analysisStats.value : null;
 
     renderSummaryCards(cost, email, analysis);
+    renderDiskCard(sys);
     renderAlerts(cost);
     renderAnthropic(cost);
     renderStripe(sys, analysis);
@@ -17581,6 +17582,30 @@ async function loadAll() {
   } catch(e) {
     document.getElementById('infra-refresh-ts').textContent = 'Error: ' + e.message;
   }
+}
+
+// v5.89.349: persistent-disk headroom. The embedder download and the ML model
+// files live on the 1 GB Render disk; when it fills, ML inference silently
+// disables itself at boot.
+function renderDiskCard(sys) {
+  const d = sys?.persistent_disk;
+  const host = document.getElementById('api-summary-cards');
+  if (!d || !host) return;
+  let value, sub, color;
+  if (!d.mounted) { value = 'n/a'; sub = 'no persistent disk (dev)'; color = 'var(--muted)'; }
+  else if (d.error) { value = 'err'; sub = d.error; color = 'var(--red)'; }
+  else {
+    value = `${d.free_mb} MB free`;
+    color = d.free_mb < 150 ? 'var(--red)' : d.free_mb < 300 ? 'var(--amber)' : 'var(--green)';
+    const top = (d.top_dirs || []).slice(0, 3).map(t => `${t.name} ${t.mb} MB`).join(' · ');
+    sub = `${d.used_pct}% of ${d.total_mb} MB used${top ? ' · ' + top : ''}`;
+  }
+  host.insertAdjacentHTML('beforeend', `
+    <div class="card">
+      <div class="card-label">Persistent Disk</div>
+      <div class="card-value" style="color:${color};">${value}</div>
+      <div class="card-sub">${sub}</div>
+    </div>`);
 }
 
 function renderSummaryCards(cost, email, analysis) {

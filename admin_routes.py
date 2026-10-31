@@ -3899,7 +3899,47 @@ def admin_system_info():
         'greatschools_configured':  bool(os.environ.get('GREATSCHOOLS_API_KEY', '')),
         'mailgun_configured':       bool(os.environ.get('MAILGUN_API_KEY', '')),
         'reddit_configured':        bool(os.environ.get('REDDIT_ADS_CLIENT_ID', '') and os.environ.get('REDDIT_ADS_REFRESH_TOKEN', '')),
+        # v5.89.349: persistent-disk headroom (the embedder download failed on a full disk)
+        'persistent_disk':          _persistent_disk_usage(),
     })
+
+
+def _persistent_disk_usage():
+    import shutil
+    path = os.environ.get('DOCREPO_PATH', '/var/data/docrepo')
+    if not os.path.isdir(path):
+        return {'path': path, 'mounted': False}
+    try:
+        u = shutil.disk_usage(path)
+    except OSError as e:
+        return {'path': path, 'mounted': True, 'error': str(e)}
+    mb = 1024 * 1024
+    out = {'path': path, 'mounted': True, 'total_mb': u.total // mb, 'used_mb': u.used // mb,
+           'free_mb': u.free // mb, 'used_pct': round(100.0 * u.used / u.total, 1) if u.total else None,
+           'top_dirs': []}
+    # Largest first-level directories, so a full disk can be traced to its cause.
+    try:
+        sizes = []
+        for name in os.listdir(path):
+            full = os.path.join(path, name)
+            total = 0
+            if os.path.isdir(full):
+                for root, _dirs, files in os.walk(full):
+                    for f in files:
+                        try:
+                            total += os.path.getsize(os.path.join(root, f))
+                        except OSError:
+                            pass
+            else:
+                try:
+                    total = os.path.getsize(full)
+                except OSError:
+                    total = 0
+            sizes.append((name, total // mb))
+        out['top_dirs'] = [{'name': n, 'mb': m} for n, m in sorted(sizes, key=lambda x: -x[1])[:8]]
+    except OSError:
+        pass
+    return out
 
 
 # ---------------------------------------------------------------------------

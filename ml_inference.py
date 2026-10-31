@@ -24,6 +24,44 @@ import numpy as np
 
 from model_storage import get_models_dir
 
+# v5.89.349 — embedder cache handling.
+# sentence-transformers 3.x saves model.safetensors, not pytorch_model.bin. The
+# old check looked only for pytorch_model.bin, so a correctly saved model was
+# never recognized, every boot re-downloaded (~90 MB to the HF cache plus a second
+# ~90 MB save), and on 2026-10-31 the 1 GB persistent disk filled up:
+#   "failed to download sentence-transformer: ... No space left on device".
+EMBEDDER_WEIGHT_FILES = ('model.safetensors', 'pytorch_model.bin')
+EMBEDDER_MIN_FREE_MB = 250
+
+
+def _embedder_cached_at(path):
+    return any(os.path.exists(os.path.join(path, f)) for f in EMBEDDER_WEIGHT_FILES) \
+        and os.path.exists(os.path.join(path, 'config.json'))
+
+
+def disk_free_mb(path):
+    """Free megabytes on the filesystem holding `path` (nearest existing parent), or None."""
+    import shutil
+    p = path
+    while p and not os.path.exists(p):
+        parent = os.path.dirname(p)
+        if parent == p:
+            return None
+        p = parent
+    try:
+        return int(shutil.disk_usage(p).free // (1024 * 1024))
+    except OSError:
+        return None
+
+
+def _rmtree_quiet(path):
+    import shutil
+    try:
+        if path and os.path.isdir(path):
+            shutil.rmtree(path, ignore_errors=True)
+    except Exception:
+        pass
+
 logger = logging.getLogger(__name__)
 
 # Singleton instance
@@ -70,25 +108,41 @@ class FindingClassifier:
             os.path.join(base_dir, 'model-cache', 'sentence-transformers', 'all-MiniLM-L6-v2'),
         ]
         for candidate in cache_candidates:
-            if os.path.exists(os.path.join(candidate, 'pytorch_model.bin')):
+            if _embedder_cached_at(candidate):
                 cache_dir = candidate
                 break
 
         if cache_dir is None:
             # Download to persistent disk on first boot
             cache_dir = cache_candidates[0]  # persistent disk path
+            free_mb = disk_free_mb(os.path.dirname(os.path.dirname(cache_dir)))
+            if free_mb is not None and free_mb < EMBEDDER_MIN_FREE_MB:
+                # v5.89.349: do not start a download that cannot finish. A partial
+                # download leaves blobs behind and the next boot tries again.
+                logger.warning(
+                    f"ML inference: {free_mb} MB free on the persistent disk, need ~{EMBEDDER_MIN_FREE_MB} MB "
+                    f"to fetch the sentence-transformer. Skipping download; ML classifier disabled "
+                    f"(analysis falls back to the AI extractor + rules). Free space or enlarge the disk.")
+                return False
             logger.info(f"ML inference: sentence-transformer not cached, downloading to {cache_dir}...")
+            hf_cache = os.path.join(os.path.dirname(os.path.dirname(cache_dir)), 'hf-download')
             try:
                 from sentence_transformers import SentenceTransformer
+                os.makedirs(hf_cache, exist_ok=True)
+                model = SentenceTransformer('all-MiniLM-L6-v2', cache_folder=hf_cache)
                 os.makedirs(os.path.dirname(cache_dir), exist_ok=True)
-                model = SentenceTransformer('all-MiniLM-L6-v2', cache_folder=os.path.dirname(cache_dir))
-                # Save to the expected path
                 model.save(cache_dir)
                 self._embedder = model
                 logger.info("ML inference: sentence-transformer downloaded and cached to persistent disk")
             except Exception as dl_err:
                 logger.warning(f"ML inference: failed to download sentence-transformer: {dl_err}")
+                _rmtree_quiet(cache_dir)       # never leave a half-written save behind
+                _rmtree_quiet(hf_cache)
                 return False
+            finally:
+                # v5.89.349: the HuggingFace snapshot is a second ~90 MB copy of the
+                # same weights; the saved model is the one we load from. Drop it.
+                _rmtree_quiet(hf_cache)
 
         # Check required XGBoost files
         required = {

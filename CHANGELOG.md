@@ -1,3 +1,35 @@
+## v5.89.349 - Persistent disk full: embedder re-downloaded every boot
+
+Production log, 2026-10-31 01:01 UTC, right after the .348 boot succeeded:
+  WARNING [ml_inference] failed to download sentence-transformer:
+  Error while serializing: I/O error: No space left on device (os error 28)
+
+The 1 GB Render disk at /var/data/docrepo is full, so the ML classifier never
+loads (analysis falls back to the AI extractor + rules, which is why reports
+still render). Code cause: ml_inference.load() recognized a cached embedder only
+by pytorch_model.bin, but sentence-transformers 3.x writes model.safetensors. A
+correctly saved model was therefore never found, every boot downloaded the
+HuggingFace snapshot (~90 MB) and saved a second copy (~90 MB), and the disk
+filled.
+
+ * ml_inference: cache check accepts model.safetensors or pytorch_model.bin
+   (plus config.json). Download goes to a scratch hf-download/ directory that is
+   deleted after the save succeeds, and both the scratch and any half-written
+   save are deleted on failure, so a failed boot leaves nothing behind. If the
+   disk has under 250 MB free the download is skipped with a clear log line
+   instead of started and abandoned.
+ * app.py boot log prints "persistent disk free: N MB" (flagged LOW under 250).
+ * /api/admin/system-info returns persistent_disk {total_mb, used_mb, free_mb,
+   used_pct, top_dirs}; the admin API-costs page shows a Persistent Disk card
+   with the three largest directories so the cause of a full disk is visible.
+ * test_embedder_cache.py pins the detection, the low-disk skip and cleanup.
+
+Ops: the disk is still full until space is freed. Open Admin > API costs for the
+Persistent Disk card, then either delete junk under /var/data/docrepo (the
+crawler corpus is known to contain non-inspection documents) or raise sizeGB in
+render.yaml / the Render dashboard. The embedder will download on the next boot
+once at least 250 MB is free.
+
 ## v5.89.348 - Production boot fix: name the PostgreSQL driver
 
 2026-10-27 03:59 UTC, the .347 deploy failed to boot on Render:
