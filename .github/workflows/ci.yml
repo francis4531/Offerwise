@@ -108,6 +108,9 @@ jobs:
           python -m pytest -m "not e2e" -p no:cacheprovider --tb=short 2>&1 | tail -120
 
       - name: Run e2e suite (isolated DB)
+        # v5.89.350: run even if an earlier test step failed, so one red step
+        # can't hide the results of the others (it hid these since ~v5.89.339).
+        if: success() || failure()
         env:
           FLASK_ENV: testing
           SECRET_KEY: test-secret-key-for-ci
@@ -117,6 +120,9 @@ jobs:
           python -m pytest -m "e2e" -p no:cacheprovider --tb=short 2>&1 | tail -120
 
       - name: Run isolated suite (all_60_workflows — sets env at import)
+        # v5.89.350: run even if an earlier test step failed, so one red step
+        # can't hide the results of the others (it hid these since ~v5.89.339).
+        if: success() || failure()
         env:
           FLASK_ENV: testing
           SECRET_KEY: test-secret-key-for-ci
@@ -127,6 +133,9 @@ jobs:
           python -m pytest test_all_60_workflows.py -p no:cacheprovider --tb=short 2>&1 | tail -120
 
       - name: Run isolated drift suite (per-file DBs — these set env at import)
+        # v5.89.350: run even if an earlier test step failed, so one red step
+        # can't hide the results of the others (it hid these since ~v5.89.339).
+        if: success() || failure()
         env:
           FLASK_ENV: testing
           SECRET_KEY: test-secret-key-for-ci
@@ -142,6 +151,9 @@ jobs:
           exit $fail
 
       - name: Run integrity tests
+        # v5.89.350: run even if an earlier test step failed, so one red step
+        # can't hide the results of the others (it hid these since ~v5.89.339).
+        if: success() || failure()
         env:
           FLASK_ENV: testing
           SECRET_KEY: test-secret-key-for-ci

@@ -31,13 +31,7 @@ def _get_app():
     global _app_cache
     if _app_cache:
         return _app_cache
-    for k in list(sys.modules.keys()):
-        if k in ('app', 'models'):
-            del sys.modules[k]
-    spec = importlib.util.spec_from_file_location('app', 'app.py')
-    mod = importlib.util.module_from_spec(spec)
-    sys.modules['app'] = mod
-    spec.loader.exec_module(mod)
+    import app as mod
     _app_cache = (mod.app, mod.db, mod)
     return _app_cache
 

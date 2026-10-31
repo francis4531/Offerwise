@@ -1,3 +1,23 @@
+## v5.89.350 - CI green again: one test file was breaking 43 others
+
+CI has failed on every main push since at least v5.89.339 with the same 43
+failures (b2b_followup, funnel_debug_exclusion, prospect_blocklist, risk_share,
+topbar_admin, v5_88_07, wedge_sweep). All seven files pass on their own; they
+only failed when run after test_api_v1.py in the shared non-e2e step.
+
+Cause: test_api_v1._get_app() deleted 'app' and 'models' from sys.modules and
+re-executed app.py. That built a second models.db SQLAlchemy instance, while
+modules imported earlier (b2b_followup, admin routes, ...) stayed bound to the
+old one, so every later DB call raised "The current Flask app is not registered
+with this 'SQLAlchemy' instance".
+
+ * test_api_v1: import app normally instead of purging and re-importing it.
+   Non-e2e step: 1986 passed, 0 failed (was 43 failed).
+ * ci.yml: the e2e, isolated, drift and integrity steps now run even if an
+   earlier test step fails. Before this, the red unit step made GitHub skip all
+   of them, so they had not run in CI on any recent build. Run locally on this
+   build: e2e 411 passed, all_60_workflows 291, drift files 360, integrity 361.
+
 ## v5.89.349 - Persistent disk full: embedder re-downloaded every boot
 
 Production log, 2026-10-31 01:01 UTC, right after the .348 boot succeeded:
